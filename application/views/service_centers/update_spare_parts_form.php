@@ -669,21 +669,21 @@
                                     swal("Error !", "Same part type can not be shipped. For multiple part please fill quantity.");
 
                                 } else {
-
-
-                                    let kg = $("#shipped_spare_parts_weight_in_kg").val();
-                                    let gm = $("#shipped_spare_parts_weight_in_gram").val();
-                                    let total = parseInt(kg)+parseInt(gm);
-                                    if(!total){
+                                    if(!$('#courier_not_shipping').is(":checked")){
+                                        let kg = $("#shipped_spare_parts_weight_in_kg").val();
+                                        let gm = $("#shipped_spare_parts_weight_in_gram").val();
+                                        let total = parseInt(kg)+parseInt(gm);
+                                        if(!total){
                                         swal("Error !", "Sum of weight in KG and GM must be greater than 0");
+                                        }else{
+                                        $('#submit_form').attr('disabled', true);
+                                        form.submit();   
+                                        }
                                     }else{
-                                     form.submit();   
-                                    }
-
-
-                                    
+                                       $('#submit_form').attr('disabled', true);
+                                       form.submit(); 
+                                    } 
                                 }
-
                             }
                         });
                     }
@@ -1107,6 +1107,7 @@
     
     
     $(".courier_not_shipping").click(function(){
+        $('#submit_form').attr('disabled', false);
                courier_deatil_visibility();       
         });
         
@@ -1116,6 +1117,7 @@
         });
         
          $(".courier_shipping").click(function(){
+            $('#submit_form').attr('disabled', false);
             $("#courier_detail_section").show();
             $("#courier_status").val('1');
         });
@@ -1149,6 +1151,9 @@
         });
         
         $("#to_be_shipping").on('click',function(){
+            $('#submit_form').attr('disabled', false);
+            $("#courier_detail_section").show();
+            $("#courier_status").val('1');
             $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', true);
         });
 

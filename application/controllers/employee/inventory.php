@@ -6229,7 +6229,7 @@ class Inventory extends CI_Controller {
                     }
                    
                     /* Insert Spare Tracking Details */
-                    $tracking_details = array('spare_id' => $val['spare_id'], 'action' => $data['status'], 'remarks' => '', 'agent_id' => $agent_id, 'entity_id' => $entity_id, 'entity_type' => $entity_type);
+                    $tracking_details = array('spare_id' => $val['spare_id'], 'action' => $data['status'], 'remarks' => $data['status'], 'agent_id' => $agent_id, 'entity_id' => $entity_id, 'entity_type' => $entity_type);
                     $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                     $actor = ACTOR_NOT_DEFINE;
                     $next_action = NEXT_ACTION_NOT_DEFINE;

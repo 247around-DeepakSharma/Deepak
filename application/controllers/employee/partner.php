@@ -2300,23 +2300,15 @@ class Partner extends CI_Controller {
             $current_status = "";
             $internal_status = "";
             $remarks_by_partner = "";
-            $status = "";
             foreach ($shipped_part_details as $key => $value) {   
                 if ($value['shippingStatus'] == 1) {
-                    //$data['status'] = SPARE_SHIPPED_BY_PARTNER;
-                    /*
-                      if($request_type == REPAIR_OOW_TAG){
-                      $data['status'] = SPARE_OOW_SHIPPED;
-                      } else {
-                      $data['status'] = SPARE_SHIPPED_BY_PARTNER;
-                      } */
 
                     if ($value['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
-                        $status = $data['status'] = SPARE_OOW_SHIPPED;
+                      $status = $data['status'] = SPARE_OOW_SHIPPED;
                     } else {
-                        $data['status'] = SPARE_SHIPPED_BY_PARTNER;
-                    }
-
+                      $status = $data['status'] = SPARE_SHIPPED_BY_PARTNER;
+                    }                    
+                    
                     $data['parts_shipped'] = $value['shipped_parts_name'];
                     $data['model_number_shipped'] = $value['shipped_model_number'];
                     $data['shipped_parts_type'] = $value['shipped_part_type'];
@@ -2390,7 +2382,7 @@ class Partner extends CI_Controller {
                     }
                 } else if ($value['shippingStatus'] == -1) {
                     $status = "SPARE TO BE SHIP";
-                    $this->insert_details_in_state_change($booking_id, "SPARE TO BE SHIP", "Partner Update - " . $value['shipped_parts_name'] . " To Be Shipped", "", "", "", $value['spare_id']);
+                    $this->insert_details_in_state_change($booking_id, "SPARE TO BE SHIP", "Partner Update - " . $value['parts_name'] . " To Be Shipped", "", "", "", $value['spare_id']);
                 } else if ($value['shippingStatus'] == 0) {
 
                     $spare_id = $value['spare_id'];
