@@ -6918,6 +6918,24 @@ class Service_centers extends CI_Controller {
                             $next_action = $booking['next_action'] = $partner_status[3];
                         }
                         $this->booking_model->update_booking($booking_id, $booking);
+                    } else {
+                        /**
+                         * Check booking internal status is spare parts requested 
+                         * then update actor (partner) if part requested pending on partner
+                         */
+                        // fetch booking details
+                        $booking_internal_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0]['internal_status'];
+                        if(!empty($booking_internal_details) && in_array($booking_internal_details, [SPARE_PARTS_REQUIRED, SPARE_PARTS_REQUESTED])) { 
+                            // fetch all requested parts
+                            $pending_spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*', array('spare_parts_details.booking_id' => $booking_id,'spare_parts_details.status' => SPARE_PARTS_REQUESTED), TRUE, TRUE, false);
+                            if(!empty($pending_spare_parts_details)) {
+                                $entity_types = array_unique(array_column($pending_spare_parts_details, 'entity_type'));
+                                // if no part request pending on warehouse then set Partner.
+                                if(in_array(_247AROUND_PARTNER_STRING, $entity_types)) {
+                                    $this->booking_model->update_booking($booking_id, ['actor' => _247AROUND_PARTNER_STRING]);
+                                }
+                            }
+                        }
                     }
                     
                     $userSession = array('success' => 'Parts Updated');
