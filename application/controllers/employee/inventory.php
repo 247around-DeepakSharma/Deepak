@@ -1103,6 +1103,77 @@ class Inventory extends CI_Controller {
                     $where = array('id' => $id);
                     $track_status = $data['status'] = _247AROUND_CANCELLED;
                     $data['spare_cancelled_date'] = date("Y-m-d h:i:s");
+                    $status_string = array();
+                    if ($line_items >= 2) {
+                        foreach ($spare_parts_details as $key => $value) {
+                            if ($value['id'] !== $id) {
+                                $status_string[$key] = $value['status'];
+                            }
+                        }
+                        if (in_array(SPARE_PART_ON_APPROVAL, $status_string)) {
+                            $booking_new_internal_status = SPARE_PART_ON_APPROVAL;
+                        } else if (in_array(SPARE_OOW_EST_REQUESTED, $status_string)) {
+                            $booking_new_internal_status = SPARE_OOW_EST_REQUESTED;
+                        } else if (in_array(SPARE_PARTS_REQUESTED, $status_string)) {
+                            foreach ($spare_parts_details as $key => $value) {
+                                if ($value['id'] !== $id) {
+                                    if ($value['status'] == SPARE_PARTS_REQUESTED && $value['inventory_invoice_on_booking'] == 0) {
+                                        $booking_new_internal_status = SPARE_PARTS_REQUESTED;
+                                        //If spare is requested and not shipped by partner
+                                        break;
+                                    }
+
+                                    if ($value['status'] == SPARE_PARTS_REQUESTED && $value['inventory_invoice_on_booking'] == 1 && $value['wh_ack_received_part'] == 0) {
+                                        $booking_new_internal_status = SPARE_SHIPPED_TO_WAREHOUSE;
+                                        //If spare part is requested and shipped by partner and not acknowledgeby warehouse
+                                        break;
+                                    }
+                                    if ($value['status'] == SPARE_PARTS_REQUESTED && $value['inventory_invoice_on_booking'] == 1 && $value['wh_ack_received_part'] == 1) {
+                                        $booking_new_internal_status = WAREHOUSE_ACKNOWLEDGED_TO_RECEIVE_PARTS;
+                                        //If spare part is requested and shipped by partner and  acknowledgeby warehouse
+                                        break;
+                                    }
+                                }
+                            }
+                        } else if (in_array(SPARE_PARTS_SHIPPED, $status_string)) {
+                            $booking_new_internal_status = SPARE_PARTS_SHIPPED;
+                        } else if (in_array(SPARE_PARTS_SHIPPED_BY_WAREHOUSE, $status_string)) {
+                            $booking_new_internal_status = SPARE_PARTS_SHIPPED_BY_WAREHOUSE;
+                        } else {
+                            if (!empty($booking_details['service_center_closed_date'])) {
+                                if (in_array(DEFECTIVE_PARTS_PENDING, $status_string)) {
+                                    $booking_new_internal_status = DEFECTIVE_PARTS_PENDING;
+                                } else if (in_array(OK_PART_TO_BE_SHIPPED, $status_string)) {
+                                    $booking_new_internal_status = OK_PART_TO_BE_SHIPPED;
+                                } else if (in_array(DEFECTIVE_PARTS_SHIPPED, $status_string)) {
+                                    $booking_new_internal_status = DEFECTIVE_PARTS_SHIPPED;
+                                } else if (in_array(OK_PARTS_SHIPPED, $status_string)) {
+                                    $booking_new_internal_status = OK_PARTS_SHIPPED;
+                                } else if (in_array(DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE, $status_string)) {
+                                    $booking_new_internal_status = DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE;
+                                } else if (in_array(OK_PARTS_REJECTED_BY_WAREHOUSE, $status_string)) {
+                                    $booking_new_internal_status = OK_PARTS_REJECTED_BY_WAREHOUSE;
+                                } else if (in_array(DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE, $status_string)) {
+                                    $booking_new_internal_status = DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE;
+                                } else if (in_array(OK_PARTS_RECEIVED_BY_WAREHOUSE, $status_string)) {
+                                    $booking_new_internal_status = OK_PARTS_RECEIVED_BY_WAREHOUSE;
+                                } else if (in_array(DEFECTIVE_PARTS_REJECTED, $status_string)) {
+                                    $booking_new_internal_status = DEFECTIVE_PARTS_REJECTED;
+                                } else if (in_array(OK_PARTS_REJECTED, $status_string)) {
+                                    $booking_new_internal_status = OK_PARTS_REJECTED;
+                                } else if (in_array(DEFECTIVE_PARTS_RECEIVED, $status_string)) {
+                                    $booking_new_internal_status = DEFECTIVE_PARTS_RECEIVED;
+                                } else if (in_array(OK_PARTS_RECEIVED, $status_string)) {
+                                    $booking_new_internal_status = OK_PARTS_RECEIVED;
+                                }
+                                //If booking is completed then move Booking Status & actor according to spare part status on priority
+                            } else {
+                                $booking_new_internal_status = _247AROUND_PENDING;
+                                //Booking is either Pending or Reschedule, now update internal status as pending and assign actor action accordingly
+                            }
+                        }
+                    }
+                    
 
                     //////   Handle agents for cancellation /// Abhishek
                     $approval_agent_id = _247AROUND_DEFAULT_AGENT;
