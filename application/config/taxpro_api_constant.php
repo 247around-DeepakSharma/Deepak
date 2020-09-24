@@ -3,7 +3,7 @@
 define('ASP_ID', '1606680918');
 define('ASP_PASSWORD', 'priya@b30');
 //define('_247_AROUND_GSTIN', '07AAFCB1281J1ZQ');
-//define('_247_AROUND_GSTIN_UP', '09AAFCB1281J1ZM');
+define('_247_AROUND_GSTIN_UP', '09AAFCB1281J1ZM');
 //define('USER_NAME_GSTIN', 'blackmelon.750');
 //constant array for taxpro states 
 define("USER_NAME_GSTIN" , array('07AAFCB1281J1ZQ' => array('USER_NAME_GSTIN' => 'blackmelon.750'),
