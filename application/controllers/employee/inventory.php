@@ -2822,16 +2822,18 @@ class Inventory extends CI_Controller {
             }
         }
         
-        $basic_price_with_around_margin = (float) $stock_list->price + ($stock_list->price * ($stock_list->oow_around_margin / 100));
-        $sf_total = $basic_price_with_around_margin + ($basic_price_with_around_margin * ($stock_list->gst_rate / 100));
-        $row[] = "<i class ='fa fa-inr'></i> " . number_format((float) ($sf_total), 2, '.', '');        
-        
-        if(!empty($stock_list->is_defective_required)) {
+        if ($this->session->userdata('userType') == 'employee') {
+            $basic_price_with_around_margin = (float) $stock_list->price + ($stock_list->price * ($stock_list->oow_around_margin / 100));
+            $sf_total = $basic_price_with_around_margin + ($basic_price_with_around_margin * ($stock_list->gst_rate / 100));
+            $row[] = "<i class ='fa fa-inr'></i> " . number_format((float) ($sf_total), 2, '.', '');
+        }
+        if (!empty($stock_list->is_defective_required)) {
             $row[] = 'Yes';
         } else {
             $row[] = 'No';
         }
-        
+
+
         if ($this->session->userdata('userType') == 'employee') {
             $row[] = "<i class ='fa fa-inr'></i> " . round(($total * ( 1 + ($stock_list->oow_vendor_margin + $stock_list->oow_around_margin) / 100 )), 0);
         }        
