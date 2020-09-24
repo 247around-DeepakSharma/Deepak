@@ -894,7 +894,9 @@ function get_review_engineer_action_by_admin_list_table($review_list, $no){
     function get_all_engineers_for_notification() {
 
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/engineers_list_for_notifications');
+        $response = $this->engineer_model->get_engineer_config(FORCE_UPGRADE);
+        $data['app_version'] = $response[0]->app_version;
+        $this->load->view('employee/engineers_list_for_notifications',$data);
     }
 
 
