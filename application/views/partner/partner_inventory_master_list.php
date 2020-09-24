@@ -79,10 +79,13 @@
     }
     
     .dataTables_length{
-        width: 20%;
+        width: 100%;
     }
     .form-horizontal .control-label {
         text-align: left;
+    }   
+    .btn-group>.btn:first-child {
+        margin-left: 60%;
     }
 </style>
 <div class="right_col" role="main">
@@ -141,6 +144,7 @@
                                     <th>Basic Price</th>
                                     <th>GST Rate</th>
                                     <th>Total Price</th>
+                                    <th>Is Defective/Ok Part Required</th>
                                     <th>Edit</th>
                                     <th>Get Model</th>
                                 </tr>
