@@ -1213,9 +1213,14 @@ class Inventory extends CI_Controller {
                             $booking_new_internal_status = SPARE_PARTS_SHIPPED_BY_WAREHOUSE;
                         } else {
                             if ($booking_details['current_status'] != _247AROUND_COMPLETED && !empty(array_values($status_string)[0])) {
-                                $booking_new_internal_status = array_values($status_string)[0];
+                                if(!empty($booking_details['service_center_closed_date'])){
+                                        $booking_new_internal_status = array_values($status_string)[0];
+                                        //Booking is Completed, now move booking as per status of spare
+                                }else{
+                                        $booking_new_internal_status = _247AROUND_PENDING;
+                                        //Booking is either Pending or Reschedule, now update internal status as pending and assign actor action accordingly
+                                }
                             }
-                            //If defective part / ok part shipped received and booking is not completed then update status as spare status
                         }
                     }
                     //////   Handle agents for cancellation /// Abhishek
@@ -1499,11 +1504,11 @@ class Inventory extends CI_Controller {
                      * Otherwise check spare request pending on warehouse
                      * If yes then change actor to 247around
                      */
-                    $pending_spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*', array('spare_parts_details.booking_id' => $booking_id,'spare_parts_details.status' => SPARE_PARTS_REQUESTED, 'entity_type' => _247AROUND_PARTNER_STRING), TRUE, TRUE, false);
-                    if(empty($pending_spare_parts_details)) {
-                        // check on warehouse
-                        $pending_spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*', array('spare_parts_details.booking_id' => $booking_id,'spare_parts_details.status' => SPARE_PARTS_REQUESTED, 'entity_type' => _247AROUND_SF_STRING), TRUE, TRUE, false);
-                        if(!empty($pending_spare_parts_details)) {
+                    $pending_spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*', array('spare_parts_details.booking_id' => $booking_id,'spare_parts_details.status' => SPARE_PARTS_REQUESTED), TRUE, TRUE, false);
+                    if(!empty($pending_spare_parts_details)) {
+                        $entity_types = array_unique(array_column($pending_spare_parts_details, 'entity_type'));
+                        // if no part request pending on partner then set 247around.
+                        if(!in_array(_247AROUND_PARTNER_STRING, $entity_types)) {
                             $b['actor'] = _247AROUND_EMPLOYEE_STRING;
                         }
                     }
