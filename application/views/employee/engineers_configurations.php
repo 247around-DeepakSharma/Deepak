@@ -2,7 +2,7 @@
     <div class="row">
       <div >
        
-        <h2>Engineer Configurations: App Version: <span style="color:#06ba45;font-weight:900;"><?php echo APP_VERSION; ?></span></h2>
+        <h2>Engineer Configurations: App Version: <span style="color:#06ba45;font-weight:900;"><?php echo $app_version; ?></span></h2>
         <br>
 
   
