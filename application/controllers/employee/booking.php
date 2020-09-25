@@ -2619,6 +2619,12 @@ class Booking extends CI_Controller {
                 log_message('info', ": " . " update Service center data " . print_r($service_center, TRUE));
                   
                 $this->vendor_model->update_service_center_action($booking_id, $service_center);
+                // Also Update Status in Engineer Booking Action Table
+                $eng_data = array(
+                    "internal_status" => $data['booking_status'],
+                    "current_status" => $data['booking_status']
+                );
+                $this->engineer_model->update_engineer_table($eng_data, array("booking_id"=>$booking_id, "unit_details_id"=>$unit_id));
             }
             $this->miscelleneous->update_appliance_details($unit_id);
             $k = $k + 1;
