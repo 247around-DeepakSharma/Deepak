@@ -339,7 +339,7 @@ class Accounting extends CI_Controller {
             $data['payment_type'] = $payment_type;
             $data['report_type'] = $report_type;
             if($payment_type == 'A' || $payment_type == 'B'){
-                $this->_get_sales_purchase_report($data);
+                $this->_get_sales_purchase_report($data, $payment_type);
             } else {
                 foreach($data['invoice_data'] as $key => $value) {
                 $data['invoice_details_data'][$key] = $this->invoices_model->get_breakup_invoice_details("invoice_id, product_or_services, description, rate, qty, taxable_value, cgst_tax_amount, sgst_tax_amount, igst_tax_amount, total_amount , from_gst_number, to_gst_number", array("invoice_id" => $value['invoice_id']));
@@ -359,7 +359,7 @@ class Accounting extends CI_Controller {
      * Also creating array for the excel sheet. Means we have to show all invoice charges type horizontally
      * @param Array $data
      */
-    function _get_sales_purchase_report($data) {
+    function _get_sales_purchase_report($data, $payment_type) {
         $array = array();
         $header['invoice_id'] = 'Invoice ID';
         $header['vendor_partner'] = "Vendor/ Partner";
@@ -386,6 +386,7 @@ class Accounting extends CI_Controller {
         $header['gst_amount'] = "Total Gst Amount";
         $header['parts_count'] = "Parts Qty (Pcs)";
         $header['num_bookings'] = "Booking Qty (Pcs)";
+       
 
         foreach ($data['invoice_data'] as $key => $value) {
             if (!array_key_exists($value['invoice_id'], $array)) {
@@ -393,6 +394,24 @@ class Accounting extends CI_Controller {
                 $array[$value['invoice_id']]['vendor_partner'] = $value['vendor_partner'];
                 $array[$value['invoice_id']]['from_gst_number'] = $value['from_gst_number'];
                 $array[$value['invoice_id']]['to_gst_number'] = $value['to_gst_number'];
+                if($payment_type == 'A'){
+                    if(empty($value['from_gst_number'])){
+                        $array[$value['invoice_id']]['from_gst_number'] =_247_AROUND_GSTIN_UP;
+                    }
+                    if(empty($value['to_gst_number'])){
+                        $array[$value['invoice_id']]['to_gst_number'] = $value['gst_number'];
+                    }
+                }
+                
+                if($payment_type == 'B'){
+                    if(empty($value['to_gst_number'])){
+                        $array[$value['invoice_id']]['to_gst_number'] = _247_AROUND_GSTIN_UP;
+                    }
+                    if(empty($value['from_gst_number'])){
+                        $array[$value['invoice_id']]['from_gst_number'] = $value['gst_number'];
+                    }
+                }
+                
                 $array[$value['invoice_id']]['company_name'] = $value['company_name'];
                 $array[$value['invoice_id']]['address'] = $value['address'];
                 $array[$value['invoice_id']]['state'] = $value['state'];

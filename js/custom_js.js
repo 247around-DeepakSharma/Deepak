@@ -14,6 +14,7 @@ var modelServiceUrl = baseUrl + '/employee/booking/getModelForService/';
 var partnerChannelServiceUrl = baseUrl + '/employee/partner/get_partner_channel/';
 var CategoryCapacityForModelUrl =  baseUrl + '/employee/booking/getCategoryCapacityForModel/';
 var URLGETCITYFROMPINCODE =  baseUrl + '/employee/booking/get_city_from_pincode/';
+var UrlValidateSerialNumber =  baseUrl + '/employee/service_centers/validate_booking_serial_number';
 
 function getAppliance(service_id) {
 
@@ -224,7 +225,6 @@ function getPricesForCategoryCapacity(div_id,add_booking) {
         if(postData['category']){
             //  $("#priceList_" + div_no[2]).html("Loading......");
             sendAjaxRequest(postData, pricesForCategoryCapacityUrl).done(function (data) {
-                console.log(data);
                 var data1 = jQuery.parseJSON(data);
 
                 $("#priceList_" + div_no[2]).html(data1.price_table);
@@ -325,7 +325,7 @@ function check_prepaid_balance(type) {
 
 }
 
-function addBookingDialog(chanel = '') {
+function addBookingDialog(chanel = '', check_serial_no = '0') {
     var delivered_price_tags = [];
     var partner_id = $("#partner_id").val();
     var is_sf_panel = $("#is_sf_panel").val();
@@ -334,7 +334,7 @@ function addBookingDialog(chanel = '') {
              delivered_price_tags.push(price_tags);
      });
      var pr = checkPriceTagValidation(delivered_price_tags, partner_id);
-      if(pr === false){
+     if(pr === false){
          alert('Not Allow to select multiple different type of service category');
          return false;
      }
@@ -656,6 +656,23 @@ if (!is_sf_panel && (partner_source == "" || partner_source== null)) {
         return false;
     }
 
+    // Check for serial number
+    //if POD is also 1, only then check for serial number.
+    if (check_serial_no == "1" && $("#pod").val() == "1") {
+        var serial_number = $("#serial_number").val(); 
+        if (serial_number === "" || serial_number === "0") {    
+            alert('Please Enter Valid Serial Number');
+            return false;                        
+        }  
+
+        var duplicateSerialNo = $('#duplicate_sno_required').val();
+        if(duplicateSerialNo === '1'){
+            alert(DUPLICATE_SERIAL_NUMBER_USED);
+            $("#error_serial_no").html(DUPLICATE_SERIAL_NUMBER_USED);
+            return false;
+        }
+    }
+    
     if (count_number > 1) {
 
         $('.clone_m').html("");
@@ -1371,14 +1388,71 @@ function getCapacityCategoryForModel(model_number, div_id) {
     postData['partner_id'] = $("#partner_id").val();
     sendAjaxRequest(postData, CategoryCapacityForModelUrl).done(function (data) {
         var obj = JSON.parse(data);
-        $("#appliance_brand_" + div_no[2]).val($.trim(obj[0]['brand']));
-        $("#appliance_category_" + div_no[2]).val($.trim(obj[0]['category']));
-        $("#appliance_capacity_" + div_no[2]).val($.trim(obj[0]['capacity']));
+        if(obj.length)
+        {
+            $("#appliance_brand_" + div_no[2]).val($.trim(obj[0]['brand']));
+            $("#appliance_category_" + div_no[2]).val($.trim(obj[0]['category']));
+            $("#appliance_capacity_" + div_no[2]).val($.trim(obj[0]['capacity']));
+        }  
         
         getPricesForCategoryCapacity(div_id,false);
     });
 }
 
+function validateSerialNo(count = ""){
+        var postData = {};
+        postData['serial_number'] = $.trim($("#serial_number"+count).val());
+        postData['price_tags'] = $("#price_tags"+count).text();
+        postData['user_id'] = $("#user_id").val();
+        postData['booking_id'] = $("#booking_id").val();
+        postData['partner_id'] = $("#partner_id").val();
+        postData['appliance_id'] = $('#service_id').val();
+        $("#submitform").attr("disabled",false);
+        $('#serial_number' + count).css("border-color", "#ccc");
+        if(postData['serial_number'] !== ''){
+            $.ajax({
+                    type: 'POST',
+                    beforeSend: function(){
+                        $('body').loadingModal({
+                        position: 'auto',
+                        text: 'Loading Please Wait...',
+                        color: '#fff',
+                        opacity: '0.7',
+                        backgroundColor: 'rgb(0,0,0)',
+                        animation: 'wave'
+                    });
+                },
+                url: UrlValidateSerialNumber,
+                data:postData,
+                success: function (response) {
+                    console.log(response);
+                    var data = jQuery.parseJSON(response);
+                    if(data.code === 247){
+                        console.log("Correct Serial Number");
+                        $('body').loadingModal('destroy');
+                        $("#error_serial_no" +count).text("");
+                        $("#sno_required"+count).val('0');
+                        $("#duplicate_sno_required"+count).val('0');
+                    } else if(data.code === Number(DUPLICATE_SERIAL_NO_CODE)){
+                        console.log("Duplicate Serial Number");
+                        $("#duplicate_sno_required"+count).val('1');
+                        $("#error_serial_no" +count).html(data.message);
+                        $('body').loadingModal('destroy');
+                        $("#submitform").attr("disabled",true);
+                    } else {
+                        console.log("Incorrect Serial Number");
+                        $("#sno_required"+count).val('1');
+                        $("#error_serial_no" +count).html(data.message);
+                        $("#duplicate_sno_required"+count).val('0');
+                        $('body').loadingModal('destroy');
+                        if(data.code == "247" || (data.message.indexOf('Serial Number not valid') !== -1)) {
+                            $("#submitform").attr("disabled",true);
+                        }
+                    }
+                }
+            });
+        }
+    }
 
 
 

@@ -179,7 +179,7 @@
                                         <label for="serial_number" class="col-md-4">Serial Number *</label>
                                         <div class="col-md-6">
  
-                                            <input type="text" class="form-control spare_parts" id="serial_number" name="serial_number"  value="<?php if(isset($unit_serial_number) && !empty($unit_serial_number)){echo $unit_serial_number;}  ?>" placeholder="Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" required="">
+                                            <input type="text" class="form-control spare_parts" id="serial_number" name="serial_number"  value="<?php if(isset($unit_serial_number) && !empty($unit_serial_number)){echo $unit_serial_number;}  ?>" placeholder="Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" required="" onblur="check_booking_request()">
                                         </div>
                                     </div>
                                 </div>
@@ -1377,14 +1377,17 @@ function alpha(e) {
         $("#submitform").attr("disabled", false);   
         var model_number = $('#model_number').val();
         var dop = $("#dop").val();
+        var serial_number = $("#serial_number").val();
         var partner_id = "<?= $bookinghistory[0]['partner_id']?>";
         var service_id = "<?= $bookinghistory[0]['service_id']?>";
         var booking_id = "<?= $bookinghistory[0]['booking_id']?>";
         var booking_request_type = "<?= $bookinghistory[0]['request_type']?>"; 
-        if(model_number !== "" && model_number !== null && dop !== "" && booking_request_type != "<?php echo REPEAT_BOOKING_TAG;?>" && booking_request_type != "<?php echo WARRANTY_TYPE_AMC;?>"){                               
+        // Model Number & DOP/Serial number should be there for checking warranty
+        // Booking Request TYpe should not be AMC/repeat
+        if((model_number !== "" && model_number !== null) && (dop !== "" || serial_number != "") && (booking_request_type != "<?php echo REPEAT_BOOKING_TAG;?>" && booking_request_type != "<?php echo WARRANTY_TYPE_AMC;?>")){                               
             $.ajax({
                 method:'POST',
-                url:"<?php echo base_url(); ?>employee/service_centers/get_warranty_data/2",
+                url:"<?php echo base_url(); ?>employee/service_centers/get_warranty_data/2/1",
                 data:{
                     'bookings_data[0]' : {
                         'partner_id' : "<?= $bookinghistory[0]['partner_id']?>",
@@ -1393,6 +1396,7 @@ function alpha(e) {
                         'service_id' : service_id,
                         'model_number' : model_number,
                         'purchase_date' : dop, 
+                        'serial_number' : serial_number,
                         'booking_request_types' : [booking_request_type]
                     }
                 },
