@@ -2628,13 +2628,13 @@ class engineerApi extends CI_Controller {
                 }
 
                 if (isset($requestData['invoice_number_pic_exist'])) {
-                    if ($requestData['invoice_number_pic_exist']) {
+                    if (isset($requestData['invoice_number_pic_exist']) && $requestData['invoice_number_pic_exist']) {
                         $invoice_pic = "invoice_" . $requestData['booking_id'] . "_" . date("YmdHis") . ".png";
                         $this->miscelleneous->generate_image($requestData['invoice_number_pic_exist'], $invoice_pic, "purchase-invoices");
                         $requestData['invoice_pic'] = $invoice_pic;
                     }
                 } else {
-                    if ($requestData['existing_purchase_invoice']) {
+                    if (isset($requestData['existing_purchase_invoice']) && $requestData['existing_purchase_invoice']) {
                         $invoice_pic = "invoice_" . $requestData['booking_id'] . "_" . date("YmdHis") . ".png";
                         $this->miscelleneous->generate_image($requestData['existing_purchase_invoice'], $invoice_pic, "purchase-invoices");
                         $requestData['invoice_pic'] = $invoice_pic;
