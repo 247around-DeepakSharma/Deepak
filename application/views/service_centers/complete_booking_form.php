@@ -638,7 +638,7 @@
                                 <div class="col-md-12">
                                     <div class="input-group">
                                         <div class="input-group-addon">Rs.</div>
-                                        <input  type="text" class="form-control cost" name="upcountry_charges" id="upcountry_charges" value="<?php echo "0";?>" placeholder="Enter Upcountry Charges Paid By Customer">
+                                        <input  type="text" class="form-control cost" name="upcountry_charges" id="upcountry_charges" value="<?php echo $upcountry_charges;?>" placeholder="Enter Upcountry Charges Paid By Customer">
                                     </div>
                                 </div>
                             </div>

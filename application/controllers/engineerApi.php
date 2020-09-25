@@ -1418,6 +1418,10 @@ class engineerApi extends CI_Controller {
             $en["remarks"] = $requestData['closing_remark'];
             $en["service_center_id"] = $requestData['service_center_id'];
             $en["engineer_id"] = $requestData['engineer_id'];
+            /* Update Upcounty amount in engineer_sign_table if available */
+            if(isset($requestData['upcountry_charges']) && !empty($requestData['upcountry_charges'])){
+                $en['upcountry_charges']  = $requestData['upcountry_charges']; 
+            }
             $is_exist = $this->engineer_model->get_engineer_sign("id", array("service_center_id" => $requestData['service_center_id'], "booking_id" => $booking_id));
             if (!empty($is_exist)) {
                 $this->engineer_model->update_engineer_action_sig(array("id" => $is_exist[0]['id']), $en);
