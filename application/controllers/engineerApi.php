@@ -2983,7 +2983,7 @@ class engineerApi extends CI_Controller {
                 $response['is_consumption_required'] = false;
             }
             $bookingDetails = $this->reusable_model->get_search_query("booking_details", "upcountry_paid_by_customer,partner_upcountry_rate,upcountry_distance,is_upcountry", array("booking_id" => $requestData['booking_id']), false, false, false, false, false)->result_array();
-            if($bookingDetails['is_upcountry'] && $bookingDetails['upcountry_paid_by_customer']){
+            if($bookingDetails[0]['is_upcountry'] && $bookingDetails[0]['upcountry_paid_by_customer']){
              $response['upcountry_paid_by_customer'] = 1;   
             }else{
               $response['upcountry_paid_by_customer'] = 0;  
