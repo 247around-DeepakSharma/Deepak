@@ -1212,14 +1212,36 @@ class Inventory extends CI_Controller {
                         } else if (in_array(SPARE_PARTS_SHIPPED_BY_WAREHOUSE, $status_string)) {
                             $booking_new_internal_status = SPARE_PARTS_SHIPPED_BY_WAREHOUSE;
                         } else {
-                            if ($booking_details['current_status'] != _247AROUND_COMPLETED && !empty(array_values($status_string)[0])) {
-                                if(!empty($booking_details['service_center_closed_date'])){
-                                        $booking_new_internal_status = array_values($status_string)[0];
-                                        //Booking is Completed, now move booking as per status of spare
-                                }else{
-                                        $booking_new_internal_status = _247AROUND_PENDING;
-                                        //Booking is either Pending or Reschedule, now update internal status as pending and assign actor action accordingly
+                            if (!empty($booking_details['service_center_closed_date'])) {
+                                if (in_array(DEFECTIVE_PARTS_PENDING, $status_string)) {
+                                    $booking_new_internal_status = DEFECTIVE_PARTS_PENDING;
+                                } else if (in_array(OK_PART_TO_BE_SHIPPED, $status_string)) {
+                                    $booking_new_internal_status = OK_PART_TO_BE_SHIPPED;
+                                } else if (in_array(DEFECTIVE_PARTS_SHIPPED, $status_string)) {
+                                    $booking_new_internal_status = DEFECTIVE_PARTS_SHIPPED;
+                                } else if (in_array(OK_PARTS_SHIPPED, $status_string)) {
+                                    $booking_new_internal_status = OK_PARTS_SHIPPED;
+                                } else if (in_array(DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE, $status_string)) {
+                                    $booking_new_internal_status = DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE;
+                                } else if (in_array(OK_PARTS_REJECTED_BY_WAREHOUSE, $status_string)) {
+                                    $booking_new_internal_status = OK_PARTS_REJECTED_BY_WAREHOUSE;
+                                } else if (in_array(DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE, $status_string)) {
+                                    $booking_new_internal_status = DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE;
+                                } else if (in_array(OK_PARTS_RECEIVED_BY_WAREHOUSE, $status_string)) {
+                                    $booking_new_internal_status = OK_PARTS_RECEIVED_BY_WAREHOUSE;
+                                } else if (in_array(DEFECTIVE_PARTS_REJECTED, $status_string)) {
+                                    $booking_new_internal_status = DEFECTIVE_PARTS_REJECTED;
+                                } else if (in_array(OK_PARTS_REJECTED, $status_string)) {
+                                    $booking_new_internal_status = OK_PARTS_REJECTED;
+                                } else if (in_array(DEFECTIVE_PARTS_RECEIVED, $status_string)) {
+                                    $booking_new_internal_status = DEFECTIVE_PARTS_RECEIVED;
+                                } else if (in_array(OK_PARTS_RECEIVED, $status_string)) {
+                                    $booking_new_internal_status = OK_PARTS_RECEIVED;
                                 }
+                                //If booking is completed then move Booking Status & actor according to spare part status on priority
+                            } else {
+                                $booking_new_internal_status = _247AROUND_PENDING;
+                                //Booking is either Pending or Reschedule, now update internal status as pending and assign actor action accordingly
                             }
                         }
                     }
