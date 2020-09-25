@@ -1,12 +1,8 @@
 <div  id="page-wrapper">
     <div class="row">
       <div >
-       
-        <h2>Engineer Configurations: App Version: <span style="color:#06ba45;font-weight:900;"><?php echo $app_version; ?></span></h2>
+        <h2>Engineer Configurations: App Version: <span style="color:#06ba45;font-weight:900;"><?php echo $force_upgrade[0]->app_version; ?></span></h2>
         <br>
-
-  
- 
 <ul class="nav nav-tabs">
     <li class="active"><a data-toggle="tab" href="#home">App Updates</a></li>
     <li class=""><a data-toggle="tab" href="#menu1">WhatsApp Settings</a></li>

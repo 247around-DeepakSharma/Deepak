@@ -2628,13 +2628,13 @@ class engineerApi extends CI_Controller {
                 }
 
                 if (isset($requestData['invoice_number_pic_exist'])) {
-                    if ($requestData['invoice_number_pic_exist']) {
+                    if (isset($requestData['invoice_number_pic_exist']) && $requestData['invoice_number_pic_exist']) {
                         $invoice_pic = "invoice_" . $requestData['booking_id'] . "_" . date("YmdHis") . ".png";
                         $this->miscelleneous->generate_image($requestData['invoice_number_pic_exist'], $invoice_pic, "purchase-invoices");
                         $requestData['invoice_pic'] = $invoice_pic;
                     }
                 } else {
-                    if ($requestData['existing_purchase_invoice']) {
+                    if (isset($requestData['existing_purchase_invoice']) && $requestData['existing_purchase_invoice']) {
                         $invoice_pic = "invoice_" . $requestData['booking_id'] . "_" . date("YmdHis") . ".png";
                         $this->miscelleneous->generate_image($requestData['existing_purchase_invoice'], $invoice_pic, "purchase-invoices");
                         $requestData['invoice_pic'] = $invoice_pic;
@@ -2979,7 +2979,7 @@ class engineerApi extends CI_Controller {
                 $response['is_consumption_required'] = false;
             }
             $bookingDetails = $this->reusable_model->get_search_query("booking_details", "upcountry_paid_by_customer,partner_upcountry_rate,upcountry_distance,is_upcountry", array("booking_id" => $requestData['booking_id']), false, false, false, false, false)->result_array();
-            if($bookingDetails['is_upcountry'] && $bookingDetails['upcountry_paid_by_customer']){
+            if($bookingDetails[0]['is_upcountry'] && $bookingDetails[0]['upcountry_paid_by_customer']){
              $response['upcountry_paid_by_customer'] = 1;   
             }else{
               $response['upcountry_paid_by_customer'] = 0;  
