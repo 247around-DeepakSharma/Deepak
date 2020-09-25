@@ -9757,11 +9757,10 @@ function do_delivered_spare_transfer() {
      * @date 20-08-2019
      * @return JSON
      */
-    public function get_warranty_data($case = 1) {
+    public function get_warranty_data($case = 1, $checkInstallationDate = 0) {
         $post_data = $this->input->post();
         $arrBookings = $post_data['bookings_data'];
-        $arrBookingsWarrantyStatus = $this->warranty_utilities->get_warranty_status_of_bookings($arrBookings);
-
+        $arrBookingsWarrantyStatus = $this->warranty_utilities->get_warranty_status_of_bookings($arrBookings, $checkInstallationDate);
         switch ($case) {
             case 1:
                 echo json_encode($arrBookingsWarrantyStatus);

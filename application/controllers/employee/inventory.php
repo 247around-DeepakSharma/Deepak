@@ -1212,10 +1212,37 @@ class Inventory extends CI_Controller {
                         } else if (in_array(SPARE_PARTS_SHIPPED_BY_WAREHOUSE, $status_string)) {
                             $booking_new_internal_status = SPARE_PARTS_SHIPPED_BY_WAREHOUSE;
                         } else {
-                            if ($booking_details['current_status'] != _247AROUND_COMPLETED && !empty(array_values($status_string)[0])) {
-                                $booking_new_internal_status = array_values($status_string)[0];
+                            if (!empty($booking_details['service_center_closed_date'])) {
+                                if (in_array(DEFECTIVE_PARTS_PENDING, $status_string)) {
+                                    $booking_new_internal_status = DEFECTIVE_PARTS_PENDING;
+                                } else if (in_array(OK_PART_TO_BE_SHIPPED, $status_string)) {
+                                    $booking_new_internal_status = OK_PART_TO_BE_SHIPPED;
+                                } else if (in_array(DEFECTIVE_PARTS_SHIPPED, $status_string)) {
+                                    $booking_new_internal_status = DEFECTIVE_PARTS_SHIPPED;
+                                } else if (in_array(OK_PARTS_SHIPPED, $status_string)) {
+                                    $booking_new_internal_status = OK_PARTS_SHIPPED;
+                                } else if (in_array(DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE, $status_string)) {
+                                    $booking_new_internal_status = DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE;
+                                } else if (in_array(OK_PARTS_REJECTED_BY_WAREHOUSE, $status_string)) {
+                                    $booking_new_internal_status = OK_PARTS_REJECTED_BY_WAREHOUSE;
+                                } else if (in_array(DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE, $status_string)) {
+                                    $booking_new_internal_status = DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE;
+                                } else if (in_array(OK_PARTS_RECEIVED_BY_WAREHOUSE, $status_string)) {
+                                    $booking_new_internal_status = OK_PARTS_RECEIVED_BY_WAREHOUSE;
+                                } else if (in_array(DEFECTIVE_PARTS_REJECTED, $status_string)) {
+                                    $booking_new_internal_status = DEFECTIVE_PARTS_REJECTED;
+                                } else if (in_array(OK_PARTS_REJECTED, $status_string)) {
+                                    $booking_new_internal_status = OK_PARTS_REJECTED;
+                                } else if (in_array(DEFECTIVE_PARTS_RECEIVED, $status_string)) {
+                                    $booking_new_internal_status = DEFECTIVE_PARTS_RECEIVED;
+                                } else if (in_array(OK_PARTS_RECEIVED, $status_string)) {
+                                    $booking_new_internal_status = OK_PARTS_RECEIVED;
+                                }
+                                //If booking is completed then move Booking Status & actor according to spare part status on priority
+                            } else {
+                                $booking_new_internal_status = _247AROUND_PENDING;
+                                //Booking is either Pending or Reschedule, now update internal status as pending and assign actor action accordingly
                             }
-                            //If defective part / ok part shipped received and booking is not completed then update status as spare status
                         }
                     }
                     //////   Handle agents for cancellation /// Abhishek
@@ -2822,16 +2849,18 @@ class Inventory extends CI_Controller {
             }
         }
         
-        $basic_price_with_around_margin = (float) $stock_list->price + ($stock_list->price * ($stock_list->oow_around_margin / 100));
-        $sf_total = $basic_price_with_around_margin + ($basic_price_with_around_margin * ($stock_list->gst_rate / 100));
-        $row[] = "<i class ='fa fa-inr'></i> " . number_format((float) ($sf_total), 2, '.', '');        
-        
-        if(!empty($stock_list->is_defective_required)) {
+        if ($this->session->userdata('userType') == 'employee') {
+            $basic_price_with_around_margin = (float) $stock_list->price + ($stock_list->price * ($stock_list->oow_around_margin / 100));
+            $sf_total = $basic_price_with_around_margin + ($basic_price_with_around_margin * ($stock_list->gst_rate / 100));
+            $row[] = "<i class ='fa fa-inr'></i> " . number_format((float) ($sf_total), 2, '.', '');
+        }
+        if (!empty($stock_list->is_defective_required)) {
             $row[] = 'Yes';
         } else {
             $row[] = 'No';
         }
-        
+
+
         if ($this->session->userdata('userType') == 'employee') {
             $row[] = "<i class ='fa fa-inr'></i> " . round(($total * ( 1 + ($stock_list->oow_vendor_margin + $stock_list->oow_around_margin) / 100 )), 0);
         }        
@@ -7696,15 +7725,24 @@ class Inventory extends CI_Controller {
         $partner_id = $this->input->post('partner_id');
         $service_center_id = $this->input->post('service_center_id');
         $spare_part_status = $this->input->post('spare_part_status');
-        $select = "spare_parts_details.id as spare_id, services.services as 'Appliance',  booking_details.booking_id as 'Booking ID',  booking_details.assigned_vendor_id as 'Assigned Vendor Id', emply.full_name as 'RM Name',empl.full_name as 'ASM Name',service_centres.name as 'SF Name', service_centres.district as 'SF City', service_centres.state as 'SF State', (CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'Inactive' END) as 'SF Status', partners.public_name as 'Partner Name', GROUP_CONCAT(employee.full_name) as 'Account Manager Name', booking_details.current_status as 'Booking Status', booking_details.partner_current_status as 'Partner Status Level 1', booking_details.partner_internal_status as 'Partner Status Level 2',"
-                . "spare_parts_details.status as 'Spare Status', (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as 'Spare Warranty Status', (CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Approved' ELSE 'Not Approved' END) as 'NRN Status', DATE_FORMAT(service_center_closed_date,'%d-%b-%Y') as 'Service Center Closed Date', DATE_FORMAT(booking_details.closed_date,'%d-%b-%Y') as 'Final Closing Date', DATE_FORMAT(spare_parts_details.spare_cancelled_date,'%d-%b-%Y')   as 'Spare Part Cancellation Date', bcr.reason as 'Spare Cancellation Reason', booking_details.request_type as 'Booking Request Type', spare_parts_details.model_number as 'Requested Model Number',spare_parts_details.parts_requested as 'Requested Part',spare_parts_details.parts_requested_type as 'Requested Part Type', i.part_number as 'Requested Part Number', DATE_FORMAT(spare_parts_details.date_of_request,'%d-%b-%Y') as 'Spare Part Requested Date',"
+        $select = "spare_parts_details.id as spare_id, services.services as 'Appliance',  booking_details.booking_id as 'Booking ID',  booking_details.assigned_vendor_id as 'Assigned Vendor Id', "
+                . "emply.full_name as 'RM Name',empl.full_name as 'ASM Name',service_centres.name as 'SF Name', service_centres.district as 'SF City', service_centres.state as 'SF State', "
+                . "(CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'Inactive' END) as 'SF Status', partners.public_name as 'Partner Name', "
+                . "GROUP_CONCAT(employee.full_name) as 'Account Manager Name', booking_details.current_status as 'Booking Status', booking_details.partner_current_status as 'Partner Status Level 1', "
+                . "booking_details.partner_internal_status as 'Partner Status Level 2',"
+                . "spare_parts_details.status as 'Spare Status', (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as 'Spare Warranty Status', (CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Approved' ELSE 'Not Approved' END) as 'NRN Status', DATE_FORMAT(service_center_closed_date,'%d-%b-%Y') as 'Service Center Closed Date', DATE_FORMAT(booking_details.closed_date,'%d-%b-%Y') as 'Final Closing Date', DATE_FORMAT(spare_parts_details.spare_cancelled_date,'%d-%b-%Y')   as 'Spare Part Cancellation Date', bcr.reason as 'Spare Cancellation Reason', booking_details.request_type as 'Booking Request Type', spare_parts_details.model_number as 'Requested Model Number',spare_parts_details.parts_requested as 'Requested Part',"
+                . "spare_parts_details.parts_requested_type as 'Requested Part Type', i.part_number as 'Requested Part Number', i.price as 'Requested Part Basic Price', "
+                . "DATE_FORMAT(spare_parts_details.date_of_request,'%d-%b-%Y') as 'Spare Part Requested Date',"
                 . "if(spare_parts_details.is_micro_wh='0','Partner',if(spare_parts_details.is_micro_wh='1',concat('Microwarehouse - ',sc.name),sc.name)) as 'Requested On Partner/Warehouse',"
-                . "spare_parts_details.model_number_shipped as 'Shipped Model Number',spare_parts_details.parts_shipped as 'Shipped Part',spare_parts_details.shipped_parts_type as 'Shipped Part Type',iml.part_number as 'Shipped Part Number',"
+                . "spare_parts_details.model_number_shipped as 'Shipped Model Number',spare_parts_details.parts_shipped as 'Shipped Part',"
+                . "spare_parts_details.shipped_parts_type as 'Shipped Part Type',"
+                . "iml.part_number as 'Shipped Part Number', iml.price as 'Shipped Part Baisc Price', "
                 . "DATE_FORMAT(spare_parts_details.shipped_date,'%d-%b-%Y') as 'Spare Part Shipped Date', datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age', spare_parts_details.awb_by_partner as 'Partner AWB Number',"
-                . "spare_parts_details.courier_name_by_partner as 'Partner Courier Name',spare_parts_details.courier_price_by_partner as 'Partner Courier Price',"
-                . "partner_challan_number AS 'Partner Challan Number',spare_parts_details.awb_by_sf as 'SF AWB Number',spare_parts_details.courier_name_by_sf as 'SF Courier Name', spare_parts_details.courier_charges_by_sf as 'SF Courier Price', sf_challan_number as 'SF Challan Number',IF(wh.name !='' , wh.name, 'Partner') as 'SF Dispatch Defective Part To Warehouse/Partner',"
-                . "spare_parts_details.acknowledge_date as 'Defective Received Date By Warehouse',spare_parts_details.auto_acknowledeged as 'Is Spare Auto Acknowledge',"
-                . "spare_parts_details.defective_part_shipped as 'Part Shipped By SF',challan_approx_value As 'Parts Charge', "
+                . "spare_parts_details.courier_name_by_partner as 'Partner Courier Name',spare_parts_details.courier_price_by_partner as 'Partner Courier Price', acknowledge_date as 'SF Received New Part Date', "
+                . "partner_challan_number AS 'Partner Challan Number',spare_parts_details.awb_by_sf as 'SF AWB Number',spare_parts_details.courier_name_by_sf as 'SF Courier Name', spare_parts_details.courier_charges_by_sf as 'SF Courier Price', "
+                . "sf_challan_number as 'SF Challan Number',IF(wh.name !='' , wh.name, 'Partner') as 'SF Dispatch Defective Part To Warehouse/Partner',"
+                . "spare_parts_details.defective_part_received_date_by_wh as 'Defective Received Date By Warehouse',spare_parts_details.auto_acknowledeged as 'Is Spare Auto Acknowledge',"
+                . "spare_parts_details.defective_part_shipped as 'Part Shipped By SF',challan_approx_value As 'Challan Charge (With Margin & TAX)', "
                 . " (CASE WHEN spare_parts_details.defective_part_required = 1 THEN 'Yes' ELSE 'NO' END) AS 'Defective Part Required', cci.billable_weight as 'Defective Packet Weight ', cci.box_count as 'Defective Packet Count',"
                 . "remarks_defective_part_by_sf as 'Defective Parts Remarks By SF', DATE_FORMAT(defective_part_shipped_date,'%d-%b-%Y') as 'Defective Parts Shipped Date', DATE_FORMAT(received_defective_part_date,'%d-%b-%Y') as 'Partner Received Defective Parts Date', "
                 . " (CASE WHEN spare_consumption_status.is_consumed = 1 THEN 'Yes' ELSE 'NO' END) as Consumption, spare_consumption_status.consumed_status as 'Consumption Reason', spare_parts_details.awb_by_wh as 'AWB Number Warehouse Dispatch Defective To Partner',spare_parts_details.courier_name_by_wh as 'Warehouse Dispatch Defective To Partner Courier Name', spare_parts_details.courier_price_by_wh as 'Warehouse Dispatch Defective To Partner Courier Price', spare_parts_details.wh_challan_number AS 'Warehouse Dispatch Defective To Partner Challan Number', DATE_FORMAT(spare_parts_details.wh_to_partner_defective_shipped_date,'%d-%b-%Y') as 'Warehouse Dispatch Defective Shipped Date To Partner',"

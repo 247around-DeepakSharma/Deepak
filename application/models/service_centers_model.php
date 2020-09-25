@@ -288,8 +288,6 @@ class Service_centers_model extends CI_Model {
         }
 
          if($userInfo){
-             $join = "JOIN users ON booking_details.user_id = users.user_id";
-             $join = $join." JOIN services ON booking_details.service_id = services.id";
              $userSelect = ",users.name,services.services";
          }
         if($state == 1){
@@ -1544,9 +1542,11 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         $this->db->from("spare_parts_details");
         $this->db->where("is_micro_wh", 1);
         $this->db->where("part_warranty_status", 2);
+        $this->db->where("status !=", 'Cancelled');
         $this->db->where("defective_part_shipped_date is null",NULL,false);
         $this->db->where("requested_inventory_id is not null",NULL,false);
         $this->db->where("service_center_id", $vendor_id);
+        $this->db->where("partner_id", $vendor_id);
         $result = $this->db->get()->row_array();
         if(!$result || !isset($result['amount'])){
             $res['error'] = true;
@@ -1589,6 +1589,8 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         $this->db->from("spare_parts_details");
         $this->db->where("is_micro_wh", 1);
         $this->db->where("part_warranty_status", 2);
+        $this->db->where("status !=", 'Cancelled');
+        $this->db->where("partner_id", $vendor_id);
         $this->db->where("defective_part_shipped_date is null",NULL,false);
         $this->db->where("requested_inventory_id is not null",NULL,false);
         $this->db->where("service_center_id", $serviceCenterID);

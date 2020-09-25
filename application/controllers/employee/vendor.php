@@ -846,8 +846,7 @@ class vendor extends CI_Controller {
         }
         //If engineer complete or cancel booking and booking pending for service center review then Admin can not unckeck engineer App
 
-
-            $this->load->view('employee/addvendor', array('query' => $query, 'results' => $results, 'selected_brands_list'
+        $this->load->view('employee/addvendor', array('query' => $query, 'results' => $results, 'selected_brands_list'
             => $selected_brands_list, 'selected_appliance_list' => $selected_appliance_list,
             'days' => $days, 'selected_non_working_days' => $selected_non_working_days,'rm'=>$rm,'saas_module' => $data['saas_module'],'booking_pending_for_review'=>$data['booking_pending_for_review']));
         } else{
