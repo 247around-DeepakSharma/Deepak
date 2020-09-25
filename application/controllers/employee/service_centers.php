@@ -471,6 +471,8 @@ class Service_centers extends CI_Controller {
             $bookng_unit_details[$key1]['sf_dop'] = $b['sf_purchase_date'];
             $bookng_unit_details[$key1]['sf_model_number'] = $b['sf_model_number'];
         }
+        
+        $data['upcountry_charges'] = 0;
         if ($this->session->userdata('is_engineer_app') == 1) {
             $sig_table = $this->engineer_model->getengineer_sign_table_data("*", array("booking_id" => $booking_id,
                 "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']));
@@ -478,6 +480,7 @@ class Service_centers extends CI_Controller {
                 $data['signature'] = $sig_table[0]['signature'];
                 $data['amount_paid'] = $sig_table[0]['amount_paid'];
                 $data['mismatch_pincode'] = $sig_table[0]['mismatch_pincode'];
+                $data['upcountry_charges'] = $sig_table[0]['upcountry_charges'];
             }
         }
 
