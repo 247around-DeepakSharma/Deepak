@@ -729,7 +729,7 @@
                         <?php } else { ?>
                         <center>
                             <input type="hidden" id="customer_id" name="customer_id" value="<?php echo $booking_history[0]['user_id']; ?>">
-                            <?php if($enable_button && empty($is_invoice_generated) && empty($is_spare_pending_for_acknowledge) && in_array($this->session->userdata['user_group'], [_247AROUND_ADMIN, _247AROUND_CLOSURE])){
+                            <?php if($enable_button && empty($is_invoice_generated) && empty($is_spare_pending_for_acknowledge) && in_array($this->session->userdata['user_group'], [_247AROUND_ADMIN, _247AROUND_CLOSURE, _247AROUND_RM])){
                             $is_upcountry = 0;
                             if(($booking_history[0]['upcountry_paid_by_customer'] == 1) && ($booking_history[0]['is_upcountry'] == 1)){
                                 $is_upcountry = 1;
