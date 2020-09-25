@@ -3174,6 +3174,8 @@ class engineerApi extends CI_Controller {
                     curl_setopt($ch, CURLOPT_HEADER, false);
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                     curl_setopt($ch, CURLOPT_POST, true);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
                     $curl_response = curl_exec($ch);
                     curl_close($ch);
