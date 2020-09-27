@@ -3139,6 +3139,12 @@ class Inventory extends CI_Controller {
     function process_inventoy_master_list_data() {
         $submit_type = $this->input->post('submit_type');
         if (!empty($submit_type)) {
+            if ($this->session->userdata("userType") == _247AROUND_PARTNER_STRING) {
+                $agent_id = $this->session->userdata('agent_id');
+            } else {
+                $agent_id = $this->session->userdata('id');
+            }
+           
             $data = array('part_name' => trim($this->input->post('part_name')),
                 'part_number' => trim($this->input->post('part_number')),
                 'size' => trim($this->input->post('size')),
@@ -3153,6 +3159,7 @@ class Inventory extends CI_Controller {
                 'oow_vendor_margin' => $this->input->post('oow_vendor_margin'),
                 'oow_around_margin' => $this->input->post('oow_around_margin'),
                 'is_defective_required' => $this->input->post('is_defective_required'),
+                'agent_id' => $agent_id
             );
 
            
