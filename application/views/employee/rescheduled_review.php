@@ -125,7 +125,7 @@
           $(".checkbox_reschedule").prop('checked', false);
           var count =0;
           $(".checkbox_reschedule").each(function() {
-            if(count < 3){
+            if(count < 30){
               $(this).prop('checked', true);
               count = count+1;
             }
@@ -137,7 +137,7 @@
 function check_count()
  {
  var total_lineItmes = $('.checkbox_reschedule:checked').length;
-            if(total_lineItmes > 3){
+            if(total_lineItmes > 30){
                 
 alert('You can not select more than 30.');
 return false;
