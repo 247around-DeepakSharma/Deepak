@@ -2129,9 +2129,8 @@ class engineerApi extends CI_Controller {
             "booking_details.booking_timeslot" => $slot,
             "engineer_booking_action.internal_status != '" . _247AROUND_CANCELLED . "'" => NULL,
             "engineer_booking_action.internal_status != '" . _247AROUND_COMPLETED . "'" => NULL,
-            "(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) = 0)" => NULL,
-            "service_center_booking_action.current_status = '" . _247AROUND_PENDING . "'" => NULL,
-            "(booking_details.current_status = '" . _247AROUND_PENDING . "' OR booking_details.current_status = '" . _247AROUND_RESCHEDULED . "')" => NULL
+            "(((DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) = 0)  AND (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled'))  "
+            . "OR ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) = -1)) AND booking_details.current_status='Pending' ) AND service_center_booking_action.current_status = 'Pending' AND booking_details.nrn_approved = 0  AND booking_details.partner_internal_status !='Booking Completed By Engineer'" => NULL
         );
         $bookings = $this->engineer_model->get_engineer_booking_details($select, $where, true, true, true, false, false, false, true);
         if ($engineer_pincode) {
