@@ -1073,5 +1073,29 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
         }
 
     }
+    
+    function get_installation_date_of_booking($arrBooking){
+        // Check if warranty needs to be calculated on the basis of DOI
+        if(!empty($arrBooking[0]['partner_id']) && !empty($arrBooking[0]['serial_number']) && !empty($arrBooking[0]['booking_id'])){
+            $partner_id = $arrBooking[0]['partner_id'];
+            $serial_number = $arrBooking[0]['serial_number'];
+            $booking_id = $arrBooking[0]['booking_id'];
+            $partner_data = $this->My_CI->partner_model->getpartner($partner_id);
+            $check_warranty_from = $partner_data[0]['check_warranty_from'];
+            if($check_warranty_from == WARRANTY_ON_DOI){
+                // get Installation Date of Product
+                $booking_data = $this->My_CI->booking_model->get_data_for_duplicate_serial_number_check($serial_number, $booking_id, true);
+                $installation_date = $arrBooking[0]['purchase_date'];
+                $installation_booking = "";
+                if(!empty($booking_data[0]['service_center_closed_date'])){
+                    $installation_date = $booking_data[0]['service_center_closed_date'];
+                    $installation_booking = $booking_data[0]['booking_id'];
+                }
+                $arrReturnData = ['installation_date' => $installation_date, 'installation_booking' => $installation_booking];
+                return $arrReturnData;
+            }
+        }
+        return array();
+    }
 
 }

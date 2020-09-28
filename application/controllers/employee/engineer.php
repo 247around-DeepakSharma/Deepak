@@ -891,7 +891,7 @@ class Engineer extends CI_Controller {
     function get_all_engineers_for_notification() {
 
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/engineers_list_for_notifications');
+        $this->load->view('employee/engineers_list_for_notifications',$data);
     }
 
 

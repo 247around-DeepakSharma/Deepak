@@ -188,7 +188,15 @@ class Warranty_utilities {
      * @date 20-08-2019
      * @return JSON
      */
-    public function get_warranty_status_of_bookings($arrBookings){  
+    public function get_warranty_status_of_bookings($arrBookings, $checkInstallationDate = 0){  
+        // Check if warranty is to be calculated on the basis of DOI od DOP
+        // If warranty is to calculated on the basis of DOI, replace DOP with DOI
+        if(!empty($checkInstallationDate)){
+            $arrInstallationData = $this->My_CI->booking_utilities->get_installation_date_of_booking($arrBookings);
+            if(!empty($arrInstallationData['installation_date'])){
+                $arrBookings[0]['purchase_date'] = date("d-m-Y", strtotime($arrInstallationData['installation_date']));
+            } 
+        }
         $arrWarrantyData = $this->get_warranty_data($arrBookings);  
         $arrModelWiseWarrantyData = $this->get_model_wise_warranty_data($arrWarrantyData);         
         foreach($arrBookings as $key => $arrBooking)
@@ -205,6 +213,10 @@ class Warranty_utilities {
             unset($arrBookings[$key]);
         }
         $arrBookingsWarrantyStatus = $this->get_bookings_warranty_status($arrBookings);  
+        if(!empty($checkInstallationDate) && !empty($arrInstallationData['installation_date'])){
+            $arrBookingsWarrantyStatus['installation_date'] = $arrInstallationData['installation_date'];
+            $arrBookingsWarrantyStatus['installation_booking'] = $arrInstallationData['installation_booking'];
+        }
         return $arrBookingsWarrantyStatus;
     }
 
@@ -260,6 +272,11 @@ class Warranty_utilities {
             { 
                 $returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type."), to request part please change request type of the Booking.";
             }   
+        }
+        if(!empty($arrBookingsWarrantyStatus['installation_date']) && !empty($arrBookingsWarrantyStatus['installation_booking'])){
+            $returnMessage .= " Product Installation Date : ".date('d-M-Y', strtotime($arrBookingsWarrantyStatus['installation_date'])).",  Booking : ".$arrBookingsWarrantyStatus['installation_booking'];
+            $arrReturn['installation_date'] = $arrBookingsWarrantyStatus['installation_date'];
+            $arrReturn['installation_booking'] = $arrBookingsWarrantyStatus['installation_booking'];
         }
         $arrReturn['status'] = $warranty_mismatch;
         $arrReturn['message'] = $returnMessage;

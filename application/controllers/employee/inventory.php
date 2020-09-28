@@ -1213,10 +1213,37 @@ class Inventory extends CI_Controller {
                         } else if (in_array(SPARE_PARTS_SHIPPED_BY_WAREHOUSE, $status_string)) {
                             $booking_new_internal_status = SPARE_PARTS_SHIPPED_BY_WAREHOUSE;
                         } else {
-                            if ($booking_details['current_status'] != _247AROUND_COMPLETED && !empty(array_values($status_string)[0])) {
-                                $booking_new_internal_status = array_values($status_string)[0];
+                            if (!empty($booking_details['service_center_closed_date'])) {
+                                if (in_array(DEFECTIVE_PARTS_PENDING, $status_string)) {
+                                    $booking_new_internal_status = DEFECTIVE_PARTS_PENDING;
+                                } else if (in_array(OK_PART_TO_BE_SHIPPED, $status_string)) {
+                                    $booking_new_internal_status = OK_PART_TO_BE_SHIPPED;
+                                } else if (in_array(DEFECTIVE_PARTS_SHIPPED, $status_string)) {
+                                    $booking_new_internal_status = DEFECTIVE_PARTS_SHIPPED;
+                                } else if (in_array(OK_PARTS_SHIPPED, $status_string)) {
+                                    $booking_new_internal_status = OK_PARTS_SHIPPED;
+                                } else if (in_array(DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE, $status_string)) {
+                                    $booking_new_internal_status = DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE;
+                                } else if (in_array(OK_PARTS_REJECTED_BY_WAREHOUSE, $status_string)) {
+                                    $booking_new_internal_status = OK_PARTS_REJECTED_BY_WAREHOUSE;
+                                } else if (in_array(DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE, $status_string)) {
+                                    $booking_new_internal_status = DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE;
+                                } else if (in_array(OK_PARTS_RECEIVED_BY_WAREHOUSE, $status_string)) {
+                                    $booking_new_internal_status = OK_PARTS_RECEIVED_BY_WAREHOUSE;
+                                } else if (in_array(DEFECTIVE_PARTS_REJECTED, $status_string)) {
+                                    $booking_new_internal_status = DEFECTIVE_PARTS_REJECTED;
+                                } else if (in_array(OK_PARTS_REJECTED, $status_string)) {
+                                    $booking_new_internal_status = OK_PARTS_REJECTED;
+                                } else if (in_array(DEFECTIVE_PARTS_RECEIVED, $status_string)) {
+                                    $booking_new_internal_status = DEFECTIVE_PARTS_RECEIVED;
+                                } else if (in_array(OK_PARTS_RECEIVED, $status_string)) {
+                                    $booking_new_internal_status = OK_PARTS_RECEIVED;
+                                }
+                                //If booking is completed then move Booking Status & actor according to spare part status on priority
+                            } else {
+                                $booking_new_internal_status = _247AROUND_PENDING;
+                                //Booking is either Pending or Reschedule, now update internal status as pending and assign actor action accordingly
                             }
-                            //If defective part / ok part shipped received and booking is not completed then update status as spare status
                         }
                     }
                     //////   Handle agents for cancellation /// Abhishek
@@ -1492,6 +1519,23 @@ class Inventory extends CI_Controller {
                     }
                 }
 
+                if($b['internal_status'] == SPARE_PARTS_REQUESTED) {
+                    /**
+                     * Check spare part request pending on partner 
+                     * If Yes then do not change actor
+                     * Otherwise check spare request pending on warehouse
+                     * If yes then change actor to 247around
+                     */
+                    $pending_spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*', array('spare_parts_details.booking_id' => $booking_id,'spare_parts_details.status' => SPARE_PARTS_REQUESTED), TRUE, TRUE, false);
+                    if(!empty($pending_spare_parts_details)) {
+                        $entity_types = array_unique(array_column($pending_spare_parts_details, 'entity_type'));
+                        // if no part request pending on partner then set 247around.
+                        if(!in_array(_247AROUND_PARTNER_STRING, $entity_types)) {
+                            $b['actor'] = _247AROUND_EMPLOYEE_STRING;
+                        }
+                    }
+                }
+                
                 $this->booking_model->update_booking($booking_id, $b);
             }
 
@@ -7741,7 +7785,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
                 . "if(spare_parts_details.is_micro_wh='0','Partner',if(spare_parts_details.is_micro_wh='1',concat('Microwarehouse - ',sc.name),sc.name)) as 'Requested On Partner/Warehouse',"
                 . "spare_parts_details.model_number_shipped as 'Shipped Model Number',spare_parts_details.parts_shipped as 'Shipped Part',"
                 . "spare_parts_details.shipped_parts_type as 'Shipped Part Type',"
-                . "iml.part_number as 'Shipped Part Number', iml.price as 'Shipped Part Baisc Price', "
+                . "iml.part_number as 'Shipped Part Number', iml.price as 'Shipped Part Basic Price', "
                 . "DATE_FORMAT(spare_parts_details.shipped_date,'%d-%b-%Y') as 'Spare Part Shipped Date', datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age', spare_parts_details.awb_by_partner as 'Partner AWB Number',"
                 . "spare_parts_details.courier_name_by_partner as 'Partner Courier Name',spare_parts_details.courier_price_by_partner as 'Partner Courier Price', acknowledge_date as 'SF Received New Part Date', "
                 . "partner_challan_number AS 'Partner Challan Number',spare_parts_details.awb_by_sf as 'SF AWB Number',spare_parts_details.courier_name_by_sf as 'SF Courier Name', spare_parts_details.courier_charges_by_sf as 'SF Courier Price', "

@@ -773,5 +773,8 @@ define('COVID_SMS', true);
 define('REVIEW_REJECT_COMPLETION_REASON', 1);
 define('REVIEW_REJECT_CANCELLATION_REASON', 2);
 define('DEFAULT_PENALTY_POINT', 1);
+
+define('WARRANTY_ON_DOP', 1);
+define('WARRANTY_ON_DOI', 2);
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

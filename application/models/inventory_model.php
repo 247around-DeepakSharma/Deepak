@@ -4073,4 +4073,15 @@ class Inventory_model extends CI_Model {
       return $this->db->insert_id();
     }
     
+    /*
+     * @desc: This function is used to all pending defective and ok spare parts data
+     * @params: $post
+     * @return: Object
+     */
+   
+    function download_pending_defective_ok_spare_parts($post) {       
+        $query = $this->get_spare_consolidated_data($post['select'], $post['where'], $post['group_by']);
+        return $query;
+    }
+    
 }

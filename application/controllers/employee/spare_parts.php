@@ -563,7 +563,9 @@ class Spare_parts extends CI_Controller {
         
         if(!empty($post['where']) && $post['where']['status'] == DEFECTIVE_PARTS_PENDING) {
             unset($post['where']['status']);
-            $post['where']['status in ("'.DEFECTIVE_PARTS_PENDING.'","'.OK_PART_TO_BE_SHIPPED.'","'.DAMAGE_PART_TO_BE_SHIPPED.'")'] = NULL;
+
+            $where_clause = $this->check_where_condition($post);
+            $post['where'] = $where_clause['where'];
         }
         $list = $this->inventory_model->get_spare_parts_query($post);
         $no = $post['start'];
@@ -2310,6 +2312,21 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                         $next_action = $booking['next_action'] = $partner_status[3];
                     }
 
+                    /**
+                     * Check spare part request pending on partner 
+                     * If Yes then do not change actor
+                     * Otherwise check spare request pending on warehouse
+                     * If yes then change actor to 247around
+                     */
+                    $pending_spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*', array('spare_parts_details.booking_id' => $booking_id,'spare_parts_details.status' => SPARE_PARTS_REQUESTED), TRUE, TRUE, false);
+                    if(!empty($pending_spare_parts_details)) {
+                        $entity_types = array_unique(array_column($pending_spare_parts_details, 'entity_type'));
+                        // if no part request pending on partner then set 247around.
+                        if(!in_array(_247AROUND_PARTNER_STRING, $entity_types)) {
+                            $booking['actor'] = _247AROUND_EMPLOYEE_STRING;
+                        }
+                    }
+                    
                     //$this->notify->insert_state_change($booking_id, PART_APPROVED_BY_ADMIN, $reason_text, $reason, $agent_id, $agent_name, $actor, $next_action, _247AROUND, NULL);
                     if (!empty($booking_id)) {
                         $affctd_id = $this->booking_model->update_booking($booking_id, $booking);
@@ -3154,6 +3171,21 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                         $next_action = $booking['next_action'] = $partner_status[3];
                     }
 
+                    /**
+                     * Check spare part request pending on partner 
+                     * If Yes then do not change actor
+                     * Otherwise check spare request pending on warehouse
+                     * If yes then change actor to 247around
+                     */
+                    $pending_spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*', array('spare_parts_details.booking_id' => $booking_id,'spare_parts_details.status' => SPARE_PARTS_REQUESTED), TRUE, TRUE, false);
+                    if(!empty($pending_spare_parts_details)) {
+                        $entity_types = array_unique(array_column($pending_spare_parts_details, 'entity_type'));
+                        // if no part request pending on partner then set 247around.
+                        if(!in_array(_247AROUND_PARTNER_STRING, $entity_types)) {
+                            $booking['actor'] = _247AROUND_EMPLOYEE_STRING;
+                        }
+                    }
+                    
                     $new_state = PART_APPROVED_BY_ADMIN;
                     $state_change_partner_id = _247AROUND;
                     if ($this->session->userdata('userType') == 'partner') { //// Stare A/C to Session
@@ -4526,7 +4558,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
      * @author Abhishek 
      * @since 31-May-2019
      */    
-    function spare_transfer_from_wh_to_wh_process() {
+     function spare_transfer_from_wh_to_wh_process() {
         
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center')) {
             
@@ -4545,7 +4577,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
         );
         $this->table->set_template($template);
-        $this->table->set_heading(array('Booking ID', 'Part Name','Spare part ID'));
+        $this->table->set_heading(array('Booking ID', 'Part Name', 'Spare part ID'));
         foreach ($bookingids as $bbok) {
             $bookigs[] = str_replace("\r", "", $bbok);
         }
@@ -4558,53 +4590,53 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $select = "spare_parts_details.id,spare_parts_details.quantity,spare_parts_details.booking_id, booking_details.state,spare_parts_details.service_center_id,inventory_master_list.part_number, spare_parts_details.partner_id, spare_parts_details.model_number, booking_details.partner_id as booking_partner_id,"
                 . " requested_inventory_id";
         $post['where_in'] = array('spare_parts_details.booking_id' => $bookingids);
-        $post['is_inventory']=true;
+        $post['is_inventory'] = true;
         $bookings_spare = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, FALSE, false, $post);
         $tcount = 0;
-        
+
         if (!empty($bookings_spare)) {
             $booking_error_array = array();
             foreach ($bookings_spare as $booking) {
                 $spareid = $booking['id'];
-                $state=$booking['state'];
+                $state = $booking['state'];
                 $requested_inventory = $booking['requested_inventory_id'];
                 $requested_part_number = '';
-                if(!empty($booking['part_number'])){
-                 $requested_part_number = $booking['part_number'];   
-                }else{
-                 $requested_part_number = '-';  
+                if (!empty($booking['part_number'])) {
+                    $requested_part_number = $booking['part_number'];
+                } else {
+                    $requested_part_number = '-';
                 }
-                $data = $this->miscelleneous->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $state, "",$booking['model_number']);
-                
-                if (!empty($data) && $data['stock']>=$booking['quantity']) {
-                    if($data['stock']){
+                $data = $this->miscelleneous->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $state, "", $booking['model_number']);
+
+                if (!empty($data) && $data['stock'] >= $booking['quantity']) {
+                    if ($data['stock']) {
                         $dataupdate = array(
-                        'is_micro_wh' => $data['is_micro_wh'],
-                        'entity_type' => $data['entity_type'],
-                        'defective_return_to_entity_id' => $service_center_to,
-                        'partner_id' => $service_center_to,
-                        'defective_return_to_entity_type' =>_247AROUND_SF_STRING,
-                        'challan_approx_value' => $data['challan_approx_value'],
-                        'requested_inventory_id' => $data['inventory_id'],
-                        'parts_requested' => $data['part_name'],
-                        'parts_requested_type' => $data['type']    
-                    );
-                        
-                    $spare_pending_on_to='';
-                    $wh_details_to = $this->vendor_model->getVendorContact($service_center_to);
-                    if(!empty($wh_details_to)){
-                    $spare_pending_on_to = $wh_details_to[0]['district'] . ' Warehouse';   
-                    }else{
-                    $spare_pending_on_to = ' Warehouse'; 
-                    }
-                    
-                    $spare_pending_on='';
-                    $wh_details = $this->vendor_model->getVendorContact($service_center);
-                    if(!empty($wh_details)){
-                    $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';   
-                    }else{
-                    $spare_pending_on= ' Warehouse'; 
-                    }
+                            'is_micro_wh' => $data['is_micro_wh'],
+                            'entity_type' => $data['entity_type'],
+                            'defective_return_to_entity_id' => $service_center_to,
+                            'partner_id' => $service_center_to,
+                            'defective_return_to_entity_type' => _247AROUND_SF_STRING,
+                            'challan_approx_value' => $data['challan_approx_value'],
+                            'requested_inventory_id' => $data['inventory_id'],
+                            'parts_requested' => $data['part_name'],
+                            'parts_requested_type' => $data['type']
+                        );
+
+                        $spare_pending_on_to = '';
+                        $wh_details_to = $this->vendor_model->getVendorContact($service_center_to);
+                        if (!empty($wh_details_to)) {
+                            $spare_pending_on_to = $wh_details_to[0]['district'] . ' Warehouse';
+                        } else {
+                            $spare_pending_on_to = ' Warehouse';
+                        }
+
+                        $spare_pending_on = '';
+                        $wh_details = $this->vendor_model->getVendorContact($service_center);
+                        if (!empty($wh_details)) {
+                            $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';
+                        } else {
+                            $spare_pending_on = ' Warehouse';
+                        }
 
                         $remarks = _247AROUND_TRANSFERED_TO_WAREHOUSE;
                         $next_action = _247AROUND_TRANSFERED_TO_NEXT_ACTION;
@@ -4630,40 +4662,34 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                         $this->table->add_row($booking['booking_id'], $booking['part_number'], $spareid);
                         array_push($booking_error_array, $booking['booking_id']);
                     }
-                    $tcount++; 
-                    }                 
-                    }else{
-                    $this->table->add_row($booking['booking_id'], $booking['part_number'],$spareid);
-                    array_push($booking_error_array, $booking['booking_id']);
-                    }
-            }else{
-                    $this->table->add_row($booking['booking_id'], $booking['part_number'],$spareid);
-                    array_push($booking_error_array, $booking['booking_id']);
-            }   
-        }
-            if (!empty($booking_error_array)) {
-            $body_msg = $this->table->generate();
-            $template = $this->booking_model->get_booking_email_template("spare_not_transfer_from_wh_to_wh");
-            if (!empty($template)) {
-                $emailBody = vsprintf($template[0], array($body_msg));
-                $subject = "Spare Parts Not Transferred Detail Table";
-
-                $to = '';
-                if ($this->session->userdata('userType') == 'employee') {
-                    $to = $this->session->userdata('official_email');
-                } else if ($this->session->userdata('userType') == 'service_center') {
-                    $to = $this->session->userdata('poc_email');
                 } else {
-                    $to = $template[1];
+                    $this->table->add_row($booking['booking_id'], $booking['part_number'], $spareid);
+                    array_push($booking_error_array, $booking['booking_id']);
                 }
-                $this->notify->sendEmail($template[2], $to, $template[3], $template[5], $subject, $emailBody, "", 'spare_not_transfer_from_wh_to_wh', '');
-                
-                echo $body_msg;
             }
-        } else {
-            echo "success";
+            if (!empty($booking_error_array)) {
+                $body_msg = $this->table->generate();
+                $template = $this->booking_model->get_booking_email_template("spare_not_transfer_from_wh_to_wh");
+                if (!empty($template)) {
+                    $emailBody = vsprintf($template[0], array($body_msg));
+                    $subject = "Spare Parts Not Transferred Detail Table";
+
+                    $to = '';
+                    if ($this->session->userdata('userType') == 'employee') {
+                        $to = $this->session->userdata('official_email');
+                    } else if ($this->session->userdata('userType') == 'service_center') {
+                        $to = $this->session->userdata('poc_email');
+                    } else {
+                        $to = $template[1];
+                    }
+                    $this->notify->sendEmail($template[2], $to, $template[3], $template[5], $subject, $emailBody, "", 'spare_not_transfer_from_wh_to_wh', '');
+
+                    echo $body_msg;
+                }
+            } else {
+                echo "success";
+            }
         }
-    }
     }
 
 
@@ -4990,7 +5016,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $post['where']['spare_parts_details.defective_part_required'] = 1;
         $post['where']['spare_parts_details.consumed_part_status_id != 2'] = NULL;
         $post['where']['spare_parts_details.approved_defective_parts_by_admin = 0'] = NULL;
-         if (empty($post['search']['value'])) {
+        if (empty($post['search']['value'])) {
             if ($this->session->userdata("user_group") == _247AROUND_RM) {
                 $post['where']['service_centres.rm_id'] = $this->session->userdata("id");
                 $post['where']['(spare_parts_details.defective_part_shipped_date IS NULL OR (spare_parts_details.defective_part_shipped_date IS NOT NULL AND spare_parts_details.status in ("' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '","' . OK_PARTS_REJECTED_BY_WAREHOUSE . '" )))'] = NULL;
@@ -5590,6 +5616,99 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                 $option .= "<option value='" . $value['status'] . "'> " . $value['status'] . "</option>";
             }
             echo $option;
+        }
+    }
+    
+    
+    /* 
+     * @desc : This function is used get the common where cluase for view page and download excel reports.
+     * @param : void
+     * @return : Array 
+     */
+    
+    function check_where_condition($post) {
+
+        if ($this->session->userdata("user_group") == _247AROUND_RM) {
+            $post['where']['service_centres.rm_id'] = $this->session->userdata("id");
+            $post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '")'] = NULL;
+        }
+
+        if ($this->session->userdata("user_group") == _247AROUND_ASM) {
+            $post['where']['service_centres.asm_id'] = $this->session->userdata("id");
+            $post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '")'] = NULL;
+        }
+
+        if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer' || $this->session->userdata('user_group') == _247AROUND_AM) {
+            $post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '")'] = NULL;
+        }
+
+        return $post;
+    }
+
+    /*
+     * @desc: This Function is used to download the pdnding defective or ok spare parts report
+     * @param: void
+     * @return : Download link
+     */
+
+     function download_pending_defective_ok_spare_data() {
+        log_message('info', __METHOD__ . ' Processing...');
+        ini_set('memory_limit', -1);
+        $download_flag = $this->input->post('defective_ok_download_flag');
+        
+        $post['select'] = "spare_parts_details.id as spare_id, services.services as 'Appliance',  booking_details.booking_id as 'Booking ID',  booking_details.assigned_vendor_id as 'Assigned Vendor Id', emply.full_name as 'RM Name',empl.full_name as 'ASM Name',service_centres.name as 'SF Name', service_centres.district as 'SF City', service_centres.state as 'SF State', (CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'Inactive' END) as 'SF Status', partners.public_name as 'Partner Name', GROUP_CONCAT(employee.full_name) as 'Account Manager Name', booking_details.current_status as 'Booking Status', booking_details.partner_current_status as 'Partner Status Level 1', booking_details.partner_internal_status as 'Partner Status Level 2',"
+                . "spare_parts_details.status as 'Spare Status', (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as 'Spare Warranty Status', (CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Approved' ELSE 'Not Approved' END) as 'NRN Status', DATE_FORMAT(service_center_closed_date,'%d-%b-%Y') as 'Service Center Closed Date', DATE_FORMAT(booking_details.closed_date,'%d-%b-%Y') as 'Final Closing Date', DATE_FORMAT(spare_parts_details.spare_cancelled_date,'%d-%b-%Y')   as 'Spare Part Cancellation Date', bcr.reason as 'Spare Cancellation Reason', booking_details.request_type as 'Booking Request Type', spare_parts_details.model_number as 'Requested Model Number',spare_parts_details.parts_requested as 'Requested Part',spare_parts_details.parts_requested_type as 'Requested Part Type', i.part_number as 'Requested Part Number', DATE_FORMAT(spare_parts_details.date_of_request,'%d-%b-%Y') as 'Spare Part Requested Date',"
+                . "if(spare_parts_details.is_micro_wh='0','Partner',if(spare_parts_details.is_micro_wh='1',concat('Microwarehouse - ',sc.name),sc.name)) as 'Requested On Partner/Warehouse',"
+                . "spare_parts_details.model_number_shipped as 'Shipped Model Number',spare_parts_details.parts_shipped as 'Shipped Part',spare_parts_details.shipped_parts_type as 'Shipped Part Type',iml.part_number as 'Shipped Part Number',"
+                . "DATE_FORMAT(spare_parts_details.shipped_date,'%d-%b-%Y') as 'Spare Part Shipped Date', datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age', (CASE WHEN datediff(CURRENT_DATE,spare_parts_details.shipped_date) > 60 THEN 'Out Of TAT' ELSE 'Under TAT' END) as 'TAT', spare_parts_details.awb_by_partner as 'Partner AWB Number',"
+                . "spare_parts_details.courier_name_by_partner as 'Partner Courier Name',spare_parts_details.courier_price_by_partner as 'Partner Courier Price',"
+                . "partner_challan_number AS 'Partner Challan Number',spare_parts_details.awb_by_sf as 'SF AWB Number',spare_parts_details.courier_name_by_sf as 'SF Courier Name', spare_parts_details.courier_charges_by_sf as 'SF Courier Price', sf_challan_number as 'SF Challan Number',IF(wh.name !='' , wh.name, 'Partner') as 'SF Dispatch Defective Part To Warehouse/Partner',"
+                . "DATE_FORMAT(spare_parts_details.acknowledge_date,'%d-%b-%Y') as 'Spare Received Date',spare_parts_details.auto_acknowledeged as 'Is Spare Auto Acknowledge',"
+                . "spare_parts_details.defective_part_shipped as 'Part Shipped By SF',challan_approx_value As 'Parts Charge', "
+                . " (CASE WHEN spare_parts_details.defective_part_required = 1 THEN 'Yes' ELSE 'NO' END) AS 'Defective Part Required', cci.billable_weight as 'Defective Packet Weight ', cci.box_count as 'Defective Packet Count',"
+                . "remarks_defective_part_by_sf as 'Defective Parts Remarks By SF', DATE_FORMAT(defective_part_shipped_date,'%d-%b-%Y') as 'Defective Parts Shipped Date', DATE_FORMAT(received_defective_part_date,'%d-%b-%Y') as 'Partner Received Defective Parts Date', "
+                . " (CASE WHEN spare_consumption_status.is_consumed = 1 THEN 'Yes' ELSE 'NO' END) as Consumption, spare_consumption_status.consumed_status as 'Consumption Reason', spare_parts_details.awb_by_wh as 'AWB Number Warehouse Dispatch Defective To Partner',spare_parts_details.courier_name_by_wh as 'Warehouse Dispatch Defective To Partner Courier Name', spare_parts_details.courier_price_by_wh as 'Warehouse Dispatch Defective To Partner Courier Price', spare_parts_details.wh_challan_number AS 'Warehouse Dispatch Defective To Partner Challan Number', DATE_FORMAT(spare_parts_details.wh_to_partner_defective_shipped_date,'%d-%b-%Y') as 'Warehouse Dispatch Defective Shipped Date To Partner',"
+                . "if(spare_parts_details.reverse_sale_invoice_id is null,'',spare_parts_details.reverse_sale_invoice_id) as 'Reverse Sale Invoice', "
+                . "if(spare_parts_details.reverse_purchase_invoice_id is null,'',spare_parts_details.reverse_purchase_invoice_id) as 'Reverse Purchased Invoice', "
+                . "if(spare_parts_details.purchase_invoice_id is null,'',spare_parts_details.purchase_invoice_id) as 'Purchase Invoice', "
+                . "if(spare_parts_details.sell_invoice_id is null,'',spare_parts_details.sell_invoice_id) as 'Sale Invoice', "
+                . "if(spare_parts_details.warehouse_courier_invoice_id is null,'',spare_parts_details.warehouse_courier_invoice_id) as 'Warehouse Courier Invoice', "
+                . "if(spare_parts_details.partner_warehouse_courier_invoice_id is null,'',spare_parts_details.partner_warehouse_courier_invoice_id) as 'Partner Warehouse Courier Invoice', "
+                . "if(spare_parts_details.partner_courier_invoice_id is null,'',spare_parts_details.partner_courier_invoice_id) as 'Partner Courier Invoice', "
+                . "if(spare_parts_details.vendor_courier_invoice_id is null,'',spare_parts_details.vendor_courier_invoice_id) as 'SF Courier Invoice', "
+                . "if(spare_parts_details.partner_warehouse_packaging_invoice_id is null,'',spare_parts_details.partner_warehouse_packaging_invoice_id) as 'Partner Warehouse Packaging Courier Invoice', (CASE WHEN spare_parts_details.spare_lost = 1 THEN 'Yes' ELSE 'NO' END) AS 'Spare Lost'";
+
+        $where_clause = $this->check_where_condition(array());
+        $post['where'] = $where_clause['where'];
+        $post['group_by'] = "spare_parts_details.id";
+        
+        if (!empty($download_flag)) {
+            $spare_details = $this->inventory_model->download_pending_defective_ok_spare_parts($post);
+            if ($spare_details) {
+
+                $this->load->dbutil();
+                $this->load->helper('file');
+
+                $file_name = 'pending_defective_or_ok_spare_parts_data_' . date('j-M-Y-H-i-s') . ".csv";
+                $delimiter = ",";
+                $newline = "\r\n";
+                $new_report = $this->dbutil->csv_from_result($spare_details, $delimiter, $newline);
+                write_file(TMP_FOLDER . $file_name, $new_report);
+
+                if (file_exists(TMP_FOLDER . $file_name)) {
+                    log_message('info', __FUNCTION__ . ' File created ' . $file_name);
+                    $res1 = 0;
+                    system(" chmod 777 " . TMP_FOLDER . $file_name, $res1);
+                    $res['status'] = true;
+                    $res['msg'] = base_url() . "file_process/downloadFile/" . $file_name;
+                } else {
+                    log_message('info', __FUNCTION__ . ' error in generating file ' . $file_name);
+                    $res['status'] = FALSE;
+                    $res['msg'] = 'error in generating file';
+                }
+
+                echo json_encode($res);
+            }
         }
     }
 

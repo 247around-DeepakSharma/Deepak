@@ -379,7 +379,7 @@
                                                             ?>
                                                     <div class="form-group">
                                                         <div class="col-md-12 ">
-                                                            <input type="text" style="text-transform: uppercase;" onblur="validateSerialNo('<?php echo $count;?>')" class="form-control" id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>"  value="<?php if(!empty($booking_history['spare_parts'])){ echo $booking_history['spare_parts'][0]['serial_number'];} else {echo $price["serial_number"];}  ?>"  placeholder = "Enter Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" />
+                                                            <input type="text" style="text-transform: uppercase;pointer-events: none;background: #eee;" onblur="validateSerialNo('<?php echo $count;?>')" class="form-control" id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>"  value="<?php if(!empty($booking_history['spare_parts'])){ echo $booking_history['spare_parts'][0]['serial_number'];} else {echo $price["serial_number"];}  ?>"  placeholder = "Enter Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" />
                                                             <input type="hidden" class="form-control" id="<?php echo "serial_number_pic" . $count; ?>" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "]" ?>"  value="<?php if(!empty($booking_history['spare_parts'])){ echo $booking_history['spare_parts'][0]['serial_number_pic'];} else {echo $price["serial_number_pic"];} ?>"  />
                                                             <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
                                                             <input type="hidden" id="<?php echo "sno_required" . $count ?>" class="form-control" name="<?php echo "is_sn_file[" . $price['unit_id'] . "]" ?>" <?php if(isset($price['is_sn_correct']) && ($price['is_sn_correct'] == IS_SN_CORRECT)){ echo 'value="1"';} else { echo 'value="0"'; }?>   />
@@ -696,8 +696,8 @@
                     if($booking_history[0]['is_upcountry'] == '1' && $booking_history[0]['upcountry_paid_by_customer']== '1' ){ ?>
                         <div class="row">
                             <div class="col-md-12">
-                                <div class="form-group col-md-6">
-                                    <label for="type" class="col-md-4" style="padding-left:10%;">Paid Upcountry Charges</label>
+                                <div class="form-group col-md-6" style="padding:0;">
+                                    <label for="type" class="col-md-4">Paid Upcountry Charges</label>
                                     <div class="col-md-8">
                                         <div class="input-group">
                                             <div class="input-group-addon">Rs.</div>
@@ -733,7 +733,7 @@
                         <?php } else { ?>
                         <center>
                             <input type="hidden" id="customer_id" name="customer_id" value="<?php echo $booking_history[0]['user_id']; ?>">
-                            <?php if($enable_button && empty($is_invoice_generated) && empty($is_spare_pending_for_acknowledge) && in_array($this->session->userdata['user_group'], [_247AROUND_ADMIN, _247AROUND_CLOSURE])){
+                            <?php if($enable_button && empty($is_invoice_generated) && empty($is_spare_pending_for_acknowledge) && in_array($this->session->userdata['user_group'], [_247AROUND_ADMIN, _247AROUND_CLOSURE, _247AROUND_RM])){
                             $is_upcountry = 0;
                             if(($booking_history[0]['upcountry_paid_by_customer'] == 1) && ($booking_history[0]['is_upcountry'] == 1)){
                                 $is_upcountry = 1;

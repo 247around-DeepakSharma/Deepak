@@ -471,6 +471,8 @@ class Service_centers extends CI_Controller {
             $bookng_unit_details[$key1]['sf_dop'] = $b['sf_purchase_date'];
             $bookng_unit_details[$key1]['sf_model_number'] = $b['sf_model_number'];
         }
+        
+        $data['upcountry_charges'] = 0;
         if ($this->session->userdata('is_engineer_app') == 1) {
             $sig_table = $this->engineer_model->getengineer_sign_table_data("*", array("booking_id" => $booking_id,
                 "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']));
@@ -478,6 +480,7 @@ class Service_centers extends CI_Controller {
                 $data['signature'] = $sig_table[0]['signature'];
                 $data['amount_paid'] = $sig_table[0]['amount_paid'];
                 $data['mismatch_pincode'] = $sig_table[0]['mismatch_pincode'];
+                $data['upcountry_charges'] = $sig_table[0]['upcountry_charges'];
             }
         }
 
@@ -4295,7 +4298,7 @@ class Service_centers extends CI_Controller {
         foreach ($generate_challan as $key => $value) {
             if (!empty($generate_challan)) {
                 $post = array();
-                $post['where_in'] = array('spare_parts_details.booking_id' => $value, 'spare_parts_details.status' => SPARE_PARTS_REQUESTED);
+                $post['where_in'] = array('spare_parts_details.booking_id' => $value, 'spare_parts_details.entity_type'=> _247AROUND_SF_STRING, 'spare_parts_details.status' => SPARE_PARTS_REQUESTED);
                 $post['is_inventory'] = true;
                 $select = 'booking_details.booking_id, booking_details.assigned_vendor_id, spare_parts_details.id,spare_parts_details.requested_inventory_id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id,IF(spare_consumption_status.consumed_status !="" , spare_consumption_status.consumed_status, "NA") as consumed_status';
                 $part_details = $this->partner_model->get_spare_parts_by_any($select, array(), true, false, false, $post);
@@ -6846,14 +6849,14 @@ class Service_centers extends CI_Controller {
                             }
                         }
 
-                        $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $sf_id, $part_details['requested_inventory_id'], -$data['quantity']);
+                        //$this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $sf_id, $part_details['requested_inventory_id'], -$data['quantity']);
                     } else if ($part_details['shippingStatus'] == -1) {
                         /* Insert Spare Tracking Details */
                             if (!empty($part_details['spare_id'])) {
-                                $tracking_details = array('spare_id' => $part_details['spare_id'], 'action' => "SPARE TO BE SHIP", 'remarks' => "Warehouse Update - " . $part_details['shipped_parts_name'] . " To Be Shipped", 'agent_id' => $this->session->userdata("service_center_agent_id"), 'entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING);
+                                $tracking_details = array('spare_id' => $part_details['spare_id'], 'action' => "SPARE TO BE SHIP", 'remarks' => "Warehouse Update - " . $part_details['parts_name'] . " To Be Shipped", 'agent_id' => $this->session->userdata("service_center_agent_id"), 'entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING);
                                 $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                             }
-                        $this->insert_details_in_state_change($booking_id, "SPARE TO BE SHIP", "Warehouse Update - " . $part_details['shipped_parts_name'] . " To Be Shipped", "", "", $part_details['spare_id']);
+                        $this->insert_details_in_state_change($booking_id, "SPARE TO BE SHIP", "Warehouse Update - " . $part_details['parts_name'] . " To Be Shipped", "", "", $part_details['spare_id']);
                     }
                 }
                 //If challan was already generated and some part shipped different from requested then regenerate challan
@@ -6918,6 +6921,24 @@ class Service_centers extends CI_Controller {
                             $next_action = $booking['next_action'] = $partner_status[3];
                         }
                         $this->booking_model->update_booking($booking_id, $booking);
+                    } else {
+                        /**
+                         * Check booking internal status is spare parts requested 
+                         * then update actor (partner) if part requested pending on partner
+                         */
+                        // fetch booking details
+                        $booking_internal_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0]['internal_status'];
+                        if(!empty($booking_internal_details) && in_array($booking_internal_details, [SPARE_PARTS_REQUIRED, SPARE_PARTS_REQUESTED])) { 
+                            // fetch all requested parts
+                            $pending_spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*', array('spare_parts_details.booking_id' => $booking_id,'spare_parts_details.status' => SPARE_PARTS_REQUESTED), TRUE, TRUE, false);
+                            if(!empty($pending_spare_parts_details)) {
+                                $entity_types = array_unique(array_column($pending_spare_parts_details, 'entity_type'));
+                                // if no part request pending on warehouse then set Partner.
+                                if(in_array(_247AROUND_PARTNER_STRING, $entity_types)) {
+                                    $this->booking_model->update_booking($booking_id, ['actor' => _247AROUND_PARTNER_STRING]);
+                                }
+                            }
+                        }
                     }
                     
                     $userSession = array('success' => 'Parts Updated');
@@ -9734,11 +9755,10 @@ function do_delivered_spare_transfer() {
      * @date 20-08-2019
      * @return JSON
      */
-    public function get_warranty_data($case = 1) {
+    public function get_warranty_data($case = 1, $checkInstallationDate = 0) {
         $post_data = $this->input->post();
         $arrBookings = $post_data['bookings_data'];
-        $arrBookingsWarrantyStatus = $this->warranty_utilities->get_warranty_status_of_bookings($arrBookings);
-
+        $arrBookingsWarrantyStatus = $this->warranty_utilities->get_warranty_status_of_bookings($arrBookings, $checkInstallationDate);
         switch ($case) {
             case 1:
                 echo json_encode($arrBookingsWarrantyStatus);
