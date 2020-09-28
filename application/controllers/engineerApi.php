@@ -1427,6 +1427,8 @@ class engineerApi extends CI_Controller {
             $en["remarks"] = $requestData['closing_remark'];
             $en["service_center_id"] = $requestData['service_center_id'];
             $en["engineer_id"] = $requestData['engineer_id'];
+            // Update Paid Amount 
+            $en["amount_paid"] = $requestData['amount_paid'];
             /* Update Upcounty amount in engineer_sign_table if available */
             if(isset($requestData['upcountry_charges']) && !empty($requestData['upcountry_charges'])){
                 $en['upcountry_charges']  = $requestData['upcountry_charges']; 
