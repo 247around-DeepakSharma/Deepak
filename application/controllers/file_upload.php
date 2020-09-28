@@ -366,7 +366,12 @@ class File_upload extends CI_Controller {
                         if (empty($hsncode_data)) {
                             $hsn_data['hsn_code'] = $rowData['hsn_code'];
                             $hsn_data['gst_rate'] = $rowData['gst_rate'];
-                            $hsn_data['agent_id'] = $this->session->userdata('id');
+                            if ($this->session->userdata("userType") == _247AROUND_PARTNER_STRING) {
+                                $hsn_data['agent_id'] = $this->session->userdata('agent_id');
+                            } else {
+                                $hsn_data['agent_id'] = $this->session->userdata('id');
+                            }
+
                             $hsn_code_details_id = $this->inventory_model->insert_hsn_code_details($hsn_data);
                         } else {
                             $hsn_code_details_id = $hsncode_data[0]['id'];
@@ -482,6 +487,11 @@ class File_upload extends CI_Controller {
                                             'gst_rate' => $val['gst_rate'], 'oow_around_margin' => $val['oow_around_margin'], 'oow_vendor_margin' => $val['oow_vendor_margin']);
                                         if ($data['saas_module'] == 1) {
                                             $inventory_data['price'] = $val['price'];
+                                        }
+                                        if ($this->session->userdata("userType") == _247AROUND_PARTNER_STRING) {
+                                            $inventory_data['agent_id'] = $this->session->userdata('agent_id');
+                                        } else {
+                                            $inventory_data['agent_id'] = $this->session->userdata('id');
                                         }
                                         $rows_affected = $this->inventory_model->update_inventory_master_list_data($where, $inventory_data);
                                     }
@@ -1204,7 +1214,7 @@ class File_upload extends CI_Controller {
         $tmp_data['price'] = (isset($data['basic_price']) && !empty($data['basic_price'])) ? trim($data['basic_price']) : null;
         $tmp_data['hsn_code'] = (isset($data['hsn_code']) && !empty($data['hsn_code'])) ? trim($data['hsn_code']) : null;
         $tmp_data['gst_rate'] = (isset($data['gst_rate']) && !empty($data['gst_rate'])) ? trim($data['gst_rate']) : null;
-
+        
         if ($this->session->userdata('userType') == _247AROUND_PARTNER_STRING && $this->session->userdata('partner_id')) {
             if ($this->session->userdata('partner_id') == VIDEOCON_ID) {
                 $tmp_data['oow_vendor_margin'] = 10;
@@ -1229,6 +1239,12 @@ class File_upload extends CI_Controller {
             $tmp_data['is_defective_required'] = 1;
         } else {
             $tmp_data['is_defective_required'] = 0;
+        }
+        
+        if ($this->session->userdata("userType") == _247AROUND_PARTNER_STRING) {
+            $tmp_data['agent_id'] = $this->session->userdata('agent_id');
+        } else {
+            $tmp_data['agent_id'] = $this->session->userdata('id');
         }
         
         array_push($this->dataToInsert, $tmp_data);

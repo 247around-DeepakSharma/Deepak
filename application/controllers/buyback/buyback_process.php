@@ -2179,13 +2179,21 @@ class Buyback_process extends CI_Controller {
         if(file_exists($file_name)){
             unlink($file_name);
         }
-        $this->load->dbutil();
-        $this->load->helper('file');
-        $this->delimiter = ",";
-        $this->newline = "\n";
-        $this->new_report = $this->dbutil->csv_from_result($data, $this->delimiter, $this->newline);
-        log_message('info', __FUNCTION__ . ' => Rendered CSV');
-        $this->response =  write_file($file_name, $this->new_report);
+        
+        // open file
+        $file = fopen($file_name, 'w');
+        // set header
+        $header = array_keys($data->result_array()[0]); 
+        fputcsv($file, $header);
+        // write data into csv file
+        foreach ($data->result_array() as $key => $value)
+        { 
+          fputcsv($file, $value); 
+        }
+        // close the file
+        fclose($file); 
+        // set response
+        $this->response = $file;
     }
     
     function download_review_orders(){

@@ -3123,6 +3123,12 @@ class Inventory extends CI_Controller {
     function process_inventoy_master_list_data() {
         $submit_type = $this->input->post('submit_type');
         if (!empty($submit_type)) {
+            if ($this->session->userdata("userType") == _247AROUND_PARTNER_STRING) {
+                $agent_id = $this->session->userdata('agent_id');
+            } else {
+                $agent_id = $this->session->userdata('id');
+            }
+           
             $data = array('part_name' => trim($this->input->post('part_name')),
                 'part_number' => trim($this->input->post('part_number')),
                 'size' => trim($this->input->post('size')),
@@ -3137,6 +3143,7 @@ class Inventory extends CI_Controller {
                 'oow_vendor_margin' => $this->input->post('oow_vendor_margin'),
                 'oow_around_margin' => $this->input->post('oow_around_margin'),
                 'is_defective_required' => $this->input->post('is_defective_required'),
+                'agent_id' => $agent_id
             );
 
 
@@ -8094,8 +8101,45 @@ class Inventory extends CI_Controller {
 
         echo json_encode($output);
     }
+     function rejection_cancellation_reason() {
+        $where['reason_of']='vendor';
+        $data['reason'] = $this->booking_model->cancelreason($where);
+         $data['cancel_reject'] = $this->inventory_model->show_cancel_reject_list();
+        $data['penalty'] = $this->inventory_model->get_review_reject();
+         $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/rejection_cancellation_reason',$data);
+    }
+    public function save_reject_cancel() {
+        //print_r($_POST); die;
+        $data['id'] = $this->input->post('review_id');
+        $data['rejection_reason'] = $this->input->post('review_reject');
+        $data['cancellation_reason'] = $this->input->post('cancellation');
+        $data['active'] = $this->input->post('active');
+        $where['rejection_reason'] = $this->input->post('review_reject');
+        $where['cancellation_reason'] = $this->input->post('cancellation');
+        $count_data_present = $this->inventory_model->show_cancel_reject_list($where);
+        if(empty($count_data_present) || !empty($data['id'])){
+            $this->inventory_model->save_review_data($data);  
+            $this->session->set_userdata(array("success"=> "Mapping added"));
+        }else{
+        $this->session->set_userdata(array("error"=> "Mapping already exist"));
+        }
+        // $this->inventory_model->save_review_data($data);                
+        redirect(base_url() . 'employee/inventory/rejection_cancellation_reason');
+    }
     
     
+    public function get_cancel_reject_data() {
+        $data = $this->input->post();
+        $id = !empty($data['id']) ? $data['id'] : "";
+        $cancel_reject_data = [];
+        if(!empty($id))
+        {
+            $cancel_reject_data = $this->db->get_where('cancellation_rejection_penalty_mapping', array('id' => $id))->row();
+        }
+        
+        echo(json_encode($cancel_reject_data));
+    }
      /** 
      * @desc: This function is used to create table body to table.
      * @param: Array
