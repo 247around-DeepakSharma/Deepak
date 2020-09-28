@@ -1427,6 +1427,10 @@ class engineerApi extends CI_Controller {
             $en["remarks"] = $requestData['closing_remark'];
             $en["service_center_id"] = $requestData['service_center_id'];
             $en["engineer_id"] = $requestData['engineer_id'];
+            /* Update Upcounty amount in engineer_sign_table if available */
+            if(isset($requestData['upcountry_charges']) && !empty($requestData['upcountry_charges'])){
+                $en['upcountry_charges']  = $requestData['upcountry_charges']; 
+            }
             $is_exist = $this->engineer_model->get_engineer_sign("id", array("service_center_id" => $requestData['service_center_id'], "booking_id" => $booking_id));
             if (!empty($is_exist)) {
                 $this->engineer_model->update_engineer_action_sig(array("id" => $is_exist[0]['id']), $en);
@@ -1447,10 +1451,6 @@ class engineerApi extends CI_Controller {
             $this->vendor_model->update_service_center_action($booking_id, $service_center_data);
             // update booking.
             $booking['service_center_closed_date'] = $data["closed_date"];
-            /* Update Upcounty amount if available */
-            if(isset($requestData['upcountry_charges']) && !empty($requestData['upcountry_charges'])){
-                $booking['customer_paid_upcountry_charges']  = $requestData['upcountry_charges']; 
-            }
             $this->booking_model->update_booking($booking_id, $booking);
 
             if (isset($requestData['sc_agent_id'])) {
@@ -2628,13 +2628,13 @@ class engineerApi extends CI_Controller {
                 }
 
                 if (isset($requestData['invoice_number_pic_exist'])) {
-                    if ($requestData['invoice_number_pic_exist']) {
+                    if (isset($requestData['invoice_number_pic_exist']) && $requestData['invoice_number_pic_exist']) {
                         $invoice_pic = "invoice_" . $requestData['booking_id'] . "_" . date("YmdHis") . ".png";
                         $this->miscelleneous->generate_image($requestData['invoice_number_pic_exist'], $invoice_pic, "purchase-invoices");
                         $requestData['invoice_pic'] = $invoice_pic;
                     }
                 } else {
-                    if ($requestData['existing_purchase_invoice']) {
+                    if (isset($requestData['existing_purchase_invoice']) && $requestData['existing_purchase_invoice']) {
                         $invoice_pic = "invoice_" . $requestData['booking_id'] . "_" . date("YmdHis") . ".png";
                         $this->miscelleneous->generate_image($requestData['existing_purchase_invoice'], $invoice_pic, "purchase-invoices");
                         $requestData['invoice_pic'] = $invoice_pic;
@@ -2979,7 +2979,7 @@ class engineerApi extends CI_Controller {
                 $response['is_consumption_required'] = false;
             }
             $bookingDetails = $this->reusable_model->get_search_query("booking_details", "upcountry_paid_by_customer,partner_upcountry_rate,upcountry_distance,is_upcountry", array("booking_id" => $requestData['booking_id']), false, false, false, false, false)->result_array();
-            if($bookingDetails['is_upcountry'] && $bookingDetails['upcountry_paid_by_customer']){
+            if($bookingDetails[0]['is_upcountry'] && $bookingDetails[0]['upcountry_paid_by_customer']){
              $response['upcountry_paid_by_customer'] = 1;   
             }else{
               $response['upcountry_paid_by_customer'] = 0;  
@@ -3170,6 +3170,8 @@ class engineerApi extends CI_Controller {
                     curl_setopt($ch, CURLOPT_HEADER, false);
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                     curl_setopt($ch, CURLOPT_POST, true);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
                     $curl_response = curl_exec($ch);
                     curl_close($ch);

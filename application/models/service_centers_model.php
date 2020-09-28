@@ -998,7 +998,12 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
              return $collateralData;   
             }
         }
+        if(!empty($collateralDataNew)) {
         return $collateralDataNew;
+    }
+    else {
+        return 0; 
+    }
     }
 
 
