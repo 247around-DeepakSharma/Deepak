@@ -471,6 +471,8 @@ class Service_centers extends CI_Controller {
             $bookng_unit_details[$key1]['sf_dop'] = $b['sf_purchase_date'];
             $bookng_unit_details[$key1]['sf_model_number'] = $b['sf_model_number'];
         }
+        
+        $data['upcountry_charges'] = 0;
         if ($this->session->userdata('is_engineer_app') == 1) {
             $sig_table = $this->engineer_model->getengineer_sign_table_data("*", array("booking_id" => $booking_id,
                 "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']));
@@ -478,6 +480,7 @@ class Service_centers extends CI_Controller {
                 $data['signature'] = $sig_table[0]['signature'];
                 $data['amount_paid'] = $sig_table[0]['amount_paid'];
                 $data['mismatch_pincode'] = $sig_table[0]['mismatch_pincode'];
+                $data['upcountry_charges'] = $sig_table[0]['upcountry_charges'];
             }
         }
 
@@ -4296,7 +4299,7 @@ class Service_centers extends CI_Controller {
         foreach ($generate_challan as $key => $value) {
             if (!empty($generate_challan)) {
                 $post = array();
-                $post['where_in'] = array('spare_parts_details.booking_id' => $value, 'spare_parts_details.status' => SPARE_PARTS_REQUESTED);
+                $post['where_in'] = array('spare_parts_details.booking_id' => $value, 'spare_parts_details.entity_type'=> _247AROUND_SF_STRING, 'spare_parts_details.status' => SPARE_PARTS_REQUESTED);
                 $post['is_inventory'] = true;
                 $select = 'booking_details.booking_id, booking_details.assigned_vendor_id, spare_parts_details.id,spare_parts_details.requested_inventory_id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id,IF(spare_consumption_status.consumed_status !="" , spare_consumption_status.consumed_status, "NA") as consumed_status';
                 $part_details = $this->partner_model->get_spare_parts_by_any($select, array(), true, false, false, $post);

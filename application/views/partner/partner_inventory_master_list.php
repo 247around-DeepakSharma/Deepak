@@ -266,6 +266,17 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label class="control-label col-md-4" for="is_defective_required">Is defective/Ok Part Required</label>
+                                                    <div class="col-md-7 col-md-offset-1">
+                                                        <select class="form-control" id="is_defective_required" name="is_defective_required">
+                                                            <option value="0">No</option>
+                                                            <option value="1">Yes</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
                                             
                                         </div>
 
