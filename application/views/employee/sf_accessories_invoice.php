@@ -93,7 +93,7 @@
                                                     <label for="quantity" class="col-md-4">Quantity *</label>							
                                                     <div class="col-md-6">
                                                         <div class="quantity_holder" id="quantity_holder_1">
-                                                            <select class="form-control quantity" name ="accessories[0][qty]" id="quantity_1" minimum="1" maximum="30" required>
+                                                            <select class="form-control quantity" name ="accessories[0][qty]" id="quantity_1" minimum="1" maximum="100" required>
                                                                 <option selected  value=''>Select Quantity</option>
                                                                 <?php foreach ($quantity_list as $key => $value) {
                                                                     ?>
