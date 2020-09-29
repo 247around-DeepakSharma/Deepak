@@ -2773,3 +2773,6 @@ INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `
 ALTER TABLE `zopper_estimate_details` ADD `around_service_commission` DECIMAL(10,2) NOT NULL AFTER `service_charge`;
 ALTER TABLE `zopper_estimate_details` ADD `around_transport_commission` DECIMAL(10,2) NOT NULL AFTER `transport_charge`;
 ALTER TABLE `zopper_estimate_details` ADD `around_courier_commission` DECIMAL(10,2) NOT NULL AFTER `courier_charge`;
+
+--ABhay
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `booking_id`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'sf_agreement_template', 'SF Agreement Copy', 'Hi,\r\n\r\nPlease find the attached agreement', NULL, 'noreply@2r7around.com', '', 'ap@247around.com', '', '1', CURRENT_TIMESTAMP);

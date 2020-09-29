@@ -32,21 +32,7 @@
             <center>Validity: <?php //echo $financial_year; ?> </center>
                         <br/><br/></td>
     </tr>
-    <tr style="vertical-align: top;">
-        <td style="text-align:right">
-            <?php echo isset($agreement_ip_address)? $agreement_ip_address : ''; ?>
-        </td>
-    </tr>
-    <tr style="vertical-align: top;">
-        <td style="text-align:right;padding-right: 30px;">
-            <?php echo isset($email)? $email : ''; ?>
-        </td>
-    </tr>
-    <tr style="vertical-align: top;">
-        <td style="text-align:right;padding-right: 30px;">
-            <?php echo (isset($agreement_sign_datetime) && $agreement_sign_datetime != '0000-00-00')? date('d-m-Y h:i:s a',strtotime($agreement_sign_datetime)) : ''; ?>
-        </td>
-    </tr>
+    
 </tbody>
 </table>
 
