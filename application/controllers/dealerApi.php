@@ -1068,6 +1068,8 @@ function submitEscalation(){
                             }else{
                                 $gm = 0;
                             }
+                        }else{
+                            $kg = $gm = '';
                         }
                         $spare_defective[$key]['sf_billable_weight'] = $kg . " " . $gm;
                     }
