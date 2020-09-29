@@ -5699,7 +5699,7 @@ class Booking extends CI_Controller {
             booking_details.booking_address as 'Booking Address',booking_details.booking_pincode as 'Booking Pincode',booking_details.booking_timeslot as 'Booking Timeslot',
             booking_details.booking_remarks as 'Booking Remarks',service_centres.name as 'Service Centre Name' , engineer_details.name as 'Engineer Name', booking_details.is_upcountry, service_centres.primary_contact_name as SF_POC_Name,
              service_centres.primary_contact_phone_1 as SF_POC_NUMBER,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as 'Booking Day', booking_details.create_date as 'Create Date',
-             booking_details.partner_internal_status as 'Partner Internal Status',DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as  'Initial Booking Date', employee.full_name as RM, employee_am.full_name as AM ";
+             booking_details.partner_internal_status as 'Partner Internal Status',DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as  'Initial Booking Date', employee.full_name as RM, employee_am.full_name as AM,booking_details.city as 'City' ";
             
             $list =  $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,1,'',0);
         }
