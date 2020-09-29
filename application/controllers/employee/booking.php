@@ -57,6 +57,7 @@ class Booking extends CI_Controller {
         $this->load->library('validate_serial_no');
         $this->load->library("invoice_lib");
         $this->load->library("booking_creation_lib");
+        $this->load->library('user_agent');
         $this->load->helper('file');
         $this->load->dbutil();
         
@@ -2939,7 +2940,7 @@ class Booking extends CI_Controller {
             $upload_serial_number_pic = $_FILES['upload_serial_number_pic'];
         }
         $pod = $this->input->post('pod');
-        $price_tags_array = $this->input->post('price_tags');
+        $price_tag = $this->input->post('selected_price_tags');
         $booking_status = $this->input->post('booking_status');
         $partner_id = $this->input->post('partner_id');
         $user_id = $this->input->post('user_id');
@@ -2947,71 +2948,59 @@ class Booking extends CI_Controller {
         $service_id = $this->input->post('appliance_id');
         $return_status = true;
         $message = "";
-        if (isset($_POST['pod'])) {
-            foreach ($pod as $unit_id => $value) {
-                  if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
-                    if(!empty($serial_number[$unit_id])) {
-                        $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
-                        if (!ctype_alnum($serial_number[$unit_id])) {
-                            log_message('info', "Serial Number Entered With Special Character " . $serial_number[$unit_id] . " . This is not allowed.");
-                            $this->form_validation->set_message('validate_serial_no', "Serial Number Entered With Special Character " . $serial_number[$unit_id] . " . This is not allowed.");
-                            return FALSE;
-                        }
+        if (isset($pod)) {
+            if(!empty($serial_number)) {
+                $trimSno = str_replace(' ', '', trim($serial_number));
+                if (!ctype_alnum($serial_number)) {
+                    log_message('info', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
+                    $this->form_validation->set_message('validate_serial_no', "Serial Number Entered With Special Character " . $serial_number[$unit_id] . " . This is not allowed.");
+                    return FALSE;
+                }
+            }
+            if($pod == '1'){
+                if(isset($upload_serial_number_pic['name']) && ($upload_serial_number_pic['name'])){
+                    $s =  $this->upload_insert_upload_serial_no($upload_serial_number_pic, $partner_id, $trimSno);
+                    if(empty($s)){
+                        $this->form_validation->set_message('validate_serial_no', 'Serial Number, File size or file type is not supported. Allowed extentions are png, jpg, jpeg and pdf. Maximum file size is 5 MB.');
+                        $return_status = false;
                     }
-                    $price_tag = $price_tags_array[$unit_id];
-                    if ($value == '1') {
-                        if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
-                           if(isset($upload_serial_number_pic['name'][$unit_id]) && ($upload_serial_number_pic['name'][$unit_id])){
-                                    $s =  $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno);
-                                       if(empty($s)){
-                                                 $this->form_validation->set_message('validate_serial_no', 'Serial Number, File size or file type is not supported. Allowed extentions are png, jpg, jpeg and pdf. '
-                            . 'Maximum file size is 5 MB.');
-                                                $return_status = false;
-                                            }
-                                 }
-                                 else{
-                                     if(!(isset($this->input->post('serial_number_pic')[$unit_id]) && ($this->input->post('serial_number_pic')[$unit_id]))){
-                                           $return_status = false;
-                                           $s = $this->form_validation->set_message('validate_serial_no', "Please upload serial number image");
-                                     }
-                                 }
-                            $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number[$unit_id]), $price_tag, $user_id, $booking_id,$service_id);
-                            if (!empty($status)) {
-                                if ($status['code'] == DUPLICATE_SERIAL_NO_CODE) {
-                                    $return_status = false;
-                                    $message = $status['message'];
-                                    log_message('info', " Duplicate Serial No " . trim($serial_number[$unit_id]));
-                                    break;
-                                }
-                            }
-                        }
+                }
+                else{
+                    if(empty($this->input->post('serial_number_pic'))){
+                        $return_status = false;
+                        $s = $this->form_validation->set_message('validate_serial_no', "Please upload serial number image");
                     }
-                    elseif ($value == '0') {
-                        // upload serial number image in case of POD = 0 also
-                        if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
-                            if(isset($upload_serial_number_pic['name'][$unit_id]) && ($upload_serial_number_pic['name'][$unit_id])){
-                                $s =  $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno);
-                                if(empty($s)){
-                                    $this->form_validation->set_message('validate_serial_no', 'Serial Number, File size or file type is not supported. Allowed extentions are png, jpg, jpeg and pdf. Maximum file size is 5 MB.');
-                                    $return_status = false;
-                                }
-                            }
-                        }
+                }
+                $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), $price_tag, $user_id, $booking_id, $service_id);
+                if (!empty($status)) {  
+                    if ($status['code'] == DUPLICATE_SERIAL_NO_CODE) {
+                        $return_status = false;
+                        $message = $status['message'];
+                        log_message('info', " Duplicate Serial No " . trim($serial_number));
                     }
                 }
             }
-            if ($return_status == true) {
-                return true;
-            } else {
-                $this->form_validation->set_message('validate_serial_no', $message);
-                return FALSE;
+            elseif ($value == '0') {
+                // upload serial number image in case of POD = 0 also
+                if(isset($upload_serial_number_pic['name']) && ($upload_serial_number_pic['name'])){
+                    $s =  $this->upload_insert_upload_serial_no($upload_serial_number_pic, $partner_id, $trimSno);
+                    if(empty($s)){
+                        $this->form_validation->set_message('validate_serial_no', 'Serial Number, File size or file type is not supported. Allowed extentions are png, jpg, jpeg and pdf. Maximum file size is 5 MB.');
+                        $return_status = false;
+                    }
+                }
             }
-        } else {
-            return TRUE;
         }
-    }
+        if ($return_status == true) {
+            return true;
+        }
+        else {
+            $this->form_validation->set_message('validate_serial_no', $message);
+            return FALSE;
+        }
+    }        
 
-    
+                   
     /**
      *  @desc : This function is to present form to open completed bookings
      *
@@ -6138,22 +6127,17 @@ class Booking extends CI_Controller {
      * @param String $serial_number
      * @return boolean
      */
-    function upload_insert_upload_serial_no($upload_serial_number_pic, $unit, $partner_id, $serial_number){
+    function upload_insert_upload_serial_no($upload_serial_number_pic, $partner_id, $serial_number){
         log_message('info', __METHOD__. " Enterring ...");
-        if (!empty($upload_serial_number_pic['tmp_name'][$unit])) {
-           
+        if (!empty($upload_serial_number_pic['tmp_name'])) {           
             $pic_name = $this->upload_serial_no_image_to_s3($upload_serial_number_pic, 
-                    "serial_number_pic_".$this->input->post('booking_id')."_", $unit, SERIAL_NUMBER_PIC_DIR, "serial_number_pic");
-            if($pic_name){
-                
+                    "serial_number_pic_".$this->input->post('booking_id')."_", SERIAL_NUMBER_PIC_DIR, "serial_number_pic");
+            if($pic_name){                
                 return true;
-            } else {
-              
+            } else {              
                 return false;
-            }
-            
-        } else {
-           
+            }            
+        } else {           
             return TRUE;
         }
     }
@@ -6162,40 +6146,33 @@ class Booking extends CI_Controller {
      * @desc This is used to upload serial no image to S3
      * @param Array $file
      * @param String $type
-     * @param Int $unit
      * @param String $s3_directory
      * @param String $post_name
      * @return boolean|string
      */
-    public function upload_serial_no_image_to_s3($file, $type, $unit, $s3_directory, $post_name) {
+    public function upload_serial_no_image_to_s3($file, $type, $s3_directory, $post_name) {
         log_message('info', __FUNCTION__ . " Enterring ");
         $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
         $MB = 1048576;
-        $temp = explode(".", $file['name'][$unit]);
+        $temp = explode(".", $file['name']);
         $extension = end($temp);
-        //$filename = prev($temp);
 
-        if ($file["name"][$unit] != null) {
-            if (($file["size"][$unit] < 2 * $MB) && in_array($extension, $allowedExts)) {
-                if ($file["error"][$unit] > 0) {
-
+        if ($file["name"] != null) {
+            if (($file["size"] < 2 * $MB) && in_array($extension, $allowedExts)) {
+                if ($file["error"] > 0) {
                    return false;
-                } else {
-                   
-                    $picName = $type . rand(10, 100) . $unit . "." . $extension;
-                    $_POST[$post_name][$unit] = $picName;
+                } else {                   
+                    $picName = $type . rand(10, 100) . "." . $extension;
+                    $_POST[$post_name] = $picName;
                     $bucket = BITBUCKET_DIRECTORY;
                     $directory = $s3_directory . "/" . $picName;
-                    $this->s3->putObjectFile($file["tmp_name"][$unit], $bucket, $directory, S3::ACL_PUBLIC_READ);
-
+                    $this->s3->putObjectFile($file["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
                     return $picName;
                 }
-            } else {
-                
+            } else {                
                 return FALSE;
             }
         } else {
-
             return FALSE;
         }
         log_message('info', __FUNCTION__ . " Exit ");
@@ -6334,12 +6311,24 @@ class Booking extends CI_Controller {
         }
         if (!empty($bookings)) {
             $arr_post = $this->input->post();
+            $redirect_url = base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id));
+            if ($this->agent->is_referral())
+            {
+                $redirect_url = $this->agent->referrer();
+            }
+            // If Price Tags are not selected, Redirect to same Page            
             if(empty($arr_post['selected_price_tags'])){
-                redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
+                redirect($redirect_url);
             }
             else{
             if ($arr_post) {
                 $checkValidation = $this->booking_creation_lib->validate_booking();
+                $this->form_validation->set_rules('pod', 'POD ', 'callback_validate_serial_no');
+                // Serial Number Validation fails
+                if($this->form_validation->run() !== TRUE)
+                {
+                    redirect($redirect_url);
+                }
                 if ($checkValidation) {
                     log_message('info', __FUNCTION__ . " Booking ID  " . $booking_id . " User ID: " . $user_id);
 
@@ -6370,12 +6359,12 @@ class Booking extends CI_Controller {
                         }
                         else
                         {
-                        redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
-                    }
+                            redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
+                        }
                     }
                 } else {
                     //Redirect to edit booking page if validation err occurs
-                    $userSession = array('error' => 'Booking => '.$booking_id.' is not Valid.');
+                    $userSession = array('error' => validation_errors());
                     $this->session->set_userdata($userSession);
                     if(!empty($arr_post['redirect_url']))
                     {
@@ -6383,8 +6372,8 @@ class Booking extends CI_Controller {
                     }
                     else
                     {
-                    redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
-                }
+                        redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
+                    }
                 }
             } else {
                 //Logging error if No input is provided
