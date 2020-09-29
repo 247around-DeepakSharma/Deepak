@@ -597,7 +597,10 @@ class Booking extends CI_Controller {
                 $booking['booking_remarks'] = $remarks;
                 $new_state = $booking_id_with_flag['new_state'];
                 $old_state = $booking_id_with_flag['old_state'];
-                $booking['current_status'] =  _247AROUND_PENDING;
+                // Do not change Booking Current status ,if request type is changed from Step 1 of Booking Completion flow
+                if(empty($is_sf_panel)){
+                    $booking['current_status'] =  _247AROUND_PENDING;
+                }
             } else if ($booking['type'] == 'Query') {
 
                 $booking['current_status'] = _247AROUND_FOLLOWUP;
