@@ -5640,9 +5640,10 @@ class Booking extends CI_Controller {
             $select = " DISTINCT booking_details.booking_id as 'Booking ID',DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) as Ageing,spare_parts_details.parts_requested as 'Part Requested',spare_parts_details.parts_shipped as 'Part Shipped',emp_asm.full_name as  'ASM name',partners.public_name as Partner,users.name as 'Customer Name',
             services.services as Services,penalty_on_booking.active as 'Penalty Active',users.phone_number as 'Phone Number',users.alternate_phone_number as 'Alternate Phone Number',booking_details.order_id as 'Order ID',booking_details.request_type as 'Request Type',booking_details.state as State,booking_details.internal_status as 'Internal Status',
             booking_details.booking_address as 'Booking Address',booking_details.booking_pincode as 'Booking Pincode',booking_details.booking_timeslot as 'Booking Timeslot',
-            booking_details.booking_remarks as 'Booking Remarks',service_centres.name as 'Service Center Name' , engineer_details.name as 'Engineer Name', booking_details.is_upcountry as 'Is Upcountry', service_centres.primary_contact_name as 'SF POC Name',
-             service_centres.primary_contact_phone_1 as 'SF POC NUMBER',DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as 'Booking Day', booking_details.create_date as 'Create Date',
-             booking_details.partner_internal_status as 'Partner Internal Status',DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as  'Initial Booking Date', employee.full_name as RM, employee_am.full_name as AM ";
+            booking_details.booking_remarks as 'Booking Remarks',service_centres.name as 'Service Centre Name' , engineer_details.name as 'Engineer Name', booking_details.is_upcountry, service_centres.primary_contact_name as SF_POC_Name,
+             service_centres.primary_contact_phone_1 as SF_POC_NUMBER,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as 'Booking Day', booking_details.create_date as 'Create Date',
+
+             booking_details.partner_internal_status as 'Partner Internal Status',DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as  'Initial Booking Date', employee.full_name as RM, employee_am.full_name as AM,booking_details.city as 'City' ";
             
             $list =  $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,1,'',0);
         }
