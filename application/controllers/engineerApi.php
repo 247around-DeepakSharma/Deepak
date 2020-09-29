@@ -2179,22 +2179,15 @@ class engineerApi extends CI_Controller {
 
      */
     
-    function getBookingWarrantyFlag($request_type){
-        
-        $in_warranty_array = array('In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation', 'PDI', 'Demo', 'Tech Visit', 'Replacement', 'Spare Cannibalization');
-      
-        foreach($in_warranty_array as $warranty){
-           if(strripos($request_type,$warranty)){
-             return TRUE  ;
-           }else{
-               return FALSE;
-           }
-            
+    function getBookingWarrantyFlag($request_type) {
+        if (strpos($request_type, 'Out Of Warranty') == true || strpos($request_type, 'Gas Recharge - Out') == true) {
+            return false;
+            //return false in case of out of warranty and invoice pic is not required
+        } else {
+            return true;
+            //return true in case of In-Warranty and invoice pic is required
         }
-                
     }
-    
-    
 
     function getMissedBookings($requestData=array()) {
         log_message("info", __METHOD__ . " Entering..");
