@@ -1427,6 +1427,8 @@ class engineerApi extends CI_Controller {
             $en["remarks"] = $requestData['closing_remark'];
             $en["service_center_id"] = $requestData['service_center_id'];
             $en["engineer_id"] = $requestData['engineer_id'];
+            // Update Paid Amount 
+            $en["amount_paid"] = $requestData['amount_paid'];
             /* Update Upcounty amount in engineer_sign_table if available */
             if(isset($requestData['upcountry_charges']) && !empty($requestData['upcountry_charges'])){
                 $en['upcountry_charges']  = $requestData['upcountry_charges']; 
@@ -2127,10 +2129,8 @@ class engineerApi extends CI_Controller {
             "booking_details.booking_timeslot" => $slot,
             "engineer_booking_action.internal_status != '" . _247AROUND_CANCELLED . "'" => NULL,
             "engineer_booking_action.internal_status != '" . _247AROUND_COMPLETED . "'" => NULL,
-            "((DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) = 0) OR (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) = -1))" => NULL,
-            "service_center_booking_action.current_status = '" . _247AROUND_PENDING . "'" => NULL,
-            "(booking_details.current_status = '" . _247AROUND_PENDING . "' OR booking_details.current_status = '" . _247AROUND_RESCHEDULED . "')" => NULL,
-            "booking_details.partner_internal_status !='Booking Completed By Engineer'" => NULL
+            "(((DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) = 0)  AND (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled'))  "
+            . "OR ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) = -1)) AND booking_details.current_status='Pending' ) AND service_center_booking_action.current_status = 'Pending' AND booking_details.nrn_approved = 0  AND booking_details.partner_internal_status !='Booking Completed By Engineer'" => NULL
         );
         $bookings = $this->engineer_model->get_engineer_booking_details($select, $where, true, true, true, false, false, false, true);
         if ($engineer_pincode) {
@@ -2174,22 +2174,15 @@ class engineerApi extends CI_Controller {
 
      */
     
-    function getBookingWarrantyFlag($request_type){
-        
-        $in_warranty_array = array('In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation', 'PDI', 'Demo', 'Tech Visit', 'Replacement', 'Spare Cannibalization');
-      
-        foreach($in_warranty_array as $warranty){
-           if(strripos($request_type,$warranty)){
-             return TRUE  ;
-           }else{
-               return FALSE;
-           }
-            
+    function getBookingWarrantyFlag($request_type) {
+        if (strpos($request_type, 'Out Of Warranty') == true || strpos($request_type, 'Gas Recharge - Out') == true) {
+            return false;
+            //return false in case of out of warranty and invoice pic is not required
+        } else {
+            return true;
+            //return true in case of In-Warranty and invoice pic is required
         }
-                
     }
-    
-    
 
     function getMissedBookings($requestData = array()) {
         log_message("info", __METHOD__ . " Entering..");
@@ -3963,6 +3956,7 @@ class engineerApi extends CI_Controller {
                         $data['Bookings'][$key]['booking_distance'] = $distance;
 
                         $unit_data = $this->booking_model->get_unit_details(array("booking_id" => $value['booking_id']), false, "appliance_brand, appliance_category, appliance_capacity");
+                        $data['Bookings'][$key]['in_out_status'] = $this->getBookingWarrantyFlag($value['request_type']);
                         $data['Bookings'][$key]['appliance_brand'] = $unit_data[0]['appliance_brand'];
                         $data['Bookings'][$key]['appliance_category'] = $unit_data[0]['appliance_category'];
                         $data['Bookings'][$key]['appliance_capacity'] = $unit_data[0]['appliance_capacity'];
