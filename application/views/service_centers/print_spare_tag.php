@@ -74,7 +74,7 @@ td, th {
     <span>-------<i class="fa fa-scissors">-------------------------------------------------</i></span>
     <br>
     <br>
-   <div style="float:left;border: 1px solid #ccc; margin-top: 20px; padding:8px; width: 300px; height: 460px;">
+   <div style="float:left;border: 1px solid #ccc; margin-top: 20px; padding:8px; width: 300px; height: 420px;">
     <div style="border: 1px solid #ccc;">
         <?php if($meta['main_company_logo']){ ?>
         <img style='vertical-align:middle;width:50px;' src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_logo']; ?>">
@@ -103,10 +103,8 @@ td, th {
         
     </div>
 </div>
-<br>
 </div>
 <?php $i++; } ?>
-<br><br><br><br>
 <script>
  $(window).load(function(){
     window.print();

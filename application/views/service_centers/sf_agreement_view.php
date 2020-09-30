@@ -13,6 +13,11 @@ and open the template in the editor.
 <!--        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>-->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <style>
+            .removedisplay{
+               display: none !important;
+            }
+        </style>
     </head>
     <body>
         
@@ -26,8 +31,8 @@ and open the template in the editor.
                 <div class="modal-content">
                     <div class="modal-header">
                         <h3 class="modal-title" id="exampleModalLabel">Service Franchise Agreement </h3>
-                        <p id="a_success" style="color:green; display:none"><?php echo SUCESS_MESSAGE_SF_AGREEMENT;?></p>
-                        <p id="a_failure" style="color:red; display: none"><?php echo FAILURE_MESSAGE_SF_AGREEMENT;?></p>
+                        <p id="a_success" style="color:green;" class="removedisplay"><?php echo SUCESS_MESSAGE_SF_AGREEMENT;?></p>
+                        <p id="a_failure" style="color:red;" class="removedisplay"><?php echo FAILURE_MESSAGE_SF_AGREEMENT;?></p>
                     </div>
                     <div class="modal-body" style="max-height: 450px;overflow-y: scroll;overflow-x: hidden;">
                         <?php echo $template['template']; ?>
@@ -40,7 +45,7 @@ and open the template in the editor.
                         <?php if($skip_btn){ ?>
                         <button type="button" id="btn-skip" class="btn btn-secondary" data-dismiss="modal">Skip</button>
                         <?php } ?>
-                        <button type="button" id="btn-close" style="display:none; float:right" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" id="btn-close" style="float:right" class="btn btn-secondary removedisplay" data-dismiss="modal">Close</button>
                         <button type="button" id="btn-agree" class="btn btn-success" disabled>I agree</button>
                         
                         <input type="hidden" id="sf_id" value="<?php echo $sf_id; ?>"/>
@@ -49,6 +54,7 @@ and open the template in the editor.
                 </div>
             </div>
         </div>
+
         <script>
             $('document').ready(function () {
 
@@ -66,7 +72,7 @@ and open the template in the editor.
                     $('#btn-agree').prop("disabled", true);
                     $('#chk-agree').prop("disabled", true);
                     $('#btn-agree').html('processing....');
-                    $('#a_success').css('display', 'block');
+                    //$('#a_success').removeCss('display', 'block');
                                 
                     $.ajax({
                         type: 'POST',
@@ -76,14 +82,14 @@ and open the template in the editor.
                             response = JSON.parse(response);
                             console.log(response);
                             if(response.success){
-                                $('#a_success').css('display', 'block');
-                                $('#btn-close').css('display', 'block');
-                                $('#btn-agree').css('display', 'none');
-                                $('#btn-skip').css('display', 'none');
+                                $('#a_success').removeClass('removedisplay');
+                                $('#btn-close').removeClass('removedisplay');
+                                $('#btn-agree').addClass('removedisplay');
+                                $('#btn-skip').addClass('removedisplay');
                                 //window.location.href = '<?php// echo base_url(); ?>'+'service_center/dashboard';
                             } else {
-                                $('#a_success').css('display', 'none');
-                                $('#a_faliure').css('display', 'block');
+                                $('#a_success').addClass('removedisplay');
+                                $('#a_faliure').removeClass('removedisplay');
                             }
                         }
                             

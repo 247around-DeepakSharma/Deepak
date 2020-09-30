@@ -2449,8 +2449,10 @@ class Booking_model extends CI_Model {
      *  @param : $select string
      *  @return: Array()
      */
+
         function get_bookings_by_status($post, $select = "",$sfIDArray = array(),$is_download=0,$is_spare=NULL,$partner_details=0,$join_array=array(),$join_type_array=array()) {        
             $this->_get_bookings_by_status($post, $select);
+
         if ($post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
         }
@@ -2475,16 +2477,6 @@ class Booking_model extends CI_Model {
         if($is_spare){
             $this->db->join('spare_parts_details', 'booking_details.booking_id  = spare_parts_details.booking_id', 'left');
             $this->db->group_by('booking_details.booking_id'); 
-        }
-        if(!empty($join_array)){
-            foreach ($join_array as $tableName => $joinCondition){
-                if(array_key_exists($tableName, $join_type_array)){
-                    $this->db->join($tableName,$joinCondition,$join_type_array[$tableName]);
-                }
-                else{
-                    $this->db->join($tableName,$joinCondition);
-                }
-            }
         }
         $query = $this->db->get();
         if($is_download){

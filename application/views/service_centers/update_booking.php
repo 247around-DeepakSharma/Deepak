@@ -208,7 +208,7 @@ $arr_partner_discount = array();
                                                 <input type="hidden" id="sno_required" class="form-control" name="is_sn_file" value="0"   />
                                                 <input type="hidden" id="duplicate_sno_required" class="form-control" name="is_dupliacte" value="0"   />
                                                 <input type="hidden" id="is_sn_correct" class="form-control" name="is_sn_correct"/>                                                                    
-                                                <!--<input type="file" id="upload_serial_number_pic" class="form-control serialNumberPic" name="upload_serial_number_pic" value="<?php echo $serial_number_pic; ?>" style="margin-top:5px;"/>-->
+                                                <input type="file" id="upload_serial_number_pic" class="form-control serialNumberPic" name="upload_serial_number_pic" value="<?php echo $serial_number_pic; ?>" style="margin-top:5px;"/>
                                                 <?php
                                                 if(!empty($serial_number_pic)) {
                                                     $url="https://s3.amazonaws.com/". BITBUCKET_DIRECTORY.'/'.SERIAL_NUMBER_PIC_DIR.'/'.$serial_number_pic; ?>
@@ -585,6 +585,7 @@ $arr_partner_discount = array();
 </script>
 <script>
     check_pincode();
+    validateSerialNo();
     if(($("#model_not_mapped").val() != 1) && ($("#is_spare_requested").val() == ""))
     {
         $(".select-model").select2();
