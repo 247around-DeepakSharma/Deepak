@@ -5679,22 +5679,20 @@ class Booking extends CI_Controller {
              
             $post['join']['spare_parts_details'] = "booking_details.booking_id  = spare_parts_details.booking_id";
             $post['join']['partners'] = "booking_details.partner_id  = partners.id";
-            // $post['join']['employee as employee_am'] = "partners.account_manager_id = employee_am.id"; 
-
             $post['join']['agent_filters'] =  "partners.id=agent_filters.entity_id AND agent_filters.state = booking_details.state ";
-            $post['join']['employee as employee_am'] = "agent_filters.agent_id = employee_am.id";
-
-            $post['join']['employee as emp_asm'] = "service_centres.asm_id = emp_asm.id";         
-            $post['joinTypeArray'] = ['partners' => "left", 'employee as employee_am' => "left", 'spare_parts_details' => "left", 'employee as emp_asm' => "left"];
-            // Show distinct Bookings
-            $select = " DISTINCT booking_details.booking_id as 'Booking ID',DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) as Ageing,spare_parts_details.parts_requested as 'Part Requested',spare_parts_details.parts_shipped as 'Part Shipped',emp_asm.full_name as  'ASM name',partners.public_name as Partner,users.name as 'Customer Name',
+            $post['join']['employee as employee_am'] = "agent_filters.agent_id = employee_am.id";  
+            $post['join']['employee as emp_asm'] = "service_centres.asm_id = emp_asm.id";    
+            $post['joinTypeArray'] = ['spare_parts_details' => "left",'partners' => "left",'agent_filters' => 'left', 'employee as employee_am' => "left",  'employee as emp_asm' => "left"];
+            // Select Statement
+            $select = " booking_details.booking_id as 'Booking ID',DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) as Ageing,group_concat(spare_parts_details.parts_requested) as 'Part Requested',group_concat(spare_parts_details.parts_shipped) as 'Part Shipped',emp_asm.full_name as  'ASM name',partners.public_name as Partner,users.name as 'Customer Name',
             services.services as Services,penalty_on_booking.active as 'Penalty Active',users.phone_number as 'Phone Number',users.alternate_phone_number as 'Alternate Phone Number',booking_details.order_id as 'Order ID',booking_details.request_type as 'Request Type',booking_details.state as State,booking_details.internal_status as 'Internal Status',
             booking_details.booking_address as 'Booking Address',booking_details.booking_pincode as 'Booking Pincode',booking_details.booking_timeslot as 'Booking Timeslot',
-            booking_details.booking_remarks as 'Booking Remarks',service_centres.name as 'Service Center Name' , engineer_details.name as 'Engineer Name', booking_details.is_upcountry as 'Is Upcountry', service_centres.primary_contact_name as 'SF POC Name',
-             service_centres.primary_contact_phone_1 as 'SF POC NUMBER',DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as 'Booking Day', booking_details.create_date as 'Create Date',
-             booking_details.partner_internal_status as 'Partner Internal Status',DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as  'Initial Booking Date', employee.full_name as RM, employee_am.full_name as AM ";
-            
-            $list =  $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,1,'',0);
+            booking_details.booking_remarks as 'Booking Remarks',service_centres.name as 'Service Centre Name' , engineer_details.name as 'Engineer Name', booking_details.is_upcountry, service_centres.primary_contact_name as SF_POC_Name,
+            service_centres.primary_contact_phone_1 as SF_POC_NUMBER,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as 'Booking Day', booking_details.create_date as 'Create Date',
+            booking_details.partner_internal_status as 'Partner Internal Status',DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as  'Initial Booking Date', employee.full_name as RM, employee_am.full_name as AM,booking_details.city as 'City' ";
+            // Show Distinct Bookings
+            $group_by = 'booking_details.booking_id';
+            $list =  $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,1,'',0,array(),array(),$group_by);
         }
         else if($booking_status == 'Completed' || $booking_status == 'Cancelled'){
             $post['where']  = array('booking_details.current_status' => $booking_status,'type' => 'Booking'); 
@@ -5709,7 +5707,6 @@ class Booking extends CI_Controller {
             
             $list = $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray, 2); 
         }
-        
         $newCSVFileName = $booking_status."_booking_".date('j-M-Y-H-i-s') . ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
         $delimiter = ",";
