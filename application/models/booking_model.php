@@ -2449,18 +2449,15 @@ class Booking_model extends CI_Model {
      *  @param : $select string
      *  @return: Array()
      */
-        function get_bookings_by_status($post, $select = "",$sfIDArray = array(),$is_download=0,$is_spare=NULL,$partner_details=0,$join_array=array(),$join_type_array=array()) {        
-            $this->_get_bookings_by_status($post, $select);
+    function get_bookings_by_status($post, $select = "",$sfIDArray = array(),$is_download=0,$is_spare=NULL,$partner_details=0,$join_array=array(),$join_type_array=array(),$group_by="") 
+    {        
+        $this->_get_bookings_by_status($post, $select);
         if ($post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
         }
         if($sfIDArray){
             $this->db->where_in('booking_details.assigned_vendor_id', $sfIDArray);
         }
-        /*if($partnerIDArray){
-            $this->db->where_in('booking_details.partner_id', $partnerIDArray);
-            $this->db->where_not_in('booking_details.internal_status', array('InProcess_Cancelled','InProcess_Completed'));
-        }*/
         if($is_download){
             if($is_download == 2){
                
@@ -2485,6 +2482,9 @@ class Booking_model extends CI_Model {
                     $this->db->join($tableName,$joinCondition);
                 }
             }
+        }
+        if($group_by){
+            $this->db->group_by($group_by); 
         }
         $query = $this->db->get();
         if($is_download){
