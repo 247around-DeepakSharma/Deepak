@@ -311,7 +311,7 @@
                                                                     <input type="hidden" id="<?php echo "is_sn_correct" . $count ?>" class="form-control" name="<?php echo "is_sn_correct[" . $price['unit_id'] . "]" ?>"/>
                                                                     <br/>
                                                                     <span style="color:red;" id="<?php echo 'error_serial_no'.$count;?>"></span>
-                                                                    <input style="margin-top: 10px;" type="file" id="<?php echo "upload_serial_number_pic" . $count ?>"   
+                                                                    <input style="margin-top: 10px;display:none;" type="file" id="<?php echo "upload_serial_number_pic" . $count ?>"   
                                                                         class="form-control serialNumberPic" name="<?php echo "upload_serial_number_pic[" . $price['unit_id'] . "]" ?>"  
                                                                         value="<?php if(isset($price['en_serial_number_pic'])){ echo $price['en_serial_number_pic'];}
                                                                         elseif(!empty($booking_history['spare_parts'][0]['serial_number_pic']) && $booking_history['spare_parts'][0]['status'] != _247AROUND_CANCELLED){ echo $booking_history['spare_parts'][0]['serial_number_pic'];} else {echo $price["serial_number_pic"];}  ?>"

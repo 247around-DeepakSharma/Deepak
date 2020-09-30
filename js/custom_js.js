@@ -665,6 +665,12 @@ if (!is_sf_panel && (partner_source == "" || partner_source== null)) {
             return false;                        
         }  
 
+        // Check for serial number Image
+        if($('#serial_number_pic').val() == '' ){
+            alert('Please Attach Serial Number image');
+            return false;
+        }  
+
         var duplicateSerialNo = $('#duplicate_sno_required').val();
         if(duplicateSerialNo === '1'){
             alert(DUPLICATE_SERIAL_NUMBER_USED);
