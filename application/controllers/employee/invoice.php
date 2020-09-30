@@ -7657,17 +7657,17 @@ exit();
      * @desc This function is used to cancel invoice
      */
     function cancel_invoice(){
-        $vendor_partner_type = $this->input->post('vendor_partner_id');
         $invoice_id = $this->input->post('invoice_id');
+        $vendor_partner_type = $this->input->post('vendor_partner_type');
         $response = array();
         $response['status'] = 'SUCCESS';
         $response['message'] = 'SUCCESS';
-        if(!empty($invoice_id) && !empty($vendor_partner_type)){
+        if(!empty($invoice_id) && !empty($vendor_partner_type) && in_array($vendor_partner_type,array(_247AROUND_PARTNER_STRING,_247AROUND_SF_STRING))){
             $where = array('invoice_id' => $invoice_id);
             $invoice_data = $this->invoices_model->getInvoicingData($where);
 
             if(!empty($invoice_data)){
-                $vendor_partner_detail['invoice_id'] = $invoice_id;
+                $where['invoice_id'] = $invoice_id;
                 $vendor_partner_detail['total_service_charge'] = 0;
                 $vendor_partner_detail['total_additional_service_charge'] = 0;
                 $vendor_partner_detail['service_tax'] = 0;
@@ -7695,7 +7695,8 @@ exit();
                 $vendor_partner_detail['warehouse_storage_charges'] = 0;
                 $vendor_partner_detail['miscellaneous_charges'] = 0;
 		$vendor_partner_detail['sub_category'] = _247AROUND_CANCELLED;
-                $this->invoices_model->action_partner_invoice($vendor_partner_detail);
+                $vendor_partner_detail['agent_id'] = $this->session->userdata('id');
+                $this->invoices_model->update_partner_invoices($where,$vendor_partner_detail);
                 //update vendor_partner_invoice all amount set to 0
 
                 $invoice_detail['rate'] = 0;
@@ -7710,8 +7711,11 @@ exit();
                 $where_invoice_detail['invoice_id'] = $invoice_id;
                 $this->invoices_model->update_invoice_breakup($where_invoice_detail, $invoice_detail);
                 //update invoice_details all amount set to 0
-
-                $this->service_centers_model->update_spare_parts(array('purchase_invoice_id'=>$invoice_id),array('purchase_invoice_id'=>null));
+                if($vendor_partner_type==_247AROUND_PARTNER_STRING){
+                    $this->service_centers_model->update_spare_parts(array('purchase_invoice_id'=>$invoice_id),array('purchase_invoice_id'=>null));
+                }else{
+                     $this->service_centers_model->update_spare_parts(array('sell_invoice_id'=>$invoice_id),array('sell_invoice_id'=>null));
+                }
                 //Remove invoice from spare parts detail table
 
                 $response['message'] = 'Invoice Cancelled successfully.';
