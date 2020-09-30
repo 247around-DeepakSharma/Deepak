@@ -1064,8 +1064,9 @@ class Booking extends CI_Controller {
                 $id = $this->search_for_key($price_tag['price_tags'], $prices);
                 // remove array key, if price tag exist into price array
                 unset($prices[$id]);
-                if ($keys == 0) {
-                    $upcountry_price = isset($service_center_data[0]['upcountry_charges']) ? $service_center_data[0]['upcountry_charges'] : "";
+                // Set Upcountry Price from the Row of $service_center_data, where upcountry_charges are filled
+                if (empty($upcountry_price) && !empty($service_center_data[0]['upcountry_charges'])) {
+                    $upcountry_price = $service_center_data[0]['upcountry_charges'];
                 }
                 
                 if(!in_array($this->session->userdata['user_group'], [_247AROUND_CLOSURE, _247AROUND_ADMIN, _247AROUND_DEVELOPER]) && !empty($price_tag['partner_invoice_id']) && empty($data['is_invoice_generated']) && in_array($data['booking_history'][0]['current_status'], [_247AROUND_COMPLETED, _247AROUND_CANCELLED])) {
