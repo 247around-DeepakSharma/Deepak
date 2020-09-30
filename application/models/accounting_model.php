@@ -161,9 +161,9 @@ class accounting_model extends CI_Model {
             $where .= " AND vpi.`from_date`>='$from_date'  AND vpi.`to_date` <'$to_date'";
         }
         if($partner_vendor == _247AROUND_PARTNER_STRING){
-            $g_string ="gst_number as gst_number, ";
+            $g_string ="partners.gst_number as gst_number, ";
         } else {
-            $g_string ="gst_no as gst_number, ";
+            $g_string ="sc.gst_no as gst_number, ";
         }
 
         $sql = "SELECT invoice_details.invoice_id, product_or_services, vendor_partner, e1.gst_number as to_gst_number, "
