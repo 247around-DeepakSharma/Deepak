@@ -13,17 +13,18 @@
                 </div>
                     <h2 id="msg_holder" style="text-align:center;color: #108c30;font-weight: bold;"></h2>
                 <div class="x_content">
-                                        <div class="" role="tabpanel" data-example-id="togglable-tabs">
+                                        <div class="active" role="tabpanel" data-example-id="togglable-tabs">
                         <ul id="myTabs" class="nav nav-tabs bar_tabs" role="tablist">
-                            <li role="presentation" class="active">
-                                <a href="#tabs-1" role="tab" data-toggle="tab" aria-expanded="true">
-                                    Summary Reports
-                                </a>
-                            </li>
-                            <?php //if($this->session->userdata('partner_id') == VIDEOCON_ID) { ?>
-                            <li role="presentation">
+                             <li role="presentation" class="active">
                                 <a href="#tabs-4" role="tab" data-toggle="tab" aria-expanded="true">
                                     Detailed Summary Reports
+                                </a>
+                            </li>
+                           
+                            <?php //if($this->session->userdata('partner_id') == VIDEOCON_ID) { ?>
+                           <li role="presentation" class="">
+                                <a href="#tabs-1" role="tab" data-toggle="tab" aria-expanded="true">
+                                    Summary Reports
                                 </a>
                             </li>
                             <?php // } ?>
@@ -39,7 +40,7 @@
                             </li>
                         </ul>
                         <div id="myTabContent" class="tab-content">
-                            <div class="tab-pane active" id="tabs-1">
+                            <div class="tab-pane" id="tabs-1">
                                  <div class="col-md-12 col-sm-12 col-xs-12">
                                     <div class="x_panel">
                                         <div class="x_title" style="border-bottom: none;">
@@ -236,7 +237,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="tab-pane" id="tabs-4">
+                            <div class="tab-pane active" id="tabs-4">
                                  <div class="col-md-12 col-sm-12 col-xs-12">
                                     <div class="x_panel">
                                         <div class="x_title" style="border-bottom: none;">
