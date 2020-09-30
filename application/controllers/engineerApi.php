@@ -2590,21 +2590,21 @@ class engineerApi extends CI_Controller {
                     }
                     //upload defective front part pic
                     if ($value["defective_front_parts"]) {
-                        $defective_part_pic = "Defective_Parts_" . date("YmdHis") . ".png";
+                        $defective_part_pic = "Defective_Parts_". $key . date("YmdHis") . ".png";
                         $this->miscelleneous->generate_image($value["defective_front_parts"], $defective_part_pic, "misc-images");
                         $requestData['part'][$key]['defective_parts'] = $defective_part_pic;
                     }
 
                     //upload defective back part pick
                     if ($value["defective_back_parts"]) {
-                        $defective_back_part_pic = "Defective_Parts_" . date("YmdHis") . ".png";
+                        $defective_back_part_pic = "Defective_Parts_back_". $key . date("YmdHis") . ".png";
                         $this->miscelleneous->generate_image($value["defective_back_parts"], $defective_back_part_pic, "misc-images");
                         $requestData['part'][$key]['defective_back_parts_pic'] = $defective_back_part_pic;
                     }
 
                     //upload defect pic
                     if (isset($value["defect_pic"]) && !empty($value["defect_pic"])) {
-                        $defect_pic = "Defect_pic_" . date("YmdHis") . ".png";
+                        $defect_pic = "Defect_pic_". $key . date("YmdHis") . ".png";
                         $this->miscelleneous->generate_image($value["defect_pic"], $defect_pic, "misc-images");
                         $requestData['part'][$key]['defect_pic'] = $defect_pic;
                     }else{
