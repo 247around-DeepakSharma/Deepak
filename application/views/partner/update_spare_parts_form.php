@@ -1402,20 +1402,21 @@
     $(".validate_hsn_code").bind("keyup paste", function(e) {
         this.value = this.value.replace(/[^a-zA-Z0-9]/g, '');
     });
-    
-    $('.validate_gst_rate').bind('keyup paste mouseover', function(){
+        
+    var validate_gst = function() {
         this.value = this.value.replace(/[^0-9/./]/g, '');
         var gst_rate = $(this).val();
-          if(gst_rate.length > 1){
+          if(gst_rate.length > 0){
               if(!existsArray(gst_rate)){
                   $(this).val('');
               }
           }
-    });
+    }
     
+    $('.validate_gst_rate').on('keyup keypress blur change paste mouseover mouseleave mouseout', validate_gst);
 
     function existsArray(gst_rate){
-        var myArray = ['1.5','2', '5', '12', '18', '28'];
+        var myArray = ['1','2', '5', '12', '18', '28'];
         var inArray = false;
         myArray.map(function(key){
             if (key === gst_rate){
