@@ -146,6 +146,10 @@
                       </li>
                       <li class="divider"></li>
                       <li><a href="<?php echo base_url(); ?>employee/invoice/view_invoice/<?php echo $invoice['vendor_partner']; ?>/<?php echo $invoice['invoice_id']; ?>" target="_blank">View Invoice</a></li>
+                      <?php if($invoice['sub_category']==OUT_OF_WARRANTY && ($this->session->userdata['user_group'] == _247AROUND_ADMIN || $this->session->userdata['user_group'] == _247AROUND_ACCOUNTANT)){ ?>
+                      <li class="divider"></li>
+                      <li><a onclick ="cancel_invoice('<?php echo $invoice['vendor_partner']; ?>','<?php echo $invoice['invoice_id']; ?>')" target="_blank">Cancel Invoice</a></li>
+                      <?php } ?>
                     </ul>
                 </div>
             
@@ -697,7 +701,7 @@ function transd_update(btn, id, value,min_value, max_value){
     function cancel_invoice(vendor_partner_id, invoice_id){
     	var confirm_cancel = confirm('Are you sure want to Cancel this invoice.');
     	if(confirm_cancel){
-        var datastring = "vendor_partner_id="+vendor_partner_id+"&invoice_id="+invoice_id;
+        var datastring = "vendor_partner_type="+vendor_partner_id+"&invoice_id="+invoice_id;
         $.ajax({
             method: 'post',
             data: datastring,
@@ -708,7 +712,7 @@ function transd_update(btn, id, value,min_value, max_value){
                 var obj = JSON.parse(data);
                 alert(obj.message);
                 if(obj.status=='SUCCESS'){
-                    getInvoicingData('partner');
+                    getInvoicingData(vendor_partner_id);
                 }
             }
         })
