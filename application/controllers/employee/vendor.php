@@ -1072,9 +1072,10 @@ class vendor extends CI_Controller {
             if ($this->session->userdata['user_group'] == _247AROUND_ADMIN || ($this->session->userdata['user_group'] == _247AROUND_ASM) || ($this->session->userdata['user_group'] == _247AROUND_RM)) {
                 $row[] = '<a id="edit" class="btn btn-small btn-danger" onclick="pendingBookings(' . $vendor_list["id"] . ',' . "'P'" . ',' . $vendor_list["is_micro_wh"] . ')" >Deactivate</a>';
             }
-            else{
-                // $row[] = '<a id="edit" class="btn btn-small btn-danger hidden" href="javascript:;" >Deactivate</a>';
-            }
+            
+            // else{
+            //     // $row[] = '<a id="edit" class="btn btn-small btn-danger hidden" href="javascript:;" >Deactivate</a>';
+            // }
             
         } else {
             if (empty($vendor_list['pan_no']) || empty($vendor_list['pan_file'])) {
