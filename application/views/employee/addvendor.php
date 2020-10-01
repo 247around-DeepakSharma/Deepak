@@ -1029,7 +1029,6 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                         </div>
                          <?php echo form_error('stamp_file'); ?>
                     </div>
-
                     <div id="uploadstampModal" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
                                 <div class="modal-dialog modal-lg" style='max-size:800px'>
                                     <div class="modal-content">
