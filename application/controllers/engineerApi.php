@@ -2162,6 +2162,17 @@ class engineerApi extends CI_Controller {
 
                     $bookings[$key]['pre_consume_req'] = $previous_consumption_required;
                     $bookings[$key]['in_out_status'] = $this->getBookingWarrantyFlag($value['request_type']);
+                    /*  Completion Allow Flag */
+                    $complete_flag = $this->checkCompletionAllowed($value['booking_id']);
+                    $bookings[$key]['complete_allow'] = $complete_flag;
+
+                    /*  Reschedule Allow Flag */
+                    $reschedule_flag = $this->checkRescheduleAllowed($value['booking_id']);
+                    $bookings[$key]['reschedule_allow'] = $reschedule_flag;
+                    /*  Cancel Allow Flag */
+                    $cancel_flag = $this->checkCancellationAllowed($value['booking_id']);
+                    $bookings[$key]['cancel_allow'] = $cancel_flag;
+                    /*  NO Action  Flag */
                     $bookings[$key]['spare_eligibility'] = $spare_resquest['spare_flag'];
                     $bookings[$key]['message'] = $spare_resquest['message'];
                     // Abhishek Send Spare Details of booking //
@@ -2214,6 +2225,18 @@ class engineerApi extends CI_Controller {
                     }
                     $missed_bookings[$key]['booking_distance'] = $distance;
                     $missed_bookings[$key]['in_out_status'] = $this->getBookingWarrantyFlag($value['request_type']);
+                    /*  Completion Allow Flag */
+                    $complete_flag = $this->checkCompletionAllowed($value['booking_id']);
+                    $missed_bookings[$key]['complete_allow'] = $complete_flag;
+
+                    /*  Reschedule Allow Flag */
+                    $reschedule_flag = $this->checkRescheduleAllowed($value['booking_id']);
+                    $missed_bookings[$key]['reschedule_allow'] = $reschedule_flag;
+                    /*  Cancel Allow Flag */
+                    $cancel_flag = $this->checkCancellationAllowed($value['booking_id']);
+                    $missed_bookings[$key]['cancel_allow'] = $cancel_flag;
+                    /*  NO Action  Flag */
+
                     // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
                     $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
                     // Abhishek Check if we required the previous consumption or not return true/false
@@ -2261,6 +2284,17 @@ class engineerApi extends CI_Controller {
                     $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
 
                     $tomorrowBooking[$key]['in_out_status'] = $this->getBookingWarrantyFlag($value['request_type']);
+                    /*  Completion Allow Flag */
+                    $complete_flag = $this->checkCompletionAllowed($value['booking_id']);
+                    $tomorrowBooking[$key]['complete_allow'] = $complete_flag;
+
+                    /*  Reschedule Allow Flag */
+                    $reschedule_flag = $this->checkRescheduleAllowed($value['booking_id']);
+                    $tomorrowBooking[$key]['reschedule_allow'] = $reschedule_flag;
+                    /*  Cancel Allow Flag */
+                    $cancel_flag = $this->checkCancellationAllowed($value['booking_id']);
+                    $tomorrowBooking[$key]['cancel_allow'] = $cancel_flag;
+                    /*  NO Action  Flag */
                     $tomorrowBooking[$key]['spare_eligibility'] = $spare_resquest['spare_flag'];
                     // Abhishek Check if we required the previous consumption or not return true/false
                     $previous_consumption_required = $this->checkConsumptionForPreviousPart($value['booking_id']);
