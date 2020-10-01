@@ -21,8 +21,12 @@ td, th {
 <?php
     $i = 0;
     foreach ($details as $value) {
-?>
-<div style="display:inline; float:left; margin-left: 10px;margin-top:10px;width: 320px;">
+  
+        if ($i % 2 == 0 && $i != 0) {
+    ?>
+    <div class="pagebreak"> </div>
+<?php  }   ?>
+<div style="display:inline; float:left; margin-left: 20px;margin-top:10px;width: 320px;">
     <div style="height: 440px; border: 1px solid #ccc; padding: 8px;">
     <table>
         <tr>
@@ -105,6 +109,14 @@ td, th {
 </div>
 <br>
 </div>
+<style>
+@media print {
+.pagebreak {
+    clear: both;
+    page-break-after: always;
+}
+}
+</style>
 <?php $i++; } ?>
 <br><br><br><br>
 <script>
