@@ -2587,6 +2587,8 @@ class Service_centers extends CI_Controller {
 
                     if(isset($value['symptom']) && !empty($value['symptom'])){
                        $data['spare_request_symptom'] = $value['symptom']; 
+                    }else{
+                        $data['spare_request_symptom'] = null;
                     }
 
                     $data['part_warranty_status'] = $value['part_warranty_status'];
