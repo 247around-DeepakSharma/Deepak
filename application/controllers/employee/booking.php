@@ -6325,6 +6325,8 @@ class Booking extends CI_Controller {
                 // Serial Number Validation fails
                 if($this->form_validation->run() !== TRUE)
                 {
+                    $userSession = array('error' => validation_errors());
+                    $this->session->set_userdata($userSession);
                     redirect($redirect_url);
                 }
                 if ($checkValidation) {
