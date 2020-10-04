@@ -1597,7 +1597,7 @@ class invoices_model extends CI_Model {
     }
     
     function get_foc_invoice_data($vendor_id, $from_date_tmp, $to_date, $is_regenerate) {
-        $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
+        $from_date = date('Y-m-d', strtotime('-20 months', strtotime($from_date_tmp)));
         $is_invoice_null = "";
         if ($is_regenerate == 0) {
             $is_invoice_null = " AND vendor_foc_invoice_id IS NULL ";
@@ -2657,7 +2657,7 @@ class invoices_model extends CI_Model {
         return $query->result_array();
     }
     
-    function get_misc_charges_invoice_data($select, $vendor_partner_invoice, 
+   function get_misc_charges_invoice_data($select, $vendor_partner_invoice, 
             $from_date, $to_date, $vendor_partner,$vendor_partner_id, $sf_partner_charge, $current_status = ""){
         $this->db->select($select, false);
         $this->db->from('miscellaneous_charges');
@@ -2665,6 +2665,8 @@ class invoices_model extends CI_Model {
         $this->db->join('services', 'booking_details.service_id = services.id');
         if(!empty($current_status)){
             $this->db->where('booking_details.current_status', _247AROUND_COMPLETED);
+        } else {
+            $this->db->where('booking_details.current_status != ', _247AROUND_CANCELLED);
         }
         
         $this->db->where($vendor_partner_invoice, NULL);
@@ -2678,15 +2680,17 @@ class invoices_model extends CI_Model {
         }
         
         $this->db->where($vendor_partner, $vendor_partner_id );
-        $this->db->where(" NOT EXISTS (SELECT Distinct 1 FROM spare_parts_details WHERE booking_details.booking_id = spare_parts_details.booking_id "
+        if($sf_partner_charge != "partner_charge"){
+            $this->db->where(" NOT EXISTS (SELECT Distinct 1 FROM spare_parts_details WHERE booking_details.booking_id = spare_parts_details.booking_id "
                 . " AND spare_parts_details.shipped_date IS NOT NULL "
                 . " AND defective_part_required = 1 "
                 . " AND (approved_defective_parts_by_partner = 0 AND defective_part_received_by_wh = 0 ) "
                 . " AND spare_parts_details.status !='Cancelled' )", NULL, FALSE);
+        }
+        
         $query = $this->db->get();
         return $query->result_array();
     }
-
       /**
      * @desc: This function is used to get partner annual charges data from partner table 
      * @params: Array $where
