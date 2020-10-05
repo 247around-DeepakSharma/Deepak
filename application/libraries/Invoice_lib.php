@@ -693,6 +693,8 @@ class Invoice_lib {
         $main_partner = $this->ci->partner_model->get_main_partner_invoice_detail($partner_on_saas);
         if($challan_generated_by_wh == true){
             $excel_data['excel_data']['generated_by_wh'] = true;
+        } else {
+           $excel_data['excel_data']['generated_by_wh'] = false; 
         }
         $excel_data['excel_data']['main_company_logo'] = $main_partner['main_company_logo'];
         $excel_data['excel_data']['show_consumption_reason'] = $show_consumption_reason;
