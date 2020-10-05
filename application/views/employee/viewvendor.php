@@ -149,7 +149,11 @@
                                 <th class="jumbotron">Sub District Office</th>
                                 <th class='jumbotron'>Go To Invoice Page</th>
                                 <th class="jumbotron">Temporary</th>
+                               <?php if ($this->session->userdata['user_group'] == _247AROUND_ADMIN || ($this->session->userdata['user_group'] == _247AROUND_ASM) || ($this->session->userdata['user_group'] == _247AROUND_RM)) { ?>
+
                                 <th class="jumbotron">Permanent</th>
+                                <?php }  
+                                 ?>
                                 <th class="jumbotron">Add Pin Code</th>
                                 <th class="jumbotron">Resend Login Details</th>
                                 <th class="jumbotron">View Active/De-active History</th>
