@@ -704,15 +704,20 @@ class Miscelleneous {
                         log_message('info', __FUNCTION__ . " Booking Unit details exist");
                         foreach ($unit_details as $value) {
                             $sc_ba_data = $this->My_CI->service_centers_model->get_service_center_action_details("unit_details_id,current_status,internal_status", array('booking_id' => $booking_id));
+                            $eba_data = $this->My_CI->engineer_model->getengineer_action_data("current_status,internal_status", array('booking_id' => $booking_id));
                             $alreadyExist = false;
-                            $sc_current_status = 'Pending';
-                            $sc_internal_status = 'Pending';
+                            $sc_current_status = $eb_current_status = 'Pending';
+                            $sc_internal_status = $eb_internal_status = 'Pending';
                             foreach($sc_ba_data as $sc_values){
                                 if($sc_values['unit_details_id'] ==  $value['id']){
                                     $alreadyExist  = true;
                                 }
                                 $sc_current_status = $sc_values['current_status'];
                                 $sc_internal_status = $sc_values['internal_status'];
+                            }
+                            foreach($eba_data as $eba_values){
+                                $eb_current_status = $eba_values['current_status'];
+                                $eb_internal_status = $eba_values['internal_status'];
                             }
                             if (!$alreadyExist) {
                                 $sc_data['current_status'] = $sc_current_status;
@@ -737,9 +742,9 @@ class Miscelleneous {
                             if ($data[0]['isEngineerApp'] == 1) {
                                 $en_data = $this->My_CI->engineer_model->getengineer_action_data("unit_details_id", array('unit_details_id' => $value['id'], 'booking_id' => $booking_id));
                                 if (empty($en_data)) {
-                                    $en['current_status'] = "Pending";
+                                    $en['current_status'] = $eb_current_status;
                                     $en['create_date'] = date('Y-m-d H:i:s');
-                                    $en['internal_status'] = "Pending";
+                                    $en['internal_status'] = $eb_internal_status;
                                     $en['service_center_id'] = $data[0]['assigned_vendor_id'];
                                     $en['engineer_id'] = $data[0]['assigned_engineer_id'];
                                     $en['booking_id'] = $booking_id;
