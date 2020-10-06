@@ -1923,18 +1923,16 @@ function  getPartnerCompareTAT(){
     function ProcessForgetPassword() {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("mobile"), $requestData);
-        $fetch_user_detail = $this->dealer_model->fetch_retailer_detail('id,is_otp_verified', array('phone' => $requestData['mobile']));
+        $fetch_user_detail = $this->dealer_model->fetch_retailer_detail('id,is_otp_verified,phone', array('phone' => $requestData['mobile']));
         if (!empty($fetch_user_detail)) {
             $otp = rand(1000, 9999);
-            $message = "Your OTP for password recovery is: " . $otp;
-            if ($this->notify->sendTransactionalSmsMsg91($requestData['mobile'], $message, SMS_WITHOUT_TAG)) {
-                $array['otp'] = $otp;
-                $this->jsonResponseString['response'] = $array;
-                 $this->sendJsonResponse(array('0000', 'OTP send successfully.'));
-            } else {
-                $this->jsonResponseString['response'] = array();
-                $this->sendJsonResponse(array('0014', 'Error in sending OTP. Please try later.'));
-            }
+            $sms['tag'] = "retailer_password_recovery";
+            $sms['smsData']['otp'] = $otp;
+            $sms['phone_no'] = $fetch_user_detail[0]['phone'];
+            $sms['booking_id'] = "";
+            $sms['type'] = "dealer";
+            $sms['type_id'] = $fetch_user_detail[0]['id'];
+            $send_SMS = $this->notify->send_sms_msg91($sms);
         } else {
             $this->jsonResponseString['response'] = array();
             $this->sendJsonResponse(array('0013', 'User does not exist'));
@@ -1976,19 +1974,23 @@ function  getPartnerCompareTAT(){
      * @Author  - Ghanshyam Ji Gupta
      */
     function check_user_otp_verified($mobile_number) {
-        $fetch_user_detail = $this->dealer_model->fetch_retailer_detail('id,is_otp_verified', array('phone' => $mobile_number));
+        $fetch_user_detail = $this->dealer_model->fetch_retailer_detail('id,is_otp_verified,phone', array('phone' => $mobile_number));
         if (!empty($fetch_user_detail)) {
             if (empty($fetch_user_detail[0]['is_otp_verified'])) {
+
                 $otp = rand(1000, 9999);
-                $message = "Welcome to 247around dealer app. You OTP is $otp";
-                if ($this->notify->sendTransactionalSmsMsg91($mobile_number, $message, SMS_WITHOUT_TAG)) {
-                    $array['status'] = 'success';
-                    $array['is_otp_verified'] = 0;
-                    $array['otp'] = $otp;
-                } else {
-                    $array['status'] = 'error';
-                    $array['message'] = 'Error in sending OTP. Please try after sometimes.';
-                }
+                $sms['tag'] = "retailer_registration";
+                $sms['smsData']['otp'] = $otp;
+                $sms['phone_no'] = $fetch_user_detail[0]['phone'];
+                $sms['booking_id'] = "";
+                $sms['type'] = "dealer";
+                $sms['type_id'] = $fetch_user_detail[0]['id'];
+
+                $send_SMS = $this->notify->send_sms_msg91($sms);
+                $array['status'] = 'success';
+                $array['is_otp_verified'] = 0;
+                $array['otp'] = $otp;
+
             } else {
                 $array['status'] = 'success';
                 $array['is_otp_verified'] = 1;
