@@ -444,6 +444,14 @@ class dealerApi extends CI_Controller {
             case 'getBookingCollaterals':
                 $this->getBookingDocuments();
                 break;
+            
+            case 'ForgetPassword':
+                $this->ProcessForgetPassword();
+                break;
+            
+            case 'UpdateUserDetail':
+                $this->ProcessUpdateUserDetail();
+                break;
 
             default:
                 break;
@@ -509,7 +517,7 @@ class dealerApi extends CI_Controller {
      * @response - json
      * @Author  - Abhishek Awasthi
      */ 
-
+    
     function processDealerLogin() {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //log_message('info', "Request Login: " .print_r($requestData,true));
@@ -517,33 +525,44 @@ class dealerApi extends CI_Controller {
         if (!empty($data)) {
             $login = $this->dealer_model->retailer_login(array("active" => 1, "phone" => $requestData["mobile"], "password" => md5($requestData["password"])));
             if (!empty($login)) {
-          /*  Token Update */
-            
-            $update_dealer =array();
-            if(isset($requestData['device_firebase_token']) && !empty($requestData['device_firebase_token'])){
-                $update_dealer = array(
-                    'device_firebase_token' => $requestData['device_firebase_token']
-                );
-                }else{
-                $update_dealer = array(
-                    'device_firebase_token' => NULL
-                );  
-            }
+                /*  Token Update */
+                $check_if_otp_verified = $this->check_user_otp_verified($requestData['mobile']);
+                if ($check_if_otp_verified['status'] == 'success') {
+                    if (!empty($check_if_otp_verified['is_otp_verified'])) {
+                        $login[0]['is_otp_verified'] = 1;
+                    } else {
+                        $login[0]['is_otp_verified'] = 0;
+                        $login[0]['otp'] = $check_if_otp_verified['otp'];
+                    }
 
-            $this->dealer_model->update_retailer($update_dealer,array('phone'=>$requestData["mobile"]));
-////// LOGIN LOGIC ///
-                $this->jsonResponseString['response'] = $login[0];
-                $this->sendJsonResponse(array('0000', 'success'));
+                    $update_dealer = array();
+                    if (isset($requestData['device_firebase_token']) && !empty($requestData['device_firebase_token'])) {
+                        $update_dealer = array(
+                            'device_firebase_token' => $requestData['device_firebase_token']
+                        );
+                    } else {
+                        $update_dealer = array(
+                            'device_firebase_token' => NULL
+                        );
+                    }
 
+                    $this->dealer_model->update_retailer($update_dealer, array('phone' => $requestData["mobile"]));
+                    ////// LOGIN LOGIC ///
+                    $this->jsonResponseString['response'] = $login[0];
+                    $this->sendJsonResponse(array('0000', 'success'));
+                } else {
+                    $this->jsonResponseString['response'] = array();
+                    $this->sendJsonResponse(array('10024', $check_if_otp_verified['message'])); // send success response // 
+                }
             } else {
+                $this->jsonResponseString['response'] = array(); 
                 $this->sendJsonResponse(array('0013', 'Invalid User Id or Password'));
             }
         } else {
+            $this->jsonResponseString['response'] = array(); 
             $this->sendJsonResponse(array('0014', 'User Id does not exist or user not active'));
         }
     }
-
-
 
     /* @author Abhishek Awasthi
      *@Desc - This function is used to check app upgrade
@@ -640,6 +659,7 @@ function check_for_upgrade(){
                             $data['Bookings'][$key]['service_center_booking_action_status'] = "InProcess";
                         }
                     }
+                    $data['Bookings'][$key]['is_booking_completed'] = $this->is_booking_completed($value['booking_id']);
                 }
                 $this->jsonResponseString['response'] = $data;
                 $this->sendJsonResponse(array('0000', "Details found successfully"));
@@ -683,14 +703,20 @@ function getBookingDetails(){
      * @response - json
      * @Author  - Abhishek Awasthi
      */
-function  getHomeDashboard(){
+function getHomeDashboard(){
     
        $requestData = json_decode($this->jsonRequestData['qsh'], true);
        $validation = $this->validateKeys(array("entity_id","entity_type"), $requestData);
+       
+       if (!empty($requestData['entity_id']) && !empty($requestData['is_otp_verified'])) {
+            $this->dealer_model->update_retailer(array('is_otp_verified' => 1), array('phone' => $requestData["entity_id"]));   
+       }
           
         if (!empty($requestData['entity_id']) && !empty($requestData['entity_type'])) {
-            
+             $check_if_otp_verified = $this->check_user_otp_verified($requestData['entity_id']); 
+             if ($check_if_otp_verified['status'] == 'success') {
             /* Getting State And their Cities */
+                 if (!empty($check_if_otp_verified['is_otp_verified'])) {
                     $state_with_cities = array();
                     $response_state = $this->indiapincode_model->get_allstates();
                     $citi['district'] = 'All';
@@ -792,7 +818,15 @@ function  getHomeDashboard(){
               //  
               //  $this->jsonResponseString['response'] = $curl_response;
               //  $this->sendJsonResponse(array('0000', "Details found successfully")); // send success response //
-               
+                 }else{
+                    $this->jsonResponseString['response'] = array('is_otp_verified' => 1,'otp' => $check_if_otp_verified['otp']);
+                    $this->sendJsonResponse(array('1020', "OTP is not verified"));   
+                 }
+             }
+             else{
+                 $this->jsonResponseString['response'] = array();
+                 $this->sendJsonResponse(array('1005', $check_if_otp_verified['message'])); // send success response // 
+             }
         } else {
             log_message("info", __METHOD__ . $validation['message']);
             $this->jsonResponseString['response'] = array(); 
@@ -1624,44 +1658,57 @@ function  getPartnerCompareTAT(){
     
     
     
-    function processUserRegister(){
-        $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        $validation = $this->validateKeys(array("mobile","first_name","password"), $requestData);
-        if (!empty($requestData['mobile'])) { 
-                
-                $data = array(
-                     'phone'=> $requestData['mobile'],
-                     'first_name'=>$requestData['first_name'],
-                     'last_name' =>$requestData['last_name'],
-                     'email' =>$requestData['email'],
-                     'password'=>md5($requestData['password'])
-                     
-                 );
-                 $response =  $this->dealer_model->processUserRegisterRetailer($data);
-                 if($response){
-                 $login = $this->dealer_model->retailer_login(array("active" => 1, "phone" => $requestData["mobile"]));
-                 $this->jsonResponseString['response'] = $login[0];
-                 $this->sendJsonResponse(array('0000', "User registered successfully")); // send success response //
-                  
-                 }else{
-                 $this->jsonResponseString['response'] = array();
-                 $this->sendJsonResponse(array('10023', "User not registered successfully")); // send success response //
-                     
-                 }
-                 
+    function processUserRegister() {
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);        
+        $validation = $this->validateKeys(array("mobile", "first_name", "password"), $requestData);
+        if (!empty($requestData['mobile'])) {
 
-               
+            if (empty($requestData['email'])) {
+                $requestData['email'] = null;
+            }
+
+            $data = array(
+                'phone' => $requestData['mobile'],
+                'first_name' => $requestData['first_name'],
+                'last_name' => $requestData['last_name'],
+                'email' => $requestData['email'],
+                'password' => md5($requestData['password'])
+            );
+            $fetch_user_detail = $this->dealer_model->fetch_retailer_detail('id', array('phone' => $requestData['mobile']));
+            if (empty($fetch_user_detail)) {
+                $response = $this->dealer_model->processUserRegisterRetailer($data);
+                if ($response) {
+                    $check_if_otp_verified = $this->check_user_otp_verified($requestData['mobile']);
+                    if ($check_if_otp_verified['status'] == 'success') {
+                        $login = $this->dealer_model->retailer_login(array("active" => 1, "phone" => $requestData["mobile"]));
+                        if (!empty($check_if_otp_verified['is_otp_verified'])) {
+                            $login[0]['is_otp_verified'] = 1;
+                        } else {
+                            $login[0]['is_otp_verified'] = 0;
+                            $login[0]['otp'] = $check_if_otp_verified['otp'];
+                        }
+                        $this->jsonResponseString['response'] = $login[0];
+                        $this->sendJsonResponse(array('0000', "User registered successfully")); // send success response //
+                    } else {
+                        $this->jsonResponseString['response'] = array();
+                        $this->sendJsonResponse(array('10024', $check_if_otp_verified['message'])); // send success response // 
+                    }
+                } else {
+                    $this->jsonResponseString['response'] = array();
+                    $this->sendJsonResponse(array('10023', "User not registered successfully")); // send success response //
+                }
+            } else {
+                $this->jsonResponseString['response'] = array();
+                $this->sendJsonResponse(array('10024', "User Already registered.")); // send success response //
+            }
         } else {
             log_message("info", __METHOD__ . $validation['message']);
-            $this->jsonResponseString['response'] = array(); 
-            $this->sendJsonResponse(array("1022", "Error is user register !")); 
-        }   
-        
+            $this->jsonResponseString['response'] = array();
+            $this->sendJsonResponse(array("1022", "Error is user register !"));
+        }
     }
-    
-    
-    
-      /*
+
+    /*
      * @Desc - This function is used get Sbooking collatrals
      * @param - 
      * @response - json
@@ -1867,4 +1914,107 @@ function  getPartnerCompareTAT(){
         
     }
     
+    /*
+     * @Desc - This function is used check is user OTP is verified / not verified
+     * @param - 
+     * @response - json
+     * @Author  - Ghanshyam Ji Gupta
+     */
+    function ProcessForgetPassword() {
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("mobile"), $requestData);
+        $fetch_user_detail = $this->dealer_model->fetch_retailer_detail('id,is_otp_verified', array('phone' => $requestData['mobile']));
+        if (!empty($fetch_user_detail)) {
+            $otp = rand(1000, 9999);
+            $message = "Your OTP for password recovery is: " . $otp;
+            if ($this->notify->sendTransactionalSmsMsg91($requestData['mobile'], $message, SMS_WITHOUT_TAG)) {
+                $array['otp'] = $otp;
+                $this->jsonResponseString['response'] = $array;
+                 $this->sendJsonResponse(array('0000', 'OTP send successfully.'));
+            } else {
+                $this->jsonResponseString['response'] = array();
+                $this->sendJsonResponse(array('0014', 'Error in sending OTP. Please try later.'));
+            }
+        } else {
+            $this->jsonResponseString['response'] = array();
+            $this->sendJsonResponse(array('0013', 'User does not exist'));
+        }
+    }
+    
+    /*
+     * @Desc - This function is used to update user profile
+     * @param - 
+     * @response - json
+     * @Author  - Ghanshyam Ji Gupta
+     */
+    function ProcessUpdateUserDetail() {
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("mobile"), $requestData);
+        $fetch_user_detail = $this->dealer_model->fetch_retailer_detail('id,is_otp_verified', array('phone' => $requestData['mobile']));
+        if (!empty($fetch_user_detail)) {
+            $message = "Details Updated Successfully";
+            $arrayUpdate = array();
+            if (!empty($requestData['password'])) {
+                $arrayUpdate['password'] = md5($requestData['password']);
+                $message = "Password Updated Successfully";
+            }
+            if (!empty($arrayUpdate)) {
+                $this->dealer_model->update_retailer($arrayUpdate, array('phone' => $requestData["mobile"]));
+            }
+            $this->jsonResponseString['response'] = array();
+            $this->sendJsonResponse(array('0000', $message));
+        } else {
+            $this->jsonResponseString['response'] = array();
+            $this->sendJsonResponse(array('0013', 'User does not exist'));
+        }
+    }
+
+    /*
+     * @Desc - This function is used check is user OTP is verified / not verified
+     * @param - 
+     * @response - json
+     * @Author  - Ghanshyam Ji Gupta
+     */
+    function check_user_otp_verified($mobile_number) {
+        $fetch_user_detail = $this->dealer_model->fetch_retailer_detail('id,is_otp_verified', array('phone' => $mobile_number));
+        if (!empty($fetch_user_detail)) {
+            if (empty($fetch_user_detail[0]['is_otp_verified'])) {
+                $otp = rand(1000, 9999);
+                $message = "Welcome to 247around dealer app. You OTP is $otp";
+                if ($this->notify->sendTransactionalSmsMsg91($mobile_number, $message, SMS_WITHOUT_TAG)) {
+                    $array['status'] = 'success';
+                    $array['is_otp_verified'] = 0;
+                    $array['otp'] = $otp;
+                } else {
+                    $array['status'] = 'error';
+                    $array['message'] = 'Error in sending OTP. Please try after sometimes.';
+                }
+            } else {
+                $array['status'] = 'success';
+                $array['is_otp_verified'] = 1;
+            }
+        } else {
+            $array['status'] = 'error';
+            $array['message'] = 'User not registered';
+        }
+        return $array;
+    }
+    /*
+     * @Desc - This function is used to check if booking is completed
+     * @param - 
+     * @response - json
+     * @Author  - Ghanshyam Ji Gupta
+     */    
+    function is_booking_completed($booking_id) {
+        $completed = false;
+        $booking_select = "booking_id,service_center_closed_date";
+        $booking_where = array("booking_id" => $booking_id);
+        $booking_details = $this->engineer_model->get_booking_details($booking_select, $booking_where);
+        if (!empty($booking_details[0]['service_center_closed_date'])) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }
