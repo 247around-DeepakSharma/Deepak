@@ -218,6 +218,7 @@ if ($this->uri->segment(3)) {
                             }
                             ?>
                         </div>
+                        <input type="hidden" name="challan_send_to_sf" value="1">
                         <center style="margin-bottom: 10px;"><input type= "submit" onclick="return checkValidationForBlank()"  class="btn btn-md" style="background-color:#2C9D9C; border-color: #2C9D9C; color:#fff;" name="download_shippment_address" id="download_shippment_address" value ="Print / Download" > </center>
                     </form>
                 </div>
