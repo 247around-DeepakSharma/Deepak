@@ -452,6 +452,10 @@ class dealerApi extends CI_Controller {
             case 'UpdateUserDetail':
                 $this->ProcessUpdateUserDetail();
                 break;
+            
+            case 'verifyUserOTP':
+                $this->ProcessverifyUserOTP();
+                break;
 
             default:
                 break;
@@ -706,11 +710,8 @@ function getBookingDetails(){
 function getHomeDashboard(){
     
        $requestData = json_decode($this->jsonRequestData['qsh'], true);
-       $validation = $this->validateKeys(array("entity_id","entity_type"), $requestData);
+       $validation = $this->validateKeys(array("entity_id","entity_type"), $requestData);       
        
-       if (!empty($requestData['entity_id']) && !empty($requestData['is_otp_verified'])) {
-            $this->dealer_model->update_retailer(array('is_otp_verified' => 1), array('phone' => $requestData["entity_id"]));   
-       }
           
         if (!empty($requestData['entity_id']) && !empty($requestData['entity_type'])) {
              $check_if_otp_verified = $this->check_user_otp_verified($requestData['entity_id']); 
@@ -1987,6 +1988,7 @@ function  getPartnerCompareTAT(){
                 $sms['type_id'] = $fetch_user_detail[0]['id'];
 
                 $send_SMS = $this->notify->send_sms_msg91($sms);
+                $this->dealer_model->update_retailer(array('otp' => $otp), array('phone' => $mobile_number));
                 $array['status'] = 'success';
                 $array['is_otp_verified'] = 0;
                 $array['otp'] = $otp;
@@ -2016,6 +2018,36 @@ function  getPartnerCompareTAT(){
             return true;
         } else {
             return false;
+        }
+    }
+    /*
+     * @Desc - This function is used to Verify OTP at time of registration
+     * @param - 
+     * @response - json
+     * @Author  - Ghanshyam Ji Gupta
+     */
+
+    function ProcessverifyUserOTP() {
+        $validation = $this->validateKeys(array("mobile", "otp"), $requestData);
+        $fetch_user_detail = $this->dealer_model->fetch_retailer_detail('*', array('phone' => $requestData['phone']));
+        if (!empty($fetch_user_detail)) {
+            if ($fetch_user_detail[0]['otp'] == $requestData['otp']) {
+                if (empty($fetch_user_detail[0]['is_otp_verified'])) {
+                    $this->dealer_model->update_retailer(array('is_otp_verified' => 1), array('phone' => $requestData['phone']));
+                    $fetch_user_detail[0]['is_otp_verified'] = 1;
+                    $this->jsonResponseString['response'] = $fetch_user_detail[0];
+                    $this->sendJsonResponse(array('0000', 'OTP verified successfully'));
+                } else {
+                    $this->jsonResponseString['response'] = array();
+                    $this->sendJsonResponse(array('0015', 'OTP already verfied. Please login.'));
+                }
+            } else {
+                $this->jsonResponseString['response'] = array();
+                $this->sendJsonResponse(array('0014', 'Wrong OTP entered. Please try again.'));
+            }
+        } else {
+            $this->jsonResponseString['response'] = array();
+            $this->sendJsonResponse(array('0013', 'Mobile number not found.'));
         }
     }
 
