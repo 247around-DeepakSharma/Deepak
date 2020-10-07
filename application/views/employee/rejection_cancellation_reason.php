@@ -100,7 +100,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form class="form-horizontal" id="category_details" method="post" action="<?php echo base_url() . 'employee/inventory/save_reject_cancel'?>">
+                    <form class="form-horizontal" id="category_details" method="post" action="<?php echo base_url() . 'penalty/save_reject_cancel'?>">
                         <div class="row">
                             <div class="col-md-8 col-md-offset-2">
                                 <div class="form-group">
@@ -114,8 +114,8 @@
                             </div>
                             <div class="col-md-8 col-md-offset-2">
                                 <div class="form-group">
+                                    <label class="col-md-4">Cancellation Reason *</label>
                                     <div class="col-md-8">
-                                    <label for="service_id" class="col-md-4">Cancellation Reason *</label>
                                     <select name="cancellation" class="form-control" id="cancellation" required>
                                             <option selected disabled="">Please Select cancellation reason</option>
                                             <?php foreach ($reason as $value) { ?>
@@ -195,7 +195,7 @@
 
     $(document).on("click", "#update_cancel_reject", function () {
         var id = $(this).attr('review_id');
-        $.post('<?php echo base_url(); ?>employee/inventory/get_cancel_reject_data', {id: id}, function (response) {
+        $.post('<?php echo base_url(); ?>penalty/get_cancel_reject_data', {id: id}, function (response) {
             var data = JSON.parse(response);
             $('#cancellation').val(data.cancellation_reason);
              $('#review_reject').val(data.rejection_reason);
@@ -229,7 +229,7 @@
 
         var id = btnId.substr(3);
         // alert(id);
-        $.post('<?php echo base_url(); ?>employee/inventory/update_inventory_status', {id: id, status: status}, function (data) {
+        $.post('<?php echo base_url(); ?>penalty/update_inventory_status', {id: id, status: status}, function (data) {
             data = $.trim(data);
             if (data == '1')
             {
@@ -261,7 +261,7 @@
 //        }
 
         $.ajax({
-            url: '<?php echo base_url(); ?>employee/inventory/validate_review_form',
+            url: '<?php echo base_url(); ?>penalty/validate_review_form',
             async: false,
             method: 'post',
             data: {
