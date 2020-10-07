@@ -141,6 +141,45 @@ class Penalty extends CI_Controller {
         redirect(base_url() . "penalty/view_penalty_details");
     }
     
+     function map_rejection_cancellation_reason() {
+        $where['reason_of']='vendor';
+        $data['reason'] = $this->booking_model->cancelreason($where);
+         $data['cancel_reject'] = $this->penalty_model->show_cancel_reject_list();
+        $data['penalty'] = $this->penalty_model->get_review_reject();
+         $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/rejection_cancellation_reason',$data);
+    }
+    public function save_reject_cancel() {
+        //print_r($_POST); die;
+        $data['id'] = $this->input->post('review_id');
+        $data['rejection_reason'] = $this->input->post('review_reject');
+        $data['cancellation_reason'] = $this->input->post('cancellation');
+        $data['active'] = $this->input->post('active');
+        $where['rejection_reason'] = $this->input->post('review_reject');
+        $where['cancellation_reason'] = $this->input->post('cancellation');
+        $count_data_present = $this->penalty_model->show_cancel_reject_list($where);
+        if(empty($count_data_present) || !empty($data['id'])){
+            $this->penalty_model->save_review_data($data);  
+            $this->session->set_userdata(array("success"=> "Mapping added"));
+        }else{
+        $this->session->set_userdata(array("error"=> "Mapping already exist"));
+        }
+        // $this->inventory_model->save_review_data($data);                
+        redirect(base_url() . 'penalty/map_rejection_cancellation_reason');
+    }
+    
+    
+    public function get_cancel_reject_data() {
+        $data = $this->input->post();
+        $id = !empty($data['id']) ? $data['id'] : "";
+        $cancel_reject_data = [];
+        if(!empty($id))
+        {
+            $cancel_reject_data = $this->db->get_where('cancellation_rejection_penalty_mapping', array('id' => $id))->row();
+        }
+        
+        echo(json_encode($cancel_reject_data));
+    }
     /**
      * This function is used to get Admin rejection reasons from review page
      * It is used to create options in Rejection reason dropdown
