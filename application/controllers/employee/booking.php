@@ -4422,7 +4422,7 @@ class Booking extends CI_Controller {
                 $receieved_Data['draw'] = 1;
                 $data = $this->get_advance_search_result_data($receieved_Data,$select);
                
-                $headings = array("S.no","Customer Name ","Booking ID","Sub Order ID","Partner","City","Service Center","Service","Brand","Category","Capacity","Model Number","Request Type","Product/Service","Current_status","Internal Status","Order_ID","Type",
+                $headings = array("S.no","Customer Name ","SF Closed Date","Booking ID","Sub Order ID","Partner","City","Service Center","Service","Brand","Category","Capacity","Model Number","Request Type","Product/Service","Current_status","Internal Status","Order_ID","Type",
                     "Partner Source","Partner Current Status","Partner Internal Status","Booking Address","Pincode","District","State","Primary Contact Number","Alternate Number ","Current Booking Date","First Booking Date","Age Of Booking",
                     "TAT","Booking Timeslot","Booking Remarks","Query Remarks","Cancellation Reason","Reschedule_reason","Vendor(SF)",
                     "Rating","Vendor Rating Comments","Closing Remarks","Count Reschedule","Count Escalation",
@@ -5682,8 +5682,8 @@ class Booking extends CI_Controller {
             $post['join']['partners'] = "booking_details.partner_id  = partners.id";
             $post['join']['agent_filters'] =  "partners.id=agent_filters.entity_id AND agent_filters.state = booking_details.state ";
             $post['join']['employee as employee_am'] = "agent_filters.agent_id = employee_am.id";  
-            $post['join']['employee as emp_asm'] = "service_centres.asm_id = emp_asm.id";    
-            $post['joinTypeArray'] = ['spare_parts_details' => "left",'partners' => "left",'agent_filters' => 'left', 'employee as employee_am' => "left",  'employee as emp_asm' => "left"];
+            // $post['join']['employee as emp_asm'] = "service_centres.asm_id = emp_asm.id";    
+            $post['joinTypeArray'] = ['spare_parts_details' => "left",'partners' => "left",'agent_filters' => 'left', 'employee as employee_am' => "left"];
             // Select Statement
             $select = " booking_details.booking_id as 'Booking ID',DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) as Ageing,group_concat(spare_parts_details.parts_requested) as 'Part Requested',group_concat(spare_parts_details.parts_shipped) as 'Part Shipped',emp_asm.full_name as  'ASM name',partners.public_name as Partner,users.name as 'Customer Name',
             services.services as Services,penalty_on_booking.active as 'Penalty Active',users.phone_number as 'Phone Number',users.alternate_phone_number as 'Alternate Phone Number',booking_details.order_id as 'Order ID',booking_details.request_type as 'Request Type',booking_details.state as State,booking_details.internal_status as 'Internal Status',
