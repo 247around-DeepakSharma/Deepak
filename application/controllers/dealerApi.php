@@ -714,10 +714,7 @@ function getHomeDashboard(){
        
           
         if (!empty($requestData['entity_id']) && !empty($requestData['entity_type'])) {
-             $check_if_otp_verified = $this->check_user_otp_verified($requestData['entity_id']); 
-             if ($check_if_otp_verified['status'] == 'success') {
-            /* Getting State And their Cities */
-                 if (!empty($check_if_otp_verified['is_otp_verified'])) {
+                     
                     $state_with_cities = array();
                     $response_state = $this->indiapincode_model->get_allstates();
                     $citi['district'] = 'All';
@@ -819,15 +816,7 @@ function getHomeDashboard(){
               //  
               //  $this->jsonResponseString['response'] = $curl_response;
               //  $this->sendJsonResponse(array('0000', "Details found successfully")); // send success response //
-                 }else{
-                    $this->jsonResponseString['response'] = array('is_otp_verified' => 1,'otp' => $check_if_otp_verified['otp']);
-                    $this->sendJsonResponse(array('1020', "OTP is not verified"));   
-                 }
-             }
-             else{
-                 $this->jsonResponseString['response'] = array();
-                 $this->sendJsonResponse(array('1005', $check_if_otp_verified['message'])); // send success response // 
-             }
+              
         } else {
             log_message("info", __METHOD__ . $validation['message']);
             $this->jsonResponseString['response'] = array(); 
