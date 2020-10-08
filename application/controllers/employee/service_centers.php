@@ -6356,7 +6356,7 @@ class Service_centers extends CI_Controller {
 
         $select = "defective_part_shipped,spare_parts_details.defective_part_rejected_by_partner, spare_parts_details.shipped_quantity,spare_parts_details.id, spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, spare_consumption_status.reason_text, "
                 . " spare_parts_details.booking_id, users.name as 'user_name', courier_name_by_sf, awb_by_sf,defective_part_shipped_date,"
-                . "remarks_defective_part_by_sf,booking_details.partner_id,service_centres.name as 'sf_name',service_centres.district as 'sf_city',s.part_number, spare_parts_details.defactive_part_received_date_by_courier_api, spare_parts_details.status, spare_parts_details.defective_part_rejected_by_wh";
+                . "remarks_defective_part_by_sf,booking_details.partner_id,service_centres.name as 'sf_name',service_centres.district as 'sf_city',s.part_number, spare_parts_details.defactive_part_received_date_by_courier_api, spare_parts_details.defective_part_rejected_by_wh, spare_parts_details.status";
 
         $group_by = "spare_parts_details.id";
         $limit = $post['length'];
@@ -6392,24 +6392,32 @@ class Service_centers extends CI_Controller {
 
         $row = array();
 
+        if ($spare_list['defective_part_rejected_by_wh'] == 1) {
+            $color_class = 'rejected_by_wh';
+        } else {
+            $color_class = '';
+        }
+        
         $spareStatus = DELIVERED_SPARE_STATUS;
         if (!$spare_list['defactive_part_received_date_by_courier_api']) {
             $spareStatus = $spare_list['status'];
         }
-        $row[] = $no;
+        $row[] = "<span class='".$color_class."'>". $no ."</span>";
         if (!empty($this->session->userdata('service_center_id'))) {
             $row[] = "<a href='" . base_url() . "service_center/booking_details/" . urlencode(base64_encode($spare_list['booking_id'])) . "'target='_blank'>" . $spare_list['booking_id'] . "</a>";
         } else if ($this->session->userdata('id')) {
             $row[] = "<a href='" . base_url() . "employee/booking/viewdetails/" . $spare_list['booking_id'] . "'target='_blank'>" . $spare_list['booking_id'] . "</a>";
         }        
 
-        $row[] = $spare_list['user_name'];
-        $row[] = $spare_list['sf_name'];
-        $row[] = $spare_list['sf_city'];
-        $row[] = $spare_list['defective_part_shipped'];
-        $row[] = $spare_list['shipped_quantity'];
-        $row[] = $spare_list['part_number'];
-        $row[] = $spare_list['courier_name_by_sf'];
+        
+        
+        $row[] = "<span class='".$color_class."'>". $spare_list['user_name'] ."</span>";
+        $row[] = "<span class='".$color_class."'>". $spare_list['sf_name'] ."</span>";
+        $row[] = "<span class='".$color_class."'>". $spare_list['sf_city'] ."</span>";
+        $row[] = "<span class='".$color_class."'>". $spare_list['defective_part_shipped'] ."</span>";
+        $row[] = "<span class='".$color_class."'>". $spare_list['shipped_quantity'] ."</span>";
+        $row[] = "<span class='".$color_class."'>". $spare_list['part_number'] ."</span>";
+        $row[] = "<span class='".$color_class."'>". $spare_list['courier_name_by_sf'] ."</span>";
 
         $c = "<a href='javascript:void(0);' onclick='";
         $c .= "get_awb_details(" . '"' . $spare_list['courier_name_by_sf'] . '"';
@@ -6418,16 +6426,17 @@ class Service_centers extends CI_Controller {
 
         $row[] = $c;
 
-        $row[] = date("d-m-Y", strtotime($spare_list['defective_part_shipped_date']));
-        $row[] = $spare_list['remarks_defective_part_by_sf'];
+        
+        $row[] =  "<span class='".$color_class."'>". date("d-M-Y", strtotime($spare_list['defective_part_shipped_date']))."</span>";
+        $row[] = "<span class='".$color_class."'>". $spare_list['remarks_defective_part_by_sf'] ."</span>";
         if ($spare_list['is_consumed'] == 1) {
-            $row[] = "Yes";
+            $row[] = "<span class='".$color_class."'>". "Yes" ."</span>";
         } else {
-            $row[] = "No";
+            $row[] = "<span class='".$color_class."'>". "No" ."</span>";
         }
 
 
-        $row[] = $spare_list['reason_text'];
+        $row[] = "<span class='".$color_class."'>". $spare_list['reason_text'] ."</span>";
 
 
         if (!empty($spare_list['defective_part_shipped'])) {
