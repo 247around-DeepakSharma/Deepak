@@ -9661,6 +9661,8 @@ class Partner extends CI_Controller {
      */
     function create_and_save_partner_detailed_summary_report($partnerID){
             log_message('info', __FUNCTION__ . "Function Start For ".print_r($this->input->post(),true)." Partner ID : ".$partnerID);
+            ini_set('memory_limit', '-1');
+            ini_set('max_execution_time', 36000);
             $postArray = $this->input->post();
             //Create Summary Report
             $newCSVFileName = $this->create_detailed_summary_report_file($partnerID,$postArray);
