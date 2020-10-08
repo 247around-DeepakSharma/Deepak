@@ -2936,7 +2936,7 @@ function get_data_for_partner_callback($booking_id) {
                     `Sale Invoice Id`	                    
             FROM (SELECT
                     booking_details.booking_id as '247around Booking ID',
-                    (CASE WHEN booking_details.created_by_agent_type IN ('"._247AROUND_PARTNER_STRING."', '".BOOKING_AGENT_Dealer."') then entity_login_table.entity_name ELSE employee.full_name END) as 'Agent Name',
+                    (CASE WHEN booking_details.created_by_agent_type IN ('"._247AROUND_PARTNER_STRING."', '".BOOKING_AGENT_Dealer."') then entity_login_table.agent_name ELSE employee.full_name END) as 'Agent Name',
                     partner_channel.channel_name as 'Creation Source',
                     DATE_FORMAT(DATE(booking_details.create_date), '%d-%m-%Y') as 'Create Date',
                     ud.appliance_brand as 'Brand',
