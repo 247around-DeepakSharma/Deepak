@@ -8,6 +8,33 @@
                Cancel Booking 
             </h1>
              <form class="form-horizontal" id="cancel_booking_form" name="myForm" action="<?php echo base_url()?>employee/service_centers/process_cancel_booking/<?php if(!empty($user_and_booking_details)){ echo $user_and_booking_details[0]['booking_id']; }?>"  method="POST">
+                <?php 
+                    $isdisable = false; 
+                    if(!empty($user_and_booking_details['spare_parts'])) {  
+                       foreach($user_and_booking_details['spare_parts'] as $sp){
+                           /** check for non-cancelled spare parts.  */
+                           if ($sp['status'] != _247AROUND_CANCELLED) {
+                                switch ($sp['status']){
+                                    /**
+                                     * handeled spare part on approval case and OOW cases.
+                                     * modified by : Ankit Rajvanshi
+                                     */
+                                    case SPARE_OOW_EST_REQUESTED:
+                                    case SPARE_OOW_EST_GIVEN:
+                                    case SPARE_PART_ON_APPROVAL:
+                                    case SPARE_PARTS_REQUESTED: 
+                                        $status = CANCEL_PAGE_SPARE_NOT_SHIPPED;
+                                        $isdisable= true;
+                                    break;
+                                default:
+                                    if(!empty($sp['shipped_date'])) {
+                                        $status = CANCEL_PAGE_SPARE_SHIPPED;
+                                        $isdisable= true;
+                                    }
+                                }    
+                            }
+                       }
+                } ?>
                <div class="form-group <?php if( form_error('name') ) { echo 'has-error';} ?>">
                   <label for="name" class="col-md-2">User Name</label>
                   <div class="col-md-6">
@@ -26,6 +53,10 @@
                             if($data1->reason == _247AROUND_WRONG_PINCODE_CANCEL_REASON && empty($user_and_booking_details['allow_reassign'])){
                                 continue;
                             } 
+                            // DO not allow to select PRODUCT_NOT_DELIVERED_TO_CUSTOMER option , if spare is already requested
+                            if($data1->reason == PRODUCT_NOT_DELIVERED_TO_CUSTOMER && $isdisable){
+                                continue;
+                            }
                         ?>
                      <div class="radio">
                         <label>
@@ -56,39 +87,11 @@
                 <input type="hidden" name="service_id" value="<?php if (isset($user_and_booking_details[0]['service_id'])) {echo $user_and_booking_details[0]['service_id']; } ?>">
                 <input type="hidden" name="en_closed_date" value="<?php if($this->session->userdata('is_engineer_app') == 1){ if(!empty($engineer_data)){ if(!is_null($engineer_data[0]['closed_date'])){ echo $engineer_data[0]['closed_date']; } }  } ?>">
                <div>
-                <div class="col-md-6 col-md-offset-2">
-                   <?php $isdisable = false; if(!empty($user_and_booking_details['spare_parts'])) {  
-                       foreach($user_and_booking_details['spare_parts'] as $sp){
-                           /**
-                            * check for non-cancelled spare parts.
-                            * modified by : Ankit Rajvanshi
-                            */
-                           if ($sp['status'] != _247AROUND_CANCELLED) {
-                                switch ($sp['status']){
-                                    /**
-                                     * handeled spare part on approval case and OOW cases.
-                                     * modified by : Ankit Rajvanshi
-                                     */
-                                    case SPARE_OOW_EST_REQUESTED:
-                                    case SPARE_OOW_EST_GIVEN:
-                                    case SPARE_PART_ON_APPROVAL:
-                                    case SPARE_PARTS_REQUESTED: 
-                                        $status = CANCEL_PAGE_SPARE_NOT_SHIPPED;
-                                        $isdisable= true;
-                                    break;
-                                default:
-                                    if(!empty($sp['shipped_date'])) {
-                                        $status = CANCEL_PAGE_SPARE_SHIPPED;
-                                        $isdisable= true;
-                                    }
-                                }    
-                            }
-                       }
-                   } ?>
+                <div class="col-md-6 col-md-offset-2">                   
                    <?php 
                    //if current status is completed or cancelled by admin. SF cannot cancel the booking.
                    if(($bookinghistory[0]['current_status'] == _247AROUND_COMPLETED)||($bookinghistory[0]['current_status'] == _247AROUND_CANCELLED)){
-                    echo "<center><b>This booking is ".$bookinghistory[0]['current_status']." by Admin. You cannot cancel this booking.</b></center>";}
+                    echo "<center><b>This booking is already ".$bookinghistory[0]['current_status']." by Admin. You cannot cancel this booking.</b></center>";}
                     else {
                     ?>
                     <?php if($isdisable) { ?>

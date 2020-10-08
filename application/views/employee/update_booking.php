@@ -45,7 +45,7 @@ if(empty($booking_history[0]['booking_id'])){
     <?php } ?>
     
     <?php if(!empty($str_disabled)) { ?> 
-    .appliance_brand, .appliance_category, .appliance_capacity, .purchase_date, .select-model, .input-model, #source_code, #partner_source, #service_id {
+    .appliance_brand, .appliance_category, .appliance_capacity, .purchase_date, .select-model, .input-model, #source_code, #partner_source, #service_id, .booking_type {
         pointer-events : none !important;
         background : #eee !important;
     }    
