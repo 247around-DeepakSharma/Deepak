@@ -1567,6 +1567,15 @@ class engineerApi extends CI_Controller {
                 }
                 $en["service_center_id"] = $requestData['service_center_id'];
                 $en["engineer_id"] = $requestData['engineer_id'];
+                // update cancellation reasons
+                // Get cancellation reason Id from Text
+                $cancellation_reason_id = "";
+                if(!empty($requestData["cancellationReason"])){
+                    $arr_cancellation_reason =  $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('reason' => $requestData["cancellationReason"], 'reason_of' => 'vendor'), NULL, NULL, NULL, NULL, NULL, array());
+                    $cancellation_reason_id = !empty($arr_cancellation_reason[0]['id']) ? $arr_cancellation_reason[0]['id'] : ""; 
+                }
+                $en['cancellation_reason'] = $cancellation_reason_id;
+                $en['cancellation_remark'] = $requestData["remarks"];
                 $is_exist = $this->engineer_model->get_engineer_sign("id", array("service_center_id" => $requestData['service_center_id'], "booking_id" => $requestData["bookingID"]));
                 if (!empty($is_exist)) {
                     $this->engineer_model->update_engineer_action_sig(array("id" => $is_exist[0]['id']), $en);
