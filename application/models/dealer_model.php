@@ -318,6 +318,21 @@ class Dealer_model extends CI_Model {
         return $query->result_array();
 
     }
+     /**
+     * @desc: This is used to update the dealer details
+     * @param $data array
+     * @param $where array
+     * @return boolean
+     */
+    function fetch_retailer_detail($select,$where=array()){
+        if($where !== ''){
+           $this->db->where($where);
+        }
+        $this->db->select($select);
+        $this->db->from('retailer_login');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
 
 
 
