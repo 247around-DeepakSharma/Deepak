@@ -354,27 +354,29 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
              ?>
                  </div>
 
-   <div id="model_remarks_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>" class="modal fade" role="dialog">
+    <div id="model_remarks_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>" class="modal fade" role="dialog">
       <div class="modal-dialog">
          <!-- Modal content-->
          <div class="modal-content">
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal">&times;</button>
-               <h4 class="modal-title" id="modal-title-<?=$review_status?>_<?=$is_partner?><?=$sub_id?>">Modal Header</h4>
+                    <h4 class="modal-title" id="modal-title-<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>">Modal Header</h4>
             </div>
             <div class="modal-body">
                 <div class="col-md-12">
-                    <center><img id="loader_gif_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
-                    <center><p id="remarks_msg_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>" style="color : red;"></p></center>
+                        <center><img id="loader_gif_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                        <center><p id="remarks_msg_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>" style="color : red;"></p></center>
                 </div>
-                <input type="hidden" name="modal_booking_id" id="modal_booking_id_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>" value="">
-                <textarea rows="8" class="form-control textarea" id="textarea_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>"></textarea>
+                    <input type="hidden" name="modal_booking_id" id="modal_booking_id_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>" value="">
+                    <select  class="form-control"  id="select_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>">
+                        <option disabled="" selected=""></option>
+                    </select>
             </div>
             <input type="hidden" id="id_no">
-            <input type="hidden" value='<?php echo _247AROUND; ?>' id="admin_id_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>">
-            <input type="hidden" value="<?php echo $status; ?>" id="internal_boking_status_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>" class="internal_boking_status_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>">
+                <input type="hidden" value='<?php echo _247AROUND; ?>' id="admin_id_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>">
+                <input type="hidden" value="<?php echo $status; ?>" id="internal_boking_status_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>" class="internal_boking_status_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>">
             <div class="modal-footer">
-               <button type="button" class="btn btn-success" onclick="send_remarks_multitab('<?=$review_status?>','<?=$is_partner?>')" id="btn_send_remarks_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>">Send</button>
+                    <button type="button" class="btn btn-success" onclick="send_remarks_multitab('<?= $review_status ?>','<?= $is_partner ?>')" id="btn_send_remarks_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>">Send</button>
                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="close_model()">Close</button>
             </div>
          </div>
