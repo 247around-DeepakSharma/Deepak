@@ -159,6 +159,51 @@ class Penalty_model extends CI_Model {
             return FALSE;
         }
     }
+        public function show_cancel_reject_list($where = '') {
+        $this->db->select('cancellation_rejection_penalty_mapping.id,penalty_details.criteria,penalty_details.penalty_point,booking_cancellation_reasons.reason,rejection_reason,cancellation_reason,cancellation_rejection_penalty_mapping.active,employee.full_name');
+        $this->db->from('cancellation_rejection_penalty_mapping');
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $this->db->join('booking_cancellation_reasons','booking_cancellation_reasons.id = cancellation_rejection_penalty_mapping.cancellation_reason');
+        $this->db->join('penalty_details','cancellation_rejection_penalty_mapping.rejection_reason = penalty_details.id','left');
+        $this->db->join('employee', 'employee.id = penalty_details.agent_id');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
+         public function save_review_data($data) {
+       // $data['last_updated_by'] = $this->session->userdata("employee_id");
+        if (empty($data['active'])) {
+            $data['active'] = 0;
+        }
+       // $data['criteria'] = $data['criteria'];        
+
+        // CASE : UPDATE
+        if (!empty($data['id'])) {
+            $this->db->where('id', $data['id']);
+            unset($data['Save'], $data['id']);
+            $this->db->update('cancellation_rejection_penalty_mapping', $data);
+        } else {
+        // CASE : CREATE
+            unset($data['Save'], $data['id']);
+            $data['agent_id'] = $this->session->userdata("id");
+            $this->db->insert('cancellation_rejection_penalty_mapping', $data);
+         }
+    }
+        /**
+     * @Desc: Get review reject reason
+     * @params: Int id
+     * @return: Array
+     * 
+     */
+    function get_review_reject(){
+        $this->db->select('penalty_details.id,penalty_details.criteria,penalty_details.active,penalty_details.penalty_point,penalty_details.reason_of,employee.full_name');
+        $this->db->where('reason_of',2);
+        $this->db->join('employee', 'employee.id = penalty_details.agent_id');
+        $query = $this->db->get('penalty_details');
+        return $query->result_array();
+    }
     /**
      *
      * @param String $booking_id
