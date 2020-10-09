@@ -2906,7 +2906,7 @@ function get_detailed_summary_report_query($partner_id,$whereConditions=NULL){
                     `Sale Invoice Id`	                    
             FROM (SELECT
                     booking_details.booking_id as '247around Booking ID',
-                    (CASE WHEN booking_details.created_by_agent_type IN ('"._247AROUND_PARTNER_STRING."', '".BOOKING_AGENT_Dealer."') then entity_login_table.agent_name ELSE employee.full_name END) as 'Agent Name',
+                    (CASE WHEN booking_details.created_by_agent_type IN ('"._247AROUND_PARTNER_STRING."', '".BOOKING_AGENT_Dealer."') then entity_login_table.agent_name WHEN booking_details.created_by_agent_type = '".BOOKING_AGENT_Website."' THEN '".BOOKING_AGENT_Website."' ELSE employee.full_name END) as 'Agent Name',
                     partner_channel.channel_name as 'Creation Source',
                     DATE_FORMAT(DATE(booking_details.create_date), '%d-%m-%Y') as 'Create Date',
                     ud.appliance_brand as 'Brand',
@@ -3083,7 +3083,7 @@ function get_detailed_summary_report_query($partner_id,$whereConditions=NULL){
 
             SELECT
                     booking_details.booking_id as '247around Booking ID',
-                    '' as 'Agent Name',
+                    (CASE WHEN booking_details.created_by_agent_type IN ('"._247AROUND_PARTNER_STRING."', '".BOOKING_AGENT_Dealer."') then entity_login_table.agent_name WHEN booking_details.created_by_agent_type = '".BOOKING_AGENT_Website."' THEN '".BOOKING_AGENT_Website."' ELSE employee.full_name END) as 'Agent Name',
                     partner_channel.channel_name as 'Creation Source',
                     DATE_FORMAT(DATE(booking_details.create_date), '%d-%m-%Y') as 'Create Date',
                     ud.appliance_brand as 'Brand',
@@ -3262,6 +3262,8 @@ function get_detailed_summary_report_query($partner_id,$whereConditions=NULL){
                 LEFT JOIN spare_consumption_status ON (spare_parts_details.consumed_part_status_id = spare_consumption_status.id)
                 LEFT JOIN booking_cancellation_reasons b_cr ON (booking_details.cancellation_reason = b_cr.id)
                 LEFT JOIN booking_cancellation_reasons ssba_cr ON (service_center_booking_action.cancellation_reason = ssba_cr.id)
+                LEFT JOIN entity_login_table ON (booking_details.created_by_agent_id = entity_login_table.agent_id)
+                LEFT JOIN employee ON (booking_details.created_by_agent_id = employee.id)
             WHERE {$where}
                 AND product_or_services != 'Product' AND spare_parts_details.booking_id is not null 
             GROUP BY
