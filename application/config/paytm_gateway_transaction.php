@@ -12,10 +12,23 @@
 - Above details will be different for testing and production environment.
 
 */
-define('PAYTM_GATEWAY_ENVIRONMENT', 'TEST'); // PROD
-define('PAYTM_GATEWAY_MERCHANT_KEY', '@m8pOe%7LSZw63y2'); //Change this constant's value with Merchant key downloaded from portal
-define('PAYTM_GATEWAY_MERCHANT_MID', '247Aro50898004256928'); //Change this constant's value with MID (Merchant ID) received from Paytm
-define('PAYTM_GATEWAY_MERCHANT_WEBSITE', 'WEBSTAGING'); //Change this constant's value with Website name received from Paytm
+
+if(ENVIRONMENT == 'production'){
+	define('PAYTM_GATEWAY_ENVIRONMENT', 'PROD'); // PROD
+	define('PAYTM_GATEWAY_MERCHANT_KEY', 'O83YdBrDWmjCrjtG'); //Change this constant's value with Merchant key downloaded from portal
+	define('PAYTM_GATEWAY_MERCHANT_MID', '247Aro31364376608092'); //Change this constant's value with MID (Merchant ID) received from Paytm
+	define('PAYTM_GATEWAY_MERCHANT_WEBSITE', 'WEBPROD'); //Change this constant's value with Website name received from Paytm
+	define('PAYTM_GATEWAY_INDUSTRY_TYPE_ID','Retail109');
+	define('PAYTM_GATEWAY_CHANNEL_ID', 'WEB');
+}else{
+	define('PAYTM_GATEWAY_ENVIRONMENT', 'TEST'); // PROD
+	define('PAYTM_GATEWAY_MERCHANT_KEY', '@m8pOe%7LSZw63y2'); //Change this constant's value with Merchant key downloaded from portal
+	define('PAYTM_GATEWAY_MERCHANT_MID', '247Aro50898004256928'); //Change this constant's value with MID (Merchant ID) received from Paytm
+	define('PAYTM_GATEWAY_MERCHANT_WEBSITE', 'WEBSTAGING'); //Change this constant's value with Website name received from Paytm
+	define('PAYTM_GATEWAY_INDUSTRY_TYPE_ID','Retail');
+	define('PAYTM_GATEWAY_CHANNEL_ID', 'WEB');
+}
+
 
 /*$PAYTM_DOMAIN = "pguat.paytm.com";
 if (PAYTM_ENVIRONMENT == 'PROD') {
@@ -30,19 +43,14 @@ define('PAYTM_TXN_URL', 'https://'.$PAYTM_DOMAIN.'/oltp-web/processTransaction')
 //$PAYTM_STATUS_QUERY_NEW_URL='https://securegw-stage.paytm.in/merchant-status/getTxnStatus';
 
 
-define('PAYTM_GATEWAY_INDUSTRY_TYPE_ID','Retail');
-define('PAYTM_GATEWAY_CHANNEL_ID', 'WEB');
-
 if(ENVIRONMENT == 'production'){
     $PAYTM_GATEWAY_STATUS_QUERY_NEW_URL='https://securegw.paytm.in/merchant-status/getTxnStatus';
     $PAYTM_GATEWAY_TXN_URL='https://securegw.paytm.in/theia/processTransaction';
     $GATEWAY_CALLBACK_URL = 'https://aroundhomzapp.com/payment/response';
 }else{
-    //$PAYTM_GATEWAY_STATUS_QUERY_NEW_URL = 'https://pguat.paytm.com/oltp/HANDLER_INTERNAL/getTxnStatus';
-    //$PAYTM_GATEWAY_TXN_URL='https://pguat.paytm.com/oltp-web/processTransaction';
-    $PAYTM_GATEWAY_STATUS_QUERY_NEW_URL='https://securegw-stage.paytm.in/merchant-status/getTxnStatus';
+    $PAYTM_GATEWAY_STATUS_QUERY_NEW_URL = 'https://securegw-stage.paytm.in/merchant-status/getTxnStatus';
     $PAYTM_GATEWAY_TXN_URL='https://securegw-stage.paytm.in/theia/processTransaction';
-    $GATEWAY_CALLBACK_URL = 'http://localhost/Develop/payment/response';
+    $GATEWAY_CALLBACK_URL = 'http://247around-adminp-aws/payment/response';
     
 }
 
