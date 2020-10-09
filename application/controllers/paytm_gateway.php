@@ -35,11 +35,9 @@ class Paytm_gateway extends CI_Controller {
             $param_list = array();
 
             $ORDER_ID = $this->input->post('ORDER_ID');
-            // concate TDS rate & amount in order id.
             if (!empty($this->input->post('TDS_RATE')) && !empty($this->input->post('TDS_AMOUNT'))) {
                 $ORDER_ID = $ORDER_ID . '_' . $this->input->post('TDS_RATE') . '_' . $this->input->post('TDS_AMOUNT');
             }
-
             $CUST_ID = $this->input->post('CUST_ID');
             $INDUSTRY_TYPE_ID = $this->input->post('INDUSTRY_TYPE_ID');
             $CHANNEL_ID = $this->input->post('CHANNEL_ID');
@@ -55,9 +53,7 @@ class Paytm_gateway extends CI_Controller {
             //$param_list["TXN_AMOUNT"] = 1;
             $param_list["WEBSITE"] = PAYTM_GATEWAY_MERCHANT_WEBSITE;
             $param_list["CALLBACK_URL"] = PAYTM_GATEWAY_CALLBACK_URL;
-            $param_list['ORDER_DETAILS'] = $ORDER_ID . " " . $TXN_AMOUNT;
-            $param_list['TDS_RATE'] = $this->input->post('TDS_RATE');
-            $param_list['TDS_AMOUNT'] = $this->input->post('TDS_AMOUNT');
+            $param_list['ORDER_DETAILS'] = $ORDER_ID." ".$TXN_AMOUNT;
             /*
               $param_list["MSISDN"] = $MSISDN; //Mobile number of customer
               $param_list["EMAIL"] = $EMAIL; //Email ID of customer
