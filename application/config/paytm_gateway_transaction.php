@@ -48,9 +48,9 @@ if(ENVIRONMENT == 'production'){
     $PAYTM_GATEWAY_TXN_URL='https://securegw.paytm.in/theia/processTransaction';
     $GATEWAY_CALLBACK_URL = 'https://aroundhomzapp.com/payment/response';
 }else{
-    $PAYTM_GATEWAY_STATUS_QUERY_NEW_URL = 'https://pguat.paytm.com/oltp/HANDLER_INTERNAL/getTxnStatus';
-    $PAYTM_GATEWAY_TXN_URL='https://pguat.paytm.com/oltp-web/processTransaction';
-    $GATEWAY_CALLBACK_URL = 'http://247newfeaturs.in/payment/response';
+    $PAYTM_GATEWAY_STATUS_QUERY_NEW_URL = 'https://securegw-stage.paytm.in/merchant-status/getTxnStatus';
+    $PAYTM_GATEWAY_TXN_URL='https://securegw-stage.paytm.in/theia/processTransaction';
+    $GATEWAY_CALLBACK_URL = 'http://247around-adminp-aws/payment/response';
     
 }
 
