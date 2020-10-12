@@ -369,7 +369,7 @@ class Penalty_model extends CI_Model {
                     $data1 = $this->employee_model->get_employee_by_group($where);
                     $result[$key]['agent_name'] = isset($data1[0]['full_name']) ? $data1[0]['full_name'] : '';
                 }else if($value['active'] == 1){
-                    if($value['agent_type'] == 'admin'){
+                    if($value['agent_type'] == 'admin' || $value['agent_type'] == _247AROUND_EMPLOYEE_STRING){
                         $where = array('id' => $value['agent_id']);
                         $data1 = $this->employee_model->get_employee_by_group($where);
                         $result[$key]['agent_name'] = isset($data1[0]['full_name']) ? $data1[0]['full_name'] : '';
