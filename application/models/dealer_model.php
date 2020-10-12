@@ -299,7 +299,7 @@ class Dealer_model extends CI_Model {
         if($entity_type == _247AROUND_DEALER_STRING){
 
          $sql = "SELECT DISTINCT services.services, users.phone_number, users.name as name, users.phone_number, booking_details.* "
-             . "FROM (`users`) JOIN `booking_details` ON `booking_details`.`user_id` = `users`.`user_id` AND `booking_details`.`dealer_id` = '".$enitity_id."'"
+             . "FROM (`users`) JOIN `booking_details` ON `booking_details`.`user_id` = `users`.`user_id`"
              . "JOIN `services` ON `services`.`id` = `booking_details`.`service_id`"
              . " WHERE `users`.`phone_number` = '".$phone_number."' OR booking_details.booking_primary_contact_no = '".$phone_number."' OR booking_details.booking_alternate_contact_no = '".$phone_number."'"
              . " ORDER BY `booking_details`.`create_date` DESC";
@@ -313,7 +313,7 @@ class Dealer_model extends CI_Model {
              . " ORDER BY `booking_details`.`create_date` DESC";
         }
 
-        
+        echo $sql;
         $query = $this->db->query($sql);
         return $query->result_array();
 
