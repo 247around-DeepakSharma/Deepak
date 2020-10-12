@@ -869,6 +869,7 @@ class File_upload extends CI_Controller {
             $invoice_price = 0;
             $invoice_price_with_gst = 0;
             $uniqu_part_number_arr = array();
+            $parts_list = array();  
             for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                 $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
                 $sanitizes_row_data = array_map('trim', $rowData_array[0]);
@@ -933,68 +934,24 @@ class File_upload extends CI_Controller {
                             }
 
                             if (!empty($part_details)) {
-                                if (isset($post_data[$rowData['appliance']])) {
-                                    $invoice_price = round(($part_details[0]['price'] * $rowData['quantity']), 2);
-                                    $invoice_price_with_gst = ($invoice_price_with_gst + ($invoice_price + (($invoice_price * $rowData['gst_rate']) / 100)));
-                                    $part = array(
-                                        'shippingStatus' => 1,
-                                        'service_id' => $part_details[0]['service_id'],
-                                        'part_name' => $part_details[0]['part_name'],
-                                        'part_number' => $part_details[0]['part_number'],
-                                        'booking_id' => '',
-                                        'quantity' => $rowData['quantity'],
-                                        'part_total_price' => round(($part_details[0]['price'] * $rowData['quantity']), 2),
-                                        'hsn_code' => $rowData['hsn_code'],
-                                        'gst_rate' => $rowData['gst_rate'],
-                                        'inventory_id' => $part_details[0]['inventory_id'],
-                                    );
-                                    unset($post_data[$rowData['appliance']]['invoice_amount']);
-                                    $post_data[$rowData['appliance']]['invoice_amount'] = round(($invoice_price_with_gst), 2);
-                                    array_push($post_data[$rowData['appliance']]['part'], $part);
-                                } else {
-                                    $part = array(
-                                        'shippingStatus' => 1,
-                                        'service_id' => $part_details[0]['service_id'],
-                                        'part_name' => $part_details[0]['part_name'],
-                                        'part_number' => $part_details[0]['part_number'],
-                                        'booking_id' => '',
-                                        'quantity' => $rowData['quantity'],
-                                        'part_total_price' => round(($part_details[0]['price'] * $rowData['quantity']), 2),
-                                        'hsn_code' => $rowData['hsn_code'],
-                                        'gst_rate' => $rowData['gst_rate'],
-                                        'inventory_id' => $part_details[0]['inventory_id'],
-                                    );
 
-                                    $invoice_price = $invoice_price + round(($part_details[0]['price'] * $rowData['quantity']), 2);
-                                    $invoice_price_with_gst = $invoice_price + (($invoice_price * $rowData['gst_rate']) / 100);
-                                    $post_data[$rowData['appliance']]['is_wh_micro'] = $this->input->post("is_wh_micro");
-                                    $post_data[$rowData['appliance']]['dated'] = date('Y-m-d H:i:s');
-                                    $post_data[$rowData['appliance']]['invoice_id'] = $this->input->post("invoice_id");
-                                    $post_data[$rowData['appliance']]['invoice_amount'] = $invoice_price_with_gst;
-                                    $post_data[$rowData['appliance']]['courier_name'] = $this->input->post("courier_name");
-                                    $post_data[$rowData['appliance']]['awb_number'] = $this->input->post("awb_number");
-                                    $post_data[$rowData['appliance']]['courier_shipment_date'] = $this->input->post("courier_shipment_date");
-                                    $post_data[$rowData['appliance']]['from_gst_number'] = $this->input->post("from_gst_number");
-                                    $post_data[$rowData['appliance']]['to_gst_number'] = $this->input->post("to_gst_number");
-                                    $post_data[$rowData['appliance']]['wh_id'] = $this->input->post("wh_id");
-                                    $post_data[$rowData['appliance']]['partner_id'] = $this->input->post("partner_id");
-                                    $post_data[$rowData['appliance']]['partner_name'] = $this->input->post("partner_name");
-                                    $post_data[$rowData['appliance']]['wh_name'] = $this->input->post("wh_name");
-                                    $post_data[$rowData['appliance']]['invoice_tag'] = 'MSL';
-                                    if($this->input->post("transfered_by") == MSL_TRANSFERED_BY_WAREHOUSE){
-                                     $post_data[$rowData['appliance']]['transfered_by'] = MSL_TRANSFERED_BY_WAREHOUSE; 
-                                     $post_data[$rowData['appliance']]['sender_entity_type'] = $this->input->post("sender_entity_type");
-                                     $post_data[$rowData['appliance']]['sender_entity_id'] = $this->input->post("sender_entity_id");
-                                    } else {
-                                    $post_data[$rowData['appliance']]['transfered_by'] = MSL_TRANSFERED_BY_PARTNER;
-                                    }
-                                    
-                                    $post_data[$rowData['appliance']]['is_defective_part_return_wh'] = 1;
-                                    $post_data[$rowData['appliance']]['part'] = array();
-                                    $post_data[$rowData['appliance']]['files'] = $file_data;
-                                    array_push($post_data[$rowData['appliance']]['part'], $part);
-                                }
+                                $parts_list[] = array(
+                                    'shippingStatus' => 1,
+                                    'service_id' => $part_details[0]['service_id'],
+                                    'part_name' => $part_details[0]['part_name'],
+                                    'part_number' => $part_details[0]['part_number'],
+                                    'booking_id' => '',
+                                    'quantity' => $rowData['quantity'],
+                                    'part_total_price' => round(($part_details[0]['price'] * $rowData['quantity']), 2),
+                                    'hsn_code' => $rowData['hsn_code'],
+                                    'gst_rate' => $rowData['gst_rate'],
+                                    'inventory_id' => $part_details[0]['inventory_id'],
+                                );
+                                
+                               $invoice_price = round(($part_details[0]['price'] * $rowData['quantity']), 2);
+                               $invoice_price_with_gst = ($invoice_price_with_gst + ($invoice_price + (($invoice_price * $rowData['gst_rate']) / 100)));
                             }
+                        }
                         } else {
                             $error_type = "Error in header Or excel value should not be null.";
                             $error_array[] = $error_type;
@@ -1004,9 +961,82 @@ class File_upload extends CI_Controller {
                         $error_type = "Duplicate part number not allowed ".$rowData['part_code'];
                         $error_array[] = $error_type;
                         $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
-                    }
+                    }                   
+                    
                 }
+                
+            $post_data['appliance']['is_wh_micro'] = $this->input->post("is_wh_micro");
+            $post_data['appliance']['dated'] = date('Y-m-d H:i:s');
+            $post_data['appliance']['invoice_id'] = $this->input->post("invoice_id");
+            $post_data['appliance']['invoice_amount'] = round(($invoice_price_with_gst), 2);
+            $post_data['appliance']['courier_name'] = $this->input->post("courier_name");
+            $post_data['appliance']['awb_number'] = $this->input->post("awb_number");
+            $post_data['appliance']['courier_shipment_date'] = $this->input->post("courier_shipment_date");
+            $post_data['appliance']['from_gst_number'] = $this->input->post("from_gst_number");
+            $post_data['appliance']['to_gst_number'] = $this->input->post("to_gst_number");
+            $post_data['appliance']['wh_id'] = $this->input->post("wh_id");
+            $post_data['appliance']['partner_id'] = $this->input->post("partner_id");
+            $post_data['appliance']['partner_name'] = $this->input->post("partner_name");
+            $post_data['appliance']['wh_name'] = $this->input->post("wh_name");
+            $post_data['appliance']['invoice_tag'] = 'MSL';
+            if ($this->input->post("transfered_by") == MSL_TRANSFERED_BY_WAREHOUSE) {
+                $post_data['appliance']['transfered_by'] = MSL_TRANSFERED_BY_WAREHOUSE;
+                $post_data['appliance']['sender_entity_type'] = $this->input->post("sender_entity_type");
+                $post_data['appliance']['sender_entity_id'] = $this->input->post("sender_entity_id");
+            } else {
+                $post_data['appliance']['transfered_by'] = MSL_TRANSFERED_BY_PARTNER;
             }
+
+            $post_data['appliance']['is_defective_part_return_wh'] = 1;
+            $post_data['appliance']['files'] = $file_data;
+            $post_data['appliance']['part'] = $parts_list;
+            $session = array();
+            if ($this->session->userdata('service_center_id')) {
+                $session['session_id'] = $this->session->userdata("session_id");
+                $session['ip_address'] = $this->session->userdata("ip_address");
+                $session['user_agent'] = $this->session->userdata("user_agent");
+                $session['last_activity'] = $this->session->userdata("last_activity");
+                $session['user_data'] = $this->session->userdata("user_data");
+                $session['service_center_id'] = $this->session->userdata("service_center_id");
+                $session['service_center_name'] = $this->session->userdata("service_center_name");
+                $session['service_center_agent_id'] = $this->session->userdata("service_center_agent_id");
+                $session['is_upcountry'] = $this->session->userdata("is_upcountry");
+                $session['is_update'] = $this->session->userdata("is_update");
+                $session['is_engineer_app'] = $this->session->userdata("is_engineer_app");
+                $session['sess_expiration'] = $this->session->userdata("sess_expiration");
+                $session['loggedIn'] = $this->session->userdata("loggedIn");
+                $session['userType'] = $this->session->userdata("userType");
+                $session['is_sf'] = $this->session->userdata("is_sf");
+                $session['is_cp'] = $this->session->userdata("is_cp");
+                $session['is_wh'] = $this->session->userdata("is_wh");
+                $session['wh_name'] = $this->session->userdata("wh_name");
+                $session['is_gst_exist'] = $this->session->userdata("is_gst_exist");
+                $session['is_micro_wh'] = $this->session->userdata("is_micro_wh");
+                $session['poc_email'] = $this->session->userdata("poc_email");
+                $session['agent_name'] = $this->session->userdata("agent_name");
+                $session['covid_popup'] = $this->session->userdata("covid_popup");
+            } else {
+                $session['session_id'] = $this->session->userdata("session_id");
+                $session['ip_address'] = $this->session->userdata("ip_address");
+                $session['user_agent'] = $this->session->userdata("user_agent");
+                $session['last_activity'] = $this->session->userdata("last_activity");
+                $session['user_data'] = $this->session->userdata("user_data");
+                $session['employee_id'] = $this->session->userdata("employee_id");
+                $session['id'] = $this->session->userdata("id");
+                $session['phone'] = $this->session->userdata("phone");
+                $session['sess_expiration'] = $this->session->userdata("sess_expiration");
+                $session['loggedIn'] = $this->session->userdata("loggedIn");
+                $session['userType'] = $this->session->userdata("userType");
+                $session['user_group'] = $this->session->userdata("user_group");
+                $session['official_email'] = $this->session->userdata("official_email");
+                $session['emp_name'] = $this->session->userdata("emp_name");
+                $session['is_am'] = $this->session->userdata("is_am");
+                $session['user_source'] = $this->session->userdata("user_source");
+                $session['warehouse_id'] = $this->session->userdata("warehouse_id");
+            }
+            
+            $post_data['appliance']['session'] = $session;
+            
         } else {
             $this->table->add_row("-", "-", "-", "Excel header is Incorrect");
         }
@@ -1014,9 +1044,8 @@ class File_upload extends CI_Controller {
         $err_msg = $this->table->generate();
       
         if (empty($error_array)) {
-
-            foreach ($post_data as $post) {
-                $post_json = json_encode($post, true);
+            if (!empty($post_data)) {
+                $post_json = json_encode($post_data['appliance'], true);
                 $url = base_url() . 'employee/inventory/process_msl_upload_excel';
                 $ch = curl_init($url);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -1025,6 +1054,9 @@ class File_upload extends CI_Controller {
                 $response1 = curl_exec($ch);
                 curl_close($ch);
             }
+            
+            echo $response1;
+            
             $response['status'] = TRUE;
             $response['message'] = $err_msg;
             $response['bulk_msl'] = TRUE;
