@@ -1923,6 +1923,8 @@ function  getPartnerCompareTAT(){
             $sms['type'] = "dealer";
             $sms['type_id'] = $fetch_user_detail[0]['id'];
             $send_SMS = $this->notify->send_sms_msg91($sms);
+            $this->jsonResponseString['response'] = array('otp' => $otp);
+            $this->sendJsonResponse(array('0000', 'OTP send successfully'));
         } else {
             $this->jsonResponseString['response'] = array();
             $this->sendJsonResponse(array('0013', 'User does not exist'));
