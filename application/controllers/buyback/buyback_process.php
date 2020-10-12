@@ -153,7 +153,7 @@ class Buyback_process extends CI_Controller {
         $post['where'] = array('assigned_cp_id IS NOT NULL' => NULL, 'order_date >= ' => date('Y-m-d',strtotime(TAT_BREACH_DAYS)));
         $post['where_in'] = array('bb_order_details.current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
-        $post['column_search'] = array('bb_unit_details.partner_order_id','bb_order_details.partner_tracking_id','services', 'city','order_date','current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','bb_order_details.partner_tracking_id','services', 'city','order_date','bb_order_details.current_status');
         $list = $this->bb_model->get_bb_order_list($post);
         $data = array();
         $no = $post['start'];
@@ -255,7 +255,7 @@ class Buyback_process extends CI_Controller {
         $post['where'] = array('assigned_cp_id IS NOT NULL' => NULL);
         $post['where_in'] = array('bb_order_details.current_status' => array('Delivered'), 'bb_order_details.internal_status' => array('Delivered'));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'delivery_date', 'current_status');
-        $post['column_search'] = array('bb_unit_details.partner_order_id','bb_order_details.partner_tracking_id','services', 'city','order_date','delivery_date','current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','bb_order_details.partner_tracking_id','services', 'city','order_date','delivery_date','bb_order_details.current_status');
         $list = $this->bb_model->get_bb_order_list($post);
         $data = array();
         $no = $post['start'];
@@ -279,7 +279,7 @@ class Buyback_process extends CI_Controller {
         $post['where'] = array('assigned_cp_id IS NULL' => NULL, 'order_date >= ' => date('Y-m-d', strtotime(TAT_BREACH_DAYS)));
         $post['where_in'] = array('bb_order_details.current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Delivered'));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
-        $post['column_search'] = array('bb_unit_details.partner_order_id','bb_order_details.partner_tracking_id','services', 'city','order_date','current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','bb_order_details.partner_tracking_id','services', 'city','order_date','bb_order_details.current_status');
         $list = $this->bb_model->get_bb_order_list($post);
         $data = array();
         $no = $post['start'];
