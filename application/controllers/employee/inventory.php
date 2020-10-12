@@ -4412,6 +4412,7 @@ class Inventory extends CI_Controller {
         $input_d = file_get_contents('php://input');
         $_POST = json_decode($input_d, TRUE);
         $_FILES = $_POST['files'];
+        $this->session->set_userdata($_POST['session']);
         if (!(json_last_error() === JSON_ERROR_NONE)) {
             log_message('info', __METHOD__ . ":: Invalid JSON", true);
         } else {
