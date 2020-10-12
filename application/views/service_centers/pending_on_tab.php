@@ -1000,7 +1000,7 @@
                                         </td>
                                         <td style="vertical-align: middle;">
                                         <?php if(($row['status'] == SPARE_PART_ON_APPROVAL && ( $row['part_warranty_status'] == SPARE_PART_IN_WARRANTY_STATUS || $row['part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS ))){ ?>
-                                             <?php if (isset($row->nrn_approved) && $row->nrn_approved==0) { ?>
+                                             <?php if (isset($row['nrn_approved']) && $row['nrn_approved']==0) { ?>
                                            <a class="btn btn-sm btn-primary" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_spare_parts_required/<?php echo urlencode(base64_encode($row['id'])); ?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
                                        <?php }else{ ?>
 
