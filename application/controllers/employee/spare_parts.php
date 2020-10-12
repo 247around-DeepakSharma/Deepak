@@ -3898,15 +3898,15 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $date_45 = date('Y-m-d', strtotime("-45 Days"));
         $date_30 = date('Y-m-d', strtotime("-30 Days"));
         $date_15 = date('Y-m-d', strtotime("-15 Days"));
-        $where = array(); 
-        if($icwh == 1){
-            $tmp_subject =  "CWH ";
+        $where = array();
+        if ($icwh == 1) {
+            $tmp_subject = "CWH ";
             $temp_function = 'get_msl_data';
             $template = "msl_data.xlsx";
         } else {
-            $tmp_subject =  "MWH ";
+            $tmp_subject = "MWH ";
             $temp_function = 'get_microwarehouse_msl_data';
-            if($this->uri->segment(1) == 'partner') {
+            if ($this->uri->segment(1) == 'partner') {
                 $template = "mwh_msl_data_for_partner.xlsx";
             } else {
                 $template = "mwh_msl_data.xlsx";
@@ -3917,9 +3917,9 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             }
         }
         $data = $this->inventory_model->$temp_function($date_365, '', $where);
-        $rm_asm_list = $this->employee_model->get_rm_details(array(_247AROUND_RM,_247AROUND_ASM));
+        $rm_asm_list = $this->employee_model->get_rm_details(array(_247AROUND_RM, _247AROUND_ASM));
         $rm_asm_list_array = array();
-        foreach($rm_asm_list as $key => $value){
+        foreach ($rm_asm_list as $key => $value) {
             $rm_asm_list_array[$value['id']] = $value['full_name'];
         }
 
@@ -3951,14 +3951,12 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                 $recommended_30 = $data[$key]['consumption_30_days'] - $value['stock'];
                 if ($recommended_30 > 0) {
                     $data[$key]['recommended_30_days'] = $recommended_30;
-                    
-                } else if($recommended_30 == 0){
-                    
-                    $data[$key]['recommended_30_days']  = $data[$key]['consumption_30_days'];
-                    
-                } else if($data[$key]['consumption_30_days'] == 0){ 
+                } else if ($recommended_30 == 0) {
+
+                    $data[$key]['recommended_30_days'] = $data[$key]['consumption_30_days'];
+                } else if ($data[$key]['consumption_30_days'] == 0) {
                     $recommended_45 = $data[$key]['consumption'] - $value['stock'];
-                    if($recommended_45 > 0){
+                    if ($recommended_45 > 0) {
                         $data[$key]['recommended_30_days'] = $recommended_45;
                     } else {
                         $data[$key]['recommended_30_days'] = 0;
@@ -4024,7 +4022,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         if (file_exists(TMP_FOLDER . $output_file_excel)) {
 
             system(" chmod 777 " . TMP_FOLDER . $output_file_excel, $res1);
-              unlink($output_file_excel);
+            unlink($output_file_excel);
         }
 
         $R->render('excel', TMP_FOLDER . $output_file_excel);
@@ -4046,27 +4044,27 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             unlink(TMP_FOLDER . $booking_landed_excel);
         }
 
-       if(!empty($this->session->userdata('session_id'))) {
-        $this->load->helper('download');
-        $data = file_get_contents(TMP_FOLDER . $output_file_excel);
-        force_download($output_file_excel, $data);
-        unlink(TMP_FOLDER . $output_file_excel);
+        if (!empty($this->session->userdata('session_id'))) {
+            $this->load->helper('download');
+            $data = file_get_contents(TMP_FOLDER . $output_file_excel);
+            force_download($output_file_excel, $data);
+            unlink(TMP_FOLDER . $output_file_excel);
+        } else {
 
-       } else {
-    
-        $email_template = $this->booking_model->get_booking_email_template(SEND_MSL_FILE);
-        if (!empty($email_template)) {
-            $subject = $tmp_subject.$email_template[4];
-            $message = $email_template[0];
-            $email_from = $email_template[2];
+            $email_template = $this->booking_model->get_booking_email_template(SEND_MSL_FILE);
+            if (!empty($email_template)) {
+                $subject = $tmp_subject . $email_template[4];
+                $message = $email_template[0];
+                $email_from = $email_template[2];
 
-            $to = $email;
-            $cc = $email_template[3];
-            $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, TMP_FOLDER . $output_file_excel, SEND_MSL_FILE);
-             unlink(TMP_FOLDER . $output_file_excel);
+                $to = $email;
+                $cc = $email_template[3];
+                $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, TMP_FOLDER . $output_file_excel, SEND_MSL_FILE);
+                unlink(TMP_FOLDER . $output_file_excel);
+            }
         }
-
     }
+
     /**
     * @Desc: This function is to get all micro-warehouse booking landed count last 4 month
     * @params: none
@@ -4178,13 +4176,6 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
     }
 
 
-
-       }
-
-
-
-    }
-    
         /**
      * @desc This function is used to view  spare transfer page
      */
