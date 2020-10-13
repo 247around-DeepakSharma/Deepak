@@ -1419,10 +1419,11 @@ class engineerApi extends CI_Controller {
                 $en["longitude"] = $location['longitude'];
             
             }
+            
 			
 			/* Device info at complete booking */
-                if(isset($requestData["deviceInfo"]) && !empty($requestData["deviceInfo"])){
-                $en['device_info']  = $requestData["deviceInfo"];   
+                if(isset($postData["deviceInfo"]) && !empty($postData["deviceInfo"])){
+                $en['device_info']  = $postData["deviceInfo"];
             }
             $en["remarks"] = $requestData['closing_remark'];
             $en["service_center_id"] = $requestData['service_center_id'];
