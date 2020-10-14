@@ -4235,7 +4235,8 @@ class Booking extends CI_Controller {
             "employee as emp_asm" => "service_centres.asm_id = emp_asm.id",
             "employee as emp_rm" => "service_centres.rm_id = emp_rm.id",
             "agent_filters" => "booking_details.partner_id = agent_filters.entity_id AND agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."' AND (TRIM(UPPER(agent_filters.state)) = TRIM(UPPER(booking_details.state)))",
-            "employee as emp_am" => "agent_filters.agent_id = emp_am.id");
+            "employee as emp_am" => "agent_filters.agent_id = emp_am.id",
+            "booking_cancellation_reasons" => "booking_details.cancellation_reason = booking_cancellation_reasons.id");
         // limit array for pagination
         $limitArray = array('length'=>$receieved_Data['length'],'start'=>$receieved_Data['start']);
        // all where condition array
@@ -4258,7 +4259,7 @@ class Booking extends CI_Controller {
          if($receieved_Data['request_type']){
             $whereInArray['booking_details.request_type'] = $requestTypeArray;
         }
-        $JoinTypeTableArray = array('service_centres'=>'left','bookings_sources'=>'left','booking_unit_details'=>'left','services'=>'left', 'spare_parts_details'=>'left','inventory_master_list as requested_inventory' => 'left', 'inventory_master_list as shipped_inventory' => 'left', 'employee as emp_asm' => 'left', 'employee as emp_rm' => 'left', 'agent_filters' => 'left', 'employee as emp_am' => 'left');
+        $JoinTypeTableArray = array('service_centres'=>'left','bookings_sources'=>'left','booking_unit_details'=>'left','services'=>'left', 'spare_parts_details'=>'left','inventory_master_list as requested_inventory' => 'left', 'inventory_master_list as shipped_inventory' => 'left', 'employee as emp_asm' => 'left', 'employee as emp_rm' => 'left', 'agent_filters' => 'left', 'employee as emp_am' => 'left', 'booking_cancellation_reasons' => 'left');
       
        //Performing Sorting on datatable
        if(!empty($receieved_Data['order']))
@@ -4364,11 +4365,11 @@ class Booking extends CI_Controller {
                 ."(CASE WHEN current_status  IN ('"._247AROUND_PENDING."','"._247AROUND_RESCHEDULED."','"._247AROUND_FOLLOWUP."') THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) ELSE '' END) as age_of_booking, "
                 ."(CASE WHEN current_status  IN('Completed','Cancelled') THEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) ELSE '' END) as TAT, "
                 . "booking_details.booking_timeslot,booking_details.booking_remarks,"
-                . "booking_details.query_remarks,booking_details.cancellation_reason,"
+                . "booking_details.query_remarks,booking_cancellation_reasons.reason as cancellation_reason,"
                 . "booking_details.reschedule_reason,service_centres.name,booking_details.rating_stars,booking_details.rating_comments,"
                 . "booking_details.closing_remarks,"
-                . "booking_details.count_reschedule,booking_details.count_escalation,booking_details.is_upcountry,booking_details.upcountry_pincode,"
-                . "booking_details.upcountry_distance,booking_details.is_penalty,booking_details.create_date,booking_details.update_date,"
+                . "booking_details.count_reschedule,booking_details.count_escalation,(CASE WHEN (booking_details.is_upcountry = 1) THEN 'Yes' ELSE 'No' END) as is_upcountry,booking_details.upcountry_pincode,"
+                . "booking_details.upcountry_distance,(CASE WHEN booking_details.is_penalty = 1 THEN 'Yes' ELSE 'No' END) as is_penalty,booking_details.create_date,booking_details.update_date,"
                 . "booking_details.service_center_closed_date as service_center_closed_date, "
                 . "booking_details.closed_date as 247around_closed_date, "
                 . "emp_asm.full_name as asm_name,emp_rm.full_name as rm_name,emp_am.full_name as am_name,spare_parts_details.parts_requested,requested_inventory.part_number as requested_part_number,"
