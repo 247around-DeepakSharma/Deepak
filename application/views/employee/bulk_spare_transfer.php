@@ -18,6 +18,7 @@
                     </div>
 
                     <div class="form-group">
+                         <input type="hidden" name="transfer_from_view" id="transfer_from_view" value=""> 
                          <button type="submit" class="btn btn-small btn-success" id="search">Transfer</button>
                         
                     </div>
