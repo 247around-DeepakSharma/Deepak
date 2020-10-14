@@ -555,7 +555,7 @@
                                     
                                     echo "<a  style = '".$style."' class='btn btn-sm btn-color' "
                                             . "href=" . base_url() . "employee/booking/get_rating_form/$row->booking_id/$row->current_status title='Rate' target='_blank'><i class='fa fa-star-o' aria-hidden='true'>"
-                                            . "</i></a><p style='text-align:center;color: red;'>$unreachableCount</p>";
+                                            . "</i></a>";
                                 }
                                 else
                                 {
