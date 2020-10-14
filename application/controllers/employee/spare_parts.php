@@ -4059,7 +4059,12 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         );
         $select = "spare_parts_details.id,spare_parts_details.quantity,spare_parts_details.booking_id,spare_parts_details.model_number, spare_parts_details.entity_type, booking_details.state,spare_parts_details.service_center_id,inventory_master_list.part_number, spare_parts_details.partner_id, booking_details.partner_id as booking_partner_id,spare_parts_details.service_center_id,spare_parts_details.date_of_request,"
                 . " requested_inventory_id";
-        $post['where_in'] = array('spare_parts_details.booking_id' => $bookigs);
+        if(trim($this->input->post('transfer_from_view'))){
+            $where['spare_parts_details.id'] = trim($this->input->post('spare_parts_id'));
+        }else{
+          $post['where_in'] = array('spare_parts_details.booking_id' => $bookigs);  
+        }
+        
         $post['is_inventory'] = true;
         $bookings_spare = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, FALSE, false, $post);
         

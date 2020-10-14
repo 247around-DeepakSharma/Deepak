@@ -5640,7 +5640,7 @@ class Inventory extends CI_Controller {
                 $where1 = array(
                     'requested_inventory_id' => $data->inventory_id);
                 if ($data->is_wh_micro == 2) {
-                    $where1['partner_id '] = $sender_entity_id;
+                    $where1['partner_id'] = $sender_entity_id;
                     $where1['status IN ("' . SPARE_PARTS_SHIPPED . '","' . SPARE_SHIPPED_BY_PARTNER . '","' . SPARE_OOW_SHIPPED . '", "'.SPARE_PARTS_SHIPPED_BY_WAREHOUSE.'")'] = NULL;
                     $where1['service_center_id'] = $receiver_entity_id;
                     $where1['spare_parts_details.entity_type IN ("' . _247AROUND_PARTNER_STRING . '","' . _247AROUND_SF_STRING . '")'] = NULL;
@@ -5713,9 +5713,9 @@ class Inventory extends CI_Controller {
 	  
 	    $select = "spare_parts_details.id,spare_parts_details.quantity,spare_parts_details.booking_id,spare_parts_details.model_number, spare_parts_details.entity_type, booking_details.state,spare_parts_details.service_center_id,inventory_master_list.part_number, spare_parts_details.partner_id, booking_details.partner_id as booking_partner_id,"
                 . " requested_inventory_id";
-        $where1 = array('spare_parts_details.requested_inventory_id' =>$data->inventory_id,'spare_parts_details.status'=>SPARE_PARTS_REQUESTED,'spare_parts_details.entity_type'=>_247AROUND_PARTNER_STRING);
-		$entity_array=array(_247AROUND_SF_STRING,_247AROUND_PARTNER_STRING);
-       // $post['where_in'] = array('spare_parts_details.entity_type' => $entity_array);
+        $where1 = array('spare_parts_details.requested_inventory_id' => $data->inventory_id, 'spare_parts_details.status' => SPARE_PARTS_REQUESTED);
+        $entity_array = array(_247AROUND_SF_STRING, _247AROUND_PARTNER_STRING);
+        $post['where_in'] = array('spare_parts_details.entity_type' => $entity_array);
         $post['is_inventory'] = true;
         $bookings_spare = $this->partner_model->get_spare_parts_by_any($select, $where1, TRUE, FALSE, false, $post);
 
