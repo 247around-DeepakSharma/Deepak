@@ -1,3 +1,10 @@
+<style>
+.alert-dismissable .close, .alert-dismissible .close {
+    position: relative;
+    top: -10px;
+    right: -21px;
+}
+</style>
 <div id="page-wrapper" >
      <div class="container col-md-12" >
  <?php if(validation_errors()){?>
@@ -212,10 +219,15 @@
                 </form>
             </div>
         </div>
+    
+<?php } else { 
+        if($error){
+    ?>
+    <div class="container col-md-12">
+        <span style="font-size: 18px; color: #f01b1b;margin-left: 15PX;"> Booking is not found in (In Warranty) Or (Out Warranty).</span>
     </div>
-<?php } ?>
+<?php } } ?>
 </div>
-
 <script>
 $("#entity").select2();
 <?php if(!empty($zopper)){ ?>partner_vendor('<?php if(!empty($zopper)){echo $zopper[0]['entity'];}?>'); <?php }?>
