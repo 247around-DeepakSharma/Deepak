@@ -3950,7 +3950,7 @@ function generate_image($base64, $image_name,$directory){
     function reject_booking_from_review($postData){
         log_message('info', __FUNCTION__. " POST ". json_encode($postData, true));
         $booking_id =$postData['booking_id'];
-        $admin_remarks = $postData['admin_remarks'];
+        $admin_remarks = $postData['admin_remarks']; 
         // Get Admin Remarks & penalty point from penalty_details Table
         $review_reject_reason = $this->My_CI->penalty_model->get_penalty_details(['id' => $admin_remarks]);
         $reason_of = "";
@@ -3958,6 +3958,9 @@ function generate_image($base64, $image_name,$directory){
         if(!empty($review_reject_reason['criteria'])){
             $rejection_reason = $postData['admin_remarks'];
             $admin_remarks = $review_reject_reason['criteria'];
+            if(!empty($postData['remarks'])){
+                $admin_remarks = $admin_remarks.' ('.$postData['remarks'].')';
+            }
             $reason_of = $review_reject_reason['reason_of']; 
             $penalty_point = $review_reject_reason['penalty_point'];             
         }        
