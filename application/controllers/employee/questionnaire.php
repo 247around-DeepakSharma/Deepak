@@ -71,7 +71,8 @@ class Questionnaire extends CI_Controller {
         $this->form_validation->set_rules('question', 'Question', 'required');
         $validation = $this->form_validation->run();
         $data = $this->input->post();
-        if ($validation) {    
+        if ($validation) {  
+            $this->db->trans_start();
             // Insert data
             if(empty($data['q_id'])){
                 $this->Questionnaire_model->save_question($data); 
@@ -80,8 +81,15 @@ class Questionnaire extends CI_Controller {
             else {
                 $where = ['q_id' => $data['q_id']];
                 $this->Questionnaire_model->update_question($where, $data); 
+            }  
+            $this->db->trans_complete();
+            if ($this->db->trans_status() === FALSE) {
+                $this->session->set_userdata(array('error' => "Data can not be saved. Please try Again"));
+            }
+            else
+            {
+                $this->session->set_userdata(array('success' => "Data saved successfully."));
             }            
-            $this->session->set_userdata(array('success' => "Data saved successfully."));
             redirect(base_url() . 'employee/questionnaire/index');
         }
         else 
