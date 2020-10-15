@@ -208,7 +208,7 @@
                         <th>Booking Age</th>
                         <th>Status</th>
                         <th>Service Center</th>
-                        <th>ASM</th>
+                        <th>RM</th>
                         <th>State</th>
                         <?php if(isset($saas_module) && (!$saas_module)) { ?>
                         <th></th>
