@@ -1664,17 +1664,30 @@ class Inventory extends CI_Controller {
      */
     function update_part_price_details() {
         $booking_id = trim($this->input->post("booking_id"));
+        $data = array();
         if (!empty($booking_id)) {
             $data['zopper'] = $this->inventory_model->select_zopper_estimate(array("booking_id" => $booking_id));
-            $data['data'] = $this->booking_model->getbooking_history($booking_id);
+            $select = 'spare_parts_details.id, spare_parts_details.booking_id, booking_details.assigned_vendor_id';
+            $where = array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.status' => SPARE_PARTS_REQUESTED, '(booking_details.request_type = "' . REPAIR_IN_WARRANTY_TAG . '" OR booking_details.request_type ="' . REPAIR_OOW_TAG . '")' => NULL);
+            $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, $where, true, false, false);
+            if (empty($spare_parts_details)) {
+                $data['error'] = true;
+            } else {
+                $data['data'] = $spare_parts_details;
+            }
             $this->miscelleneous->load_nav_header();
             $this->load->view("employee/update_price_details_form", $data);
         } else {
+            $data['error'] = false;
             $this->miscelleneous->load_nav_header();
-            $this->load->view("employee/update_price_details_form");
+            $this->load->view("employee/update_price_details_form", $data);
         }
     }
 
+    /**
+     * @desc This is used to process the zopper estimate.
+     * @redict: same URL
+     */
     function process_update_parts_details() {
         $this->form_validation->set_rules('booking_id', 'Booking ID', 'required|trim');
         $this->form_validation->set_rules('service_charge', 'Service Charge', 'trim');
@@ -1751,8 +1764,13 @@ class Inventory extends CI_Controller {
             $this->update_part_price_details();
         }
     }
+    
+    /**
+     * @desc This is used to update and insert spare parts details table
+     * @return: void
+     */
 
-    function insert_update_spare_parts($assigned_vendor_id, $booking_id, $model_number, $serial_number) {
+     function insert_update_spare_parts($assigned_vendor_id, $booking_id, $model_number, $serial_number) {
         $sp['parts_requested'] = $this->input->post("part_name");
         $sp['partner_id'] = ZOPPER_ID;
         $sp['defective_part_required'] = 0;
@@ -1776,7 +1794,25 @@ class Inventory extends CI_Controller {
             }
         }
 
-        $this->service_centers_model->spare_parts_action(array('booking_id' => $booking_id), $sp);
+        $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id, spare_parts_details.booking_id', array('spare_parts_details.booking_id' => $booking_id), true, false, false);
+        
+        if (!empty($spare_parts_details)) {
+            $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id), $sp);
+            foreach ($spare_parts_details as $value) {
+                /* Insert Spare Tracking Details */
+                if (!empty($value['id'])) {
+                    $tracking_details = array('spare_id' => $value['id'], 'action' => SPARE_DELIVERED_TO_SF, 'remarks' => 'Estimate Sent to Partner', 'agent_id' => $this->session->userdata("id"), 'entity_id' => _247AROUND, 'entity_type' => _247AROUND_EMPLOYEE_STRING);
+                    $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                }
+            }
+        } else {
+            $spare_id = $this->service_centers_model->insert_data_into_spare_parts($data);
+            /* Insert Spare Tracking Details */
+            if (!empty($spare_id)) {
+                $tracking_details = array('spare_id' => $spare_id, 'action' => SPARE_DELIVERED_TO_SF, 'remarks' => 'Estimate Sent to Partner', 'agent_id' => $this->session->userdata("id"), 'entity_id' => _247AROUND, 'entity_type' => _247AROUND_EMPLOYEE_STRING);
+                $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+            }
+        }
     }
 
     /**
