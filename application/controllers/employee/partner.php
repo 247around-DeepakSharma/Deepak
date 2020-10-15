@@ -4776,7 +4776,7 @@ class Partner extends CI_Controller {
         $return_data = array();
         $partner_id = $this->input->post("partner_id");
         //Processing Pan File
-        if (($_FILES['pan_file']['error'] != 4) && !empty($_FILES['pan_file']['tmp_name'])) {
+        if (!empty($_FILES['pan_file']['tmp_name']) && ($_FILES['pan_file']['error'] != 4)) {
             $tmpFile = $_FILES['pan_file']['tmp_name'];
             $pan_file = "Partner-" . strtoupper($this->input->post('pan'))  . "." . explode(".", $_FILES['pan_file']['name'])[1];
             move_uploaded_file($tmpFile, TMP_FOLDER . $pan_file);
@@ -4795,7 +4795,7 @@ class Partner extends CI_Controller {
         }
 
         //Processing Registration File
-        if (($_FILES['registration_file']['error'] != 4) && !empty($_FILES['registration_file']['tmp_name'])) {
+        if (!empty($_FILES['registration_file']['tmp_name']) && ($_FILES['registration_file']['error'] != 4)) {
             $tmpFile = $_FILES['registration_file']['tmp_name'];
             $registration_file = "Partner-" . strtoupper($this->input->post('registration_no'))  . "." . explode(".", $_FILES['registration_file']['name'])[1];
             move_uploaded_file($tmpFile, TMP_FOLDER . $registration_file);
@@ -4813,7 +4813,7 @@ class Partner extends CI_Controller {
             log_message('info', __FUNCTION__ . ' Registration FILE is being uploaded sucessfully.');
         }
         //Processing TIN File
-        if (($_FILES['tin_file']['error'] != 4) && !empty($_FILES['tin_file']['tmp_name'])) {
+        if (!empty($_FILES['tin_file']['tmp_name']) && ($_FILES['tin_file']['error'] != 4)) {
             $tmpFile = $_FILES['tin_file']['tmp_name'];
             $tin_file = "Partner-" . strtoupper($this->input->post('tin')) . "." . explode(".", $_FILES['tin_file']['name'])[1];
             move_uploaded_file($tmpFile, TMP_FOLDER . $tin_file);
@@ -4831,7 +4831,7 @@ class Partner extends CI_Controller {
             log_message('info', __FUNCTION__ . ' TIN FILE is being uploaded sucessfully.');
         }
         //Processing CST File
-        if (($_FILES['cst_file']['error'] != 4) && !empty($_FILES['cst_file']['tmp_name'])) {
+        if (!empty($_FILES['cst_file']['tmp_name']) && ($_FILES['cst_file']['error'] != 4)) {
             $tmpFile = $_FILES['cst_file']['tmp_name'];
             $cst_file = "Partner-" . strtoupper($this->input->post('cst_no'))  . "." . explode(".", $_FILES['cst_file']['name'])[1];
             move_uploaded_file($tmpFile, TMP_FOLDER . $cst_file);
@@ -4849,7 +4849,7 @@ class Partner extends CI_Controller {
             log_message('info', __FUNCTION__ . ' CST FILE is being uploaded sucessfully.');
         }
         //Processing Service Tax File
-        if (($_FILES['service_tax_file']['error'] != 4) && !empty($_FILES['service_tax_file']['tmp_name'])) {
+        if (!empty($_FILES['service_tax_file']['tmp_name']) && ($_FILES['service_tax_file']['error'] != 4)) {
             $tmpFile = $_FILES['service_tax_file']['tmp_name'];
             $service_tax_file = "Partner-" .  strtoupper($this->input->post('service_tax'))  . "." . explode(".", $_FILES['service_tax_file']['name'])[1];
             move_uploaded_file($tmpFile, TMP_FOLDER . $service_tax_file);
@@ -4867,7 +4867,7 @@ class Partner extends CI_Controller {
             log_message('info', __FUNCTION__ . ' Service Tax FILE is being uploaded sucessfully.');
         }
          //Processing GST Number File
-        if (($_FILES['gst_number_file']['error'] != 4) && !empty($_FILES['gst_number_file']['tmp_name'])) {
+        if (!empty($_FILES['gst_number_file']['tmp_name']) && ($_FILES['gst_number_file']['error'] != 4)) {
             $tmpFile = $_FILES['gst_number_file']['tmp_name'];
             $gst_number_file = "Partner-" . $this->input->post('public_name') . '-GST_Number' . "." . explode(".", $_FILES['gst_number_file']['name'])[1];
                    
@@ -5000,7 +5000,7 @@ class Partner extends CI_Controller {
                 );            
             }
             
-            if (($_FILES['contract_file']['error'][$index] != 4) && !empty($_FILES['contract_file']['tmp_name'][$index])) {
+            if (!empty($_FILES['contract_file']['tmp_name'][$index]) && ($_FILES['contract_file']['error'][$index] != 4)) {
                 $tmpFile = $_FILES['contract_file']['tmp_name'][$index];
                 $contract_file = "Partner-" . str_replace(' ', '_', $partnerName) . '-Contract_' . $contract_type . "_" . date('Y-m-d') . "." . explode(".", $_FILES['contract_file']['name'][$index])[1];
                 move_uploaded_file($tmpFile, TMP_FOLDER . $contract_file);
