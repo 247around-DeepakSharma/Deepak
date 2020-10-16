@@ -2625,7 +2625,25 @@ class engineerApi extends CI_Controller {
                     $check_serial['status'] = TRUE;
                 }
             }
-            if($booking_history[0]['request_type']!=FREE_INSTALLATION_REQUEST){
+            
+            $unit_details = $this->booking_model->get_unit_details($requestData['booking_id']);
+            $spare_part_can_requested = false;
+            foreach ($unit_details as $value) {
+          if (stristr($value['price_tags'], "Repair") 
+                               || stristr($value['price_tags'], "Repeat") 
+                               || stristr($value['price_tags'], "Replacement") 
+                               || stristr($value['price_tags'], EXTENDED_WARRANTY_TAG) 
+                               || stristr($value['price_tags'], PRESALE_REPAIR_TAG) 
+                               || stristr($value['price_tags'], GAS_RECHARGE_IN_WARRANTY) 
+                               || stristr($value['price_tags'], AMC_PRICE_TAGS) 
+                               || stristr($value['price_tags'], GAS_RECHARGE_OUT_OF_WARRANTY)) {
+
+                           $spare_part_can_requested = true;
+                       }   
+            }
+            
+            
+            if(!empty($spare_part_can_requested)){
             if ($check_serial['status']) {
 		/* Check for duplicate Part Request */
                 $duplicate_part = $this->is_part_already_requested($requestData['part'],$requestData['booking_id']);
@@ -2736,7 +2754,7 @@ class engineerApi extends CI_Controller {
                 $this->sendJsonResponse(array($check_serial['code'], $check_serial['message']));
             }
             }else {
-                log_message("info", __METHOD__ . "For Installation Booking Spare parts cant requested");
+                log_message("info", __METHOD__ . "Spare parts can't be requested for this booking.");
                 $this->sendJsonResponse(array('0077','For Installation Booking Spare parts cant requested.'));
             }
         } else {
