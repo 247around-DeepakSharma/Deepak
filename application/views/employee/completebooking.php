@@ -1213,10 +1213,7 @@
         $('#submitform').css("opacity", "1");
         return false;
     }
-    else if(ratingStar || not_reachable){
-        return true;
-    }
-    else{
+    else if(!ratingStar && !not_reachable){
         alert("Please Add Rating or Select Choose not reachable");
         flag = 1;
         $('#submitform').css("pointer-events", "auto");
