@@ -5624,8 +5624,6 @@ class Booking extends CI_Controller {
             $post['where']['agent_filters.agent_id'] = $am_id;
             $post['where']['partners.is_active'] = 1;
             $post['where']['agent_filters.entity_type'] = _247AROUND_EMPLOYEE_STRING;
-            $post['join'] = array("agent_filters" => "booking_details.partner_id = agent_filters.entity_id AND agent_filters.state = booking_details.state");
-            $post['joinTypeArray'] = ['agent_filters' => "left"];
         }
         
         $post['length'] = -1;
@@ -5643,7 +5641,7 @@ class Booking extends CI_Controller {
             // Join with employee Table to fetch AM name
             $post['join']['spare_parts_details'] = "booking_details.booking_id  = spare_parts_details.booking_id";
             $post['join']['partners'] = "booking_details.partner_id  = partners.id";
-            $post['join']['agent_filters'] =  "booking_details.partner_id=agent_filters.entity_id AND agent_filters.state = booking_details.state ";
+            $post['join']['agent_filters'] =  "booking_details.partner_id=agent_filters.entity_id AND agent_filters.state = booking_details.state AND agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."' ";
             $post['join']['employee as employee_am'] = "agent_filters.agent_id = employee_am.id";  
             $post['joinTypeArray'] = ['spare_parts_details' => "left",'partners' => "left",'agent_filters' => 'left', 'employee as employee_am' => "left"];
             // Select Statement
