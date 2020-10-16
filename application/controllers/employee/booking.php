@@ -5661,8 +5661,9 @@ class Booking extends CI_Controller {
         //AM Specific Bookings
         if($this->session->userdata('is_am') == '1'){
             $am_id = $this->session->userdata('id');
-            $where = array('agent_filters.agent_id' => $am_id,'partners.is_active'=>1,'agent_filters.entity_type'=>_247AROUND_EMPLOYEE_STRING);
-            $join = array("agent_filters" => "partners.id=agent_filters.entity_id");
+            $post['where']['agent_filters.agent_id'] = $am_id;
+            $post['where']['partners.is_active'] = 1;
+            $post['where']['agent_filters.entity_type'] = _247AROUND_EMPLOYEE_STRING;
         }
         
         $post['length'] = -1;
@@ -5675,13 +5676,14 @@ class Booking extends CI_Controller {
             $post['where_in']['booking_details.booking_id'] =  explode(",",$bulk_booking_id);
         }
         if($booking_status == 'Pending'){
-            $post['where']  = array('service_center_closed_date IS NULL' => NULL, 'booking_details.internal_status NOT IN ("'.SPARE_PARTS_SHIPPED.'","'.SPARE_OOW_SHIPPED.'","'.SF_BOOKING_CANCELLED_STATUS.'","'.SF_BOOKING_COMPLETE_STATUS.'","'.SPARE_PARTS_SHIPPED_BY_WAREHOUSE.'")' => NULL); 
+            $post['where']['service_center_closed_date IS NULL'] = NULL;
+            $post['where']['booking_details.internal_status NOT IN ("'.SPARE_PARTS_SHIPPED.'","'.SPARE_OOW_SHIPPED.'","'.SF_BOOKING_CANCELLED_STATUS.'","'.SF_BOOKING_COMPLETE_STATUS.'","'.SPARE_PARTS_SHIPPED_BY_WAREHOUSE.'")'] = NULL; 
             // Join with employee Table to fetch AM name
 
              
             $post['join']['spare_parts_details'] = "booking_details.booking_id  = spare_parts_details.booking_id";
             $post['join']['partners'] = "booking_details.partner_id  = partners.id";
-            $post['join']['agent_filters'] =  "partners.id=agent_filters.entity_id AND agent_filters.state = booking_details.state ";
+            $post['join']['agent_filters'] =  "partners.id=agent_filters.entity_id AND agent_filters.state = booking_details.state AND agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."'";
             $post['join']['employee as employee_am'] = "agent_filters.agent_id = employee_am.id";
             $post['join']['inventory_master_list as in_req'] = "spare_parts_details.requested_inventory_id = in_req.inventory_id";
             $post['join']['inventory_master_list as in_sh'] = "spare_parts_details.shipped_inventory_id = in_sh.inventory_id";
