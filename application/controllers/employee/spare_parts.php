@@ -4166,7 +4166,12 @@ class Spare_parts extends CI_Controller {
         );
         $select = "spare_parts_details.id,spare_parts_details.quantity,spare_parts_details.booking_id,spare_parts_details.model_number, spare_parts_details.entity_type, booking_details.state,spare_parts_details.service_center_id,inventory_master_list.part_number, spare_parts_details.partner_id, booking_details.partner_id as booking_partner_id,spare_parts_details.service_center_id,spare_parts_details.date_of_request,"
                 . " requested_inventory_id";
-        $post['where_in'] = array('spare_parts_details.booking_id' => $bookigs);
+        if(trim($this->input->post('transfer_from_view'))){
+            $where['spare_parts_details.id'] = trim($this->input->post('spare_parts_id'));
+        }else{
+          $post['where_in'] = array('spare_parts_details.booking_id' => $bookigs);  
+        }
+        
         $post['is_inventory'] = true;
         $bookings_spare = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, FALSE, false, $post);
 
@@ -4342,6 +4347,17 @@ class Spare_parts extends CI_Controller {
         $array['recordsTotal'] = count($array['data']);
         $array['recordsFiltered'] = count($spare_parts_list);
         echo json_encode($array);
+    }
+    
+    /*
+     *  @desc : This function is used to create the view page to upload msl file from warehouse panel.
+     *  @param : void()
+     */
+    function upload_msl_excel_file() {
+        log_message('info', __METHOD__);
+        $this->load->view('service_centers/header');
+        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
+        $this->load->view("service_centers/upload_msl_excel_file", $data);
     }
 
     /**

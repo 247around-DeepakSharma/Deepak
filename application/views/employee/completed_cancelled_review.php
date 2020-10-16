@@ -363,14 +363,23 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                     <h4 class="modal-title" id="modal-title-<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>">Modal Header</h4>
                 </div>
                 <div class="modal-body">
-                    <div class="col-md-12">
-                        <center><img id="loader_gif_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
-                        <center><p id="remarks_msg_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>" style="color : red;"></p></center>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <center><img id="loader_gif_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                            <center><p id="remarks_msg_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>" style="color : red;"></p></center>
+                            <input type="hidden" name="modal_booking_id" id="modal_booking_id_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>" value="">
+                        </div>                    
+                        <div class="col-md-12" style="padding-bottom : 20px;">
+                            <label>Rejection Reason*</label>
+                            <select  class="form-control"  id="select_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>">
+                                <option disabled="" selected=""></option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label>Remarks</label>
+                            <textarea rows="8" class="form-control textarea" id="textarea_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>"></textarea>
+                        </div>
                     </div>
-                    <input type="hidden" name="modal_booking_id" id="modal_booking_id_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>" value="">
-                    <select  class="form-control"  id="select_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>">
-                        <option disabled="" selected=""></option>
-                    </select>
                 </div>
                 <input type="hidden" id="id_no">
                 <input type="hidden" value='<?php echo _247AROUND; ?>' id="admin_id_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>">
