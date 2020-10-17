@@ -1795,7 +1795,7 @@ class Booking extends CI_Controller {
                                 $cl = "btn-danger";
                             }
                             
-                            if($sp['is_consumed'] != 1 && $required_parts == 'NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING') {  
+                            if(isset($sp['is_consumed']) && $sp['is_consumed'] != 1 && $required_parts == 'NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING') {  
                                 $query1[$key1]['btn'] = '<button type="button" disabled data-booking_id="' . $sp["booking_id"] . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $sp["id"] . '/' . $sp["booking_id"] . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';
                             } else {
                                 $query1[$key1]['btn'] = '<button type="button" data-booking_id="' . $sp["booking_id"] . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $sp["id"] . '/' . $sp["booking_id"] . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';
