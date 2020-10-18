@@ -379,7 +379,7 @@ function addBookingDialog(chanel = '', check_serial_no = '0') {
             $(".appliance_capacity").each(function(){
                 var capacity_value = document.getElementById(this.id).innerHTML;
                 if(($.trim(capacity_value) !== '<option></option>') && ($("#"+this.id).val() === '')) {
-                    alert("Please Select Capacity");
+                    alert("Select capacity, if capacity not found please check the model mapping for this brand");
                     $("#"+this.id).focus();
                     ++count1;
                     return false;
