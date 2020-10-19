@@ -3943,7 +3943,7 @@ class Booking extends CI_Controller {
              $post['where']["agent_filters.agent_id"] = $am_id;
              $post['where']["agent_filters.is_active"] = 1;
              $post['where']["agent_filters.entity_type"] = _247AROUND_EMPLOYEE_STRING;
-             $post['join']['agent_filters'] =  "booking_details.partner_id=agent_filters.entity_id and booking_details.state=agent_filters.state";
+             $post['join']['agent_filters'] =  "booking_details.partner_id=agent_filters.entity_id and booking_details.state=agent_filters.state and agent_filters.entity_type='"._247AROUND_EMPLOYEE_STRING."' ";
         }
         if(!empty($request_type)){
             $post['where_in']['booking_details.request_type'] =  explode(",",$request_type);
