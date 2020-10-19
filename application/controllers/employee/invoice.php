@@ -7477,4 +7477,103 @@ exit();
             }
         }
     }
+	/**
+     * @desc This function is used to cancel invoice
+     */
+    function cancel_invoice(){
+        $invoice_id = $this->input->post('invoice_id');
+        $vendor_partner_type = $this->input->post('vendor_partner_type');
+        $response = array();
+        $response['status'] = 'SUCCESS';
+        $response['message'] = 'SUCCESS';
+        if(!empty($invoice_id) && !empty($vendor_partner_type) && in_array($vendor_partner_type,array(_247AROUND_PARTNER_STRING,_247AROUND_SF_STRING))){
+            $where = array('invoice_id' => $invoice_id);
+            $invoice_data = $this->invoices_model->getInvoicingData($where);
+
+            if(!empty($invoice_data)){
+                $where['invoice_id'] = $invoice_id;
+                $vendor_partner_detail['total_service_charge'] = 0;
+                $vendor_partner_detail['total_additional_service_charge'] = 0;
+                $vendor_partner_detail['service_tax'] = 0;
+                $vendor_partner_detail['parts_cost'] = 0;
+                $vendor_partner_detail['vat'] = 0;
+                $vendor_partner_detail['cgst_tax_amount'] = 0;
+                $vendor_partner_detail['cgst_tax_rate'] = 0;
+                $vendor_partner_detail['sgst_tax_amount'] = 0;
+                $vendor_partner_detail['sgst_tax_rate'] = 0;
+                $vendor_partner_detail['igst_tax_amount'] = 0;
+                $vendor_partner_detail['igst_tax_rate'] = 0;
+                $vendor_partner_detail['buyback_tax_amount'] = 0;
+                $vendor_partner_detail['rcm'] = 0;
+                $vendor_partner_detail['total_amount_collected'] = 0;
+                $vendor_partner_detail['around_royalty'] = 0;
+                $vendor_partner_detail['amount_collected_paid'] = 0;
+                $vendor_partner_detail['settle_amount'] = 0;
+                $vendor_partner_detail['amount_paid'] = 0;
+                $vendor_partner_detail['tds_rate'] = 0;
+                $vendor_partner_detail['tds_amount'] = 0;
+                $vendor_partner_detail['upcountry_rate'] = 0;
+                $vendor_partner_detail['upcountry_price'] = 0;
+                $vendor_partner_detail['courier_charges'] = 0;
+                $vendor_partner_detail['packaging_rate'] = 0;
+                $vendor_partner_detail['warehouse_storage_charges'] = 0;
+                $vendor_partner_detail['miscellaneous_charges'] = 0;
+		$vendor_partner_detail['sub_category'] = _247AROUND_CANCELLED;
+                $vendor_partner_detail['agent_id'] = $this->session->userdata('id');
+                $this->invoices_model->update_partner_invoices($where,$vendor_partner_detail);
+                //update vendor_partner_invoice all amount set to 0
+
+                $invoice_detail['rate'] = 0;
+                $invoice_detail['taxable_value'] = 0;
+                $invoice_detail['cgst_tax_rate'] = 0;
+                $invoice_detail['cgst_tax_amount'] = 0;
+                $invoice_detail['sgst_tax_rate'] = 0;
+                $invoice_detail['sgst_tax_amount'] = 0;
+                $invoice_detail['igst_tax_amount'] = 0;
+                $invoice_detail['igst_tax_amount'] = 0;
+                $invoice_detail['total_amount'] = 0;
+                $where_invoice_detail['invoice_id'] = $invoice_id;
+                $this->invoices_model->update_invoice_breakup($where_invoice_detail, $invoice_detail);
+                //update invoice_details all amount set to 0
+                if($vendor_partner_type==_247AROUND_PARTNER_STRING){
+                    $this->service_centers_model->update_spare_parts(array('purchase_invoice_id'=>$invoice_id),array('purchase_invoice_id'=>null));
+                }else{
+                     $this->service_centers_model->update_spare_parts(array('sell_invoice_id'=>$invoice_id),array('sell_invoice_id'=>null));
+                }
+                //Remove invoice from spare parts detail table
+
+                $response['message'] = 'Invoice Cancelled successfully.';
+
+            }
+        }else{
+            $response['status'] = 'ERROR';
+            $response['message'] = 'Invoice ID not found.';
+        }
+        echo json_encode($response);
+    }
+    
+    function copy_invoices(){
+        $this->miscelleneous->copy_invoices_from_s3();
+    }
+    /**
+     * @desc This function is used to generate sf oow invoice at the end  of month
+     */
+    function generate_bulk_oow_sale_invoice(){
+        $data = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id, shipped_date', array(
+            'parts_shipped IS NOT NULL' => NULL,
+            'sell_invoice_id' => NULL,
+            'estimate_cost_given_date IS NOT NULL' => NULL,
+            'defective_part_shipped_date IS NULL' => NULL,
+            'is_micro_wh != 1' => NULL, 
+            'part_warranty_status' => 2,
+            "DATEDIFF(STR_TO_DATE('".date('Y-m-01')."', '%Y-%m-%d'), STR_TO_DATE(shipped_date, '%Y-%m-%d')) >= 30" => NULL
+            
+        ));
+        
+        if(!empty($data)){
+            foreach($data as $value){
+                $this->generate_oow_parts_invoice($value['id']);
+            }
+        }
+    }
 }
