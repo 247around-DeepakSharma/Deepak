@@ -4281,13 +4281,13 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
     }
     
    
-           /**
+    /**
      * @desc function to process  bulk transfer from warehouse to warehouse
      * @author Abhishek 
      * @since 31-May-2019
      */    
      function spare_transfer_from_wh_to_wh_process() {
-        
+
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center')) {
             
         } else {
@@ -4305,7 +4305,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
         );
         $this->table->set_template($template);
-        $this->table->set_heading(array('Booking ID', 'Part Name', 'Spare part ID'));
+        $this->table->set_heading(array('Booking ID', 'Part Name','Spare part ID'));
         foreach ($bookingids as $bbok) {
             $bookigs[] = str_replace("\r", "", $bbok);
         }
@@ -4318,53 +4318,53 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $select = "spare_parts_details.id,spare_parts_details.quantity,spare_parts_details.booking_id, booking_details.state,spare_parts_details.service_center_id,inventory_master_list.part_number, spare_parts_details.partner_id, spare_parts_details.model_number, booking_details.partner_id as booking_partner_id,"
                 . " requested_inventory_id";
         $post['where_in'] = array('spare_parts_details.booking_id' => $bookingids);
-        $post['is_inventory'] = true;
+        $post['is_inventory']=true;
         $bookings_spare = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, FALSE, false, $post);
         $tcount = 0;
-
+        
         if (!empty($bookings_spare)) {
             $booking_error_array = array();
             foreach ($bookings_spare as $booking) {
                 $spareid = $booking['id'];
-                $state = $booking['state'];
+                $state=$booking['state'];
                 $requested_inventory = $booking['requested_inventory_id'];
                 $requested_part_number = '';
-                if (!empty($booking['part_number'])) {
-                    $requested_part_number = $booking['part_number'];
-                } else {
-                    $requested_part_number = '-';
+                if(!empty($booking['part_number'])){
+                 $requested_part_number = $booking['part_number'];   
+                }else{
+                 $requested_part_number = '-';  
                 }
-                $data = $this->miscelleneous->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $state, "", $booking['model_number']);
-
-                if (!empty($data) && $data['stock'] >= $booking['quantity']) {
-                    if ($data['stock']) {
+                $data = $this->miscelleneous->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $state, "",$booking['model_number']);
+                
+                if (!empty($data) && $data['stock']>=$booking['quantity']) {
+                    if($data['stock']){
                         $dataupdate = array(
-                            'is_micro_wh' => $data['is_micro_wh'],
-                            'entity_type' => $data['entity_type'],
-                            'defective_return_to_entity_id' => $service_center_to,
-                            'partner_id' => $service_center_to,
-                            'defective_return_to_entity_type' => _247AROUND_SF_STRING,
-                            'challan_approx_value' => $data['challan_approx_value'],
-                            'requested_inventory_id' => $data['inventory_id'],
-                            'parts_requested' => $data['part_name'],
-                            'parts_requested_type' => $data['type']
-                        );
-
-                        $spare_pending_on_to = '';
-                        $wh_details_to = $this->vendor_model->getVendorContact($service_center_to);
-                        if (!empty($wh_details_to)) {
-                            $spare_pending_on_to = $wh_details_to[0]['district'] . ' Warehouse';
-                        } else {
-                            $spare_pending_on_to = ' Warehouse';
-                        }
-
-                        $spare_pending_on = '';
-                        $wh_details = $this->vendor_model->getVendorContact($service_center);
-                        if (!empty($wh_details)) {
-                            $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';
-                        } else {
-                            $spare_pending_on = ' Warehouse';
-                        }
+                        'is_micro_wh' => $data['is_micro_wh'],
+                        'entity_type' => $data['entity_type'],
+                        'defective_return_to_entity_id' => $service_center_to,
+                        'partner_id' => $service_center_to,
+                        'defective_return_to_entity_type' =>_247AROUND_SF_STRING,
+                        'challan_approx_value' => $data['challan_approx_value'],
+                        'requested_inventory_id' => $data['inventory_id'],
+                        'parts_requested' => $data['part_name'],
+                        'parts_requested_type' => $data['type']    
+                    );
+                        
+                    $spare_pending_on_to='';
+                    $wh_details_to = $this->vendor_model->getVendorContact($service_center_to);
+                    if(!empty($wh_details_to)){
+                    $spare_pending_on_to = $wh_details_to[0]['district'] . ' Warehouse';   
+                    }else{
+                    $spare_pending_on_to = ' Warehouse'; 
+                    }
+                    
+                    $spare_pending_on='';
+                    $wh_details = $this->vendor_model->getVendorContact($service_center);
+                    if(!empty($wh_details)){
+                    $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';   
+                    }else{
+                    $spare_pending_on= ' Warehouse'; 
+                    }
 
                     $remarks = _247AROUND_TRANSFERED_TO_WAREHOUSE;
                     $next_action = _247AROUND_TRANSFERED_TO_NEXT_ACTION;
@@ -4378,34 +4378,40 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                         $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $service_center_to, $data['inventory_id'], $booking['quantity']);
                         $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $service_center, $requested_inventory, -$booking['quantity']);
                     }
-                } else {
-                    $this->table->add_row($booking['booking_id'], $booking['part_number'], $spareid);
+                    $tcount++; 
+                    }                 
+                    }else{
+                    $this->table->add_row($booking['booking_id'], $booking['part_number'],$spareid);
                     array_push($booking_error_array, $booking['booking_id']);
-                }
-            }
-            if (!empty($booking_error_array)) {
-                $body_msg = $this->table->generate();
-                $template = $this->booking_model->get_booking_email_template("spare_not_transfer_from_wh_to_wh");
-                if (!empty($template)) {
-                    $emailBody = vsprintf($template[0], array($body_msg));
-                    $subject = "Spare Parts Not Transferred Detail Table";
-
-                    $to = '';
-                    if ($this->session->userdata('userType') == 'employee') {
-                        $to = $this->session->userdata('official_email');
-                    } else if ($this->session->userdata('userType') == 'service_center') {
-                        $to = $this->session->userdata('poc_email');
-                    } else {
-                        $to = $template[1];
                     }
-                    $this->notify->sendEmail($template[2], $to, $template[3], $template[5], $subject, $emailBody, "", 'spare_not_transfer_from_wh_to_wh', '');
-
-                    echo $body_msg;
-                }
-            } else {
-                echo "success";
-            }
+            }else{
+                    $this->table->add_row($booking['booking_id'], $booking['part_number'],$spareid);
+                    array_push($booking_error_array, $booking['booking_id']);
+            }   
         }
+            if (!empty($booking_error_array)) {
+            $body_msg = $this->table->generate();
+            $template = $this->booking_model->get_booking_email_template("spare_not_transfer_from_wh_to_wh");
+            if (!empty($template)) {
+                $emailBody = vsprintf($template[0], array($body_msg));
+                $subject = "Spare Parts Not Transferred Detail Table";
+
+                $to = '';
+                if ($this->session->userdata('userType') == 'employee') {
+                    $to = $this->session->userdata('official_email');
+                } else if ($this->session->userdata('userType') == 'service_center') {
+                    $to = $this->session->userdata('poc_email');
+                } else {
+                    $to = $template[1];
+                }
+                $this->notify->sendEmail($template[2], $to, $template[3], $template[5], $subject, $emailBody, "", 'spare_not_transfer_from_wh_to_wh', '');
+                
+                echo $body_msg;
+            }
+        } else {
+            echo "success";
+        }
+    }
     }
 
 
