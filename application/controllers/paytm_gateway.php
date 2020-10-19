@@ -35,8 +35,12 @@ class Paytm_gateway extends CI_Controller {
             $param_list = array();
 
             $ORDER_ID = $this->input->post('ORDER_ID');
+            $tds_amount = 0;
+            $tds_rate = 0;
             if (!empty($this->input->post('TDS_RATE')) && !empty($this->input->post('TDS_AMOUNT'))) {
                 $ORDER_ID = $ORDER_ID . '_' . $this->input->post('TDS_RATE') . '_' . $this->input->post('TDS_AMOUNT');
+                $tds_amount = $this->input->post('TDS_AMOUNT');
+                $tds_rate = $this->input->post('TDS_RATE');
             }
             $CUST_ID = $this->input->post('CUST_ID');
             $INDUSTRY_TYPE_ID = $this->input->post('INDUSTRY_TYPE_ID');
@@ -53,7 +57,7 @@ class Paytm_gateway extends CI_Controller {
             //$param_list["TXN_AMOUNT"] = 1;
             $param_list["WEBSITE"] = PAYTM_GATEWAY_MERCHANT_WEBSITE;
             $param_list["CALLBACK_URL"] = PAYTM_GATEWAY_CALLBACK_URL;
-            $param_list['ORDER_DETAILS'] = $ORDER_ID." ".$TXN_AMOUNT;
+            $param_list['ORDER_DETAILS'] = json_encode(array('ORDER_ID' => $ORDER_ID, 'TXN_AMOUNT' => $TXN_AMOUNT, 'TDS_RATE' => $tds_rate, 'TDS_AMOUNT' => $tds_amount), true);
             /*
               $param_list["MSISDN"] = $MSISDN; //Mobile number of customer
               $param_list["EMAIL"] = $EMAIL; //Email ID of customer
@@ -449,7 +453,7 @@ class Paytm_gateway extends CI_Controller {
             "transaction_date" => date('Y-m-d'),
             "tds_rate" => (!empty($order_id[2]) ? $order_id[2] : 0),
             "tds_amount" => (!empty($order_id[3]) ? $order_id[3] : 0),
-            "amount" => $param_list['TXNAMOUNT'],
+            "amount" => (!empty($order_id[3]) ? ($order_id[3] + $param_list['TXNAMOUNT']): $param_list['TXNAMOUNT']),,
             "transaction_mode" => isset($param_list['PAYMENTMODE'])?$param_list['PAYMENTMODE']:NULL,
             "description" => isset($param_list['ORDER_DETAILS'])?$param_list['ORDER_DETAILS']:'',
             'tdate' =>  isset($param_list['TXNDATE'])?$param_list['TXNDATE']:date('Y-m-d'),
