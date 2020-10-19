@@ -1875,7 +1875,6 @@ class Partner extends CI_Controller {
             if(!empty($post['model'])){
             $unit_details['model_number'] = $appliance_details['model_number'] = $post['model'];
         }
-            $unit_details['model_number'] = $appliance_details['model_number'] = $post['model'];
             $unit_details['partner_serial_number'] = $appliance_details['serial_number'] = $post['serial_number'];
             $unit_details['purchase_date'] = $appliance_details['purchase_date'] = date("Y-m-d", strtotime($post['purchase_date']));
             $unit_details['partner_id'] = $post['partner_id'];

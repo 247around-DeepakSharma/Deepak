@@ -1483,7 +1483,7 @@ class Buyback_process extends CI_Controller {
             }
         } else if ($service_name_arr) {
             //If all is selected then download all appliance data
-            $key = array_search('all', $service_name_arr);
+            $key = array_search('All', $service_name_arr);
             if ($key !== FALSE) {
                 $service_name_arr = array_column($this->booking_model->selectservice(true), 'services', 'id');
             }
