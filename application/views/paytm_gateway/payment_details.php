@@ -94,12 +94,39 @@
                                 </table>
                             </div>
                             <div class="clearfix"></div>
-                            
-<!--                            <div class="tds_details">
-                                <div class="radio">
-                                    <label><input type="checkbox" name="tds_rate" value="1"> Deduct TDS at <span id="tds_per">2</span>%</label>
-                                </div>
-                            </div>-->
+                            <div class="row">
+                                <div class="col-md-5 col-sm-12 col-xs-12">
+                                    <input type="hidden" name="TDS_RATE" id="apply_tds_percent" value="">
+                                    <input type="hidden" name="TDS_AMOUNT" id="apply_tds_amount" value="">
+                                    <table class="table" width="50%">
+                                        <tr>
+                                            <td width="15%" style="font-size:17px;">Deduct TDS at?</td>
+                                            <td width="8%">
+                                                <input type="radio" name="tds" onClick="deduct_tds(0);">&nbsp;None
+                                            </td>
+                                            <td width="8%">
+                                                <input class="tds" type="radio" name="tds" onClick="deduct_tds(0.75);">&nbsp;.75%
+                                            </td>
+                                            <td width="8%">
+                                                <input class="tds" type="radio" name="tds" onClick="deduct_tds(1.5);">&nbsp;1.5%
+                                            </td>
+<!--                                            <td width="8%">
+                                                <input class="tds" type="radio" name="tds" onClick="deduct_tds(3.75);">&nbsp;3.75%
+                                            </td>
+                                            <td width="8%">
+                                                <input class="tds" type="radio" name="tds" onClick="deduct_tds(7.5);">&nbsp;7.5%
+                                            </td>-->
+                                        </tr>
+                                    </table>
+                                 </div>
+                            </div>
+                            <div class="tds_deduction_amount">
+                                <hr>
+                                <h4 style="font-size:17px;"> TDS Deduction Amount : 
+                                    <i class="fa fa-inr"></i>
+                                    <span id="tds_deduction_amount"></span>
+                                </h4>
+                            </div>                            
                             <hr>
                             <div class="final_amount">
                                 <h4 style="font-size:17px;"> Total Amount To be Paid  
@@ -139,9 +166,9 @@
     $(document).ready(function () {
         get_partner_amount_details();
         //Disable full page
-        $("body").on("contextmenu",function(e){
-            return false;
-        });
+//        $("body").on("contextmenu",function(e){
+//            return false;
+//        });
 
         
     });
@@ -203,8 +230,11 @@
         var final_amount;
         var amount = parseInt($('input[name=amount]').filter(':checked').val());
         if(is_tds_check){
-            var tds_per = parseInt($('#tds_per').html());
-            final_amount = amount - amount * (tds_per/100);
+            var tds_per = $('#apply_tds_percent').val();
+            var tds_amount = ((amount/100) * tds_per).toFixed(2);
+            $('#tds_deduction_amount').html(tds_amount);
+            $('#apply_tds_amount').val(tds_amount);
+            final_amount = amount - tds_amount;            
         }else{
             $('#tds_deduction_amount').html(0.00);
             $('#apply_tds_amount').val(0);
@@ -245,7 +275,7 @@
     $("#other_amount_value").blur(function(){
         var other_amount_value = $('#other_amount_value').val();
         parseInt($('input[name=amount]').filter(':checked').val(other_amount_value));
-        get_final_amount();
+        get_final_amount(true);
     });
     
     $("#payment_form").submit(function(e){
