@@ -1495,14 +1495,8 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         if($countOnly){
             $this->db->select("count(id) as 'count'");
         }else{
-            $this->db->select("invoice_id");
-            $this->db->select("type");
-            $this->db->select("DATE_FORMAT(invoice_date,'%d-%m-%Y' ) as 'invoice_date'");
-            $this->db->select("parts_count");
-            $this->db->select("vertical");
-            $this->db->select("category");
-            $this->db->select("sub_category");
-            $this->db->select("(total_amount_collected-amount_paid) as 'amount'");
+            $this->db->select("invoice_id, type, DATE_FORMAT(invoice_date,'%d-%b-%Y' ) as 'invoice_date', invoice_file_main, parts_count, vertical, category, sub_category, (total_amount_collected) as 'amount',"
+                    . "total_amount_collected");
             $this->db->limit($limit, $start);
         }
         $this->db->from('vendor_partner_invoices');
