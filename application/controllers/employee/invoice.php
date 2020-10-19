@@ -7732,4 +7732,27 @@ exit();
         $this->miscelleneous->copy_invoices_from_s3();
     }
     
+    
+    /**
+     * @desc This function is used to generate sf oow invoice at the end  of month
+     */
+    function generate_bulk_oow_sale_invoice(){
+        $data = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id, shipped_date', array(
+            'parts_shipped IS NOT NULL' => NULL,
+            'sell_invoice_id' => NULL,
+            'estimate_cost_given_date IS NOT NULL' => NULL,
+            'defective_part_shipped_date IS NULL' => NULL,
+            'is_micro_wh != 1' => NULL, 
+            'part_warranty_status' => 2,
+            "DATEDIFF(STR_TO_DATE('".date('Y-m-01')."', '%Y-%m-%d'), STR_TO_DATE(date_of_request, '%Y-%m-%d')) >= 30" => NULL
+            
+        ));
+        
+        if(!empty($data)){
+            foreach($data as $value){
+                $this->generate_oow_parts_invoice($value['id']);
+            }
+        }
+    }
+    
 }
