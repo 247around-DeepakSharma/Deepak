@@ -7046,7 +7046,7 @@ class Partner extends CI_Controller {
         $partner_id = $this->session->userdata('partner_id');
         $selectData = " services.services,users.name as customername, users.phone_number,booking_details.*,appliance_brand,"
                 . "DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) as aging, count_escalation, booking_files.file_name as booking_files_purchase_inv";
-        $selectCount = "Count(DISTINCT ud.booking_id) as count";
+        $selectCount = "Count(DISTINCT booking_details.booking_id) as count";
         $bookingsCount = $this->partner_model->getPending_booking($partner_id, $selectCount,$bookingID,$state,NULL,NULL,$this->input->post('state'),$order,false)[0]->count;
         $bookings = $this->partner_model->getPending_booking($partner_id, $selectData,$bookingID,$state,$this->input->post('start'),$this->input->post('length'),$this->input->post('state'),$order);       
         $sn_no = $this->input->post('start')+1;
@@ -7109,9 +7109,10 @@ class Partner extends CI_Controller {
             $tempArray[] = $row->state;
             $tempArray[] = (!empty($row->booking_date) && $row->booking_date != '0000-00-00') ? date("d-M-Y", strtotime($row->booking_date)) : "";
             $tempArray[] = $row->aging;
-            $tempArray[] = '<a class="btn btn-sm btn-primary" href="'. base_url().'partner/inventory/inventory_list_by_model/'. $row->partner_id .'/'. $row->service_id.'/'. $row->booking_id.'" target="_blank"><i class="fa fa-inr" aria-hidden="true"></i></a>';
-            $tempArray[] = '<a class="btn btn-sm btn-primary" href="'. base_url().'partner/inventory/stock_by_model/'. $row->partner_id .'/'. $row->service_id.'/'. $row->booking_id.'" target="_blank"><i class="fa fa-dropbox" aria-hidden="true"></i></a>';
-            
+            if($this->session->userdata('is_wh') ==1 || $this->session->userdata('is_micro_wh') ==1){
+                $tempArray[] = '<a class="btn btn-sm btn-primary" href="'. base_url().'partner/inventory/inventory_list_by_model/'. $row->booking_id.'" target="_blank"><i class="fa fa-inr" aria-hidden="true"></i></a>';
+                $tempArray[] = '<a class="btn btn-sm btn-primary" href="'. base_url().'partner/inventory/stock_by_model/'. $row->booking_id.'" target="_blank"><i class="fa fa-dropbox" aria-hidden="true"></i></a>';
+            }
             $bookingIdTemp = "'".$row->booking_id."'";
             $tempArray[] = '<a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('.$bookingIdTemp.')"><i class="fa fa-envelope" aria-hidden="true"></i></a>';
             if ($row->type == _247AROUND_QUERY) { 
@@ -10162,34 +10163,40 @@ class Partner extends CI_Controller {
      * @param type $service_id
      * @param type $booking_id
      */
-    function get_inventory_by_model($model_number_id = '', $service_id = '', $booking_id = '') {
-
+    function get_inventory_by_model($booking_id = '', $inventory_id = "") {
+        $in = array();
+        $data['inventory_details'] = array();
         if (!empty($booking_id)) {
-            $booking_unit = $this->booking_model->getunit_details($booking_id, $service_id);
-            if (!empty($booking_unit)) {
-                $data['model'] = $booking_unit[0]['model_number'];
-            }
-        }
+            
+            if(!empty($inventory_id)){
+                $in = array($inventory_id);
+            } else {
+                $sp = $this->partner_model->get_spare_parts_by_any('requested_inventory_id, shipped_inventory_id', array('spare_parts_details.booking_id' => $booking_id,
+                'spare_parts_details.requested_inventory_id IS NOT NULL' => null));
+            
+                if(!empty($sp)){
+                    foreach($sp as $v){
+                        if(!empty($v['requested_inventory_id'])){
+                        array_push($in, $v['requested_inventory_id']);
+                        }
 
-        if (!empty($model_number_id) && empty($service_id)) {
-            $model_number_id = urldecode($model_number_id);
-            $data['model_number_id'] = $model_number_id;
-            $data['partner_id'] = '';
-            $data['service_id'] = '';
+                        if(!empty($v['shipped_inventory_id'])){
+                            array_push($in, $v['shipped_inventory_id']);
+                        }
+
+                    }
+                }
+            }
+            if(!empty($in)){
+                $in = array_unique($in);
             
-            $where = array('inventory_model_mapping.model_number_id' => $model_number_id, 'inventory_model_mapping.active' => 1);
-            if(!empty($part_type)) {
-                $where['inventory_master_list.type'] = $part_type;
+                $where['inventory_master_list.inventory_id IN ("'.implode(",", $in).'")'] = NULL;
+
+
+                $data['inventory_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.*,services.services', $where);
             }
             
-            $data['inventory_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.*,appliance_model_details.model_number,services.services', $where);
-        } else {
-            $data['inventory_details'] = array();
-            $data['model_number_id'] = '';
-            $data['partner_id'] = urldecode($model_number_id);
-            $data['service_id'] = $service_id;
         }
-        
         $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $this->miscelleneous->load_partner_nav_header();
         $this->load->view('partner/show_inventory_details_by_model', $data);
