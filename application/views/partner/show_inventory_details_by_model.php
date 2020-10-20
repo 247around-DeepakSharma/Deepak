@@ -20,7 +20,7 @@
                 </div>
                 <br>
                 <div class="x_content">
-                     <?php if(empty($model_number_id)){ ?>
+                     <?php if(empty($inventory_details)){ ?>
                     <div class="x_content_header">
                         <section class="fetch_inventory_data">
                             <div class="row">
@@ -52,7 +52,7 @@
                     <br>
                     <br>
                     <?php }else{ ?> 
-                        <input type="hidden" id="model_number_id" value="<?php echo $model_number_id; ?>">
+<!--                        <input type="hidden" id="model_number_id" value="<?php echo $model_number_id; ?>">-->
                     <?php } ?>
                         <div class="clearfix"></div>
                     <div class="inventory_stock_list">
@@ -69,7 +69,23 @@
                                     <th>Customer Buying Price</th>
                                 </tr>
                             </thead>
-                            <tbody></tbody>
+                            <tbody>
+                                <?php foreach ($inventory_details as $key => $value) { ?>
+                                <tr>
+                                    <td><?php echo $key+1;?></td>
+                                    <td><?php echo $value['services'];?></td>
+                                    <td><?php echo $value['type'];?></td>
+                                    <td><?php echo $value['part_name'];?></td>
+                                    <td><?php echo $value['part_number'];?></td>
+                                    <td><?php echo $value['description'];?></td>
+                                    <td><?php echo $value['gst_rate'];?></td>
+                                    <?php $price = number_format((float) $value['price'] + ($value['price'] * ($value['gst_rate']) / 100), 2, '.', '');
+                                          $total = number_format((float) ($price + ($price * (($value['oow_vendor_margin'] + $value['oow_vendor_margin']) / 100))), 2, '.', '');?>
+                                    <td><?php echo $total;?></td>
+                                </tr>
+                                    
+                               <?php  }?>
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -84,7 +100,10 @@
         display:none;
     }
 </style>
+<?php if(empty($inventory_details)) { ?>
+
 <script>
+    
 
     var serviceable_bom_table;
 
@@ -203,7 +222,7 @@
 
         var data = {
             'partner_id': '<?php echo $this->session->userdata('partner_id'); ?>',
-            'service_id' : '<?php echo $service_id; ?>',   
+            'service_id' : $('#inventory_service_id').val(),   
             'model_number_id' : $("#model_number_id").val(),
             'part_type' : $("#parts_type").val(),
         };
@@ -221,8 +240,8 @@
             data:{is_option_selected:true,partner_id:partner_id},
             success:function(response){
                 $('#'+div_to_update).html(response);
-                $('#inventory_service_id').val('<?php echo $service_id; ?>').change();
-                get_model_number_list('<?php echo $this->session->userdata('partner_id'); ?>','<?php echo $service_id; ?>');
+               // $('#inventory_service_id').val('<?php //echo $service_id; ?>').change();
+                get_model_number_list('<?php echo $this->session->userdata('partner_id'); ?>');
             }
         });
     }
@@ -236,7 +255,7 @@
      
     });
     
-    function get_model_number_list(entity_id,service_id){
+    function get_model_number_list(entity_id,service_id = ""){
        console.log('<?php echo $this->session->userdata('partner_id'); ?>');
         if(service_id && entity_id){
             
@@ -263,3 +282,6 @@
     }
     
 </script>
+
+    
+<?php }?>
