@@ -2912,7 +2912,8 @@ function get_detailed_summary_report_query($partner_id,$whereConditions=NULL){
                     `Reverse Sale Invoice Id`,
                     `Reverse Purchase Invoice Id`,
                     `Purchase Invoice Id`,
-                    `Sale Invoice Id`	                    
+                    `Sale Invoice Id`,
+                    `Dealer Name`	                    
             FROM (SELECT
                     booking_details.booking_id as '247around Booking ID',
                     (CASE WHEN booking_details.created_by_agent_type IN ('"._247AROUND_PARTNER_STRING."', '".BOOKING_AGENT_Dealer."') then entity_login_table.agent_name WHEN booking_details.created_by_agent_type = '".BOOKING_AGENT_Website."' THEN '".BOOKING_AGENT_Website."' ELSE employee.full_name END) as 'Agent Name',
@@ -3067,7 +3068,8 @@ function get_detailed_summary_report_query($partner_id,$whereConditions=NULL){
                     '' AS 'Reverse Sale Invoice Id',
                     '' AS 'Reverse Purchase Invoice Id',
                     '' AS 'Purchase Invoice Id',
-                    '' AS 'Sale Invoice Id'                    
+                    '' AS 'Sale Invoice Id',
+                    '' AS 'Dealer Name'                   
             FROM
                     booking_details
                     LEFT JOIN booking_unit_details ud ON (booking_details.booking_id = ud.booking_id)
@@ -3084,6 +3086,7 @@ function get_detailed_summary_report_query($partner_id,$whereConditions=NULL){
                     LEFT JOIN booking_cancellation_reasons ssba_cr ON (service_center_booking_action.cancellation_reason = ssba_cr.id)
                     LEFT JOIN entity_login_table ON (booking_details.created_by_agent_id = entity_login_table.agent_id)
                     LEFT JOIN employee ON (booking_details.created_by_agent_id = employee.id)
+                    LEFT JOIN dealer_details ON (booking_details.dealer_id = dealer_details.dealer_id)
             WHERE {$where} AND product_or_services != 'Product'
             GROUP BY
                     ud.id
@@ -3250,7 +3253,8 @@ function get_detailed_summary_report_query($partner_id,$whereConditions=NULL){
                     IFNULL(spare_parts_details.reverse_sale_invoice_id, ' ') AS 'Reverse Sale Invoice Id',
                     IFNULL(spare_parts_details.reverse_purchase_invoice_id, ' ') AS 'Reverse Purchase Invoice Id',
                     IFNULL(spare_parts_details.purchase_invoice_id, ' ') AS 'Purchase Invoice Id',
-                    IFNULL(spare_parts_details.sell_invoice_id, ' ') AS 'Sale Invoice Id'
+                    IFNULL(spare_parts_details.sell_invoice_id, ' ') AS 'Sale Invoice Id',
+                    dealer_details.dealer_name AS 'Dealer Name'
 
             FROM
                 booking_details
@@ -3273,6 +3277,7 @@ function get_detailed_summary_report_query($partner_id,$whereConditions=NULL){
                 LEFT JOIN booking_cancellation_reasons ssba_cr ON (service_center_booking_action.cancellation_reason = ssba_cr.id)
                 LEFT JOIN entity_login_table ON (booking_details.created_by_agent_id = entity_login_table.agent_id)
                 LEFT JOIN employee ON (booking_details.created_by_agent_id = employee.id)
+                LEFT JOIN dealer_details ON (booking_details.dealer_id = dealer_details.dealer_id)
             WHERE {$where}
                 AND product_or_services != 'Product' AND spare_parts_details.booking_id is not null 
             GROUP BY
