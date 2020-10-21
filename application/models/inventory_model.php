@@ -1692,6 +1692,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('booking_cancellation_reasons as bcr', 'spare_parts_details.spare_cancellation_reason = bcr.id', 'left');
         $this->db->join('employee as emply', 'service_centres.rm_id = emply.id', 'left');
         $this->db->join('employee as empl', 'service_centres.asm_id = empl.id', 'left');
+        $this->db->join('dealer_details', "dealer_details.dealer_id = booking_details.dealer_id", "left");
         
         if (!empty($where)) {
             $this->db->where($where, false);
