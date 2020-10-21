@@ -2590,9 +2590,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $stateData = $this->get_data_for_state_tat_filters($conditionsArray,$rmID,$is_am,$is_pending,$request_type,$agent_type,$agent_id);            
         }
         //Get Data Group BY SF
-        if($this->input->post('call_from_api') && $this->input->post('sf_call')){
+        //if(!$this->input->post('call_from_api') && $this->input->post('sf_call')){
         $sfData = $this->get_data_for_sf_tat_filters($conditionsArray,$rmID,$is_am,$is_pending,$request_type,$agent_type,$agent_id); 
-        }
+        //}
         
         if($is_am){
             if($rmID != "00"){
