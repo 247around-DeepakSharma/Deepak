@@ -187,16 +187,16 @@
     </div>
     </div>
     
-            <div class="row">
-        <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title" style="padding-left: 0px;">
                     <h2>Pending Booking Reports</h2>
-<!--                    <span class="collape_icon" href="#RM_TAT_Reporting_pending" data-toggle="collapse" onclick="initiate_RM_Pending_TAT_Reporting()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>-->
+                    <span class="collape_icon" href="#RM_TAT_Reporting_pending" data-toggle="collapse" onclick=""><i class="fa fa-minus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
-                <div id="RM_TAT_Reporting_pending">
-                <div class="table-responsive" id="escalation_data" ng-controller="pendingBooking_ControllerRM" ng-cloak="">
+                <div class="x_content collapse in" id="RM_TAT_Reporting_pending">
+                <div class="table-responsive" id="escalation_data" ng-controller="pendingBooking_ControllerRM" ng-cloak=""> 
                     <form action="" method="post" target="_blank" id="rm_pending_booking_form" style="float: left;width: 988px;">
                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 130px;">
                         <div class="item form-group">

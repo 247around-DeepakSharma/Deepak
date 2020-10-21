@@ -105,18 +105,18 @@
                                             <td width="8%">
                                                 <input type="radio" name="tds" onClick="deduct_tds(0);">&nbsp;None
                                             </td>
+                                            <td width="8%">
+                                                <input class="tds" type="radio" name="tds" onClick="deduct_tds(0.75);">&nbsp;.75%
+                                            </td>
+                                            <td width="8%">
+                                                <input class="tds" type="radio" name="tds" onClick="deduct_tds(1.5);">&nbsp;1.5%
+                                            </td>
 <!--                                            <td width="8%">
-                                                <input class="tds" type="radio" name="tds" onClick="deduct_tds(1);">&nbsp;1%
+                                                <input class="tds" type="radio" name="tds" onClick="deduct_tds(3.75);">&nbsp;3.75%
+                                            </td>
+                                            <td width="8%">
+                                                <input class="tds" type="radio" name="tds" onClick="deduct_tds(7.5);">&nbsp;7.5%
                                             </td>-->
-                                            <td width="8%">
-                                                <input class="tds" type="radio" name="tds" onClick="deduct_tds(2);">&nbsp;2%
-                                            </td>
-                                            <td width="8%">
-                                                <input class="tds" type="radio" name="tds" onClick="deduct_tds(5);">&nbsp;5%
-                                            </td>
-                                            <td width="8%">
-                                                <input class="tds" type="radio" name="tds" onClick="deduct_tds(10);">&nbsp;10%
-                                            </td>
                                         </tr>
                                     </table>
                                 </div>
@@ -168,9 +168,9 @@
     $(document).ready(function () {
         get_partner_amount_details();
         //Disable full page
-        $("body").on("contextmenu",function(e){
-            return false;
-        });
+//        $("body").on("contextmenu",function(e){
+//            return false;
+//        });
 
         
     });
@@ -232,7 +232,7 @@
         var final_amount;
         var amount = parseInt($('input[name=amount]').filter(':checked').val());
         if(is_tds_check){
-            var tds_per = parseInt($('#apply_tds_percent').val());
+            var tds_per = $('#apply_tds_percent').val();
             var tds_amount = ((amount/100) * tds_per).toFixed(2);
             $('#tds_deduction_amount').html(tds_amount);
             $('#apply_tds_amount').val(tds_amount);
@@ -277,7 +277,7 @@
     $("#other_amount_value").blur(function(){
         var other_amount_value = $('#other_amount_value').val();
         parseInt($('input[name=amount]').filter(':checked').val(other_amount_value));
-        get_final_amount();
+        get_final_amount(true);
     });
     
     $("#payment_form").submit(function(e){

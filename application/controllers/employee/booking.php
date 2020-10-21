@@ -1067,9 +1067,13 @@ class Booking extends CI_Controller {
                 if (!empty($service_center_data)) {
                     $data['booking_unit_details'][$keys]['quantity'][$key]['customer_paid_basic_charges'] = $service_center_data[0]['service_charge'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['customer_paid_extra_charges'] = $service_center_data[0]['additional_service_charge'];
-                    $data['booking_unit_details'][$keys]['quantity'][$key]['serial_number'] = $service_center_data[0]['serial_number'];
+                    if(!empty($service_center_data[0]['serial_number'])){
+                        $data['booking_unit_details'][$keys]['quantity'][$key]['serial_number'] = $service_center_data[0]['serial_number'];
+                    }
+                    if(!empty($service_center_data[0]['serial_number_pic'])){
+                        $data['booking_unit_details'][$keys]['quantity'][$key]['serial_number_pic'] = $service_center_data[0]['serial_number_pic'];                
+                    }
                     $data['booking_unit_details'][$keys]['quantity'][$key]['customer_paid_parts'] = $service_center_data[0]['parts_cost'];
-                    $data['booking_unit_details'][$keys]['quantity'][$key]['serial_number_pic'] = $service_center_data[0]['serial_number_pic'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['is_sn_correct'] = $service_center_data[0]['is_sn_correct'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['sf_purchase_date'] = $service_center_data[0]['sf_purchase_date'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['sf_purchase_invoice'] = $service_center_data[0]['sf_purchase_invoice'];
@@ -2485,10 +2489,10 @@ class Booking extends CI_Controller {
             $data['customer_paid_basic_charges'] = $value;
             $data['customer_paid_extra_charges'] = $additional_charge[$unit_id];
             $data['customer_paid_parts'] = $parts_cost[$unit_id];
-            if (isset($serial_number[$unit_id])) {
-                $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
+            if (isset($serial_number)) {
+                $trimSno = str_replace(' ', '', trim($serial_number));
                 $data['serial_number'] =  $trimSno;
-                $data['serial_number_pic']  = trim($serial_number_pic[$unit_id]);
+                $data['serial_number_pic']  = trim($serial_number_pic);
             } else {
                 $data['serial_number'] = "";
                 $data['serial_number_pic'] = "";
@@ -2949,7 +2953,7 @@ class Booking extends CI_Controller {
         $service_id = $this->input->post('appliance_id');
         $return_status = true;
         $message = "";
-        if (isset($pod)) {
+        if (isset($pod)) {            
             if(!empty($serial_number)) {
                 $trimSno = str_replace(' ', '', trim($serial_number));
                 if (!ctype_alnum($serial_number)) {
@@ -2981,9 +2985,9 @@ class Booking extends CI_Controller {
                     }
                 }
             }
-            elseif ($value == '0') {
+            else {
                 // upload serial number image in case of POD = 0 also
-                if(isset($upload_serial_number_pic['name']) && ($upload_serial_number_pic['name'])){
+                if(isset($upload_serial_number_pic['name']) && !empty($upload_serial_number_pic['name'])){
                     $s =  $this->upload_insert_upload_serial_no($upload_serial_number_pic, $partner_id, $trimSno);
                     if(empty($s)){
                         $this->form_validation->set_message('validate_serial_no', 'Serial Number, File size or file type is not supported. Allowed extentions are png, jpg, jpeg and pdf. Maximum file size is 5 MB.');
@@ -3768,7 +3772,7 @@ class Booking extends CI_Controller {
             $join = array("agent_filters" => "partners.id=agent_filters.entity_id");
             
         }
-        $data = $this->get_bookings_data_by_status($booking_status,$sfIDArray,$partnerArray);
+        $data = $this->get_bookings_data_by_status($booking_status,$sfIDArray,$partnerArray,'booking_id');
         $post = $data['post'];
         $output = array(
             "draw" => $this->input->post('draw'),
@@ -3785,7 +3789,7 @@ class Booking extends CI_Controller {
      *  @param : $booking_status string
      *  @return : $output Array()
      */
-    private function get_bookings_data_by_status($booking_status,$sfIDArray) { 
+    private function get_bookings_data_by_status($booking_status,$sfIDArray,$partnerArray=array(),$group_by="") { 
         $post = $this->get_post_data();
         $new_post = $this->get_filterd_post_data($post,$booking_status,'booking');
          if($this->input->post('bulk_booking_id')){
@@ -3796,7 +3800,7 @@ class Booking extends CI_Controller {
             DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as initial_booking_date_as_dateformat, (CASE WHEN spare_parts_details.booking_id IS NULL THEN 'no_spare' ELSE
             MIN(DATEDIFF(CURRENT_TIMESTAMP , spare_parts_details.acknowledge_date)) END) as spare_age,
             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as booking_age,service_centres.state";
-            $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,0,'Spare');
+            $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,0,'Spare',0,array(),array(),$group_by);
          }
          else{
              $select = "booking_details.id as booking_primary_id,services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
@@ -3805,7 +3809,7 @@ class Booking extends CI_Controller {
             service_centres.primary_contact_phone_1,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
             DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as initial_booking_date_as_dateformat,
             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as booking_age,service_centres.state";
-            $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray);
+            $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,0,'Spare',0,array(),array(),$group_by);
          }
         unset($new_post['order_performed_on_count']);
         $data = array();
@@ -3943,7 +3947,7 @@ class Booking extends CI_Controller {
              $post['where']["agent_filters.agent_id"] = $am_id;
              $post['where']["agent_filters.is_active"] = 1;
              $post['where']["agent_filters.entity_type"] = _247AROUND_EMPLOYEE_STRING;
-             $post['join']['agent_filters'] =  "booking_details.partner_id=agent_filters.entity_id and booking_details.state=agent_filters.state";
+             $post['join']['agent_filters'] =  "booking_details.partner_id=agent_filters.entity_id and booking_details.state=agent_filters.state and agent_filters.entity_type='"._247AROUND_EMPLOYEE_STRING."' ";
         }
         if(!empty($request_type)){
             $post['where_in']['booking_details.request_type'] =  explode(",",$request_type);
@@ -5661,8 +5665,9 @@ class Booking extends CI_Controller {
         //AM Specific Bookings
         if($this->session->userdata('is_am') == '1'){
             $am_id = $this->session->userdata('id');
-            $where = array('agent_filters.agent_id' => $am_id,'partners.is_active'=>1,'agent_filters.entity_type'=>_247AROUND_EMPLOYEE_STRING);
-            $join = array("agent_filters" => "partners.id=agent_filters.entity_id");
+            $post['where']['agent_filters.agent_id'] = $am_id;
+            $post['where']['partners.is_active'] = 1;
+            $post['where']['agent_filters.entity_type'] = _247AROUND_EMPLOYEE_STRING;
         }
         
         $post['length'] = -1;
@@ -5675,13 +5680,14 @@ class Booking extends CI_Controller {
             $post['where_in']['booking_details.booking_id'] =  explode(",",$bulk_booking_id);
         }
         if($booking_status == 'Pending'){
-            $post['where']  = array('service_center_closed_date IS NULL' => NULL, 'booking_details.internal_status NOT IN ("'.SPARE_PARTS_SHIPPED.'","'.SPARE_OOW_SHIPPED.'","'.SF_BOOKING_CANCELLED_STATUS.'","'.SF_BOOKING_COMPLETE_STATUS.'","'.SPARE_PARTS_SHIPPED_BY_WAREHOUSE.'")' => NULL); 
+            $post['where']['service_center_closed_date IS NULL'] = NULL;
+            $post['where']['booking_details.internal_status NOT IN ("'.SPARE_PARTS_SHIPPED.'","'.SPARE_OOW_SHIPPED.'","'.SF_BOOKING_CANCELLED_STATUS.'","'.SF_BOOKING_COMPLETE_STATUS.'","'.SPARE_PARTS_SHIPPED_BY_WAREHOUSE.'")'] = NULL; 
             // Join with employee Table to fetch AM name
 
              
             $post['join']['spare_parts_details'] = "booking_details.booking_id  = spare_parts_details.booking_id";
             $post['join']['partners'] = "booking_details.partner_id  = partners.id";
-            $post['join']['agent_filters'] =  "partners.id=agent_filters.entity_id AND agent_filters.state = booking_details.state ";
+            $post['join']['agent_filters'] =  "partners.id=agent_filters.entity_id AND agent_filters.state = booking_details.state AND agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."'";
             $post['join']['employee as employee_am'] = "agent_filters.agent_id = employee_am.id";
             $post['join']['inventory_master_list as in_req'] = "spare_parts_details.requested_inventory_id = in_req.inventory_id";
             $post['join']['inventory_master_list as in_sh'] = "spare_parts_details.shipped_inventory_id = in_sh.inventory_id";

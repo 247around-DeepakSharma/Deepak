@@ -2848,7 +2848,7 @@ class Service_centers extends CI_Controller {
         $access1 = $this->partner_model->get_partner_permission(array('partner_id' => $partner_id,
             'permission_type' => OW_SPARE_REQUESTED_ON_APPROVAL, 'is_on' => 1));
 
-        if (!empty($access) || !empty($access1)) {
+        if (!empty($access) || (!empty($access1) && $part_warranty_status == 2)) {
             $url = base_url() . 'employee/spare_parts/spare_part_on_approval/' . $spare_id . "/" . $booking_id;
             $fields = array(
                 'remarks' => "Auto Approved",
@@ -8583,7 +8583,7 @@ class Service_centers extends CI_Controller {
     function msl_security_details() {
         $this->checkUserSession();
         $data = array();
-        $select = "invoice_id, type, date_format(invoice_date,'%d-%b-%Y') as 'invoice_date', parts_count, vertical, category, sub_category,(total_amount_collected-amount_paid) as 'amount'";
+        $select = "invoice_id, type, date_format(invoice_date,'%d-%b-%Y') as 'invoice_date',invoice_file_main, parts_count, vertical, category, sub_category,total_amount_collected,(total_amount_collected-amount_paid) as 'amount'";
         $data['msl_security'] = $this->reusable_model->get_search_result_data(
                 'vendor_partner_invoices', $select, array(
             "vendor_partner" => "vendor",
@@ -8661,7 +8661,8 @@ class Service_centers extends CI_Controller {
             $data[$key][] = $spare['category'];
             $data[$key][] = $spare['sub_category'];
             $data[$key][] = $spare['parts_count'];
-            $data[$key][] = '<a title="click to get more details" data-toggle="tooltip">' . $spare['invoice_id'] . '</a>';
+            $data[$key][] = '<a title="click to get more details" data-toggle="tooltip" href="'.S3_WEBSITE_URL.'invoices-excel/'.$spare['invoice_file_main'].'">' . $spare['invoice_id'] . '</a>';
+            $data[$key][] = $spare['total_amount_collected'];
             $data[$key][] = $amount;
             $data[$key][] = $spare['invoice_date'];
         }

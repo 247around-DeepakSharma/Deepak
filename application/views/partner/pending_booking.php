@@ -60,8 +60,10 @@
                        <th class="text-center">State</th>
                         <th class="text-center">Booking Date</th>
                         <th class="text-center">Age (Days)</th>
-                        <th class="text-center">Check Spare<br/>Part Price</th>
-                        <th class="text-center">Check Spare<br/>Part Stock</th>
+                        <?php if($this->session->userdata('is_wh') ==1 || $this->session->userdata('is_micro_wh') == 1){ ?>
+                            <th class="text-center">Check Spare<br/>Part Price</th>
+                            <th class="text-center">Check Spare<br/>Part Stock</th>
+                        <?php } ?>
                         <th class="text-center">Send Email</th>
                         <th class="text-center">Action</th>
                         <th class="text-center">JobCard</th>

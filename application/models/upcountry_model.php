@@ -1110,7 +1110,7 @@ class Upcountry_model extends CI_Model {
     }
     
     function getpincode_upcountry_local(){
-        $sql = "SELECT distinct pincode as 'Pincode', district as 'District', case when is_upcountry =1 THEN ('Upcountry') ELSE 'Local' END as 'Upcountry/Local', distance as Distance FROM `upcountry_pincode_services_sf_level`";
+        $sql = "SELECT distinct pincode as 'Pincode',services as 'Appliance', district as 'District', case when is_upcountry =1 THEN ('Upcountry') ELSE 'Local' END as 'Upcountry/Local', upcountry_pincode_services_sf_level.distance as Distance FROM `upcountry_pincode_services_sf_level`, services WHERE services.id = service_id order by services asc ";
         return $this->db->query($sql);
     }
     
