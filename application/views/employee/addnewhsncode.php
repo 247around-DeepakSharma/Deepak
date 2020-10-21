@@ -26,16 +26,17 @@
                                     <tr> 
                                         <th style="border-color: #bce8f1;" class="text-center">
                                             <p style="float: left;margin-left: 4px;">HSN Code</p>
-                                            <input type="text" class="form-control" name="hsn_code" id="hsn_code" placeholder="Enter HSN Code" required="">
+                                             <input type="text" class="form-control" name="hsn_code" id="hsn_code" placeholder="Enter HSN Code"  onkeyup="if (/\D/g.test(this.value)) this.value = this.value.replace(/\D/g,'')">
+                                            <br>
                                         </th>
                                         <th style="border-color: #bce8f1;" class="text-center">
                                             <p style="float: left;margin-left: 2px;">GST Rate</p>
-                                            <input type="text" class="form-control" name="gst_rate" id="gst_rate" placeholder="Enter GST Rate"  required="">
+                                            <input type="text" class="form-control" name="gst_rate" id="gst_rate" placeholder="Enter GST Rate">
                                         </th>                                      
                                         <th style="border-color: #bce8f1;" class="text-center">
-                                            <div class="col-md-12" style="text-align: center;">
+                                            <div style="text-align: center;">
                                                 <input type="hidden" name="agent_id" value="<?php echo $this->session->userdata('id'); ?>" />
-                                                <input onclick="return check_amount()" id="form_submit" type= "submit"  class="btn btn-primary btn-lg" style="padding: 3px 30px;"  value ="Submit" >
+                                                <input  id="form_submit" type= "submit"  class="btn btn-primary btn-lg" style="padding: 3px 30px;"  value ="Submit" >
                                             </div>
                                         </th>
                                     </tr>
@@ -75,6 +76,16 @@
     </div>
 </div>
 <script>
+    $("#form_submit").click(function(){
+        var textVal = $("#gst_rate").val();
+        var regexp = /^\d+(\.\d{1,2})?$/;
+        if(!regexp.test(textVal)){
+            $("#gst_rate").val('');
+            alert('Please enter valid GST.');
+            return false;
+        }
+    });
+    
     $(function () {
         $("#add_hsn_code").submit(function (e) {
             e.preventDefault();
