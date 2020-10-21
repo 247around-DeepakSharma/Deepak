@@ -1,4 +1,4 @@
-<?php
+process_escalation<?php
 if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
@@ -1612,15 +1612,17 @@ class Partner extends CI_Controller {
      */
     function process_escalation($booking_id) {
         log_message('info', __FUNCTION__ . ' booking_id: ' . $booking_id);
+        if(!$this->input->post("call_from_api")){
         $this->checkUserSession();
+        }
         $this->form_validation->set_rules('escalation_reason_id', 'Escalation Reason', 'callback_check_escalation_already_applied');
 
         if ($this->form_validation->run() == FALSE && !$this->input->post("call_from_api")) {
             echo validation_errors();
         } else if($this->form_validation->run() == FALSE && $this->input->post("call_from_api")){
-			$response['status'] = FALSE;
-		    $response['message'] = "Bookig either already escalated or NRN approved ";
-			return $response;
+                        $response['status'] = FALSE;
+                        $response['message'] = "Bookig either already escalated or NRN approved ";
+			//echo  json_encode($response,true);
 		}else{
             $escalation['escalation_reason'] = $this->input->post('escalation_reason_id');
             $escalation_remarks = $this->input->post('escalation_remarks');
@@ -1647,8 +1649,13 @@ class Partner extends CI_Controller {
                 //inserts vendor escalation details
                 $escalation_id = $this->vendor_model->insertVendorEscalationDetails($escalation);
             }
+            if(!$this->input->post("call_from_api")){
             $this->notify->insert_state_change($escalation['booking_id'], "Escalation", _247AROUND_PENDING, $remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), 
-                    ACTOR_ESCALATION,NEXT_ACTION_ESCALATION,$this->session->userdata('partner_id'));
+                    ACTOR_ESCALATION,NEXT_ACTION_ESCALATION,$this->session->userdata('partner_id'));           
+            }else{
+            $this->notify->insert_state_change($escalation['booking_id'], "Escalation", _247AROUND_PENDING, $remarks, $this->input->post("dealer_agent_id"), $this->input->post("dealer_agent_type"), 
+                    ACTOR_ESCALATION,NEXT_ACTION_ESCALATION,'247001');
+            }
             //Send Email
             //get account manager details
                 $am_email = "";
@@ -1718,12 +1725,19 @@ class Partner extends CI_Controller {
                     $value['booking_id'] = $escalation['booking_id'];
                     $value['assigned_vendor_id'] = $bookinghistory[0]['assigned_vendor_id'];
                     $value['current_state'] = "Escalation";
-                    $value['agent_id'] = $partner_details['entity_id'];
-                    $value['agent_type'] = 'partner';
+                    if(!$this->input->post("call_from_api")){
+                        $value['agent_id'] = $partner_details['entity_id'];
+                        $value['agent_type'] = 'partner';
+                    }else{
+                        $value['agent_id'] = $this->input->post('dealer_agent_id');
+                        $value['agent_type'] = $this->input->post('dealer_agent_type');
+                    }
                     $value['remarks'] = $escalation_remarks;
                     $where = array('escalation_id' => ESCALATION_PENALTY, 'active' => '1');
                     //Adding values in penalty on booking table
-                    $this->penalty_model->get_data_penalty_on_booking($value, $where, $booking_request_type);
+                    if(!$this->input->post("call_from_api")){
+                        $this->penalty_model->get_data_penalty_on_booking($value, $where, $booking_request_type);
+                    }
 
                     log_message('info', 'Penalty added for Escalations - Booking : ' . $escalation['booking_id']);
                 }
@@ -1733,6 +1747,7 @@ class Partner extends CI_Controller {
 			if($this->input->post("call_from_api")){
 				$response['status'] = TRUE;
 				$response['message'] = "Booking escalated successfully !";
+                                //echo  json_encode($response,true);
 			}else{	
               echo "success";
 			}

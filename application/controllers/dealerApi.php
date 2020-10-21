@@ -456,6 +456,10 @@ class dealerApi extends CI_Controller {
             case 'verifyUserOTP':
                 $this->ProcessverifyUserOTP();
                 break;
+            
+            case 'ResendOTP':	
+                $this->ProcessResendOTP();	
+                break;
 
             default:
                 break;
@@ -621,13 +625,14 @@ function check_for_upgrade(){
             $select = "services.services, users.phone_number,users.alternate_phone_number,users.name as name, users.phone_number, booking_details.*";
             $post['length'] = -1;
             if (!empty($booking_id)) {
-                $post['search_value'] = $booking_id;
+                $post['where'] = array('booking_details.booking_id' => $booking_id, 'nrn_approved' => 0);
+                // full booking text search
                 $post['column_search'] = array('booking_details.booking_id');
                 $post['order'] = array(array('column' => 0, 'dir' => 'asc'));
                 $post['order_performed_on_count'] = TRUE;
                 $post['column_order'] = array('booking_details.booking_id');
                 $post['unit_not_required'] = true;
-                $post['where']['nrn_approved'] = 0; // Do not Show booking which are NRN Approved //
+                
 
                 $data['Bookings'] = $this->booking_model->get_bookings_by_status($post, $select, array(), 2)->result_array();
             } else {
@@ -927,29 +932,53 @@ function submitEscalation(){
 
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("entity_type","booking_id","escalation_reason_id"), $requestData);
+        if(!empty($requestData['mobile'])){
+        $mobile = $requestData['mobile'];
+        }else{
+          $mobile = '';
+        }
+        $fetch_user_detail = $this->dealer_model->fetch_retailer_detail('*', array('phone' => $mobile));
         if (!empty($requestData['entity_type'])) { 
+            $requestData['escalation_remarks'] = $requestData['escalation_remarks']." (Escalated by ".$fetch_user_detail[0]['phone']."- ".$fetch_user_detail[0]['first_name']." ".$fetch_user_detail[0]['last_name'].")";
                     $postData = array(
                         "escalation_reason_id" => $requestData['escalation_reason_id'],
-                        "escalation_remarks" => $requestData['escalation_remarks']
+                        "escalation_remarks" => $requestData['escalation_remarks'],
+                        "booking_id" => $requestData['booking_id'],
+                        "call_from_api" => true,
+                        "dealer_agent_id" => 10198,
+                        "dealer_agent_type" => 'dealer'
                     );
                     $can_escalate = $this->can_booking_escalated($requestData['booking_id']);
-                    //Check whether booking can be escalated or not
                     if (!empty($can_escalate)) {
+                    $where = array("booking_id" => $requestData['booking_id'], "escalation_reason" => $requestData['escalation_reason_id'],
+                       "create_date >=  curdate() " => NULL,  "create_date  between (now() - interval ".PARTNER_PENALTY_NOT_APPLIED_WITH_IN." minute) and now()" => NULL);
+                    $data =$this->vendor_model->getvendor_escalation_log($where, "*");
+
+               if(empty($data)){
+                   $this->dealer_model->save_booking_escalation_history(array('booking_id' => $requestData['booking_id'], 'retailer_id' => $fetch_user_detail[0]['id'], 'escalation_reason_id'=> $requestData['escalation_reason_id'], 'escalation_remarks' => $requestData['escalation_remarks']));
+                   $this->jsonResponseString['response'] = $curl_response;
+                   $this->sendJsonResponse(array('0000', "Escalation details updated successfully")); // send success response // 
                     //Call curl for updating booking 
                     $url = base_url() . "employee/partner/process_escalation/".$requestData['booking_id'];
                     $ch = curl_init($url);
                     curl_setopt($ch, CURLOPT_HEADER, false);
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                     curl_setopt($ch, CURLOPT_POST, true);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
                     $curl_response = curl_exec($ch);
-                    curl_close($ch);
-  
-                 $this->jsonResponseString['response'] = $curl_response;
-                 $this->sendJsonResponse(array('0000', "Escalation details updated successfully")); // send success response //
+                    curl_close($ch);   
+                       
+                        }else{
+                            $this->jsonResponseString['response'] = array();
+                            $this->sendJsonResponse(array("1010", "Escalation Already done."));
+                        }
+                        
+                        
                     }else{
                         $this->jsonResponseString['response'] = array();
-                        $this->sendJsonResponse(array("1010", "This booking can not be escaslated."));
+                        $this->sendJsonResponse(array("1010", "This booking can not be escalated."));
                     }
                
         } else {
@@ -1453,10 +1482,10 @@ function  getPartnerCompareTAT(){
                     }
                     }
                     }else{
-                     $return_data['D0'][]  = array()  ;
-                     $return_data['D1'][]  = array()  ;
-                     $return_data['D2'][] = array()  ;
-                     $return_data['D4'][]  = array()  ;
+                     $return_data['D0']  = array()  ;
+                     $return_data['D1']  = array()  ;
+                     $return_data['D2']  = array()  ;
+                     $return_data['D4']  = array()  ;
                         
                         
                     }
@@ -1922,10 +1951,10 @@ function  getPartnerCompareTAT(){
                     }
                     }
                     }else{
-                      $return_data['D0'][]  = array();
-                      $return_data['D1'][]  = array();
-                      $return_data['D2'][]  = array();
-                      $return_data['D3'][]  = array();
+                      $return_data['D0']  = array();
+                      $return_data['D1']  = array();
+                      $return_data['D2']  = array();
+                      $return_data['D3']  = array();
                     }
                     $this->jsonResponseString['response'] = $return_data;
                     $this->sendJsonResponse(array('0000', "Data found successfully"));
@@ -2127,6 +2156,39 @@ function  getPartnerCompareTAT(){
         $warrantyArray = array('not_set'=>'All','Yes'=>'Yes (In Warranty)','No'=>'No (Out Of Warranty)');
         $free_paid = array_search($warranty_type, $$warrantyArray);
         return $free_paid;
+    }
+    function ProcessResendOTP() {	
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);	
+        $validation = $this->validateKeys(array("mobile"), $requestData);	
+        $fetch_user_detail = $this->dealer_model->fetch_retailer_detail('*', array('phone' => $requestData['mobile']));	
+        $type = $requestData['type'];	
+        if (!empty($fetch_user_detail)) {	
+            if (in_array($type, array('password_recovery', 'new_registration'))) {	
+                if ($type == 'password_recovery') {	
+                    $otp = rand(1000, 9999);	
+                    $sms['tag'] = "retailer_password_recovery";	
+                    $sms['smsData']['otp'] = $otp;	
+                    $sms['phone_no'] = $fetch_user_detail[0]['phone'];	
+                    $sms['booking_id'] = "";	
+                    $sms['type'] = "dealer";	
+                    $sms['type_id'] = $fetch_user_detail[0]['id'];	
+                    $send_SMS = $this->notify->send_sms_msg91($sms);	
+                    $this->jsonResponseString['response'] = array('otp' => $otp);	
+                    $this->sendJsonResponse(array('0000', 'OTP send successfully'));	
+                } else {	
+                    $resendOTP = $this->check_user_otp_verified($requestData['mobile']);	
+                    $otp = $resendOTP['otp'];	
+                    $this->jsonResponseString['response'] = array('otp' => $otp);	
+                    $this->sendJsonResponse(array('0000', 'OTP send successfully'));	
+                }	
+            } else {	
+                $this->jsonResponseString['response'] = array();	
+                $this->sendJsonResponse(array('0013', 'Invalid type'));	
+            }	
+        } else {	
+            $this->jsonResponseString['response'] = array();	
+            $this->sendJsonResponse(array('0013', 'User does not exist'));	
+        }	
     }
 
 }
