@@ -4296,7 +4296,7 @@ class Service_centers extends CI_Controller {
     function generate_sf_challan($generate_challan) {
 
         $delivery_challan_file_name_array = array();
-
+        
         foreach ($generate_challan as $key => $value) {
             if (!empty($generate_challan)) {
                 $post = array();
@@ -7538,12 +7538,6 @@ class Service_centers extends CI_Controller {
             $this->download_mainfest($booking_manifest);
         } else if (!empty($generate_challan)) {
             
-            if (!empty($this->input->post('challan_send_to_sf'))) {
-                $generate_challan['send_to_sf'] = true;
-            } else {
-                $generate_challan['send_to_sf'] = false;
-            }
-
             $this->generate_sf_challan($generate_challan);
         } else if (!empty($declaration_detail)) {
             $this->print_declaration_detail();
@@ -7559,7 +7553,6 @@ class Service_centers extends CI_Controller {
      */
     function forcefully_generate_sf_challan($booking_id, $sf_id) {
         $generate_challan = array("$sf_id" => $booking_id);
-        $generate_challan['send_to_sf'] = false;
         $this->generate_sf_challan($generate_challan);
     }
 
