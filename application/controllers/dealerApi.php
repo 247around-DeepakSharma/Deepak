@@ -653,6 +653,9 @@ function check_for_upgrade(){
                         $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
                         }
                         $data['Bookings'][$key]['booking_distance'] = $distance;
+                        if(!empty($value['service_center_closed_date'])){
+                          $data['Bookings'][$key]['booking_distance'] = date('Y-m-d',strtotime($value['service_center_closed_date']));  
+                        }
 
                         $unit_data = $this->booking_model->get_unit_details(array("booking_id" => $value['booking_id']), false, "appliance_brand, appliance_category, appliance_capacity,sf_model_number,model_number,serial_number,price_tags,customer_total,appliance_description");
                         if(!empty($unit_data)){
@@ -2157,7 +2160,7 @@ function  getPartnerCompareTAT(){
      */
     function get_value_for_warranty_type_text($warranty_type){
         $warrantyArray = array('not_set'=>'All','Yes'=>'Yes (In Warranty)','No'=>'No (Out Of Warranty)');
-        $free_paid = array_search($warranty_type, $$warrantyArray);
+        $free_paid = array_search($warranty_type, $warrantyArray);
         return $free_paid;
     }
     function ProcessResendOTP() {	
