@@ -1969,7 +1969,7 @@ function  getPartnerCompareTAT(){
                       $return_data['D0']  = array();
                       $return_data['D1']  = array();
                       $return_data['D2']  = array();
-                      $return_data['D3']  = array();
+                      $return_data['D4']  = array();
                     }
                     $this->jsonResponseString['response'] = $return_data;
                     $this->sendJsonResponse(array('0000', "Data found successfully"));
