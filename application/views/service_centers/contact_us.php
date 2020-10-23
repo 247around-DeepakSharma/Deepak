@@ -139,7 +139,7 @@
                     <div class="card">
                         <div class="card" style="padding: 10px 10px; height:110px;">
                             <p>‭<i class="fa fa-phone"></i> +91 7428532447</p>
-                            <p>‭<i class="fa fa-phone"></i> +91 9650702247</p>
+                            <p hidden>‭<i class="fa fa-phone"></i> +91 9650702247</p>
                         </div>
                     </div>
                 </div>
@@ -153,6 +153,37 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+
+        <div class="col-md-12">
+        <div class="modal-header col-md-6">
+            <h4 class="modal-title">For Spares / Accessories Purchase<br/>Pls Contact:</h4>
+        </div> 
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card col-md-6" style="padding: 10px 10px; height:150px;">
+                            <p>‭<i class="fa fa-phone"></i> +91 7428913247</p>
+                            <p>‭<i class="fa fa-phone"></i> +91 9910132247</p>
+                            <p>‭<i class="fa fa-envelope"></i> spare-purchase@247around.com</p>
+                            <p style="font-size: 100%;">‭ Order along with your SF name can be sent on Whatsapp also</p>   
+                        </div>
+                    </div>
+                </div>
+           <!--       <div class="col-md-6">
+                    <div class="card">
+                        <div class="card" style="padding: 10px 10px; height:110px;">
+                            <p>‭<i class="fa fa-envelope"></i> spare-approval@247around.com</p>
+                            <br>
+                            <p style="font-size: 85%;">‭ for sending
+                                        video in panel replacement and gas charging cases</p>
+                        </div>
+                    </div>
+                </div> -->
             </div>
         </div>
     </div>
