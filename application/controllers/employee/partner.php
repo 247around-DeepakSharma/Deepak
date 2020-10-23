@@ -1678,9 +1678,11 @@ class Partner extends CI_Controller {
                     //Sending Mail
                     if(!empty($from) && !empty($to))
                     {
-                        $this->notify->sendEmail($from, $to, $template[3] . "," . $cc, '', $subjectBody, $emailBody, "",'escalation_on_booking_from_partner_panel', "", $booking_id);
-                        //Logging
-                        log_message('info', " Escalation Mail Send successfully " . $emailBody);
+                        if(!$this->input->post("call_from_api")){
+                            $this->notify->sendEmail($from, $to, $template[3] . "," . $cc, '', $subjectBody, $emailBody, "",'escalation_on_booking_from_partner_panel', "", $booking_id);
+                            //Logging
+                            log_message('info', " Escalation Mail Send successfully " . $emailBody);
+                        }
                     }
                 } else {
                     //Logging Error Message
