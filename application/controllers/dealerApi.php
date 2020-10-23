@@ -654,7 +654,7 @@ function check_for_upgrade(){
                         }
                         $data['Bookings'][$key]['booking_distance'] = $distance;
                         if(!empty($value['service_center_closed_date'])){
-                          $data['Bookings'][$key]['booking_distance'] = date('Y-m-d',strtotime($value['service_center_closed_date']));  
+                          $data['Bookings'][$key]['service_center_closed_date'] = date('Y-m-d',strtotime($value['service_center_closed_date']));  
                         }
 
                         $unit_data = $this->booking_model->get_unit_details(array("booking_id" => $value['booking_id']), false, "appliance_brand, appliance_category, appliance_capacity,sf_model_number,model_number,serial_number,price_tags,customer_total,appliance_description");
