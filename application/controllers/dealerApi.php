@@ -33,7 +33,9 @@ class dealerApi extends CI_Controller {
         $this->load->model('partner_model');
         $this->load->model('engineer_model');
         $this->load->model("dealer_model");
+        $this->load->model("reusable_model");
         $this->load->model("service_centers_model");
+        $this->load->model('indiapincode_model');
         $this->load->library('notify');
         $this->load->library("miscelleneous");
         $this->load->library('booking_utilities');
@@ -378,14 +380,7 @@ class dealerApi extends CI_Controller {
             case 'dealerLogin':
                 $this->processDealerLogin();
                 break;
-            case 'getStates':
-                $this->getAllStates();
-                break;
-
-             case 'getStatesCities':
-                $this->getStatesCities();
-                break;
-
+            
             case 'searchData':
                 $this->getSearchData();
                 break;
@@ -412,6 +407,58 @@ class dealerApi extends CI_Controller {
 
             case 'submitEscalation':
                 $this->submitEscalation(); /* get Spare Details API */
+                break;
+            
+            case 'homeFilters':
+                $this->gethomeFilters(); /* get homeFilters API */
+                break;
+            
+            case 'homeDashboard':
+                $this->getHomeDashboard(); /* get getHomeDashboard API */
+                break;
+           
+            case 'getTopRatingSf':
+                $this->getTopRatingSfs(); /* get getTopRatingSfs API */
+                break;
+            
+            case 'getStateTATData':
+                $this->getStateTATData(); /* get getStateTATData API */
+                break;
+            
+            case 'registerUser':
+                $this->processUserRegister(); /* processUserRegister  API */
+                break;
+            
+            case 'getPartnerCompareData':
+                $this->getPartnerCompareTAT();
+                break;
+                
+            case 'getStateTATDetails':
+                $this->getStateDetailedTAT();
+                break;
+            
+            case 'getSFDetailedDashboardData':
+                $this->getSFDetailedData();
+                break;
+                
+            case 'getBookingCollaterals':
+                $this->getBookingDocuments();
+                break;
+            
+            case 'ForgetPassword':
+                $this->ProcessForgetPassword();
+                break;
+            
+            case 'UpdateUserDetail':
+                $this->ProcessUpdateUserDetail();
+                break;
+            
+            case 'verifyUserOTP':
+                $this->ProcessverifyUserOTP();
+                break;
+            
+            case 'ResendOTP':	
+                $this->ProcessResendOTP();	
                 break;
 
             default:
@@ -478,42 +525,52 @@ class dealerApi extends CI_Controller {
      * @response - json
      * @Author  - Abhishek Awasthi
      */ 
-
+    
     function processDealerLogin() {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //log_message('info', "Request Login: " .print_r($requestData,true));
-        $data = $this->dealer_model->entity_login(array("entity" => "dealer",
-            "active" => 1, "user_id" => $requestData["mobile"]));
+        $data = $this->dealer_model->retailer_login(array("active" => 1, "phone" => $requestData["mobile"]));
         if (!empty($data)) {
-            $login = $this->dealer_model->entity_login(array("active" => 1, "user_id" => $requestData["mobile"], "password" => md5($requestData["password"])));
+            $login = $this->dealer_model->retailer_login(array("active" => 1, "phone" => $requestData["mobile"], "password" => md5($requestData["password"])));
             if (!empty($login)) {
-          /*  Token Update */
-            
-            $update_dealer =array();
-            if(isset($requestData['device_firebase_token']) && !empty($requestData['device_firebase_token'])){
-                $update_dealer = array(
-                    'device_firebase_token' => $requestData['device_firebase_token']
-                );
-                }else{
-                $update_dealer = array(
-                    'device_firebase_token' => NULL
-                );  
-            }
+                /*  Token Update */
+                $check_if_otp_verified = $this->check_user_otp_verified($requestData['mobile']);
+                if ($check_if_otp_verified['status'] == 'success') {
+                    if (!empty($check_if_otp_verified['is_otp_verified'])) {
+                        $login[0]['is_otp_verified'] = 1;
+                    } else {
+                        $login[0]['is_otp_verified'] = 0;
+                        $login[0]['otp'] = $check_if_otp_verified['otp'];
+                    }
 
-            $this->dealer_model->update_dealer($update_dealer,array('dealer_id'=>$login[0]['entity_id']));
-////// LOGIN LOGIC ///
-                $this->jsonResponseString['response'] = $login[0];
-                $this->sendJsonResponse(array('0000', 'success'));
+                    $update_dealer = array();
+                    if (isset($requestData['device_firebase_token']) && !empty($requestData['device_firebase_token'])) {
+                        $update_dealer = array(
+                            'device_firebase_token' => $requestData['device_firebase_token']
+                        );
+                    } else {
+                        $update_dealer = array(
+                            'device_firebase_token' => NULL
+                        );
+                    }
 
+                    $this->dealer_model->update_retailer($update_dealer, array('phone' => $requestData["mobile"]));
+                    ////// LOGIN LOGIC ///
+                    $this->jsonResponseString['response'] = $login[0];
+                    $this->sendJsonResponse(array('0000', 'success'));
+                } else {
+                    $this->jsonResponseString['response'] = array();
+                    $this->sendJsonResponse(array('10024', $check_if_otp_verified['message'])); // send success response // 
+                }
             } else {
+                $this->jsonResponseString['response'] = array(); 
                 $this->sendJsonResponse(array('0013', 'Invalid User Id or Password'));
             }
         } else {
+            $this->jsonResponseString['response'] = array(); 
             $this->sendJsonResponse(array('0014', 'User Id does not exist or user not active'));
         }
     }
-
-
 
     /* @author Abhishek Awasthi
      *@Desc - This function is used to check app upgrade
@@ -541,84 +598,12 @@ function check_for_upgrade(){
 }
 
 
-    /**
-     *  @desc : This function is to get all states.
-     *
-     *  All the distinct states of India in Ascending order From Table state_code
-     *
-     *  @param : void
-     *  @return : json of states
-     *  @author : Abhishek Awasthi
-     */
-
-
-function getAllStates(){
-        $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        $validation = $this->validateKeys(array("entity_type"), $requestData);
-        $response=array();
-        if (!empty($requestData['entity_type'])) { 
-
-                if(!empty($requestData['entity_type']) == _247AROUND_DEALER_STRING){
-                    /// Will Come Dealer States Mapped ///
-                    $response =  $this->around_generic_lib->getDealerStateMapped($requestData['entity_id']);
-                }else{
-                    $result =  $this->around_generic_lib->getAllStates();
-                    $response = $result['data'];
-                }
-                
-                $this->jsonResponseString['response'] = $response;
-                $this->sendJsonResponse(array($response['code'], $response['message'])); // send success response //
-               
-        } else {
-            log_message("info", __METHOD__ . $validation['message']);
-            $this->jsonResponseString['response'] = array(); 
-            $this->sendJsonResponse(array("1002", "You are now allowed to perform action . Please login again!")); 
-        }
-
-}
-
-    /**
-     *  @desc : This function is to get all cities of state.
-     *
-     *  All the distinct states of India in Ascending order  
-     *
-     *  @param : void
-     *  @return : json of cities
-     *  @author : Abhishek Awasthi
-     */
- 
-
-function getStatesCities(){
-        $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        $validation = $this->validateKeys(array("state_code"), $requestData);
-        $response=array();
-        if (!empty($requestData['state_code'])) { 
-
-                if(!empty($requestData['entity_type']) == _247AROUND_DEALER_STRING){
-                    /// Will Come Dealer State Cities Mapped ///
-                    $response =  $this->around_generic_lib->getDealerStateCitiesMapped($requestData['entity_id'],$requestData['state_code']);
-                }else{
-                    $result =  $this->around_generic_lib->getStateCities($requestData['state_code']);
-                    $response = $result['data'];
-                }
-                //$response =  $this->around_generic_lib->getStateCities($requestData['state_code']); 
-                 $this->jsonResponseString['response'] = $response;
-                 $this->sendJsonResponse(array($response['code'], $response['message'])); // send success response //
-               
-        } else {
-            log_message("info", __METHOD__ . $validation['message']);
-            $this->jsonResponseString['response'] = array(); 
-            $this->sendJsonResponse(array("1002", "You are now allowed to perform action . Please login again!")); 
-        }
-}
-
-
-  /*
+/*
      * @Desc - This function is used to get booking deatails related to search value which is either booking id or user phone number
      * @param - $search_value
      * @response - json
      */
-          
+
     function getSearchData() {
         log_message("info", __METHOD__ . " Entering..");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
@@ -640,19 +625,15 @@ function getStatesCities(){
             $select = "services.services, users.phone_number,users.alternate_phone_number,users.name as name, users.phone_number, booking_details.*";
             $post['length'] = -1;
             if (!empty($booking_id)) {
-                $post['search_value'] = $booking_id;
+                $post['where'] = array('booking_details.booking_id' => $booking_id, 'nrn_approved' => 0);
+                // full booking text search
                 $post['column_search'] = array('booking_details.booking_id');
                 $post['order'] = array(array('column' => 0, 'dir' => 'asc'));
                 $post['order_performed_on_count'] = TRUE;
                 $post['column_order'] = array('booking_details.booking_id');
                 $post['unit_not_required'] = true;
-                $post['where']['nrn_approved'] = 0; // Do not Show booking which are NRN Approved //
-                if($requestData['entity_type']==_247AROUND_DEALER_STRING){
-                $post['where']['booking_details.dealer_id'] = $requestData['entity_id']; // if dealer then search for dealer ID 
-                }else{
-                $post['where']['booking_details.partner_id'] = $requestData['entity_id']; // IF partner then search for partner ID
-                }
                 
+
                 $data['Bookings'] = $this->booking_model->get_bookings_by_status($post, $select, array(), 2)->result_array();
             } else {
                 // Search   booking  on phone number
@@ -672,13 +653,18 @@ function getStatesCities(){
                         $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
                         }
                         $data['Bookings'][$key]['booking_distance'] = $distance;
-                        /** Cancel and Reschedule Reason **/
-                        $data['Bookings'][$key]['scheduled_reason'] = $value['reschedule_reason'];
-                        $data['Bookings'][$key]['cancelled_reason'] = $this->booking_model->cancelreason(array('id'=>$value['cancellation_reason']))[0]->reason;
+
                         $unit_data = $this->booking_model->get_unit_details(array("booking_id" => $value['booking_id']), false, "appliance_brand, appliance_category, appliance_capacity,sf_model_number,model_number,serial_number,price_tags,customer_total,appliance_description");
+                        if(!empty($unit_data)){
                         $data['Bookings'][$key]['appliance_brand'] = $unit_data[0]['appliance_brand'];
                         $data['Bookings'][$key]['appliance_category'] = $unit_data[0]['appliance_category'];
                         $data['Bookings'][$key]['appliance_capacity'] = $unit_data[0]['appliance_capacity'];
+                        }else{
+                            $data['Bookings'][$key]['appliance_brand'] = '';
+                            $data['Bookings'][$key]['appliance_category'] = '';
+                            $data['Bookings'][$key]['appliance_capacity'] = '';
+                            //Return blank if booking not found in booking unit details
+                        }
                         // Abhishek Send Spare Details of booking //
                         $spares_details = $this->around_generic_lib->getSpareDetailsOfBooking($value['booking_id']);
                         $data['Bookings'][$key]['spares'] =  $spares_details;
@@ -689,6 +675,8 @@ function getStatesCities(){
                             $data['Bookings'][$key]['service_center_booking_action_status'] = "InProcess";
                         }
                     }
+                    $data['Bookings'][$key]['is_booking_completed'] = $this->is_booking_completed($value['booking_id']);
+                    $data['Bookings'][$key]['can_booking_escalated'] = $this->can_booking_escalated($value['booking_id']);
                 }
                 $this->jsonResponseString['response'] = $data;
                 $this->sendJsonResponse(array('0000', "Details found successfully"));
@@ -712,7 +700,7 @@ function getStatesCities(){
 function getBookingDetails(){
 
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        $validation = $this->validateKeys(array("booking_id","appliance_id","is_repeat","show_all_capacity"), $requestData);
+        $validation = $this->validateKeys(array("entity_id","appliance_id","is_repeat","show_all_capacity"), $requestData);
         if (!empty($requestData['booking_id']) && !empty($requestData['appliance_id'])) { 
                 $response =  $this->around_generic_lib->getBookingDetails($requestData['booking_id'],$requestData['appliance_id'],$requestData['is_repeat'],$requestData['show_all_capacity']); 
                  $this->jsonResponseString['response'] = $response;
@@ -726,8 +714,137 @@ function getBookingDetails(){
 
 }
 
+     /*
+     * @Desc - This function is used to get Booking TAT of the dealer
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+     */
+function getHomeDashboard(){
+    
+       $requestData = json_decode($this->jsonRequestData['qsh'], true);
+       $validation = $this->validateKeys(array("entity_id","entity_type"), $requestData);       
+       
+          
+        if (!empty($requestData['entity_id']) && !empty($requestData['entity_type'])) {
+                     
+                    $state_with_cities = array();
+                    $response_state = $this->indiapincode_model->get_allstates();
+                    $citi['district'] = 'All';
+                    array_push($state_with_cities,array('state'=>'All','cities'=>array($citi)));
+                    foreach($response_state as $state){ 
+                    
+                            $cities = $this->indiapincode_model->getStateCities($state['state_code']);
+                        
+                    
+                    $state_with_cities[] = array('state'=>$state['state'],'cities'=>$cities);   
+                    } 
 
-  /*
+                    if(isset($requestData['status']) && !empty($requestData['status']) && $requestData['status']!='All'){
+                       $status= $requestData['status'];
+                    }else if($requestData['status']=='All'){
+                       $status="not_set";  
+                    }else{
+                        $status="not_set";
+                    }
+                    
+                    if(isset($requestData['service_id']) && !empty($requestData['service_id']) && $requestData['service_id']!='All'){
+                       $service_id = $requestData['service_id'];
+                    } else if($requestData['service_id']=='All'){
+                        $service_id ="not_set"; 
+                    }else{
+                       $service_id ="not_set";  
+                    }
+                   
+                    if(isset($requestData['request_type']) && !empty($requestData['request_type']) && $requestData['request_type']!='All'){
+                       $request_type = $this->get_value_for_request_type_text($requestData['request_type']);
+                    }else if($requestData['request_type']=='All'){
+                       $request_type ="not_set";  
+                    }else{
+                      $request_type ="not_set";  
+                    }
+                    
+                    if(isset($requestData['free_paid']) && !empty($requestData['free_paid']) && $requestData['free_paid']!='All'){
+                        $free_paid = $this->get_value_for_warranty_type_text($requestData['free_paid']);
+                    }else if($requestData['free_paid']=='All'){
+                       $free_paid ="not_set";  
+                    }else{
+                       $free_paid ="not_set";
+                    }
+                    
+                    if(isset($requestData['upcountry']) && !empty($requestData['upcountry']) && $requestData['upcountry']!='All'){
+                       $upcountry = $requestData['upcountry'];
+                    }else if($requestData['upcountry']=='All'){
+                       $upcountry ="not_set";  
+                    }else{
+                       $upcountry ="not_set";  
+                    }
+                    
+                    
+                    if(isset($requestData['partner_id']) && !empty($requestData['partner_id']) && $requestData['partner_id']!='All'){
+                       $partner_id = $requestData['partner_id'];
+                    }else if($requestData['partner_id']=='All'){
+                        $partner_id = "not_set";
+                    }else{
+                        $partner_id = "not_set"; 
+                    }
+                    
+                    
+                    if(isset($requestData['state']) && !empty($requestData['state']) && $requestData['state']!='All'){
+                        $state = $requestData['state'];
+                    }else if($requestData['state']=='All'){
+                        $state = "not_set";
+                    }else{
+                        $state = "not_set"; 
+                    }
+                    
+                    
+                    if(isset($requestData['city']) && !empty($requestData['city']) && $requestData['city']!='All'){
+                        $city = $requestData['city'];
+                    }else if($requestData['city']=='All'){
+                        $city = "not_set";
+                    }else{
+                        $city = "not_set"; 
+                    }
+                    
+                   
+                    $is_pending = 0;
+                    
+                    //Call curl for TAT
+                    $postData = array();
+                    $url = base_url() . "employee/dashboard/get_booking_tat_report/".$requestData['startDate']."/".$requestData['endDate']."/".$status."/".$service_id."/".$request_type."/".$free_paid."/".$upcountry."/RM/".$is_pending."/".$partner_id."/".$state."/".$city;
+                    $ch = curl_init($url);
+                    curl_setopt($ch, CURLOPT_HEADER, false);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch, CURLOPT_POST, true);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+                    $curl_response = json_decode(curl_exec($ch));   
+                    if($curl_response==null || empty($curl_response)){
+                    $curl_response['state_city'] = $state_with_cities;
+                    $this->jsonResponseString['response'] = $curl_response;
+                    $this->sendJsonResponse(array('0000', "Details not found")); // send success response //  
+                    }else{
+                     $curl_response->state_city = $state_with_cities;
+                     $this->jsonResponseString['response'] = $curl_response;
+                     $this->sendJsonResponse(array('0000', "Details found successfully")); // send success response //
+                    }
+              //  
+              //  $this->jsonResponseString['response'] = $curl_response;
+              //  $this->sendJsonResponse(array('0000', "Details found successfully")); // send success response //
+              
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("1005", "Booking Details Not Found !")); 
+        }  
+    
+}
+
+
+
+
+/*
      * @Desc - This function is used to get tracking details
      * @param - 
      * @response - json
@@ -818,23 +935,54 @@ function submitEscalation(){
 
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("entity_type","booking_id","escalation_reason_id"), $requestData);
+        if(!empty($requestData['mobile'])){
+        $mobile = $requestData['mobile'];
+        }else{
+          $mobile = '';
+        }
+        $fetch_user_detail = $this->dealer_model->fetch_retailer_detail('*', array('phone' => $mobile));
         if (!empty($requestData['entity_type'])) { 
+            $requestData['escalation_remarks'] = $requestData['escalation_remarks']." (Escalated by ".$fetch_user_detail[0]['phone']."- ".$fetch_user_detail[0]['first_name']." ".$fetch_user_detail[0]['last_name'].")";
                     $postData = array(
                         "escalation_reason_id" => $requestData['escalation_reason_id'],
-                        "escalation_remarks" => $requestData['escalation_remarks']
+                        "escalation_remarks" => $requestData['escalation_remarks'],
+                        "booking_id" => $requestData['booking_id'],
+                        "call_from_api" => true,
+                        "dealer_agent_id" => 10198,
+                        "dealer_agent_type" => 'dealer'
                     );
+                    $can_escalate = $this->can_booking_escalated($requestData['booking_id']);
+                    if (!empty($can_escalate)) {
+                    $where = array("booking_id" => $requestData['booking_id'], "escalation_reason" => $requestData['escalation_reason_id'],
+                       "create_date >=  curdate() " => NULL,  "create_date  between (now() - interval ".PARTNER_PENALTY_NOT_APPLIED_WITH_IN." minute) and now()" => NULL);
+                    $data =$this->vendor_model->getvendor_escalation_log($where, "*");
+
+               if(empty($data)){
+                   $this->dealer_model->save_booking_escalation_history(array('booking_id' => $requestData['booking_id'], 'retailer_id' => $fetch_user_detail[0]['id'], 'escalation_reason_id'=> $requestData['escalation_reason_id'], 'escalation_remarks' => $requestData['escalation_remarks']));
+                   
                     //Call curl for updating booking 
                     $url = base_url() . "employee/partner/process_escalation/".$requestData['booking_id'];
                     $ch = curl_init($url);
                     curl_setopt($ch, CURLOPT_HEADER, false);
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                     curl_setopt($ch, CURLOPT_POST, true);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
                     $curl_response = curl_exec($ch);
-                    curl_close($ch);
-  
-                 $this->jsonResponseString['response'] = $curl_response;
-                 $this->sendJsonResponse(array('0000', "Escalation details updated successfully")); // send success response //
+                    curl_close($ch);   
+                    $this->jsonResponseString['response'] = $curl_response;
+					$this->sendJsonResponse(array('0000', "Escalation details updated successfully")); // send success response //    
+                        }else{
+                            $this->jsonResponseString['response'] = array();
+                            $this->sendJsonResponse(array("1010", "Escalation Already done."));
+                        }
+                        
+                        
+                    }else{
+                        $this->jsonResponseString['response'] = array();
+                        $this->sendJsonResponse(array("1010", "This booking can not be escalated."));
+                    }
                
         } else {
             log_message("info", __METHOD__ . $validation['message']);
@@ -868,7 +1016,7 @@ function submitEscalation(){
             $post['is_original_inventory'] = 1;
             $post['spare_cancel_reason'] = 1;
             $post['wrong_part'] = 1;
-            $spare_data = $this->partner_model->get_spare_parts_by_any($select, $where, FALSE, FALSE, FALSE, $post, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
+            $spare_data = $this->partner_model->get_spare_parts_by_any($select, $where, FALSE, FALSE, FALSE, $post, TRUE, TRUE, TRUE, TRUE, TRUE, false);
             $spare_request = array();
             $spare_shipped = array();
             $spare_defective = array();
@@ -983,10 +1131,16 @@ function submitEscalation(){
                             if (!empty($expl_data[0])) {
 
                                 $kg = $expl_data[0] . ' KG ';
+                            }else{
+                                $kg = 0;
                             }
                             if (!empty($expl_data[1])) {
                                 $gm = $expl_data[1] . ' Gram';
+                            }else{
+                                $gm = 0;
                             }
+                        }else{
+                            $kg = $gm = '';
                         }
                         $spare_defective[$key]['sf_billable_weight'] = $kg . " " . $gm;
                     }
@@ -1048,7 +1202,122 @@ function submitEscalation(){
             $this->sendJsonResponse(array("1010", "Data Not Found !"));
         }
     }
+    
+    
+    
+    
      /*
+     * @Desc - This function is used to get Booking TAT on partner Comparison
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+     */
+function  getPartnerCompareTAT(){
+    
+       $requestData = json_decode($this->jsonRequestData['qsh'], true);
+       $validation = $this->validateKeys(array("entity_id","entity_type"), $requestData);         
+        if (!empty($requestData['partner_id_1']) && !empty($requestData['partner_id_1'])) {
+            
+                     if(isset($requestData['status']) && !empty($requestData['status']) && $requestData['status']!='All'){
+                       $status= $requestData['status'];
+                    }else if($requestData['status']=='All'){
+                       $status="not_set";  
+                    }else{
+                        $status="not_set";
+                    }
+                    
+                    if(isset($requestData['service_id']) && !empty($requestData['service_id']) && $requestData['service_id']!='All'){
+                       $service_id = $requestData['service_id'];
+                    } else if($requestData['service_id']=='All'){
+                        $service_id ="not_set"; 
+                    }else{
+                       $service_id ="not_set";  
+                    }
+                   
+                    if(isset($requestData['request_type']) && !empty($requestData['request_type']) && $requestData['request_type']!='All'){
+                       $request_type = $this->get_value_for_request_type_text($requestData['request_type']);
+                    }else if($requestData['request_type']=='All'){
+                       $request_type ="not_set";  
+                    }else{
+                      $request_type ="not_set";  
+                    }
+                    
+                    if(isset($requestData['free_paid']) && !empty($requestData['free_paid']) && $requestData['free_paid']!='All'){
+                       //$free_paid = $requestData['free_paid'];
+                       $free_paid = $this->get_value_for_warranty_type_text($requestData['free_paid']);
+                    }else if($requestData['free_paid']=='All'){
+                       $free_paid ="not_set";  
+                    }else{
+                       $free_paid ="not_set";
+                    }
+                    
+                    if(isset($requestData['upcountry']) && !empty($requestData['upcountry']) && $requestData['upcountry']!='All'){
+                       $upcountry = $requestData['upcountry'];
+                    }else if($requestData['upcountry']=='All'){
+                       $upcountry ="not_set";  
+                    }else{
+                       $upcountry ="not_set";  
+                    }
+                                        
+                    $partner_id_1 = $requestData['partner_id_1'];
+                    $partner_id_2 = $requestData['partner_id_2'];
+
+                    if(isset($requestData['state']) && !empty($requestData['state']) && $requestData['state']!='All'){
+                        $state = $requestData['state'];
+                    }else if($requestData['state']=='All'){
+                        $state = "not_set";
+                    }else{
+                        $state = "not_set"; 
+                    }
+                    
+                    
+                    if(isset($requestData['city']) && !empty($requestData['city']) && $requestData['city']!='All'){
+                        $city = $requestData['city'];
+                    }else if($requestData['city']=='All'){
+                        $city = "not_set";
+                    }else{
+                        $city = "not_set"; 
+                    }
+                    
+                   
+                    $is_pending = 0;
+                    
+                    //Call curl for TAT P1
+                    $postData = array();
+                    $url = base_url() . "employee/dashboard/get_booking_tat_report/".$requestData['startDate']."/".$requestData['endDate']."/".$status."/".$service_id."/".$request_type."/".$free_paid."/".$upcountry."/RM/".$is_pending."/".$partner_id_1."/".$state."/".$city;
+                    $ch = curl_init($url);
+                    curl_setopt($ch, CURLOPT_HEADER, false);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch, CURLOPT_POST, true);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+                    $curl_response_1 = json_decode(curl_exec($ch));   
+                    
+ // TAT P2
+                    $url2 = base_url() . "employee/dashboard/get_booking_tat_report/".$requestData['startDate']."/".$requestData['endDate']."/".$status."/".$service_id."/".$request_type."/".$free_paid."/".$upcountry."/RM/".$is_pending."/".$partner_id_2."/".$state."/".$city;
+                    $ch2 = curl_init($url2);
+                    curl_setopt($ch2, CURLOPT_HEADER, false);
+                    curl_setopt($ch2, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch2, CURLOPT_POST, true);
+                    curl_setopt($ch2, CURLOPT_SSL_VERIFYPEER, false);
+                    curl_setopt($ch2, CURLOPT_POSTFIELDS, http_build_query($postData));
+                    $curl_response_2 = json_decode(curl_exec($ch2));   
+                                        
+                    $response['partner_1'] = $curl_response_1;
+                    $response['partner_2'] = $curl_response_2;
+                    /// Sending Response ///
+                     $this->jsonResponseString['response'] = $response;
+                     $this->sendJsonResponse(array('0000', "Details found successfully")); // send success response //
+             
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("1005", "Booking Details Not Found !")); 
+        }  
+    
+}
+    
+      /*
      * @Desc - This function is used get dashboard filter data
      * @param - 
      * @response - json
@@ -1068,17 +1337,15 @@ function submitEscalation(){
                   $response['is_upcountry'] = array('not_set'=>'All','Yes'=>'Yes','No'=>'No');
                   $response['booking_status'] = array('not_set'=>'All','Completed'=>'Completed','Cancelled'=>'Cancelled');
                   
-                  $partner = array();
                   $all_option = array('id'=>'All','public_name'=>'All');
                   $partners = $this->partner_model->getpartner();
                   array_unshift($partners,$all_option);
-                  $response['partners'] = $partner;
+                  $response['partners'] = $partners;
                   
                   $serviceWhere['isBookingActive'] =1;
                   
-                  $services = array();
-                  $all_option_service = array('id'=>'All','public_name'=>'All');
-                  $partners = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
+                  $all_option_service = array('id'=>'All','services'=>'All');
+                  $services = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
                   array_unshift($services,$all_option_service);
                   $response['services'] = $services;
                 //  $response['services'] = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
@@ -1092,7 +1359,6 @@ function submitEscalation(){
         }
         
     }
-
     
       /*
      * @Desc - This function is used get States TAT Data
@@ -1123,7 +1389,7 @@ function submitEscalation(){
                     }
                    
                     if(isset($requestData['request_type']) && !empty($requestData['request_type']) && $requestData['request_type']!='All'){
-                       $request_type = $requestData['request_type'];
+                       $request_type = $this->get_value_for_request_type_text($requestData['request_type']);
                     }else if($requestData['request_type']=='All'){
                        $request_type ="not_set";  
                     }else{
@@ -1131,7 +1397,7 @@ function submitEscalation(){
                     }
                     
                     if(isset($requestData['free_paid']) && !empty($requestData['free_paid']) && $requestData['free_paid']!='All'){
-                       $free_paid = $requestData['free_paid'];
+                       $free_paid = $this->get_value_for_warranty_type_text($requestData['free_paid']);
                     }else if($requestData['free_paid']=='All'){
                        $free_paid ="not_set";  
                     }else{
@@ -1211,18 +1477,18 @@ function submitEscalation(){
                     foreach ($curl_response->TAT as $key=>$value){
                      $state =   $value->entity; 
                      if($state!='Total'){
-                     $return_data['D0'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_0_per,'count'=>$value->TAT_0)  ;
+                     $return_data['D0'][]  = array('state'=>ucwords($state),'percent'=>(int)$value->TAT_0_per,'count'=>$value->TAT_0)  ;
                      //$return['D0'][]['state'][]  = $value->TAT_0  ;
-                     $return_data['D1'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_1_per,'count'=>$value->TAT_1)  ;
-                     $return_data['D2'][] = array('state'=>ucwords($state),'percent'=>$value->TAT_2_per,'count'=>$value->TAT_2)  ;
-                     $return_data['D4'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_3_per,'count'=>$value->TAT_3)  ;
+                     $return_data['D1'][]  = array('state'=>ucwords($state),'percent'=>(int)$value->TAT_1_per,'count'=>$value->TAT_1)  ;
+                     $return_data['D2'][] = array('state'=>ucwords($state),'percent'=>(int)$value->TAT_2_per,'count'=>$value->TAT_2)  ;
+                     $return_data['D4'][]  = array('state'=>ucwords($state),'percent'=>(int)$value->TAT_3_per,'count'=>$value->TAT_3)  ;
                     }
                     }
                     }else{
-                     $return_data['D0'][]  = array()  ;
-                     $return_data['D1'][]  = array()  ;
-                     $return_data['D2'][] = array()  ;
-                     $return_data['D4'][]  = array()  ;
+                     $return_data['D0']  = array()  ;
+                     $return_data['D1']  = array()  ;
+                     $return_data['D2']  = array()  ;
+                     $return_data['D4']  = array()  ;
                         
                         
                     }
@@ -1239,29 +1505,41 @@ function submitEscalation(){
         
     }
     
+  
      /*
      * @Desc - This function is used get top 5 SFs
      * @param - 
      * @response - json
      * @Author  - Abhishek Awasthi
      */  
-    function getTopRatingSfs(){
+    function getTopRatingSfs() {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("mobile"), $requestData);
-        if (!empty($requestData['mobile'])) { 
-                 $response = $rating_data = $this->service_centers_model->get_vendor_rating_data_top_5();
-                 $this->jsonResponseString['response'] = $response;
-                 $this->sendJsonResponse(array('0000', "Ratings found successfully")); // send success response //
-               
+        if (!empty($requestData['mobile'])) {
+            $state = $city = '';
+            if (!empty($requestData['state']) && $requestData['state'] != 'All') {
+                $state = $requestData['state'];
+            }
+            if (!empty($requestData['city']) && $requestData['city'] != 'All') {
+                $city = $requestData['city'];
+            }
+            $response = $rating_data = $this->service_centers_model->get_vendor_rating_data_top_5($state,$city);
+            if (!empty($response)) {
+                $this->jsonResponseString['response'] = $response;
+                $this->sendJsonResponse(array('0000', "Ratings found successfully")); // send success response //
+            } else {
+                log_message("info", __METHOD__ . $validation['message']);
+                $this->jsonResponseString['response'] = array();
+                $this->sendJsonResponse(array("1008", "Rating details not found !"));
+            }
         } else {
             log_message("info", __METHOD__ . $validation['message']);
-            $this->jsonResponseString['response'] = array(); 
-            $this->sendJsonResponse(array("1008", "Rating details not found !")); 
+            $this->jsonResponseString['response'] = array();
+            $this->sendJsonResponse(array("1008", "Rating details not found !"));
         }
     }
     
     
-
     
       /*
      * @Desc - This function is used get  SFs TAT And other details
@@ -1294,7 +1572,7 @@ function submitEscalation(){
                     }
                    
                     if(isset($requestData['request_type']) && !empty($requestData['request_type']) && $requestData['request_type']!='All'){
-                       $request_type = $requestData['request_type'];
+                       $request_type = $this->get_value_for_request_type_text($requestData['request_type']);
                     }else if($requestData['request_type']=='All'){
                        $request_type ="not_set";  
                     }else{
@@ -1302,7 +1580,7 @@ function submitEscalation(){
                     }
                     
                     if(isset($requestData['free_paid']) && !empty($requestData['free_paid']) && $requestData['free_paid']!='All'){
-                       $free_paid = $requestData['free_paid'];
+                        $free_paid = $this->get_value_for_warranty_type_text($requestData['free_paid']);
                     }else if($requestData['free_paid']=='All'){
                        $free_paid ="not_set";  
                     }else{
@@ -1407,10 +1685,10 @@ function submitEscalation(){
                      $return_data['D4'][]  = array('percent'=>$curl_response[0]['TAT_3_per'],'count'=>$curl_response[0]['TAT_3'])  ;
 
                     }else{
-                     $return_data['D0'][]  = array()  ;
-                     $return_data['D1'][]  = array()  ;
-                     $return_data['D2'][] = array()  ;
-                     $return_data['D4'][]  = array()  ;
+                     $return_data['D0']  = array()  ;
+                     $return_data['D1']  = array()  ;
+                     $return_data['D2']  = array()  ;
+                     $return_data['D4']  = array()  ;
                         
                         
                     }
@@ -1427,29 +1705,493 @@ function submitEscalation(){
         
     }
     
+    
+    
+    
+    function processUserRegister() {
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);        
+        $validation = $this->validateKeys(array("mobile", "first_name", "password"), $requestData);
+        if (!empty($requestData['mobile'])) {
 
-    function processUserRegister(){
+            if (empty($requestData['email'])) {
+                $requestData['email'] = null;
+            }
+
+            $data = array(
+                'phone' => $requestData['mobile'],
+                'first_name' => $requestData['first_name'],
+                'last_name' => $requestData['last_name'],
+                'email' => $requestData['email'],
+                'password' => md5($requestData['password']),
+                'clear_password' => $requestData['password']);
+            $fetch_user_detail = $this->dealer_model->fetch_retailer_detail('id', array('phone' => $requestData['mobile']));
+            if (empty($fetch_user_detail)) {
+                $response = $this->dealer_model->processUserRegisterRetailer($data);
+                if ($response) {
+                    $check_if_otp_verified = $this->check_user_otp_verified($requestData['mobile']);
+                    if ($check_if_otp_verified['status'] == 'success') {
+                        $login = $this->dealer_model->retailer_login(array("active" => 1, "phone" => $requestData["mobile"]));
+                        if (!empty($check_if_otp_verified['is_otp_verified'])) {
+                            $login[0]['is_otp_verified'] = 1;
+                        } else {
+                            $login[0]['is_otp_verified'] = 0;
+                            $login[0]['otp'] = $check_if_otp_verified['otp'];
+                        }
+                        $this->jsonResponseString['response'] = $login[0];
+                        $this->sendJsonResponse(array('0000', "User registered successfully")); // send success response //
+                    } else {
+                        $this->jsonResponseString['response'] = array();
+                        $this->sendJsonResponse(array('10024', $check_if_otp_verified['message'])); // send success response // 
+                    }
+                } else {
+                    $this->jsonResponseString['response'] = array();
+                    $this->sendJsonResponse(array('10023', "User not registered successfully")); // send success response //
+                }
+            } else {
+                $this->jsonResponseString['response'] = array();
+                $this->sendJsonResponse(array('10024', "User Already registered.")); // send success response //
+            }
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array();
+            $this->sendJsonResponse(array("1022", "Error is user register !"));
+        }
+    }
+
+    /*
+     * @Desc - This function is used get Sbooking collatrals
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+     */    
+    
+       function getBookingDocuments() {
+        log_message("info", __METHOD__ . " Entering..");
+        $response = array();
+        $pdf_docs = array();
+        $video_docs = array();
+        $other_docs = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        $validation = $this->validateKeys(array("mobile","first_name","password"), $requestData);
-        if (!empty($requestData['mobile'])) { 
-                
-                $data = array(
-                     'phone'=> $requestData['mobile'],
-                     'first_name'=>$requestData['first_name'],
-                     'last_name' =>$requestData['last_name'],
-                     'email' =>$requestData['email'],
-                     'password'=>md5($requestData['password'])
-                     
-                 );
-                 $response =  $this->dealer_model->processUserRegisterRetailer($data);
-                 if($response){
-                 $login = $this->dealer_model->retailer_login(array("active" => 1, "phone" => $requestData["mobile"]));
-                 $this->jsonResponseString['response'] = $login[0];
-                 $this->sendJsonResponse(array('0000', "User registered successfully")); // send success response //
-                  
-                 }else{
-                 $this->jsonResponseString['response'] = array();
-                 $this->sendJsonResponse(array('10023', "User not registered successfully")); // send success response //
-                     
-                 }
+        if (!empty($requestData["booking_id"])) {
+            $documets = $this->service_centers_model->get_collateral_for_service_center_bookingsAPI($requestData["booking_id"]); /// Makeing seperate function for API
+            $i = 0;
+            foreach ($documets[0] as $key => $value) { 
+                if ($value['document_type'] == "pdf") {
+                    $pdf['document_type'] = $value['document_type'];
+                    $pdf['document_description'] = $value['document_description'];
+                   
+                    $pdf['brand'] = $value['brand'];
+                    $pdf['request_type'] = $value['request_type'];
+                    $pdf['file'] = COLLATERAL_S3_PATH_LIVE . $value['file'];
+                    array_push($pdf_docs, $pdf);
+                } else if ($value['document_type'] == "video") {
+                    $video['document_type'] = $value['document_type'];
+                    $video['document_description'] = $value['document_description'];
+                    
+                    $video['brand'] = $value['brand'];
+                    $video['request_type'] = $value['request_type'];
+                    $video['file'] = COLLATERAL_S3_PATH_LIVE . $value['file'];
+                    array_push($video_docs, $video);
+                } else {
+                    $others['document_type'] = $value['document_type'];
+                    $others['document_description'] = $value['document_description'];
+                   
+                    $others['brand'] = $value['brand'];
+                    $others['request_type'] = $value['request_type'];
+                    $others['file'] = COLLATERAL_S3_PATH_LIVE . $value['file'];
+                    array_push($other_docs, $others);
+                }
+                $i++;
+            }
+
+            $response['pdf'] = $pdf_docs;
+            $response['video'] = $video_docs;
+            $response['others'] = $other_docs;
+
+            log_message("info", __METHOD__ . "Helping Documents Found Successfully");
+            $this->jsonResponseString['response'] = $response;
+            $this->sendJsonResponse(array('0000', 'success'));
+        } else {
+            log_message("info", __METHOD__ . "Booking Id not found - " . $requestData["booking_id"]);
+            $this->sendJsonResponse(array('0029', 'Booking Id not found'));
+        }
+    }
+
+    
+    
+    
+    
+     /*
+     * @Desc - This function is used get States TAT Data
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+     */    
+    function getStateTATData(){
+      
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("entity_type"), $requestData);
+        if (!empty($requestData['entity_type'])) { 
+            
+                   if(isset($requestData['status']) && !empty($requestData['status']) && $requestData['status']!='All'){
+                       $status= $requestData['status'];
+                    }else if($requestData['status']=='All'){
+                       $status="not_set";  
+                    }else{
+                        $status="not_set";
+                    }
+                    
+                    if(isset($requestData['service_id']) && !empty($requestData['service_id']) && $requestData['service_id']!='All'){
+                       $service_id = $requestData['service_id'];
+                    } else if($requestData['service_id']=='All'){
+                        $service_id ="not_set"; 
+                    }else{
+                       $service_id ="not_set";  
+                    }
+                   
+                    if(isset($requestData['request_type']) && !empty($requestData['request_type']) && $requestData['request_type']!='All'){
+                       $request_type = $this->get_value_for_request_type_text($requestData['request_type']);
+                    }else if($requestData['request_type']=='All'){
+                       $request_type ="not_set";  
+                    }else{
+                      $request_type ="not_set";  
+                    }
+                    
+                    if(isset($requestData['free_paid']) && !empty($requestData['free_paid']) && $requestData['free_paid']!='All'){
+                       $free_paid = $this->get_value_for_warranty_type_text($requestData['free_paid']);
+                    }else if($requestData['free_paid']=='All'){
+                       $free_paid ="not_set";  
+                    }else{
+                       $free_paid ="not_set";
+                    }
+                    
+                    if(isset($requestData['upcountry']) && !empty($requestData['upcountry']) && $requestData['upcountry']!='All'){
+                       $upcountry = $requestData['upcountry'];
+                    }else if($requestData['upcountry']=='All'){
+                       $upcountry ="not_set";  
+                    }else{
+                       $upcountry ="not_set";  
+                    }
+                    
+                    
+                    if(isset($requestData['partner_id']) && !empty($requestData['partner_id']) && $requestData['partner_id']!='All'){
+                       $partner_id = $requestData['partner_id'];
+                    }else if($requestData['partner_id']=='All'){
+                        $partner_id = "not_set";
+                    }else{
+                        $partner_id = "not_set"; 
+                    }
+                    
+                    
+                    if(isset($requestData['state']) && !empty($requestData['state']) && $requestData['state']!='All'){
+                        $state = $requestData['state'];
+                    }else if($requestData['state']=='All'){
+                        $state = "not_set";
+                    }else{
+                        $state = "not_set"; 
+                    }
+                    
+                    
+                    if(isset($requestData['city']) && !empty($requestData['city']) && $requestData['city']!='All'){
+                        $city = $requestData['city'];
+                    }else if($requestData['city']=='All'){
+                        $city = "not_set";
+                    }else{
+                        $city = "not_set"; 
+                    }
+                    
+                   if(isset($requestData['startDate']) && !empty($requestData['startDate'])){
+                        $startDate = $requestData['startDate'];
+                    }else{
+                        $startDate = date('Y-m-d', strtotime('-30 days'));
+                    }
+                    
+                    if(isset($requestData['endDate']) && !empty($requestData['endDate'])){
+                        $endDate = $requestData['endDate'];
+                    }else{
+                        $endDate = date("Y-m-d");
+                    }
+                    
+                   
+                    $is_pending = 0;
+            
+                   $postData = array(
+                      //  "escalation_reason_id" => $requestData['escalation_reason_id'],
+                        "call_from_api" => TRUE,
+                        "status" => $status,
+                        "startDate" => $startDate,
+                        "endDate" => $endDate,
+                        "services" => $service_id,
+                        "request_type" => $request_type,
+                        "partner_id" => $partner_id,
+                        "upcountry" => $upcountry,
+                        "free_paid" => $free_paid,
+                        "state" => $state,
+                        "city" => $city
+                    );
+                   
+                    //Call curl for updating booking 
+                    $url = base_url() . "employee/dashboard/tat_calculation_full_view/00/0/0/".$is_pending;
+                    $ch = curl_init($url);
+                    curl_setopt($ch, CURLOPT_HEADER, false);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch, CURLOPT_POST, true);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+                    $curl_response = json_decode(curl_exec($ch));
+                    curl_close($ch);
+                    
+                    if(!empty($curl_response)){
+                    foreach ($curl_response->TAT as $key=>$value){
+                     $state =   $value->entity; 
+                     if($state!='Total'){
+                     $return_data['D0'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_0_per)  ;
+                     //$return['D0'][]['state'][]  = $value->TAT_0  ;
+                     $return_data['D1'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_1_per)  ;
+                     $return_data['D2'][] = array('state'=>ucwords($state),'percent'=>$value->TAT_2_per)  ;
+                     $return_data['D4'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_3_per)  ;
+                     //$return['D1'][]['state'][]  = $value->TAT_1  ;
+                    }
+                    }
+                    }else{
+                      $return_data['D0']  = array();
+                      $return_data['D1']  = array();
+                      $return_data['D2']  = array();
+                      $return_data['D3']  = array();
+                    }
+                    $this->jsonResponseString['response'] = $return_data;
+                    $this->sendJsonResponse(array('0000', "Data found successfully"));
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("1018", "Data not found !")); 
+        }
+        
+        
+    }
+    
+    /*
+     * @Desc - This function is used check is user OTP is verified / not verified
+     * @param - 
+     * @response - json
+     * @Author  - Ghanshyam Ji Gupta
+     */
+    function ProcessForgetPassword() {
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("mobile"), $requestData);
+        $fetch_user_detail = $this->dealer_model->fetch_retailer_detail('id,is_otp_verified,phone', array('phone' => $requestData['mobile']));
+        if (!empty($fetch_user_detail)) {
+            $otp = rand(1000, 9999);
+            $sms['tag'] = "retailer_password_recovery";
+            $sms['smsData']['otp'] = $otp;
+            $sms['phone_no'] = $fetch_user_detail[0]['phone'];
+            $sms['booking_id'] = "";
+            $sms['type'] = "dealer";
+            $sms['type_id'] = $fetch_user_detail[0]['id'];
+            $send_SMS = $this->notify->send_sms_msg91($sms);
+            $this->jsonResponseString['response'] = array('otp' => $otp);
+            $this->sendJsonResponse(array('0000', 'OTP send successfully'));
+        } else {
+            $this->jsonResponseString['response'] = array();
+            $this->sendJsonResponse(array('0013', 'User does not exist'));
+        }
+    }
+    
+    /*
+     * @Desc - This function is used to update user profile
+     * @param - 
+     * @response - json
+     * @Author  - Ghanshyam Ji Gupta
+     */
+    function ProcessUpdateUserDetail() {
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("mobile"), $requestData);
+        $fetch_user_detail = $this->dealer_model->fetch_retailer_detail('id,is_otp_verified', array('phone' => $requestData['mobile']));
+        if (!empty($fetch_user_detail)) {
+            $message = "Details Updated Successfully";
+            $arrayUpdate = array();
+            if (!empty($requestData['password'])) {
+                $arrayUpdate['password'] = md5($requestData['password']);
+                $arrayUpdate['clear_password'] = $requestData['password'];
+                $message = "Password Updated Successfully";
+            }
+            if (!empty($arrayUpdate)) {
+                $this->dealer_model->update_retailer($arrayUpdate, array('phone' => $requestData["mobile"]));
+            }
+            $this->jsonResponseString['response'] = $fetch_user_detail[0];
+            $this->sendJsonResponse(array('0000', $message));
+        } else {
+            $this->jsonResponseString['response'] = array();
+            $this->sendJsonResponse(array('0013', 'User does not exist'));
+        }
+    }
+
+    /*
+     * @Desc - This function is used check is user OTP is verified / not verified
+     * @param - 
+     * @response - json
+     * @Author  - Ghanshyam Ji Gupta
+     */
+    function check_user_otp_verified($mobile_number) {
+        $fetch_user_detail = $this->dealer_model->fetch_retailer_detail('id,is_otp_verified,phone', array('phone' => $mobile_number));
+        if (!empty($fetch_user_detail)) {
+            if (empty($fetch_user_detail[0]['is_otp_verified'])) {
+
+                $otp = rand(1000, 9999);
+                $sms['tag'] = "retailer_registration";
+                $sms['smsData']['otp'] = $otp;
+                $sms['phone_no'] = $fetch_user_detail[0]['phone'];
+                $sms['booking_id'] = "";
+                $sms['type'] = "dealer";
+                $sms['type_id'] = $fetch_user_detail[0]['id'];
+
+                $send_SMS = $this->notify->send_sms_msg91($sms);
+                $this->dealer_model->update_retailer(array('otp' => $otp), array('phone' => $mobile_number));
+                $array['status'] = 'success';
+                $array['is_otp_verified'] = 0;
+                $array['otp'] = $otp;
+
+            } else {
+                $array['status'] = 'success';
+                $array['is_otp_verified'] = 1;
+            }
+        } else {
+            $array['status'] = 'error';
+            $array['message'] = 'User not registered';
+        }
+        return $array;
+    }
+    /*
+     * @Desc - This function is used to check if booking is completed
+     * @param - 
+     * @response - json
+     * @Author  - Ghanshyam Ji Gupta
+     */    
+    function is_booking_completed($booking_id) {
+        $completed = false;
+        $booking_select = "booking_id,service_center_closed_date";
+        $booking_where = array("booking_id" => $booking_id);
+        $booking_details = $this->engineer_model->get_booking_details($booking_select, $booking_where);
+        if (!empty($booking_details[0]['service_center_closed_date'])) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    /*
+     * @Desc - This function is used to Verify OTP at time of registration
+     * @param - 
+     * @response - json
+     * @Author  - Ghanshyam Ji Gupta
+     */
+
+    function ProcessverifyUserOTP() {
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("mobile", "otp"), $requestData);
+        $fetch_user_detail = $this->dealer_model->fetch_retailer_detail('*', array('phone' => $requestData['phone']));
+        if (!empty($fetch_user_detail)) {
+            if ($fetch_user_detail[0]['otp'] == $requestData['otp']) {
+                if (empty($fetch_user_detail[0]['is_otp_verified'])) {
+                    $this->dealer_model->update_retailer(array('is_otp_verified' => 1), array('phone' => $requestData['phone']));
+                    $fetch_user_detail[0]['is_otp_verified'] = 1;
+                    $this->jsonResponseString['response'] = $fetch_user_detail[0];
+                    $this->sendJsonResponse(array('0000', 'OTP verified successfully'));
+                } else {
+                    $this->jsonResponseString['response'] = array();
+                    $this->sendJsonResponse(array('0015', 'OTP already verfied. Please login.'));
+                }
+            } else {
+                $this->jsonResponseString['response'] = array();
+                $this->sendJsonResponse(array('0014', 'Wrong OTP entered. Please try again.'));
+            }
+        } else {
+            $this->jsonResponseString['response'] = array();
+            $this->sendJsonResponse(array('0013', 'Mobile number not found.'));
+        }
+    }
+    /*
+     * @Desc - This function is used to check wheter booking can be escalated or not (Added condition as per CRM)
+     * @param -
+     * @response - json
+     * @Author  - Ghanshyam Ji Gupta
+     */
+    function can_booking_escalated($booking_id) {
+        $select = "services.services, service_centres.name as service_centre_name,
+            service_centres.primary_contact_phone_1, service_centres.primary_contact_name,
+            users.phone_number, users.name as customername,booking_details.type,
+            users.phone_number, booking_details.*,penalty_on_booking.active as penalty_active, users.user_id,booking_unit_details.*, booking_details.id as booking_primary_id";
+
+        $post['search_value'] = $booking_id;
+        $post['column_search'] = array('booking_details.booking_id');
+        $post['order'] = array(array('column' => 0, 'dir' => 'asc'));
+        $post['order_performed_on_count'] = TRUE;
+        $post['column_order'] = array('booking_details.booking_id');
+        $post['length'] = -1;
+
+        $Bookings = $this->booking_model->get_bookings_by_status($post, $select);
+
+        $data = search_for_key($Bookings);
+        if ((isset($data['FollowUp']) || isset($data['Pending'])) && empty($Bookings[0]->nrn_approved)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    /*
+     * @Desc - This function is used to return key of value for request type array
+     * @param -
+     * @response - json
+     * @Author  - Ghanshyam Ji Gupta
+     */
+    function get_value_for_request_type_text($request_type){
+        $request_type_array = array('Installation'=>'Installations','Repair_with_part'=>'Repair With Spare','Repair_without_part'=>'Repair Without Spare');
+        $request_type = array_search($request_type, $request_type_array);
+        return $request_type;
+    }
+     /*
+     * @Desc - This function is used to return key of value for warranty array
+     * @param -
+     * @response - json
+     * @Author  - Ghanshyam Ji Gupta
+     */
+    function get_value_for_warranty_type_text($warranty_type){
+        $warrantyArray = array('not_set'=>'All','Yes'=>'Yes (In Warranty)','No'=>'No (Out Of Warranty)');
+        $free_paid = array_search($warranty_type, $$warrantyArray);
+        return $free_paid;
+    }
+    function ProcessResendOTP() {	
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);	
+        $validation = $this->validateKeys(array("mobile"), $requestData);	
+        $fetch_user_detail = $this->dealer_model->fetch_retailer_detail('*', array('phone' => $requestData['mobile']));	
+        $type = $requestData['type'];	
+        if (!empty($fetch_user_detail)) {	
+            if (in_array($type, array('password_recovery', 'new_registration'))) {	
+                if ($type == 'password_recovery') {	
+                    $otp = rand(1000, 9999);	
+                    $sms['tag'] = "retailer_password_recovery";	
+                    $sms['smsData']['otp'] = $otp;	
+                    $sms['phone_no'] = $fetch_user_detail[0]['phone'];	
+                    $sms['booking_id'] = "";	
+                    $sms['type'] = "dealer";	
+                    $sms['type_id'] = $fetch_user_detail[0]['id'];	
+                    $send_SMS = $this->notify->send_sms_msg91($sms);	
+                    $this->jsonResponseString['response'] = array('otp' => $otp);	
+                    $this->sendJsonResponse(array('0000', 'OTP send successfully'));	
+                } else {	
+                    $resendOTP = $this->check_user_otp_verified($requestData['mobile']);	
+                    $otp = $resendOTP['otp'];	
+                    $this->jsonResponseString['response'] = array('otp' => $otp);	
+                    $this->sendJsonResponse(array('0000', 'OTP send successfully'));	
+                }	
+            } else {	
+                $this->jsonResponseString['response'] = array();	
+                $this->sendJsonResponse(array('0013', 'Invalid type'));	
+            }	
+        } else {	
+            $this->jsonResponseString['response'] = array();	
+            $this->sendJsonResponse(array('0013', 'User does not exist'));	
+        }	
+    }
+
 }

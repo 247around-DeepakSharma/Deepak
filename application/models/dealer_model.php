@@ -27,6 +27,8 @@ class Dealer_model extends CI_Model {
             return false;
         }
     }
+    
+
 
     function get_dealer_mapping_details($condition, $select){
         $this->db->distinct();
@@ -116,6 +118,54 @@ class Dealer_model extends CI_Model {
         $insert_id = $this->db->insert_id();
         return  $insert_id;
     }
+    
+     /**
+     * @desc: This is used insert in retailer login table
+     * @param $data array
+     * @param $where array
+     * @return boolean
+     */
+    function processUserRegisterRetailer($data){
+         $this->db->insert("retailer_login", $data);
+        $insert_id = $this->db->insert_id();
+        return  $insert_id;  
+        
+    }
+    
+ 
+   /**
+     * @desc: This is used to retailer login
+     * @param $data array
+     * @param $where array
+     * @return boolean
+    * 
+     */      
+    function retailer_login($data) {
+        $this->db->select('*');
+        $this->db->where($data);
+        $query = $this->db->get('retailer_login');
+        if ($query->num_rows() > 0) {
+            $result = $query->result_array();
+            return $result;
+        } else {
+
+            return false;
+        }
+    }
+    
+    
+        /**
+     * @desc: This is used to update the dealer details
+     * @param $data array
+     * @param $where array
+     * @return boolean
+     */
+    function update_retailer($data,$where){
+        $this->db->where($where);
+        return $this->db->update('retailer_login', $data);
+    }
+    
+    
     
     /**
      * @desc: This is used to get the dealer details by any 
@@ -233,7 +283,8 @@ class Dealer_model extends CI_Model {
     function getDealerStatesCities($entity, $state_code){
         $cities =array();
          ///  Will come when mappping is done //
-         return  $cities;
+        $cities =  $this->db->get_where('dealer_brand_mapping', array('dealer_id =' => '$entity'))->result_array();
+        return  $cities;
 
     }
 
@@ -249,7 +300,7 @@ class Dealer_model extends CI_Model {
         if($entity_type == _247AROUND_DEALER_STRING){
 
          $sql = "SELECT DISTINCT services.services, users.phone_number, users.name as name, users.phone_number, booking_details.* "
-             . "FROM (`users`) JOIN `booking_details` ON `booking_details`.`user_id` = `users`.`user_id` AND `booking_details`.`dealer_id` = '".$enitity_id."'"
+             . "FROM (`users`) JOIN `booking_details` ON `booking_details`.`user_id` = `users`.`user_id`"
              . "JOIN `services` ON `services`.`id` = `booking_details`.`service_id`"
              . " WHERE `users`.`phone_number` = '".$phone_number."' OR booking_details.booking_primary_contact_no = '".$phone_number."' OR booking_details.booking_alternate_contact_no = '".$phone_number."'"
              . " ORDER BY `booking_details`.`create_date` DESC";
@@ -268,7 +319,34 @@ class Dealer_model extends CI_Model {
         return $query->result_array();
 
     }
-
-
+     /**
+     * @desc: This is used to update the dealer details
+     * @param $data array
+     * @param $where array
+     * @return boolean
+     */
+    function fetch_retailer_detail($select,$where=array()){
+        if($where !== ''){
+           $this->db->where($where);
+        }
+        $this->db->select($select);
+        $this->db->from('retailer_login');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    /**
+     * @desc: This is used to update the dealer details
+     * @param $data array
+     * @param $where array
+     * @return boolean
+     * Ghanshyam
+     */
+    function save_booking_escalation_history($data = '') {
+        if (!empty($data)) {
+            $this->db->insert("booking_escalation_history", $data);
+            $insert_id = $this->db->insert_id();
+            return $insert_id;
+        }
+    }
 
 }
