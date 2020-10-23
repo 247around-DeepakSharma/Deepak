@@ -543,7 +543,8 @@ class dealerApi extends CI_Controller {
                         $login[0]['otp'] = $check_if_otp_verified['otp'];
                     }
 
-                    $update_dealer = array();
+                    $update_dealer = array('app_version'=> $requestData['app_version'],'deviceInfo' => $requestData['deviceInfo']);
+                    
                     if (isset($requestData['device_firebase_token']) && !empty($requestData['device_firebase_token'])) {
                         $update_dealer = array(
                             'device_firebase_token' => $requestData['device_firebase_token']
@@ -1726,7 +1727,13 @@ function  getPartnerCompareTAT(){
                 'last_name' => $requestData['last_name'],
                 'email' => $requestData['email'],
                 'password' => md5($requestData['password']),
-                'clear_password' => $requestData['password']);
+                'clear_password' => $requestData['password'],
+                'app_version'=> $requestData['app_version'],
+                'deviceInfo' => $requestData['deviceInfo']
+                );
+            if(!empty($requestData['device_firebase_token'])){
+              $data['device_firebase_token'] =   $requestData['device_firebase_token'];
+            }
             $fetch_user_detail = $this->dealer_model->fetch_retailer_detail('id', array('phone' => $requestData['mobile']));
             if (empty($fetch_user_detail)) {
                 $response = $this->dealer_model->processUserRegisterRetailer($data);
