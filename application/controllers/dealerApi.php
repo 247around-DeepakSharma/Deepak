@@ -554,7 +554,9 @@ class dealerApi extends CI_Controller {
                             'device_firebase_token' => NULL
                         );
                     }
-
+                    //$update_dealer = array('app_version'=> $requestData['app_version'],'deviceInfo' => $requestData['deviceInfo']);
+                    $update_dealer['app_version'] = $requestData['app_version'];
+                    $update_dealer['deviceInfo'] = $requestData['deviceInfo'];
                     $this->dealer_model->update_retailer($update_dealer, array('phone' => $requestData["mobile"]));
                     ////// LOGIN LOGIC ///
                     $this->jsonResponseString['response'] = $login[0];
