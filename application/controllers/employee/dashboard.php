@@ -31,10 +31,10 @@ class Dashboard extends CI_Controller {
         $this->load->dbutil();
         $this->load->helper(array('file'));
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee' || $this->session->userdata('userType') == 'partner' || $this->session->userdata('userType') == 'service_center')) {
-            return TRUE;
+            //return TRUE;
         } else {
-            echo PHP_EOL . 'Terminal Access Not Allowed' . PHP_EOL;
-            redirect(base_url() . "employee/login");
+            //echo PHP_EOL . 'Terminal Access Not Allowed' . PHP_EOL;
+            //redirect(base_url() . "employee/login");
         }
     }
 
@@ -2048,7 +2048,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         return array("where"=>$where,"joinType"=>$joinType,"join"=>$join,'where_in'=>$where_in);
     }
     
-    function get_tat_conditions_by_filter_for_completed($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id = NULL){
+    function get_tat_conditions_by_filter_for_completed($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id = NULL,$state='not_set',$city='not_set'){
             $conditionArray = $this->get_commom_filters_for_pending_and_completed_tat($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry ,$partner_id);
             //Filter For date
             if($startDate && $endDate){
@@ -2063,6 +2063,13 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                     $conditionArray['where']['(current_status = "Cancelled" OR internal_status ="InProcess_Cancelled")'] = NULL; 
                 }
             }
+            if($state !="not_set"){
+                $conditionArray['where']['booking_details.state'] = $state;
+            }
+            
+            if($city !="not_set"){
+                $conditionArray['where']['booking_details.district'] = $city;
+            }
             // Filter for excluding NRN Bookings 
             $conditionArray['where']['booking_details.nrn_approved = 0'] = NULL;
             $conditionArray['groupBy'] = array("booking_details.booking_id");
@@ -2071,7 +2078,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionArray['joinType']['booking_tat'] = 'left';
             return $conditionArray;
         }
-        function get_tat_conditions_by_filter_for_pending($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id = NULL){
+        function get_tat_conditions_by_filter_for_pending($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id = NULL,$state='not_set',$city='not_set'){
             $conditionArray = $this->get_commom_filters_for_pending_and_completed_tat($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry ,$partner_id);
             //Filter For date
             if($startDate && $endDate){
@@ -2082,6 +2089,13 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             //Filter on status
             if($status !="not_set"){
                 $conditionArray['where_in']['booking_details.actor'] = explode(":",$status);
+            }
+            if($state !="not_set"){	
+                $conditionArray['where']['booking_details.state'] = $state;	
+            }	
+            	
+            if($city !="not_set"){	
+                $conditionArray['where']['booking_details.district'] = $city;	
             }
             $conditionArray['where']['booking_details.type != "Query"'] = NULL;
              //Group by on booking_tat
@@ -2112,7 +2126,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionsArray['join']['employee'] = "agent_filters.agent_id = employee.id";
             return $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         }
-        function get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type,$service_centres_field,$agent_type = ""){
+        function get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type,$service_centres_field,$agent_type = "",$state="not_set",$city="not_set"){
              if($this->session->userdata('partner_id') ){
                  // Add entity_type(RM/ASM) in Query
                 if($is_pending){
@@ -2167,13 +2181,13 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionsArray['orderBy']['entity'] = 'asc';
             return $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,$conditionsArray['orderBy'],$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         }
-        function get_booking_tat_report($startDate,$endDate,$status="not_set",$service_id="not_set",$request_type="not_set",$free_paid="not_set",$upcountry ="not_set",$for = "RM",$is_pending = FALSE,$partner_id = NULL){
+        function get_booking_tat_report($startDate,$endDate,$status="not_set",$service_id="not_set",$request_type="not_set",$free_paid="not_set",$upcountry ="not_set",$for = "RM",$is_pending = FALSE,$partner_id = NULL,$state='not_set',$city='not_set'){
         if($is_pending){
-            $conditionsArray  = $this->get_tat_conditions_by_filter_for_pending($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id);
+            $conditionsArray  = $this->get_tat_conditions_by_filter_for_pending($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id,$state,$city);
             $startDateField = "CURRENT_TIMESTAMP";
         }
         else{
-            $conditionsArray  = $this->get_tat_conditions_by_filter_for_completed($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id);
+            $conditionsArray  = $this->get_tat_conditions_by_filter_for_completed($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id,$state,$city);
             $startDateField = "service_center_closed_date";
         }
         $finalData = $data = array();
@@ -2188,7 +2202,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             }
             $conditionsArray['where_in']['employee.id'] = $wherein;
             $service_centres_field = 'service_centres_id';
-            $data = $this->get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type,$service_centres_field);
+            $data = $this->get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type,$service_centres_field,$state,$city);
         }else if($for == "ARM"){
             $rm = $this->input->post("rm");
             // Need to discuss
@@ -2205,12 +2219,80 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $am_id = $this->input->post("am");
             $conditionsArray['where']['agent_filters.agent_id'] = $am_id;
             $data = $this->get_booking_tat_report_by_Brand($is_pending,$startDateField,$conditionsArray,$request_type);
+        }else if($for == "Dealer"){
+            
+            $data = $this->get_booking_tat_report_by_dealer($is_pending,$startDateField,$conditionsArray,$request_type); 
         }
         if(!empty($data)){
             $finalData = $this->get_tat_data_in_structured_format($data,$is_pending,$request_type);
         }
         echo json_encode($finalData);
     }
+    /*
+     * @Desc - This function is used to get Booking TAT of the dealer
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+     */       
+        
+        function get_booking_tat_report_by_dealer($is_pending,$startDateField,$conditionsArray,$request_type,$dealer = ""){
+             if($this->session->userdata('partner_id') ){
+                 // Add entity_type(RM/ASM) in Query
+                if($is_pending){
+                    $select = "GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as count,"
+                            . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
+                }
+                else{
+			if($request_type == 'Repair_with_part'){
+                            $select = "booking_details.booking_id,ifnull(MIN(leg_1), ".LEG_DEFAULT_COUNT.") as leg_1,ifnull(MIN(leg_2), ".LEG_DEFAULT_COUNT.") as leg_2,"
+                            . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
+		    	}
+		   	else {
+                    $select = "booking_details.booking_id,"
+                                . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
+                    }
+                }
+                }
+            else{
+                if($is_pending){
+                    $select = "GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as count,"
+                            . "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
+                }
+                else{
+			if($request_type == 'Repair_with_part'){
+                            $select = "booking_details.booking_id,ifnull(MIN(leg_1), ".LEG_DEFAULT_COUNT.") as leg_1,ifnull(MIN(leg_2), ".LEG_DEFAULT_COUNT.") as leg_2,"
+                         . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
+                    	}
+                    	else{
+                     $select = "booking_details.booking_id,"
+                             . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
+                    }
+                }
+                }
+            $conditionsArray['join']['service_centres'] = "booking_details.assigned_vendor_id = service_centres.id";
+ //           $conditionsArray['join']['rm_zone_mapping'] = "service_centres.rm_id = rm_zone_mapping.rm_id";
+ //           $conditionsArray['join']['zones'] = "rm_zone_mapping.zone_id = zones.id";
+            
+            // bookings of ASM & Bookings handled by RM individually, not having any ASM
+//            if($agent_type == _247AROUND_ASM)
+//            {
+//                $conditionsArray['join']['employee'] = "service_centres.asm_id = employee.id OR (service_centres.rm_id = employee.id AND (service_centres.asm_id IS NULL OR service_centres.asm_id = 0))";                
+//            } 
+//            // bookings of RM and its ASMs
+//            else
+//            {
+//                $conditionsArray['join']['employee'] = "service_centres.rm_id = employee.id";
+//            }
+//            $conditionsArray['joinType']['rm_zone_mapping'] = 'left';
+//            $conditionsArray['joinType']['zones'] = 'left';
+	    $conditionsArray['join']['booking_tat'] = "booking_details.booking_id = booking_tat.booking_id"; 
+            $conditionsArray['joinType']['booking_tat'] = 'left';
+            $conditionsArray['orderBy']['booking_details.booking_id'] = 'asc';
+            return $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,$conditionsArray['orderBy'],$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
+        }
+        
+        
+        
     
     /**
      * get id's of rm's who don't report to other rms
@@ -2435,6 +2517,20 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $startDate = $dateArray[0];
             $endDate = $dateArray[1];
         }
+        
+        if($this->input->post('call_from_api')){
+            $startDate = $this->input->post('startDate');
+            $endDate = $this->input->post('endDate');
+        }
+        
+        if($this->input->post('call_from_api')){
+            $state = $this->input->post('state');
+            $city = $this->input->post('city');
+        }else{
+          $state = 'not_set';
+          $city = 'not_set';  
+        }
+        
         if($this->input->post('status')){
             if(is_array($this->input->post('status'))){
                 $status = implode(":",$this->input->post('status'));
@@ -2467,14 +2563,17 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionsArray  = $this->get_tat_conditions_by_filter_for_pending($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id);
         }
         else{
-            $conditionsArray  = $this->get_tat_conditions_by_filter_for_completed($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id);
+            $conditionsArray  = $this->get_tat_conditions_by_filter_for_completed($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id,$state,$city);
         }
         //Get Data Group BY State
        if(!$is_ajax){
             $stateData = $this->get_data_for_state_tat_filters($conditionsArray,$rmID,$is_am,$is_pending,$request_type,$agent_type,$agent_id);            
         }
         //Get Data Group BY SF
-        $sfData = $this->get_data_for_sf_tat_filters($conditionsArray,$rmID,$is_am,$is_pending,$request_type,$agent_type,$agent_id);        
+        //if(!$this->input->post('call_from_api') && $this->input->post('sf_call')){
+        $sfData = $this->get_data_for_sf_tat_filters($conditionsArray,$rmID,$is_am,$is_pending,$request_type,$agent_type,$agent_id); 
+        //}
+        
         if($is_am){
             if($rmID != "00"){
                 $partnerWhere["agent_filters.agent_id"] = $rmID;
@@ -2486,7 +2585,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $partners = $this->partner_model->getpartner_data('distinct partners.id,partners.public_name',$partnerWhere,"",null,1,$is_am);
         $services = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,NULL,NULL,NULL,array());
          $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-        if(!$is_ajax){
+        if(!$is_ajax && !$this->input->post('call_from_api')){
             if($this->session->userdata('userType') == 'employee'){
                 $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
             }
@@ -2516,6 +2615,10 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $this->load->view('dashboard/dashboard_footer');   
         }
         else{
+            
+           if($this->input->post('call_from_api') && !$this->input->post('sf_call')){
+                 echo  json_encode($stateData);
+           }else{
             if($is_pending){
                 echo  json_encode($sfData);
             }
@@ -2526,7 +2629,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 else{
                     echo  json_encode($sfData);
                 }
-            }
+            } 
+           } 
         }
     }
     

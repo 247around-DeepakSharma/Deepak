@@ -124,10 +124,26 @@ class Indiapincode_model extends CI_Model {
 
         $this->db->distinct();
         $this->db->select('district');
+        $this->db->where('state_code',$state_code);
         $this->db->order_by('district','asc');
         $query = $this->db->get('district_state_mapping');
         return $query->result_array();
 
+    }
+    /**
+     *  @desc : This function is to get all states.
+     *
+     *  All the distinct states of India in Ascending order From Table state_code
+     *
+     *  @param : void
+     *  @return : array of states
+     */
+    function get_allstates() {
+	   $this->db->distinct();
+	   $this->db->select('state,state_code');
+	   $this->db->order_by('state','asc');
+	   $query = $this->db->get('state_code');
+	   return $query->result_array();
     }
 
 
