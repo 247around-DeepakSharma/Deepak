@@ -549,6 +549,8 @@
         $("#part_number").removeAttr("readonly"); 
         $("#pre_uploaded_part_picture").css('display','none');
         $('#error_id').html('');
+        $("#submit_type").val('Add');
+        $('#inventory_id').val('');
         $('#modal_title_action').html("Add New Inventory");
         $('#inventory_master_list_data').modal('toggle');
     });
@@ -653,7 +655,6 @@
         $('#gst_rate').val(form_data.gst_rate);
         $('#edit_part_type_modal_id').val(form_data.type);
         $('#description').val(form_data.description);
-        $('#inventory_id').val(form_data.inventory_id);
         $('#inventory_id').val(form_data.inventory_id);
         $('#oow_vendor_margin').val(form_data.oow_vendor_margin);
         $('#oow_around_margin').val(form_data.oow_around_margin);
