@@ -739,9 +739,9 @@ function getHomeDashboard(){
                     $citi['district'] = 'All';
                     array_push($state_with_cities,array('state'=>'All','cities'=>array($citi)));
                     foreach($response_state as $state){ 
-                    
-                            $cities = $this->indiapincode_model->getStateCities($state['state_code']);
-                        
+                            $cities[0]['district'] = 'All';
+                            $cities_states = $this->indiapincode_model->getStateCities($state['state_code']);
+                            $cities = array_merge($cities,$cities_states);                      
                     
                     $state_with_cities[] = array('state'=>$state['state'],'cities'=>$cities);   
                     } 
@@ -949,12 +949,17 @@ function submitEscalation(){
         $fetch_user_detail = $this->dealer_model->fetch_retailer_detail('*', array('phone' => $mobile));
         if (!empty($requestData['entity_type'])) { 
             $requestData['escalation_remarks'] = $requestData['escalation_remarks']." (Escalated by ".$fetch_user_detail[0]['phone']."- ".$fetch_user_detail[0]['first_name']." ".$fetch_user_detail[0]['last_name'].")";
+            $retailer_employee_detail = $this->employee_model->get_employee_by_full_name('Retailer_Buddy');
+            $employee_id = '';
+            if(!empty($retailer_employee_detail)){
+                $employee_id = $retailer_employee_detail[0]['id'];
+            }
                     $postData = array(
                         "escalation_reason_id" => $requestData['escalation_reason_id'],
                         "escalation_remarks" => $requestData['escalation_remarks'],
                         "booking_id" => $requestData['booking_id'],
                         "call_from_api" => true,
-                        "dealer_agent_id" => 10198,
+                        "dealer_agent_id" => $employee_id,
                         "dealer_agent_type" => 'dealer'
                     );
                     $can_escalate = $this->can_booking_escalated($requestData['booking_id']);
@@ -1618,7 +1623,7 @@ function  getPartnerCompareTAT(){
                     }else{
                         $state = "not_set"; 
                     }
-                    
+                    $state = "not_set";
                     $city = "not_set"; 
            
                    if(isset($requestData['startDate']) && !empty($requestData['startDate'])){
