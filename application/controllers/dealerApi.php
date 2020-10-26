@@ -739,9 +739,9 @@ function getHomeDashboard(){
                     $citi['district'] = 'All';
                     array_push($state_with_cities,array('state'=>'All','cities'=>array($citi)));
                     foreach($response_state as $state){ 
-                            $cities[0]['district'] = 'All';
-                            $cities_states = $this->indiapincode_model->getStateCities($state['state_code']);
-                            $cities = array_merge($cities,$cities_states);                      
+                            //$cities[0]['district'] = 'All';
+                            $cities = $this->indiapincode_model->getStateCities($state['state_code']);
+                            //$cities = array_merge($cities,$cities_states);                      
                     
                     $state_with_cities[] = array('state'=>$state['state'],'cities'=>$cities);   
                     } 
