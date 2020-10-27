@@ -314,7 +314,7 @@ class Dealer_model extends CI_Model {
              . " ORDER BY `booking_details`.`create_date` DESC";
         }
 
-        echo $sql;
+        
         $query = $this->db->query($sql);
         return $query->result_array();
 
@@ -334,7 +334,19 @@ class Dealer_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
-
-
+    /**
+     * @desc: This is used to update the dealer details
+     * @param $data array
+     * @param $where array
+     * @return boolean
+     * Ghanshyam
+     */
+    function save_booking_escalation_history($data = '') {
+        if (!empty($data)) {
+            $this->db->insert("booking_escalation_history", $data);
+            $insert_id = $this->db->insert_id();
+            return $insert_id;
+        }
+    }
 
 }

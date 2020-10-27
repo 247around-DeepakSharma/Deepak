@@ -585,12 +585,13 @@
                      $("#"+button_id).html("Generate Sale Invoice... <i class='fa fa-spinner fa-spin' aria-hidden='true'></i>");
                  },
                  complete: function(data){
-                     if(data=='SUCCESS'){
+                     //data = data.trim();
+                     if(data!=''){
                         alert('Invoice Generated Successfully');
                     }else{
                         alert('Invoice Not Generated');
                     }
-					$("#"+button_id).html("Generate Sale Invoice");
+                    $("#"+button_id).html("Generate Sale Invoice");
                  }
             });
         }

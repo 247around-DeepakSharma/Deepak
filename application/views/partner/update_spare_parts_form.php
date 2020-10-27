@@ -89,6 +89,9 @@
                 <div class="x_panel">
                     <div class="x_title">
                         <h2 class="col-md-12">Update Spare Part <?php if(isset($spare_parts[0]->request_type) && $spare_parts[0]->request_type == REPAIR_OOW_TAG){ ?> <button type="button" class="btn btn-primary pull-right" disabled="">Ship More Parts</button> <?php }else{ ?><button type="button" class="btn btn-primary pull-right addButton">Ship More Parts</button><?php } ?></h2>
+                        <?php if(isset($spare_parts[0]->request_type) && $spare_parts[0]->request_type == REPAIR_OOW_TAG){ ?>
+                        <span style="float: right; color: red;">(Add More) option could not allowed for OOW booking.</span>
+                        <?php } ?>
                         <div class="clearfix"></div>
                     </div>
                     <input type="hidden" name="request_type" value="<?php echo ((isset($spare_parts[0]->request_type)) ? $spare_parts[0]->request_type : '')?>"/>
@@ -1399,7 +1402,7 @@
 <script type="text/javascript">
         
     $(".validate_hsn_code").bind("keyup paste", function(e) {
-        this.value = this.value.replace(/[^a-zA-Z0-9]/g, '');
+        this.value = this.value.replace(/[^0-9]/g, '');
     });
         
     var validate_gst = function() {
