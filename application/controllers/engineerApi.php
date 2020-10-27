@@ -3551,7 +3551,7 @@ class engineerApi extends CI_Controller {
             }
             //For spare part request show inventory mapped mpdel, for complete booking warranty checker show model non mapped model also
             //type tag  send by umesh
-            if($type=='spare_part_request'){
+            if($type!='complete_booking'){
                 $where = array('entity_id' => $requestData['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $requestData['service_id'], 'inventory_model_mapping.active' => 1, 'appliance_model_details.active' => 1);
                 $model_numbers = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where);
             }
