@@ -94,9 +94,9 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Inventory Master List</h2>
-                    <ul class="nav navbar-right panel_toolbox">
+<!--                    <ul class="nav navbar-right panel_toolbox">
                         <a class="btn btn-success pull-right" style="margin-top: 10px;" id="add_master_list" title="Add Item"><i class="fa fa-plus"></i></a>
-                    </ul>
+                    </ul>-->
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
@@ -176,7 +176,7 @@
                                                 <div class="form-group">
                                                     <label class="control-label col-md-4" for="part_name">Part Name*</label>
                                                     <div class="col-md-7 col-md-offset-1">
-                                                        <input type="text" class="form-control" id="part_name" name="part_name">
+                                                        <input type="text" class="form-control" id="part_name" name="part_name" readonly="">
                                                     </div>
                                                 </div>
                                             </div>
@@ -186,7 +186,7 @@
                                                 <div class="form-group">
                                                     <label class="control-label col-md-4" for="part_number">Part Number*</label>
                                                     <div class="col-md-7 col-md-offset-1">
-                                                        <input type="text" class="form-control" id="part_number" name="part_number">
+                                                        <input type="text" class="form-control" id="part_number" name="part_number" readonly="">
                                                     </div>
                                                 </div>
                                             </div>
@@ -194,7 +194,7 @@
                                                 <div class="form-group">
                                                     <label class="control-label col-md-4" for="serial_number">Serial Number</label>
                                                     <div class="col-md-7 col-md-offset-1">
-                                                        <input type="text" class="form-control" id="serial_number" name="serial_number">
+                                                        <input type="text" class="form-control" id="serial_number" name="serial_number" readonly="">
                                                     </div>
                                                 </div>
                                             </div>
@@ -205,7 +205,7 @@
                                                 <div class="form-group">
                                                     <label class="control-label col-md-4" for="type">Part Type*</label>
                                                     <div class="col-md-7 col-md-offset-1">
-                                                        <textarea class="form-control" id="type" name="type"></textarea>
+                                                        <textarea class="form-control" id="type" name="type" readonly=""></textarea>
                                                     </div>
                                                 </div>
                                             </div>
@@ -213,7 +213,7 @@
                                                 <div class="form-group">
                                                     <label class="control-label col-md-4" for="description">Description</label>
                                                     <div class="col-md-7 col-md-offset-1">
-                                                        <textarea class="form-control" id="description" name="description"></textarea>
+                                                        <textarea class="form-control" id="description" name="description" readonly=""></textarea>
                                                     </div>
                                                 </div>
                                             </div>
@@ -224,7 +224,7 @@
                                                 <div class="form-group">
                                                     <label class="control-label col-md-4" for="price">Price*</label>
                                                     <div class="col-md-7 col-md-offset-1">
-                                                        <input type="text" class="form-control allowNumericWithDecimal" id="price" name="price">
+                                                        <input type="text" class="form-control allowNumericWithDecimal" id="price" name="price" readonly="">
                                                     </div>
                                                 </div>
                                             </div>
@@ -232,7 +232,7 @@
                                                 <div class="form-group">
                                                     <label class="control-label col-md-4" for="size">Size</label>
                                                     <div class="col-md-7 col-md-offset-1">
-                                                        <input type="text" class="form-control" id="size"  name="size">
+                                                        <input type="text" class="form-control" id="size"  name="size" readonly="">
                                                     </div>
                                                 </div>
                                             </div>
@@ -242,7 +242,7 @@
                                                 <div class="form-group">
                                                     <label class="control-label col-md-4" for="hsn_code">HSN Code*</label>
                                                     <div class="col-md-7 col-md-offset-1">
-                                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="hsn_code" name="hsn_code">
+                                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="hsn_code" name="hsn_code" readonly="">
                                                     </div>
                                                 </div>
                                             </div>
@@ -250,7 +250,7 @@
                                                 <div class="form-group">
                                                     <label class="control-label col-md-4" for="gst_rate">GST Rate*</label>
                                                     <div class="col-md-7 col-md-offset-1">
-                                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="gst_rate"  name="gst_rate">
+                                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="gst_rate"  readonly="" name="gst_rate">
                                                     </div>
                                                 </div>
                                             </div>
@@ -284,7 +284,7 @@
                                             <input type="hidden"  id="entity_id" name='entity_id' value='<?php echo $this->session->userdata('partner_id') ?>'>
                                             <input type="hidden"  id="entity_type" name='entity_type' value="partner">
                                             <input type="hidden"  id="inventory_id" name='inventory_id' value="">
-                                            <button type="submit" class="btn btn-success" id="master_list_submit_btn" name='submit_type' value="Submit">Submit</button>
+                                            <button type="submit" class="btn btn-success" id="master_list_submit_btn" name='submit_type' value="Submit" disabled="">Submit</button>
                                             <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                                             <p class="pull-left text-danger">* These fields are required</p>
                                         </div>
@@ -436,6 +436,7 @@
         $('#service_id').val(null).trigger('change');
         get_services('service_id');
         $("#master_list_details")[0].reset();
+        $('#inventory_id').val('');
         $('#master_list_submit_btn').val('Add');
         $('#modal_title_action').html("Add Item");
         $('#inventory_master_list_data').modal('toggle');
