@@ -1714,7 +1714,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         if(!empty($city)){
          $where .= "and service_centres.district = '".$city."'";
         }
-        $sql = "SELECT ROUND(AVG(rating_stars),1) as rating , count(booking_id) as count,service_centres.name,service_centres.id FROM booking_details JOIN service_centres ON booking_details.assigned_vendor_id=service_centres.id WHERE rating_stars IS NOT NULL AND current_status = '"._247AROUND_COMPLETED."' $where group by booking_details.assigned_vendor_id HAVING count>100 ORDER BY rating DESC";  
+        $sql = "SELECT ROUND(AVG(rating_stars),1) as rating , count(booking_id) as count,Concat('247around ',service_centres.district,' Service Center') as name,service_centres.id FROM booking_details JOIN service_centres ON booking_details.assigned_vendor_id=service_centres.id WHERE rating_stars IS NOT NULL AND current_status = '"._247AROUND_COMPLETED."' $where group by booking_details.assigned_vendor_id HAVING count>100 ORDER BY rating DESC";  
         $query = $this->db->query($sql);
         return $query->result_array();
     }
