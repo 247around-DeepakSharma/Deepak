@@ -1441,7 +1441,14 @@ function  getPartnerCompareTAT(){
                         $state = "not_set"; 
                     }
                     
-                    $city = "not_set"; 
+                    //$city = "not_set"; 
+                    if(isset($requestData['city']) && !empty($requestData['city']) && $requestData['state']!='All'){
+                        $city = $requestData['city'];
+                    }else if($requestData['city']=='All'){
+                        $city = "not_set";
+                    }else{
+                        $city = "not_set"; 
+                    }
            
                    if(isset($requestData['startDate']) && !empty($requestData['startDate'])){
                         $startDate = $requestData['startDate'];
