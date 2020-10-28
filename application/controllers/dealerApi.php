@@ -1961,7 +1961,7 @@ function  getPartnerCompareTAT(){
                     if(!empty($curl_response)){
                     foreach ($curl_response->TAT as $key=>$value){
                      $state =   $value->entity; 
-                     if($state!='Total'){
+                     if($state!='Total' && ($value->TAT_0_per!=0 || $value->TAT_1_per!=0 || $value->TAT_2_per!=0 || $value->TAT_3_per!=0)){
                      $return_data['D0'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_0_per)  ;
                      //$return['D0'][]['state'][]  = $value->TAT_0  ;
                      $return_data['D1'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_1_per)  ;
@@ -1971,6 +1971,12 @@ function  getPartnerCompareTAT(){
                     }
                     }
                     }else{
+                      $return_data['D0']  = array();
+                      $return_data['D1']  = array();
+                      $return_data['D2']  = array();
+                      $return_data['D4']  = array();
+                    }
+                    if(empty($return_data)){
                       $return_data['D0']  = array();
                       $return_data['D1']  = array();
                       $return_data['D2']  = array();
