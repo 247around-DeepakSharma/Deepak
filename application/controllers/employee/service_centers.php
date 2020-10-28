@@ -2859,12 +2859,15 @@ class Service_centers extends CI_Controller {
             $fields_string = http_build_query($fields);
 
             //open connection
-            $ch = curl_init();
+            $ch = curl_init($url);
+                curl_setopt_array($ch, array(
+                    CURLOPT_POST => TRUE,
+                    CURLOPT_RETURNTRANSFER => TRUE,
+                    CURLOPT_SSL_VERIFYHOST => FALSE,
+                    CURLOPT_SSL_VERIFYPEER => FALSE,
+                    CURLOPT_POSTFIELDS => $fields_string
+                ));
 
-            //set the url, number of POST vars, POST data
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
 
             //execute post
             $result = curl_exec($ch);
