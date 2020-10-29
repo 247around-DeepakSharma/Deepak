@@ -1,5 +1,5 @@
 var review_completeUrl = baseUrl + '/employee/booking/complete_review_booking/';
-var admin_remarksUrl = baseUrl + '/employee/booking/reject_booking_from_review/';
+var admin_remarksUrl = baseUrl + '/employee/booking/reject_booking_from_review';
 var partner_remarksUrl = baseUrl + '/employee/partner/reject_booking_from_review/';
 
 $(document).on("click", ".open-AddBookingDialog", function () {
@@ -153,23 +153,7 @@ function send_remarks() {
             document.getElementById("row_" + bookingID).style.background = "#89d4a7";
             $('.modal').modal('hide');
         });
-    }
     
-    postData['booking_id'] = bookingID;
-    postData['admin_remarks'] = $('#textarea_'+str).val();
-    postData['rejected_by'] = $('#admin_id_'+str).val();
-    postData['internal_booking_status'] = $("#internal_boking_status_"+str).val();
-    console.log(postData);
-    $('#loader_gif_'+str).show();
-    $('#btn_send_remarks_'+str).prop("disabled", true);    
-    sendAjaxRequest(postData, admin_remarksUrl).done(function (data) {
-        alert(data);
-        $('#loader_gif_'+str).hide();
-        $('#btn_send_remarks_'+str).prop("disabled", false);
-        document.getElementById("row_"+bookingID).style.background = "#89d4a7";
-        $('.modal').modal('hide');
-    });
-
 }
 
 function review_search(status,is_partner,sub_id,sort_on){
