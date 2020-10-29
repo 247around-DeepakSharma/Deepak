@@ -32,7 +32,7 @@
                 ?>
                 <div class="x_title">
                     <h1 class="page-header">
-                        <b> Upload Alternate Master</b>
+                        <b> Upload Alternate Spare Parts File</b>
                     </h1>
                     <section>
                         <div class="col-md-6">
