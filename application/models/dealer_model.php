@@ -303,7 +303,7 @@ class Dealer_model extends CI_Model {
              . "FROM (`users`) JOIN `booking_details` ON `booking_details`.`user_id` = `users`.`user_id`"
              . "JOIN `services` ON `services`.`id` = `booking_details`.`service_id`"
              . " WHERE `users`.`phone_number` = '".$phone_number."' OR booking_details.booking_primary_contact_no = '".$phone_number."' OR booking_details.booking_alternate_contact_no = '".$phone_number."'"
-             . " ORDER BY `booking_details`.`create_date` DESC";
+             . " ORDER BY `booking_details`.`create_date` DESC limit 10";
 
         }else{
 
