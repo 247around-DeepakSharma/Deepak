@@ -2806,8 +2806,11 @@ class Service_centers extends CI_Controller {
 
         $access = $this->partner_model->get_partner_permission(array('partner_id' => $partner_id,
             'permission_type' => SPARE_REQUESTED_ON_APPROVAL, 'is_on' => 1));
+        
+        $access1 = $this->partner_model->get_partner_permission(array('partner_id' => $partner_id,
+            'permission_type' => OW_SPARE_REQUESTED_ON_APPROVAL, 'is_on' => 1));
 
-        if (!empty($access)) {
+        if (!empty($access) || (!empty($access1) && $part_warranty_status == 2)) {
             $url = base_url() . 'employee/spare_parts/spare_part_on_approval/' . $spare_id . "/" . $booking_id;
             $fields = array(
                 'remarks' => "Auto Approved",
@@ -2818,12 +2821,15 @@ class Service_centers extends CI_Controller {
             $fields_string = http_build_query($fields);
 
             //open connection
-            $ch = curl_init();
+            $ch = curl_init($url);
+                curl_setopt_array($ch, array(
+                    CURLOPT_POST => TRUE,
+                    CURLOPT_RETURNTRANSFER => TRUE,
+                    CURLOPT_SSL_VERIFYHOST => FALSE,
+                    CURLOPT_SSL_VERIFYPEER => FALSE,
+                    CURLOPT_POSTFIELDS => $fields_string
+                ));
 
-            //set the url, number of POST vars, POST data
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
 
             //execute post
             $result = curl_exec($ch);

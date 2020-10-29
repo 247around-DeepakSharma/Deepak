@@ -79,10 +79,13 @@
     }
     
     .dataTables_length{
-        width: 20%;
+        width: 100%;
     }
     .form-horizontal .control-label {
         text-align: left;
+    }   
+    .btn-group>.btn:first-child {
+        margin-left: 60%;
     }
 </style>
 <div class="right_col" role="main">
@@ -90,10 +93,11 @@
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>View Part Master</h2>
-                    <ul class="nav navbar-right panel_toolbox">
+
+                    <h2>Inventory Master List</h2>
+<!--                    <ul class="nav navbar-right panel_toolbox">
                         <a class="btn btn-success pull-right" style="margin-top: 10px;" id="add_master_list" title="Add Item"><i class="fa fa-plus"></i></a>
-                    </ul>
+                    </ul>-->
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
@@ -141,6 +145,7 @@
                                     <th>Basic Price</th>
                                     <th>GST Rate</th>
                                     <th>Total Price</th>
+                                    <th>Is Defective/Ok Part Required</th>
                                     <th>Edit</th>
                                     <th>Get Model</th>
                                 </tr>
@@ -296,9 +301,10 @@
     });
     $(document).ready(function(){
         get_services('inventory_service_id');
-        get_inventory_list();
         
     });
+    
+    get_inventory_list();
     
     $('#get_inventory_data').on('click',function(){
         var inventory_service_id = $('#inventory_service_id').val();
@@ -345,14 +351,14 @@
         inventory_master_list_table = $('#inventory_master_list').DataTable({
             "processing": true, 
             "serverSide": true,
-             "lengthMenu": [[25,50,100, -1], [25,50, 100,"All"]],
+            "lengthMenu": [[25,50,100, -1], [25,50, 100,"All"]],
             "dom": 'lBfrtip',
             "buttons": [
                 {
                     extend: 'excel',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 0,1,2,3,4,5,6,7,8,9,10],
+                        columns: [ 0,1,2,3,4,5,6,7,8,9,10, 11],
                          modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'

@@ -32,7 +32,7 @@
                     ?>
                 <div class="x_title">
                     <h1 class="page-header">
-                        <b> Upload Part Master</b>
+                        <b> Upload Inventory Master File</b>
                     </h1>
                     <section>
                         <div class="col-md-6">
