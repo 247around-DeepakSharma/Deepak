@@ -4316,12 +4316,11 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
     }
     
    
-           /**
+    /**
      * @desc function to process  bulk transfer from warehouse to warehouse
      * @author Abhishek 
      * @since 31-May-2019
      */    
-
      function spare_transfer_from_wh_to_wh_process() {
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center')) {
             
@@ -5284,7 +5283,6 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         }
     }
 
-    
     /* 
      * @desc : This function is used get the common where cluase for view page and download excel reports.
      * @param : void
