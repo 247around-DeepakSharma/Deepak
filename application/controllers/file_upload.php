@@ -1052,6 +1052,8 @@ class File_upload extends CI_Controller {
                 $url = base_url() . 'employee/inventory/process_msl_upload_excel';
                 $ch = curl_init($url);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $post_json);
                 curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
                 $response1 = curl_exec($ch);

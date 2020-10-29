@@ -362,7 +362,8 @@ class Notify {
      * @param: booking id current status
      * @return: true
      */
-    function send_sms_email_for_booking($booking_id, $current_status) { 
+    function send_sms_email_for_booking($booking_id, $current_status) {
+       
 	log_message("info",__METHOD__);
         
 	$query1 = $this->My_CI->booking_model->getbooking_filter_service_center($booking_id);
@@ -467,7 +468,26 @@ class Notify {
 		    } else {
                         $call_type = explode(" ", $query1[0]['request_type']);                            
                         if($query1[0]['partner_id'] == VIDEOCON_ID){
-                            $this->vediocon_cancelled_booking_sms($query1[0]);  
+                            $this->vediocon_cancelled_booking_sms($query1[0]);
+                            $whatsapp = $this->engineer_model->get_engineer_config(SEND_WHATSAPP);
+                            if ($whatsapp[0]->config_value) {
+                                $template = $this->My_CI->whatsapp_model->get_whatsapp_template_by_tag(VIDEOCON_CANCELLED_BOOKING_TAG)[0];
+                                $cc_number = "";
+                                $cc_detail = $this->My_CI->partner_model->get_partner_additional_details("customer_care_number", array("partner_id"=>$data['partner_id'], "is_customer_care"=>1));
+                                if(!empty($cc_detail)){
+                                    $cc_number = $cc_detail[0]['customer_care_number'];
+                                }
+                                else{
+                                    $cc_number = _247AROUND_WHATSAPP_NUMBER;
+                                }
+                                $sms['smsData']['service'] = $query1[0]['services'];
+                                $sms['smsData']['cc_number'] = $cc_number;
+                                $sms['smsData']['public_name'] = $query1[0]['public_name'];
+                                $smsBody = vsprintf($template['template'], $sms['smsData']);
+                                $phone_number = '91'.$query1[0]['booking_primary_contact_no'];                               
+                                $this->notify->send_whatsapp_to_any_number($phone_number, $smsBody);
+                            }
+                            
                         }
                         else{
                             $sms['smsData']['service'] = $query1[0]['services'];
@@ -486,6 +506,24 @@ class Notify {
                             }
 
                             $this->send_sms_msg91($sms);
+                            $whatsapp = $this->engineer_model->get_engineer_config(SEND_WHATSAPP);
+                            if ($whatsapp[0]->config_value) {
+                                $template = $this->My_CI->whatsapp_model->get_whatsapp_template_by_tag('cancel_booking')[0];
+                                $cc_number = "";
+                                $cc_detail = $this->My_CI->partner_model->get_partner_additional_details("customer_care_number", array("partner_id"=>$data['partner_id'], "is_customer_care"=>1));
+                                if(!empty($cc_detail)){
+                                    $cc_number = $cc_detail[0]['customer_care_number'];
+                                }
+                                else{
+                                    $cc_number = _247AROUND_WHATSAPP_NUMBER;
+                                }
+                                $whatsapp_sms['smsData']['service'] = $sms['smsData']['service'];
+                                $whatsapp_sms['smsData']['call_type'] = $call_type[0];
+                                $whatsapp_sms['smsData']['number'] = $sms['smsData']['number'];
+                                $whatsapp_message = vsprintf($template['template'], $whatsapp_sms['smsData']);
+                                $phone_number = '91'.$query1[0]['booking_primary_contact_no'];
+                                $this->notify->send_whatsapp_to_any_number($phone_number, $whatsapp_message);
+                            }
                         }
                         //SEND MSG TO DEALER ON BOOKING REJECTION
                         if(!empty($query1[0]['dealer_id']))
@@ -1427,8 +1465,9 @@ class Notify {
      * @retun:boolean()
      */
 
-   function send_whatsapp_to_any_number($phone_number, $message){
+   function send_whatsapp_to_any_number($phone_number, $message, $whatsapp_array = array()){
     $phone_number = "+".$phone_number;
+   
     $payloadName = '{
        "channel": "'.API_KARIX_CHANNEL.'",
        "source": "'.API_KARIX_SOURCE.'",
@@ -1455,6 +1494,7 @@ class Notify {
      curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
      $return = curl_exec($ch);
      curl_close($ch);
+     
      $data = json_decode($return);
      $total_cost = $data->meta->credits_charged;
      $channel = $data->objects[0]->channel;
