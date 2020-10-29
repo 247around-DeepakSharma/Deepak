@@ -300,9 +300,10 @@
     });
     $(document).ready(function(){
         get_services('inventory_service_id');
-        get_inventory_list();
         
     });
+    
+    get_inventory_list();
     
     $('#get_inventory_data').on('click',function(){
         var inventory_service_id = $('#inventory_service_id').val();
@@ -349,14 +350,14 @@
         inventory_master_list_table = $('#inventory_master_list').DataTable({
             "processing": true, 
             "serverSide": true,
-             "lengthMenu": [[25,50,100, -1], [25,50, 100,"All"]],
+            "lengthMenu": [[25,50,100, -1], [25,50, 100,"All"]],
             "dom": 'lBfrtip',
             "buttons": [
                 {
                     extend: 'excel',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 0,1,2,3,4,5,6,7,8,9,10],
+                        columns: [ 0,1,2,3,4,5,6,7,8,9,10, 11],
                          modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'
