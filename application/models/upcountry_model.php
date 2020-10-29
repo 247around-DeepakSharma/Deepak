@@ -836,7 +836,12 @@ class Upcountry_model extends CI_Model {
         return $query->result_array();
     }
     
-    function upcountry_partner_invoice($partner_id, $from_date, $to_date, $spare_requested_unit_id = ""){
+    function upcountry_partner_invoice($partner_id, $from_date, $to_date, $spare_requested_unit_id = "",$nrn = "",  $wh_booking_id = ""){
+        $b = "";
+        if($wh_booking_id !=""){
+            $b = " AND FIND_IN_SET('".$wh_booking_id."', booking_id)";
+        }
+        //echo $spare_requested_unit_id; exit();
         $sql = "SELECT CASE WHEN (bd.partner_id = '".PAYTM_ID."' ) "
                 . "THEN (CONCAT( '', GROUP_CONCAT( DISTINCT ( SUBSTRING_INDEX(bd.order_id, '-', 1) ) ) , '' )) ELSE (CONCAT( '''', GROUP_CONCAT( DISTINCT ( bd.order_id ) ) )) END AS order_id,"
                 . " CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.booking_id ) ) , '' ) AS booking_id, "
@@ -858,8 +863,8 @@ class Upcountry_model extends CI_Model {
                 . " AND ( ( ud.ud_closed_date >= '$from_date' "
                 . " AND ud.ud_closed_date < '$to_date' "
                 . " AND bd.current_status = 'Completed' "
-                . " ) $spare_requested_unit_id )"
-                . " GROUP BY bd.booking_date, bd.booking_pincode, bd.service_id HAVING upcountry_price > ".DEFAULT_CHARGES_LIMIT." ";
+                . " ) $spare_requested_unit_id $nrn )"
+                . " GROUP BY bd.booking_date, bd.booking_pincode, bd.service_id HAVING upcountry_price > ".DEFAULT_CHARGES_LIMIT." ". $b;
         
         $query = $this->db->query($sql);
         if($query->num_rows > 0){

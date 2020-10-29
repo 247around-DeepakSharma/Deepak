@@ -2375,9 +2375,9 @@ exit();
      * @param type $invoice_type
      * @return string Invoice Id
      */
-    function create_partner_invoice($partner_id, $from_date, $to_date, $invoice_type, $agent_id) {
+    function create_partner_invoice($partner_id, $from_date, $to_date, $invoice_type, $agent_id, $booking_id = "") {
         log_message('info', __FUNCTION__ . ' Entering....... Partner_id:'.$partner_id.' invoice_type:'.$invoice_type.' from_date: '.$from_date.' to_date: '.$to_date);
-        $invoices = $this->invoices_model->generate_partner_invoice($partner_id, $from_date, $to_date);
+        $invoices = $this->invoices_model->generate_partner_invoice($partner_id, $from_date, $to_date, $booking_id);
         if (!empty($invoices)) {
 
             $invoices['meta']['invoice_id'] = $this->create_invoice_id_to_insert("ARD-9");
@@ -7388,7 +7388,8 @@ exit();
                 }
                 $i++;
             }
-            if(isset(INVOICE_DASHBOARD_SERVICE[$i][1]) && INVOICE_DASHBOARD_SERVICE[$i][1] == 0){
+            $d = INVOICE_DASHBOARD_SERVICE;
+            if(isset($d[$i][1]) && $d[$i][1] == 0){
                 //If value of row in INVOICE_DASHBOARD_SERVICE constant is set to 0,
                 // then iterate array again otherwise current row will be missed in table
                 $j--;
@@ -7741,6 +7742,19 @@ exit();
         $this->miscelleneous->copy_invoices_from_s3();
     }
     
+    function create_partner_invoice_for_onsitego(){
+        // $this->create_partner_invoice("247010", date('Y-m-d'), date('Y-m-d'), "draft", _247AROUND_DEFAULT_AGENT, "SY-7366002006052");
+        $partner_id = ONSITEGO;
+        $booking = $this->booking_model->get_booking_details('booking_details.booking_id',  array('booking_details.partner_id' => $partner_id, 'partner_net_payable > 0'=> NULL,
+            'partner_invoice_id IS NULL' => NULL, 'ud_closed_date >= "'.date('Y-m-d').'" ' => NULL, 'ud_closed_date < "'.date('Y-m-d', strtotime('+1 days')).'" ' => NULL), false, false, true);
+        
+        if(!empty($booking)){
+           foreach($booking as $booking_id){
+               $this->create_partner_invoice($partner_id, date('Y-m-d'), date('Y-m-d'), "final", _247AROUND_DEFAULT_AGENT, $booking_id);
+           }
+       }
+        
+    }
     
     /**
      * @desc This function is used to generate sf oow invoice at the end  of month
@@ -7753,7 +7767,7 @@ exit();
             'defective_part_shipped_date IS NULL' => NULL,
             'is_micro_wh != 1' => NULL, 
             'part_warranty_status' => 2,
-            "DATEDIFF(STR_TO_DATE('".date('Y-m-01')."', '%Y-%m-%d'), STR_TO_DATE(date_of_request, '%Y-%m-%d')) >= 30" => NULL
+            "DATEDIFF(STR_TO_DATE('".date('Y-m-01')."', '%Y-%m-%d'), STR_TO_DATE(shipped_date, '%Y-%m-%d')) >= 30" => NULL
             
         ));
         

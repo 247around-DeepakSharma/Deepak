@@ -399,7 +399,7 @@ class invoices_model extends CI_Model {
      * @param: partner id and date range
      * @return: Array()
      */
-    function getpartner_invoices($partner_id, $from_date, $to_date, $spare_requested_data = array() ) {
+    function getpartner_invoices($partner_id, $from_date, $to_date, $spare_requested_data = array() , $booking_id = "") {
         log_message('info', __FUNCTION__);
         $s = $pending_cond = "";
         if(!empty($spare_requested_data)){
@@ -408,11 +408,11 @@ class invoices_model extends CI_Model {
             $pending_cond = " ( booking_unit_details.id IN(". implode(",", $u).") ) ";
         }
         
-        $completed_cond = " ( booking_status = 'Completed' AND booking_unit_details.booking_status = 'Completed' AND booking_unit_details.ud_closed_date >= '$from_date' AND booking_unit_details.ud_closed_date < '$to_date' )";
+        $completed_cond = " ( booking_unit_details.booking_status = 'Completed' AND booking_unit_details.ud_closed_date >= '$from_date' AND booking_unit_details.ud_closed_date < '$to_date' )";
         
-        $anx_data['annexure'] = $this->getpartner_invoices_statuswise($partner_id, $completed_cond,$s);
-        $anx_data['Completed']['annexure'] = $this->getpartner_invoices_statuswise($partner_id, $completed_cond,'');
-        $anx_data['Pending']['annexure'] = (($pending_cond != "") ? $this->getpartner_invoices_statuswise($partner_id, '',$pending_cond) : array());
+        $anx_data['annexure'] = $this->getpartner_invoices_statuswise($partner_id, $completed_cond,$s, $booking_id);
+        $anx_data['Completed']['annexure'] = $this->getpartner_invoices_statuswise($partner_id, $completed_cond,'', $booking_id);
+        $anx_data['Pending']['annexure'] = (($pending_cond != "") ? $this->getpartner_invoices_statuswise($partner_id, '',$pending_cond, $booking_id) : array());
         return $anx_data;
     }
     
@@ -421,7 +421,13 @@ class invoices_model extends CI_Model {
      * @param: partner id , $completed_cond , $pending_cond
      * @return: Array()
      */
-    function getpartner_invoices_statuswise($partner_id, $completed_cond, $pending_cond ) {
+    function getpartner_invoices_statuswise($partner_id, $completed_cond, $pending_cond, $booking_id = "" ) {
+        $s = ""; $b ="";
+        if($booking_id !=""){
+            $s = " AND booking_details.booking_id = '".$booking_id."' ";
+        } else {
+            $b = "AND ( $completed_cond $pending_cond ) ";
+        }
         $sql1 = "SELECT booking_unit_details.id AS unit_id,"
                 . " CASE WHEN (booking_unit_details.partner_id = '".PAYTM_ID."' ) THEN (SUBSTRING_INDEX(order_id, '-', 1)) ELSE (CONCAT('''', order_id)) END AS order_id, "
                 . " ( CASE WHEN NOT EXISTS (SELECT DISTINCT 1 as part from spare_parts_details WHERE spare_parts_details.booking_id = booking_details.booking_id AND spare_parts_details.status != '"._247AROUND_CANCELLED."') THEN 'No' ELSE 'Yes' END ) AS spare_involved, "
@@ -451,9 +457,7 @@ class invoices_model extends CI_Model {
                   AND booking_unit_details.partner_id = partners.id
                   AND partner_invoice_id IS NULL
                   AND partner_refuse_to_pay = 0
-                  
-                  AND ( $completed_cond $pending_cond
-                    ) 
+                  $s $b
                ";
 
 
@@ -671,19 +675,26 @@ class invoices_model extends CI_Model {
         }
     }
     
-    function get_partner_invoice_data($partner_id, $from_date, $to_date, $tmp_from_date) {
-        $spare_requested_data = $this->get_unit_for_requested_spare($partner_id);
-        $s = "";
-        if(!empty($spare_requested_data)){
-            $u = array_column($spare_requested_data, 'id');
-            $s = " OR ( ud.id IN(". implode(",", $u).") ) ";
+    function get_partner_invoice_data($partner_id, $from_date, $to_date, $tmp_from_date, $booking_id = "") {
+        
+        $s = ""; $n=""; $spare_requested_data = array(); $b= "";
+        
+        if($booking_id ==""){
+            $spare_requested_data = $this->get_unit_for_requested_spare($partner_id);
+            if(!empty($spare_requested_data)){
+                $u = array_column($spare_requested_data, 'id');
+                $s = " OR ( ud.id IN(". implode(",", $u).") ) ";
+            }
+
+            $nrn_data = $this->get_nrn_approved_booking($partner_id, $from_date, $to_date);
+            if(!empty($nrn_data)){
+                $nd = array_column($nrn_data, 'unit_id');
+                $n = " OR ( ud.id IN(". implode(",", $nd).") ) ";
+            }
+        } else{
+            $b = " AND ud.booking_id = '".$booking_id."' ";
         }
-        $n="";
-        $nrn_data = $this->get_nrn_approved_booking($partner_id, $from_date, $to_date);
-        if(!empty($nrn_data)){
-            $nd = array_column($nrn_data, 'unit_id');
-            $n = " OR ( ud.id IN(". implode(",", $nd).") ) ";
-        }
+        
         
         $sql = "SELECT DISTINCT (`partner_net_payable` + partner_spare_extra_charge) AS rate, " . HSN_CODE . " AS hsn_code, 
                 CASE 
@@ -724,6 +735,7 @@ class invoices_model extends CI_Model {
                 AND ud.service_id = services.id
                 AND partner_refuse_to_pay = 0
                 AND partners.id = ud.partner_id
+                $b
                 AND partner_invoice_id IS NULL
                 AND ( ( ud.partner_id =  '$partner_id'
                         AND ud.booking_status =  'Completed'
@@ -737,8 +749,8 @@ class invoices_model extends CI_Model {
         $result['result'] = $query->result_array();
 
         //if (!empty($result['result'])) {
-        $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date, $s);
-        $courier  = $this->generate_partner_courier_invoice($partner_id, $from_date, $to_date, 0);
+        $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date, $s, $n, $booking_id);
+        $courier  = $this->generate_partner_courier_invoice($partner_id, $from_date, $to_date, 0, $booking_id);
         
         $spare_parts_open_cell_led_bar_data = array();
         $open_cell_led_bar_charges = array();
@@ -765,7 +777,7 @@ class invoices_model extends CI_Model {
                 . 'miscellaneous_charges.partner_charge, miscellaneous_charges.id,'
                 . 'CONCAT("' . S3_WEBSITE_URL . 'misc-images/",approval_file) as approval_file, CONCAT("' . S3_WEBSITE_URL . 'purchase-invoices/",purchase_invoice_file) as purchase_invoice_file';
 
-        $misc = $this->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.partner_invoice_id IS NULL", $from_date, $to_date, "booking_details.partner_id", $partner_id, "partner_charge", _247AROUND_COMPLETED);
+        $misc = $this->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.partner_invoice_id IS NULL", $from_date, $to_date, "booking_details.partner_id", $partner_id, "partner_charge", _247AROUND_COMPLETED, $booking_id);
         $result['upcountry'] = array();
         $result['pickup_courier'] = array();
         $result['courier'] = array();
@@ -1114,8 +1126,8 @@ class invoices_model extends CI_Model {
      * @param String $to_date_tmp
      * @return Array
      */
-    function generate_partner_courier_invoice($partner_id, $from_date_tmp, $to_date_tmp, $default = 1) {
-        $from_date = date('Y-m-d', strtotime('-6 months', strtotime($from_date_tmp)));
+    function generate_partner_courier_invoice($partner_id, $from_date_tmp, $to_date_tmp, $default = 1, $booking_id = "") {
+        $from_date = date('Y-m-d', strtotime('-20 months', strtotime($from_date_tmp)));
         if($default == 1){
             $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         } else {
@@ -1124,15 +1136,15 @@ class invoices_model extends CI_Model {
         
         log_message("info", $from_date . "- " . $to_date);
         //Defective return by SF
-        $courier = $this->get_partner_courier_charges($partner_id, $from_date, $to_date);
+        $courier = $this->get_partner_courier_charges($partner_id, $from_date, $to_date, $booking_id);
         //Courier Pickup from Partner
-        $pickup_courier = $this->get_pickup_arranged_by_247around_from_partner($partner_id, $from_date, $to_date);
+        $pickup_courier = $this->get_pickup_arranged_by_247around_from_partner($partner_id, $from_date, $to_date, $booking_id);
         //Warehouse sent part to SF
-        $warehouse_courier = $this->get_partner_invoice_warehouse_courier_data($partner_id, $from_date, $to_date);
+        $warehouse_courier = $this->get_partner_invoice_warehouse_courier_data($partner_id, $from_date, $to_date, $booking_id);
         // Warehouse sent Defective Part to Partner
-        $warehouse_return = $this->get_partner_invoice_warehouse_return_defective($partner_id, $from_date, $to_date);
+        $warehouse_return = $this->get_partner_invoice_warehouse_return_defective($partner_id, $from_date, $to_date, $booking_id);
         //MSL New Part return to partner and MSL sent to SF from warehouse
-        $defective_return_to_partner = $this->get_defective_parts_courier_return_partner($partner_id, $from_date, $to_date);
+        $defective_return_to_partner = $this->get_defective_parts_courier_return_partner($partner_id, $from_date, $to_date, $booking_id);
 
         $final_courier = array_merge($courier, $pickup_courier, $warehouse_courier, $warehouse_return, $defective_return_to_partner);
         $result = array();
@@ -1180,16 +1192,16 @@ class invoices_model extends CI_Model {
      * @param String $to_date_tmp
      * @return Array
      */
-    function generate_partner_invoice($partner_id, $from_date_tmp, $to_date_tmp) {
-        $from_date = date('Y-m-d', strtotime('-20 months', strtotime($from_date_tmp)));
+    function generate_partner_invoice($partner_id, $from_date_tmp, $to_date_tmp, $booking_id = "") {
+        $from_date = date('Y-m-d', strtotime('-2 months', strtotime($from_date_tmp)));
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         log_message("info", $from_date . "- " . $to_date);
-        $result_data = $this->get_partner_invoice_data($partner_id, $from_date, $to_date, $from_date_tmp);
+        $result_data = $this->get_partner_invoice_data($partner_id, $from_date, $to_date, $from_date_tmp, $booking_id);
         $anx_data = array();
         $penalty_count = array();
         $penalty_tat = array();
         if (!empty($result_data['result'])) {
-            $anx_data = $this->invoices_model->getpartner_invoices($partner_id, $from_date, $to_date, $result_data['spare_requested_data']);
+            $anx_data = $this->invoices_model->getpartner_invoices($partner_id, $from_date, $to_date, $result_data['spare_requested_data'], $booking_id);
             
             if(!empty($anx_data['annexure'])){
                 $result_data['penalty_discount'] = array();
@@ -1559,7 +1571,7 @@ class invoices_model extends CI_Model {
      * @return : array
      */
     function generate_vendor_foc_detailed_invoices($vendor_id, $from_date_tmp, $to_date_tmp, $is_regenerate) {
-        $from_date = date('Y-m-d', strtotime('-20 months', strtotime($from_date_tmp)));
+        $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
        
         $is_invoice_null = "";
@@ -1603,7 +1615,7 @@ class invoices_model extends CI_Model {
     }
     
     function get_foc_invoice_data($vendor_id, $from_date_tmp, $to_date, $is_regenerate) {
-        $from_date = date('Y-m-d', strtotime('-20 months', strtotime($from_date_tmp)));
+        $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
         $is_invoice_null = "";
         if ($is_regenerate == 0) {
             $is_invoice_null = " AND vendor_foc_invoice_id IS NULL ";
@@ -2456,8 +2468,11 @@ class invoices_model extends CI_Model {
      * @param String $to_date
      * @return Array
      */
-    function get_partner_courier_charges($partner_id, $from_date, $to_date){
-        
+    function get_partner_courier_charges($partner_id, $from_date, $to_date, $booking_id = ""){
+        $s = "";
+        if($booking_id != ""){
+            $s = " AND bd.booking_id = '".$booking_id."' ";
+        }
         $sql = "SELECT
                     GROUP_CONCAT(s1.id) as sp_id,
                     GROUP_CONCAT(bd.booking_id) as booking_id,
@@ -2482,6 +2497,7 @@ class invoices_model extends CI_Model {
                     AND b.invoice_id IS NULL
                     AND c.delivered_date >= '$from_date'
                     AND c.delivered_date < '$to_date'
+                    $s
                  GROUP by s1.awb_by_sf
                  HAVING courier_charges_by_sf > ".DEFAULT_CHARGES_LIMIT." ";
         $query = $this->db->query($sql);
@@ -2494,7 +2510,11 @@ class invoices_model extends CI_Model {
      * @param String $to_date
      * @return Array
      */
-    function get_pickup_arranged_by_247around_from_partner($partner_id, $from_date, $to_date){
+    function get_pickup_arranged_by_247around_from_partner($partner_id, $from_date, $to_date, $booking_id = ""){
+        $s = "";
+        if($booking_id != ""){
+            $s = " AND bd.booking_id = '".$booking_id."' ";
+        }
         $sql = "SELECT
                     GROUP_CONCAT(s1.id) as sp_id,
                     GROUP_CONCAT(bd.booking_id) as booking_id,
@@ -2521,6 +2541,7 @@ class invoices_model extends CI_Model {
                     AND c.delivered_date >= '$from_date'
                     AND c.delivered_date < '$to_date'
                     AND `around_pickup_from_partner` = 1
+                    $s
                  GROUP by s1.awb_by_partner
                  HAVING courier_charges_by_sf > ".DEFAULT_CHARGES_LIMIT." ";
         $query = $this->db->query($sql);
@@ -2674,7 +2695,7 @@ class invoices_model extends CI_Model {
     }
     
     function get_misc_charges_invoice_data($select, $vendor_partner_invoice, 
-            $from_date, $to_date, $vendor_partner,$vendor_partner_id, $sf_partner_charge, $current_status = ""){
+            $from_date, $to_date, $vendor_partner,$vendor_partner_id, $sf_partner_charge, $current_status = "", $booking_id = ""){
         $this->db->select($select, false);
         $this->db->from('miscellaneous_charges');
         $this->db->join('booking_details', 'booking_details.booking_id = miscellaneous_charges.booking_id');
@@ -2693,6 +2714,10 @@ class invoices_model extends CI_Model {
         }
         if(!empty($to_date)){
             $this->db->where('booking_details.closed_date < ', $to_date );
+        }
+        
+        if($booking_id !=""){
+            $this->db->where('booking_details.booking_id', $booking_id);
         }
         
         $this->db->where($vendor_partner, $vendor_partner_id );
@@ -2770,8 +2795,12 @@ class invoices_model extends CI_Model {
      * @param String $to_date
      * @return Array
      */
-    function get_partner_invoice_warehouse_courier_data($partner_id, $from_date, $to_date){
+    function get_partner_invoice_warehouse_courier_data($partner_id, $from_date, $to_date, $booking_id = ""){
         log_message('info', __METHOD__. " Enterring..");
+        $s = "";
+        if($booking_id != ""){
+            $s = " AND bd.booking_id = '".$booking_id."' ";
+        }
         $sql = "SELECT
                     GROUP_CONCAT(s1.id) as sp_id, c.id as courier_id,
                     GROUP_CONCAT(bd.booking_id) as booking_id,
@@ -2798,6 +2827,7 @@ class invoices_model extends CI_Model {
                     AND c.delivered_date >= '$from_date'
                     AND c.delivered_date < '$to_date'
                     AND s1.part_warranty_status = 1
+                    $s
                  GROUP by s1.awb_by_partner
                  HAVING courier_charges_by_sf > ".DEFAULT_CHARGES_LIMIT." ";
                 
@@ -2806,8 +2836,12 @@ class invoices_model extends CI_Model {
         return $query->result_array();
     }
     
-    function get_partner_invoice_warehouse_return_defective($partner_id, $from_date, $to_date){
+    function get_partner_invoice_warehouse_return_defective($partner_id, $from_date, $to_date, $booking_id = ""){
         log_message('info', __METHOD__. " Enterring..");
+        $s = "";
+        if($booking_id != ""){
+            $s = " AND bd.booking_id = '".$booking_id."' ";
+        }
         $sql = "SELECT
                     GROUP_CONCAT(s1.id) as sp_id,c.id as courier_id,
                     GROUP_CONCAT(bd.booking_id) as booking_id,
@@ -2832,6 +2866,7 @@ class invoices_model extends CI_Model {
                     AND b.invoice_id IS NULL
                     AND c.shippment_date >= '$from_date'
                     AND c.shippment_date < '$to_date'
+                    $s
                  GROUP by s1.awb_by_wh
                  HAVING courier_charges_by_sf > ".DEFAULT_CHARGES_LIMIT." ";
                 
@@ -2862,8 +2897,12 @@ class invoices_model extends CI_Model {
         return $query->result_array();
     }
     
-    function get_defective_parts_courier_return_partner($partner_id, $from_date, $to_date){
+    function get_defective_parts_courier_return_partner($partner_id, $from_date, $to_date, $booking_id = ""){
         log_message('info', __METHOD__. " Enterring..");
+        $s = "";
+        if($booking_id != ""){
+            $s = " AND s1.booking_id = '".$booking_id."' ";
+        }
         $sql = "SELECT
                 GROUP_CONCAT(s1.id) as c_id,c.id as courier_id,
                 s1.booking_id as booking_id,
@@ -2890,6 +2929,7 @@ class invoices_model extends CI_Model {
                 AND b.invoice_id IS NULL
                 AND c.shippment_date >= '$from_date'
                 AND c.shippment_date < '$to_date'
+                $s
              GROUP by c.awb_number
              HAVING courier_charges_by_sf > ".DEFAULT_CHARGES_LIMIT." ";
         

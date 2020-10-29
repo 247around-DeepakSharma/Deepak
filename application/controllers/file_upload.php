@@ -102,6 +102,9 @@ class File_upload extends CI_Controller {
                             //process upload courier serviceable area excel  
                             $response = $this->process_upload_courier_serviceable_area_file($data);
                             break;
+                        case GST_PENALTY_DEBIT_NOTE_TAG:
+                            $response = $this->create_gst_penalty_debit_note($data);
+                            break;
                         default :
                             log_message("info", " upload file type not found");
                             $response['status'] = FALSE;
@@ -2660,4 +2663,103 @@ class File_upload extends CI_Controller {
         $this->load->view('employee/import_partner_appliance_configuration', ['partner_id' => $partner_id, 'data' => $returnMsg]);
     }
     
+    function upload_penalty_on_gst(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/upload_penalty_on_gst');
+    }
+    
+    function create_gst_penalty_debit_note() {
+        echo '<pre/>';
+        $file_status = $this->get_upload_file_type();
+        $file_upload_status = FILE_UPLOAD_FAILED_STATUS;
+        if ($file_status['status']) {
+            $sheetRowData = array();
+            $invalid_data = array();
+            $data = $this->read_upload_file_header($file_status);
+
+            if ($data['status']) {
+
+                $data['post_data']['file_type'] = GST_PENALTY_DEBIT_NOTE_TAG;
+
+                $header_column_need_to_be_present = array('gstin', 'invoice', 'interest');
+
+                //check if required column is present in upload file header
+                $check_header = $this->check_column_exist($header_column_need_to_be_present, $data['header_data']);
+
+                if ($check_header['status']) {
+                    $c_data = array();
+                    for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
+                        $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
+                        $sanitizes_row_data = array_map('trim', $rowData_array[0]);
+
+                        if (!empty(array_filter($sanitizes_row_data))) {
+                            $rowData = array_combine($data['header_data'], $rowData_array[0]);
+                            array_push($sheetRowData, $rowData);
+                        } else {
+                            $invalid_data['message'] = "Invalid Row Sheet";
+                        }
+                    }
+
+                    foreach ($sheetRowData as $value) {
+                        $entity_details = array();
+                        if (!isset($c_data[$value['gstin']])) {
+                            $k = 0;
+                            $entity_details = $this->vendor_model->getVendorDetails("id,gst_no as gst_number, sc_code,"
+                                    . "state,address as company_address,company_name,district, pincode, owner_phone_1, primary_contact_email, owner_email", array("gst_no" => trim($value['gstin'])));
+                            if (!empty($entity_details)) {
+                                
+                                $c_data[$value['gstin']][$k]['service_center_id'] = $entity_details[0]['id'];
+                                $c_data[$value['gstin']][$k]['company_name'] = $entity_details[0]['company_name'];
+                                $c_data[$value['gstin']][$k]['company_address'] = $entity_details[0]['company_address'];
+                                $c_data[$value['gstin']][$k]['district'] = $entity_details[0]['district'];
+                                $c_data[$value['gstin']][$k]['pincode'] = $entity_details[0]['pincode'];
+                                $c_data[$value['gstin']][$k]['state'] = $entity_details[0]['state'];
+                            }
+                        } else {
+                            $k = count($c_data[$value['gstin']]);
+                        }
+
+                        if (isset($c_data[$value['gstin']][0]['service_center_id'])) {
+                            $c_data[$value['gstin']][$k]['description'] = $value['invoice'];
+                            $c_data[$value['gstin']][$k]['rate'] = sprintf("%.2f", $value['interest']);
+                            $c_data[$value['gstin']][$k]['taxable_value'] = sprintf("%.2f", $value['interest']);
+                            $c_data[$value['gstin']][$k]['product_or_services'] = 'Service';
+                            $c_data[$value['gstin']][$k]['gst_number'] = '';
+                            $c_data[$value['gstin']][$k]['gst_rate'] = 0;
+                            $c_data[$value['gstin']][$k]['qty'] = 1;
+                            $c_data[$value['gstin']][$k]['hsn_code'] = HSN_CODE;
+                        }
+
+
+                        if (count($c_data) > 10) {
+                            break;
+                        }
+                    }
+                }
+                $invoice_date = date("Y-m-d");
+                foreach ($c_data as $gst => $val) {
+                    print_r($val);
+                    $response = $this->invoices_model->_set_partner_excel_invoice_data($val, $invoice_date, $invoice_date, "Tax Invoice", $invoice_date);
+                    $invoice_id = $this->invoice_lib->create_invoice_id('ARD-DN');
+                    $response['meta']['gst_number'] = $gst;
+                    $response['meta']['invoice_id'] = $invoice_id;
+                    
+                    $response['meta']['accounting'] = 1;
+                    $response['meta']["vertical"] = SERVICE;
+                    $response['meta']["category"] = SPARES;
+                    $response['meta']["sub_category"] = MSL_NEW_PART_RETURN;
+
+                    $response['meta']['due_date'] = $response['meta']['invoice_date'];
+                    $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
+                    if ($status) {
+                        $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final");
+                    }
+                    
+                    
+                    print_r($response);
+                    exit();
+                }
+            }
+        }
+    }
 }

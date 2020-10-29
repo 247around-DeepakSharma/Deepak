@@ -47,3 +47,5 @@ define("VIDEOCON_ID",247130);
 define("KENSTAR_ID",2470001);
 //Sharp partner id
 define("SHARP_ID",247131);
+//OnsiteGo
+define('ONSITEGO', 247194);
