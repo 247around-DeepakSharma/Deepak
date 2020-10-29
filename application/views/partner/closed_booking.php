@@ -1,5 +1,5 @@
-<?php if ($this->uri->segment(4)) {
-    $count = $this->uri->segment(4) + 1;
+<?php if ($this->uri->segment(5)) {
+    $count = $this->uri->segment(5) + 1;
 } else {
     $count = 1;
 } ?>
@@ -9,21 +9,25 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h2><?php echo $status." Bookings" ?></h2>
-                     <div class="right_holder" style="float:right;margin-right:10px;">
-                         <a style="float: right;background: #2a3f54;border-color: #2a3f54;margin-left: 10px;height: 32px;"type="button" class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>employee/partner/download_partner_pending_bookings/<?php echo $this->session->userdata('partner_id')?>/<?php echo $status ?>">Download</a>
+                    <div class="right_holder" style="float:right;margin-right:10px;">
+                        <a style="float: right;background: #2a3f54;border-color: #2a3f54;margin-left: 10px;height: 32px;"type="button" class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>employee/partner/download_partner_pending_bookings/<?php echo $this->session->userdata('partner_id')?>/<?php echo $status ?>">Download</a>
                             <lable>State</lable>
                             <select class="form-control " id="serachInputCompleted" style="border-radius:3px;">
-                    <option value="all">All</option>
-      <?php
-      foreach($states as $state){
-          ?>
-      <option value="<?php echo $state['state'] ?>"><?php echo $state['state'] ?></option>
-      <?php
-      }
-      ?>
-  </select>            
-</div>
-                                        <div class="clearfix"></div>
+                                <option value="all">All</option>
+                                <?php
+                                    foreach($states as $state){
+                                        $selected = "";
+                                        if(!empty($selected_state) && $selected_state == $state['state']){
+                                            $selected = "selected";
+                                        }
+                                ?>
+                                <option value="<?php echo $state['state'] ?>" <?php echo $selected; ?>><?php echo $state['state'] ?></option>
+                                <?php
+                                    }
+                                ?>
+                            </select>            
+                    </div>
+                    <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
                     <table class="table table-bordered table-hover table-striped" id="complete_booking_table">
@@ -144,21 +148,10 @@
 </div>
 <script>
     var table = $('#complete_booking_table').DataTable(
-            {
-                "pageLength": 50
-            });
-    $("#serachInputCompleted").change(function () {
-         if($('#serachInputCompleted').val() !== 'all'){
-    table
-        .columns(8)
-        .search($('#serachInputCompleted').val())
-        .draw();
-         }
-          else{
-                location.reload();
-            }
-} );
-$('#serachInputCompleted').select2();           
+    {
+        "pageLength": 50
+    });
+    $('#serachInputCompleted').select2();           
     function open_upcountry_model(booking_id, amount_due, flat_upcountry) {
 
         $.ajax({
@@ -172,12 +165,17 @@ $('#serachInputCompleted').select2();
             }
         });
     }
+    
+    $("#serachInputCompleted").change(function(){
+        var state = $("#serachInputCompleted").val();
+        location.href = "<?php echo base_url(); ?>partner/closed_booking/<?php echo $status; ?>/"+state+"/0/0";
+    });
     </script>
     <style>
         .pagination{
             display: none;
         }
-                .dataTables_info{
+        .dataTables_info{
             display: none;
         }
         </style>
