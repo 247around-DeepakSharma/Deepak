@@ -9469,10 +9469,10 @@ class Service_centers extends CI_Controller {
 function do_delivered_spare_transfer() {
 
         if ($this->session->userdata('userType') == 'employee') {
-            $agent_id = $this->session->userdata('id');
+            $agent_id = _247AROUND_DEFAULT_AGENT;
             $entity_id = _247AROUND;
             $entity_type = _247AROUND_EMPLOYEE_STRING;
-            $agent_name = $this->session->userdata('emp_name');
+            $agent_name = _247AROUND_DEFAULT_AGENT_NAME;
         } else {
             $agent_id = $this->session->userdata("service_center_agent_id");
             $entity_id = $this->session->userdata('service_center_id');
@@ -9585,7 +9585,7 @@ function do_delivered_spare_transfer() {
                     $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                 }
 
-                $this->notify->insert_state_change($frombooking, SPARE_PARTS_REQUESTED, "", "Spare Part Transfer from " . $frombooking . " to " . $tobooking, $entity_id, $agent_name, "", "", NULL, $entity_id, "", $to_spare_id);
+                $this->notify->insert_state_change($frombooking, SPARE_PARTS_REQUESTED, "", "Spare Part Transfer from " . $frombooking . " to " . $tobooking, $agent_id, $agent_name, "", "", NULL, $entity_id, "", $to_spare_id);
 
                 $sc_data['current_status'] = _247AROUND_PENDING;
                 $sc_data['internal_status'] = SPARE_DELIVERED_TO_SF;
@@ -9617,7 +9617,7 @@ function do_delivered_spare_transfer() {
                     $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                 }
 
-                $this->notify->insert_state_change($tobooking, SPARE_DELIVERED_TO_SF, "", "Spare Part Transfer from " . $tobooking . " to " . $frombooking, $entity_id, $agent_name, "", "", NULL, $entity_id, "", $from_spare_id);
+                $this->notify->insert_state_change($tobooking, SPARE_DELIVERED_TO_SF, "", "Spare Part Transfer from " . $tobooking . " to " . $frombooking, $agent_id, $agent_name, "", "", NULL, $entity_id, "", $from_spare_id);
 
                 $sc_data1['current_status'] = _247AROUND_PENDING;
                 $sc_data1['internal_status'] = SPARE_PARTS_REQUESTED;
