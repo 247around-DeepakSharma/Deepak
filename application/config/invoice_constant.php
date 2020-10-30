@@ -147,5 +147,5 @@ define('CASH_INVOICE_LIMIT', 10);
 //MSL Credit Note
 define('MSL_Credit_Note', 'MSL Credit Note');
 //Cash Invoice Amount limit
-define('GST_PENALTY_DEBIT_NOTE_TAG', 'GST_PENALTY_DEBIT_NOTE_TAG');
+define('BULK_DEBIT_NOTE_TAG', 'BULK_DEBIT_NOTE_TAG');
 ?>

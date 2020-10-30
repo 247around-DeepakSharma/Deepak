@@ -780,6 +780,9 @@ define('DEFAULT_PENALTY_POINT', 1);
 
 define('WARRANTY_ON_DOP', 1);
 define('WARRANTY_ON_DOI', 2);
+
+//Partner invoice payment file type
+define('INVOICE_GST_PENALTY_FILE_TYPE','invoice_gst_penalty_file_type');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
 
