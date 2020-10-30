@@ -148,7 +148,7 @@
                     </div>
 
                     <div class="col-md-2">
-                        <button type="submit" class="btn btn-success"  >Search</button>
+                        <button type="submit" class="btn btn-success" id="search_booking_id"  >Search</button>
                     </div>
                 </div>   
 
@@ -261,6 +261,9 @@ $(".toinventory").click(function(){
     
 });  
 
+$("#search_booking_id").on('click',function(){
+   $("#submitbutton").attr('disabled', false); 
+});
 
 $("#submitbutton").click(function(e) {
 
@@ -271,6 +274,7 @@ $("#submitbutton").click(function(e) {
     console.log(toinventiryid);
     console.log(frominventiryid);
     if(frominventiryid==toinventiryid){
+        $("#submitbutton").attr('disabled', true);
         $(".loader").removeClass('hide');
             var form = $("#transferform");
             var url = form.attr('action');
