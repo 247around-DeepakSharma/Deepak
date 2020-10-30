@@ -260,7 +260,7 @@ function get_data_for_partner_callback($booking_id) {
       * @param: Booking Status(Cancelled or Completed)
       * @return: Array()
       */
-      function getclosed_booking($limit, $start, $partner_id, $status, $booking_id = "",$state=0){
+      function getclosed_booking($limit, $start, $partner_id, $status, $booking_id = "",$is_agent=0,$state='all'){
         if($limit!="count"){
             $this->db->limit($limit, $start);
         }
@@ -276,9 +276,12 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->join('services','services.id = booking_details.service_id');
         $this->db->join('booking_cancellation_reasons','booking_details.cancellation_reason = booking_cancellation_reasons.id', 'left');
         $this->db->join('users','users.user_id = booking_details.user_id');
-        if($state == 1){
+        if($is_agent == 1){
             $this->db->join('agent_filters','agent_filters.state = booking_details.state', "left");
             $this->db->where('agent_filters.agent_id', $this->session->userdata('agent_id'));
+        }
+        if(!empty($state) && $state != "all"){
+            $this->db->where('booking_details.state', $state);
         }
         $this->db->where('booking_details.current_status', $status);
         if(!empty($booking_id)){
