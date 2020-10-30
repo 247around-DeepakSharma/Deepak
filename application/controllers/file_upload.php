@@ -2663,5 +2663,143 @@ class File_upload extends CI_Controller {
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/import_partner_appliance_configuration', ['partner_id' => $partner_id, 'data' => $returnMsg]);
     }
-    
+
+    /**
+     * @desc This function is used to load view.
+     * We will upload excel file to make debit note in bulk
+     */
+    function create_bulk_debit_note(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/upload_bulk_debit_note');
+    }
+    /**
+     * @desc This function is used to process bulk upload
+     */
+    function process_bulk_debit_note() {
+        $file_status = $this->get_upload_file_type();
+
+        if ($file_status['status']) {
+            $sheetRowData = array();
+            $invalid_data = array();
+            $data = $this->read_upload_file_header($file_status);
+            if ($data['status']) {
+
+                $data['post_data']['file_type'] = BULK_DEBIT_NOTE_TAG;
+
+                $header_column_need_to_be_present = array('vendor_id', 'basic_amount', 'gst_rate', 'description');
+
+                //check if required column is present in upload file header
+                $check_header = $this->check_column_exist($header_column_need_to_be_present, $data['header_data']);
+                $vendor_not_found = array();
+                if ($check_header['status']) {
+                    $c_data = array();
+                    for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
+                        $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
+                        $sanitizes_row_data = array_map('trim', $rowData_array[0]);
+
+                        if (!empty(array_filter($sanitizes_row_data))) {
+                            $rowData = array_combine($data['header_data'], $rowData_array[0]);
+                            array_push($sheetRowData, $rowData);
+                        } else {
+                            $invalid_data['message'] = "Invalid Row Sheet";
+                        }
+                    }
+
+
+                    foreach ($sheetRowData as $value) {
+                        $entity_details = array();
+                        if (!isset($c_data[$value['vendor_id']])) {
+                            $k = 0;
+                            $entity_details = $this->vendor_model->getVendorDetails("id,gst_no as gst_number, sc_code,"
+                                    . "state,address as company_address,company_name,district, pincode, owner_phone_1, primary_contact_email, owner_email", array("service_centres.id" => trim($value['vendor_id'])));
+                            if (!empty($entity_details)) {
+
+                                $c_data[$value['vendor_id']][$k]['service_center_id'] = $entity_details[0]['id'];
+                                $c_data[$value['vendor_id']][$k]['company_name'] = $entity_details[0]['company_name'];
+                                $c_data[$value['vendor_id']][$k]['company_address'] = $entity_details[0]['company_address'];
+                                $c_data[$value['vendor_id']][$k]['district'] = $entity_details[0]['district'];
+                                $c_data[$value['vendor_id']][$k]['pincode'] = $entity_details[0]['pincode'];
+                                $c_data[$value['vendor_id']][$k]['state'] = $entity_details[0]['state'];
+                                $c_data[$value['vendor_id']][$k]['gst_number'] = $entity_details[0]['gst_number'];
+                            } else {
+                                array_push($vendor_not_found, $value['vendor_id']);
+                            }
+                        } else {
+                            $k = count($c_data[$value['vendor_id']]);
+                        }
+
+                        if (empty($vendor_not_found)) {
+                            if (isset($c_data[$value['vendor_id']][0]['service_center_id'])) {
+                                $c_data[$value['vendor_id']][$k]['description'] = $value['description'];
+                                $c_data[$value['vendor_id']][$k]['rate'] = sprintf("%.2f", $value['basic_amount']);
+                                $c_data[$value['vendor_id']][$k]['taxable_value'] = sprintf("%.2f", $value['basic_amount']);
+                                $c_data[$value['vendor_id']][$k]['product_or_services'] = 'Service';
+                                $c_data[$value['vendor_id']][$k]['gst_rate'] = $value['gst_rate'];
+                                $c_data[$value['vendor_id']][$k]['qty'] = 1;
+                                $c_data[$value['vendor_id']][$k]['hsn_code'] = HSN_CODE;
+                            }
+                        }
+                    }
+
+                    if (empty($vendor_not_found)) {
+                        $invoice_date = date("Y-m-d");
+                        foreach ($c_data as $vendor_id => $val) {
+                            $response = $this->invoices_model->_set_partner_excel_invoice_data($val, $invoice_date, $invoice_date, "Debit Note", $invoice_date);
+                            $invoice_id = $this->invoice_lib->create_invoice_id('ARD-DN');
+                            $response['meta']['invoice_id'] = $invoice_id;
+
+                            $response['meta']['accounting'] = 1;
+                            $response['meta']["vertical"] = SERVICE;
+                            $response['meta']["category"] = INSTALLATION_AND_REPAIR;
+                            $response['meta']["sub_category"] = DEBIT_NOTE;
+
+                            $response['meta']['due_date'] = $response['meta']['invoice_date'];
+                            $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
+                            if ($status) {
+                                $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final");
+                                $output_pdf_file_name = $convert['main_pdf_file_name'];
+                                $response['meta']['invoice_file_main'] = $output_pdf_file_name;
+                                $response['meta']['copy_file'] = $convert['copy_file'];
+                                $response['meta']['invoice_file_excel'] = $invoice_id . ".xlsx";
+                                $response['meta']['invoice_detailed_excel'] = NULL;
+
+                                $response['meta']['due_date'] = $response['meta']['invoice_date'];
+
+                                $this->invoice_lib->insert_invoice_breackup($response);
+                                $invoice_details = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", "Debit Note", _247AROUND_SF_STRING, $vendor_id, $convert, $this->session->userdata('id'), HSN_CODE);
+                                $this->invoices_model->insert_new_invoice($invoice_details);
+
+                                $this->invoice_lib->upload_invoice_to_S3($invoice_id, false);
+                                unlink(TMP_FOLDER.$output_pdf_file_name);
+                                unlink(TMP_FOLDER."copy_".$output_pdf_file_name);
+                                unlink(TMP_FOLDER.$invoice_id.".xlsx");
+                                unlink(TMP_FOLDER."copy_".$invoice_id.".xlsx");
+                            }
+
+                        }
+                        $response['status'] = True;
+                        $response['message'] = "Debit Note Generated Successfully";
+
+                        $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], BULK_DEBIT_NOTE_TAG, FILE_UPLOAD_SUCCESS_STATUS, "default", _247AROUND_EMPLOYEE_STRING, _247AROUND);
+                    } else {
+                        $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], BULK_DEBIT_NOTE_TAG, FILE_UPLOAD_FAILED_STATUS, "default", _247AROUND_EMPLOYEE_STRING, _247AROUND);
+                        $response['status'] = FALSE;
+                        $response['message'] = "Incorrect Vendor ID - " . implode(", ", $vendor_not_found);
+                        //Vendor Not found
+                    }
+                } else {
+                    $returnData['status'] = FALSE;
+                    $returnData['message'] = "File upload Failed. " . $check_header['message'];
+                }
+            } else {
+                $returnData['status'] = FALSE;
+                $returnData['message'] = "File upload Failed. Empty file has been uploaded";
+            }
+        } else {
+            $response['status'] = FALSE;
+            $response['message'] = "Failed - File Corrupted.";
+        }
+
+        echo json_encode($response, true);
+    }
 }
