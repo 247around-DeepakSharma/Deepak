@@ -121,7 +121,7 @@ class Whatsapp_model extends CI_Model {
      *  Abhishek Awasthi
      */     
     function get_last_whatsapp_message_send_tag($phone){
-        $sql = "select * from whatsapp_logs where source='" . $phone . "'  order by created_on desc";
+        $sql = "select * from whatsapp_logs where destination='" . $phone . "'  order by created_on desc";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
@@ -142,7 +142,7 @@ class Whatsapp_model extends CI_Model {
     
     
     function get_whatsapp_template_by_tag($tag){
-        $sql = "select * from whatsapp_template where tag='" . $tag . "'";
+        $sql = "select * from whatsapp_template where tag='" . $tag . "' and active = 1";
         $query = $this->db->query($sql);
         return $query->result_array();
     }

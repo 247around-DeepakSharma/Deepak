@@ -2943,10 +2943,18 @@ class Spare_parts extends CI_Controller {
                     $reason_text = 'Sent Spare ' . REPAIR_OOW_TAG . ' to ' . REPAIR_IN_WARRANTY_TAG;
                     $this->send_email_on_change_part_warranty_status($part_warranty_status, $service_center_id, $data, 'spare_parts_in_warranty_email_to_customer');
                 }
-
                 if (!empty($sms_template_tag)) {
                     $this->miscelleneous->send_spare_requested_sms_to_customer($spare_parts_details[0]['parts_requested_type'], $booking_id, $sms_template_tag);
                 }
+                if (!empty($sms_template_tag)) {
+                    //Send whatsapp notification to user
+                    $url = base_url() . "employee/do_background_process/send_whatsapp_for_booking";
+                    $send_whatsapp['booking_id'] = $booking_id;
+                    $send_whatsapp['state'] = $sms_template_tag;
+                    $send_whatsapp['part_type'] = $spare_parts_details[0]['parts_requested_type'];
+                    $this->asynchronous_lib->do_background_process($url, $send_whatsapp);
+                }
+                
                 
                 $check_defective_required_inventory_id = $spare_parts_details[0]['requested_inventory_id'];
                 $partner_details = $this->partner_model->getpartner_details("is_def_spare_required,is_wh, is_defective_part_return_wh,is_micro_wh", array('partners.id' => $partner_id));

@@ -550,4 +550,24 @@ function send_vendor_creation_notification(){
         $this->miscelleneous->reopen_booking($booking_id, $status);
     }
     /* end controller */
+    function send_whatsapp_for_booking() {
+        log_message('info', __FUNCTION__);
+        $booking_id = $this->input->post('booking_id');
+        $state = $this->input->post('state');
+        if($this->input->post('part_type')){
+            $part_type = $this->input->post('part_type');
+        }
+        $extra_parameter = array();
+        if($this->input->post('amount')){
+            $extra_parameter['amount'] = $this->input->post('amount');
+        }
+        if($this->input->post('tiny_url')){
+            $extra_parameter['tiny_url'] = $this->input->post('tiny_url');
+        }
+
+        log_message('info', __FUNCTION__ . " Booking ID :" . print_r($booking_id, true) . " Sms OR EMAIL tag: " . print_r($state, true));
+
+        $this->notify->send_whatsapp_notification($booking_id, $state, $part_type, $extra_parameter);
+        log_message('info', ":  whatsapp message to customer for booking_id" . print_r($booking_id, TRUE) . " and state " . print_r($state, TRUE));
+    }
 }
