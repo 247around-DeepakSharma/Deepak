@@ -4386,18 +4386,6 @@ function generate_image($base64, $image_name,$directory){
                 $sms['type_id'] = $booking_details[0]['user_id'];
                 $this->My_CI->notify->send_sms_msg91($sms);
                 
-                $whatsapp = $this->engineer_model->get_engineer_config(SEND_WHATSAPP);
-                if ($whatsapp[0]->config_value) {
-                    $template = $this->My_CI->whatsapp_model->get_whatsapp_template_by_tag($sms_tag)[0];
-                    
-                    $whatsapp_sms['smsData']['part_type'] = $sms['smsData']['part_type'];
-                    $whatsapp_sms['smsData']['booking_id'] = $sms['smsData']['booking_id'];
-                    $whatsapp_sms['smsData']['cc_number'] = $sms['smsData']['cc_number'];
-                    $whatsapp_message = vsprintf($template['template'], $whatsapp_sms['smsData']);
-                    $phone_number = '91'.$booking_details[0]['booking_primary_contact_no'];
-                    $this->notify->send_whatsapp_to_any_number($phone_number, $whatsapp_message);
-                }
-                
                 
                 if(!empty($booking_details[0]['dealer_id'])){
                    $dealer_details =  $this->My_CI->dealer_model->get_dealer_details('dealer_phone_number_1', array('dealer_id' => $booking_details[0]['dealer_id']));
@@ -4444,19 +4432,6 @@ function generate_image($base64, $image_name,$directory){
                 $sms['type'] = "user";
                 $sms['type_id'] = $booking_details[0]['user_id'];
                 $this->My_CI->notify->send_sms_msg91($sms);
-                
-                
-                $whatsapp = $this->engineer_model->get_engineer_config(SEND_WHATSAPP);
-                if ($whatsapp[0]->config_value) {
-                    $template = $this->My_CI->whatsapp_model->get_whatsapp_template_by_tag('sms_delivered_customer_tag')[0];
-                  
-                    $whatsapp_sms['smsData']['part_type'] = $part_type;;
-                    $whatsapp_sms['smsData']['call_type'] = $booking_id;
-                    $whatsapp_sms['smsData']['cc_number'] = $sms['smsData']['cc_number'];
-                    $whatsapp_message = vsprintf($template['template'], $whatsapp_sms['smsData']);
-                    $phone_number = '91'.$sms['phone_no'];
-                    $this->notify->send_whatsapp_to_any_number($phone_number, $whatsapp_message);
-                }
                 
                 
                 if(!empty($booking_details[0]['dealer_id'])){
