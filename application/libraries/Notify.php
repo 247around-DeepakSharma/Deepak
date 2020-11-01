@@ -1420,16 +1420,144 @@ class Notify {
 
 
    }
+   /**
+     * @desc: Function to send whatsapp message to customer on booking cancel, spare part shipment, 
+     * @parameters $booking_id,$state, $part_type $extra_parameter array
+     * @retun:boolean()
+     */
+   function send_whatsapp_notification($booking_id, $state, $part_type = '', $extra_parameter = array()) {
+        $query = $this->My_CI->booking_model->getbooking_filter_service_center($booking_id);
+        $whatsapp = $this->My_CI->engineer_model->get_engineer_config(SEND_WHATSAPP);
+        if (!empty($query) && !empty($whatsapp[0]->config_value && !empty($booking_id))) {
+            switch ($state) {
+                case 'Cancelled':
+                    $cc_number = "";
+                    $data = $query[0];
+                    if ($data['partner_id'] == VIDEOCON_ID) {
+                        $cc_detail = $this->My_CI->partner_model->get_partner_additional_details("customer_care_number", array("partner_id" => $data['partner_id'], "is_customer_care" => 1));
+                        if (!empty($cc_detail)) {
+                            $cc_number = $cc_detail[0]['customer_care_number'];
+                        } else {
+                            $cc_number = _247AROUND_WHATSAPP_NUMBER;
+                        }
+                        $whatsapp_sms['smsData']['service'] = $data['services'];
+                        $whatsapp_sms['smsData']['cc_number'] = $cc_number;
+                        $whatsapp_sms['smsData']['public_name'] = $data['public_name'];
+                        $tag = VIDEOCON_CANCELLED_BOOKING_TAG;
+                        $template = $this->My_CI->whatsapp_model->get_whatsapp_template_by_tag($tag);
+                        if (!empty($template)) {
+                            $template_data = $template[0];
+                            $whatsapp_message = vsprintf($template_data['template'], $whatsapp_sms['smsData']);
+                            $whatsapp_sms['tag'] = $tag;
+                            $whatsapp_sms['booking_id'] = $booking_id;
+                            $this->send_whatsapp_to_any_number($phone_number, $whatsapp_message, $whatsapp_sms);
+                        }
+                    } else {
+                        $tag = 'cancel_booking';
+                        $call_type = explode(" ", $data['request_type']);
+                        $cc_detail = $this->My_CI->partner_model->get_partner_additional_details("customer_care_number", array("partner_id" => $data['partner_id'], "is_customer_care" => 1));
+                        if (!empty($cc_detail)) {
+                            $cc_number = $cc_detail[0]['customer_care_number'];
+                        } else {
+                            $cc_number = _247AROUND_WHATSAPP_NUMBER;
+                        }
+                        $template = $this->My_CI->whatsapp_model->get_whatsapp_template_by_tag($tag);
+                        if (!empty($template)) {
+                            $template_data = $template[0];
+                            $whatsapp_sms['smsData']['service'] = $data['services'];
+                            if (!empty($call_type)) {
+                                $whatsapp_sms['smsData']['call_type'] = $call_type[0];
+                            } else {
+                                $whatsapp_sms['smsData']['call_type'] = '';
+                            }
+                            if ($data['partner_id'] == JEEVES_ID) {
+                                $whatsapp_sms['smsData']['number'] = JEEVES_CALLCENTER_NUMBER;
+                                $whatsapp_sms['smsData']['name'] = JEEVES_WEBSITE;
+                            } else {
+                                $whatsapp_sms['smsData']['number'] = _247AROUND_CALLCENTER_NUMBER;
+                                $whatsapp_sms['smsData']['name'] = _247AROUND_DEFAULT_AGENT_NAME;
+                            }
+                            $whatsapp_message = vsprintf($template_data['template'], $whatsapp_sms['smsData']);
+                            $phone_number = '91' . $data['booking_primary_contact_no'];
 
+                            $whatsapp_sms['tag'] = $tag;
+                            $whatsapp_sms['booking_id'] = $booking_id;
+                            $this->send_whatsapp_to_any_number($phone_number, $whatsapp_message, $whatsapp_sms);
+                        }
+                    }
+                case SPARE_ON_OUT_OF_WARRANTY_SMS_TAG:
+                case SPARE_ON_IN_WARRANTY_SMS_TAG:
+                    $booking_details = $this->My_CI->booking_model->getbooking_history($booking_id);
+                    if (!empty($booking_details)) {
+                        $phone_number = '91' . $booking_details[0]['booking_primary_contact_no'];
+                        $whatsapp_sms['booking_id'] = $booking_id;
+                        $whatsapp_sms['tag'] = $state;
 
+                        $whatsapp_sms['smsData']['part_type'] = $part_type;
+                        $whatsapp_sms['smsData']['booking_id'] = $booking_id;
+                        if ($booking_details[0]['partner_id'] == VIDEOCON_ID) {
+                            $whatsapp_sms['smsData']['cc_number'] = "Call 0120-4500600";
+                        } else if ($booking_details[0]['partner_id'] == SHARP_ID) {
+                            $whatsapp_sms['smsData']['cc_number'] = SHARP_CALLCENTER_NUMBER;
+                        } else {
+                            $whatsapp_sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER;
+                        }
+                        $template = $this->My_CI->whatsapp_model->get_whatsapp_template_by_tag($state);
+                        if (!empty($template)) {
+                            $template_data = $template[0];
+                            $whatsapp_message = vsprintf($template_data['template'], $whatsapp_sms['smsData']);
+                            $this->send_whatsapp_to_any_number($phone_number, $whatsapp_message, $whatsapp_sms);
+                        }
+                    }
+                case SPARE_DELIVERED_CUSTOMER_SMS_TAG:
+                    $booking_details = $this->My_CI->booking_model->getbooking_history($booking_id);
+                    if (!empty($booking_details)) {
+                        $whatsapp_sms['tag'] = SPARE_DELIVERED_CUSTOMER_SMS_TAG;
+                        $whatsapp_sms['booking_id'] = $booking_id;
+
+                        $whatsapp_sms['smsData']['part_type'] = $part_type;
+                        $whatsapp_sms['smsData']['booking_id'] = $booking_id;
+                        if ($booking_details[0]['partner_id'] == VIDEOCON_ID) {
+                            $whatsapp_sms['smsData']['cc_number'] = "Call 0120-4500600";
+                        } else if ($booking_details[0]['partner_id'] == SHARP_ID) {
+                            $whatsapp_sms['smsData']['cc_number'] = SHARP_CALLCENTER_NUMBER;
+                        } else {
+                            $whatsapp_sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER;
+                        }
+                        $phone_number = '91' . $booking_details[0]['booking_primary_contact_no'];
+                        $template = $this->My_CI->whatsapp_model->get_whatsapp_template_by_tag($state);
+                        if (!empty($template)) {
+                            $template_data = $template[0];
+                            $whatsapp_message = vsprintf($template_data['template'], $whatsapp_sms['smsData']);
+                        }
+                    }
+                case 'customer_paid_invoice_pdf_not_generated':
+                case 'customer_paid_invoice':
+                    $booking_details = $this->My_CI->booking_model->getbooking_history($booking_id);
+                    if (!empty($booking_details)) {
+                        $phone_number = '91' . $booking_details[0]['booking_primary_contact_no'];
+                        $template = $this->My_CI->whatsapp_model->get_whatsapp_template_by_tag($state);
+                        if (!empty($template)) {
+                            $template_data = $template[0];
+                            $whatsapp_sms['smsData']['part_type'] = $extra_parameter['amount'];
+                            $whatsapp_sms['smsData']['booking_id'] = $booking_id;
+                            if ($state == 'customer_paid_invoice') {
+                                $whatsapp_sms['smsData']['tiny_url'] = $extra_parameter['tiny_url'];
+                            }
+                            echo $whatsapp_message = vsprintf($template_data['template'], $whatsapp_sms['smsData']);
+                        }
+                    }
+            }
+        }
+    }
 
     /**
      * @desc: Function to send whatsapp message to any number
-     * @parameters $phone_number,$message
+     * @parameters $phone_number,$message, $whatsapp_sms array
      * @retun:boolean()
      */
 
-   function send_whatsapp_to_any_number($phone_number, $message){
+   function send_whatsapp_to_any_number($phone_number, $message, $whatsapp_sms = array()){
     $phone_number = "+".$phone_number;
     $payloadName = '{
        "channel": "'.API_KARIX_CHANNEL.'",
@@ -1473,6 +1601,8 @@ class Notify {
     // echo $channel;
             $whatsapp = array(
             'source' => $source,
+            'booking_id' => $whatsapp_sms['booking_id'],
+            'message_tag' => $whatsapp_sms['tag'],
             'destination' => $destination,
             'channel' => 'whatsapp',
             'direction' => $direction,
