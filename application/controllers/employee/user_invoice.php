@@ -170,6 +170,19 @@ class User_invoice extends CI_Controller {
                     $sms['type'] = "user";
                     $sms['type_id'] = $data[0]->user_id;
                     $this->notify->send_sms_msg91($sms);
+                    
+                    if(!empty($sms['tag'])){
+                        $url = base_url() . "employee/do_background_process/send_whatsapp_for_booking";
+                        $send_whatsapp['booking_id'] = $booking_id;
+                        $send_whatsapp['state'] = $sms['tag'];
+                        $send_whatsapp['amount'] = $data[0]->amount_paid;
+                        if ($sms['tag'] == "customer_paid_invoice") {
+                            $send_whatsapp['tiny_url'] = $tinyUrl;
+                        }
+                        $this->asynchronous_lib->do_background_process($url, $send_whatsapp);
+                    }
+                    
+                    
 
                     $this->insert_payment_invoice($booking_id, $response, $data[0]->assigned_vendor_id, 
                             $data[0]->closed_date, $agent_id, $convert, $data[0]->user_id,$preinvoice_id);

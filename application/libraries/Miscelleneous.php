@@ -628,6 +628,11 @@ class Miscelleneous {
         $send['booking_id'] = $booking_id;
         $send['state'] = $data['current_status'];
         $this->My_CI->asynchronous_lib->do_background_process($url, $send);
+        //Send whatsapp notification to user
+        $url = base_url() . "employee/do_background_process/send_whatsapp_for_booking";
+        $send_whatsapp['booking_id'] = $booking_id;
+        $send_whatsapp['state'] = $data['current_status'];
+        $this->My_CI->asynchronous_lib->do_background_process($url, $send);
         //Inform to sf when partner/call center has cancelled booking
         $this->My_CI->notify->send_email_to_sf_when_booking_cancelled($booking_id);
 
@@ -4412,6 +4417,12 @@ function generate_image($base64, $image_name,$directory){
                 $sms['type'] = "user";
                 $sms['type_id'] = $booking_details[0]['user_id'];
                 $this->My_CI->notify->send_sms_msg91($sms);
+                
+                $url = base_url() . "employee/do_background_process/send_whatsapp_for_booking";
+                $send_whatsapp['booking_id'] = $booking_id;
+                $send_whatsapp['state'] = SPARE_DELIVERED_CUSTOMER_SMS_TAG;
+                $send_whatsapp['part_type'] = $getsparedata[0]['parts_requested_type'];;
+                $this->My_CI->asynchronous_lib->do_background_process($url, $send_whatsapp);
                 
                 
                 if(!empty($booking_details[0]['dealer_id'])){
