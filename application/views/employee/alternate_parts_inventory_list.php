@@ -315,7 +315,7 @@
                 method:'POST',            
                 url:'<?php echo base_url(); ?>employee/inventory/upate_alternate_inventory_set',
                 dataType: "json",
-                data: { inventory_id : inventory_id, status : status, inventory_set_id : inventory_set_id, appliance_model_id : appliance_model_id },
+                data: { inventory_id : inventory_id, status : status,  group_id: data.group_id,inventory_set_id : inventory_set_id, appliance_model_id : appliance_model_id },
                 success:function(response){
                       if(response.status == true){
                           alternate_inventory_master_list_table.ajax.reload();
