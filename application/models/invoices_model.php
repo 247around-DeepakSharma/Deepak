@@ -3977,7 +3977,7 @@ class invoices_model extends CI_Model {
         ELSE 0
         END) AS m1_part_sale
         FROM invoice_details id inner join vendor_partner_invoices vp on id.invoice_id = vp.invoice_id 
-        WHERE id.inventory_id=".$inventory_id." and vp.vendor_partner_id=".$warehouse_id." and vendor_partner_invoices.sub_category='MSL'";
+        WHERE id.inventory_id=".$inventory_id." and vp.vendor_partner_id=".$warehouse_id." and vp.sub_category='MSL'";
         $query1 = $this->db->query($sql);
         return $query1->result_array();
     }
