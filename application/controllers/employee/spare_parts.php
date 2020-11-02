@@ -4033,6 +4033,24 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             $objPHPExcel1 = PHPExcel_IOFactory::load(TMP_FOLDER . $output_file_excel);
             $objPHPExcel2 = PHPExcel_IOFactory::load(TMP_FOLDER . $booking_landed_excel);
             $objPHPExcel1->getActiveSheet()->setTitle("MWH Consumption Report");
+            $month = date('F');
+            $month1 = date('F', strtotime(date('Y-m')." -1 month"));
+            $month2 = date('F', strtotime(date('Y-m')." -2 month"));
+            $month3 = date('F', strtotime(date('Y-m')." -3 month"));
+            $objPHPExcel1->getActiveSheet()->setCellValue('U2',"$month3 Sale to SF");
+            $objPHPExcel1->getActiveSheet()->setCellValue('V2',"$month2 Sale to SF");
+            $objPHPExcel1->getActiveSheet()->setCellValue('W2',"$month1 Sale to SF");
+            $objPHPExcel1->getActiveSheet()->setCellValue('X2',"$month Sale to SF");
+            
+            $objPHPExcel2->getActiveSheet()->setCellValue('H2',"Installation Booking count - $month3");
+            $objPHPExcel2->getActiveSheet()->setCellValue('I2',"Installation Booking count - $month2");
+            $objPHPExcel2->getActiveSheet()->setCellValue('J2',"Installation Booking count - $month1");
+            $objPHPExcel2->getActiveSheet()->setCellValue('K2',"Installation Booking count - $month");
+            $objPHPExcel2->getActiveSheet()->setCellValue('L2',"Repair Booking count - $month3");
+            $objPHPExcel2->getActiveSheet()->setCellValue('M2',"Repair Booking count - $month2");
+            $objPHPExcel2->getActiveSheet()->setCellValue('N2',"Repair Booking count - $month1");
+            $objPHPExcel2->getActiveSheet()->setCellValue('O2',"Repair Booking count - $month");
+            
             foreach ($objPHPExcel2->getSheetNames() as $sheetName) {
                 $sheet = $objPHPExcel2->getSheetByName($sheetName);
                 $sheet->setTitle('Bookings Landed');
@@ -4047,8 +4065,8 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         if (!empty($this->session->userdata('session_id'))) {
             $this->load->helper('download');
             $data = file_get_contents(TMP_FOLDER . $output_file_excel);
-            force_download($output_file_excel, $data);
             unlink(TMP_FOLDER . $output_file_excel);
+            force_download($output_file_excel, $data);            
         } else {
 
             $email_template = $this->booking_model->get_booking_email_template(SEND_MSL_FILE);
@@ -4170,7 +4188,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
           }
           $array_to_download[$key][] =   $value['create_date'];
         }
-         $file_name = "oow_revenue_report_" . date('YmdHis') . ".csv";
+         $file_name = "oow_revenue_report_" . date('YmdHis');
         $this->miscelleneous->downloadCSV($array_to_download,$heading,$file_name);
 
     }
