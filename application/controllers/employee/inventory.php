@@ -2894,9 +2894,9 @@ class Inventory extends CI_Controller {
         if (!empty($group_inventory_id)) {
             $group_id = $group_inventory_id[0]['group_id'];
             $post['column_order'] = array();
-            $post['column_search'] = array('part_name', 'part_number', 'services.services', 'services.id','appliance_model_details.model_number');
-            $post['where'] = "inventory_master_list.entity_id = $entity_id AND inventory_master_list.entity_type ='" . $entity_type . "' AND  inventory_master_list.service_id = $service_id AND inventory_master_list.inventory_id IN($inventory_ids)".$where_type;
-            $select = "inventory_master_list.*,services.services,alternate_inventory_set.status,appliance_model_details.id as model_id,appliance_model_details.model_number";
+            $post['column_search'] = array('part_name', 'part_number', 'services.services', 'services.id', 'appliance_model_details.model_number');
+            $post['where'] = "inventory_master_list.entity_id = $entity_id AND inventory_master_list.entity_type ='" . $entity_type . "' AND  inventory_master_list.service_id = $service_id AND inventory_master_list.inventory_id IN($inventory_ids)" . $where_type;
+            $select = "inventory_master_list.*,services.services,alternate_inventory_set.status,appliance_model_details.id as model_id,appliance_model_details.model_number, alternate_inventory_set.group_id";
             $list = $this->inventory_model->get_alternate_inventory_master_list($post, $select);
             $partners = array_column($this->partner_model->getpartner_details("partners.id,public_name", array('partners.is_active' => 1, 'partners.is_wh' => 1)), 'public_name', 'id');
             $data = array();
@@ -2979,7 +2979,7 @@ class Inventory extends CI_Controller {
         }
         
         if ($this->session->userdata('userType') == 'employee') {
-            $json_data = json_encode(array('status' => $stock_list->status, 'inventory_id' => $stock_list->inventory_id, 'model_id' => $stock_list->model_id));
+            $json_data = json_encode(array('status' => $stock_list->status, 'group_id' => $stock_list->group_id,'inventory_id' => $stock_list->inventory_id, 'model_id' => $stock_list->model_id));
             $row[] = "<a href='javascript:void(0)' class ='btn $colour_class' data-alternate_spare_details='$json_data' id='change_status_alternate_spare_part'>" . $icon . "</a>";
         }
         return $row;
@@ -8648,8 +8648,9 @@ function get_bom_list_by_inventory_id($inventory_id) {
         if (!empty($this->input->post("inventory_id"))) {
             $data = array('alternate_inventory_set.status' => $this->input->post("status"));
             $where = array(
-                'alternate_inventory_set.group_id' => $this->input->post("inventory_set_id"),
-                'alternate_inventory_set.inventory_id' => $this->input->post("inventory_id")
+                'alternate_inventory_set.group_id' => $this->input->post("group_id"),
+                'alternate_inventory_set.inventory_id' => $this->input->post("inventory_id"),
+                'alternate_inventory_set.model_id' => $this->input->post("appliance_model_id")
             );
             $affect_row = $this->inventory_model->update_alternate_inventory_set($data, $where);
             if ($affect_row) {
