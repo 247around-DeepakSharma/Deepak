@@ -635,6 +635,11 @@ class Miscelleneous {
         $send['booking_id'] = $booking_id;
         $send['state'] = $data['current_status'];
         $this->My_CI->asynchronous_lib->do_background_process($url, $send);
+        //Send whatsapp notification to user
+        $url = base_url() . "employee/do_background_process/send_whatsapp_for_booking";
+        $send_whatsapp['booking_id'] = $booking_id;
+        $send_whatsapp['state'] = $data['current_status'];
+        $this->My_CI->asynchronous_lib->do_background_process($url, $send);
         //Inform to sf when partner/call center has cancelled booking
         $this->My_CI->notify->send_email_to_sf_when_booking_cancelled($booking_id);
 
@@ -4386,18 +4391,6 @@ function generate_image($base64, $image_name,$directory){
                 $sms['type_id'] = $booking_details[0]['user_id'];
                 $this->My_CI->notify->send_sms_msg91($sms);
                 
-                $whatsapp = $this->engineer_model->get_engineer_config(SEND_WHATSAPP);
-                if ($whatsapp[0]->config_value) {
-                    $template = $this->My_CI->whatsapp_model->get_whatsapp_template_by_tag($sms_tag)[0];
-                    
-                    $whatsapp_sms['smsData']['part_type'] = $sms['smsData']['part_type'];
-                    $whatsapp_sms['smsData']['booking_id'] = $sms['smsData']['booking_id'];
-                    $whatsapp_sms['smsData']['cc_number'] = $sms['smsData']['cc_number'];
-                    $whatsapp_message = vsprintf($template['template'], $whatsapp_sms['smsData']);
-                    $phone_number = '91'.$booking_details[0]['booking_primary_contact_no'];
-                    $this->notify->send_whatsapp_to_any_number($phone_number, $whatsapp_message);
-                }
-                
                 
                 if(!empty($booking_details[0]['dealer_id'])){
                    $dealer_details =  $this->My_CI->dealer_model->get_dealer_details('dealer_phone_number_1', array('dealer_id' => $booking_details[0]['dealer_id']));
@@ -4445,18 +4438,11 @@ function generate_image($base64, $image_name,$directory){
                 $sms['type_id'] = $booking_details[0]['user_id'];
                 $this->My_CI->notify->send_sms_msg91($sms);
                 
-                
-                $whatsapp = $this->engineer_model->get_engineer_config(SEND_WHATSAPP);
-                if ($whatsapp[0]->config_value) {
-                    $template = $this->My_CI->whatsapp_model->get_whatsapp_template_by_tag('sms_delivered_customer_tag')[0];
-                  
-                    $whatsapp_sms['smsData']['part_type'] = $part_type;;
-                    $whatsapp_sms['smsData']['call_type'] = $booking_id;
-                    $whatsapp_sms['smsData']['cc_number'] = $sms['smsData']['cc_number'];
-                    $whatsapp_message = vsprintf($template['template'], $whatsapp_sms['smsData']);
-                    $phone_number = '91'.$sms['phone_no'];
-                    $this->notify->send_whatsapp_to_any_number($phone_number, $whatsapp_message);
-                }
+                $url = base_url() . "employee/do_background_process/send_whatsapp_for_booking";
+                $send_whatsapp['booking_id'] = $booking_id;
+                $send_whatsapp['state'] = SPARE_DELIVERED_CUSTOMER_SMS_TAG;
+                $send_whatsapp['part_type'] = $getsparedata[0]['parts_requested_type'];;
+                $this->My_CI->asynchronous_lib->do_background_process($url, $send_whatsapp);
                 
                 
                 if(!empty($booking_details[0]['dealer_id'])){

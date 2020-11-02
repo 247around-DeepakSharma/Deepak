@@ -2943,10 +2943,18 @@ class Spare_parts extends CI_Controller {
                     $reason_text = 'Sent Spare ' . REPAIR_OOW_TAG . ' to ' . REPAIR_IN_WARRANTY_TAG;
                     $this->send_email_on_change_part_warranty_status($part_warranty_status, $service_center_id, $data, 'spare_parts_in_warranty_email_to_customer');
                 }
-
                 if (!empty($sms_template_tag)) {
                     $this->miscelleneous->send_spare_requested_sms_to_customer($spare_parts_details[0]['parts_requested_type'], $booking_id, $sms_template_tag);
                 }
+                if (!empty($sms_template_tag)) {
+                    //Send whatsapp notification to user
+                    $url = base_url() . "employee/do_background_process/send_whatsapp_for_booking";
+                    $send_whatsapp['booking_id'] = $booking_id;
+                    $send_whatsapp['state'] = $sms_template_tag;
+                    $send_whatsapp['part_type'] = $spare_parts_details[0]['parts_requested_type'];
+                    $this->asynchronous_lib->do_background_process($url, $send_whatsapp);
+                }
+                
                 
                 $check_defective_required_inventory_id = $spare_parts_details[0]['requested_inventory_id'];
                 $partner_details = $this->partner_model->getpartner_details("is_def_spare_required,is_wh, is_defective_part_return_wh,is_micro_wh", array('partners.id' => $partner_id));
@@ -3966,6 +3974,24 @@ class Spare_parts extends CI_Controller {
             $objPHPExcel1 = PHPExcel_IOFactory::load(TMP_FOLDER . $output_file_excel);
             $objPHPExcel2 = PHPExcel_IOFactory::load(TMP_FOLDER . $booking_landed_excel);
             $objPHPExcel1->getActiveSheet()->setTitle("MWH Consumption Report");
+            $month = date('F');
+            $month1 = date('F', strtotime(date('Y-m')." -1 month"));
+            $month2 = date('F', strtotime(date('Y-m')." -2 month"));
+            $month3 = date('F', strtotime(date('Y-m')." -3 month"));
+            $objPHPExcel1->getActiveSheet()->setCellValue('U2',"$month3 Sale to SF");
+            $objPHPExcel1->getActiveSheet()->setCellValue('V2',"$month2 Sale to SF");
+            $objPHPExcel1->getActiveSheet()->setCellValue('W2',"$month1 Sale to SF");
+            $objPHPExcel1->getActiveSheet()->setCellValue('X2',"$month Sale to SF");
+            
+            $objPHPExcel2->getActiveSheet()->setCellValue('H2',"Installation Booking count - $month3");
+            $objPHPExcel2->getActiveSheet()->setCellValue('I2',"Installation Booking count - $month2");
+            $objPHPExcel2->getActiveSheet()->setCellValue('J2',"Installation Booking count - $month1");
+            $objPHPExcel2->getActiveSheet()->setCellValue('K2',"Installation Booking count - $month");
+            $objPHPExcel2->getActiveSheet()->setCellValue('L2',"Repair Booking count - $month3");
+            $objPHPExcel2->getActiveSheet()->setCellValue('M2',"Repair Booking count - $month2");
+            $objPHPExcel2->getActiveSheet()->setCellValue('N2',"Repair Booking count - $month1");
+            $objPHPExcel2->getActiveSheet()->setCellValue('O2',"Repair Booking count - $month");
+            
             foreach ($objPHPExcel2->getSheetNames() as $sheetName) {
                 $sheet = $objPHPExcel2->getSheetByName($sheetName);
                 $sheet->setTitle('Bookings Landed');
@@ -3980,8 +4006,8 @@ class Spare_parts extends CI_Controller {
         if (!empty($this->session->userdata('session_id'))) {
             $this->load->helper('download');
             $data = file_get_contents(TMP_FOLDER . $output_file_excel);
-            force_download($output_file_excel, $data);
             unlink(TMP_FOLDER . $output_file_excel);
+            force_download($output_file_excel, $data);            
         } else {
 
             $email_template = $this->booking_model->get_booking_email_template(SEND_MSL_FILE);
@@ -4102,7 +4128,7 @@ class Spare_parts extends CI_Controller {
           }
           $array_to_download[$key][] =   $value['create_date'];
         }
-         $file_name = "oow_revenue_report_" . date('YmdHis') . ".csv";
+         $file_name = "oow_revenue_report_" . date('YmdHis');
         $this->miscelleneous->downloadCSV($array_to_download,$heading,$file_name);
 
     }
