@@ -300,24 +300,36 @@
                                 foreach($detailedSummaryReportData as $detailedSummaryReport){
                                     $finalFilterArray = array();
                                     $filterArray = json_decode($detailedSummaryReport['filters'],true);
-                                    
+                                    if(empty($filterArray)){
+                                        $filterArray = array();
+                                    }
                                     foreach($filterArray as $key=>$value){
                                         if($key == "Date_Range" && !empty($value)){
                                             $dArray = explode(" - ",$value);
                                             $key  = "Registration Date";
-                                            $startTemp = strtotime($dArray[0]);
-                                            $endTemp = strtotime($dArray[1]);
-                                            $startD = date('d-F-Y',$startTemp);
-                                            $endD = date('d-F-Y',$endTemp);
+                                            $startD = $endD = "";
+                                            if(!empty($dArray[0])){
+                                                $startTemp = strtotime($dArray[0]);
+                                                $startD = date('d-F-Y',$startTemp);
+                                            }
+                                            if(!empty($dArray[1])) {
+                                                $endTemp = strtotime($dArray[1]);                                            
+                                                $endD = date('d-F-Y',$endTemp);
+                                            }
                                             $value = $startD." To ".$endD;
                                         }
                                         if($key == "Completion_Date_Range" && !empty($value)){
                                             $dArray = explode(" - ",$value);
                                             $key  = "Completion Date";
-                                            $startTemp = strtotime($dArray[0]);
-                                            $endTemp = strtotime($dArray[1]);
-                                            $startD = date('d-F-Y',$startTemp);
-                                            $endD = date('d-F-Y',$endTemp);
+                                            $startD = $endD = "";
+                                            if(!empty($dArray[0])){
+                                                $startTemp = strtotime($dArray[0]);
+                                                $startD = date('d-F-Y',$startTemp);
+                                            }
+                                            if(!empty($dArray[1])){
+                                                $endTemp = strtotime($dArray[1]);                                            
+                                                $endD = date('d-F-Y',$endTemp);
+                                            }
                                             $value = $startD." To ".$endD;
                                            
                                         }
