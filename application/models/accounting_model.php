@@ -175,7 +175,7 @@ class accounting_model extends CI_Model {
                 . " invoice_date, from_date,  to_date,"
                 . " `reference_invoice_id`,"
                 . $g_string
-                . " abs(`amount_collected_paid`) as amount_collected_paid,"
+                . " abs(`amount_collected_paid`) as amount_collected_paid, total_amount_collected,"
                 . " `tds_rate`,`tds_amount`,"
                 . " vpi.type,vpi.type_code,"
                 . " vertical, category, sub_category, "
