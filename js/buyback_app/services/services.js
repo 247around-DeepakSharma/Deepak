@@ -14,7 +14,7 @@ uploadfile.service('fileUpload', ['$http', function ($http) {
             headers: {'Content-Type': undefined}
         })
         .success(function(response){
-            //console.log(response);
+            console.log(response);
             obj = angular.fromJson(response);
             if(obj['code'] >0 ){
                 $scope.ShowSpinnerStatus = false;
