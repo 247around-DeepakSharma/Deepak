@@ -8621,7 +8621,7 @@ class Service_centers extends CI_Controller {
         foreach ($spareData['payload'] as $key => $spare) {
             $data[$key] = array();
             $amount = 0;
-            if ($spare['sub_category'] == MSL) {
+            if ($spare['sub_category'] == MSL || $spare['sub_category'] == MSL_Debit_Note ) {
                 if ($spare['amount'] == 0) {
                     $amount = $spare['amount'];
                 } else {
