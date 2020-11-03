@@ -373,6 +373,7 @@ class Accounting extends CI_Controller {
         $header['from_date'] = "Invoice From Date";
         $header['to_date'] = "Invoice To Date";
         $header['reference_invoice_id'] = "Refrence Invoice ID";
+        $header['total_amount_collected'] = "Total Amount";
         $header['amount_collected_paid'] = "Amount Collected Paid";
         $header['tds_amount'] = "TDS Aamount";
         $header['tds_rate'] = "TDS Rate";
@@ -420,6 +421,7 @@ class Accounting extends CI_Controller {
                 $array[$value['invoice_id']]['from_date'] = $value['from_date'];
                 $array[$value['invoice_id']]['to_date'] = $value['to_date'];
                 $array[$value['invoice_id']]['reference_invoice_id'] = $value['reference_invoice_id'];
+                $array[$value['invoice_id']]['total_amount_collected'] = $value['total_amount_collected'];
                 $array[$value['invoice_id']]['amount_collected_paid'] = $value['amount_collected_paid'];
                 $array[$value['invoice_id']]['tds_amount'] = $value['tds_amount'];
                 $array[$value['invoice_id']]['tds_rate'] = $value['tds_rate'];

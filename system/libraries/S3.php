@@ -442,7 +442,7 @@ class S3 {
 	{ 
         $is_img = getimagesize($file);
         if($is_img == true){
-        	$contentType = "image/png";
+        	$contentType = "image/jpeg";
         }
 		return self::putObject(self::inputFile($file), $bucket, $uri, $acl, $metaHeaders, $contentType);
 	}

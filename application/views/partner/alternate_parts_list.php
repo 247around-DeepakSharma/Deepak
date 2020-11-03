@@ -260,6 +260,7 @@
         var data = $(this).data('alternate_spare_details');
         var status = data.status;
         var inventory_id = data.inventory_id;
+        var appliance_model_id = data.model_id;
         if(inventory_id!='' && status != ''){
             if(status == 1 && confirm("Are you sure you want to deactivate ?")){
                 status = '0';
@@ -271,7 +272,7 @@
                 method:'POST',            
                 url:'<?php echo base_url(); ?>employee/inventory/upate_alternate_inventory_set',
                 dataType: "json",
-                data: {inventory_id:inventory_id,status:status,inventory_set_id:inventory_set_id},
+                data: {inventory_id:inventory_id,status:status,inventory_set_id:inventory_set_id, group_id: data.group_id, appliance_model_id : appliance_model_id},
                 success:function(response){
                       if(response.status == true){
                           alternate_inventory_master_list_table.ajax.reload();
