@@ -5127,7 +5127,7 @@ exit();
                 $w['spare_invoice_flag'] = true;
                 $w['where_in'] = array("spare_parts_details.id" => $is_validate['data']);
                 $w['select'] = "spare_parts_details.id, spare_parts_details.booking_id, purchase_price, public_name, booking_details.partner_id, oow_spare_invoice_details.invoice_pdf as oow_invoice_pdf,"
-                        . "purchase_invoice_id,sell_invoice_id, sell_price, incoming_invoice_pdf, partners.state, parts_shipped, spare_parts_details.shipped_quantity, spare_parts_details.shipped_inventory_id";
+                        . "purchase_invoice_id,sell_invoice_id, sell_price, incoming_invoice_pdf, partners.state, parts_shipped, spare_parts_details.shipped_quantity, spare_parts_details.shipped_inventory_id, shipped_parts_type";
                 $data = $this->inventory_model->get_spare_parts_query($w);
                 
                 $unique_partner = array_unique(array_map(function ($k) {
@@ -5178,6 +5178,7 @@ exit();
                                 $total_igst_ampount += $igst_amount;
                             }
                             $total_amount = $taxable_value + $igst_amount +$cgst_amount + $sgst_amount;
+                            $part_data[$value->id]['purchase_price'] = $total_amount;
                             $total_amount_collected += $total_amount;
                             $total_part_basic += $taxable_value;
                             $invoice_details = array(
@@ -5234,8 +5235,18 @@ exit();
                             // get booking_details.
                             $booking_details = $this->reusable_model->get_search_query('booking_details', '*', array('booking_details.booking_id' => $value->booking_id), NULL, NULL, NULL, NULL, NULL)->result_array()[0];
                             
+                            
+                            $margin = $this->inventory_model->get_oow_margin($value->shipped_inventory_id, array('part_type' => $value->shipped_parts_type, 'inventory_parts_type.service_id' => $booking_details[0]['service_id']));
+               
+                            $spare_oow_around_margin = $margin['oow_around_margin']/100;
+                            $spare_oow_est_margin = $margin['oow_est_margin']/100;
+                            
+                            $challan_approx_value = ($part_data[$value->id]['purchase_price'] + $part_data[$value->id]['purchase_price'] * $spare_oow_around_margin );
+                            $sell_price = ($part_data[$value->id]['purchase_price'] + $part_data[$value->id]['purchase_price'] * $spare_oow_est_margin );
+                            
                             $this->service_centers_model->update_spare_parts(array('id' => $value->id), array("purchase_invoice_id" => $invoice['invoice_id'],
-                                'invoice_gst_rate' => $part_data[$value->id]['gst_rate']));
+                                'invoice_gst_rate' => $part_data[$value->id]['gst_rate'], 'purchase_price' => $part_data[$value->id]['purchase_price'], 
+                                'challan_approx_value' => $challan_approx_value, 'sell_price' =>$sell_price ));
                             
                             if($booking_details['current_status'] == _247AROUND_PENDING) {
                                 $this->vendor_model->update_service_center_action($value->booking_id, array('current_status' => "InProcess", 'internal_status' => SPARE_PARTS_SHIPPED));
