@@ -1937,7 +1937,7 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__ . " Service_center ID: " . $this->session->userdata('service_center_id') . " Booking Id: " . $this->input->post('booking_id'));
         log_message('info', __METHOD__ . " POST DATA " . json_encode($this->input->post()));
         $access = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-        if (!empty($_FILES['defective_parts_pic']['name'][0]) || !empty($_FILES['defective_back_parts_pic']['name'][0])) {
+        if (!empty($_FILES['defective_parts_pic']['name'][0]) || !empty($_FILES['defective_back_parts_pic']['name'][0]) || !empty($_FILES['defect_pic']['name'][0])) {
             $is_file = $this->validate_part_data();
         }
 
