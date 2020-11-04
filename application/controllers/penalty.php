@@ -205,4 +205,89 @@ class Penalty extends CI_Controller {
         echo $options;
     }
 
+    /**
+     * @Desc: This function is used to show review reject reasons List
+     * @return : view
+     */
+    function review_reject_reason() {
+        $arr_where['penalty_details.reason_of IN ('.REVIEW_REJECT_CANCELLATION_REASON.','.REVIEW_REJECT_COMPLETION_REASON.')'] = NULL;
+        $data['data'] = $this->penalty_model->get_penalty_details($arr_where, true);
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/admin_review_reject_reasons', $data);
+    }
+    
+    /**
+     * This function is used to check whether a reject reason is already created or not
+     * This function is called from AJAX to avoid addition of duplicate rejection reasons
+     */
+    public function validate_review_rejection_reason()
+    {
+        $data = $this->input->post();
+        $criteria = $data['criteria']; 
+        $id = $data['reason_id'];
+        $reason_of = $data['reason_of'];
+        $arr_where['UPPER(REPLACE(criteria, " ", "")) = "'.strtoupper(str_replace(" ", "", $criteria)).'"'] = NULL;
+        if(!empty($id)){
+            $arr_where['id != '.$id] = NULL; 
+        }
+        if(!empty($reason_of)){
+            $arr_where['reason_of'] = $reason_of; 
+        }
+        $query = $this->db->get_where('penalty_details', $arr_where);        
+        $res = $query->result();
+        $count = count($res);
+        if($count > 0)
+        {
+            echo("fail");
+        }
+        exit;
+    }
+    
+    /**
+     * This function is used to add new review rejection reasons in database
+     */
+    public function save_review_reject_reason() {
+        $data['id'] = $this->input->post('reason_id');
+        $data['criteria'] = $this->input->post('criteria');
+        $data['penalty_point'] = $this->input->post('penalty_point');
+        $data['reason_of'] = $this->input->post('reason_of');
+        $data['active'] = $this->input->post('active');
+        $this->penalty_model->save_review_rejection_reasons($data);      
+        $this->session->set_userdata(['success' => 'Data has been saved successfully.']);
+        redirect(base_url() . 'penalty/review_reject_reason');
+    }
+
+    
+    /**
+     * @desc: This function is used to activate and deactivate rejection reason status
+     * @params: void
+     * @return: boolean
+     */
+    public function update_review_rejection_reason_status() {
+        $data = array(
+            'active' => $this->input->post('status')
+        );
+        $where = array(
+            'id' => $this->input->post('id')
+        );
+        $response = $this->penalty_model->update_review_rejection_reason_status($where, $data);
+        echo $response;
+    }
+    
+    /**
+     * This function is used to fetch penalty data against a Id   
+     * @return Response
+     */
+    public function get_penalty_data() {
+        $data = $this->input->post();
+        $id = !empty($data['id']) ? $data['id'] : "";
+        $penalty = [];
+        if(!empty($id))
+        {
+            $penalty = $this->db->get_where('penalty_details', array('id' => $id))->row();
+        }        
+        echo(json_encode($penalty));
+    }
+
+
 }

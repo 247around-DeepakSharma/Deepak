@@ -1,22 +1,44 @@
 <div id="page-wrapper">
     <div class="container-fluid">
         <div class="row">
+            <?php
+            if ($this->session->userdata('success')) {
+                echo '<div class="alert alert-success alert-dismissible" role="alert">
+                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                         <span aria-hidden="true">&times;</span>
+                     </button>
+                     <strong>' . $this->session->userdata('success') . '</strong>
+                 </div>';
+            }
+            ?>
+            <?php
+            if ($this->session->userdata('error')) {
+                echo '<div class="alert alert-danger alert-dismissible" role="alert">
+                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                         <span aria-hidden="true">&times;</span>
+                     </button>
+                     <strong>' . $this->session->userdata('error') . '</strong>
+                 </div>';
+            }
+            ?>
+        <div>
+        <div class="row">
             <div class="col-lg-12">
                 <h1 class="page-header">
                     Reason
-                    <a class="btn btn-primary btn-md pull-right" href='javascript:void(0)' id="add_inventory" title="Add Reason"><i class="glyphicon glyphicon-plus"></i></a>
+                    <a class="btn btn-primary btn-md pull-right" href='javascript:void(0)' id="add_reason" title="Add Reason"><i class="glyphicon glyphicon-plus"></i></a>
                 </h1>                        
             </div>
         </div>
         <div class="x_panel" style="height: auto;">
-            <table id="inventory_list" class="table table-striped table-bordered">
+            <table id="reason_list" class="table table-striped table-bordered">
                 <thead>
                     <tr>
                         <th>S.No.</th>
                         <th>Reason</th>
-                        <th>Penalty Point</th>>
-                        <th>Penalty</th>
-                        <th>Agent Name</th>>
+                        <th>Penalty Point</th>
+                        <th>Reason Of</th>
+                        <th>Agent Name</th>
                         <th class="no-sort">Active</th> 
                         <th class="no-sort">Action</th>
                         <th style="display: none;">Active</th>
@@ -38,7 +60,7 @@
                             } else {
                                 echo "Cancellation";
                             } ?></td>
-                            <td><?php echo $rec['full_name']; ?></td>>
+                            <td><?php echo $rec['agent_name']; ?></td>
                             <td id="row<?= $rec['id'] ?>">
                                 <?php
                                 if (!empty($rec['active'])) {
@@ -49,7 +71,7 @@
                                 ?>
                             </td>
                             <td>
-                                <a class="btn btn-primary btn-xs" href='javascript:void(0)' title="Update Reason" id="update_inventory" inventory_id="<?= $rec['id']; ?>"><i class="glyphicon glyphicon-pencil"></i></a>
+                                <a class="btn btn-primary btn-xs" href='javascript:void(0)' title="Update Reason" id="update_reason" reason_id="<?= $rec['id']; ?>"><i class="glyphicon glyphicon-pencil"></i></a>
                             </td>
                             <td style="display: none;">
 
@@ -64,27 +86,21 @@
         </div>
     </div>
     <!--Modal start-->
-    <div id="inventory_data" class="modal fade" role="dialog">
+    <div id="reason_data" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="modal_title_action" style="display: inline-block;">Add Reason</h4>
+                    <h4 class="modal-title" id="modal_title_action" style="display: inline-block;">Add Review Rejection Reason</h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form class="form-horizontal" id="category_details" method="post" action="<?php echo base_url() . 'employee/inventory/save' ?>">
+                    <form class="form-horizontal" id="reject_reasons" method="post" action="<?php echo base_url() . 'penalty/save_review_reject_reason' ?>">
                         <div class="row">
                             <div class="col-md-8 col-md-offset-2">
-                                <div class="form-group">
-                                    <!--<label class="col-md-4">Key</label>-->
-                                    <div class="col-md-8">
-                                        <input type="hidden" name="inventory_id" id="inventory_id" value=""/>
-                                        <!--<input type="text" name="private_key" id="private_key" class="form-control" value="" required>-->
-                                        <p class="text-danger" id="errorMessage"></p>
-                                    </div>
-                                </div>
+                                <input type="hidden" name="reason_id" id="reason_id" value=""/>
+                                <p class="text-danger" id="errorMessage"></p>
                             </div>
                             <div class="col-md-8 col-md-offset-2">
                                 <div class="form-group">
@@ -98,7 +114,7 @@
                                 <div class="form-group">
                                     <label class="col-md-4">Penalty Point*</label>
                                     <div class="col-md-8">
-                                        <input type="number" name="penalty_point" id="penalty_point" class="form-control" value="" required>
+                                        <input type="number" name="penalty_point" id="penalty_point" class="form-control" value="" min="1" max="10" equired>
                                     </div>
                                 </div>
                             </div>
@@ -106,9 +122,9 @@
                                 <div class="form-group">
                                     <label class="col-md-4">Reason Of*</label>
                                     <div class="col-md-8">
-                                        <select id="reason_of" name="reason_of" required>
-                                    <option value="2">Cancellation</option> 
-                                    <option value="1">Completion</option>
+                                        <select id="reason_of" name="reason_of" class="form-control" required>
+                                            <option value="2">Cancellation</option> 
+                                            <option value="1">Completion</option>
                                         </select>
                                     </div>
                                 </div>
@@ -123,9 +139,8 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <input type="submit" name="Save" id="Save" class="btn btn-primary" onclick="return validate_review_form()">
+                            <button type="submit" name="save_data" id="save_data" class="btn btn-primary" onclick="return validate_review_form()">Save</button>
                             <p class="pull-left text-danger">* These fields are required</p>                            
-                            <!--<br/> <p class="pull-left text-danger">* No Special Characters are allowed in Name except dot(.) and Hyphen(-)</p>-->
                         </div>
                     </form>
                 </div>
@@ -136,7 +151,7 @@
 </div>
 
 <script>
-    $('#inventory_list').dataTable({
+    $('#reason_list').dataTable({
         "order": [],
          "columnDefs": [ {
            "targets"  : 'no-sort',
@@ -147,29 +162,27 @@
                 {
                     extend: 'excel',
                     text: 'Export',
-                    title: 'Capacity-list',
-
+                    title: 'review-reject-list',
                     exportOptions: {
-                    columns: [0, 1, 2, 5]
+                        columns: [0, 1, 2, 5]
+                    }
                 }
-                }
-                ]
-                        
+        ]                        
      });
 
-    $(document).on("click", "#add_inventory", function () {
+    $(document).on("click", "#add_reason", function () {
         // Display the Bootstrap modal
-        $('#modal_title_action').html("Create Reason");
-        $('#inventory_data').modal('show');
+        $('#modal_title_action').html("Add Review Rejection Reason");
+        $('#reason_data').modal('show');
     });
 
-    $(document).on("click", "#update_inventory", function () {
-        var id = $(this).attr('inventory_id');
-        $.post('<?php echo base_url(); ?>employee/inventory/get_inventory_data', {id: id}, function (response) {
+    $(document).on("click", "#update_reason", function () {
+        var id = $(this).attr('reason_id');
+        $.post('<?php echo base_url(); ?>penalty/get_penalty_data', {id: id}, function (response) {
             var data = JSON.parse(response);
             $('#criteria').val(data.criteria);
-             $('#penalty_point').val(data.penalty_point);
-            $('#inventory_id').val(data.id);
+            $('#penalty_point').val(data.penalty_point);
+            $('#reason_id').val(data.id);
             $('#reason_of').val(data.reason_of);
             if (data.active == 1)
             {
@@ -179,8 +192,8 @@
                 $('#active').prop("checked", false);
             }
             // Display the Bootstrap modal
-            $('#modal_title_action').html("Update Reason");
-            $('#inventory_data').modal('show');
+            $('#modal_title_action').html("Update Review Rejection Reason");
+            $('#reason_data').modal('show');
         });
     });
 
@@ -192,17 +205,17 @@
             statusFlag = "Activate";
         }
 
-        if (!confirm("Are you sure, You want to " + statusFlag + " Reason ?"))
+        if (!confirm("Are you sure, You want to " + statusFlag + " this reason ?"))
         {
             return false;
         }
 
         var id = btnId.substr(3);
-        // alert(id);
-        $.post('<?php echo base_url(); ?>employee/inventory/update_inventory_status', {id: id, status: status}, function (data) {
+        $.post('<?php echo base_url(); ?>penalty/update_review_rejection_reason_status', {id: id, status: status}, function (data) {
             data = $.trim(data);
             if (data == '1')
             {
+                alert("Data updated successfully");            
                 if (status == '1')
                 {
                     $("#row" + id).html("<i class='fa fa-check-circle fa-2x text-success' id='btn" + id + "' onClick='changeStatus(this.id,0)'></i>");
@@ -220,29 +233,26 @@
     {
         var flag = 1;
         var criteria = $('#criteria').val();
-        var inventory_id = $('#inventory_id').val();
+        var reason_id = $('#reason_id').val();
+        var reason_of = $('#reason_of').val();
         $("#errorMessage").html('');
-        
-        // Validate name only alphanumeric characters along with . and - are allowed
-//        var reg_exp = '/^[0-9a-zA-Z]+$/';
-//        if (!(name.match(reg_exp))) {
-//            alert("Only alpha-numeric characters along with dot(.) and hyphen(-) are allowed for Category Name");
-//            return false;
-//        }
+        $("#save_data").prop('disabled', true);
 
         $.ajax({
-            url: '<?php echo base_url(); ?>employee/inventory/validate_review_form',
+            url: '<?php echo base_url(); ?>penalty/validate_review_rejection_reason',
             async: false,
             method: 'post',
             data: {
-                name: criteria,
-                inventory_id: inventory_id
+                criteria : criteria,
+                reason_id : reason_id,
+                reason_of : reason_of
             },
             success: function (data) {
+                $("#save_data").prop('disabled', false);
                 data = $.trim(data);
                 if (data == 'fail')
                 {
-                    $("#errorMessage").html('Name ' + criteria + ' has already been taken');
+                    $("#errorMessage").html('Name "' + criteria + '" has already been taken');
                     flag = 0;
                 }
             },
@@ -263,3 +273,10 @@
         float: right;
     }
 </style>
+<?php
+    if ($this->session->userdata('success')) {
+        $this->session->unset_userdata('success');
+    } if ($this->session->userdata('error')) {
+        $this->session->unset_userdata('error');
+    }
+?>
