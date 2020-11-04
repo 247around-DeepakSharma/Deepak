@@ -700,7 +700,7 @@ function setAppliances(i) {
     var appliance_capacity = $("#appliance_capacity_" + i).val();
 
     if (appliance_capacity === null) {
-        alert("Please select Capacity " + i);
+        alert("Select capacity, if capacity not found please check the model mapping for this brand");
         return false;
     }
 
