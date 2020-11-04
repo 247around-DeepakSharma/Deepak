@@ -1139,15 +1139,17 @@ class Around_scheduler extends CI_Controller {
     /**
      * @desc This function is used to calculate upcountry from India Pincode File
      */
-    function get_upcountry_details_from_india_pincode($service_id) {
+    function get_upcountry_details_from_india_pincode($service_id = "") {
         $this->upcountry_model->truncate_upcountry_sf_level_table();
         $pincode_array = $this->vendor_model->getPincode_from_india_pincode("", true);
         $partner_data = array();
         $partner_data[0]['is_upcountry'] = 0;
         $partner_data[0]['upcountry_approval_email'] = '';
+        $partner_data[0]['upcountry_bill_to_partner'] = 0;
         
-        //$services = $this->booking_model->selectservice();
-        //foreach ($services as $service_id) {
+        $services = $this->booking_model->selectservice();
+        foreach ($services as $s) {
+            $service_id = $s->id;
             $upcountry_data = array();
             foreach ($pincode_array as $key => $pincode) {
                 $up_details = $this->miscelleneous->check_upcountry_vendor_availability("", $pincode['pincode'], $service_id, $partner_data);
@@ -1202,7 +1204,7 @@ class Around_scheduler extends CI_Controller {
                  
             }
             log_message('info',__METHOD__. " Exit");
-        //}
+        }
         
         $newCSVFileName = "upcountry_local_file" . date('jMYHis') . ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
@@ -1588,6 +1590,7 @@ class Around_scheduler extends CI_Controller {
         $rm_details = $this->employee_model->get_rm_details();
         foreach ($rm_details as $rm) {
             $sf_list = $this->vendor_model->get_employee_relation($rm['id']);
+            if(!empty($sf_list)) {
             $select = "group_concat(name) as name,group_concat(primary_contact_email,',',owner_email) as email";
             $where = array('is_gst_doc' => 0, 'active' => 1, 'on_off'=>1, '(is_signature_doc IS null OR is_signature_doc = 0)' => NULL, '(signature_file IS Null OR signature_file = "")' => NULL, "id IN(" . $sf_list[0]['service_centres_id'] . ")" => NULL);
             $data = $this->vendor_model->getVendorDetails($select, $where);
@@ -1627,6 +1630,7 @@ class Around_scheduler extends CI_Controller {
             } 
         }
     }
+}
 
     /**
      * @desc     used to send the reminder to sf and rm to update GST file
@@ -2470,7 +2474,12 @@ class Around_scheduler extends CI_Controller {
             
             foreach ($data as $value) {
                 log_message('info', __METHOD__. " Reschedule Booking ".$value['booking_id']);
-                $reschedule_booking_date[$value['booking_id']] = $value['reschedule_date_request'];
+                if(!empty($value['reschedule_date_request'])){
+                    $reschedule_booking_date[$value['booking_id']] = $value['reschedule_date_request'];
+                } else {
+                    $reschedule_booking_date[$value['booking_id']] = $value['booking_date'];
+                }
+
                 $reschedule_booking_id[] = $value['booking_id'];
                 $reschedule_reason[$value['booking_id']] = $value['reschedule_reason'];
                 $partner_id_array[$value['booking_id']] = $value['partner_id'];

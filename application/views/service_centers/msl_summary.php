@@ -9,9 +9,10 @@
                             <th>S.NO.</th>
                             <th>Category</th>
                             <th>Sub - Category</th>
-                            <th>Parts Count</th>
+<!--                            <th>Parts Count</th>-->
                             <th>Invoice ID</th>
-                            <th>Amount</th>
+                            <th>Invoice Amount</th>
+                            <th>Balance Amount</th>
                             <th>Invoice Date</th>
                         </tr>
                     </thead>
@@ -22,8 +23,9 @@
                                     <td><?php echo ++$key; ?></td>
                                     <td><?php echo $item['category']; ?></td>
                                     <td><?php echo $item['sub_category']; ?></td>
-                                    <td><?php echo $item['parts_count']; ?></td>
-                                    <td><?php echo $item['invoice_id']; ?></td>
+<!--                                    <td><?php //echo $item['parts_count']; ?></td>-->
+                                    <td><a href="<?php echo S3_WEBSITE_URL;?>invoices-excel/<?php echo $item['invoice_file_main'];?>"><?php echo $item['invoice_id']; ?></a></td>
+                                    <td><?php echo $item['total_amount_collected']; ?></td>
                                     <td><?php echo $item['amount']; ?></td>
                                     <td><?php echo $item['invoice_date']; ?></td>
                                 </tr>
@@ -61,7 +63,8 @@
                             <th>Sub - Category</th>
                             <th>Parts Count</th>
                             <th>Invoice ID</th>
-                            <th>Amount</th>
+                            <th>Invoice Amount</th>
+                            <th>Balanced Amount</th>
                             <th>Invoice Date</th>
                         </tr>
                     </thead>
@@ -70,6 +73,7 @@
                     <tfoot>
                         <tr>
                             <th>Total</th>
+                            <th></th>
                             <th></th>
                             <th></th>
                             <th></th>
@@ -138,8 +142,8 @@
             "drawCallback":function(){
                 $('[data-toggle="tooltip"]').tooltip();
                 var api = this.api();
-                $( api.column( 5 ).footer() ).html(
-                    api.column( 5 ).data().reduce( function ( a, b ) {
+                $( api.column( 6 ).footer() ).html(
+                    api.column( 6 ).data().reduce( function ( a, b ) {
                         return (parseFloat(a) + parseFloat(b)).toFixed(2);
                     }, 0 )
                 );

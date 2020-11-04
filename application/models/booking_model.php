@@ -2227,7 +2227,18 @@ class Booking_model extends CI_Model {
         $query = $this->db->get('email_sent');
         return $query->result_array();
     } 
-    
+    /**
+    * @Desc: This function is used to get whatsapp log for particular booking id
+    * @params: booking_id
+    * @return: array
+    * 
+    */
+    function get_whatsapp_log_details($where){
+        $this->db->select('*');
+        $this->db->where($where);
+        $query = $this->db->get('whatsapp_logs');        
+        return $query->result_array();
+    }
     
     /**
      *  @desc : This function is used to insert appliance details into appliance_product_description table
@@ -2371,19 +2382,16 @@ class Booking_model extends CI_Model {
         $this->db->select($select,FALSE);
         $this->db->from('users');
         $this->db->join('booking_details', 'booking_details.user_id  = users.user_id', 'left');
-//        $this->db->join('service_center_booking_action', 'booking_details.booking_id  = service_center_booking_action.booking_id', 'left');
         $this->db->join('services', 'services.id = booking_details.service_id', 'left');
-                // $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id','left');
         $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id','left');
-        //$this->db->join('employee as emp_asm', 'service_centres.asm_id = emp_asm.id','left');
         $this->db->join('employee', 'service_centres.rm_id = employee.id','left');
+        $this->db->join('employee as emp_asm', 'service_centres.asm_id = emp_asm.id','left');
         $this->db->join('penalty_on_booking', "booking_details.booking_id = penalty_on_booking.booking_id and penalty_on_booking.active = '1'",'left');
         $this->db->join('booking_files', "booking_files.id = ( SELECT booking_files.id from booking_files WHERE booking_files.booking_id = booking_details.booking_id AND booking_files.file_description_id = '".BOOKING_PURCHASE_INVOICE_FILE_TYPE."' LIMIT 1 )",'left');
         $this->db->join('engineer_details', 'booking_details.assigned_engineer_id = engineer_details.id','left');
         if(!isset($post['unit_not_required'])){
             $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id', 'left');
         }
-        
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }
@@ -2436,8 +2444,7 @@ class Booking_model extends CI_Model {
      *  @param : $select string
      *  @return: Array()
      */
-        function get_bookings_by_status($post, $select = "",$sfIDArray = array(),$is_download=0,$is_spare=NULL,$partner_details=0,$join_array=array(),$join_type_array=array()) 
-        {        
+    function get_bookings_by_status($post, $select = "",$sfIDArray = array(),$is_download=0,$is_spare=NULL,$partner_details=0) {
         $this->_get_bookings_by_status($post, $select);
         if ($post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
@@ -2445,10 +2452,6 @@ class Booking_model extends CI_Model {
         if($sfIDArray){
             $this->db->where_in('booking_details.assigned_vendor_id', $sfIDArray);
         }
-        /*if($partnerIDArray){
-            $this->db->where_in('booking_details.partner_id', $partnerIDArray);
-            $this->db->where_not_in('booking_details.internal_status', array('InProcess_Cancelled','InProcess_Completed'));
-        }*/
         if($is_download){
             if($is_download == 2){
                
@@ -2463,16 +2466,8 @@ class Booking_model extends CI_Model {
         if($is_spare){
             $this->db->join('spare_parts_details', 'booking_details.booking_id  = spare_parts_details.booking_id', 'left');
             $this->db->group_by('booking_details.booking_id'); 
-        }
-         if(!empty($join_array)){
-            foreach ($join_array as $tableName => $joinCondition){
-                if(array_key_exists($tableName, $join_type_array)){
-                    $this->db->join($tableName,$joinCondition,$join_type_array[$tableName]);
-                }
-                else{
-                    $this->db->join($tableName,$joinCondition);
-                }
-            }
+        }elseif (!empty($post['group_by'])) {
+            $this->db->group_by($post['group_by']);
         }
         $query = $this->db->get();
         if($is_download){
@@ -2885,7 +2880,12 @@ class Booking_model extends CI_Model {
     }
     
     // check for duplicate serial number bookings which are not cancelled 
-    function get_data_for_duplicate_serial_number_check($serialNumber,$booking_id){
+    
+    function get_data_for_duplicate_serial_number_check($serialNumber,$booking_id,$getDOI = false){
+        $strWhere = "";
+        if($getDOI){
+           $strWhere = " AND booking_details.request_type LIKE '%Installation%'"; 
+        }
         $sql = "SELECT 
                         *
                 FROM
@@ -2898,6 +2898,7 @@ class Booking_model extends CI_Model {
                         AND (service_center_booking_action.current_status != '"._247AROUND_CANCELLED."' || service_center_booking_action.internal_status != '"._247AROUND_CANCELLED."')
                         AND booking_unit_details.price_tags NOT IN ('Repeat Booking' , 'Presale Repair')
                         AND booking_unit_details.booking_id != '".$booking_id."'
+                        $strWhere
                 GROUP BY 
                         booking_details.booking_id";  
         $query = $this->db->query($sql);

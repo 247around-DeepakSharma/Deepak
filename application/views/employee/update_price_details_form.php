@@ -1,3 +1,10 @@
+<style>
+.alert-dismissable .close, .alert-dismissible .close {
+    position: relative;
+    top: -10px;
+    right: -21px;
+}
+</style>
 <div id="page-wrapper" >
      <div class="container col-md-12" >
  <?php if(validation_errors()){?>
@@ -43,13 +50,13 @@
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Part Name </label>
-                                    <input type="text"  class="form-control" id="part_name" name="part_name" value = "<?php if(!empty($zopper)){ echo $zopper[0]['part_name']; }?>" placeholder="Enter Part Name" >
+                                    <input type="text"  class="form-control" id="part_name" name="part_name" value = "<?php if(!empty($zopper)){ echo $zopper[0]['part_name']; }?>" placeholder="Enter Part Name" required="">
                                    
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
-                                    <label for="parts">Part Estimate Given </label>
+                                    <label for="parts">Part Estimate Given <span class="text-danger">*</span> </label>
                                     <input type="number" step="0.01" class="form-control total_charges part_estimate" id="part_charge" name="part_estimate_given" value = "<?php if(!empty($zopper)){ echo $zopper[0]['part_estimate_given']; }?>" placeholder="Enter Parts Charge" required>
                                     <input type="hidden" class="form-control" name="booking_id" value="<?php
                                     if (!empty($data[0])) {
@@ -76,7 +83,7 @@
                         <div class="col-md-12">
                              <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
-                                    <label for="parts">Service Charges </label>
+                                    <label for="parts">Service Charges <span class="text-danger">*</span></label>
                                     <input type="number" step="0.01" class="form-control total_charges service_charge" id="service_charge" name="service_charge" value = "<?php if(!empty($zopper)){ echo $zopper[0]['service_charge']; }?>" placeholder="Enter Service Charge" required>
                                 </div>
                             </div>
@@ -94,7 +101,7 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
-                                    <label for="parts">Transport Charges </label>
+                                    <label for="parts">Transport Charges <span class="text-danger">*</span> </label>
                                     <input type="number" step="0.01" class="form-control total_charges transport_charge" id="transport_charge" name="transport_charge" value = "<?php if(!empty($zopper)){ echo $zopper[0]['transport_charge']; }?>" placeholder="Enter Transport Charge" required>
                                 </div>
                             </div>
@@ -107,7 +114,7 @@
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Total Transport Charges  </label>
-                                    <input type="number" step="0.01" class="form-control total_charges charges" id="total_transport_charges" name="total_transport_charges" value = "" placeholder="Totol Transport Charges" readonly="">
+                                    <input type="number" step="0.01" class="form-control total_charges charges" id="total_transport_charges" name="total_transport_charges" value = "" placeholder="Total Transport Charges" readonly="">
                                 </div>
                             </div>
                         </div>
@@ -115,7 +122,7 @@
                         <div class="col-md-12">
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
-                                    <label for="parts">Courier Charges </label>
+                                    <label for="parts">Courier Charges <span class="text-danger">*</span></label>
                                     <input type="number" step="0.01" class="form-control total_charges courier_charge" id="courier_charge" name="courier_charge" value = "<?php if(!empty($zopper)){ echo $zopper[0]['courier_charge']; }?>" placeholder="Enter Courier Charge" required>
                                 </div>
                             </div>
@@ -212,10 +219,15 @@
                 </form>
             </div>
         </div>
+    
+<?php } else { 
+        if($error){
+    ?>
+    <div class="container col-md-12">
+        <span style="font-size: 18px; color: #f01b1b;margin-left: 15PX;"> Booking is not found in (In Warranty).</span>
     </div>
-<?php } ?>
+<?php } } ?>
 </div>
-
 <script>
 $("#entity").select2();
 <?php if(!empty($zopper)){ ?>partner_vendor('<?php if(!empty($zopper)){echo $zopper[0]['entity'];}?>'); <?php }?>

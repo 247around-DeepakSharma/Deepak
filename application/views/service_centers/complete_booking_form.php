@@ -302,7 +302,7 @@
                                                                     <input type="hidden" id="<?php echo "serial_number_pic" . $count ?>" class="form-control" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "]" ?>" 
                                                                         value="<?php if(isset($price['en_serial_number_pic'])){ echo $price['en_serial_number_pic'];} elseif(!empty($booking_history['spare_parts'])){ echo $booking_history['spare_parts'][0]['serial_number_pic'];} else {echo $price["serial_number_pic"];}  ?>" placeholder=""   />
 <!--                                                                    onblur="validateSerialNo('<?php //echo $count;?>')" -->
-                                                                    <input type="text" style="text-transform: uppercase;" id="<?php echo "serial_number" . $count ?>" onblur="validateSerialNo('<?php echo $count;?>')" class="form-control" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>"  
+                                                                    <input type="text" style="text-transform: uppercase;pointer-events: none;background: #eee;" id="<?php echo "serial_number" . $count ?>" onblur="validateSerialNo('<?php echo $count;?>')" class="form-control" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>"  
                                                                         value="<?php if(isset($price['en_serial_number'])){ echo $price['en_serial_number'];}
                                                                         elseif(!empty($booking_history['spare_parts'][0]['serial_number']) && $booking_history['spare_parts'][0]['status'] != _247AROUND_CANCELLED){ echo $booking_history['spare_parts'][0]['serial_number'];} else {echo $price["serial_number"];}  ?>" placeholder="Enter Serial No" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8"   />
                                                                     <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
@@ -311,7 +311,7 @@
                                                                     <input type="hidden" id="<?php echo "is_sn_correct" . $count ?>" class="form-control" name="<?php echo "is_sn_correct[" . $price['unit_id'] . "]" ?>"/>
                                                                     <br/>
                                                                     <span style="color:red;" id="<?php echo 'error_serial_no'.$count;?>"></span>
-                                                                    <input style="margin-top: 10px;" type="file" id="<?php echo "upload_serial_number_pic" . $count ?>"   
+                                                                    <input style="margin-top: 10px;display:none;" type="file" id="<?php echo "upload_serial_number_pic" . $count ?>"   
                                                                         class="form-control serialNumberPic" name="<?php echo "upload_serial_number_pic[" . $price['unit_id'] . "]" ?>"  
                                                                         value="<?php if(isset($price['en_serial_number_pic'])){ echo $price['en_serial_number_pic'];}
                                                                         elseif(!empty($booking_history['spare_parts'][0]['serial_number_pic']) && $booking_history['spare_parts'][0]['status'] != _247AROUND_CANCELLED){ echo $booking_history['spare_parts'][0]['serial_number_pic'];} else {echo $price["serial_number_pic"];}  ?>"
@@ -638,7 +638,7 @@
                                 <div class="col-md-12">
                                     <div class="input-group">
                                         <div class="input-group-addon">Rs.</div>
-                                        <input  type="text" class="form-control cost" name="upcountry_charges" id="upcountry_charges" value="<?php echo "0";?>" placeholder="Enter Upcountry Charges Paid By Customer">
+                                        <input  type="text" class="form-control cost" name="upcountry_charges" id="upcountry_charges" value="<?php echo $upcountry_charges;?>" placeholder="Enter Upcountry Charges Paid By Customer">
                                     </div>
                                 </div>
                             </div>

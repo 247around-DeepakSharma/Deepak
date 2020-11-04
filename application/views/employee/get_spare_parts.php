@@ -70,7 +70,7 @@
                         </div>
                         <div class="col-md-4">
                             <div class="pull-right">
-                                <a class="btn btn-success"  href="#"  id="download_spare_list">Download</a><span class="badge" title="download all spare data except requested spare"><i class="fa fa-info"></i></span>
+                                <a class="btn btn-success"  href="#"  id="download_spare_list">Download</a><span class="badge" title="Download all spare data as per the applied filters"><i class="fa fa-info"></i></span>
                             </div>
                         </div>
                     </div>
@@ -585,12 +585,13 @@
                      $("#"+button_id).html("Generate Sale Invoice... <i class='fa fa-spinner fa-spin' aria-hidden='true'></i>");
                  },
                  complete: function(data){
-                     if(data=='SUCCESS'){
+                     //data = data.trim();
+                     if(data!=''){
                         alert('Invoice Generated Successfully');
                     }else{
                         alert('Invoice Not Generated');
                     }
-					$("#"+button_id).html("Generate Sale Invoice");
+                    $("#"+button_id).html("Generate Sale Invoice");
                  }
             });
         }

@@ -289,8 +289,6 @@ class Service_centers_model extends CI_Model {
         }
 
          if($userInfo){
-             $join = "JOIN users ON booking_details.user_id = users.user_id";
-             $join = $join." JOIN services ON booking_details.service_id = services.id";
              $userSelect = ",users.name,services.services";
          }
         if($state == 1){
@@ -469,7 +467,7 @@ class Service_centers_model extends CI_Model {
      * @return type Array
      */
     function get_updated_spare_parts_booking($sc_id){
-        $sql = "SELECT distinct sp.*,DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(sp.date_of_request, '%Y-%m-%d')) AS age_of_request,IF( entity_type = 'vendor','Warehouse','Partner' ) as  entity_type , bd.partner_id,bd.request_type "
+        $sql = "SELECT distinct sp.*,DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(sp.date_of_request, '%Y-%m-%d')) AS age_of_request,IF( entity_type = 'vendor','Warehouse','Partner' ) as  entity_type , bd.partner_id,bd.request_type,bd.nrn_approved "
                 . " FROM spare_parts_details as sp, service_center_booking_action as sc, booking_details as bd "
                 . " WHERE  sp.booking_id = sc.booking_id  AND sp.booking_id = bd.booking_id "
                 . " AND (sp.status = '".SPARE_PARTS_REQUESTED."' OR sp.status = '".SPARE_SHIPPED_BY_PARTNER."' OR sp.status = '".SPARE_PART_ON_APPROVAL."' OR sp.status = '".SPARE_OOW_SHIPPED."' OR sp.status = '".SPARE_OOW_EST_GIVEN."' OR sp.status = '".SPARE_OOW_EST_REQUESTED."' OR sp.status = '".SPARE_PARTS_SHIPPED_BY_WAREHOUSE."' ) AND (sc.current_status = 'InProcess' OR sc.current_status = 'Pending')"
@@ -1003,7 +1001,9 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
              return $collateralData;   
             }
         }
+         if(!empty($collateralDataNew)) {
         return $collateralDataNew;
+    }
     }
 
 
@@ -1509,14 +1509,8 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         if($countOnly){
             $this->db->select("count(id) as 'count'");
         }else{
-            $this->db->select("invoice_id");
-            $this->db->select("type");
-            $this->db->select("DATE_FORMAT(invoice_date,'%d-%m-%Y' ) as 'invoice_date'");
-            $this->db->select("parts_count");
-            $this->db->select("vertical");
-            $this->db->select("category");
-            $this->db->select("sub_category");
-            $this->db->select("(total_amount_collected-amount_paid) as 'amount'");
+            $this->db->select("invoice_id, type, DATE_FORMAT(invoice_date,'%d-%b-%Y' ) as 'invoice_date', invoice_file_main, parts_count, vertical, category, sub_category, (total_amount_collected) as 'amount',"
+                    . "total_amount_collected");
             $this->db->limit($limit, $start);
         }
         $this->db->from('vendor_partner_invoices');
@@ -1595,7 +1589,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         $this->db->where("is_micro_wh", 1);
         $this->db->where("part_warranty_status", 2);
         $this->db->where("status !=", 'Cancelled');
-        $this->db->where("partner_id", $vendor_id);
+        $this->db->where("partner_id", $serviceCenterID);
         $this->db->where("defective_part_shipped_date is null",NULL,false);
         $this->db->where("requested_inventory_id is not null",NULL,false);
         $this->db->where("service_center_id", $serviceCenterID);
@@ -1711,8 +1705,15 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
      * @return: array()
      *  Abhishek Awasthi
      */
-    function get_vendor_rating_data_top_5(){
-        $sql = "SELECT ROUND(AVG(rating_stars),1) as rating , count(booking_id) as count,service_centres.name,service_centres.id FROM booking_details JOIN service_centres ON booking_details.assigned_vendor_id=service_centres.id WHERE rating_stars IS NOT NULL AND current_status = '"._247AROUND_COMPLETED."' group by booking_details.assigned_vendor_id HAVING count>100 ORDER BY rating DESC";  
+    function get_vendor_rating_data_top_5($state='', $city = ''){
+        $where = '';
+        if(!empty($state)){
+         $where .= "and service_centres.state = '".$state."'";
+        }
+        if(!empty($city)){
+         $where .= "and service_centres.district = '".$city."'";
+        }
+        $sql = "SELECT ROUND(AVG(rating_stars),1) as rating , count(booking_id) as count,Concat('247around ',service_centres.district,' Service Center') as name,service_centres.id FROM booking_details JOIN service_centres ON booking_details.assigned_vendor_id=service_centres.id WHERE rating_stars IS NOT NULL AND current_status = '"._247AROUND_COMPLETED."' $where group by booking_details.assigned_vendor_id HAVING count>100 ORDER BY rating DESC";  
         $query = $this->db->query($sql);
         return $query->result_array();
     }

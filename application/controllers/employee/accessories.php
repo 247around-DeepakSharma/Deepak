@@ -116,7 +116,7 @@ class Accessories extends CI_Controller {
     function sf_accessories_invoice() {
         $data['sf_list'] = $this->vendor_model->viewvendor('', 1);
         $data['services_name'] = $this->accessories_model->show_accessories_list(array('accessories_product_description.status' => 1));
-        $data['quantity_list'] = range(1, 30);
+        $data['quantity_list'] = range(1, 100);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/sf_accessories_invoice', $data);
     }

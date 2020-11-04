@@ -50,12 +50,12 @@ table {
                 <div class="x_content">
                     <div class="" role="tabpanel" data-example-id="togglable-tabs">
                         <ul id="myTabs" class="nav nav-tabs bar_tabs" role="tablist">
-                            <li role="presentation" class="active">
+                            <li role="presentation" class="active" style="margin:20px;">
                                 <a href="#tabs-1" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/pending_booking/0/1">
                                     Pending Bookings 
                                 </a>
                             </li>
-                            <li role="presentation">
+                            <li role="presentation" style="margin:20px;">
                                 <a href="#tabs-2" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/get_spare_parts_booking/0/1">
                                     Pending Spares
                                 </a>
@@ -63,7 +63,7 @@ table {
 
                             <?php if (!empty($partner_data[0]['spare_approval_by_partner']) && $partner_data[0]['spare_approval_by_partner']==1) { ?>
 
-                                <li role="presentation">
+                                <li role="presentation" style="margin:20px;">
                                 <a href="#tabs-7" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/get_spare_parts_booking_on_approval">
                                     Spare Parts On Approval
                                 </a>
@@ -71,23 +71,23 @@ table {
                             <?php }  ?>
 
 
-                            <li role="presentation">
+                            <li role="presentation" style="margin:20px;">
                                 <a href="#tabs-3" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/get_waiting_defective_parts/0/1">
                                     Shipped Spares by SF
                                 </a>
                             </li>
-                            <li role="presentation">
+                            <li role="presentation" style="margin:20px;">
                                 <a href="#tabs-4" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/get_waiting_for_approval_upcountry_charges/0/1">
                                     Waiting Approval Upcountry Charges
                                 </a>
                             </li>
-                            <li role="presentation">
+                            <li role="presentation" style="margin:20px;">
                                 <a href="#tabs-5" role="tab" data-toggle="tab" aria-expanded="true">
                                     Pending Spare Quotes
                                 </a>
                             </li>
 
-                            <li role="presentation">
+                            <li role="presentation" style="margin:20px;">
                                 <a href="#tabs-6" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/get_nrn_approval"  >
                                     Approved NRN
                                 </a>
@@ -95,7 +95,7 @@ table {
                             <?php
                             if($this->session->userdata('review') == 1){
                             ?>
-                            <li role="presentation">
+                            <li role="presentation" style="margin:20px;">
                                 <a href="#tabs-6" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/review_bookings/0/1">
                                     Waiting For Review
                                 </a>

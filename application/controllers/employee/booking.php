@@ -57,6 +57,7 @@ class Booking extends CI_Controller {
         $this->load->library('validate_serial_no');
         $this->load->library("invoice_lib");
         $this->load->library("booking_creation_lib");
+        $this->load->library('user_agent');
         $this->load->helper('file');
         $this->load->dbutil();
         
@@ -596,7 +597,10 @@ class Booking extends CI_Controller {
                 $booking['booking_remarks'] = $remarks;
                 $new_state = $booking_id_with_flag['new_state'];
                 $old_state = $booking_id_with_flag['old_state'];
-                $booking['current_status'] =  _247AROUND_PENDING;
+                // Do not change Booking Current status ,if request type is changed from Step 1 of Booking Completion flow
+                if(empty($is_sf_panel)){
+                    $booking['current_status'] =  _247AROUND_PENDING;
+                }
             } else if ($booking['type'] == 'Query') {
 
                 $booking['current_status'] = _247AROUND_FOLLOWUP;
@@ -1062,9 +1066,13 @@ class Booking extends CI_Controller {
                 if (!empty($service_center_data)) {
                     $data['booking_unit_details'][$keys]['quantity'][$key]['customer_paid_basic_charges'] = $service_center_data[0]['service_charge'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['customer_paid_extra_charges'] = $service_center_data[0]['additional_service_charge'];
-                    $data['booking_unit_details'][$keys]['quantity'][$key]['serial_number'] = $service_center_data[0]['serial_number'];
+                    if(!empty($service_center_data[0]['serial_number'])){
+                        $data['booking_unit_details'][$keys]['quantity'][$key]['serial_number'] = $service_center_data[0]['serial_number'];
+                    }
+                    if(!empty($service_center_data[0]['serial_number_pic'])){
+                        $data['booking_unit_details'][$keys]['quantity'][$key]['serial_number_pic'] = $service_center_data[0]['serial_number_pic'];                
+                    }
                     $data['booking_unit_details'][$keys]['quantity'][$key]['customer_paid_parts'] = $service_center_data[0]['parts_cost'];
-                    $data['booking_unit_details'][$keys]['quantity'][$key]['serial_number_pic'] = $service_center_data[0]['serial_number_pic'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['is_sn_correct'] = $service_center_data[0]['is_sn_correct'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['sf_purchase_date'] = $service_center_data[0]['sf_purchase_date'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['sf_purchase_invoice'] = $service_center_data[0]['sf_purchase_invoice'];
@@ -1074,8 +1082,9 @@ class Booking extends CI_Controller {
                 $id = $this->search_for_key($price_tag['price_tags'], $prices);
                 // remove array key, if price tag exist into price array
                 unset($prices[$id]);
-                if ($keys == 0) {
-                    $upcountry_price = isset($service_center_data[0]['upcountry_charges']) ? $service_center_data[0]['upcountry_charges'] : "";
+                // Set Upcountry Price from the Row of $service_center_data, where upcountry_charges are filled
+                if (empty($upcountry_price) && !empty($service_center_data[0]['upcountry_charges'])) {
+                    $upcountry_price = $service_center_data[0]['upcountry_charges'];
                 }
                 
                 if(!in_array($this->session->userdata['user_group'], [_247AROUND_CLOSURE, _247AROUND_ADMIN, _247AROUND_DEVELOPER]) && !empty($price_tag['partner_invoice_id']) && empty($data['is_invoice_generated']) && in_array($data['booking_history'][0]['current_status'], [_247AROUND_COMPLETED, _247AROUND_CANCELLED])) {
@@ -2364,7 +2373,7 @@ class Booking extends CI_Controller {
         if($this->session->userdata('is_am') == '1'){
             $am_id = $this->session->userdata('id');
             $where = array('agent_filters.agent_id' => $am_id,'agent_filters.is_active'=>1,'agent_filters.entity_type'=>_247AROUND_EMPLOYEE_STRING);
-            $join['agent_filters'] =  "booking_details.partner_id=agent_filters.entity_id and service_centres.state=agent_filters.state";
+            $join['agent_filters'] =  "booking_details.partner_id=agent_filters.entity_id and service_centres.state=agent_filters.state AND agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."' ";
         }
         $data['data'] = $this->booking_model->review_reschedule_bookings_request($whereIN, $where, $join);
         
@@ -2479,10 +2488,10 @@ class Booking extends CI_Controller {
             $data['customer_paid_basic_charges'] = $value;
             $data['customer_paid_extra_charges'] = $additional_charge[$unit_id];
             $data['customer_paid_parts'] = $parts_cost[$unit_id];
-            if (isset($serial_number[$unit_id])) {
-                $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
+            if (isset($serial_number)) {
+                $trimSno = str_replace(' ', '', trim($serial_number));
                 $data['serial_number'] =  $trimSno;
-                $data['serial_number_pic']  = trim($serial_number_pic[$unit_id]);
+                $data['serial_number_pic']  = trim($serial_number_pic);
             } else {
                 $data['serial_number'] = "";
                 $data['serial_number_pic'] = "";
@@ -2618,6 +2627,12 @@ class Booking extends CI_Controller {
                 log_message('info', ": " . " update Service center data " . print_r($service_center, TRUE));
                   
                 $this->vendor_model->update_service_center_action($booking_id, $service_center);
+                // Also Update Status in Engineer Booking Action Table
+                $eng_data = array(
+                    "internal_status" => $data['booking_status'],
+                    "current_status" => $data['booking_status']
+                );
+                $this->engineer_model->update_engineer_table($eng_data, array("booking_id"=>$booking_id, "unit_details_id"=>$unit_id));
             }
             $this->miscelleneous->update_appliance_details($unit_id);
             $k = $k + 1;
@@ -2926,7 +2941,7 @@ class Booking extends CI_Controller {
             $upload_serial_number_pic = $_FILES['upload_serial_number_pic'];
         }
         $pod = $this->input->post('pod');
-        $price_tags_array = $this->input->post('price_tags');
+        $price_tag = $this->input->post('selected_price_tags');
         $booking_status = $this->input->post('booking_status');
         $partner_id = $this->input->post('partner_id');
         $user_id = $this->input->post('user_id');
@@ -2934,71 +2949,59 @@ class Booking extends CI_Controller {
         $service_id = $this->input->post('appliance_id');
         $return_status = true;
         $message = "";
-        if (isset($_POST['pod'])) {
-            foreach ($pod as $unit_id => $value) {
-                  if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
-                    if(!empty($serial_number[$unit_id])) {
-                        $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
-                        if (!ctype_alnum($serial_number[$unit_id])) {
-                            log_message('info', "Serial Number Entered With Special Character " . $serial_number[$unit_id] . " . This is not allowed.");
-                            $this->form_validation->set_message('validate_serial_no', "Serial Number Entered With Special Character " . $serial_number[$unit_id] . " . This is not allowed.");
-                            return FALSE;
-                        }
+        if (isset($pod)) {            
+            if(!empty($serial_number)) {
+                $trimSno = str_replace(' ', '', trim($serial_number));
+                if (!ctype_alnum($serial_number)) {
+                    log_message('info', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
+                    $this->form_validation->set_message('validate_serial_no', "Serial Number Entered With Special Character " . $serial_number[$unit_id] . " . This is not allowed.");
+                    return FALSE;
+                }
+            }
+            if($pod == '1'){
+                if(isset($upload_serial_number_pic['name']) && ($upload_serial_number_pic['name'])){
+                    $s =  $this->upload_insert_upload_serial_no($upload_serial_number_pic, $partner_id, $trimSno);
+                    if(empty($s)){
+                        $this->form_validation->set_message('validate_serial_no', 'Serial Number, File size or file type is not supported. Allowed extentions are png, jpg, jpeg and pdf. Maximum file size is 5 MB.');
+                        $return_status = false;
                     }
-                    $price_tag = $price_tags_array[$unit_id];
-                    if ($value == '1') {
-                        if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
-                           if(isset($upload_serial_number_pic['name'][$unit_id]) && ($upload_serial_number_pic['name'][$unit_id])){
-                                    $s =  $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno);
-                                       if(empty($s)){
-                                                 $this->form_validation->set_message('validate_serial_no', 'Serial Number, File size or file type is not supported. Allowed extentions are png, jpg, jpeg and pdf. '
-                            . 'Maximum file size is 5 MB.');
-                                                $return_status = false;
-                                            }
-                                 }
-                                 else{
-                                     if(!(isset($this->input->post('serial_number_pic')[$unit_id]) && ($this->input->post('serial_number_pic')[$unit_id]))){
-                                           $return_status = false;
-                                           $s = $this->form_validation->set_message('validate_serial_no', "Please upload serial number image");
-                                     }
-                                 }
-                            $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number[$unit_id]), $price_tag, $user_id, $booking_id,$service_id);
-                            if (!empty($status)) {
-                                if ($status['code'] == DUPLICATE_SERIAL_NO_CODE) {
-                                    $return_status = false;
-                                    $message = $status['message'];
-                                    log_message('info', " Duplicate Serial No " . trim($serial_number[$unit_id]));
-                                    break;
-                                }
-                            }
-                        }
+                }
+                else{
+                    if(empty($this->input->post('serial_number_pic'))){
+                        $return_status = false;
+                        $s = $this->form_validation->set_message('validate_serial_no', "Please upload serial number image");
                     }
-                    elseif ($value == '0') {
-                        // upload serial number image in case of POD = 0 also
-                        if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
-                            if(isset($upload_serial_number_pic['name'][$unit_id]) && ($upload_serial_number_pic['name'][$unit_id])){
-                                $s =  $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno);
-                                if(empty($s)){
-                                    $this->form_validation->set_message('validate_serial_no', 'Serial Number, File size or file type is not supported. Allowed extentions are png, jpg, jpeg and pdf. Maximum file size is 5 MB.');
-                                    $return_status = false;
-                                }
-                            }
-                        }
+                }
+                $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), $price_tag, $user_id, $booking_id, $service_id);
+                if (!empty($status)) {  
+                    if ($status['code'] == DUPLICATE_SERIAL_NO_CODE) {
+                        $return_status = false;
+                        $message = $status['message'];
+                        log_message('info', " Duplicate Serial No " . trim($serial_number));
                     }
                 }
             }
-            if ($return_status == true) {
-                return true;
-            } else {
-                $this->form_validation->set_message('validate_serial_no', $message);
-                return FALSE;
+            else {
+                // upload serial number image in case of POD = 0 also
+                if(isset($upload_serial_number_pic['name']) && !empty($upload_serial_number_pic['name'])){
+                    $s =  $this->upload_insert_upload_serial_no($upload_serial_number_pic, $partner_id, $trimSno);
+                    if(empty($s)){
+                        $this->form_validation->set_message('validate_serial_no', 'Serial Number, File size or file type is not supported. Allowed extentions are png, jpg, jpeg and pdf. Maximum file size is 5 MB.');
+                        $return_status = false;
+                    }
+                }
             }
-        } else {
-            return TRUE;
         }
-    }
+        if ($return_status == true) {
+            return true;
+        }
+        else {
+            $this->form_validation->set_message('validate_serial_no', $message);
+            return FALSE;
+        }
+    }        
 
-    
+                   
     /**
      *  @desc : This function is to present form to open completed bookings
      *
@@ -3114,6 +3117,8 @@ class Booking extends CI_Controller {
         $data['data'] = array();
         $data['sms_sent_details'] = $this->booking_model->get_sms_sent_details($booking_id);
         $data['email_sent_details'] = $this->booking_model->get_email_sent_details($booking_id);
+        $where_whatsapp_log = array('booking_id' => $booking_id, "status not in ('failed')" => null);
+        $data['whatsapp_logs'] = $this->booking_model->get_whatsapp_log_details($where_whatsapp_log);
         //$this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/show_booking_life_cycle', $data);
     }
@@ -3760,10 +3765,9 @@ class Booking extends CI_Controller {
         if($this->session->userdata('is_am') == '1'){
             $am_id = $this->session->userdata('id');
             $where = array('agent_filters.agent_id' => $am_id,'partners.is_active'=>1,'agent_filters.entity_type'=>_247AROUND_EMPLOYEE_STRING);
-            $join = array("agent_filters" => "partners.id=agent_filters.entity_id");
-            
+            $join = array("agent_filters" => "booking_details.partner_id=agent_filters.entity_id and booking_details.state=agent_filters.state and agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."' ");            
         }
-        $data = $this->get_bookings_data_by_status($booking_status,$sfIDArray,$partnerArray);
+        $data = $this->get_bookings_data_by_status($booking_status,$sfIDArray,$partnerArray,'booking_id');
         $post = $data['post'];
         $output = array(
             "draw" => $this->input->post('draw'),
@@ -3780,7 +3784,7 @@ class Booking extends CI_Controller {
      *  @param : $booking_status string
      *  @return : $output Array()
      */
-    private function get_bookings_data_by_status($booking_status,$sfIDArray) { 
+    private function get_bookings_data_by_status($booking_status,$sfIDArray,$partnerArray=array(),$group_by="") { 
         $post = $this->get_post_data();
         $new_post = $this->get_filterd_post_data($post,$booking_status,'booking');
          if($this->input->post('bulk_booking_id')){
@@ -3791,9 +3795,7 @@ class Booking extends CI_Controller {
             DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as initial_booking_date_as_dateformat, (CASE WHEN spare_parts_details.booking_id IS NULL THEN 'no_spare' ELSE
             MIN(DATEDIFF(CURRENT_TIMESTAMP , spare_parts_details.acknowledge_date)) END) as spare_age,
             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as booking_age,service_centres.state";
-            $join['employee as emp_asm']  = 'service_centres.asm_id = emp_asm.id';
-              $JoinTypeTableArray['employee as emp_asm'] = 'left';
-            $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,0,'Spare',0,$join,$JoinTypeTableArray);
+            $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,0,'Spare',0,array(),array(),$group_by);
          }
          else{
              $select = "booking_details.id as booking_primary_id,services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
@@ -3802,9 +3804,7 @@ class Booking extends CI_Controller {
             service_centres.primary_contact_phone_1,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
             DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as initial_booking_date_as_dateformat,
             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as booking_age,service_centres.state";
-          $join['employee as emp_asm']  = 'service_centres.asm_id = emp_asm.id';
-              $JoinTypeTableArray['employee as emp_asm'] = 'left';
-               $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,0,null,0,$join,$JoinTypeTableArray);
+            $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,0,'Spare',0,array(),array(),$group_by);
          }
         unset($new_post['order_performed_on_count']);
         $data = array();
@@ -3942,7 +3942,7 @@ class Booking extends CI_Controller {
              $post['where']["agent_filters.agent_id"] = $am_id;
              $post['where']["agent_filters.is_active"] = 1;
              $post['where']["agent_filters.entity_type"] = _247AROUND_EMPLOYEE_STRING;
-             $post['join']['agent_filters'] =  "booking_details.partner_id=agent_filters.entity_id and booking_details.state=agent_filters.state";
+             $post['join']['agent_filters'] =  "booking_details.partner_id=agent_filters.entity_id and booking_details.state=agent_filters.state and agent_filters.entity_type='"._247AROUND_EMPLOYEE_STRING."' ";
         }
         if(!empty($request_type)){
             $post['where_in']['booking_details.request_type'] =  explode(",",$request_type);
@@ -4274,7 +4274,8 @@ class Booking extends CI_Controller {
             "employee as emp_asm" => "service_centres.asm_id = emp_asm.id",
             "employee as emp_rm" => "service_centres.rm_id = emp_rm.id",
             "agent_filters" => "booking_details.partner_id = agent_filters.entity_id AND agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."' AND (TRIM(UPPER(agent_filters.state)) = TRIM(UPPER(booking_details.state)))",
-            "employee as emp_am" => "agent_filters.agent_id = emp_am.id");
+            "employee as emp_am" => "agent_filters.agent_id = emp_am.id",
+            "booking_cancellation_reasons" => "booking_details.cancellation_reason = booking_cancellation_reasons.id");
         // limit array for pagination
         $limitArray = array('length'=>$receieved_Data['length'],'start'=>$receieved_Data['start']);
        // all where condition array
@@ -4297,7 +4298,7 @@ class Booking extends CI_Controller {
          if($receieved_Data['request_type']){
             $whereInArray['booking_details.request_type'] = $requestTypeArray;
         }
-        $JoinTypeTableArray = array('service_centres'=>'left','bookings_sources'=>'left','booking_unit_details'=>'left','services'=>'left', 'spare_parts_details'=>'left','inventory_master_list as requested_inventory' => 'left', 'inventory_master_list as shipped_inventory' => 'left', 'employee as emp_asm' => 'left', 'employee as emp_rm' => 'left', 'agent_filters' => 'left', 'employee as emp_am' => 'left');
+        $JoinTypeTableArray = array('service_centres'=>'left','bookings_sources'=>'left','booking_unit_details'=>'left','services'=>'left', 'spare_parts_details'=>'left','inventory_master_list as requested_inventory' => 'left', 'inventory_master_list as shipped_inventory' => 'left', 'employee as emp_asm' => 'left', 'employee as emp_rm' => 'left', 'agent_filters' => 'left', 'employee as emp_am' => 'left', 'booking_cancellation_reasons' => 'left');
       
        //Performing Sorting on datatable
        if(!empty($receieved_Data['order']))
@@ -4395,7 +4396,7 @@ class Booking extends CI_Controller {
            }
        }
       
-        $select = "users.name as customer_name, booking_details.service_center_closed_date, booking_details.booking_id,booking_unit_details.sub_order_id,bookings_sources.source,booking_details.city,service_centres.company_name,services.services,booking_unit_details.appliance_brand,"
+        $select = "users.name as customer_name, booking_details.booking_id,booking_unit_details.sub_order_id,bookings_sources.source,booking_details.city,service_centres.company_name,services.services,booking_unit_details.appliance_brand,"
                 . "booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_unit_details.model_number,booking_unit_details.price_tags,booking_unit_details.product_or_services,booking_details."
                 . "current_status,booking_details.internal_status,booking_details.order_id,booking_details.type,booking_details.partner_source,booking_details.partner_current_status,booking_details.partner_internal_status,"
                 . "booking_details.booking_address,booking_details.booking_pincode,booking_details.district,booking_details.state,"
@@ -4403,11 +4404,11 @@ class Booking extends CI_Controller {
                 ."(CASE WHEN current_status  IN ('"._247AROUND_PENDING."','"._247AROUND_RESCHEDULED."','"._247AROUND_FOLLOWUP."') THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) ELSE '' END) as age_of_booking, "
                 ."(CASE WHEN current_status  IN('Completed','Cancelled') THEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) ELSE '' END) as TAT, "
                 . "booking_details.booking_timeslot,booking_details.booking_remarks,"
-                . "booking_details.query_remarks,booking_details.cancellation_reason,"
+                . "booking_details.query_remarks,booking_cancellation_reasons.reason as cancellation_reason,"
                 . "booking_details.reschedule_reason,service_centres.name,booking_details.rating_stars,booking_details.rating_comments,"
                 . "booking_details.closing_remarks,"
-                . "booking_details.count_reschedule,booking_details.count_escalation,booking_details.is_upcountry,booking_details.upcountry_pincode,"
-                . "booking_details.upcountry_distance,booking_details.is_penalty,booking_details.create_date,booking_details.update_date,"
+                . "booking_details.count_reschedule,booking_details.count_escalation,(CASE WHEN (booking_details.is_upcountry = 1) THEN 'Yes' ELSE 'No' END) as is_upcountry,booking_details.upcountry_pincode,"
+                . "booking_details.upcountry_distance,(CASE WHEN booking_details.is_penalty = 1 THEN 'Yes' ELSE 'No' END) as is_penalty,booking_details.create_date,booking_details.update_date,"
                 . "booking_details.service_center_closed_date as service_center_closed_date, "
                 . "booking_details.closed_date as 247around_closed_date, "
                 . "emp_asm.full_name as asm_name,emp_rm.full_name as rm_name,emp_am.full_name as am_name,spare_parts_details.parts_requested,requested_inventory.part_number as requested_part_number,"
@@ -5640,7 +5641,7 @@ class Booking extends CI_Controller {
 
 
     
-     function download_pending_bookings($status) {
+    function download_pending_bookings($status) {
         $arr_post = $this->input->post();
         $bulk_booking_id = !empty($arr_post['bookingIDString']) ? $arr_post['bookingIDString'] : "";
         $booking_status = trim($status);
@@ -5662,8 +5663,9 @@ class Booking extends CI_Controller {
         //AM Specific Bookings
         if($this->session->userdata('is_am') == '1'){
             $am_id = $this->session->userdata('id');
-            $where = array('agent_filters.agent_id' => $am_id,'partners.is_active'=>1,'agent_filters.entity_type'=>_247AROUND_EMPLOYEE_STRING);
-            $join = array("agent_filters" => "partners.id=agent_filters.entity_id");
+            $post['where']['agent_filters.agent_id'] = $am_id;
+            $post['where']['partners.is_active'] = 1;
+            $post['where']['agent_filters.entity_type'] = _247AROUND_EMPLOYEE_STRING;
         }
         
         $post['length'] = -1;
@@ -5676,24 +5678,45 @@ class Booking extends CI_Controller {
             $post['where_in']['booking_details.booking_id'] =  explode(",",$bulk_booking_id);
         }
         if($booking_status == 'Pending'){
-            $post['where']  = array('service_center_closed_date IS NULL' => NULL, 'booking_details.internal_status NOT IN ("'.SPARE_PARTS_SHIPPED.'","'.SPARE_OOW_SHIPPED.'","'.SF_BOOKING_CANCELLED_STATUS.'","'.SF_BOOKING_COMPLETE_STATUS.'","'.SPARE_PARTS_SHIPPED_BY_WAREHOUSE.'")' => NULL); 
+            $post['where']['service_center_closed_date IS NULL'] = NULL;
+            $post['where']['booking_details.internal_status NOT IN ("'.SPARE_PARTS_SHIPPED.'","'.SPARE_OOW_SHIPPED.'","'.SF_BOOKING_CANCELLED_STATUS.'","'.SF_BOOKING_COMPLETE_STATUS.'","'.SPARE_PARTS_SHIPPED_BY_WAREHOUSE.'")'] = NULL; 
             // Join with employee Table to fetch AM name
             $post['join']['spare_parts_details'] = "booking_details.booking_id  = spare_parts_details.booking_id";
             $post['join']['partners'] = "booking_details.partner_id  = partners.id";
-            // $post['join']['employee as employee_am'] = "partners.account_manager_id = employee_am.id";
-            $post['join']['agent_filters'] =  "partners.id=agent_filters.entity_id AND agent_filters.state = booking_details.state ";
-           $post['join']['employee as employee_am'] = "agent_filters.agent_id = employee_am.id";  
-            $post['join']['employee as emp_asm'] = "service_centres.asm_id = emp_asm.id";    
-            $post['joinTypeArray'] = ['partners' => "left", 'employee as employee_am' => "left", 'spare_parts_details' => "left", 'employee as emp_asm' => "left"];
-            // Show distinct Bookings
-            $select = " DISTINCT booking_details.booking_id as 'Booking ID',DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) as Ageing,spare_parts_details.parts_requested as 'Part Requested',spare_parts_details.parts_shipped as 'Part Shipped',emp_asm.full_name as  'ASM name',partners.public_name as Partner,users.name as 'Customer Name',
-            services.services as Services,penalty_on_booking.active as 'Penalty Active',users.phone_number as 'Phone Number',users.alternate_phone_number as 'Alternate Phone Number',booking_details.order_id as 'Order ID',booking_details.request_type as 'Request Type',booking_details.state as State,booking_details.internal_status as 'Internal Status',
-            booking_details.booking_address as 'Booking Address',booking_details.booking_pincode as 'Booking Pincode',booking_details.booking_timeslot as 'Booking Timeslot',
-            booking_details.booking_remarks as 'Booking Remarks',service_centres.name as 'Service Centre Name' , engineer_details.name as 'Engineer Name', booking_details.is_upcountry, service_centres.primary_contact_name as SF_POC_Name,
-             service_centres.primary_contact_phone_1 as SF_POC_NUMBER,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as 'Booking Day', booking_details.create_date as 'Create Date',
-             booking_details.partner_internal_status as 'Partner Internal Status',DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as  'Initial Booking Date', employee.full_name as RM, employee_am.full_name as AM ";
+            $post['join']['agent_filters'] =  "partners.id=agent_filters.entity_id AND agent_filters.state = booking_details.state AND agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."'";
+            $post['join']['employee as employee_am'] = "agent_filters.agent_id = employee_am.id";
+            $post['join']['inventory_master_list as in_req'] = "spare_parts_details.requested_inventory_id = in_req.inventory_id";
+            $post['join']['inventory_master_list as in_sh'] = "spare_parts_details.shipped_inventory_id = in_sh.inventory_id";
             
-            $list =  $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,1,'',0);
+            // $post['join']['employee as emp_asm'] = "service_centres.asm_id = emp_asm.id";    
+            $post['joinTypeArray'] = ['spare_parts_details' => "left",'partners' => "left",'agent_filters' => 'left', 'employee as employee_am' => "left",  'inventory_master_list as in_req' => 'left', 'inventory_master_list as in_sh' => 'left'];
+
+            // Select Statement
+            
+            $select = " booking_details.booking_id as 'Booking ID', booking_details.create_date as 'Create Date', partners.public_name as Partner, "
+                    . "employee_am.full_name as AM, users.name as 'Customer Name',booking_details.booking_pincode as 'Pincode',booking_details.city as 'City'"
+                    . ",booking_details.state as 'State',booking_details.booking_address as 'Booking Address', users.phone_number as 'Phone',"
+                    . "CASE WHEN booking_details.is_upcountry = 1 THEN 'YES' ELSE 'No' END AS 'Is Upcountry'"
+                    . ",booking_details.upcountry_distance as 'Upcountry Distance',service_centres.name as 'Service Center',"
+                    . "service_centres.primary_contact_name as 'SF Primary Contact Name'"
+                    . ",service_centres.primary_contact_phone_1 as 'SF Primary Contact No',engineer_details.name as 'Engineer Name',employee.full_name as 'RM'"
+                    . ",emp_asm.full_name  as  'ASM', services.services as 'Product', spare_parts_details.model_number as 'Model',"
+                    . "booking_details.request_type as 'Service Type', booking_details.initial_booking_date as 'First Booking Date',"
+                    . "booking_details.booking_date as 'Current Booking Date', booking_details.booking_remarks as 'Booking Remarks', booking_details.reschedule_reason as 'Reschedule Remarks',"
+                    . "booking_details.partner_internal_status as 'Final Status Level 2',"
+                    . "booking_details.current_status as 'Final Status Level 1', booking_details.actor as 'Dependency On',"
+                    . "DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) as Ageing,"
+                    . "CASE WHEN in_req.part_number != '' THEN 'YES' ELSE 'No' END AS 'Is Part Involved', in_req.part_number as 'Requested Part Code', spare_parts_details.parts_requested as 'Requested Part Name',"
+                    . "spare_parts_details.parts_requested_type as 'Requested Part Type',spare_parts_details.date_of_request as 'Part Requested Date'"
+                    . ",in_sh.part_number as 'Shipped Part Code', spare_parts_details.parts_shipped as 'Shipped Part Name',spare_parts_details.shipped_parts_type as 'Shipped Part Type'"
+                    . ",spare_parts_details.shipped_date as 'Part Shipped Date',spare_parts_details.acknowledge_date as 'SF Acknowledged Date'"
+                    . ",CASE WHEN spare_parts_details.auto_acknowledeged = 1 THEN 'YES' ELSE 'No' END AS 'Is auto Acknowledge',penalty_on_booking.active as 'Penalty Active'";
+            // Show Distinct Bookings
+
+            $group_by = 'booking_details.booking_id';
+            
+            $list =  $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,1,'',0,array(),array(),$group_by);
+
         }
         else if($booking_status == 'Completed' || $booking_status == 'Cancelled'){
             $post['where']  = array('booking_details.current_status' => $booking_status,'type' => 'Booking'); 
@@ -5708,7 +5731,6 @@ class Booking extends CI_Controller {
             
             $list = $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray, 2); 
         }
-        
         $newCSVFileName = $booking_status."_booking_".date('j-M-Y-H-i-s') . ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
         $delimiter = ",";
@@ -5807,7 +5829,7 @@ class Booking extends CI_Controller {
         if($this->session->userdata('is_am') == '1'){
             $am_id = $this->session->userdata('id');
             $where = array('agent_filters.agent_id' => $am_id,'agent_filters.is_active'=>1,'agent_filters.entity_type'=>_247AROUND_EMPLOYEE_STRING);
-            $join['agent_filters'] =  "booking_details.partner_id=agent_filters.entity_id and service_centres.state=agent_filters.state";
+            $join['agent_filters'] =  "booking_details.partner_id=agent_filters.entity_id and service_centres.state=agent_filters.state AND agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."' ";
         }
         $data['data'] = $this->booking_model->review_reschedule_bookings_request($whereIN, $where, $join);
         $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
@@ -5871,7 +5893,7 @@ class Booking extends CI_Controller {
             $where['agent_filters.agent_id ='.$am_id] = NULL;
             $where['partners.is_active =1'] = NULL;
             $where["agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."'"] = NULL;
-              $post['join']['agent_filters'] =  "partners.id=agent_filters.entity_id AND agent_filters.state = booking_details.state ";
+            $join['agent_filters'] =  "partners.id=agent_filters.entity_id AND agent_filters.state = booking_details.state ";
         }
         
         $status=$review_status;
@@ -6005,7 +6027,7 @@ class Booking extends CI_Controller {
             $where['agent_filters.agent_id ='.$am_id] = NULL;
             $where['partners.is_active =1'] = NULL;
             $where["agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."'"] = NULL;
-            $join['agent_filters'] =  "partners.id=agent_filters.entity_id";
+            $join['agent_filters'] =  "partners.id=agent_filters.entity_id AND agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."' ";
         }
         
         $status = $review_status;
@@ -6125,22 +6147,17 @@ class Booking extends CI_Controller {
      * @param String $serial_number
      * @return boolean
      */
-    function upload_insert_upload_serial_no($upload_serial_number_pic, $unit, $partner_id, $serial_number){
+    function upload_insert_upload_serial_no($upload_serial_number_pic, $partner_id, $serial_number){
         log_message('info', __METHOD__. " Enterring ...");
-        if (!empty($upload_serial_number_pic['tmp_name'][$unit])) {
-           
+        if (!empty($upload_serial_number_pic['tmp_name'])) {           
             $pic_name = $this->upload_serial_no_image_to_s3($upload_serial_number_pic, 
-                    "serial_number_pic_".$this->input->post('booking_id')."_", $unit, SERIAL_NUMBER_PIC_DIR, "serial_number_pic");
-            if($pic_name){
-                
+                    "serial_number_pic_".$this->input->post('booking_id')."_", SERIAL_NUMBER_PIC_DIR, "serial_number_pic");
+            if($pic_name){                
                 return true;
-            } else {
-              
+            } else {              
                 return false;
-            }
-            
-        } else {
-           
+            }            
+        } else {           
             return TRUE;
         }
     }
@@ -6149,40 +6166,33 @@ class Booking extends CI_Controller {
      * @desc This is used to upload serial no image to S3
      * @param Array $file
      * @param String $type
-     * @param Int $unit
      * @param String $s3_directory
      * @param String $post_name
      * @return boolean|string
      */
-    public function upload_serial_no_image_to_s3($file, $type, $unit, $s3_directory, $post_name) {
+    public function upload_serial_no_image_to_s3($file, $type, $s3_directory, $post_name) {
         log_message('info', __FUNCTION__ . " Enterring ");
         $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
         $MB = 1048576;
-        $temp = explode(".", $file['name'][$unit]);
+        $temp = explode(".", $file['name']);
         $extension = end($temp);
-        //$filename = prev($temp);
 
-        if ($file["name"][$unit] != null) {
-            if (($file["size"][$unit] < 2 * $MB) && in_array($extension, $allowedExts)) {
-                if ($file["error"][$unit] > 0) {
-
+        if ($file["name"] != null) {
+            if (($file["size"] < 2 * $MB) && in_array($extension, $allowedExts)) {
+                if ($file["error"] > 0) {
                    return false;
-                } else {
-                   
-                    $picName = $type . rand(10, 100) . $unit . "." . $extension;
-                    $_POST[$post_name][$unit] = $picName;
+                } else {                   
+                    $picName = $type . rand(10, 100) . "." . $extension;
+                    $_POST[$post_name] = $picName;
                     $bucket = BITBUCKET_DIRECTORY;
                     $directory = $s3_directory . "/" . $picName;
-                    $this->s3->putObjectFile($file["tmp_name"][$unit], $bucket, $directory, S3::ACL_PUBLIC_READ);
-
+                    $this->s3->putObjectFile($file["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
                     return $picName;
                 }
-            } else {
-                
+            } else {                
                 return FALSE;
             }
         } else {
-
             return FALSE;
         }
         log_message('info', __FUNCTION__ . " Exit ");
@@ -6321,12 +6331,26 @@ class Booking extends CI_Controller {
         }
         if (!empty($bookings)) {
             $arr_post = $this->input->post();
+            $redirect_url = base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id));
+            if ($this->agent->is_referral())
+            {
+                $redirect_url = $this->agent->referrer();
+            }
+            // If Price Tags are not selected, Redirect to same Page            
             if(empty($arr_post['selected_price_tags'])){
-                redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
+                redirect($redirect_url);
             }
             else{
             if ($arr_post) {
                 $checkValidation = $this->booking_creation_lib->validate_booking();
+                $this->form_validation->set_rules('pod', 'POD ', 'callback_validate_serial_no');
+                // Serial Number Validation fails
+                if($this->form_validation->run() !== TRUE)
+                {
+                    $userSession = array('error' => validation_errors());
+                    $this->session->set_userdata($userSession);
+                    redirect($redirect_url);
+                }
                 if ($checkValidation) {
                     log_message('info', __FUNCTION__ . " Booking ID  " . $booking_id . " User ID: " . $user_id);
 
@@ -6357,12 +6381,12 @@ class Booking extends CI_Controller {
                         }
                         else
                         {
-                        redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
-                    }
+                            redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
+                        }
                     }
                 } else {
                     //Redirect to edit booking page if validation err occurs
-                    $userSession = array('error' => 'Booking => '.$booking_id.' is not Valid.');
+                    $userSession = array('error' => validation_errors());
                     $this->session->set_userdata($userSession);
                     if(!empty($arr_post['redirect_url']))
                     {
@@ -6370,8 +6394,8 @@ class Booking extends CI_Controller {
                     }
                     else
                     {
-                    redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
-                }
+                        redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
+                    }
                 }
             } else {
                 //Logging error if No input is provided

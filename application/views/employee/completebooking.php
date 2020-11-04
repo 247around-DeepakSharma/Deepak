@@ -368,24 +368,24 @@
                                             <input type="hidden" name="b_unit_id[<?php echo $keys; ?>][]" value="<?php echo $price['unit_id'];?>" />
                                             <tr style="background-color: white; ">
                                                 <td>
-                                                                                                        <input type="hidden" name="<?php echo "appliance_dop[" . $price['unit_id'] . "]" ?>" 
+                                                    <input type="hidden" name="<?php echo "appliance_dop[" . $price['unit_id'] . "]" ?>" 
                                                             class="<?php echo "unit_dop_".$keys."_".$key;?>" value="<?php if(isset($unit_details['quantity'][0]['sf_purchase_date'])){  echo $unit_details['quantity'][0]['sf_purchase_date']; } ?>" />
-                                                       <input type="hidden" name="<?php echo "appliance_purchase_invoice[" . $price['unit_id'] . "]" ?>" 
+                                                    <input type="hidden" name="<?php echo "appliance_purchase_invoice[" . $price['unit_id'] . "]" ?>" 
                                                             class="<?php echo "unit_purchase_invoice_".$keys."_".$key;?>" value="<?php if(isset($unit_details['quantity'][0]['sf_purchase_invoice'])){  echo $unit_details['quantity'][0]['sf_purchase_invoice']; } ?>" />
-                                                    <?php //if ($price['pod'] == "1") { ?>
+                                                    
                                                     <?php  if ((strpos($price['price_tags'],REPAIR_STRING) !== false) && (strpos($price['price_tags'],IN_WARRANTY_STRING) !== false)) {
                                                                    $dop_mendatory = 1; 
                                                             }
                                                             ?>
                                                     <div class="form-group">
                                                         <div class="col-md-12 ">
-                                                            <input type="text" style="text-transform: uppercase;" onblur="validateSerialNo('<?php echo $count;?>')" class="form-control" id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>"  value="<?php if(!empty($booking_history['spare_parts'])){ echo $booking_history['spare_parts'][0]['serial_number'];} else {echo $price["serial_number"];}  ?>"  placeholder = "Enter Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" />
-                                                            <input type="hidden" class="form-control" id="<?php echo "serial_number_pic" . $count; ?>" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "]" ?>"  value="<?php if(!empty($booking_history['spare_parts'])){ echo $booking_history['spare_parts'][0]['serial_number_pic'];} else {echo $price["serial_number_pic"];} ?>"  />
-                                                            <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
-                                                            <input type="hidden" id="<?php echo "sno_required" . $count ?>" class="form-control" name="<?php echo "is_sn_file[" . $price['unit_id'] . "]" ?>" <?php if(isset($price['is_sn_correct']) && ($price['is_sn_correct'] == IS_SN_CORRECT)){ echo 'value="1"';} else { echo 'value="0"'; }?>   />
+                                                            <input type="text" style="text-transform: uppercase;pointer-events: none;background: #eee;margin-bottom: 5px;" onblur="validateSerialNo()" class="form-control" id="serial_number" name="serial_number"  value="<?php if(!empty($booking_history['spare_parts'])){ echo $booking_history['spare_parts'][0]['serial_number'];} else {echo $price["serial_number"];}  ?>"  placeholder = "Enter Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" />
+                                                            <input type="hidden" class="form-control" id="serial_number_pic" name="serial_number_pic"  value="<?php if(!empty($booking_history['spare_parts'])){ echo $booking_history['spare_parts'][0]['serial_number_pic'];} else {echo $price["serial_number_pic"];} ?>"  />
+                                                            <input type="hidden" id="pod" class="form-control" name="pod" value="<?php echo $price['pod']; ?>"   />
+                                                            <input type="hidden" id="sno_required" class="form-control" name="is_sn_file" <?php if(isset($price['is_sn_correct']) && ($price['is_sn_correct'] == IS_SN_CORRECT)){ echo 'value="1"';} else { echo 'value="0"'; }?>   />
 
-                                                            <input type="hidden" id="<?php echo "duplicate_sno_required" . $count ?>" class="form-control" name="<?php echo "is_dupliacte[" . $price['unit_id'] . "]" ?>" value="0"   />
-                                                            <input type="file" style="margin: 10px 0px;"  id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control" name="<?php echo "upload_serial_number_pic[" . $price['unit_id'] . "]" ?>" value="<?php if(!empty($booking_history['spare_parts'])){ echo $booking_history['spare_parts'][0]['serial_number_pic'];} else {echo $price["serial_number_pic"];}  ?>"   />
+                                                            <input type="hidden" id="duplicate_sno_required" class="form-control" name="is_dupliacte" value="0"   />
+                                                            <input type="file" style="margin: 10px 0px;display:none;"  id="upload_serial_number_pic"   class="form-control" name="upload_serial_number_pic" value="<?php if(!empty($booking_history['spare_parts'])){ echo $booking_history['spare_parts'][0]['serial_number_pic'];} else {echo $price["serial_number_pic"];}  ?>"   />
                                                             <?php
                                                             if(!empty($price['serial_number_pic'])) {
                                                                 $price_unit=$price['unit_id'];
@@ -696,8 +696,8 @@
                     if($booking_history[0]['is_upcountry'] == '1' && $booking_history[0]['upcountry_paid_by_customer']== '1' ){ ?>
                         <div class="row">
                             <div class="col-md-12">
-                                <div class="form-group col-md-6">
-                                    <label for="type" class="col-md-4" style="padding-left:10%;">Paid Upcountry Charges</label>
+                                <div class="form-group col-md-6" style="padding:0;">
+                                    <label for="type" class="col-md-4">Paid Upcountry Charges</label>
                                     <div class="col-md-8">
                                         <div class="input-group">
                                             <div class="input-group-addon">Rs.</div>
@@ -733,7 +733,7 @@
                         <?php } else { ?>
                         <center>
                             <input type="hidden" id="customer_id" name="customer_id" value="<?php echo $booking_history[0]['user_id']; ?>">
-                            <?php if($enable_button && empty($is_invoice_generated) && empty($is_spare_pending_for_acknowledge) && in_array($this->session->userdata['user_group'], [_247AROUND_ADMIN, _247AROUND_CLOSURE])){
+                            <?php if($enable_button && empty($is_invoice_generated) && empty($is_spare_pending_for_acknowledge) && in_array($this->session->userdata['user_group'], [_247AROUND_ADMIN, _247AROUND_CLOSURE, _247AROUND_RM])){
                             $is_upcountry = 0;
                             if(($booking_history[0]['upcountry_paid_by_customer'] == 1) && ($booking_history[0]['is_upcountry'] == 1)){
                                 $is_upcountry = 1;
@@ -1216,10 +1216,7 @@
         $('#submitform').css("opacity", "1");
         return false;
     }
-    else if(ratingStar || not_reachable){
-        return true;
-    }
-    else{
+    else if(!ratingStar && !not_reachable){
         alert("Please Add Rating or Select Choose not reachable");
         flag = 1;
         $('#submitform').css("pointer-events", "auto");
@@ -1402,7 +1399,7 @@
     });
     }
     
-    function validateSerialNo(count){
+    function validateSerialNo(count = ""){
     var postData = {};
     postData['serial_number'] = $.trim($("#serial_number"+count).val());
     postData['price_tags'] = $("#price_tags"+count).text();

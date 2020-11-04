@@ -490,9 +490,23 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                 </label>
                                 </div>
                                   <?php } ?>
+                                <?php
+                                $check_uncheck_engineer = true;
+                                $check_uncheck_message = "";
+                                if(isset($query[0]['isEngineerApp']) && $query[0]['isEngineerApp'] == 1 && $this->session->userdata['user_group']!=_247AROUND_ADMIN){
+                                    $check_uncheck_engineer = false;
+                                    $check_uncheck_message = "Only Admin can uncheck.";
+                                    //If already checked then only Admin can uncheck Enginner App checkbox
+                                }
+                                if(isset($query[0]['isEngineerApp']) && $query[0]['isEngineerApp'] == 1 && $check_uncheck_engineer && !empty($booking_pending_for_review)){
+                                    $check_uncheck_engineer = false;
+                                    $check_uncheck_message = "Some booking are pending for service center review, you can not uncheck.";
+                                    //If SF has some Engineer booking pending for review then Admin can not uncheck
+                                }
+                                ?>
                                 <div class="col-md-2">
                                 <label class="checkbox-inline checkbox-inline-no-edit">
-                                    <input <?php if(isset($query[0]['isEngineerApp']) && $query[0]['isEngineerApp'] == 1 && $this->session->userdata['user_group']!=_247AROUND_ADMIN){ ?> onclick='return false' data-toggle="tooltip" title="Only Admin Can Uncheck" <?php } ?>  class='checkbox_input' type="checkbox" id="is_engineer" <?php if(isset($query[0]['isEngineerApp'])) { if($query[0]['isEngineerApp'] == 1){ echo "checked";}}?> name="is_engineer" value="1" readonly><b>Engineer App</b>
+                                    <input <?php if(empty($check_uncheck_engineer)){ ?> onclick='return false' data-toggle="tooltip" title="<?php echo $check_uncheck_message; ?>" <?php } ?>  class='checkbox_input' type="checkbox" id="is_engineer" <?php if(isset($query[0]['isEngineerApp'])) { if($query[0]['isEngineerApp'] == 1){ echo "checked";}}?> name="is_engineer" value="1" readonly><b>Engineer App</b>
                                 </label>
 
                                 </div>
@@ -975,6 +989,137 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                         </div>
                         </div>
             </div>
+            <!-- stamp details start -->
+                          <div class="panel-heading" style="background-color:#ECF0F1"><b>Stamp Details</b></div>
+                        <div class="panel-body" id="stamp-details">
+                            <div class="col-md-12">
+                                 <div class="col-md-6">
+                         <div class="form-group <?php
+                                if (form_error('stamp_file')) {
+                                echo 'has-error';
+                                }
+                                ?>">
+                                       <label for="stamp_file" class="col-md-4 vertical-align" style="width: 22%;">Stamp File</label>
+                                       <div class="col-md-7">
+                                    <input type="file" accept="image/*" class="form-control crop_stamp_image"  name="stamp_file" id="stamp_file"/>
+                                    <input type="hidden" id="stamp_file_hd" name="stamp_file_hd" value = "<?php
+                                    if (isset($query[0]['stamp_file'])) {
+                                        echo $query[0]['stamp_file'];
+                                    }
+                                    ?>"/>
+                                    
+                                 </div>
+                                  <div class="col-md-2">
+                            <?php
+                            $src = base_url() . 'images/no_image.png';
+                            $image_src = $src;
+                            if (isset($query[0]['stamp_file']) && !empty($query[0]['stamp_file'])) {
+                                //Path to be changed
+                                $src = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/sf-stamp/" . $query[0]['stamp_file'];
+                                $image_src = base_url() . 'images/view_image.png';
+                            }
+                            ?> 
+                             <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
+                            <?php if (isset($query[0]['stamp_file']) && !empty($query[0]['stamp_file'])) { ?>
+                                <a href="javascript:void(0)" onclick="remove_image('stamp_file',<?php echo $query[0]['id'] ?>,'<?php echo $query[0]['stamp_file'] ?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 0px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                            <?php } ?>
+
+                            <input type="hidden" id="cropped_stamp_image_file" name="cropped_stamp_image_file">
+                            </div>
+                        </div>
+                         <?php echo form_error('stamp_file'); ?>
+                    </div>
+
+                    <div id="uploadstampModal" class="modal" role="dialog">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                            <h4 class="modal-title">Upload & Crop Image</h4>
+                                        </div>
+
+                                        <div class="modal-body">
+                                            <div class="row">
+                                                <div class="col-md-8 text-center">
+                                                      <div id="stamp_image_demo" style="width:350px; margin-top:30px"></div>
+                                                </div>
+                                                <div class="col-md-4" style="padding-top:30px;">
+                                                    <br />
+                                                    <br />
+                                                    <br/>
+                                                      <div class="btn btn-success " id="crop_stamp_image">Crop & Upload Image</div>
+                                                
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                              <script>  
+                            $(document).ready(function(){
+
+                                $image_stamp_crop = $('#stamp_image_demo').croppie({
+                                enableExif: true,
+                                viewport: {
+                                  width:200,
+                                  height:200,
+                                  type:'square' 
+                                },
+                                boundary:{
+                                  width:300,
+                                  height:300
+                                }
+                              });
+
+                              $('#stamp_file').on('change', function(){
+                                var reader = new FileReader();
+                                reader.onload = function (event) {
+                                  $image_stamp_crop.croppie('bind', {
+                                    url: event.target.result
+                                  })
+                                }
+                                reader.readAsDataURL(this.files[0]);
+                            
+                                var size = this.files[0].size;
+                                if (size > 5000000 || size < 10000) { 
+                                alert("File must be between the size of 10KB to 5MB");
+                                $('#stamp_file').val('');
+                                return false; 
+                                                            
+                                }                                 
+                                $('#uploadstampModal').modal('show');
+                                
+                              }); 
+                    
+                             $('#crop_stamp_image').click(function(event){
+                                  $image_stamp_crop.croppie('result', {
+                                  type: 'canvas',
+                                  size: 'viewport'
+                                }).then(function(response){
+                                  $.ajax({
+                                    url:"<?php  echo base_url(); ?>employee/vendor/stamp_file",
+                                    type: "POST",
+                                    data:{"image": response},
+                                    success:function(data)
+                                    {   
+                                        var tmp  = "<?php  echo TMP_FOLDER; ?>";
+                                        var data = JSON.parse(data);
+                                        $("#cropped_stamp_image_file").val(data.filename);
+                                         
+                                      $('#uploadstampModal').modal('hide');
+                                   }
+                                });
+                              });
+                            });
+                            });
+                            </script>
+                        <!-- stamp details end -->
             <center><input type="Submit" onclick="return validate_documents()" value="<?php
                                     if (isset($selected_brands_list)) {
                                         echo "Update Documents";
@@ -2222,7 +2367,13 @@ function manageAccountNameField(value){
             $('#'+container+' #contract_file').attr('readonly');
             $('#'+container+' a[title="Remove Image"]').css('display','none');
         }
-
+         if($('#'+container+' #stamp_file_hd').val() != ''){
+            $('#'+container+' #stamp_file').css('pointer-events', 'none');
+            $('#'+container+' #stamp_file').css('background-color', '');
+            $('#'+container+' #stamp_file').attr('readonly');
+            $('#'+container+' a[title="Remove Image"]').css('display','none');
+            
+        }
             <?php }else{ ?>
                 $('#'+container+' a[title="Remove Image"]').css('display','inline');
             <?php } ?>

@@ -1,3 +1,9 @@
+<script>
+ var DUPLICATE_SERIAL_NO_CODE = '<?php echo DUPLICATE_SERIAL_NO_CODE; ?>';
+ var DUPLICATE_SERIAL_NUMBER_USED = '<?php echo DUPLICATE_SERIAL_NUMBER_USED;?>';
+</script>
+<link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
+<script src="<?php echo base_url();?>js/jquery.loading.js"></script>
 <script src="<?php echo base_url();?>js/base_url.js"></script>
 <script src="<?php echo base_url();?>js/validation_js.js"></script>
 <script src="<?php echo base_url();?>js/custom_js.js?v=<?=mt_rand()?>"></script>
@@ -69,6 +75,7 @@ $arr_partner_discount = array();
             <h3 style="color:red;text-align: center;font-size: 16px;margin-bottom: -39px;font-weight:bold;" class="errorMsg"></h3>
             <div class="panel-body">                
                 <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php if(isset($booking_history[0]['booking_id'])){ echo base_url()?>service_center/update_booking_by_sf/<?php echo $booking_history[0]['user_id'];?>/<?php echo $bkng_id;?>/<?php echo $do_not_insert_state_change;}  ?> "  method="POST" enctype="multipart/form-data">
+                    <input type="hidden" value="<?php echo $booking_history[0]['booking_id'] ?>" name="booking_id" id="booking_id">
                     <input type="hidden" value="<?php echo $is_repeat_value ?>" name="is_repeat" id="is_repeat">
                     <input type="hidden" name="upcountry_data" value="<?php echo json_decode(""); ?>" id="upcountry_data" /> 
                     <input type="hidden" id="name" name="user_name" value = "<?php echo $booking_history[0]['name'] ?>"/>
@@ -93,8 +100,6 @@ $arr_partner_discount = array();
                     <input type="hidden" value="<?php echo $parentBkng; ?>" name="parent_id" id="parent_id">
                     <input type="hidden" name= "dealer_name" value="<?php if(isset($booking_history[0]['dealer_name'])){ echo $booking_history[0]['dealer_name']; } ?>" id="dealer_name"/>
                     <input type="hidden" name="appliance_id[]" value="<?php if(isset($unit_details[0]['appliance_id'])){echo $unit_details[0]['appliance_id'];} ?>"/>
-                    <input type="hidden" name="serial_number" value="<?php if(isset($unit_details[0]['quantity'][0]['serial_number'])){echo $unit_details[0]['quantity'][0]['serial_number'];} ?>"/>
-                    <input type="hidden" name="serial_number_pic" value="<?php if(isset($unit_details[0]['quantity'][0]['serial_number_pic'])){echo $unit_details[0]['quantity'][0]['serial_number_pic'];} ?>"/>
                     <input type="hidden" value="<?php echo $redirect_url ?>" name="redirect_url" id="redirect_url">
                     <input type="hidden" value="<?php echo $str_disabled ?>" name="is_spare_requested" id="is_spare_requested">                    
                     <input type="hidden" value="<?php echo $allow_skip_validations ?>" name="is_sf_panel" id="is_sf_panel">                                       
@@ -187,6 +192,32 @@ $arr_partner_discount = array();
                                                     <option  <?php if(isset($unit_details[0]['capacity'])) {if(strtoupper(str_replace(" ","",$appliance_capacity['capacity'])) == strtoupper(str_replace(" ","",$unit_details[0]['capacity']))) { echo "selected"; }  } ?>  ><?php echo $appliance_capacity['capacity']; ?></option>
                                                     <?php } ?>
                                                 </select>
+                                            </div>
+                                        </div>
+                                        <!--Serial Number & Pic Section -->        
+                                        <div class="form-group">
+                                            <label for="serial_number" class="col-md-4">Serial Number *</label>
+                                            <div class="col-md-6">
+                                                <?php
+                                                    $serial_number = !empty($unit_details[0]['quantity'][0]['serial_number']) ? $unit_details[0]['quantity'][0]['serial_number'] : "";
+                                                    $serial_number_pic = !empty($unit_details[0]['quantity'][0]['serial_number_pic']) ? $unit_details[0]['quantity'][0]['serial_number_pic'] : ""; 
+                                                    $pod = !empty($unit_details[0]['quantity'][0]['pod']) ? $unit_details[0]['quantity'][0]['pod'] : ""; 
+                                                ?>
+                                                <input type="text" style="text-transform: uppercase;" onblur="validateSerialNo()" class="form-control" id="serial_number" name="serial_number"  value="<?php echo $serial_number; ?>"  placeholder = "Enter Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" onblur="check_booking_request()"/>
+                                                <input type="hidden" class="form-control" id="serial_number_pic" name="serial_number_pic"  value="<?php echo $serial_number_pic; ?>"  />
+                                                <input type="hidden" id="pod" class="form-control" name="pod" value="<?php echo $pod; ?>"   />
+                                                <input type="hidden" id="sno_required" class="form-control" name="is_sn_file" value="0"   />
+                                                <input type="hidden" id="duplicate_sno_required" class="form-control" name="is_dupliacte" value="0"   />
+                                                <input type="hidden" id="is_sn_correct" class="form-control" name="is_sn_correct"/>                                                                    
+                                                <input type="file" id="upload_serial_number_pic" class="form-control serialNumberPic" name="upload_serial_number_pic" value="<?php echo $serial_number_pic; ?>" style="margin-top:5px;"/>
+                                                <?php
+                                                if(!empty($serial_number_pic)) {
+                                                    $url="https://s3.amazonaws.com/". BITBUCKET_DIRECTORY.'/'.SERIAL_NUMBER_PIC_DIR.'/'.$serial_number_pic; ?>
+                                                    <p style="margin-top: 5px;"><a href="<?php echo $url; ?>" target="_blank">SF Serial Number Pic</a></p>
+                                                     <?php
+                                                }
+                                                ?>
+                                                <span style="color:red;" id="error_serial_no"></span>                    
                                             </div>
                                         </div>
                                         </div>
@@ -521,7 +552,7 @@ $arr_partner_discount = array();
                         <div class="form-group  col-md-12" >
                             <center>
                                 
-                                <input type="submit" id="submitform" onclick="return addBookingDialog('sf_update')" class="btn btn-primary" value="<?= $button_caption?>">
+                                <input type="submit" id="submitform" onclick="return addBookingDialog('sf_update', 1)" class="btn btn-primary" value="<?= $button_caption?>">
                         </div>
                         </center>
                     </div>
@@ -555,6 +586,7 @@ $arr_partner_discount = array();
 </script>
 <script>
     check_pincode();
+    validateSerialNo();
     if(($("#model_not_mapped").val() != 1) && ($("#is_spare_requested").val() == ""))
     {
         $(".select-model").select2();
@@ -565,6 +597,10 @@ $arr_partner_discount = array();
 
      $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0, maxDate: '<?php echo date("Y-m-d", strtotime("+15 day")); ?>'});
        getPartnerChannel();
+       
+    $('.serialNumberPic').on('change', function(){
+        $('#'+$(this).attr('id').replace("upload_", "")).val($(this).val());
+    });   
 </script>
 
 <script type="text/javascript">
@@ -585,6 +621,7 @@ $arr_partner_discount = array();
         var dop = $("#purchase_date_1").val();
         var partner_id = $("#partner_id").val();
         var service_id = $("#service_id").val();
+        var serial_number = $("#serial_number").val();
         var booking_id = "<?= $booking_history[0]['booking_id']?>";
         var booking_request_types = []; 
         $(".price_checkbox:checked").each(function(){
@@ -593,10 +630,11 @@ $arr_partner_discount = array();
         });
         $("#submitform").attr("disabled", false);
         $('.errorMsg').html("");
-        if(model_number !== "" && model_number !== null && model_number !== undefined && dop !== "" && booking_request_types.length > 0){                               
+        // To check warranty => Model Number, DOP/Serial Number & Request Types should be filled
+        if((model_number !== "" && model_number !== null && model_number !== undefined) && (dop !== "" || serial_number != "") && (booking_request_types.length > 0)){                               
             $.ajax({
                 method:'POST',
-                url:"<?php echo base_url(); ?>employee/service_centers/get_warranty_data/2",
+                url:"<?php echo base_url(); ?>employee/service_centers/get_warranty_data/2/1",
                 data:{
                     'bookings_data[0]' : {
                         'partner_id' : partner_id,
@@ -604,7 +642,8 @@ $arr_partner_discount = array();
                         'booking_create_date' : "<?= $booking_history[0]['create_date']?>",
                         'service_id' : service_id,
                         'model_number' : model_number,
-                        'purchase_date' : dop, 
+                        'purchase_date' : dop,
+                        'serial_number' : serial_number,
                         'booking_request_types' : booking_request_types
                     }
                 },
@@ -753,7 +792,6 @@ $arr_partner_discount = array();
 //    $('#submitform').attr('disabled',true);
 
     sendAjaxRequest(postData, pricesForCategoryCapacityUrl).done(function(data) {
-        console.log(data);
         var data1 = jQuery.parseJSON(data);
         
         $("#upcountry_data").val(data1.upcountry_data);
@@ -920,7 +958,7 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
         $(".select-model").attr("tabindex",-1);  
     <?php } ?>
 
-
+    
 </script>
 <style type="text/css">
     #errmsg1

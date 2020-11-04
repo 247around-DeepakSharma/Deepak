@@ -255,6 +255,23 @@ class vendor_model extends CI_Model {
         $this->db->insert('service_centers_login', $login);
      }
 
+     function sf_insert_miscellaneous($vendor_data_miscellaneous) {
+        $this->db->insert('sf_stamp_details', $vendor_data_miscellaneous);
+     }
+
+      function sf_update_miscellaneous($where, $data_miscelleneous){
+        $this->db->where($where);
+        return $this->db->update("sf_stamp_details", $data_miscelleneous);
+    }
+
+    function fetch_sf_miscellaneous_data($select,$where) {
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get('sf_stamp_details');
+        return $query->result_array();
+    }
+    
+
     /**
      * @desc: This function is to get all the active services
      *

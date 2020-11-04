@@ -500,6 +500,9 @@
 <div role="tabpanel" class="tab-pane" id="defective_part_pending">
     <div class="container-fluid">
         <div class="row" >
+            <div class="col-md-1 pull-right" style="padding: 10px;">       
+                <a class="btn btn-success" id="download_pending_defective_ok_parts_all">Download</a><span class="badge" title="Download spare data"></span>     
+            </div> 
             <div class="col-md-12">
                 <div class="panel panel-default">
                     <div class="panel-body" >
@@ -1977,6 +1980,31 @@
                 }
             });
      });
+     
+     
+    /*
+     * @desc: Download the Defective Pending/Ok Part (All) spare data.
+     * @response: json 
+     */
+     $("#download_pending_defective_ok_parts_all").click(function (){
+        $('#download_pending_defective_ok_parts_all').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
+        $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                url: '<?php echo base_url(); ?>employee/spare_parts/download_pending_defective_ok_spare_data',
+                data: { defective_ok_download_flag :true},
+                success: function (data) {
+                    $('#download_pending_defective_ok_parts_all').html("Download").attr('disabled',false);
+                    var obj = JSON.parse(JSON.stringify(data));
+                    if(obj['status']){
+                        window.location.href = obj['msg'];
+                    }else{
+                        alert('File Download Failed. Please Refresh Page And Try Again...')
+                    }
+                }
+            });
+     });
+     
      
      
     /*

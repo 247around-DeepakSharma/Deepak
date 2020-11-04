@@ -1440,7 +1440,12 @@ class Invoice extends CI_Controller {
 
             // count unique booking id
             $invoice_data['meta']['count'] = $invoice_data['meta']['service_count'];
-            $invoice_data['meta']['tds'] = $tds['tds'];
+            if($tds['tds'] > 0 & $tds['tds'] < 1){
+                $invoice_data['meta']['tds'] = 1;
+            } else {
+                $invoice_data['meta']['tds'] = $tds['tds'];
+            }
+            
             $invoice_data['meta']['tds_rate'] = $tds['tds_rate'];
             $invoice_data['meta']['warehouse_storage_charge'] = $invoice_data['warehouse_storage_charge'];
             $invoice_data['meta']['tds_tax_rate'] = $tds['tds_per_rate'];
@@ -2456,61 +2461,70 @@ exit();
 
         if (!empty($invoices)) {
 
-            log_message('info', __FUNCTION__ . "=> Data Found for Cash Invoice");
-            echo "Data Found for Cash Invoice" . PHP_EOL;
+            $total_invoice_amount = (array_sum(array_column($invoices, 'total_amount')));
+            if ($total_invoice_amount > CASH_INVOICE_LIMIT) {
+                log_message('info', __FUNCTION__ . "=> Data Found for Cash Invoice");
+                echo "Data Found for Cash Invoice" . PHP_EOL;
 
-            if (isset($details['invoice_id'])) {
-                log_message('info', __FUNCTION__ . " Re-Generate Cash Invoice ID: " . $details['invoice_id']);
-                echo "Re-Generate Cash Invoice ID: " . $details['invoice_id'] . PHP_EOL;
+                if (isset($details['invoice_id'])) {
+                    log_message('info', __FUNCTION__ . " Re-Generate Cash Invoice ID: " . $details['invoice_id']);
+                    echo "Re-Generate Cash Invoice ID: " . $details['invoice_id'] . PHP_EOL;
 
-                $invoices['meta']['invoice_id'] = $details['invoice_id'];
-            } else {
-                $invoices['meta']['invoice_id'] = $this->create_invoice_id_to_insert("ARD-9");
+                    $invoices['meta']['invoice_id'] = $details['invoice_id'];
+                } else {
+                    $invoices['meta']['invoice_id'] = $this->create_invoice_id_to_insert("ARD-9");
 
-                log_message('info', __FUNCTION__ . " New Invoice ID Generated: " . $invoices['meta']['invoice_id']);
-                echo " New Invoice ID Generated: " . $invoices['meta']['invoice_id'] . PHP_EOL;
-            }
-
-            $status = $this->invoice_lib->send_request_to_create_main_excel($invoices, $invoice_type);
-            if ($status) {
-
-                log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $invoices['meta']['invoice_id']);
-
-                $data = $this->invoices_model->get_vendor_cash_detailed($vendor_id, $from_date, $to_date, $is_regenerate);
-                $invoices_details_data = array_merge($data, $invoices['upcountry']);
-                $invoices['meta']['r_sc'] = $invoices['meta']['r_asc'] = $invoices['meta']['r_pc'] = $rating = $total_amount_paid = 0;
-                $i = 0;
-                $parts_count = 0;
-                foreach ($invoices_details_data as $value) {
-                    $invoices['meta']['r_sc'] += $value['service_charges'];
-                    $invoices['meta']['r_asc'] += $value['additional_charges'];
-                    $invoices['meta']['r_pc'] += $value['parts_cost'];
-                    if($value['parts_cost'] >0){
-                        $parts_count++;
-                    }
-                    $total_amount_paid += $value['amount_paid'];
-
-                    if (!is_null($value['rating_stars']) && $value['rating_stars'] != '') {
-                        $rating += $value['rating_stars'];
-                        $i++;
-                    }
+                    log_message('info', __FUNCTION__ . " New Invoice ID Generated: " . $invoices['meta']['invoice_id']);
+                    echo " New Invoice ID Generated: " . $invoices['meta']['invoice_id'] . PHP_EOL;
                 }
 
-                if ($i == 0) {
-                    $i = 1;
-                }
-                $invoices['meta']['parts_count'] = $parts_count;
-                $invoices['meta']['total_amount_paid'] = sprintf("%.2f",$total_amount_paid);
-                $invoices['meta']['t_rating'] = sprintf("%.2f",$rating / $i);
-                $this->generate_cash_details_invoices_for_vendors($vendor_id, $invoices_details_data, $invoices, $invoice_type, $agent_id, $from_date, $to_date);
-                unset($invoices_details_data);
-                unset($invoices);
+                $status = $this->invoice_lib->send_request_to_create_main_excel($invoices, $invoice_type);
+                if ($status) {
 
-                return true;
+                    log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $invoices['meta']['invoice_id']);
+
+                    $data = $this->invoices_model->get_vendor_cash_detailed($vendor_id, $from_date, $to_date, $is_regenerate);
+                    $invoices_details_data = array_merge($data, $invoices['upcountry']);
+                    $invoices['meta']['r_sc'] = $invoices['meta']['r_asc'] = $invoices['meta']['r_pc'] = $rating = $total_amount_paid = 0;
+                    $i = 0;
+                    $parts_count = 0;
+                    foreach ($invoices_details_data as $value) {
+                        $invoices['meta']['r_sc'] += $value['service_charges'];
+                        $invoices['meta']['r_asc'] += $value['additional_charges'];
+                        $invoices['meta']['r_pc'] += $value['parts_cost'];
+                        if ($value['parts_cost'] > 0) {
+                            $parts_count++;
+                        }
+                        $total_amount_paid += $value['amount_paid'];
+
+                        if (!is_null($value['rating_stars']) && $value['rating_stars'] != '') {
+                            $rating += $value['rating_stars'];
+                            $i++;
+                        }
+                    }
+
+                    if ($i == 0) {
+                        $i = 1;
+                    }
+                    $invoices['meta']['parts_count'] = $parts_count;
+                    $invoices['meta']['total_amount_paid'] = sprintf("%.2f", $total_amount_paid);
+                    $invoices['meta']['t_rating'] = sprintf("%.2f", $rating / $i);
+                    $this->generate_cash_details_invoices_for_vendors($vendor_id, $invoices_details_data, $invoices, $invoice_type, $agent_id, $from_date, $to_date);
+                    unset($invoices_details_data);
+                    unset($invoices);
+
+                    return true;
+                } else {
+                    log_message('info', __FUNCTION__ . ' Invoice File is not created. invoice id' . $invoices['meta']['invoice_id']);
+                    echo ' Invoice File is not created. invoice id' . PHP_EOL;
+                    return false;
+                }
             } else {
-                log_message('info', __FUNCTION__ . ' Invoice File is not created. invoice id' . $invoices['meta']['invoice_id']);
-                echo ' Invoice File is not created. invoice id' . PHP_EOL;
-                return false;
+                log_message('info', __FUNCTION__ . "=> Total amount is greater than 10 " . print_r($details));
+
+                echo "Total amount is greater than 10 " . PHP_EOL;
+
+                return FALSE;
             }
         } else {
             log_message('info', __FUNCTION__ . "=> Data Not Found for Cash Invoice" . print_r($details));
@@ -2520,7 +2534,7 @@ exit();
             return FALSE;
         }
     }
-    
+
     function generate_buyback_invoices($details, $is_regenerate) {
         log_message('info', __FUNCTION__ . " Entering...." . print_r($details, true) . ' is_regenerate: ' . $is_regenerate);
         $vendor_id = $details['vendor_partner_id'];
@@ -3260,36 +3274,31 @@ exit();
             $tds_per_rate = "20%";
         } else {
             switch ($sc_details['company_type']) {
-                case 'Proprietorship Firm':
-                        $_4th_char = substr($sc_details['pan_no'], 3, 1);
-                        if (strcasecmp($_4th_char, "F") == 0) {
-                            $tds = ($total_sc_charge) * .02;
-                            $tds_tax_rate = 2;
-                            $tds_per_rate = "2%";
-                        } else {
-                            $tds = ($total_sc_charge) * .01;
-                            $tds_tax_rate = 1;
-                            $tds_per_rate = "1%";
-                        }
-                    
-                    break;
                 case "Individual":
-                    $tds = ($total_sc_charge) * .01;
-                    $tds_tax_rate = 1;
-                    $tds_per_rate = "1%";
+                    $tds = ($total_sc_charge) * .0075;
+                    $tds_tax_rate = .75;
+                    $tds_per_rate = "0.75%";
                     break;
 
                 case "Partnership Firm":
                 case "Company (Pvt Ltd)":
                 case "Private Ltd Company":
-                    $tds = ($total_sc_charge) * .02;
-                    $tds_tax_rate = 2;
-                    $tds_per_rate = "2%";
+                    $_4th_char = substr($sc_details['pan_no'], 3, 1);
+                    if (strcasecmp($_4th_char, "P") == 0) {
+                            $tds = ($total_sc_charge) * .0075;
+                            $tds_tax_rate = 0.75;
+                            $tds_per_rate = "0.75%";
+                    } else {
+                        $tds = ($total_sc_charge) * .015;
+                        $tds_tax_rate = 1.5;
+                        $tds_per_rate = "1.5%";
+                    }
+                    
                     break;
                 default :
-                    $tds = ($total_sc_charge) * .02;
-                    $tds_tax_rate = 2;
-                    $tds_per_rate = "2%";
+                    $tds = ($total_sc_charge) * .015;
+                    $tds_tax_rate = 1.5;
+                    $tds_per_rate = "1.5%";
                     break;
             }
         }
@@ -5118,7 +5127,7 @@ exit();
                 $w['spare_invoice_flag'] = true;
                 $w['where_in'] = array("spare_parts_details.id" => $is_validate['data']);
                 $w['select'] = "spare_parts_details.id, spare_parts_details.booking_id, purchase_price, public_name, booking_details.partner_id, oow_spare_invoice_details.invoice_pdf as oow_invoice_pdf,"
-                        . "purchase_invoice_id,sell_invoice_id, sell_price, incoming_invoice_pdf, partners.state, parts_shipped, spare_parts_details.shipped_quantity, spare_parts_details.shipped_inventory_id";
+                        . "purchase_invoice_id,sell_invoice_id, sell_price, incoming_invoice_pdf, partners.state, parts_shipped, spare_parts_details.shipped_quantity, spare_parts_details.shipped_inventory_id, shipped_parts_type";
                 $data = $this->inventory_model->get_spare_parts_query($w);
                 
                 $unique_partner = array_unique(array_map(function ($k) {
@@ -5169,6 +5178,7 @@ exit();
                                 $total_igst_ampount += $igst_amount;
                             }
                             $total_amount = $taxable_value + $igst_amount +$cgst_amount + $sgst_amount;
+                            $part_data[$value->id]['purchase_price'] = $total_amount;
                             $total_amount_collected += $total_amount;
                             $total_part_basic += $taxable_value;
                             $invoice_details = array(
@@ -5225,8 +5235,18 @@ exit();
                             // get booking_details.
                             $booking_details = $this->reusable_model->get_search_query('booking_details', '*', array('booking_details.booking_id' => $value->booking_id), NULL, NULL, NULL, NULL, NULL)->result_array()[0];
                             
+                            
+                            $margin = $this->inventory_model->get_oow_margin($value->shipped_inventory_id, array('part_type' => $value->shipped_parts_type, 'inventory_parts_type.service_id' => $booking_details[0]['service_id']));
+               
+                            $spare_oow_around_margin = $margin['oow_around_margin']/100;
+                            $spare_oow_est_margin = $margin['oow_est_margin']/100;
+                            
+                            $challan_approx_value = ($part_data[$value->id]['purchase_price'] + $part_data[$value->id]['purchase_price'] * $spare_oow_around_margin );
+                            $sell_price = ($part_data[$value->id]['purchase_price'] + $part_data[$value->id]['purchase_price'] * $spare_oow_est_margin );
+                            
                             $this->service_centers_model->update_spare_parts(array('id' => $value->id), array("purchase_invoice_id" => $invoice['invoice_id'],
-                                'invoice_gst_rate' => $part_data[$value->id]['gst_rate']));
+                                'invoice_gst_rate' => $part_data[$value->id]['gst_rate'], 'purchase_price' => $part_data[$value->id]['purchase_price'], 
+                                'challan_approx_value' => $challan_approx_value, 'sell_price' =>$sell_price ));
                             
                             if($booking_details['current_status'] == _247AROUND_PENDING) {
                                 $this->vendor_model->update_service_center_action($value->booking_id, array('current_status' => "InProcess", 'internal_status' => SPARE_PARTS_SHIPPED));
@@ -6291,7 +6311,7 @@ exit();
         $i = 0;
         $post['where'] = $where;
 
-        $select = "spd.booking_id, sc.company_name, sc.district, spd.parts_requested, spd.parts_requested_type, spd.model_number, spd.sell_invoice_id, spd.sell_price, spd.id";
+        $select = "spd.booking_id, sc.company_name, sc.district, spd.parts_requested, spd.parts_requested_type, spd.model_number, spd.sell_invoice_id, spd.sell_price, spd.id, spd.reverse_sale_invoice_id";
         $list = $this->invoices_model->get_spare_sale_list($post, $select);
         $data = array();
         $no = $post['start'];
@@ -6328,6 +6348,7 @@ exit();
         $row[] = $model_list->company_name;
         $row[] = $model_list->district;
         $row_number = $row_index - 1;
+        $row[] = $model_list->reverse_sale_invoice_id;;
         $row[] = "<button class='btn btn-primary btn-sm' id='btn".$row_number."' onclick='reverse_spare_sale(\"".$model_list->id."\",".$row_number.")'>Reverse Sale Invoice</button>";
 
         return $row;
@@ -7656,8 +7677,103 @@ exit();
             }
         }
     }
+	/**
+     * @desc This function is used to cancel invoice
+     */
+    function cancel_invoice(){
+        $invoice_id = $this->input->post('invoice_id');
+        $vendor_partner_type = $this->input->post('vendor_partner_type');
+        $response = array();
+        $response['status'] = 'SUCCESS';
+        $response['message'] = 'SUCCESS';
+        if(!empty($invoice_id) && !empty($vendor_partner_type) && in_array($vendor_partner_type,array(_247AROUND_PARTNER_STRING,_247AROUND_SF_STRING))){
+            $where = array('invoice_id' => $invoice_id);
+            $invoice_data = $this->invoices_model->getInvoicingData($where);
+
+            if(!empty($invoice_data)){
+                $where['invoice_id'] = $invoice_id;
+                $vendor_partner_detail['total_service_charge'] = 0;
+                $vendor_partner_detail['total_additional_service_charge'] = 0;
+                $vendor_partner_detail['service_tax'] = 0;
+                $vendor_partner_detail['parts_cost'] = 0;
+                $vendor_partner_detail['vat'] = 0;
+                $vendor_partner_detail['cgst_tax_amount'] = 0;
+                $vendor_partner_detail['cgst_tax_rate'] = 0;
+                $vendor_partner_detail['sgst_tax_amount'] = 0;
+                $vendor_partner_detail['sgst_tax_rate'] = 0;
+                $vendor_partner_detail['igst_tax_amount'] = 0;
+                $vendor_partner_detail['igst_tax_rate'] = 0;
+                $vendor_partner_detail['buyback_tax_amount'] = 0;
+                $vendor_partner_detail['rcm'] = 0;
+                $vendor_partner_detail['total_amount_collected'] = 0;
+                $vendor_partner_detail['around_royalty'] = 0;
+                $vendor_partner_detail['amount_collected_paid'] = 0;
+                $vendor_partner_detail['settle_amount'] = 0;
+                $vendor_partner_detail['amount_paid'] = 0;
+                $vendor_partner_detail['tds_rate'] = 0;
+                $vendor_partner_detail['tds_amount'] = 0;
+                $vendor_partner_detail['upcountry_rate'] = 0;
+                $vendor_partner_detail['upcountry_price'] = 0;
+                $vendor_partner_detail['courier_charges'] = 0;
+                $vendor_partner_detail['packaging_rate'] = 0;
+                $vendor_partner_detail['warehouse_storage_charges'] = 0;
+                $vendor_partner_detail['miscellaneous_charges'] = 0;
+		$vendor_partner_detail['sub_category'] = _247AROUND_CANCELLED;
+                $vendor_partner_detail['agent_id'] = $this->session->userdata('id');
+                $this->invoices_model->update_partner_invoices($where,$vendor_partner_detail);
+                //update vendor_partner_invoice all amount set to 0
+
+                $invoice_detail['rate'] = 0;
+                $invoice_detail['taxable_value'] = 0;
+                $invoice_detail['cgst_tax_rate'] = 0;
+                $invoice_detail['cgst_tax_amount'] = 0;
+                $invoice_detail['sgst_tax_rate'] = 0;
+                $invoice_detail['sgst_tax_amount'] = 0;
+                $invoice_detail['igst_tax_amount'] = 0;
+                $invoice_detail['igst_tax_amount'] = 0;
+                $invoice_detail['total_amount'] = 0;
+                $where_invoice_detail['invoice_id'] = $invoice_id;
+                $this->invoices_model->update_invoice_breakup($where_invoice_detail, $invoice_detail);
+                //update invoice_details all amount set to 0
+                if($vendor_partner_type==_247AROUND_PARTNER_STRING){
+                    $this->service_centers_model->update_spare_parts(array('purchase_invoice_id'=>$invoice_id),array('purchase_invoice_id'=>null));
+                }else{
+                     $this->service_centers_model->update_spare_parts(array('sell_invoice_id'=>$invoice_id),array('sell_invoice_id'=>null));
+                }
+                //Remove invoice from spare parts detail table
+
+                $response['message'] = 'Invoice Cancelled successfully.';
+
+            }
+        }else{
+            $response['status'] = 'ERROR';
+            $response['message'] = 'Invoice ID not found.';
+        }
+        echo json_encode($response);
+    }
     
     function copy_invoices(){
         $this->miscelleneous->copy_invoices_from_s3();
+    }
+    /**
+     * @desc This function is used to generate sf oow invoice at the end  of month
+     */
+    function generate_bulk_oow_sale_invoice(){
+        $data = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id, shipped_date', array(
+            'parts_shipped IS NOT NULL' => NULL,
+            'sell_invoice_id' => NULL,
+            'estimate_cost_given_date IS NOT NULL' => NULL,
+            'defective_part_shipped_date IS NULL' => NULL,
+            'is_micro_wh != 1' => NULL, 
+            'part_warranty_status' => 2,
+            "DATEDIFF(STR_TO_DATE('".date('Y-m-01')."', '%Y-%m-%d'), STR_TO_DATE(shipped_date, '%Y-%m-%d')) >= 30" => NULL
+            
+        ));
+        
+        if(!empty($data)){
+            foreach($data as $value){
+                $this->generate_oow_parts_invoice($value['id']);
+            }
+        }
     }
 }

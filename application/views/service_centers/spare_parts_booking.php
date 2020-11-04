@@ -194,7 +194,7 @@ if ($this->uri->segment(3)) {
                                         </td>-->
                                         <?php if (!empty($is_generate_challan)) { ?>
                                         <td>
-                                            <input type="checkbox" class="form-control checkbox_challan" name="generate_challan[<?php echo $row['service_center_id']; ?>][]" id="generate_challan_<?php echo $i; ?>" onclick='check_checkbox(2, this.id)' data-service_center_id="<?php echo $row['service_center_id']; ?>" value="<?php echo $row['booking_id']; ?>" />
+                                            <input type="checkbox" class="form-control checkbox_challan" name="generate_challan[<?php echo $row['service_center_id']; ?>][]" id="generate_challan_<?php echo $i; ?>" onclick='check_checkbox(2, this.id)' data-service_center_id="<?php echo $row['service_center_id']; ?>" value="<?php echo $row['id']; ?>" />
                                         </td>
                                         <?php } ?>
                                         <?php if(!empty($is_send_to_sf)){ ?>
@@ -218,6 +218,7 @@ if ($this->uri->segment(3)) {
                             }
                             ?>
                         </div>
+                        <input type="hidden" name="challan_send_to_sf" value="1">
                         <center style="margin-bottom: 10px;"><input type= "submit" onclick="return checkValidationForBlank()"  class="btn btn-md" style="background-color:#2C9D9C; border-color: #2C9D9C; color:#fff;" name="download_shippment_address" id="download_shippment_address" value ="Print / Download" > </center>
                     </form>
                 </div>

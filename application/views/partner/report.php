@@ -13,19 +13,19 @@
                 </div>
                     <h2 id="msg_holder" style="text-align:center;color: #108c30;font-weight: bold;"></h2>
                 <div class="x_content">
-                                        <div class="" role="tabpanel" data-example-id="togglable-tabs">
+                                        <div class="active" role="tabpanel" data-example-id="togglable-tabs">
                         <ul id="myTabs" class="nav nav-tabs bar_tabs" role="tablist">
-                            <li role="presentation" class="active">
-                                <a href="#tabs-1" role="tab" data-toggle="tab" aria-expanded="true">
-                                    Summary Reports
+                             <li role="presentation" class="active">
+                                <a href="#tabs-4" role="tab" data-toggle="tab" aria-expanded="true">
+                                    Detailed Summary Reports
                                 </a>
                             </li>
 
                             <?php //if($this->session->userdata('partner_id') == VIDEOCON_ID) { ?>
 
-                            <li role="presentation">
-                                <a href="#tabs-4" role="tab" data-toggle="tab" aria-expanded="true">
-                                    Detailed Summary Reports
+                           <li role="presentation" class="">
+                                <a href="#tabs-1" role="tab" data-toggle="tab" aria-expanded="true">
+                                    Summary Reports
                                 </a>
                             </li>
 
@@ -42,7 +42,7 @@
                             </li>
                         </ul>
                         <div id="myTabContent" class="tab-content">
-                            <div class="tab-pane active" id="tabs-1">
+                            <div class="tab-pane" id="tabs-1">
                                  <div class="col-md-12 col-sm-12 col-xs-12">
                                     <div class="x_panel">
                                         <div class="x_title" style="border-bottom: none;">
@@ -239,7 +239,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="tab-pane" id="tabs-4">
+                            <div class="tab-pane active" id="tabs-4">
                                  <div class="col-md-12 col-sm-12 col-xs-12">
                                     <div class="x_panel">
                                         <div class="x_title" style="border-bottom: none;">
@@ -303,24 +303,36 @@
                                 foreach($detailedSummaryReportData as $detailedSummaryReport){
                                     $finalFilterArray = array();
                                     $filterArray = json_decode($detailedSummaryReport['filters'],true);
-                                    
+                                    if(empty($filterArray)){
+                                        $filterArray = array();
+                                    }
                                     foreach($filterArray as $key=>$value){
                                         if($key == "Date_Range" && !empty($value)){
                                             $dArray = explode(" - ",$value);
                                             $key  = "Registration Date";
-                                            $startTemp = strtotime($dArray[0]);
-                                            $endTemp = strtotime($dArray[1]);
-                                            $startD = date('d-F-Y',$startTemp);
-                                            $endD = date('d-F-Y',$endTemp);
+                                            $startD = $endD = "";
+                                            if(!empty($dArray[0])){
+                                                $startTemp = strtotime($dArray[0]);
+                                                $startD = date('d-F-Y',$startTemp);
+                                            }
+                                            if(!empty($dArray[1])) {
+                                                $endTemp = strtotime($dArray[1]);                                            
+                                                $endD = date('d-F-Y',$endTemp);
+                                            }
                                             $value = $startD." To ".$endD;
                                         }
                                         if($key == "Completion_Date_Range" && !empty($value)){
                                             $dArray = explode(" - ",$value);
                                             $key  = "Completion Date";
-                                            $startTemp = strtotime($dArray[0]);
-                                            $endTemp = strtotime($dArray[1]);
-                                            $startD = date('d-F-Y',$startTemp);
-                                            $endD = date('d-F-Y',$endTemp);
+                                            $startD = $endD = "";
+                                            if(!empty($dArray[0])){
+                                                $startTemp = strtotime($dArray[0]);
+                                                $startD = date('d-F-Y',$startTemp);
+                                            }
+                                            if(!empty($dArray[1])){
+                                                $endTemp = strtotime($dArray[1]);                                            
+                                                $endD = date('d-F-Y',$endTemp);
+                                            }
                                             $value = $startD." To ".$endD;
                                            
                                         }

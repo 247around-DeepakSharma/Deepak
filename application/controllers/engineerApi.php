@@ -1424,9 +1424,15 @@ class engineerApi extends CI_Controller {
             $en["remarks"] = $requestData['closing_remark'];
             $en["service_center_id"] = $requestData['service_center_id'];
             $en["engineer_id"] = $requestData['engineer_id'];
+            // Update Paid Amount 
+            $en["amount_paid"] = $requestData['amount_paid'];
+            /* Update Upcounty amount in engineer_sign_table if available */
+            if(isset($requestData['upcountry_charges']) && !empty($requestData['upcountry_charges'])){
+                $en['upcountry_charges']  = $requestData['upcountry_charges']; 
+            }
             $is_exist = $this->engineer_model->get_engineer_sign("id", array("service_center_id" => $requestData['service_center_id'], "booking_id" => $booking_id));
             if (!empty($is_exist)) {
-                $this->engineer_model->update_engineer_action_sig(array("id" => $is_exist[0]['id']), $en);
+                $this->engineer_model->update_engineer_action_sig($en, array("id" => $is_exist[0]['id']));
             } else {
                 $this->engineer_model->insert_engineer_action_sign($en);
             }
@@ -1444,10 +1450,6 @@ class engineerApi extends CI_Controller {
             $this->vendor_model->update_service_center_action($booking_id, $service_center_data);
             // update booking.
             $booking['service_center_closed_date'] = $data["closed_date"];
-            /* Update Upcounty amount if available */
-            if(isset($requestData['upcountry_charges']) && !empty($requestData['upcountry_charges'])){
-                $booking['customer_paid_upcountry_charges']  = $requestData['upcountry_charges']; 
-            }
             $this->booking_model->update_booking($booking_id, $booking);
 
             if (isset($requestData['sc_agent_id'])) {
@@ -1567,6 +1569,15 @@ class engineerApi extends CI_Controller {
                 }
                 $en["service_center_id"] = $requestData['service_center_id'];
                 $en["engineer_id"] = $requestData['engineer_id'];
+                // update cancellation reasons
+                // Get cancellation reason Id from Text
+                $cancellation_reason_id = "";
+                if(!empty($requestData["cancellationReason"])){
+                    $arr_cancellation_reason =  $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('reason' => $requestData["cancellationReason"], 'reason_of' => 'vendor'), NULL, NULL, NULL, NULL, NULL, array());
+                    $cancellation_reason_id = !empty($arr_cancellation_reason[0]['id']) ? $arr_cancellation_reason[0]['id'] : ""; 
+                }
+                $en['cancellation_reason'] = $cancellation_reason_id;
+                $en['cancellation_remark'] = $requestData["remarks"];
                 $is_exist = $this->engineer_model->get_engineer_sign("id", array("service_center_id" => $requestData['service_center_id'], "booking_id" => $requestData["bookingID"]));
                 if (!empty($is_exist)) {
                     $this->engineer_model->update_engineer_action_sig(array("id" => $is_exist[0]['id']), $en);
@@ -2132,9 +2143,8 @@ class engineerApi extends CI_Controller {
             "booking_details.booking_timeslot" => $slot,
             "engineer_booking_action.internal_status != '" . _247AROUND_CANCELLED . "'" => NULL,
             "engineer_booking_action.internal_status != '" . _247AROUND_COMPLETED . "'" => NULL,
-            "(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) = 0)" => NULL,
-            "service_center_booking_action.current_status = '" . _247AROUND_PENDING . "'" => NULL,
-            "(booking_details.current_status = '" . _247AROUND_PENDING . "' OR booking_details.current_status = '" . _247AROUND_RESCHEDULED . "')" => NULL
+            "(((DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) = 0)  AND (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled'))  "
+            . "OR ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) = -1)) AND booking_details.current_status='Pending' ) AND service_center_booking_action.current_status = 'Pending' AND booking_details.nrn_approved = 0  AND booking_details.partner_internal_status !='Booking Completed By Engineer'" => NULL
         );
         $bookings = $this->engineer_model->get_engineer_booking_details($select, $where, true, true, true, false, false, false, true);
         if ($engineer_pincode) {
@@ -2157,6 +2167,17 @@ class engineerApi extends CI_Controller {
 
                     $bookings[$key]['pre_consume_req'] = $previous_consumption_required;
                     $bookings[$key]['in_out_status'] = $this->getBookingWarrantyFlag($value['request_type']);
+                    /*  Completion Allow Flag */
+                    $complete_flag = $this->checkCompletionAllowed($value['booking_id']);
+                    $bookings[$key]['complete_allow'] = $complete_flag;
+
+                    /*  Reschedule Allow Flag */
+                    $reschedule_flag = $this->checkRescheduleAllowed($value['booking_id']);
+                    $bookings[$key]['reschedule_allow'] = $reschedule_flag;
+                    /*  Cancel Allow Flag */
+                    $cancel_flag = $this->checkCancellationAllowed($value['booking_id']);
+                    $bookings[$key]['cancel_allow'] = $cancel_flag;
+                    /*  NO Action  Flag */
                     $bookings[$key]['spare_eligibility'] = $spare_resquest['spare_flag'];
                     $bookings[$key]['message'] = $spare_resquest['message'];
                     // Abhishek Send Spare Details of booking //
@@ -2179,22 +2200,15 @@ class engineerApi extends CI_Controller {
 
      */
     
-    function getBookingWarrantyFlag($request_type){
-        
-        $in_warranty_array = array('In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation', 'PDI', 'Demo', 'Tech Visit', 'Replacement', 'Spare Cannibalization');
-      
-        foreach($in_warranty_array as $warranty){
-           if(strripos($request_type,$warranty)){
-             return TRUE  ;
-           }else{
-               return FALSE;
-           }
-            
+    function getBookingWarrantyFlag($request_type) {
+        if (strpos($request_type, 'Out Of Warranty') == true || strpos($request_type, 'Gas Recharge - Out') == true) {
+            return false;
+            //return false in case of out of warranty and invoice pic is not required
+        } else {
+            return true;
+            //return true in case of In-Warranty and invoice pic is required
         }
-                
     }
-    
-    
 
     function getMissedBookings($requestData=array()) {
         log_message("info", __METHOD__ . " Entering..");
@@ -2216,6 +2230,18 @@ class engineerApi extends CI_Controller {
                     }
                     $missed_bookings[$key]['booking_distance'] = $distance;
                     $missed_bookings[$key]['in_out_status'] = $this->getBookingWarrantyFlag($value['request_type']);
+                    /*  Completion Allow Flag */
+                    $complete_flag = $this->checkCompletionAllowed($value['booking_id']);
+                    $missed_bookings[$key]['complete_allow'] = $complete_flag;
+
+                    /*  Reschedule Allow Flag */
+                    $reschedule_flag = $this->checkRescheduleAllowed($value['booking_id']);
+                    $missed_bookings[$key]['reschedule_allow'] = $reschedule_flag;
+                    /*  Cancel Allow Flag */
+                    $cancel_flag = $this->checkCancellationAllowed($value['booking_id']);
+                    $missed_bookings[$key]['cancel_allow'] = $cancel_flag;
+                    /*  NO Action  Flag */
+
                     // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
                     $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
                     // Abhishek Check if we required the previous consumption or not return true/false
@@ -2263,6 +2289,17 @@ class engineerApi extends CI_Controller {
                     $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
 
                     $tomorrowBooking[$key]['in_out_status'] = $this->getBookingWarrantyFlag($value['request_type']);
+                    /*  Completion Allow Flag */
+                    $complete_flag = $this->checkCompletionAllowed($value['booking_id']);
+                    $tomorrowBooking[$key]['complete_allow'] = $complete_flag;
+
+                    /*  Reschedule Allow Flag */
+                    $reschedule_flag = $this->checkRescheduleAllowed($value['booking_id']);
+                    $tomorrowBooking[$key]['reschedule_allow'] = $reschedule_flag;
+                    /*  Cancel Allow Flag */
+                    $cancel_flag = $this->checkCancellationAllowed($value['booking_id']);
+                    $tomorrowBooking[$key]['cancel_allow'] = $cancel_flag;
+                    /*  NO Action  Flag */
                     $tomorrowBooking[$key]['spare_eligibility'] = $spare_resquest['spare_flag'];
                     // Abhishek Check if we required the previous consumption or not return true/false
                     $previous_consumption_required = $this->checkConsumptionForPreviousPart($value['booking_id']);
@@ -2596,21 +2633,21 @@ class engineerApi extends CI_Controller {
                     }
                     //upload defective front part pic
                     if ($value["defective_front_parts"]) {
-                        $defective_part_pic = "Defective_Parts_" . date("YmdHis") . ".png";
+                        $defective_part_pic = "Defective_Parts_". $key . date("YmdHis") . ".png";
                         $this->miscelleneous->generate_image($value["defective_front_parts"], $defective_part_pic, "misc-images");
                         $requestData['part'][$key]['defective_parts'] = $defective_part_pic;
                     }
 
                     //upload defective back part pick
                     if ($value["defective_back_parts"]) {
-                        $defective_back_part_pic = "Defective_Parts_" . date("YmdHis") . ".png";
+                        $defective_back_part_pic = "Defective_Parts_back_". $key . date("YmdHis") . ".png";
                         $this->miscelleneous->generate_image($value["defective_back_parts"], $defective_back_part_pic, "misc-images");
                         $requestData['part'][$key]['defective_back_parts_pic'] = $defective_back_part_pic;
                     }
 
                     //upload defect pic
                     if (isset($value["defect_pic"]) && !empty($value["defect_pic"])) {
-                        $defect_pic = "Defect_pic_" . date("YmdHis") . ".png";
+                        $defect_pic = "Defect_pic_". $key . date("YmdHis") . ".png";
                         $this->miscelleneous->generate_image($value["defect_pic"], $defect_pic, "misc-images");
                         $requestData['part'][$key]['defect_pic'] = $defect_pic;
                     }else{
@@ -2636,13 +2673,13 @@ class engineerApi extends CI_Controller {
                 }
 
                 if (isset($requestData['invoice_number_pic_exist'])) {
-                    if ($requestData['invoice_number_pic_exist']) {
+                    if (isset($requestData['invoice_number_pic_exist']) && $requestData['invoice_number_pic_exist']) {
                         $invoice_pic = "invoice_" . $requestData['booking_id'] . "_" . date("YmdHis") . ".png";
                         $this->miscelleneous->generate_image($requestData['invoice_number_pic_exist'], $invoice_pic, "purchase-invoices");
                         $requestData['invoice_pic'] = $invoice_pic;
                     }
                 } else {
-                    if ($requestData['existing_purchase_invoice']) {
+                    if (isset($requestData['existing_purchase_invoice']) && $requestData['existing_purchase_invoice']) {
                         $invoice_pic = "invoice_" . $requestData['booking_id'] . "_" . date("YmdHis") . ".png";
                         $this->miscelleneous->generate_image($requestData['existing_purchase_invoice'], $invoice_pic, "purchase-invoices");
                         $requestData['invoice_pic'] = $invoice_pic;
@@ -2983,7 +3020,7 @@ class engineerApi extends CI_Controller {
                 $response['is_consumption_required'] = false;
             }
             $bookingDetails = $this->reusable_model->get_search_query("booking_details", "upcountry_paid_by_customer,partner_upcountry_rate,upcountry_distance,is_upcountry", array("booking_id" => $requestData['booking_id']), false, false, false, false, false)->result_array();
-            if($bookingDetails['is_upcountry'] && $bookingDetails['upcountry_paid_by_customer']){
+            if($bookingDetails[0]['is_upcountry'] && $bookingDetails[0]['upcountry_paid_by_customer']){
              $response['upcountry_paid_by_customer'] = 1;   
             }else{
               $response['upcountry_paid_by_customer'] = 0;  
@@ -3174,6 +3211,8 @@ class engineerApi extends CI_Controller {
                     curl_setopt($ch, CURLOPT_HEADER, false);
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                     curl_setopt($ch, CURLOPT_POST, true);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
                     $curl_response = curl_exec($ch);
                     curl_close($ch);
@@ -3332,9 +3371,9 @@ class engineerApi extends CI_Controller {
         }
         $arrBookingsWarrantyStatus = $this->warranty_utilities->get_bookings_warranty_status($arrBookings);
         $arr_warranty_status = [
-            'IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation', 'PDI', 'Demo', 'Tech Visit', 'Replacement', 'Spare Cannibalization'],
-            'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat', 'PDI', 'Tech Visit', 'Spare Cannibalization'],
-            'EW' => ['Extended', 'AMC', 'Repeat', 'PDI', 'Tech Visit', 'Spare Cannibalization']
+            'IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation', 'PDI', 'Demo', 'Tech Visit', 'Replacement', 'Spare Cannibalization', 'Handling Charges'],
+            'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat', 'PDI', 'Tech Visit', 'Spare Cannibalization', 'Handling Charges'],
+            'EW' => ['Extended', 'AMC', 'Repeat', 'PDI', 'Tech Visit', 'Spare Cannibalization', 'Handling Charges']
         ];
         $arr_warranty_status_full_names = array('IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty');
         $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];
@@ -3965,6 +4004,7 @@ class engineerApi extends CI_Controller {
                         $data['Bookings'][$key]['booking_distance'] = $distance;
 
                         $unit_data = $this->booking_model->get_unit_details(array("booking_id" => $value['booking_id']), false, "appliance_brand, appliance_category, appliance_capacity");
+                        $data['Bookings'][$key]['in_out_status'] = $this->getBookingWarrantyFlag($value['request_type']);
                         $data['Bookings'][$key]['appliance_brand'] = $unit_data[0]['appliance_brand'];
                         $data['Bookings'][$key]['appliance_category'] = $unit_data[0]['appliance_category'];
                         $data['Bookings'][$key]['appliance_capacity'] = $unit_data[0]['appliance_capacity'];

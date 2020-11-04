@@ -21,8 +21,12 @@ td, th {
 <?php
     $i = 0;
     foreach ($details as $value) {
-?>
-<div style="display:inline; float:left; margin-left: 10px;margin-top:10px;width: 320px;">
+  
+        if ($i % 2 == 0 && $i != 0) {
+    ?>
+    <div class="pagebreak"> </div>
+<?php  }   ?>
+<div style="display:inline; float:left; margin-left: 20px;margin-top:10px;width: 320px;">
     <div style="height: 440px; border: 1px solid #ccc; padding: 8px;">
     <table>
         <tr>
@@ -74,7 +78,7 @@ td, th {
     <span>-------<i class="fa fa-scissors">-------------------------------------------------</i></span>
     <br>
     <br>
-   <div style="float:left;border: 1px solid #ccc; margin-top: 20px; padding:8px; width: 300px; height: 460px;">
+   <div style="float:left;border: 1px solid #ccc; margin-top: 20px; padding:8px; width: 300px; height: 420px;">
     <div style="border: 1px solid #ccc;">
         <?php if($meta['main_company_logo']){ ?>
         <img style='vertical-align:middle;width:50px;' src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_logo']; ?>">
@@ -103,10 +107,16 @@ td, th {
         
     </div>
 </div>
-<br>
 </div>
+<style>
+@media print {
+.pagebreak {
+    clear: both;
+    page-break-after: always;
+}
+}
+</style>
 <?php $i++; } ?>
-<br><br><br><br>
 <script>
  $(window).load(function(){
     window.print();

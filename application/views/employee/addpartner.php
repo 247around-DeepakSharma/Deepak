@@ -371,20 +371,6 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                             </select>
                                         </div>
                                     </div>
-                                    <!--<div style="margin-bottom: 31px;" class="form-group <?php if (form_error('account_manager_id')) {
-                                        echo 'has-error';
-                                        } ?>">
-                                        <label  for="account_manager" class="col-md-4">Account Managers </label>
-                                        <div class="col-md-8">
-                                            <select name="account_manager_id" class="form-control" id="account_manager" <?php echo ((strtolower($this->session->userdata('user_group')) !== 'admin')? 'disabled' :''); ?> >
-                                                <option selected disabled>Select Account Managers</option>
-                                                <?php foreach($employee_list as $employee){ ?>
-                                                <option value="<?php echo $employee['id']; ?>" <?php if(isset($query[0]['account_manager_id']) && ($query[0]['account_manager_id'] === $employee['id'] )){ echo "selected";}?>><?php echo $employee['full_name']; ?></option>
-                                                <?php } ?>
-                                            </select>
-                                            <?php echo form_error('account_manager_id'); ?>
-                                        </div>
-                                    </div>-->
                                     <div class="form-group <?php
                                         if (form_error('company_type')) {
                                             echo 'has-error';

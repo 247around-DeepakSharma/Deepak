@@ -14,25 +14,28 @@
 <?php } ?>
         <style>
             .dataTables_length{
-                width: 250px;
-                float: left
-            }
-            .dataTables_filter{
-                float: right;
-            }
-            .table.dataTable thead .sorting:after {
-              opacity: 1;            
-            }
-                .loader {
-    position: fixed;
-    left: 0px;
-    top: 0px;
-    display: none;
-    width: 100%;
-    height: 100%;
-    z-index: 9999999;
-    background: url('<?php echo base_url();  ?>images/loading_new.gif') 50% 50% no-repeat rgba(249,249,249,0.62);
-  }
+        width: 250px;
+        float: left
+    }
+    .dataTables_filter{
+        float: right;
+    }
+    .table.dataTable thead .sorting:after {
+        opacity: 1;            
+    }
+    .loader {
+        position: fixed;
+        left: 0px;
+        top: 0px;
+        display: none;
+        width: 100%;
+        height: 100%;
+        z-index: 9999999;
+        background: url('<?php echo base_url(); ?>images/loading_new.gif') 50% 50% no-repeat rgba(249,249,249,0.62);
+    }
+    .rejected_by_wh{
+        color:red;
+    }
         </style>
         <div class="loader"></div>
 <div class="col-md-12 col-sm-12 col-xs-12">

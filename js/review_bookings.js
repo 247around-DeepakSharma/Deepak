@@ -129,16 +129,18 @@ function send_remarks() {
         var bookingID = $('#modal_booking_id_' + str).val();
         var postData = {};
 
-        // CRM-6300 Check whether reason are choosed or not
+        // Check whether rejection reason is selected or not
+        $("#remarks_msg_" + str).html('');
         if (($('#select_' + str).val() == null) || ($('#select_' + str).val() == undefined))
         {
-            $("#remarks_msg_" + str).html("*Choose atleast one Reason");
+            $("#remarks_msg_" + str).html("*Select Rejection Reason");
             return false;
-        }else{
-            $("#remarks_msg_" + str).html('');
         }
+    
         postData['booking_id'] = bookingID;
-        postData['admin_remarks'] = $('#select_' + str).val(); // selcted drop down value
+        postData['remarks'] = $('#textarea_'+str).val();
+        // selected rejection reason drop down value
+        postData['admin_remarks'] = $('#select_' + str).val(); 
         postData['rejected_by'] = $('#admin_id_' + str).val();
         postData['internal_booking_status'] = $("#internal_boking_status_" + str).val();
         console.log(postData);

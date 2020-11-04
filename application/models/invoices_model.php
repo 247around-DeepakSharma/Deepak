@@ -439,7 +439,8 @@ class invoices_model extends CI_Model {
                     (Select CASE WHEN (file_name = '' OR file_name IS NULL) THEN ('') ELSE (GROUP_CONCAT(CONCAT('".S3_WEBSITE_URL."purchase-invoices/', file_name) SEPARATOR ' , ')) END as support_file FROM booking_files WHERE booking_files.booking_id = booking_unit_details.booking_id AND (file_name != '' AND file_name IS NOT NULL)) as support_file, 
               
                     CASE WHEN(serial_number IS NULL OR serial_number = '') THEN '' ELSE (CONCAT('''', booking_unit_details.serial_number))  END AS serial_number,
-                    CASE WHEN(sf_model_number IS NULL OR sf_model_number = '') THEN (model_number) ELSE (sf_model_number) END AS model_number
+                    CASE WHEN(sf_model_number IS NULL OR sf_model_number = '') THEN (model_number) ELSE (sf_model_number) END AS model_number,
+                    DATE_FORMAT(booking_details.service_center_closed_date, '%d-%b-%Y') as service_center_closed_date
 
               From booking_details, booking_unit_details, services, partners, users
                   WHERE `booking_details`.booking_id = `booking_unit_details`.booking_id 
@@ -2015,6 +2016,16 @@ class invoices_model extends CI_Model {
 //                $meta['sign_path'] = $path1;
 //                $meta['cell'] = "K".(26 + count($data['booking']));
 //            }
+            if(!empty($data['booking'][0]['signature_file'])){
+                $meta['sign_path'] = $data['booking'][0]['signature_file'];
+                $meta['sign_path_cell'] = "I".(23 + count($data['booking']));
+            }
+
+            $vendorStamp = $this->vendor_model->fetch_sf_miscellaneous_data('stamp_file',array('vendor_id'=>$vendor_id,'status'=>1));
+            if(!empty($vendorStamp)){
+                $meta['vendor_stamp'] = $vendorStamp[0]['stamp_file'];
+                $meta['vendor_stamp_cell'] = "D".(23 + count($data['booking']));
+            }
            
             if ($meta['sub_total_amount'] >= 0) {
                
@@ -3715,7 +3726,8 @@ class invoices_model extends CI_Model {
                     (Select CASE WHEN (file_name = '' OR file_name IS NULL) THEN ('') ELSE (GROUP_CONCAT(CONCAT('".S3_WEBSITE_URL."purchase-invoices/', file_name) SEPARATOR ' , ')) END as support_file FROM booking_files WHERE booking_files.booking_id = booking_unit_details.booking_id AND (file_name != '' AND file_name IS NOT NULL)) as support_file, 
               
                     CASE WHEN(serial_number IS NULL OR serial_number = '') THEN '' ELSE (CONCAT('''', booking_unit_details.serial_number))  END AS serial_number,
-                    CASE WHEN(sf_model_number IS NULL OR sf_model_number = '') THEN (model_number) ELSE (sf_model_number) END AS model_number
+                    CASE WHEN(sf_model_number IS NULL OR sf_model_number = '') THEN (model_number) ELSE (sf_model_number) END AS model_number,
+                    DATE_FORMAT(booking_details.service_center_closed_date, '%d-%b-%Y') as service_center_closed_date
 
               From booking_details, booking_unit_details, services, users, spare_nrn_approval as sn
                   WHERE `booking_details`.booking_id = `booking_unit_details`.booking_id 
@@ -3970,9 +3982,9 @@ class invoices_model extends CI_Model {
         SUM(CASE 
         WHEN Month(vp.create_date) =Month(CURRENT_DATE) THEN vp.amount_collected_paid 
         ELSE 0
-        END) AS m1_part_sale
+        END) AS m_part_sale
         FROM invoice_details id inner join vendor_partner_invoices vp on id.invoice_id = vp.invoice_id 
-        WHERE id.inventory_id=".$inventory_id." and vp.vendor_partner_id=".$warehouse_id." and vendor_partner_invoices.sub_category='MSL'";
+        WHERE id.inventory_id=".$inventory_id." and vp.vendor_partner_id=".$warehouse_id." and vp.sub_category='MSL'";
         $query1 = $this->db->query($sql);
         return $query1->result_array();
     }

@@ -50,7 +50,15 @@
         </tr>
         <tr>
             <td style="border-bottom: hidden;border-right: hidden;"></td>
-            <td colspan="7" align="left" style="border-bottom: hidden;"><b>Date: </b><?php echo $excel_data['date']; ?></td>
+            <td colspan="7" align="left" style="border-bottom: hidden;"><b>Date: </b>
+                <?php 
+                    if (isset($excel_data['generated_by_wh']) && $excel_data['generated_by_wh'] == 1) {
+                        echo date("j M Y");
+                    } else {
+                        echo $excel_data['date'];
+                    }
+                ?>
+            </td>
         </tr>
         <tr>
             <td  colspan="5" align="left"  style="<?php if(!empty($excel_data['courier_servicable_area'])){ ?>border-bottom: hidden;<?php } ?>"><b>GST: </b><?php echo $excel_data['sf_gst']; ?></td>
@@ -152,7 +160,7 @@
             <td style="border-top: hidden; border-right:hidden; border-left: hidden;"></td>
             <td colspan="5" style="border-top: hidden; border-left: hidden;"></td>
         </tr>
-        <?php if($excel_data['generated_by_wh'] == 1){ ?>
+        <?php if(isset($excel_data['generated_by_wh']) && $excel_data['generated_by_wh'] == 1){ ?>
         <tr><td colspan="13" style="text-align: center;">Any discrepancy found in parts should be reported to 247around within 4 working days. After which no responsibility of part mismatch will be of 247around as we will clear it for the SF.</tr>
         <?php } ?>
         <tr><td colspan="13" style="border-bottom: hidden;border-right: hidden;border-left: hidden; text-align: center;"><small>This is a computer generated challan and does not need signature.</tr>

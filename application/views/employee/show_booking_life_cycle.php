@@ -168,7 +168,39 @@
   </div>
 </div>
 <?php } ?>
+      <?php if (!empty($whatsapp_logs)) { ?>
+    <hr>
+   <h1 style='font-size:24px;'>Whatsapp Log</h1>
+   <div class="table-responsive">
+    <table  class="table table-striped table-bordered table-hover">
+        <tr>
+            <th class="jumbotron" style="text-align: center;width: 1%">S.N</th>
+            <th class="jumbotron" style="text-align: center;width:10%;">Source</th>
+            <th class="jumbotron" style="text-align: center;width:10%;">Destination</th>
+            <th class="jumbotron" style="text-align: center;width:10%;">Direction</th>
+            <th class="jumbotron" style="text-align: center;width:45%;">Content</th>
+            <th class="jumbotron" style="text-align: center">Sent / Received on Date</th>
+        </tr>
+        <?php foreach ($whatsapp_logs as $key => $row) { ?>
+        <tr>
+            <td><?php echo ($key + 1) . '.'; ?></td>
+            <td><?php echo $row['source']; ?></td>
+            <td style="font-size: 90%;"><?php echo $row['destination']; ?></td>
+            <td style="font-size: 90%;"><?php echo $row['direction']; ?></td>
+            <td style="font-size: 90%;"><?php echo $row['content']; ?></td>
+            <td><?php
+                $old_date = $row['update_on'];
+                $old_date_timestamp = strtotime($old_date);
+                $new_date = date('j F, Y g:i A', $old_date_timestamp);
+                echo $new_date;
+                ?>
+            </td>
+        </tr>
+        <?php } ?>
 
+    </table>
+</div>
+<?php } ?>
 <script>
 
 function viewEmailMessage(button){

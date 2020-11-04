@@ -153,7 +153,7 @@ class Buyback_process extends CI_Controller {
         $post['where'] = array('assigned_cp_id IS NOT NULL' => NULL, 'order_date >= ' => date('Y-m-d',strtotime(TAT_BREACH_DAYS)));
         $post['where_in'] = array('bb_order_details.current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
-        $post['column_search'] = array('bb_unit_details.partner_order_id','bb_order_details.partner_tracking_id','services', 'city','order_date','current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','bb_order_details.partner_tracking_id','services', 'city','order_date','bb_order_details.current_status');
         $list = $this->bb_model->get_bb_order_list($post);
         $data = array();
         $no = $post['start'];
@@ -255,7 +255,7 @@ class Buyback_process extends CI_Controller {
         $post['where'] = array('assigned_cp_id IS NOT NULL' => NULL);
         $post['where_in'] = array('bb_order_details.current_status' => array('Delivered'), 'bb_order_details.internal_status' => array('Delivered'));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'delivery_date', 'current_status');
-        $post['column_search'] = array('bb_unit_details.partner_order_id','bb_order_details.partner_tracking_id','services', 'city','order_date','delivery_date','current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','bb_order_details.partner_tracking_id','services', 'city','order_date','delivery_date','bb_order_details.current_status');
         $list = $this->bb_model->get_bb_order_list($post);
         $data = array();
         $no = $post['start'];
@@ -279,7 +279,7 @@ class Buyback_process extends CI_Controller {
         $post['where'] = array('assigned_cp_id IS NULL' => NULL, 'order_date >= ' => date('Y-m-d', strtotime(TAT_BREACH_DAYS)));
         $post['where_in'] = array('bb_order_details.current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Delivered'));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
-        $post['column_search'] = array('bb_unit_details.partner_order_id','bb_order_details.partner_tracking_id','services', 'city','order_date','current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','bb_order_details.partner_tracking_id','services', 'city','order_date','bb_order_details.current_status');
         $list = $this->bb_model->get_bb_order_list($post);
         $data = array();
         $no = $post['start'];
@@ -1483,7 +1483,7 @@ class Buyback_process extends CI_Controller {
             }
         } else if ($service_name_arr) {
             //If all is selected then download all appliance data
-            $key = array_search('all', $service_name_arr);
+            $key = array_search('All', $service_name_arr);
             if ($key !== FALSE) {
                 $service_name_arr = array_column($this->booking_model->selectservice(true), 'services', 'id');
             }
@@ -2179,13 +2179,21 @@ class Buyback_process extends CI_Controller {
         if(file_exists($file_name)){
             unlink($file_name);
         }
-        $this->load->dbutil();
-        $this->load->helper('file');
-        $this->delimiter = ",";
-        $this->newline = "\n";
-        $this->new_report = $this->dbutil->csv_from_result($data, $this->delimiter, $this->newline);
-        log_message('info', __FUNCTION__ . ' => Rendered CSV');
-        $this->response =  write_file($file_name, $this->new_report);
+        
+        // open file
+        $file = fopen($file_name, 'w');
+        // set header
+        $header = array_keys($data->result_array()[0]); 
+        fputcsv($file, $header);
+        // write data into csv file
+        foreach ($data->result_array() as $key => $value)
+        { 
+          fputcsv($file, $value); 
+        }
+        // close the file
+        fclose($file); 
+        // set response
+        $this->response = $file;
     }
     
     function download_review_orders(){

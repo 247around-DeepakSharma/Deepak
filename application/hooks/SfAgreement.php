@@ -26,6 +26,8 @@ class SfAgreement extends CI_Hooks {
         $this->CI = &get_instance();
         
         $this->CI->load->model('reusable_model');
+        $this->CI->load->model('vendor_model');
+        $this->CI->load->model('around_scheduler_model');
     }
 
     /**
@@ -65,9 +67,55 @@ class SfAgreement extends CI_Hooks {
         $data['days'] = $diff_days->format('%a');
         $data['skip_btn'] = ($diff_days->format('%a') >= 0 && $diff_days->format('%a') < $sf_details['sf_data']['allow_days']) ? true : false;
 
-        $template = $this->CI->reusable_model->get_search_result_data('sf_agreement_template','*','','','','','','');
-        $data['template'] = $template[0];
+        $template = $this->CI->reusable_model->get_search_result_data('sf_agreement_template','*', array('active' => 1),'','','','','');
+        
+        $sf = $this->CI->around_scheduler_model->get_sf_details($sf_id);
+        $sf_login = $this->CI->reusable_model->get_search_result_data('service_centers_login','*',array('id' => $this->CI->session->userdata('service_center_agent_id')),'','','','','');
+        
+        $tmpData['current_date'] = date('d/M/Y');
+        $tmpData['onboading_date'] = date('d/M/Y', strtotime($sf[0]['create_date']));
+        $tmpData['company_name'] = $sf[0]['company_name'];
+        $tmpData['owner_name'] = $sf[0]['owner_name'];
+        $tmpData['pan_number'] = $sf[0]['pan_no'];
+        $tmpData['gst_number'] = $sf[0]['gst_no'];
+        $tmpData['company_address'] = $sf[0]['address'];
+        $tmpData['district'] = $sf[0]['district'];
+        $tmpData['state'] = $sf[0]['state'];
+        $tmpData['full_name'] = $sf_login[0]['full_name'];
+        $tmpData['email'] = $sf_login[0]['email'];
+        $tmpData['ip_address'] = $this->getIPAddress();
+        $tmpData['accepted_date'] = date('d/M/Y H:i:s');
+        
+        $rm_email = "";
+        if(!empty($sf[0]['rm_email'])){
+            $rm_email =", ".$sf[0]['rm_email'];
+        }
+
+        $asm_poc_email = "";
+        if (!empty($sf[0]['asm_email'])) {
+            $asm_poc_email = ", ".$sf[0]['asm_email'];
+        }
+        
+        $tmpData['email_send'] = $sf[0]['owner_email'].$rm_email.$asm_poc_email ;
+
+        $data['template']['template'] = vsprintf($template[0]['template'], $tmpData);
         $this->CI->load->view('service_centers/sf_agreement_view', $data);
+    }
+    
+    function getIPAddress() {
+        //whether ip is from the share internet  
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            $ip = $_SERVER['HTTP_CLIENT_IP'];
+        }
+        //whether ip is from the proxy  
+        elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        }
+        //whether ip is from the remote address  
+        else {
+            $ip = $_SERVER['REMOTE_ADDR'];
+        }
+        return $ip;
     }
 
     /**
