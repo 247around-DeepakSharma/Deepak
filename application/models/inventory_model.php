@@ -116,37 +116,6 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get('brackets');
         return $query->result_array();
     }
-     public function save_inventory_data($data) {
-       // $data['last_updated_by'] = $this->session->userdata("employee_id");
-        if (empty($data['active'])) {
-            $data['active'] = 0;
-        }
-       // $data['criteria'] = $data['criteria'];        
-        
-        // CASE : UPDATE
-        if (!empty($data['id'])) {
-            $this->db->where('id', $data['id']);
-            unset($data['Save'], $data['id']);
-            $this->db->update('penalty_details', $data);
-        } else {
-        // CASE : CREATE
-            unset($data['Save'], $data['id']);
-            $data['agent_id'] = $this->session->userdata("id");
-            $this->db->insert('penalty_details', $data);
-        }
-    }
-
-     function update_inventory_status($where, $data) {
-        // $data['last_updated_by'] = $this->session->userdata("employee_id");
-        $this->db->where($where, FALSE);
-        $this->db->update('penalty_details', $data);
-        if ($this->db->affected_rows() > 0) {
-            return 1;
-        } else {
-            return 0;
-        }
-    }
-
     
     /**
      * @Desc: This function is used to update brackets

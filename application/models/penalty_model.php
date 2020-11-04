@@ -232,8 +232,9 @@ class Penalty_model extends CI_Model {
      */
     function get_penalty_details($where, $all_records = false) {
         log_message('info', __FUNCTION__ . " Where: " . print_r($where, TRUE));
-        $this->db->select('*');
+        $this->db->select('penalty_details.*, employee.full_name as agent_name');
         $this->db->where($where);
+        $this->db->join('employee', 'employee.id = penalty_details.agent_id', 'left');
         $query = $this->db->get('penalty_details');
         if ($query->num_rows > 0) {
             if($all_records){
@@ -244,6 +245,7 @@ class Penalty_model extends CI_Model {
             return FALSE;
         }
     }
+    
     /**
      *
      * @param Array $data
@@ -544,4 +546,37 @@ class Penalty_model extends CI_Model {
         }
         return false;       
     }
+    
+    /**
+     * This function is used to save admin review rejection reasons in penalty_details Table 
+     * @param type $data
+     */
+    public function save_review_rejection_reasons($data) {
+        if (empty($data['active'])) {
+            $data['active'] = 0;
+        }
+        
+        // CASE : UPDATE
+        if (!empty($data['id'])) {
+            $this->db->where('id', $data['id']);
+            unset($data['id']);
+            $this->db->update('penalty_details', $data);
+        } else {
+        // CASE : CREATE
+            unset($data['id']);
+            $data['agent_id'] = $this->session->userdata("id");
+            $this->db->insert('penalty_details', $data);
+        }
+    }
+
+    function update_review_rejection_reason_status($where, $data) {
+        $this->db->where($where, FALSE);
+        $this->db->update('penalty_details', $data);
+        if ($this->db->affected_rows() > 0) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
 }
