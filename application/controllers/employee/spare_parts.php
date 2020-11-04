@@ -3982,7 +3982,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                         $data[$key]['m3_sale_to_sf'] = $sparepart_sell_report[0]['m3_part_sale'];
                         $data[$key]['m2_sale_to_sf'] = $sparepart_sell_report[0]['m2_part_sale'];
                         $data[$key]['m1_sale_to_sf'] = $sparepart_sell_report[0]['m1_part_sale'];
-                        $data[$key]['m_sale_to_sf'] = $sparepart_sell_report[0]['m1_part_sale'];
+                        $data[$key]['m_sale_to_sf'] = $sparepart_sell_report[0]['m_part_sale'];
                     } else {
                         $data[$key]['m3_sale_to_sf'] = 0;
                         $data[$key]['m2_sale_to_sf'] = 0;

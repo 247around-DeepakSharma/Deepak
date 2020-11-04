@@ -822,7 +822,7 @@ class vendor extends CI_Controller {
         $stamp_file = $this->vendor_model->fetch_sf_miscellaneous_data($select,$where);
         if(!empty($stamp_file)){
             $query[0]['stamp_file'] = $stamp_file[0]['stamp_file'];
-        }else{
+		}else{
             $query[0]['stamp_file'] ='';
         }
         $appliances = $query[0]['appliances'];
@@ -5815,7 +5815,7 @@ class vendor extends CI_Controller {
                     
                 //     //return FALSE;
                 // }
-                }else{
+			}else{
                $attachment_signature = $this->input->post('signature_file_hd'); 
             }
    
@@ -5874,11 +5874,13 @@ class vendor extends CI_Controller {
                 // if($attachment_stamp){
                 // } else {
                     
+
                     //return FALSE;
                 // }
                 }else{
+
                 $attachment_stamp = $this->input->post('stamp_file_hd');
-            }
+			 }
                 //$data['vendor_id'] = $this->input->post('id');
                 $data_miscelleneous['stamp_file'] = $attachment_stamp;
                 $data_miscelleneous['status'] = 0;

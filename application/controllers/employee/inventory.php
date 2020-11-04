@@ -253,76 +253,6 @@ class Inventory extends CI_Controller {
     }
 
     /**
-     * @Desc: This function is used to show review reject reason
-     * @params: Int order id
-     * @return : view
-     */
-    function review_reject_reason() {
-      $data['data'] = $this->inventory_model->get_review_reject();
-    // echo "<pre>";  print_r($data); die;
-        $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/review_reject', $data);
-    }
-     public function save() {
-       //echo "<pre>"; print_r($_POST); die;
-        $data['id'] = $this->input->post('inventory_id');
-        $data['criteria'] = $this->input->post('criteria');
-        $data['penalty_point'] = $this->input->post('penalty_point');
-        $data['reason_of'] = $this->input->post('reason_of');
-        $data['active'] = $this->input->post('active');
-        $this->inventory_model->save_inventory_data($data);                
-        redirect(base_url() . 'employee/inventory/review_reject_reason');
-    }
-
-    
-      public function update_inventory_status() {
-        $data = array(
-            'criteria' => $this->input->post('criteria'),
-            'penalty_point' => $this->input->post('penalty_point'),
-            'reason_of' => $this->input->post('reason_of'),
-            'active' => $this->input->post('active')
-        );
-        $where = array(
-            'id' => $this->input->post('id')
-        );
-        $response = $this->inventory_model->update_inventory_status($where, $data);
-        echo $response;
-    }
-    /**
-     * Update Data from this method.
-     *
-     * @return Response
-     */
-    public function get_inventory_data() {
-        $data = $this->input->post();
-        $id = !empty($data['id']) ? $data['id'] : "";
-        $inventory = [];
-        if(!empty($id))
-        {
-            $inventory = $this->db->get_where('penalty_details', array('id' => $id))->row();
-        }
-        
-        echo(json_encode($inventory));
-    }
-
-  public function validate_form()
-    {
-        $data = $this->input->post();
-        $key = $data['criteria']; 
-        $inventory_id = $data['id'];
-        $query = $this->db->get_where('penalty_details', array('criteria' => $key));
-        if(!empty($inventory_id)){
-            $query = $this->db->get_where('penalty_details', array('criteria' => $key, 'id != ' => $inventory_id)); 
-        }
-        $res = $query->result();
-        $count = count($res);
-        if($count > 0)
-        {
-            echo("fail");
-        }
-        exit;
-    }
-    /**
      * @Desc: This function is used to update shipment
      * @params: Int order id
      * @return : view
@@ -3078,9 +3008,9 @@ class Inventory extends CI_Controller {
         if (!empty($group_inventory_id)) {
             $group_id = $group_inventory_id[0]['group_id'];
             $post['column_order'] = array();
-            $post['column_search'] = array('part_name', 'part_number', 'services.services', 'services.id','appliance_model_details.model_number');
-            $post['where'] = "inventory_master_list.entity_id = $entity_id AND inventory_master_list.entity_type ='" . $entity_type . "' AND  inventory_master_list.service_id = $service_id AND inventory_master_list.inventory_id IN($inventory_ids)".$where_type;
-            $select = "inventory_master_list.*,services.services,alternate_inventory_set.status,appliance_model_details.id as model_id,appliance_model_details.model_number";
+            $post['column_search'] = array('part_name', 'part_number', 'services.services', 'services.id', 'appliance_model_details.model_number');
+            $post['where'] = "inventory_master_list.entity_id = $entity_id AND inventory_master_list.entity_type ='" . $entity_type . "' AND  inventory_master_list.service_id = $service_id AND inventory_master_list.inventory_id IN($inventory_ids)" . $where_type;
+            $select = "inventory_master_list.*,services.services,alternate_inventory_set.status,appliance_model_details.id as model_id,appliance_model_details.model_number, alternate_inventory_set.group_id";
             $list = $this->inventory_model->get_alternate_inventory_master_list($post, $select);
             $partners = array_column($this->partner_model->getpartner_details("partners.id,public_name", array('partners.is_active' => 1, 'partners.is_wh' => 1)), 'public_name', 'id');
             $data = array();
@@ -3163,7 +3093,7 @@ class Inventory extends CI_Controller {
         }
         
         if ($this->session->userdata('userType') == 'employee') {
-            $json_data = json_encode(array('status' => $stock_list->status, 'inventory_id' => $stock_list->inventory_id, 'model_id' => $stock_list->model_id));
+            $json_data = json_encode(array('status' => $stock_list->status, 'group_id' => $stock_list->group_id,'inventory_id' => $stock_list->inventory_id, 'model_id' => $stock_list->model_id));
             $row[] = "<a href='javascript:void(0)' class ='btn $colour_class' data-alternate_spare_details='$json_data' id='change_status_alternate_spare_part'>" . $icon . "</a>";
         }
         return $row;
@@ -7849,7 +7779,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
                 . "if(spare_parts_details.partner_warehouse_courier_invoice_id is null,'',spare_parts_details.partner_warehouse_courier_invoice_id) as 'Partner Warehouse Courier Invoice', "
                 . "if(spare_parts_details.partner_courier_invoice_id is null,'',spare_parts_details.partner_courier_invoice_id) as 'Partner Courier Invoice', "
                 . "if(spare_parts_details.vendor_courier_invoice_id is null,'',spare_parts_details.vendor_courier_invoice_id) as 'SF Courier Invoice', "
-                . "if(spare_parts_details.partner_warehouse_packaging_invoice_id is null,'',spare_parts_details.partner_warehouse_packaging_invoice_id) as 'Partner Warehouse Packaging Courier Invoice', (CASE WHEN spare_parts_details.spare_lost = 1 THEN 'Yes' ELSE 'NO' END) AS 'Spare Lost', spare_parts_details.quantity as 'Requested Spare Quantity', spare_parts_details.shipped_quantity as 'Shipped Spare Quantity'";
+                . "if(spare_parts_details.partner_warehouse_packaging_invoice_id is null,'',spare_parts_details.partner_warehouse_packaging_invoice_id) as 'Partner Warehouse Packaging Courier Invoice', (CASE WHEN spare_parts_details.spare_lost = 1 THEN 'Yes' ELSE 'NO' END) AS 'Spare Lost', spare_parts_details.quantity as 'Requested Spare Quantity', spare_parts_details.shipped_quantity as 'Shipped Spare Quantity',dealer_details.dealer_name as 'Dealer Name'";
         //$where = array("spare_parts_details.status NOT IN('" . SPARE_PARTS_REQUESTED . "')" => NULL);
         $where = array();
         $group_by = "spare_parts_details.id";
@@ -8870,8 +8800,9 @@ function get_bom_list_by_inventory_id($inventory_id) {
         if (!empty($this->input->post("inventory_id"))) {
             $data = array('alternate_inventory_set.status' => $this->input->post("status"));
             $where = array(
-                'alternate_inventory_set.group_id' => $this->input->post("inventory_set_id"),
-                'alternate_inventory_set.inventory_id' => $this->input->post("inventory_id")
+                'alternate_inventory_set.group_id' => $this->input->post("group_id"),
+                'alternate_inventory_set.inventory_id' => $this->input->post("inventory_id"),
+                'alternate_inventory_set.model_id' => $this->input->post("appliance_model_id")
             );
             $affect_row = $this->inventory_model->update_alternate_inventory_set($data, $where);
             if ($affect_row) {

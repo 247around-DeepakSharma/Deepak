@@ -771,15 +771,17 @@ class Upload_buyback_process extends CI_Controller {
         
                 //send mail 
                 $template = $this->booking_model->get_booking_email_template("buyback_price_sheet_with_quote");
-                $body = $template[0]." <br/><br/><b><a href='".S3_WEBSITE_URL.$directory_xls."' target='_blank'>Click here to download file</a></b>";
-                $to = NITS_ANUJ_EMAIL_ID.",".$this->session->userdata('official_email');
-                $from = $template[2];
-                $cc = $template[3];
-                $subject = $template[4];
-                $attachment = "";
-                
-                $sendmail = $this->notify->sendEmail($from, $to, $cc, "", $subject, $body, $attachment,'buyback_price_sheet_with_quote');
-                
+                $sendmail = false;
+                if(!empty($template)){
+                    $body = $template[0]." <br/><br/><b><a href='".S3_WEBSITE_URL.$directory_xls."' target='_blank'>Click here to download file</a></b>";
+                    $to = NITS_ANUJ_EMAIL_ID.",".$this->session->userdata('official_email');
+                    $from = $template[2];
+                    $cc = $template[3];
+                    $subject = $template[4];
+                    $attachment = "";
+
+                    $sendmail = $this->notify->sendEmail($from, $to, $cc, "", $subject, $body, $attachment,'buyback_price_sheet_with_quote');
+                }
                 //check if this file is uploaded by email
                 $email_message_id = !($this->input->post('email_message_id') === NULL)?$this->input->post('email_message_id'):'';
                 

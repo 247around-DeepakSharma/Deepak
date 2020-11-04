@@ -2474,7 +2474,12 @@ class Around_scheduler extends CI_Controller {
             
             foreach ($data as $value) {
                 log_message('info', __METHOD__. " Reschedule Booking ".$value['booking_id']);
-                $reschedule_booking_date[$value['booking_id']] = $value['reschedule_date_request'];
+                if(!empty($value['reschedule_date_request'])){
+                    $reschedule_booking_date[$value['booking_id']] = $value['reschedule_date_request'];
+                } else {
+                    $reschedule_booking_date[$value['booking_id']] = $value['booking_date'];
+                }
+
                 $reschedule_booking_id[] = $value['booking_id'];
                 $reschedule_reason[$value['booking_id']] = $value['reschedule_reason'];
                 $partner_id_array[$value['booking_id']] = $value['partner_id'];

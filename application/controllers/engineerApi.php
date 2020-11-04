@@ -3530,9 +3530,17 @@ class engineerApi extends CI_Controller {
             }
         }
         if ($check) {
-            $where = array('entity_id' => $requestData['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $requestData['service_id'], 'inventory_model_mapping.active' => 1, 'appliance_model_details.active' => 1);
-            $model_numbers = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where);
-            if (empty($model_numbers)) {
+            $type = '';
+            if(!empty($requestData['type'])){
+                $type = $requestData['type'];
+            }
+            //For spare part request show inventory mapped mpdel, for complete booking warranty checker show model non mapped model also
+            //type tag  send by umesh
+            if($type!='complete_booking'){
+                $where = array('entity_id' => $requestData['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $requestData['service_id'], 'inventory_model_mapping.active' => 1, 'appliance_model_details.active' => 1);
+                $model_numbers = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where);
+            }
+            if (empty($model_numbers) || $type=='complete_booking') {
                 $where = array('entity_id' => $requestData['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $requestData['service_id'], 'active' => 1);
                 $model_numbers = $this->inventory_model->get_appliance_model_details('id, model_number', $where);
             }
