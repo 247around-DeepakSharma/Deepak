@@ -2777,7 +2777,7 @@ class Miscelleneous {
                 $value['agent_id'] = $id;
                 $value['remarks'] = $escalation_reason_final;
                 $value['agent_type'] = 'admin';
-                $where = array('escalation_id' => $escalation_reason_id, 'active' => '1');
+                $where = array('penalty_details.escalation_id' => $escalation_reason_id, 'penalty_details.active' => '1');
                 //Adding values in penalty on booking table
                 $this->My_CI->penalty_model->get_data_penalty_on_booking($value, $where, $booking_request_type);
                 log_message('info', 'Penalty added for Escalations - Booking : ' . $escalation['booking_id']);
@@ -3980,7 +3980,7 @@ function generate_image($base64, $image_name,$directory){
         $booking_id =$postData['booking_id'];
         $admin_remarks = $postData['admin_remarks']; 
         // Get Admin Remarks & penalty point from penalty_details Table
-        $review_reject_reason = $this->My_CI->penalty_model->get_penalty_details(['id' => $admin_remarks]);
+        $review_reject_reason = $this->My_CI->penalty_model->get_penalty_details(['penalty_details.id' => $admin_remarks]);
         $reason_of = "";
         $penalty_point = DEFAULT_PENALTY_POINT;
         if(!empty($review_reject_reason['criteria'])){
