@@ -4039,7 +4039,16 @@ function generate_image($base64, $image_name,$directory){
         }
         // Add SF Penalty Point if any 
         if(!empty($rejection_reason) && !empty($reason_of)){
-            $this->add_sf_penalty_point($rejection_reason, $reason_of, $penalty_point, $booking_id, $b[0]['assigned_vendor_id']);
+            $penalty_data['rejection_reason'] = $rejection_reason;
+            $penalty_data['reason_of'] = $reason_of;
+            $penalty_data['penalty_point'] = $penalty_point;
+            $penalty_data['booking_id'] = $booking_id;
+            $penalty_data['vendor_id'] = $b[0]['assigned_vendor_id'];
+            $penalty_data['remarks'] = "";
+            if(!empty($postData['remarks'])){
+                $penalty_data['remarks'] = $postData['remarks'];
+            }
+            $this->add_sf_penalty_point($penalty_data);
         }
     }
     function get_review_bookings_for_partner($partnerID,$booking_id = NULL,$structuredData = 1,$limit = REVIEW_LIMIT_BEFORE){
@@ -5408,29 +5417,30 @@ function generate_image($base64, $image_name,$directory){
         echo '******END*****';exit;
     }
     
-    function add_sf_penalty_point($rejection_reason, $reason_of, $penalty_point, $booking_id, $vendor_id){
+    function add_sf_penalty_point($penalty_data){            
         $data = array();
-        $data['booking_id'] = $booking_id;
-        $data['service_center_id'] = $vendor_id;
+        $data['booking_id'] = $penalty_data['booking_id'];
+        $data['service_center_id'] = $penalty_data['vendor_id'];
         $data['agent_id'] = !empty($this->My_CI->session->userdata('id')) ? $this->My_CI->session->userdata('id') : _247AROUND_DEFAULT_AGENT;
-        $data['criteria_id'] = $rejection_reason;
-        $data['penalty_point'] = $penalty_point;
+        $data['criteria_id'] = $penalty_data['rejection_reason'];
+        $data['penalty_point'] = $penalty_data['penalty_point'];
+        $data['remarks'] = $penalty_data['remarks'];;
         $data['active'] = 1;
         $data['create_date'] = date('Y-m-d H:i:s');
         $data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
         
         // Add Penalty in case of fake completion
-        if($reason_of == REVIEW_REJECT_COMPLETION_REASON){            
+        if($penalty_data['reason_of'] == REVIEW_REJECT_COMPLETION_REASON){            
             $this->My_CI->penalty_model->insert_penalty_on_booking($data);
         }
         // Add Penalty in case of fake cancellation
-        elseif($reason_of == REVIEW_REJECT_CANCELLATION_REASON){
+        elseif($penalty_data['reason_of'] == REVIEW_REJECT_CANCELLATION_REASON){
             // Get SF booking cancellation Reason
-            $where = ['booking_id' => $booking_id];
+            $where = ['booking_id' => $penalty_data['booking_id']];
             $res = $this->My_CI->vendor_model->get_service_center_booking_action_details('cancellation_reason', $where);
             $vendor_cancellation_reason = !empty($res[0]['cancellation_reason']) ? $res[0]['cancellation_reason'] : "";
-            // Check if penalty is there in the combination of this $vendor_cancellation_reason and $rejection_reason
-            $penalty_applicable = $this->My_CI->penalty_model->check_cancellation_penalty_applicable_or_not($vendor_cancellation_reason, $rejection_reason);
+            // Check if penalty is there in the combination of this $vendor_cancellation_reason and $penalty_data['rejection_reason']
+            $penalty_applicable = $this->My_CI->penalty_model->check_cancellation_penalty_applicable_or_not($vendor_cancellation_reason, $penalty_data['rejection_reason']);
             if($penalty_applicable){
                 $this->My_CI->penalty_model->insert_penalty_on_booking($data);
             }
