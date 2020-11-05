@@ -1030,11 +1030,11 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                          <?php echo form_error('stamp_file'); ?>
                     </div>
 
-                    <div id="uploadstampModal" class="modal" role="dialog">
-                                <div class="modal-dialog">
+                    <div id="uploadstampModal" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
+                                <div class="modal-dialog modal-lg" style='max-size:800px'>
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                            <!--<button type="button" class="close" data-dismiss="modal">&times;</button>-->
                                             <h4 class="modal-title">Upload & Crop Image</h4>
                                         </div>
 
@@ -1053,7 +1053,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                             </div>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                            <button type="button" class="btn btn-default" data-dismiss="modal" onclick="$('#stamp_file').val('');">Cancel</button>
                                         </div>
                                     </div>
                                 </div>
@@ -1106,11 +1106,17 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     url:"<?php  echo base_url(); ?>employee/vendor/stamp_file",
                                     type: "POST",
                                     data:{"image": response},
+                                    beforeSend: function(){
+                                        $('#container-2 .btn-primary').css('pointer-events','none');
+                                        $('#container-2 .btn-primary').css('opacity','.3');
+                                    },
                                     success:function(data)
                                     {   
                                         var tmp  = "<?php  echo TMP_FOLDER; ?>";
                                         var data = JSON.parse(data);
                                         $("#cropped_stamp_image_file").val(data.filename);
+                                        $('#container-2 .btn-primary').css('pointer-events','');
+                                        $('#container-2 .btn-primary').css('opacity','');
                                          
                                       $('#uploadstampModal').modal('hide');
                                    }
@@ -2366,13 +2372,6 @@ function manageAccountNameField(value){
             $('#'+container+' #contract_file').css('background-color', '');
             $('#'+container+' #contract_file').attr('readonly');
             $('#'+container+' a[title="Remove Image"]').css('display','none');
-        }
-         if($('#'+container+' #stamp_file_hd').val() != ''){
-            $('#'+container+' #stamp_file').css('pointer-events', 'none');
-            $('#'+container+' #stamp_file').css('background-color', '');
-            $('#'+container+' #stamp_file').attr('readonly');
-            $('#'+container+' a[title="Remove Image"]').css('display','none');
-            
         }
             <?php }else{ ?>
                 $('#'+container+' a[title="Remove Image"]').css('display','inline');

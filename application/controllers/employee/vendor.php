@@ -4788,6 +4788,8 @@ class vendor extends CI_Controller {
                // print_r($a); die;
               //  $_POST['signature_file'] = $signature_file;
                 $attachment_stamp =$stamp_file;
+                unlink(TMP_FOLDER . $stamp_file);
+                // Unlink File After uploading s3
 
               //  unlink(TMP_FOLDER . $signature_file);
 
@@ -5869,31 +5871,24 @@ class vendor extends CI_Controller {
 
             $attachment_stamp='';
             if (($_FILES['stamp_file']['error'] != 4) && !empty($_FILES['stamp_file']['tmp_name'])) {
-                $attachment_stamp = $this->upload_stamp_file($data);
-               // print_r($attachment_signature);
-                // if($attachment_stamp){
-                // } else {
-                    
+                if (isset($_POST['cropped_stamp_image_file']) && !empty($_POST['cropped_stamp_image_file'])) {
+                    $attachment_stamp = $this->upload_stamp_file($data);
+                }
+                }
+                if(!empty($attachment_stamp)){
+                    $data_miscelleneous['stamp_file'] = $attachment_stamp;
+                    $data_miscelleneous['status'] = 0;
+                    $where_miscellaneous['vendor_id'] = $this->input->post('id');
+                    $where_miscellaneous['status'] =1;
+                    $this->vendor_model->sf_update_miscellaneous($where_miscellaneous,$data_miscelleneous);
 
-                    //return FALSE;
-                // }
-                }else{
-
-                $attachment_stamp = $this->input->post('stamp_file_hd');
-			 }
-                //$data['vendor_id'] = $this->input->post('id');
-                $data_miscelleneous['stamp_file'] = $attachment_stamp;
-                $data_miscelleneous['status'] = 0;
-                $where_miscellaneous['vendor_id'] = $this->input->post('id');
-                $where_miscellaneous['status'] =1;
-                $this->vendor_model->sf_update_miscellaneous($where_miscellaneous,$data_miscelleneous);
-             //print_r($attachment_stamp); die;  
-             $vendor_data_miscellaneous['agent_id'] = $this->session->userdata('id');
-                $vendor_data_miscellaneous['agent_type'] = _247AROUND_EMPLOYEE_STRING;  
-                $vendor_data_miscellaneous['vendor_id'] = $this->input->post('id');
-                $vendor_data_miscellaneous['stamp_file'] = $attachment_stamp;
-                $vendor_data_miscellaneous['status'] = 1;
-                $this->vendor_model->sf_insert_miscellaneous($vendor_data_miscellaneous);
+                    $vendor_data_miscellaneous['agent_id'] = $this->session->userdata('id');
+                    $vendor_data_miscellaneous['agent_type'] = _247AROUND_EMPLOYEE_STRING;
+                    $vendor_data_miscellaneous['vendor_id'] = $this->input->post('id');
+                    $vendor_data_miscellaneous['stamp_file'] = $attachment_stamp;
+                    $vendor_data_miscellaneous['status'] = 1;
+                    $this->vendor_model->sf_insert_miscellaneous($vendor_data_miscellaneous);
+                }
                 $this->notify->insert_state_change('', NEW_SF_DOCUMENTS, NEW_SF_DOCUMENTS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'),
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
                
