@@ -1379,6 +1379,11 @@ class Notify {
      }else{
         return FALSE;
      }
+     if(isset($data->objects[0]->uid) && !empty($data->objects[0]->uid)){
+        $msg_id = $data->objects[0]->uid; 
+     }else{
+         $msg_id = '';
+     }
      $response = $return;
             $whatsapp = array(
             'source' => $source,
@@ -1392,7 +1397,10 @@ class Notify {
             'type' => trim($type),
             'total_cost' => $total_cost,
             'message_type' => $message_type,
-            'json_response' => $response
+            'json_response' => $response,
+            'booking_id' => $whatsapp_array['booking_id'],
+            'muid'=>$msg_id,
+            'message_tag'=>SEND_COMPLETE_WHATSAPP_NUMBER_TAG,
         );
        $insert_id =  $this->My_CI->apis->logWhatsapp($whatsapp);
        }else{
