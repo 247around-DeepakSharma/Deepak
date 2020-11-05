@@ -33,6 +33,7 @@ class Api extends CI_Controller {
         $this->load->model('partner_model');
         $this->load->model('engineer_model');
         $this->load->model("dealer_model");
+        $this->load->model("whatsapp_model");
         $this->load->library('notify');
         $this->load->library("miscelleneous");
         $this->load->library('booking_utilities');

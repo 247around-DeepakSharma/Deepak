@@ -194,7 +194,7 @@ class Penalty extends CI_Controller {
             $reason_of = REVIEW_REJECT_COMPLETION_REASON;
         }
         
-        $where = array('reason_of' => $reason_of);
+        $where = array('penalty_details.reason_of' => $reason_of);
         $review_rejection_reasons = $this->penalty_model->get_penalty_details($where, true);
         $options = '<option selected disabled>Select Rejection Reason</option>';
         if (!empty($review_rejection_reasons)) {
