@@ -166,7 +166,6 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="card">
-                        <div class="card col-md-6" style="padding: 10px 10px; height:150px;">
                             <p>‭<i class="fa fa-phone"></i> +91 7428913247</p>
                             <p>‭<i class="fa fa-phone"></i> +91 9910132247</p>
                             <p>‭<i class="fa fa-envelope"></i> spare-purchase@247around.com</p>
