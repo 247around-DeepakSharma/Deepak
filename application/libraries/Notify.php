@@ -24,7 +24,6 @@ class Notify {
 	$this->My_CI->load->model('booking_model');
     $this->My_CI->load->model('engineer_model');
     $this->My_CI->load->model('apis');
-    $this->My_CI->load->model('whatsapp_model');
     }
 
     /**
@@ -1285,8 +1284,7 @@ class Notify {
    function send_whatsapp_on_booking_complete($phone_number, $whatsapp_array = array()){
     $phone_number = "+91" . $phone_number;
 /*  Making templet for sending message */
-   // $template = $this->My_CI->vendor_model->getVendorSmsTemplate(SEND_COMPLETE_WHATSAPP_NUMBER_TAG_WITH_RATING);
-    $template = $this->My_CI->whatsapp_model->get_whatsapp_template_by_tag(SEND_COMPLETE_WHATSAPP_NUMBER_TAG_WITH_RATING)[0];
+    $template = $this->My_CI->vendor_model->getVendorSmsTemplate(SEND_COMPLETE_WHATSAPP_NUMBER_TAG);
     $sms['smsData']['name'] = $whatsapp_array['name'];
     $sms['smsData']['request_type'] = $whatsapp_array['request'];
     $sms['smsData']['appliance'] = $whatsapp_array['appliance'];
@@ -1306,6 +1304,8 @@ class Notify {
        "text": "'.$smsBody.'"
       } 
      }';
+
+
 
      $headers = array(
     'Content-Type:application/json',
@@ -1337,14 +1337,6 @@ class Notify {
      }else{
         return FALSE;
      }
-     
-    if(isset($data->objects[0]->uid) && !empty($data->objects[0]->uid)){
-     $msg_id = $data->objects[0]->uid;
-     }else{
-        return FALSE;
-     }
-     
-     
      if(isset($data->objects[0]->source) && !empty($data->objects[0]->source)){
      $source = $data->objects[0]->source;
      }else{
@@ -1386,9 +1378,6 @@ class Notify {
             $whatsapp = array(
             'source' => $source,
             'destination' => $destination,
-            'booking_id' => $whatsapp_array['booking_id'],
-            'muid'=>$msg_id,
-            'message_tag'=>SEND_COMPLETE_WHATSAPP_NUMBER_TAG_WITH_RATING,
             'channel' => 'whatsapp',
             'direction' => $direction,
             'content' => $content,

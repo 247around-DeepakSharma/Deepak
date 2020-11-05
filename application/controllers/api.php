@@ -41,7 +41,6 @@ class Api extends CI_Controller {
         $this->load->helper(array('form', 'url'));
         $this->load->library('asynchronous_lib');
         $this->load->library('paytm_payment_lib');
-        $this->load->model('whatsapp_model');
     }
 
     /**
@@ -4555,7 +4554,7 @@ class Api extends CI_Controller {
             'json_response' => $response
         );
         $this->apis->logWhatsapp($whatsapp);
-        
+
         if(!empty($content)){
            
             $five_rating_possiblilities = array("5","five","FIVE","55","05","50");
@@ -4630,6 +4629,7 @@ class Api extends CI_Controller {
        // $booking_id  = $data['booking_id'];
         echo "<pre>";
         print_r($smsBody); exit;
+
     }
 
     /**

@@ -113,6 +113,7 @@ class Whatsapp_model extends CI_Model {
         return $query->result_array();
     }
 
+
     
       /**
      *  @desc : This function is used to get last message details sent to whatsapp 
@@ -160,5 +161,6 @@ class Whatsapp_model extends CI_Model {
         $query = $this->db->query($sql);
         return $query->result_array();
     }
+
 
 }
