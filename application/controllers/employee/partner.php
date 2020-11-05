@@ -1726,7 +1726,7 @@ class Partner extends CI_Controller {
                     $value['agent_id'] = $partner_details['entity_id'];
                     $value['agent_type'] = 'partner';
                     $value['remarks'] = $escalation_remarks;
-                    $where = array('escalation_id' => ESCALATION_PENALTY, 'active' => '1');
+                    $where = array('penalty_details.escalation_id' => ESCALATION_PENALTY, 'penalty_details.active' => '1');
                     //Adding values in penalty on booking table
                     $this->penalty_model->get_data_penalty_on_booking($value, $where, $booking_request_type);
 
