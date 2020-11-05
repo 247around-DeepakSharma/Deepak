@@ -115,52 +115,7 @@ class Whatsapp_model extends CI_Model {
 
 
     
-      /**
-     *  @desc : This function is used to get last message details sent to whatsapp 
-     *  @param : $phone string
-     *  @return: Array()
-     *  Abhishek Awasthi
-     */     
-    function get_last_whatsapp_message_send_tag($phone){
-        $sql = "select * from whatsapp_logs where destination='" . $phone . "'  order by created_on desc";
-        $query = $this->db->query($sql);
-        return $query->result_array();
-    }
     
-      /**
-     *  @desc : This function is used to get template by ID
-     *  @param : $id  
-     *  @return: Array()
-     *  Abhishek Awasthi
-     */    
-    function get_whatsapp_template_by_id($id){
-     
-        $sql = "select * from whatsapp_template where id='".$id."'";
-        $query = $this->db->query($sql);
-        return $query->result_array();
-        
-    }
-    
-    
-    function get_whatsapp_template_by_tag($tag){
-        $sql = "select * from whatsapp_template where tag='" . $tag . "' and active = 1";
-        $query = $this->db->query($sql);
-        return $query->result_array();
-    }
- 
-
-      /**
-     *  @desc : This function is used to get last message details sent available options
-     *  @param : $message_tag_id ,$reply  
-     *  @return: Array()
-     *  Abhishek Awasthi
-     */    
-
-    function get_last_whatsapp_message_send_tag_options($message_tag_id,$reply){
-        $sql = "select * from whatsapp_options where msg_tag_id='" . $message_tag_id . "' AND option_text='".$reply."' ";
-        $query = $this->db->query($sql);
-        return $query->result_array();
-    }
 
 
 }
