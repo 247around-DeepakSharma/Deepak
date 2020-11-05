@@ -4698,6 +4698,45 @@ class vendor extends CI_Controller {
             }
         }
     }
+         function upload_stamp_file() {
+          //echo "<pre>";  print_r($_POST); die;
+            if (isset($_POST['cropped_stamp_image_file']) && !empty($_POST['cropped_stamp_image_file'])) {
+               // print_r($_POST['cropped_stamp_image_file']); die;
+            //Adding file validation
+            //$checkfilevalidation = $this->file_input_validation('signature_file');
+            $checkfilevalidation = 1;
+            if ($checkfilevalidation) {
+                //Upload files to AWS
+                $bucket = BITBUCKET_DIRECTORY;
+                $stamp_file = trim($_POST['cropped_stamp_image_file']);
+                $directory_xls = "sf-stamp/" . $stamp_file;
+               $this->s3->putObjectFile(TMP_FOLDER . $stamp_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+               // print_r($a); die;
+              //  $_POST['signature_file'] = $signature_file;
+                $attachment_stamp =$stamp_file;
+                unlink(TMP_FOLDER . $stamp_file);
+                // Unlink File After uploading s3
+
+              //  unlink(TMP_FOLDER . $signature_file);
+
+                //Logging success for file uppload
+                log_message('info', __CLASS__ . ' stamp file is being uploaded sucessfully.');
+                return $attachment_stamp;
+            } else {
+                //Redirect back to Form
+                $data = $this->input->post();
+                //Checking if form is for add or edit
+                if (!empty($_POST['id'])) {
+                    //Redirect to edit form for particular id
+                    $this->editvendor($data['id']);
+                } else {
+                    //Redirect to add vendor form
+                    $this->add_vendor();
+                }
+                return FALSE;
+            }
+        }
+    }
           /*
            * This Function will return excel containing all pincode mapping combination for a vendor
            * @input - VendorID
@@ -5748,6 +5787,27 @@ class vendor extends CI_Controller {
                 $vendor_data['agent_id'] = $agentID;
                 ///print_r($vendor_data);  exit;
                 $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
+
+            $attachment_stamp='';
+            if (($_FILES['stamp_file']['error'] != 4) && !empty($_FILES['stamp_file']['tmp_name'])) {
+				if (isset($_POST['cropped_stamp_image_file']) && !empty($_POST['cropped_stamp_image_file'])) {
+                    $attachment_stamp = $this->upload_stamp_file($data);
+                }
+                }
+                if(!empty($attachment_stamp)){
+                    $data_miscelleneous['stamp_file'] = $attachment_stamp;
+                    $data_miscelleneous['status'] = 0;
+                    $where_miscellaneous['vendor_id'] = $this->input->post('id');
+                    $where_miscellaneous['status'] =1;
+                    $this->vendor_model->sf_update_miscellaneous($where_miscellaneous,$data_miscelleneous);
+
+                    $vendor_data_miscellaneous['agent_id'] = $this->session->userdata('id');
+                    $vendor_data_miscellaneous['agent_type'] = _247AROUND_EMPLOYEE_STRING;
+                    $vendor_data_miscellaneous['vendor_id'] = $this->input->post('id');
+                    $vendor_data_miscellaneous['stamp_file'] = $attachment_stamp;
+                    $vendor_data_miscellaneous['status'] = 1;
+                    $this->vendor_model->sf_insert_miscellaneous($vendor_data_miscellaneous);
+                }
                 $this->notify->insert_state_change('', NEW_SF_DOCUMENTS, NEW_SF_DOCUMENTS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'),
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
                
