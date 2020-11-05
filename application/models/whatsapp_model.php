@@ -115,7 +115,18 @@ class Whatsapp_model extends CI_Model {
 
 
     
+      /**
+     *  @desc : This function is used to get last message details sent to whatsapp 
+     *  @param : $phone string
+     *  @return: Array()
+     *  Abhishek Awasthi
+     */     
+    function get_last_whatsapp_message_send_tag($phone){
+        $sql = "select * from whatsapp_logs where destination='" . $phone . "'  order by created_on desc";
+        $query = $this->db->query($sql); 
+        return $query->result_array();
+    }
     
-
+     
 
 }
