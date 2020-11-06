@@ -123,22 +123,28 @@ class File_upload extends CI_Controller {
                     } else {
                         //save file and upload on s3
                         $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $file_type, FILE_UPLOAD_FAILED_STATUS, "", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
-                        $this->session->set_flashdata('file_error', $response['message']);
+                        if ($data['post_data']['file_type'] == UPLOAD_MSL_EXCEL_FILE) {
+                            $this->session->set_userdata('fail', $response['message']);
+                        } else {
+                            $this->session->set_flashdata('file_error', $response['message']);
+                        }
                     }
-
-                     //send email
+                    
+                    //send email
                     $this->send_email($data, $response);
+                    $redirect_to = $response['redirect_to'];
                     if (isset($response['status']) && ($response['status'])) {
-                        $redirect_to = $response['redirect_to'];
-
+                        
                         if ($this->input->post("transfered_by") == MSL_TRANSFERED_BY_WAREHOUSE) {
                             redirect(base_url() . $redirect_to);
                         } else {
-                            $this->session->set_flashdata('details', $response['message']);
+                            $this->session->set_userdata('details', $response['message']);
                             if(!empty($redirect_to)){
-                            redirect(base_url() . $redirect_to);
+                                redirect(base_url() . $redirect_to);
                             }
                         }
+                    } else {
+                      redirect(base_url() . $redirect_to);  
                     }
                 } else {
                     //redirect to upload page
@@ -1041,9 +1047,9 @@ class File_upload extends CI_Controller {
         } else {
             $this->table->add_row("-", "-", "-", "Excel header is Incorrect");
         }
-
+        
         $err_msg = $this->table->generate();
-      
+        
         if (empty($error_array)) {
             if (!empty($post_data)) {
                 $post_json = json_encode($post_data['appliance'], true);
@@ -1059,7 +1065,7 @@ class File_upload extends CI_Controller {
             }
             
             echo $response1;
-            
+           
             $response['status'] = TRUE;
             $response['message'] = $err_msg;
             $response['bulk_msl'] = TRUE;
@@ -1079,13 +1085,13 @@ class File_upload extends CI_Controller {
                 $response['redirect_to'] = 'employee/inventory/upload_msl_excel_file';
             }
             // $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_FAILED_STATUS, "", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
-            $this->miscelleneous->load_nav_header();
-            if ($this->input->post("transfered_by") == MSL_TRANSFERED_BY_WAREHOUSE) {
-                $this->load->view('employee/msl_excel_upload_errors', $response); 
-                //$this->load->view('service_center/msl_excel_upload_errors', $response);
-            } else {
-               $this->load->view('employee/msl_excel_upload_errors', $response); 
-            }
+            //$this->miscelleneous->load_nav_header();
+//            if ($this->input->post("transfered_by") == MSL_TRANSFERED_BY_WAREHOUSE) {
+//                $this->load->view('employee/msl_excel_upload_errors', $response); 
+//                //$this->load->view('service_center/msl_excel_upload_errors', $response);
+//            } else {
+//               $this->load->view('employee/msl_excel_upload_errors', $response); 
+//            }
         }
 
         return $response;
