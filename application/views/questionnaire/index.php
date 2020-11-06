@@ -39,7 +39,10 @@
                         <th>Form</th>
                         <th>Product</th>
                         <th>Request Type</th>
-                        <th>Question</th>                        
+                        <th>Question</th>  
+                        <th style="display: none;">Question</th>
+                        <th style="display: none;">Options</th>
+                        <th style="display: none;">Active</th>
                         <th class="no-sort">Active</th> 
                         <th class="no-sort">Action</th>
                     </tr>
@@ -79,6 +82,11 @@
                                     }
                                 ?>
                             </td>
+                            <td style="display: none;"><?php echo $rec->question; ?></td>
+                            <td style="display: none;"><?php echo $rec->answers; ?></td>
+                            <td style="display: none;">
+                                <?php echo(empty($rec->active) ? "No" : "Yes") ;  ?>
+                            </td>
                             <td>
                                 <img id="loader_gif_<?= $rec->q_id ?>" src="" style="display: none;">
                                 <div id="status<?= $rec->q_id ?>">
@@ -116,7 +124,7 @@
                 text: 'Export',
                 title: 'Question-list',
                 exportOptions: {
-                    columns: [0, 1, 2, 3]
+                    columns: [0, 1, 2, 3, 4, 6, 7, 8]
                 }
             }
         ]                        
@@ -156,6 +164,9 @@
                     {
                         $("#status" + q_id).html("<i class='fa fa-times-circle fa-2x text-danger' id='btn" + q_id + "' onClick='changeStatus(this.id,1)'></i>");
                     }
+                }
+                else{
+                    alert("Data can not be saved! Please Try Again.")
                 }
             }
         });        
