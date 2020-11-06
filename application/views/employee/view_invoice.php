@@ -165,12 +165,9 @@
                                             <th class="text-center">Quantity</th>
                                             <th class="text-center">Rate</th>
                                             <th class="text-center">Taxable</th>
-                                            <?php if($invoice_breakup[0]['igst_tax_amount'] != 0){ ?>
                                             <th class="text-center" colspan="2">IGST </th>
-                                            <?php } else if($invoice_breakup[0]['sgst_tax_amount'] != 0){ ?>
                                             <th class="text-center" colspan="2">SGST </th>
                                             <th class="text-center" colspan="2">CGST </th>
-                                            <?php }  ?>
                                             <th class="text-center">Total</th>
                                         </tr>
                                         <tr>
@@ -181,13 +178,12 @@
                                             <th class="text-center"></th>
                                             <th class="text-center"></th>
                                             <th class="text-center"></th>
-                                            <?php if($invoice_breakup[0]['igst_tax_amount'] != 0){ ?>
                                             <th class="text-center">Rate</th>
                                             <th class="text-center">Amount</th>
-                                            <?php } else if($invoice_breakup[0]['sgst_tax_amount'] != 0){ ?>
                                             <th class="text-center">Rate</th>
                                             <th class="text-center">Amount</th>
-                                            <?php }  ?>
+                                            <th class="text-center">Rate</th>
+                                            <th class="text-center">Amount</th>
                                             <th class="text-center"></th>
                                         </tr>
                                     </thead>
@@ -221,25 +217,23 @@
                                             <td><?php echo $value['qty'];?></td>
                                             <td><?php echo $value['rate'];?></td>
                                             <td><?php echo $value['taxable_value'];?></td>
-                                            <?php if($value['igst_tax_amount'] != 0){ ?>
+                                            <?php if($value['igst_tax_amount'] != 0){ } else if($value['sgst_tax_amount'] != 0){ } else {?>
+                                                <input type="hidden" id="is_igst" name="is_igst" value="2" >
+                                            <?php }?>
                                             <td> 
                                                 <?php echo $value['igst_tax_rate'];?>
                                             </td>
                                             <td><?php echo $value['igst_tax_amount'];?></td>
-                                            <?php }else if($value['sgst_tax_amount'] != 0){ ?>
                                             <td>
-                                                <?php echo $value['igst_tax_amount'];?>
+                                                <?php echo $value['sgst_tax_rate'];?>
                                             </td>
                                             <td><?php echo $value['sgst_tax_amount'];?></td>
                                             <td><?php echo $value['cgst_tax_rate'];?></td>
                                             <td><?php echo $value['cgst_tax_amount'];?></td>
-                                            <?php } else { ?>
-                                            <input type="hidden" id="is_igst" name="is_igst" value="2" >
-                                            <?php } ?>
                                             <td><?php echo $value['total_amount'];?></td>
                                         </tr>
                                         <?php } ?>
-                                        <tr>
+                                         <tr>
                                             <td>Total</td>
                                             <td></td>
                                             <td></td>
@@ -247,17 +241,35 @@
                                             <td id="total_quantity"><?php echo $total_quantity; ?></td>
                                             <td ></td>
                                             <td id="total_taxablevalue" ><?php echo $total_taxablevalue; ?></td>
-                                            <?php if($invoice_breakup[0]['igst_tax_amount'] != 0){ ?>
+                                            
                                             <td></td>
                                             <td id="total_igst_amount"><?php echo $total_igst_amount; ?></td>
-                                            <?php } else if($invoice_breakup[0]['sgst_tax_amount'] != 0){ ?>
                                             <td></td>
                                             <td id="total_sgst_amount"><?php echo $total_sgst_amount; ?></td>
                                             <td></td>
                                             <td id="total_cgst_amount"><?php echo $total_cgst_amount; ?></td>
-                                            <?php }  ?>
-                                            <td id="toatl_amount_charge"><?php echo $toatl_amount_charge; ?></td>
+                                            
+                                            <td id="toatl_amount_charge"><?php echo $invoice_details[0]['total_amount_collected'] - $invoice_details[0]['tcs_amount']; ?></td>
                                         </tr>
+                                        <tr>
+                                            <td colspan="12"></td>
+                                            
+                                            <td ><?php echo "(+) TCS Rate ".$invoice_details[0]['tcs_rate']. " %"?></td>
+                                            <td ><?php echo $invoice_details[0]['tcs_amount']; ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="12"></td>
+                                            
+                                            <td ><?php echo "(+) TDS Rate ".$invoice_details[0]['tds_rate']. " %"?></td>
+                                            <td ><?php echo $invoice_details[0]['tds_amount']; ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="12"></td>
+                                            
+                                            <td >Final Amount</td>
+                                            <td ><?php echo $invoice_details[0]['total_amount_collected'] - $invoice_details[0]['tds_amount']; ?></td>
+                                        </tr>
+                                       
                                     </tbody>
                                 </table>
                             </div>

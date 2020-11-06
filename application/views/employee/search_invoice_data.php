@@ -114,6 +114,7 @@
          <th>Additional Service Charges</th>
          <th>Parts / Stands</th>
          <th>TDS Amount</th>
+         <th>TCS Amount</th>
          <th>Penalty</th>
          <th>GST Amount</th>
          <th>Amount to be Paid By 247Around</th>

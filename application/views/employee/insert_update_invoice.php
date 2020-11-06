@@ -95,7 +95,7 @@
                                 <div class="form-group <?php if( form_error('vendor_partner_id') ) { echo 'has-error';} ?>">
                                     <label for="vendor_partner_id" class="col-md-4">Entity *</label>
                                     <div class="col-md-6">
-                                        <select type="text" class="form-control"  id="vendor_partner_id" name="vendor_partner_id" onchange="check_gst_tax_type()" required>
+                                        <select type="text" class="form-control"  id="vendor_partner_id" name="vendor_partner_id" onchange="check_gst_tax_type(), tcs_input_change()" required>
                                             <option value="" disabled selected>Select Entity</option>
                                         </select>
                                         <label for="vendor_partner_id" class="error"></label>
@@ -177,38 +177,44 @@
                                 <div class="form-group <?php if( form_error('type') ) { echo 'has-error';} ?>">
                                     <label for="type_code" class="col-md-4">Type *</label>
                                     <div class="col-md-6">
-                                        <select name="type" class="form-control" id="type_code" required>
+                                        <select name="type" class="form-control" id="type_code" onchange="tds_input_change()" required>
                                             <option value="" disabled selected>Select Invoice Type</option>
-                                            <option  value="Cash" <?php if (isset($invoice_details[0]['type'])) {
-                                                if($invoice_details[0]['type'] == "Cash"){ echo "selected";}
-                                                } ?>>Cash</option>
-                                            <option value="<?php echo DEBIT_NOTE;?>" <?php if (isset($invoice_details[0]['type'])) {
-                                                if(($invoice_details[0]['type'] == DEBIT_NOTE)){ echo "selected";}
-                                                } ?>><?php echo DEBIT_NOTE;?></option>
-                                            <option value="<?php echo CREDIT_NOTE; ?>" <?php if (isset($invoice_details[0]['type'])) {
-                                                if(($invoice_details[0]['type'] == CREDIT_NOTE)){ echo "selected";}
-                                                } ?>><?php echo CREDIT_NOTE ;?></option>
-                                            <option value="FOC" <?php if (isset($invoice_details[0]['type'])) {
-                                                if($invoice_details[0]['type'] == "FOC"){ echo "selected";}
-                                                } ?>>FOC</option>
                                             <option value="Buyback" <?php if (isset($invoice_details[0]['type'])) {
                                                 if($invoice_details[0]['type'] == "Buyback"){ echo "selected";}
                                                 } ?>>Buyback</option>
                                             <option value="<?php echo BUYBACK_VOUCHER;?>" <?php if (isset($invoice_details[0]['type'])) {
                                                 if($invoice_details[0]['type'] == BUYBACK_VOUCHER){ echo "selected";}
                                                 } ?>><?php echo BUYBACK_VOUCHER; ?></option>
+                                            <option  value="Cash" <?php if (isset($invoice_details[0]['type'])) {
+                                                if($invoice_details[0]['type'] == "Cash"){ echo "selected";}
+                                                } ?>>Cash</option>
+                                            <option value="<?php echo CREDIT_NOTE; ?>" <?php if (isset($invoice_details[0]['type'])) {
+                                                if(($invoice_details[0]['type'] == CREDIT_NOTE)){ echo "selected";}
+                                                } ?>><?php echo CREDIT_NOTE ;?></option>
+                                            <option value="<?php echo DEBIT_NOTE;?>" <?php if (isset($invoice_details[0]['type'])) {
+                                                if(($invoice_details[0]['type'] == DEBIT_NOTE)){ echo "selected";}
+                                                } ?>><?php echo DEBIT_NOTE;?></option>
+                                            
+                                            <option value="FOC" <?php if (isset($invoice_details[0]['type'])) {
+                                                if($invoice_details[0]['type'] == "FOC"){ echo "selected";}
+                                                } ?>>FOC</option>
                                             <option value="<?php echo PARTNER_VOUCHER;?>" <?php if (isset($invoice_details[0]['type'])) {
                                                 if($invoice_details[0]['type'] == PARTNER_VOUCHER){ echo "selected";}
                                                 } ?>><?php echo PARTNER_VOUCHER; ?></option>
-                                            <option value="Stand" <?php if (isset($invoice_details[0]['type'])) {
-                                                if($invoice_details[0]['type'] == "Stand"){ echo "selected";}
-                                                } ?>>Stand</option>
+                                            
                                             <option value="Parts" <?php if (isset($invoice_details[0]['type'])) {
                                                 if($invoice_details[0]['type'] == "Parts"){ echo "selected";}
                                                 } ?>>Parts</option>
                                             <option value="Liquidation" <?php if (isset($invoice_details[0]['type'])) {
                                                 if($invoice_details[0]['type'] == "Liquidation"){ echo "selected";}
                                                 } ?>>Liquidation</option>
+                                            <option value="Stand" <?php if (isset($invoice_details[0]['type'])) {
+                                                if($invoice_details[0]['type'] == "Stand"){ echo "selected";}
+                                                } ?>>Stand</option>
+                                            <option value="<?php echo VENDOR_VOUCHER;?>" <?php if (isset($invoice_details[0]['type'])) {
+                                                if($invoice_details[0]['type'] == VENDOR_VOUCHER){ echo "selected";}
+                                                } ?>><?php echo VENDOR_VOUCHER;?></option>
+                                            
                                         </select>
                                         <label for="type_code" class="error"></label>
                                     </div>
@@ -493,9 +499,48 @@
                                         <td><input id="total_sgst_amount" type="number" value="0.00" name="total_sgst_amount" class="form-control padding_space" readonly ></td>
                                         <td></td>
                                         <td><input id="total_igst_amount" type="number" value="0.00" name="total_igst_amount" class="form-control padding_space" readonly ></td>
-                                        <td><input id="total_amount_charge" type="number" value="0.00" name="total_amount_charge" class="form-control padding_space" readonly ></td>
+                                        <td><input id="sub_amount_charge" type="number" value="0.00" name="sub_total_amount_charge" class="form-control padding_space" readonly ></td>
                                         <td colspan="2"></td>
                                     </tr>
+                                    <tr>
+                                        <td colspan="11"></td>
+                                        <td>(+) TCS Rate % </td>
+                                        <td><input id="tcs_rate" type="number" onblur="calculate_total()" value="<?php echo $invoice_details[0]['tcs_rate'];?>" name="tcs_rate" class="form-control padding_space" ></td>
+                                        <td><input id="tcs_amount" type="number" value="<?php echo $invoice_details[0]['tcs_amount'];?>" name="tcs_amount" class="form-control padding_space" ></td>
+                                        
+                                        
+                                        <td colspan="2"></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="11"></td>
+                                        <td>(-) TDS Rate %</td>
+<!--                                        <td><Select id="tds_rate" onchange="calculate_total()" name="tds_rate" class="form-control padding_space" >
+                                                <option value="0" <?php if( isset($invoice_details[0]['tds_rate']) && $invoice_details[0]['tds_rate'] == 0){ echo 'Selected';} ?> >0</option>
+                                                <option value=".75" <?php if( isset($invoice_details[0]['tds_rate']) && $invoice_details[0]['tds_rate'] == 0){ echo 'Selected';} ?>>0.75</option>
+                                                <option value="1.5" <?php if(isset($invoice_details[0]['tds_rate']) && $invoice_details[0]['tds_rate'] == 0){ echo 'Selected';} ?>>1.5</option>
+                                                <?php if( isset($invoice_details[0]['tds_rate']) && ($invoice_details[0]['tds_rate'] > 0) && ($invoice_details[0]['tds_rate'] != 0.75 
+                                                        || $invoice_details[0]['tds_rate'] !=1.5)){ ?>
+                                                    <option value="<?php echo $invoice_details[0]['tds_rate'];?>" Selected><?php echo $invoice_details[0]['tds_rate'];?></option>
+                                               <?php } ?>
+                                            
+                                            </Select>
+                                        </td>-->
+                                        <td><input id="tds_rate" type="number" onblur="calculate_total()" value="" name="tds_rate" class="form-control padding_space" ></td>
+                                        <td><input id="tds_amount" type="number" value="0.00" name="tds_amount" class="form-control padding_space" ></td>
+                                        
+                                        <td colspan="2"></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="11"></td>
+                                        <td>Final Amount</td>
+                                        <td></td>
+                                        <td><input id="total_amount_charge" type="number" value="0.00" name="total_amount_charge" class="form-control padding_space" readonly >
+                                            </td>
+                                        
+                                        
+                                        <td colspan="2"></td>
+                                    </tr>
+                                    
                                 </tbody>
                             </table>
                             <div class="text-center">
@@ -1021,6 +1066,10 @@
          var warehouse_storage_charges = miscellaneous_charges = packaging_rate = courier_charges = credit_penalty_amount = penalty_amount = upcountry_price = upcountry_rate = micro_warehouse_charges = call_center_charges = 0; 
          var id = index = '';
          var is_igst  = $("#is_igst").val();
+         var tds_rate = 0;
+         var tcs_rate =0;
+         var tds_amount =0;
+         var tcs_amount = 0;
         //loop for each line item added
         $(".quantity").each(function () {
             id = $(this).attr('id');
@@ -1115,6 +1164,7 @@
         $("#upcountry_rate").val(upcountry_rate.toFixed(2));
         $("#micro_warehouse_charges").val(micro_warehouse_charges.toFixed(2));
         $("#call_center_charges").val(call_center_charges.toFixed(2));
+        
        
         if(igst_amount > 0){
             $("#total_igst_amount").val(igst_amount.toFixed(2));
@@ -1122,7 +1172,26 @@
             $("#total_cgst_amount").val(cgst_amount.toFixed(2));
             $("#total_sgst_amount").val(sgst_amount.toFixed(2));
         }
-        $("#total_amount_charge").val(total_charge.toFixed(2));
+        
+         $("#sub_amount_charge").val(total_charge.toFixed(2));
+        
+        var tds_rate = $("#tds_rate").val();
+        var t_service_charge = total_service_charge + warehouse_storage_charges + miscellaneous_charges 
+                + micro_warehouse_charges + (packaging_quantity * packaging_quantity) 
+                + courier_charges + credit_penalty_amount - penalty_amount + upcountry_price 
+                + call_center_charges;
+        
+        var tcs_rate = $("#tcs_rate").val();
+        var tcs_amount = (tcs_rate * total_charge) /100;
+        $("#tcs_amount").val(tcs_amount.toFixed(2));
+
+        var tds_amount = (tds_rate * t_service_charge) /100;
+        
+        $("#tds_amount").val(tds_amount);
+        
+        var total_f_c = total_charge - tds_amount + tcs_amount;
+        
+        $("#total_amount_charge").val(total_f_c.toFixed(2));
     }
     
     function get_247around_wh_gst_number(partner_id){
@@ -1156,6 +1225,10 @@
         var id = index = '';
         
         if((gst_number != null) && (vendor_partner_id != null)) {
+            
+            if(vendor_partner_id === '<?php echo VIDEOCON_ID;?>'){
+                tcs_input_change();
+            }
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url() ?>employee/invoice/check_gst_tax_type',
@@ -1243,6 +1316,48 @@
                 });
             }
         }
+    }
+    tds_input_change();
+    //tcs_input_change();
+    function tds_input_change(){
+       var type = $("#type_code").val();
+       var vendor_partner_type = '<?php echo $vendor_partner; ?>';
+       if(vendor_partner_type === "vendor"){
+           console.log(type);
+           if(type != "FOC"){
+                $("#tds_rate").val(0);
+                $('#tds_rate').prop('readonly', true);
+                $('#tds_amount').prop('readonly', true);
+                calculate_total();
+           }
+       } else if(vendor_partner_type === "partner" && type !="Cash"){
+            $("#tds_rate").val(0);
+            $('#tds_rate').prop('readonly', true);
+            $('#tds_amount').prop('readonly', true);
+            calculate_total();
+       }
+        
+    }
+    
+    function tcs_input_change(){
+        var type = $("#type_code").val();
+        var vendor_partner_type = '<?php echo $vendor_partner; ?>';
+        var vendor_partner_id =  $("#vendor_partner_id").val();
+       
+        if(vendor_partner_id != null){
+            if(vendor_partner_type == "partner" && vendor_partner_id == '<?php echo VIDEOCON_ID;?>' && type =="Parts"){
+            
+                $('#tcs_rate').prop('readonly', false);
+                $('#tcs_amount').prop('readonly', false);
+                calculate_total();
+            } else {
+                $("#tcs_rate").val(0);
+                $('#tcs_rate').prop('readonly', true);
+                $('#tcs_amount').prop('readonly', true);
+                calculate_total();
+            }
+        }
+        
     }
 </script>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>

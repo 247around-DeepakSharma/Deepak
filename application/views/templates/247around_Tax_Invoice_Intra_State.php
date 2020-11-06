@@ -112,7 +112,7 @@
                 <td><?php echo $meta['cgst_total_tax_amount']; ?></td>
                 <td></td>
                 <td><?php echo $meta['sgst_total_tax_amount']; ; ?></td>
-                <td style="border-right: 2px solid;"><?php echo $meta['sub_total_amount']; ?></td>
+                <td style="border-right: 2px solid;"><?php echo $meta['total_amount_with_tax']; ?></td>
             </tr>
 
             <tr >
@@ -121,14 +121,20 @@
                 <td colspan="1" align="center" style="border-right: 2px solid;"><?php echo $meta['total_taxable_value']; ?></td>
             </tr>
             <tr>
-                <td colspan="4" rowspan="3" style="padding: 2%; text-align: center;"><?php echo $meta['price_inword']; ?></td>
+                <td colspan="4" rowspan="4" style="padding: 2%; text-align: center;"><?php echo $meta['price_inword']; ?></td>
                 <td colspan="5"><b>Add: CGST</td>
                 <td colspan="1" align="center" style="border-right: 2px solid;"><?php echo $meta['cgst_total_tax_amount'];; ?></td>
             <tr >
                 <td colspan="5" style="font-weight: bold;"><b>Add: SGST</td>
                 <td colspan="1" align="center" style="border-right: 2px solid;"><?php echo $meta['sgst_total_tax_amount'];; ?></td>
             </tr>
-            <tr ><td colspan="5" style="font-weight: bold;">Total Amount after Tax</td>
+            <?php  if(!empty($meta['tcs_rate'])){ ?>
+            <tr >
+                <td colspan="5" style="font-weight: bold;"><b>Add: TCS <?php echo TCS_TAX_RATE;?></td>
+                <td colspan="1" align="center" style="border-right: 2px solid;"><?php echo $meta['tcs_amount'];; ?></td>
+            </tr>
+            <?php } ?>
+            <tr ><td colspan="5" style="font-weight: bold;">Total Amount</td>
                 <td colspan="1" align="center" style="border-right: 2px solid;"><?php echo $meta['sub_total_amount'];; ?></td>
             </tr>
 
