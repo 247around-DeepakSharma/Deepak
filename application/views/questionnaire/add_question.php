@@ -109,7 +109,14 @@
                                     <label for="options" class="col-md-3">Options</label>
                                     <div class="col-md-6">
                                         <input type="text" name="options" id="options"class="form-control" value="<?php if (!empty($q_data[0]->answers)) { echo $q_data[0]->answers; } ?>">
-                                        <label style="font-weight:normal">Add comma seperated values (in case above question has some pre-defined answers)</label>
+                                        <label style="font-weight:normal">
+                                            <ul style="padding: 6px 12px;">
+                                                <li> Add comma separated values (in case above question has some pre-defined answers) </li>
+                                                <?php if(!empty($q_data[0]->q_id)){ 
+                                                  echo "<li>Options that are already saved against any Booking will not be changed.</li>";  
+                                                } ?>
+                                            </ul>                                            
+                                        </label>
                                     </div>                                    
                                 </div>
                                 <!-- Active/In-Active -->
