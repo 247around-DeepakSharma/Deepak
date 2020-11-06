@@ -22,7 +22,7 @@ and open the template in the editor.
     <body>
         
         <!-- Button trigger modal -->
-        <button type="button" id="example" style="display:none;" class="btn btn-primary modal-lg" data-toggle="modal" data-target="#exampleModal" data-backdrop="static">
+        <button type="button" id="example" style="display:none;" class="btn btn-primary modal-lg" data-toggle="modal" data-target="#exampleModal" data-backdrop="static" data-keyboard="false">
         </button>
 
         <!-- Modal -->
@@ -107,8 +107,11 @@ and open the template in the editor.
                 });
 
             });
-            
-            
+//            
+//            $('#exampleModal').modal({
+//                backdrop: 'static',
+//                keyboard: false
+//            });
         </script>
     </body>
 </html>
