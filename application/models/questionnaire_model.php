@@ -70,7 +70,10 @@ class Questionnaire_model extends CI_Model {
         {
             $arr_options = explode(",", $data['options']);
             unset($data['options']);
-        }  
+        } 
+        if(empty($data['active'])){
+            $data['active'] = 0;
+        }
         
         // update data in review_questionare
         $this->db->where($where, FALSE);
