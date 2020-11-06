@@ -18,7 +18,7 @@ class Questionnaire extends CI_Controller {
         $this->load->model('booking_model');
         $this->load->library("miscelleneous");
         
-        if ($this->session->userdata('loggedIn') == TRUE) {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
             return TRUE;
         } else {
             redirect(base_url() . "employee/login");
@@ -90,7 +90,7 @@ class Questionnaire extends CI_Controller {
             }  
             $this->db->trans_complete();
             if ($this->db->trans_status() === FALSE) {
-                $this->session->set_userdata(array('error' => "Data can not be saved. Please try Again"));
+                $this->session->set_userdata(array('failed' => "Data can not be saved. Please try Again"));
             }
             else
             {
@@ -102,11 +102,11 @@ class Questionnaire extends CI_Controller {
         {
             $this->session->set_userdata(array('failed' => validation_errors()));
             if(empty($data['q_id'])){
-                redirect(base_url() . 'employee/questionnaire/add_quesion');
+                redirect(base_url() . 'employee/questionnaire/add_question');
             }
             else
             {
-                redirect(base_url() . 'employee/questionnaire/add_quesion/'.$data['q_id']);
+                redirect(base_url() . 'employee/questionnaire/add_question/'.$data['q_id']);
             }
         }                      
     }    
