@@ -154,10 +154,18 @@
     });
     
     $('#other_amount').click(function () {
-            $('#other_amount_div').show();
+        // unselect tds radio buttons.
+        $("input:radio[class^=tds]").each(function(i) {
+            this.checked = false;
+        });
+        $('#other_amount_div').show();
     });
     
     $('.initial_amount').click(function () {
+        // unselect tds radio buttons.
+        $("input:radio[class^=tds]").each(function(i) {
+            this.checked = false;
+        });
         $('#other_amount_div').hide();
     });
     
@@ -190,16 +198,16 @@
             }
         });
     }
-    
-    function get_final_amount(){
+   
+    function get_final_amount(is_tds_check = false){
         var final_amount;
         var amount = parseInt($('input[name=amount]').filter(':checked').val());
-        
-        var is_tds_check = false;
         if(is_tds_check){
             var tds_per = parseInt($('#tds_per').html());
             final_amount = amount - amount * (tds_per/100);
         }else{
+            $('#tds_deduction_amount').html(0.00);
+            $('#apply_tds_amount').val(0);
             final_amount = amount;
         }
         
@@ -222,7 +230,18 @@
         $('#final_amount').html(final_amount);
         $('#txn_amount').val(final_amount);
     }
-    
+   
+    function deduct_tds(tds_percent) {
+        // hide TDS Amount section if none selected.
+        if(tds_percent == 0) {
+            $('.tds_deduction_amount').css('display', 'none');
+        } else {
+            $('.tds_deduction_amount').css('display', 'block');
+        }
+        $('#apply_tds_percent').val(tds_percent);
+        get_final_amount(true);
+    }
+   
     $("#other_amount_value").blur(function(){
         var other_amount_value = $('#other_amount_value').val();
         parseInt($('input[name=amount]').filter(':checked').val(other_amount_value));
