@@ -17,6 +17,12 @@ class Questionnaire extends CI_Controller {
         $this->load->model('Questionnaire_model');
         $this->load->model('booking_model');
         $this->load->library("miscelleneous");
+        
+        if ($this->session->userdata('loggedIn') == TRUE) {
+            return TRUE;
+        } else {
+            redirect(base_url() . "employee/login");
+        }
     }
 
     public function index() {
@@ -37,7 +43,7 @@ class Questionnaire extends CI_Controller {
         $where = array(
             'q_id' => $this->input->post('q_id')
         );
-        $response = $this->Questionnaire_model->update_question($where, $data);
+        $response = $this->Questionnaire_model->update_question_status($where, $data);
         echo $response;
     }
     
