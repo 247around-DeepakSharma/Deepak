@@ -143,8 +143,8 @@
     <body>
         <nav class="navbar navbar-custom">
             <!-- Modal -->
-            <div id="contactUsModal" class="modal fade" role="dialog">
-                <div class="modal-dialog modal-lg">
+            <div id="contactUsModal" class="modal fade" role="dialog" >
+                <div class="modal-dialog modal-lg"style="min-width:90%;" >
                     <!-- Modal content-->
                     <div class="modal-content">
                         <div id="contactUsModalData"></div>

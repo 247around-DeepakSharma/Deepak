@@ -61,11 +61,11 @@ class Sf_agreement extends CI_Controller {
                         if (!empty($sf[0]['asm_email'])) {
                             $asm_poc_email = ", " . $sf[0]['asm_email'];
                         }
-                        $tmpData['email_send'] = $sf[0]['owner_email'] . $rm_email . $asm_poc_email . "," . $email_template[3];
+                        $tmpData['email_send'] = $sf[0]['owner_email'].$sf[0]['primary_contact_email']  . $rm_email . $asm_poc_email . "," . $email_template[3];
 
                         $agreement_template['template'] = vsprintf($template[0]['template'], $tmpData);
 
-                        $cc = $email_template[3] . $sf[0]['owner_email'] . $rm_email . $asm_poc_email;
+                        $cc = $email_template[3] . $sf[0]['owner_email'] .", ".$sf[0]['primary_contact_email']. $rm_email . $asm_poc_email;
 
                         $filename = str_replace(' ', '', $sf[0]['company_name']) . '_agreement_' . time() . '.pdf';
                         $s3_folder = 'sf_agreements';

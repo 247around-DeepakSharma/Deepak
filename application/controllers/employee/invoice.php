@@ -3009,6 +3009,10 @@ exit();
         $this->form_validation->set_rules('invoice_date', 'Invoice Date', 'required|trim');
         $this->form_validation->set_rules('from_date', 'Invoice Period', 'required|trim');
         $this->form_validation->set_rules('type', 'Type', 'required|trim');
+        $this->form_validation->set_rules('tds_rate', 'TDS Rate', 'required|trim');
+        $this->form_validation->set_rules('tds_amount', 'Tds Amount', 'required|trim');
+        $this->form_validation->set_rules('tcs_rate', 'TCS Rate', 'required|trim');
+        $this->form_validation->set_rules('tcs_amount', 'TCS Amount', 'required|trim');
         
         if ($this->form_validation->run()) {
             $flag = true;
@@ -3017,6 +3021,10 @@ exit();
 
             $invoice['meta']['invoice_id'] = $data['invoice_id'];
             $invoice['booking'] = $this->input->post('invoice');
+            $tds_amount = $this->input->post('tds_amount');
+            $tds_rate = $this->input->post('tds_rate');
+            $tcs_amount = $this->input->post('tcs_amount');
+            $tcs_rate = $this->input->post('tcs_rate');
 
             $data['hsn_code'] = $invoice['booking'][array_keys($invoice['booking'])[0]]['hsn_code'];
             
@@ -3038,6 +3046,11 @@ exit();
                 $tds_sc_charge = $total_amount_collected - $data['parts_cost'];
                 $entity_details = array();
                 $gst_number = "";
+                
+                $data['tds_rate'] = $tds_rate;
+                $data['tds_amount'] = $tds_amount;
+                $data['tcs_rate'] = $tcs_rate;
+                $data['tcs_amount'] = $tcs_amount;
 
                 if ($data['vendor_partner'] == "vendor") {
                     $entity_details = $this->vendor_model->viewvendor($data['vendor_partner_id']);
@@ -3052,7 +3065,7 @@ exit();
                     $data['igst_tax_amount'] = $data['igst_tax_rate'] = 0;
                 }
 
-                $data['total_amount_collected'] = sprintf("%.2f",$this->input->post('total_amount_charge'));
+                $data['total_amount_collected'] = sprintf("%.2f",($this->input->post('total_amount_charge') + $data['tds_amount']));
                 $data['rcm'] = 0;
 
                 $is_igst = $this->input->post('is_igst');
@@ -3067,36 +3080,42 @@ exit();
                     $data['sgst_tax_rate'] = sprintf("%.2f",($this->input->post('total_sgst_amount')*100)/$this->input->post('total_taxablevalue'));
                     $data['igst_tax_rate'] = $data['igst_tax_amount'] = 0;
                 }
-
+                 
                 switch ($data['type_code']) {
                     case 'A':
                         log_message('info', __FUNCTION__ . " .. type code:- " . $data['type']);
-                        $data['around_royalty'] = sprintf("%.2f",$data['total_amount_collected']);
+                        $data['around_royalty'] = sprintf("%.2f",($data['total_amount_collected'] - $data['tds_amount']));
                         $data['amount_collected_paid'] = sprintf("%.2f",$data['total_amount_collected']);
 
                         break;
                     case 'B':
                         log_message('info', __FUNCTION__ . " .. type code:- " . $data['type']);
+                        
+                        if($tds_amount > 0){
+                            $data['around_royalty'] = 0;
+                            $data['amount_collected_paid'] = -($data['total_amount_collected'] - $data['rcm']);
+                        } else {
+                            $tds['tds'] = 0;
+                            $tds['tds_rate'] = 0;
+                            if ($data['type'] == 'FOC') {
+                                if ($vendor_partner == "vendor") {
+                                    $tds = $this->check_tds_sc($entity_details[0], ($tds_sc_charge));
+                                } else {
+                                    $tds['tds'] = 0;
+                                    $tds['tds_rate'] = 0;
+                                }
+                            } else if ($data['type'] == CREDIT_NOTE || $data['type'] == 'Buyback' || $data['type'] == 'Stand' || $data['type'] == "Parts" || $data['type'] == LIQUIDATION) {
 
-                        $tds['tds'] = 0;
-                        $tds['tds_rate'] = 0;
-                        if ($data['type'] == 'FOC') {
-                            if ($vendor_partner == "vendor") {
-                                $tds = $this->check_tds_sc($entity_details[0], ($tds_sc_charge));
-                            } else {
                                 $tds['tds'] = 0;
                                 $tds['tds_rate'] = 0;
                             }
-                        } else if ($data['type'] == CREDIT_NOTE || $data['type'] == 'Buyback' || $data['type'] == 'Stand' || $data['type'] == "Parts" || $data['type'] == LIQUIDATION) {
 
-                            $tds['tds'] = 0;
-                            $tds['tds_rate'] = 0;
+                            $data['around_royalty'] = 0;
+                            $data['amount_collected_paid'] = -($data['total_amount_collected'] - $tds['tds'] - $data['rcm']);
+                            $data['tds_amount'] = $tds['tds'];
+                            $data['tds_rate'] = $tds['tds_rate'];
                         }
 
-                        $data['around_royalty'] = 0;
-                        $data['amount_collected_paid'] = -($data['total_amount_collected'] - $tds['tds'] - $data['rcm']);
-                        $data['tds_amount'] = $tds['tds'];
-                        $data['tds_rate'] = $tds['tds_rate'];
                         break;
                 }
 
