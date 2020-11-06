@@ -1923,10 +1923,12 @@ class invoices_model extends CI_Model {
             $service_count = 0;
              foreach ($data['booking'] as $key => $value) {
                 $gst_rate = (!empty($value['gst_rate'])?$value['gst_rate']:DEFAULT_TAX_RATE);
+                $sign_cell = 24; // Default
                 if(empty($data['booking'][0]['gst_number'])){
                     
                     $meta['invoice_template'] = "SF_FOC_Bill_of_Supply-v1.xlsx";
                     $data['booking'][$key]['total_amount'] =sprintf("%1\$.2f",($value['taxable_value']));
+                    $sign_cell = 23;
                     
                 } else if($c_s_gst){
                     $meta['invoice_template'] = "SF_FOC_Tax_Invoice-Intra_State-v1.xlsx";
@@ -1938,7 +1940,7 @@ class invoices_model extends CI_Model {
                     $meta['sgst_total_tax_amount'] += $data['booking'][$key]['sgst_tax_amount'];
                     $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = ($gst_rate/2);//9;
                     $data['booking'][$key]['total_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * round(($gst_rate/100),2))));//0.18
-                    
+                    $sign_cell = 25;
                 } else {
                     $meta['invoice_template'] = "SF_FOC_Tax_Invoice_Inter_State_v1.xlsx";
                     
@@ -1946,6 +1948,7 @@ class invoices_model extends CI_Model {
                     $data['booking'][$key]['igst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * round(($gst_rate/100),2)));//0.18
                     $meta['igst_total_tax_amount'] +=  $data['booking'][$key]['igst_tax_amount'];
                     $data['booking'][$key]['total_amount'] = sprintf("%1\$.2f",( $value['taxable_value'] + ($value['taxable_value'] * round(($gst_rate/100),2))));//0.18
+                    $sign_cell = 24;
                 }
                 if(empty($value['qty'])){
                     $value['qty'] = 0;
@@ -2022,7 +2025,7 @@ class invoices_model extends CI_Model {
 //            }
             if(!empty($data['booking'][0]['signature_file'])){
                 $meta['sign_path'] = $data['booking'][0]['signature_file'];
-                $meta['sign_path_cell'] = "I".(23 + count($data['booking']));
+                $meta['sign_path_cell'] = "I".($sign_cell + count($data['booking']));
             }
 
             $vendorStamp = $this->vendor_model->fetch_sf_miscellaneous_data('stamp_file',array('vendor_id'=>$vendor_id,'status'=>1));
