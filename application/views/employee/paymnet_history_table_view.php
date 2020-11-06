@@ -45,6 +45,8 @@
                         <th>GST Rate</th>
                         <th>TDS Rate</th>
                         <th>TDS Amount</th>
+                        <th>TCS Rate</th>
+                        <th>TCS Amount</th>
                         <th>Total Amount</th>
                         <th>Amount Paid</th>
                         <th>Net Amount</th>
@@ -67,7 +69,7 @@
                 <tbody>
             <?php if (isset($invoice_data)) { ?> 
                 <?php
-                $sn = 1; $t_parts_count = $num_bookings = $total_sc = $total_asc = $total_pc = $total_st = $grand_tac = $total_net_amount = $total_tds_amount = $amount_collected_paid = $cgst = $sgst = $igst = 0;
+                $sn = 1; $t_parts_count = $num_bookings = $total_sc = $total_asc = $total_pc = $total_tcs_amount = $total_st = $grand_tac = $total_net_amount = $total_tds_amount = $amount_collected_paid = $cgst = $sgst = $igst = 0;
                 foreach ($invoice_data as $key => $value) {
                     ?>
                             <tr>
@@ -88,6 +90,8 @@
                                 <td><?php echo round($value['cgst_tax_rate'] + $value['sgst_tax_rate'] + $value['igst_tax_rate'],0); ?></td>
                                 <td><?php echo round($value['tds_rate'],0);  ?></td>
                                 <td><?php echo sprintf("%.2f", $value['tds_amount']); $total_tds_amount += $value['tds_amount']; ?></td>
+                                <td><?php echo round($value['tcs_rate'],0);  ?></td>
+                                <td><?php echo sprintf("%.2f", $value['tcs_amount']); $total_tcs_amount += $value['tcs_amount']; ?></td>
                                 <td><?php echo sprintf("%.2f", $value['total_amount_collected']); $grand_tac += $value['total_amount_collected']; ?></td>
                                 <td><?php echo sprintf("%.2f", $value['amount_collected_paid']); $amount_collected_paid += $value['amount_collected_paid']; ?></td>
                                 <td><?php echo round($value['net_amount'],0); $total_net_amount += $value['net_amount']; ?></td>
@@ -127,6 +131,8 @@
                                 <td></td>
                                 <td></td>
                                 <td><b><?php echo sprintf("%.2f", $total_tds_amount); ?></b></td>
+                                <td></td>
+                                <td><b><?php echo sprintf("%.2f", $total_tcs_amount); ?></b></td>
                                 <td><b><?php echo sprintf("%.2f", $grand_tac); ?></b></td>
                                 <td><b><?php echo sprintf("%.2f", $amount_collected_paid); ?></b></td>
                                 <td><b><?php echo round($total_net_amount,0); ?></b></td>
@@ -214,6 +220,8 @@
         <th>GST Rate</th>
         <th>TDS Rate</th>
         <th>TDS Amount</th>
+        <th>TCS Rate</th>
+        <th>TCS Amount</th>
         <th>Total Amount</th>
         <th>Amount Paid</th>
         <th>Reference Invoices</th>
@@ -233,7 +241,7 @@
                     <?php
                     $sn = 1; $t_parts_count = $num_bookings = $total_sc = $total_pc = $total_asc = 
                             $total_up_cc = $total_courier_charges = 
-                            $grand_total_amount_collected = $grand_amount_collected_paid = $num_bookings = $tax = $discount_amt = $total_tds_amount = 0;
+                            $grand_total_amount_collected = $grand_amount_collected_paid = $num_bookings = $tax = $discount_amt = $total_tds_amount = $total_tcs_amount = 0;
                     foreach ($invoice_data as $key => $value) {
                         ?>
                         <tr>
@@ -254,6 +262,8 @@
                             <td><?php echo round($value['cgst_tax_rate'] + $value['sgst_tax_rate'] + $value['igst_tax_rate'],0); ?></td>
                             <td><?php echo round($value['tds_rate'],0);  ?></td>
                             <td><?php echo sprintf("%.2f", $value['tds_amount']); $total_tds_amount += $value['tds_amount']; ?></td>
+                            td><?php echo round($value['tcs_rate'],0);  ?></td>
+                            <td><?php echo sprintf("%.2f", $value['tds_amount']); $total_tcs_amount += $value['tcs_amount']; ?></td>
                             <td><?php echo sprintf("%.2f", $value['total_amount_collected'] - $value['tds_amount']); $grand_total_amount_collected += ($value['total_amount_collected'] - $value['tds_amount']);?></td>
                             <td><?php echo sprintf("%.2f", $value['amount_collected_paid'] - $value['tds_amount']); $grand_amount_collected_paid += ($value['amount_collected_paid'] - $value['tds_amount']);?></td>
                             <td><?php echo $value['reference_invoice_id']; ?></td>
@@ -289,6 +299,8 @@
                             <td></td>
                             <td></td>
                             <td><b><?php echo sprintf("%.2f", $total_tds_amount); ?></b></td>
+                            <td></td>
+                            <td><b><?php echo sprintf("%.2f", $total_tcs_amount); ?></b></td>
                             <td><b><?php echo sprintf("%.2f", $grand_total_amount_collected); ?></b></td>
                             <td><b><?php echo sprintf("%.2f", $grand_amount_collected_paid); ?></b></td>
                             <td></td>
@@ -325,6 +337,8 @@
                     <th>GST Rate</th>
                     <th>TDS Rate</th>
                     <th>TDS Amount</th>
+                    <th>TCS Rate</th>
+                    <th>TCS Amount</th>
                     <th>Total</th>
                     <th>Amount Paid</th>
                     <th>Reference Invoices</th>
@@ -342,7 +356,7 @@
             <tbody>
                 <?php if (isset($invoice_data)) { ?> 
                     <?php
-                    $sn = 1; $t_parts_count = $num_bookings = $total_sc = $total_asc = $grand_total_amount_collected = $grand_amount_collected_paid = $cgst = $sgst = $igst = $tds_amount = 0;
+                    $sn = 1; $t_parts_count = $num_bookings = $total_sc = $total_asc = $grand_total_amount_collected = $tcs_amount = $grand_amount_collected_paid = $cgst = $sgst = $igst = $tds_amount = 0;
                     foreach ($invoice_data as $key => $value) {
                         ?>
                         <tr>
@@ -361,6 +375,8 @@
                             <td><?php echo round($value['cgst_tax_rate'] + $value['sgst_tax_rate'] + $value['igst_tax_rate'],0); ?></td>
                             <td><?php echo round($value['tds_rate']);?></td>
                             <td><?php echo sprintf("%.2f", $value['tds_amount']); $tds_amount += $value['tds_amount'];?></td>
+                            <td><?php echo round($value['tcs_rate']);?></td>
+                            <td><?php echo sprintf("%.2f", $value['tcs_amount']); $tcs_amount += $value['tcs_amount'];?></td>
                             <td><?php echo sprintf("%.2f", $value['total_amount_collected'] - $value['tds_amount']); $grand_total_amount_collected += ($value['total_amount_collected'] - $value['tds_amount']);?></td>
                             <td><?php echo sprintf("%.2f", $value['amount_collected_paid'] - $value['tds_amount']); $grand_amount_collected_paid += ($value['amount_collected_paid'] - $value['tds_amount']);?></td>
                             <td><?php echo $value['reference_invoice_id']; ?></td>
@@ -393,6 +409,8 @@
                             <td></td>
                             <td></td>
                             <td><b><?php echo sprintf("%.2f", $tds_amount); ?></b></td>
+                            <td></td>
+                            <td><b><?php echo sprintf("%.2f", $tcs_amount); ?></b></td>
                             <td><b><?php echo sprintf("%.2f", $grand_total_amount_collected); ?></b></td>
                             <td><b><?php echo sprintf("%.2f", $grand_amount_collected_paid); ?></b></td>
                             <td></td>
@@ -429,6 +447,8 @@
                     <th>GST Rate</th>
                     <th>TDS Rate</th>
                     <th>TDS Amount</th>
+                    <th>TCS Rate</th>
+                    <th>TCS Amount</th>
                     <th>Total Amount</th>
                     <th>Amount Paid</th>
                     <th>Reference Invoices</th>
@@ -465,6 +485,8 @@
                             <td><?php echo round($value['cgst_tax_rate'] + $value['sgst_tax_rate'] + $value['igst_tax_rate'],0); ?></td>
                             <td><?php echo round($value['tds_rate']);?></td>
                             <td><?php echo sprintf("%.2f", $value['tds_amount']); $tds_amount += $value['tds_amount'];?></td>
+                            <td><?php echo round($value['tcs_rate']);?></td>
+                            <td><?php echo sprintf("%.2f", $value['tcs_amount']); $tcs_amount += $value['tcs_amount'];?></td>
                             <td><?php echo sprintf("%.2f", $value['total_amount_collected']); $grand_total_amount_collected += $value['total_amount_collected'];?></td>
                             <td><?php echo sprintf("%.2f", $value['amount_collected_paid']); $grand_amount_collected_paid += $value['amount_collected_paid'];?></td>
                             <td><?php echo $value['reference_invoice_id']; ?></td>
@@ -497,6 +519,8 @@
                         <td></td>
                         <td></td>
                         <td><b><?php echo sprintf("%.2f", $tds_amount); ?></b></td>
+                        <td></td>
+                        <td><b><?php echo sprintf("%.2f", $tcs_amount); ?></b></td>
                         <td><b><?php echo sprintf("%.2f", $grand_total_amount_collected); ?></b></td>
                         <td><b><?php echo sprintf("%.2f", $grand_amount_collected_paid); ?></b></td>
                         <td></td>

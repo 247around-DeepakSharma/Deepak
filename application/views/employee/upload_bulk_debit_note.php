@@ -25,7 +25,7 @@
                     <b> Create Bulk GST DebitNote</b>
                 </h3>
                 <a class="btn btn-primary btn-sm" style="float:right" target='_blank' href='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/sample-file/bulkDebitNoteSampleFile.xlsx'>Download Sample File</a>
-                <form class="form-horizontal"  id="fileinfo" action="javascript:void(0)" onsubmit="submitForm()" name="fileinfo"  method="POST" enctype="multipart/form-data">
+                <form class="form-horizontal"  id="fileinfo" action="<?php echo base_url() ?>file_upload/process_bulk_debit_note" name="fileinfo"  method="POST" enctype="multipart/form-data">
                     
                     
                     <div class="form-group  <?php if (form_error('excel')) {
@@ -57,7 +57,6 @@
                                 <th>Download</th>
                                 <th>Uploaded By</th>
                                 <th>Uploaded Date</th>
-                                <th>Amount Paid</th>
                                 <th>Status</th>
                             </tr>
                         </thead>

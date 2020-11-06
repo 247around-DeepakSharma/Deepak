@@ -2663,7 +2663,7 @@ class File_upload extends CI_Controller {
     }
     /**
      * @desc This function is used to load view.
-     * We will upload excel file to make debite note in bulk
+     * We will upload excel file to make debit note in bulk
      */
     function create_bulk_debit_note(){
         $this->miscelleneous->load_nav_header();

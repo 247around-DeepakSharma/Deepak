@@ -1369,6 +1369,7 @@ class invoices_model extends CI_Model {
             $meta['igst_total_tax_amount'] = sprintf("%.2f",$meta['igst_total_tax_amount']);
             $meta['cgst_total_tax_amount'] = sprintf("%.2f",$meta['cgst_total_tax_amount']);
             $meta['sgst_total_tax_amount'] = sprintf("%.2f",$meta['sgst_total_tax_amount']);
+            $meta['total_amount_with_tax'] = $meta['sub_total_amount'];
             if($result[0]['gst_number'] == 1){
                 $result[0]['gst_number'] = "";
             }
@@ -1381,6 +1382,9 @@ class invoices_model extends CI_Model {
             $meta['reference_number'] = "";
             $meta['reverse_charge'] = '';
             $meta['invoice_type'] = $invoice_type;
+            $meta['tcs_rate'] = "";
+            $meta['tcs_rate_text'] = "";
+            $meta['tds_amount'] = "";
            
             $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
             if($result[0]['description'] == QC_INVOICE_DESCRIPTION){
