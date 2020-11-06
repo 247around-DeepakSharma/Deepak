@@ -492,12 +492,18 @@ class Bulkupload extends CI_Controller {
         }
         $file_path = TMP_FOLDER . "warranty_data_log-" . date('Y-m-d');
         $file = fopen($file_path . ".txt", "a+") or die("Unable to open file!");
+        if(!empty($arr_state_mapping_result)){
         fwrite($file, "*******************  STATE MAPPING ***************************" . "\n");
         fwrite($file, print_r($arr_state_mapping_result, true) . "\n");
+        }        
+        if(!empty($arr_part_mapping_result)){
         fwrite($file, "*******************  PART TYPE MAPPING ***************************" . "\n");
         fwrite($file, print_r($arr_part_mapping_result, true) . "\n");
+        }
+        if(!empty($arr_model_mapping_result)){
         fwrite($file, "*******************  MODEL MAPPING ***************************" . "\n");
         fwrite($file, print_r($arr_model_mapping_result, true) . "\n");
+        }
         fclose($file);                       
     
         $this->miscelleneous->load_nav_header();
