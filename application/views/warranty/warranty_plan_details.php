@@ -348,6 +348,27 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                 <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('plan_depends_on')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="state" class="col-md-3 vertical-align">Plan Depends On*</label>
+                                        <div class="col-md-8">
+                                            <select id="plan_depends_on" class="plan_depends_on form-control" name ="plan_depends_on">
+                                                <option value="1" <?php if($details[0]['plan_depends_on'] == 1) {echo "selected";} ?> >Model</option>
+                                                <option value="2" <?php if($details[0]['plan_depends_on'] == 2) {echo "selected";} ?> >Product</option>
+                                            </select>
+                                            
+                                            <?php echo form_error('plan_depends_on'); ?>
+                                            <p class="alert alert-danger error_message" id="plan_depends_on">
+                                                
+                                            </p>
+                            </div>
+                                    </div>
+                                </div>
                             </div>
 
                             
@@ -375,6 +396,7 @@
    
        //Adding select 2 in Dropdowns
     $("#warranty_type").select2();
+    $("#plan_depends_on").select2();
     $("#partner").select2();
     $("#service").select2();
     $("#state").select2();
@@ -404,6 +426,14 @@
             else
             {
                 hide_error("warranty_type_error");
+            }    
+            if(!$('#plan_depends_on').val())
+            {
+                display_error("plan_depends_on_error", "Please Select Warranty Type");
+            }
+            else
+            {
+                hide_error("plan_depends_on_error");
             }    
             
             if(!$('#service').val() || $('#service').val() == 0)
@@ -482,7 +512,7 @@
             
             if(!$('#warranty_grace_period').val())
             {
-                $(this).val(0);
+                display_error("warranty_grace_period_error", "Please Enter Warranty Grace Period");
             }
             else
             {
