@@ -5083,7 +5083,7 @@ class Service_centers extends CI_Controller {
         if(!empty($stamp_file)){
             $data[0]['stamp_file'] = $stamp_file[0]['stamp_file'];
         }else{
-            $data[0]['stamp_file'] =='';
+            $data[0]['stamp_file'] ='';
         }
         if ($data[0]['is_gst'] == 1 && !empty($data[0]['gst_certificate_file'])) {
             $this->load->view('service_centers/header');
