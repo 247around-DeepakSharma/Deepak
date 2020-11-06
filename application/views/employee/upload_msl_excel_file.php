@@ -17,16 +17,16 @@
    <div class="container-fluid">
       <div class="row">
             <?php 
-            if(!empty($this->session->flashdata('fail'))){ ?>
+            if(!empty($this->session->userdata('fail'))){ ?>
                
                  <div class="alert alert-danger">
-                 <strong>Failed!</strong>  <?php echo $this->session->flashdata('fail'); ?>
+                 <strong>Failed!</strong> Click View Error button to see the details <a href="#" class="btn btn-sm btn-warning"  data-toggle="modal" data-target="#myModal"> View Error</a>
                 </div>
-            <?php }else if(!empty($this->session->flashdata('details'))){ ?>
+            <?php }else if(!empty($this->session->userdata('details'))){ ?>
                    <div class="alert alert-dangers">
                    <strong>Success!</strong> Click See details button to see the details because some data may not be updated
-                   <?php if(!empty($this->session->flashdata('fail')) || !empty($this->session->flashdata('details'))){ ?>
-                             <a href="#" class="btn btn-sm btn-warning"  data-toggle="modal" data-target="#myModal">See details</a>
+                   <?php if(!empty($this->session->userdata('details'))){ ?>
+                             <a href="#" class="btn btn-sm btn-warning"  data-toggle="modal" data-target="#myModal">See Details</a>
                        <?php  } ?>
                   </div>
            <?php  }
@@ -167,7 +167,6 @@
 
               <div id="myModal" class="modal fade" role="dialog">
                   <div class="modal-dialog">
-
                       <!-- Modal content-->
                       <div class="modal-content">
                           <div class="modal-header">
@@ -176,10 +175,10 @@
                           </div>
                           <div class="modal-body">
                               <?php
-                              if (!empty($this->session->flashdata('fail'))) {
-                                  echo $this->session->flashdata('fail');
+                              if (!empty($this->session->userdata('fail'))) {
+                                  echo $this->session->userdata('fail');
                               } else {
-                                  echo $this->session->flashdata('details');
+                                  echo $this->session->userdata('details');
                               }
                               ?>
                           </div>
@@ -247,6 +246,10 @@
         </div>
     </div>
 </div>
+<?php 
+    $this->session->unset_userdata('fail');
+    $this->session->unset_userdata('details');
+?>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script>
 <script>
@@ -514,7 +517,7 @@
                             return false;
                         }
                         
-                        if ((XL_row_object[i]['HSN Code'].trim()!= '') && (XL_row_object[i]['HSN Code'] != undefined)) {
+                        if ((XL_row_object[i]['HSN Code'].trim()!= '') && (XL_row_object[i]['HSN Code'] != undefined) && XL_row_object[i]['HSN Code'] > 0) {
                            
                         }else{
                             alert("Excel cell value HSN code is wrong."); 

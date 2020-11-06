@@ -43,9 +43,9 @@
                     <tr>
                         <th>S.No.</th>
                         <th>Booking Cancellation Reason</th>
-                        <th>Admin Rejection Reason</th>>
+                        <th>Admin Rejection Reason</th>
                         <th>Penalty</th>
-                        <th>Agent Name</th>>
+                        <th>Agent Name</th>
                         <th class="no-sort">Active</th> 
                         <th class="no-sort">Action</th>
                         <th style="display: none;">Active</th>
@@ -63,7 +63,7 @@
                             <td><?php echo $rec['reason']; ?></td>
                             <td><?php echo $rec['criteria']; ?></td>
                             <td><?php echo $rec['penalty_point']; ?></td>
-                            <td><?php echo $rec['full_name']; ?></td>>
+                            <td><?php echo $rec['full_name']; ?></td>
                             <td id="row<?= $rec['id'] ?>"> 
                                <?php
                                 if (!empty($rec['active'])) {

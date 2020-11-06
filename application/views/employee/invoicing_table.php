@@ -35,9 +35,8 @@
          <th>Additional Service Charges</th>
         <?php } ?>
          <th>Parts / Stands</th>
-        <?php if(!empty($invoice_array) && $invoice_array[0]['vendor_partner'] == "vendor"){ ?>
          <th>TDS Amount</th>
-        <?php } ?>
+         <th>TCS Amount</th>
         <?php if(!empty($invoice_array) && $invoice_array[0]['vendor_partner'] == "partner"){ ?>
          <th>Upcountry Charges</th>
          <th>Courier Charges</th>
@@ -64,6 +63,7 @@
        $sum_total_additional_service_charge = 0;
        $sum_total_parts_cost = 0;
        $sum_tds = 0;
+       $sum_tcs = 0;
        $pay_by_247 =0;
        $pay_by_partner = 0;
       
@@ -98,9 +98,8 @@
             
          <td><?php echo (sprintf("%.2f",($invoice['parts_cost'] + $invoice['vat']))); $sum_total_parts_cost +=($invoice['parts_cost'] + $invoice['vat']); ?></td>
          
-         <?php if($invoice["vendor_partner"] == "vendor"){ ?>
          <td id="<?php echo 'tds_'.$count; ?>"><?php echo sprintf("%.2f",$invoice['tds_amount']); $sum_tds +=$invoice['tds_amount'];?></td>
-         <?php } ?>
+         <td id="<?php echo 'tcs_'.$count; ?>"><?php echo sprintf("%.2f",$invoice['tcs_amount']);  $sum_tcs +=$invoice['tcs_amount']; ?></td>
          
          <?php if($invoice["vendor_partner"] == "partner"){ ?>
          <td id="<?php echo 'upcountry_'.$count; ?>"><?php if($invoice['type'] == "Cash" && $invoice['vendor_partner'] == "vendor") { echo "-".sprintf("%.2f",$invoice['upcountry_price']);} else { echo sprintf("%.2f",$invoice['upcountry_price']); } ?></td>
@@ -206,6 +205,8 @@
          <td><?php echo sprintf("%.2f",$sum_total_additional_service_charge); ?></td>
          <td><?php echo sprintf("%.2f",$sum_total_parts_cost); ?></td>
          <td><?php echo sprintf("%.2f",$sum_tds); ?></td>
+         <td><?php echo sprintf("%.2f",$sum_tcs); ?></td>
+         <td></td>
          <td></td>
          <td></td>
          <td><?php echo sprintf("%.2f",$pay_by_247); ?></td>

@@ -203,13 +203,13 @@ $arr_partner_discount = array();
                                                     $serial_number_pic = !empty($unit_details[0]['quantity'][0]['serial_number_pic']) ? $unit_details[0]['quantity'][0]['serial_number_pic'] : ""; 
                                                     $pod = !empty($unit_details[0]['quantity'][0]['pod']) ? $unit_details[0]['quantity'][0]['pod'] : ""; 
                                                 ?>
-                                                <input type="text" style="text-transform: uppercase;" onblur="validateSerialNo()" class="form-control" id="serial_number" name="serial_number"  value="<?php echo $serial_number; ?>"  placeholder = "Enter Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" onblur="check_booking_request()"/>
+                                                <input type="text" style="text-transform: uppercase;<?= $str_disabled?>" onblur="validateSerialNo()" class="form-control" id="serial_number" name="serial_number"  value="<?php echo $serial_number; ?>"  placeholder = "Enter Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" onblur="check_booking_request()"  tabindex=-1/>
                                                 <input type="hidden" class="form-control" id="serial_number_pic" name="serial_number_pic"  value="<?php echo $serial_number_pic; ?>"  />
                                                 <input type="hidden" id="pod" class="form-control" name="pod" value="<?php echo $pod; ?>"   />
                                                 <input type="hidden" id="sno_required" class="form-control" name="is_sn_file" value="0"   />
                                                 <input type="hidden" id="duplicate_sno_required" class="form-control" name="is_dupliacte" value="0"   />
                                                 <input type="hidden" id="is_sn_correct" class="form-control" name="is_sn_correct"/>                                                                    
-                                                <input type="file" id="upload_serial_number_pic" class="form-control serialNumberPic" name="upload_serial_number_pic" value="<?php echo $serial_number_pic; ?>" style="margin-top:5px;"/>
+                                                <input type="file" id="upload_serial_number_pic" class="form-control serialNumberPic" name="upload_serial_number_pic" value="<?php echo $serial_number_pic; ?>" style="margin-top:5px;<?= $str_disabled?>"  tabindex=-1/>
                                                 <?php
                                                 if(!empty($serial_number_pic)) {
                                                     $url="https://s3.amazonaws.com/". BITBUCKET_DIRECTORY.'/'.SERIAL_NUMBER_PIC_DIR.'/'.$serial_number_pic; ?>

@@ -96,7 +96,7 @@ class SfAgreement extends CI_Hooks {
             $asm_poc_email = ", ".$sf[0]['asm_email'];
         }
         
-        $tmpData['email_send'] = $sf[0]['owner_email'].$rm_email.$asm_poc_email ;
+        $tmpData['email_send'] = $sf[0]['owner_email'].", ".$sf[0]['primary_contact_email'].$rm_email.$asm_poc_email ;
 
         $data['template']['template'] = vsprintf($template[0]['template'], $tmpData);
         $this->CI->load->view('service_centers/sf_agreement_view', $data);
