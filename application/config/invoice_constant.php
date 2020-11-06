@@ -148,4 +148,6 @@ define('CASH_INVOICE_LIMIT', 10);
 define('MSL_Credit_Note', 'MSL Credit Note');
 //BULK Debite Note TAG
 define('BULK_DEBIT_NOTE_TAG', 'BULK_DEBIT_NOTE_TAG');
+//TCS Tax rate
+define('TCS_TAX_RATE', 0.075);
 ?>

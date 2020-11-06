@@ -106,7 +106,7 @@
                 <td><?php echo $meta['total_taxable_value'];?></td>
                 <td></td>
                 <td><?php echo $meta['igst_total_tax_amount'];?></td>
-                <td><?php echo $meta['sub_total_amount'];?></td>
+                <td><?php echo $meta['total_amount_with_tax'];?></td>
             </tr>
             
             <tr align="left" >
@@ -115,11 +115,18 @@
                 <td width="10%" colspan="1"><?php echo $meta['total_taxable_value']; ?></td>
             </tr>
             <tr align="left">
-                <td colspan="4" rowspan="2" style="padding: 2%" align="center"><?php echo $meta['price_inword'];?></td>
+                <td colspan="4" rowspan="3" style="padding: 2%" align="center"><?php echo $meta['price_inword'];?></td>
                 <td colspan="3"><b>Add: IGST</td>
                 <td colspan="1"><?php echo $meta['igst_total_tax_amount'];?></td>
+            </tr>
+            <?php  if(!empty($meta['tcs_rate'])){ ?>
             <tr style="text-align: left;">
-                <td colspan="3" style="font-weight: bold;">Total Amt after Tax</td>
+                <td colspan="3" style="font-weight: bold;">Add: TCS <?php echo TCS_TAX_RATE." %";?></td>
+                <td colspan="1"><?php echo $meta['tcs_amount'];?></td>
+            </tr>
+            <?php } ?>
+            <tr style="text-align: left;">
+                <td colspan="3" style="font-weight: bold;">Total Amount</td>
                 <td colspan="1"><?php echo $meta['sub_total_amount'];?></td>
             </tr>
             <tr>

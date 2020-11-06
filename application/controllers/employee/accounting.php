@@ -378,6 +378,8 @@ class Accounting extends CI_Controller {
         $header['amount_collected_paid'] = "Amount Collected Paid";
         $header['tds_amount'] = "TDS Aamount";
         $header['tds_rate'] = "TDS Rate";
+        $header['tcs_amount'] = "TCS Aamount";
+        $header['tcs_rate'] = "TCS Rate";
         $header['type_code'] = "Type Code";
         $header['vertical'] = "Vertical";
         $header['category'] = "Category";
@@ -426,6 +428,8 @@ class Accounting extends CI_Controller {
                 $array[$value['invoice_id']]['amount_collected_paid'] = $value['amount_collected_paid'];
                 $array[$value['invoice_id']]['tds_amount'] = $value['tds_amount'];
                 $array[$value['invoice_id']]['tds_rate'] = $value['tds_rate'];
+                $array[$value['invoice_id']]['tcs_amount'] = $value['tcs_amount'];
+                $array[$value['invoice_id']]['tcs_rate'] = $value['tcs_rate'];
                 $array[$value['invoice_id']]['type_code'] = $value['type_code'];
                 $array[$value['invoice_id']]['vertical'] = $value['vertical'];
                 $array[$value['invoice_id']]['category'] = $value['category'];
@@ -889,7 +893,7 @@ class Accounting extends CI_Controller {
        if($download_all == 1){
            //download data
            $headings = array("Party Name", "Invoice Id", "Type", "Bookings/ Parts", "Invoice Period", "Total Invoice", "Service Charges", "Additional Service Charges",
-                            "Parts / Stands", "TDS Amount", "Penalty", "GST Amount", "Amount to be Paid By 247Around", "Amount to be Paid By Partner",
+                            "Parts / Stands", "TDS Amount","TCS Amount", "Penalty", "GST Amount", "Amount to be Paid By 247Around", "Amount to be Paid By Partner",
                             "Amount Paid", "Remarks", "Vertical", "Category", "Sub Category");
            $this->miscelleneous->downloadCSV($data,$headings,"invoice");
        }else{
@@ -1039,6 +1043,7 @@ class Accounting extends CI_Controller {
         $row[] = sprintf("%.2f", $invoice_list->total_additional_service_charge );
         $row[] = sprintf("%.2f", ($invoice_list->parts_cost + $invoice_list->vat));
         $row[] = sprintf("%.2f", $invoice_list->tds_amount);
+        $row[] = sprintf("%.2f", $invoice_list->tcs_amount);
         $row[] = sprintf("%.2f", $invoice_list->penalty_amount);
         $row[] = sprintf("%.2f",$invoice_list->igst_tax_amount + $invoice_list->cgst_tax_amount + $invoice_list->sgst_tax_amount);
         $row[] = ($invoice_list->amount_collected_paid < 0)?  sprintf("%.2f",$invoice_list->amount_collected_paid) : 0;
@@ -1381,6 +1386,7 @@ class Accounting extends CI_Controller {
         $row[] = $order_list->num_bookings;
        
         $row[] = $order_list->tds_amount;
+        $row[] = $order_list->tcs_amount;
         if($order_list->amount_collected_paid < 0){ 
             $row[] = abs($order_list->amount_collected_paid); 
             
@@ -1424,6 +1430,7 @@ class Accounting extends CI_Controller {
         $row[] = $order_list->sub_category;
         $row[] = $order_list->num_bookings . "/" . $order_list->parts_count;
         $row[] = $order_list->tds_amount;
+        $row[] = $order_list->tcs_amount;
         $row[] = $order_list->total_amount_collected;
         $row[] = $order_list->amount_paid;
         $row[] = sprintf("%.2f", $order_list->total_amount_collected-$order_list->amount_paid);

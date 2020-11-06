@@ -5876,7 +5876,7 @@ class Inventory extends CI_Controller {
                 } else {
                     $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES);
                 }
-
+                
                 if ($courier_file['status']) {
                     $exist_courier_details = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', '*', array('awb_number' => $awb_by_wh), array());
 
@@ -5954,10 +5954,6 @@ class Inventory extends CI_Controller {
                                 $actor = ACTOR_NOT_DEFINE;
                                 $next_action = NEXT_ACTION_NOT_DEFINE;
                                 
-                                /**
-                                 * Check session to set agant id & entity id
-                                 * @modifiedBy Ankit Rajvanshi
-                                 */
                                 if(!empty($this->session->userdata('warehouse_id'))) {
                                     $agent_id = $this->session->userdata('id');
                                     $entity_id = _247AROUND;
@@ -5978,9 +5974,6 @@ class Inventory extends CI_Controller {
                             }
 
                             foreach ($invoice['spare_id_array'] as $spare_id) {
-                                /**
-                                 * @modifiedBy Ankit Rajvanshi
-                                 */
                                 // Fetch spare details of $spare_id.
                                 $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
                                 $booking_id = $spare_part_detail['booking_id'];
@@ -6076,12 +6069,14 @@ class Inventory extends CI_Controller {
     function is_reverse_purchase_invoice_generated(){
         $postData1 = json_decode($this->input->post('data'), true);
         $booking_id = "";
-        foreach ($postData1 as $value) {
-            $spareData = $this->partner_model->get_spare_parts_by_any("reverse_purchase_invoice_id",array('spare_parts_details.id' => $value['spare_id']));
-            if(!empty($spareData) && !empty($spareData[0]['reverse_purchase_invoice_id'])){
-                 $booking_id = $value['booking_id'];
-                break;
-            } 
+        if (!empty($postData1)) {
+            foreach ($postData1 as $value) {
+                $spareData = $this->partner_model->get_spare_parts_by_any("reverse_purchase_invoice_id", array('spare_parts_details.id' => $value['spare_id']));
+                if (!empty($spareData) && !empty($spareData[0]['reverse_purchase_invoice_id'])) {
+                    $booking_id = $value['booking_id'];
+                    break;
+                }
+            }
         }
         
         return $booking_id;
@@ -6482,6 +6477,16 @@ class Inventory extends CI_Controller {
 
                 log_message('info', __METHOD__ . " Spare Invoice Data " . print_r($invoices, TRUE) . " Entity id " . $sender_entity_id);
                 $response = $this->invoices_model->_set_partner_excel_invoice_data($invoices, $sd, $ed, "Tax Invoice", $invoice_date);
+                
+                if($invoiceData['booking_partner_id'] == VIDEOCON_ID){
+                    $response['meta']['tcs_rate'] = TCS_TAX_RATE;
+                    $response['meta']['tcs_rate_text'] = "Add: TCS ".TCS_TAX_RATE." %";
+                    $response['meta']['tcs_amount'] =  sprintf("%.2f",($response['meta']['sub_total_amount'] * TCS_TAX_RATE)/100);
+                    $response['meta']['sub_total_amount'] =  $response['meta']['sub_total_amount'] + $response['meta']['tcs_amount'];
+                    $response['meta']['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
+                
+                }
+                
                 $response['meta']['invoice_id'] = $invoice_id;
                 $response['booking'][0]['invoice_id'] = $response['meta']['invoice_id'];
                 $response['meta']['main_company_gst_number'] = $invoiceValue['data'][0]['from_gst_number'];
@@ -6542,8 +6547,10 @@ class Inventory extends CI_Controller {
                         "category" => SPARES,
                         "sub_category" => MSL_DEFECTIVE_RETURN,
                         "accounting" => 1,
+                        "tcs_rate" => $response['meta']["tcs_rate"],
+                        "tcs_amount" => $response['meta']["tcs_amount"],
                     );
-
+                    
                     $this->invoices_model->insert_new_invoice($invoice_details);
 
                     $this->invoice_lib->insert_def_invoice_breakup($response);
