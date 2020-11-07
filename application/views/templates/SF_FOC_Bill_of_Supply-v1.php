@@ -98,7 +98,7 @@
 
             <tr style="text-align: center;">
                 <td style="width: 40%;" rowspan="3" align="center">Declaration: We declare that this invoice shows the actual price of the goods and services described and that all particulars are true and correct.</td>
-                <td rowspan="3" colspan="2">
+                <td rowspan="3" colspan="2" style="text-align: center;">
                     <?php if(!empty($meta['vendor_stamp'])){ ?>
                     <img src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/sf-stamp/".$meta['vendor_stamp']; ?>" style="width: 120px;">
                     <?php } ?>
