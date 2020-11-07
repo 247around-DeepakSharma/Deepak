@@ -26,17 +26,18 @@
                                     <tr> 
                                         <th style="border-color: #bce8f1;" class="text-center">
                                             <p style="float: left;margin-left: 4px;">HSN Code</p>
-                                             <input type="text" class="form-control" name="hsn_code" id="hsn_code" placeholder="Enter HSN Code"  onkeyup="if (/\D/g.test(this.value)) this.value = this.value.replace(/\D/g,'')">
+                                            <input type="text" class="form-control" name="hsn_code" id="hsn_code" placeholder="Enter HSN Code"  onkeyup="if (/\D/g.test(this.value)) this.value = this.value.replace(/\D/g,'')" required="">
                                             <br>
                                         </th>
                                         <th style="border-color: #bce8f1;" class="text-center">
-                                            <p style="float: left;margin-left: 2px;">GST Rate</p>
+                                            <p style="float: left;margin-left: 4px;">GST Rate</p>
                                             <input type="text" class="form-control" name="gst_rate" id="gst_rate" placeholder="Enter GST Rate">
+                                            <br>
                                         </th>                                      
                                         <th style="border-color: #bce8f1;" class="text-center">
                                             <div style="text-align: center;">
                                                 <input type="hidden" name="agent_id" value="<?php echo $this->session->userdata('id'); ?>" />
-                                                <input  id="form_submit" type= "submit"  class="btn btn-primary btn-lg" style="padding: 3px 30px;"  value ="Submit" >
+                                                <input  id="form_submit" type= "submit"  class="btn btn-primary btn-lg"  value ="Submit" >
                                             </div>
                                         </th>
                                     </tr>
@@ -59,10 +60,10 @@
                                     <tr>
                                         <td style="text-align: center;"><?php echo $val['id']; ?></td>
                                         <td style="text-align: center;">                                            
-                                            <span class="hsncode_details_text" id="<?php echo $val['id']."|hsn_code";?>"><?php echo $val['hsn_code']; ?></span> <span class="hsn_code_details_edit"><i class="fa fa-pencil fa-lg"></i></span>
+                                            <span class="hsncode_details_text" id="<?php echo $val['id']."|hsn_code";?>"><?php echo $val['hsn_code']; ?></span> <span class="hsn_code_details_edit" id="hsn_<?php echo $val['id']; ?>"><i class="fa fa-pencil fa-lg"></i></span>
                                         </td>
                                         <td style="text-align: center;">                                            
-                                            <span class="hsncode_details_text" id="<?php echo $val['id']."|gst_rate";?>"><?php echo $val['gst_rate']; ?></span> <span class="hsn_code_details_edit"><i class="fa fa-pencil fa-lg"></i></span>
+                                            <span class="hsncode_details_text" id="<?php echo $val['id']."|gst_rate";?>"><?php echo $val['gst_rate']; ?></span> <span class="hsn_code_details_edit" id="gst_<?php echo $val['id']; ?>"><i class="fa fa-pencil fa-lg"></i></span>
                                         </td>
                                         <td style="text-align: center;"><?php echo date("jS M, Y", strtotime($val['create_date'])); ?></td>
                                     </tr>
@@ -108,7 +109,32 @@
         });
     });
     
+   
     $(".hsn_code_details_edit").click(function() {
+      textbox_id = $(this).attr('id');            
+      idArray = textbox_id.split("_");
+     var hsnTextVal =  $("#hsntextbox_"+idArray[1]).val();
+     var gstTextVal =  $("#gsttextbox_"+idArray[1]).val();
+        if(hsnTextVal!= undefined){
+         var numbers = /^[0-9]+$/;
+             var regex = /^[0-9\s]*$/;
+             if(!regex.test(hsnTextVal)){
+                 $("#hsntextbox_"+idArray[1]).val('');
+                 alert("HSN Code Should Be Numeric.");
+                 return false;
+             }
+
+        }
+
+       if(gstTextVal !=undefined){
+           var regexp = /^\d+(\.\d{1,2})?$/;
+           if(!regexp.test(gstTextVal)){
+               $("#gsttextbox_"+idArray[1]).val('');
+               alert('Please enter valid GST.');
+               return false;
+           }
+       }
+        
         if ($(this).siblings(".hsncode_details_text").is(":hidden")) {
             var prethis = $(this);
             var text_id = $(this).siblings(".hsncode_details_text").attr('id');       
@@ -117,28 +143,30 @@
             var column = split[1];
             var data_value = $(this).siblings("input").val();
             $(this).siblings(".hsncode_details_text").text($(this).siblings("input").val());
-
-            $.ajax({
-                url: "<?php echo base_url() ?>employee/invoice/update_hsn_code_details_column",
-                type: "POST",
-                beforeSend: function(){                
-                     prethis.html('<i class="fa fa-circle-o-notch fa-lg" aria-hidden="true"></i>');
-                 },
-                data: { data: data_value, id: line_item_id, column:column},
-                success: function (data) {
-                    if(data === "Success"){                    
-                        prethis.siblings("input").remove();
-                        prethis.siblings(".hsncode_details_text").show();
-                        prethis.html('<i class="fa fa-pencil fa-lg" aria-hidden="true"></i>');                 
-                    } else {
-                        alert("There is a problem to update");
-                        alert(data);
-                    }                
-                }
-            });
+            if(data_value !=''){
+                $.ajax({
+                    url: "<?php echo base_url() ?>employee/invoice/update_hsn_code_details_column",
+                    type: "POST",
+                    beforeSend: function(){                
+                         prethis.html('<i class="fa fa-circle-o-notch fa-lg" aria-hidden="true"></i>');
+                     },
+                    data: { data: data_value, id: line_item_id, column:column},
+                    success: function (data) {
+                        if(data === "Success"){                    
+                            prethis.siblings("input").remove();
+                            prethis.siblings(".hsncode_details_text").show();
+                            prethis.html('<i class="fa fa-pencil fa-lg" aria-hidden="true"></i>');                 
+                        } else {
+                            alert("There is a problem to update");
+                        }                
+                    }
+                });
+            }else{
+                alert("Please enter text value.");
+            }
         } else {
             var text = $(this).siblings(".hsncode_details_text").text();
-            $(this).before("<input type=\"text\" class=\"form-control\" value=\"" + text + "\">");
+            $(this).before("<input type=\"text\" class=\"form-control\" id=\"" + idArray[0] + "textbox_" + idArray[1] + "\" value=\"" + text + "\">");
             $(this).html('<i class="fa fa-check fa-lg" aria-hidden="true"></i>');
             $(this).siblings(".hsncode_details_text").hide();
         }
