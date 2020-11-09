@@ -143,8 +143,8 @@
     <body>
         <nav class="navbar navbar-custom">
             <!-- Modal -->
-            <div id="contactUsModal" class="modal fade" role="dialog">
-                <div class="modal-dialog modal-lg">
+            <div id="contactUsModal" class="modal fade" role="dialog" >
+                <div class="modal-dialog modal-lg"style="min-width:90%;" >
                     <!-- Modal content-->
                     <div class="modal-content">
                         <div id="contactUsModalData"></div>
@@ -320,21 +320,7 @@
                             </ul>
                         </li>
 
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Others <span class="caret"></span></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="<?php echo base_url();?>service_center/gst_details"  >GST</a></li>
-                                <li role="separator" class="divider"></li>
-                                <li><a href="<?php echo base_url();?>service_center/warranty">Warranty Checker</a></li>  
-                                <!--<li role="separator" class="divider"></li>
-                                <li><a href="<?= _247AROUND_CRM_TRAINING ?>" target="_blank">CRM Training</a></li>-->
-								<!--A new link already opened-->
-                                <li role="separator" class="divider"></li>
-                                <li><a href="<?php echo base_url(); ?>employee/service_centers/summary_report">Download Bookings Data</a></li>
-                                <li role="separator" class="divider"></li>
-                                <li><a href="<?php echo base_url(); ?>partner/brand_collateral">Brand Collateral</a></li>
-                            </ul>
-                        </li>
+            
                         <li class="dropdown">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                             <i ></i> Contacts <i class="fa fa-caret-down"></i>
@@ -363,22 +349,40 @@
                                 </li>
                             </ul>
                         </li>
-
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Others <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <?php if(!empty($this->session->userdata('has_authorization_certificate')) && $this->session->userdata('has_authorization_certificate') == 1 && ($this->session->userdata('auth_certificate_file_name') != '' && $this->session->userdata('auth_certificate_file_name') != NULL)){ ?>
+                                     
+                                    <li><a href="<?php echo S3_WEBSITE_URL.'authorization_certificate/'.$this->session->userdata('auth_certificate_file_name'); ?>" target="_blank">Authorization Certificate</a></li>
+                                    <li role="separator" class="divider"></li>
+                                <?php } ?>  
+                                 <li><a href="<?php echo base_url(); ?>partner/brand_collateral">Brand Collateral</a></li>
+                                 <li role="separator" class="divider"></li>
+                                  <li><a href="<?php echo base_url(); ?>employee/service_centers/summary_report">Download Bookings Data</a></li>
+                                 <li role="separator" class="divider"></li>
+                                <li><a href="<?php echo base_url();?>service_center/gst_details"  >GST</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="<?php echo base_url();?>service_center/warranty">Warranty Checker</a></li>  
+                                                             
+                                <!-- If sf has accepted agreement then show this option -->
+                                <?php if(!empty($this->session->userdata('is_accepted_agreement'))) { ?>
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="<?php echo S3_WEBSITE_URL.'sf_agreements/'.$this->session->userdata('agreement_acceptence_file'); ?>" target="_blank">View Agreement</a></li>
+                                <?php } ?>
+                                    
+                                 
+                            </ul>
+                        </li>
                         <?php if($this->session->userdata('covid_popup')){ ?>
                         <li><a style="color:#00ff7e;font-size:20px;font-weight:900;" data-toggle="modal" data-target="#myModal" id="myBtncovid">COVID-19</a></li>
                         <?php  }else{ ?>
 
-                        <li><a style="color:#00ff7e;font-size:20px;font-weight:900;" data-toggle="modal" data-target="#myModal7" >COVID-19</a></li>
+                             <li><a style="color:#00ff7e;font-size:20px;font-weight:900;" data-toggle="modal" data-target="#myModal7" >COVID-19</a></li>
 
                         <?php  } ?>
 
-                        <?php if(!empty($this->session->userdata('has_authorization_certificate')) && $this->session->userdata('has_authorization_certificate') == 1 && ($this->session->userdata('auth_certificate_file_name') != '' && $this->session->userdata('auth_certificate_file_name') != NULL)){ ?>
-                            <li><a href="<?php echo S3_WEBSITE_URL.'authorization_certificate/'.$this->session->userdata('auth_certificate_file_name'); ?>" target="_blank">Authorization Certificate</a></li>
-                        <?php } ?>
-                        <!-- If sf has accepted agreement then show this option -->
-                        <?php if(!empty($this->session->userdata('agreement_acceptence_file'))) { ?>
-                            <li><a href="<?php echo S3_WEBSITE_URL.'sf_agreements/'.$this->session->userdata('auth_certificate_file_name'); ?>" target="_blank">View Agreement</a></li>
-                        <?php } ?> 
+                        
                     </ul>
                     <?php $is_buyback = $this->uri->segment(2);?>
                     <ul class="nav navbar-nav navbar-right">
