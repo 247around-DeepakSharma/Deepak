@@ -33,10 +33,10 @@ class Login extends CI_Controller {
      * Index Page for this controller.
      *
      * Maps to the following URL
-     * 		http://example.com/index.php/welcome
-     * 	- or -
-     * 		http://example.com/index.php/welcome/index
-     * 	- or -
+     *      http://example.com/index.php/welcome
+     *  - or -
+     *      http://example.com/index.php/welcome/index
+     *  - or -
      * Since this controller is set as the default controller in
      * config/routes.php, it's displayed at http://example.com/
      *
@@ -511,25 +511,28 @@ class Login extends CI_Controller {
                 $agreement_data = $this->service_centers_model->is_sc_accepted_agreement($vendor_id);
                 //CRM-6107 validate SF has authorization certificate 
                 if (validate_sf_auth_certificate($sc_details[0]['has_authorization_certificate'], $sc_details[0]['auth_certificate_file_name'], $sc_details[0]['auth_certificate_validate_year']) !== FALSE) {
-                    $this->session->set_userdata(array(
-                        'has_authorization_certificate' => $sc_details[0]['has_authorization_certificate'],
-                        'auth_certificate_file_name' => $sc_details[0]['auth_certificate_file_name']
-                    ));
-
+                    
+                    
                     // If service center has accepted the agreement , then show menu in sf header "View Agreement"
-                    if(!empty($agreement_data))
-                    {
-                        $agreement_status = $agreement_data[0]['is_accepted'];
-                        $agreement_file = $agreement_data[0]['agreement_file'];
-                        if($agreement_status == 1 && !empty($agreement_file))
-                        {
-                            $this->session->set_userdata(array('agreement_acceptence_file' => $agreement_file));
-                        }
+                    if(!empty($agreement_data)){
+
+                        $this->session->set_userdata(array('agreement_acceptence_file' => $agreement_data[0]['agreement_file'], 
+                            'is_accepted_agreement' => $agreement_data[0]['is_accepted'],
+                            'has_authorization_certificate' => $sc_details[0]['has_authorization_certificate'],
+                            'auth_certificate_file_name' => $sc_details[0]['auth_certificate_file_name']
+                        ));
+                        
+                    } else {
+                        $this->session->set_userdata(array(
+                            'has_authorization_certificate' => $sc_details[0]['has_authorization_certificate'],
+                            'auth_certificate_file_name' => $sc_details[0]['auth_certificate_file_name']
+                        ));
                     }
                     
                     echo "service_center/dashboard";
                     return;
                 }
+                $this->session->unset_userdata('service_center_id');
                 $userSession = array('error' => 'Your login is not activated, please contact ASM/RM of your region.');
                 $this->session->set_userdata($userSession);
                 echo "service_center/login";
@@ -552,18 +555,18 @@ class Login extends CI_Controller {
      * @return: void
      */
     function setVendorSession($service_center_id, $service_center_name, $sc_agent_id, $update, $is_upcountry,$sf, $cp,$wh,$wh_name,$is_gst_doc,$engineer, $municipal_limit, $is_micro_wh, $is_login_by_247=1,$poc_email,$agent_name) {
-	$userSession = array(
-	    'session_id' => md5(uniqid(mt_rand(), true)),
-	    'service_center_id' => $service_center_id,
-	    'service_center_name' => $service_center_name,
+    $userSession = array(
+        'session_id' => md5(uniqid(mt_rand(), true)),
+        'service_center_id' => $service_center_id,
+        'service_center_name' => $service_center_name,
             'service_center_agent_id' => $sc_agent_id,
             'is_upcountry' => $is_upcountry,
             'is_update' => $update,
             'is_engineer_app' => $engineer,
             'municipal_limit' => $municipal_limit,
-	    'sess_expiration' => 30000,
-	    'loggedIn' => TRUE,
-	    'userType' => 'service_center',
+        'sess_expiration' => 30000,
+        'loggedIn' => TRUE,
+        'userType' => 'service_center',
             'is_sf' => $sf,
             'is_cp' => $cp,
             'is_wh' => $wh,
@@ -573,7 +576,7 @@ class Login extends CI_Controller {
             'poc_email'=>$poc_email,
             'agent_name'=>$agent_name,
             'covid_popup'=>TRUE 
-	);
+    );
 
         $this->session->set_userdata($userSession);
         
@@ -612,38 +615,59 @@ class Login extends CI_Controller {
             //get sc details now
             $sc_details = $this->vendor_model->getVendorContact($agent['service_center_id']);
             if (!empty($sc_details)) {
-                if(is_null($sc_details[0]['is_gst_doc'])){
+                if (is_null($sc_details[0]['is_gst_doc'])) {
                     $is_gst_exist = FALSE;
-                }else{
+                } else {
                     $is_gst_exist = TRUE;
                 }
-                
-                $wh_name =  _247AROUND_EMPLOYEE_STRING." ".$sc_details[0]['district'] ." (". $sc_details[0]['state'].")";
-                $this->setVendorSession($sc_details[0]['id'], $sc_details[0]['name'], 
-                        $agent['id'], $sc_details[0]['is_update'], 
-                        $sc_details[0]['is_upcountry'],$sc_details[0]['is_sf'], 
+
+
+
+                $wh_name = _247AROUND_EMPLOYEE_STRING . " " . $sc_details[0]['district'] . " (" . $sc_details[0]['state'] . ")";
+                $this->setVendorSession($sc_details[0]['id'], $sc_details[0]['name'],
+                        $agent['id'], $sc_details[0]['is_update'],
+                        $sc_details[0]['is_upcountry'], $sc_details[0]['is_sf'],
                         $sc_details[0]['is_cp'],
                         $sc_details[0]['is_wh'],
                         $wh_name,
-                        $is_gst_exist,$sc_details[0]['isEngineerApp'], $sc_details[0]['min_upcountry_distance'],$sc_details[0]['is_micro_wh'],0,$sc_details[0]['primary_contact_email'],$agent['full_name']);
-                
-                if($this->session->userdata('is_sf') === '1' && $this->session->userdata('is_wh') === '0'){
+                        $is_gst_exist, $sc_details[0]['isEngineerApp'], $sc_details[0]['min_upcountry_distance'], $sc_details[0]['is_micro_wh'], 0, $sc_details[0]['primary_contact_email'], $agent['full_name']);
+
+
+                if ($this->session->userdata('is_sf') === '1' && $this->session->userdata('is_wh') === '0') {
+
+                    $agreement_data = $this->service_centers_model->is_sc_accepted_agreement($agent['service_center_id']);
+                    // If service center has accepted the agreement , then show menu in sf header "View Agreement"
                     //CRM-6107 validate SF has authorization certificate 
-                    if (validate_sf_auth_certificate($sc_details[0]['has_authorization_certificate'], $sc_details[0]['auth_certificate_file_name'], $sc_details[0]['auth_certificate_validate_year']) !== FALSE) {
-                        $this->session->set_userdata(array(
-                            'has_authorization_certificate' => $sc_details[0]['has_authorization_certificate'],
-                            'auth_certificate_file_name' => $sc_details[0]['auth_certificate_file_name']
-                        ));
+                    if (validate_sf_auth_certificate($sc_details[0]['has_authorization_certificate'], $sc_details[0]['auth_certificate_file_name'], 
+                            $sc_details[0]['auth_certificate_validate_year']) !== FALSE) {
+                        
+                        if (!empty($agreement_data)) {
+                            $this->session->set_userdata(array(
+                                'has_authorization_certificate' => $sc_details[0]['has_authorization_certificate'],
+                                'auth_certificate_file_name' => $sc_details[0]['auth_certificate_file_name'],
+                                'agreement_acceptence_file' => $agreement_data[0]['agreement_file'],
+                                'is_accepted_agreement' => $agreement_data[0]['is_accepted']
+                            ));
+                            
+                        } else {
+                            $this->session->set_userdata(array(
+                                'has_authorization_certificate' => $sc_details[0]['has_authorization_certificate'],
+                                'auth_certificate_file_name' => $sc_details[0]['auth_certificate_file_name']
+                            ));
+                        }
+                        
                         redirect(base_url() . "service_center/dashboard");
                     }
+
+                    $this->session->unset_userdata('service_center_id');
                     $userSession = array('error' => 'Your login is not activated, please contact ASM/RM of your region.');
                     $this->session->set_userdata($userSession);
                     redirect(base_url() . "service_center/login");
-                }else if($this->session->userdata('is_sf') === '1' && $this->session->userdata('is_wh') === '1'){
+                } else if ($this->session->userdata('is_sf') === '1' && $this->session->userdata('is_wh') === '1') {
                     redirect(base_url() . "service_center/dashboard");
-                }else if($this->session->userdata('is_cp') === '1'){
+                } else if ($this->session->userdata('is_cp') === '1') {
                     redirect(base_url() . "service_center/buyback/bb_order_details");
-                }else if($this->session->userdata('is_wh') === '1'){
+                } else if ($this->session->userdata('is_wh') === '1') {
                     redirect(base_url() . "service_center/inventory");
                 }
             } else {
@@ -657,7 +681,7 @@ class Login extends CI_Controller {
             redirect(base_url() . "service_center/login");
         }
     }
-    
+
     /**
      * @desc: this function is used to reset the service center login details
      * @param: void
