@@ -178,7 +178,8 @@
             <th class="jumbotron" style="text-align: center;width:10%;">Source</th>
             <th class="jumbotron" style="text-align: center;width:10%;">Destination</th>
             <th class="jumbotron" style="text-align: center;width:10%;">Direction</th>
-            <th class="jumbotron" style="text-align: center;width:45%;">Content</th>
+            <th class="jumbotron" style="text-align: center;width:35%;">Content</th>
+            <th class="jumbotron" style="text-align: center;width:10%;">Content Type</td>
             <th class="jumbotron" style="text-align: center">Sent / Received on Date</th>
         </tr>
         <?php foreach ($whatsapp_logs as $key => $row) { ?>
@@ -187,7 +188,32 @@
             <td><?php echo $row['source']; ?></td>
             <td style="font-size: 90%;"><?php echo $row['destination']; ?></td>
             <td style="font-size: 90%;"><?php echo $row['direction']; ?></td>
-            <td style="font-size: 90%;"><?php echo $row['content']; ?></td>
+            <td style="font-size: 90%;"><?php 
+            $content_type = '';
+            if($row['content_type']=='media'){
+                $content_all = json_decode($row['content']);
+                if(!empty($content_all->url)){
+                    $url = $content_all->url;
+                    echo "<a href='".$url."' target='_blank'>".$url."</a>";
+                }
+                if(!empty($content_all->type)){
+                    $content_type = $content_all->type;
+                }
+            }else if($row['content_type']=='location'){
+             $content_all = json_decode($row['content']);
+             $lat  = $content_all->latitude;
+             $long = $content_all->longitude;   
+             $map = "http://maps.google.com/maps?q=loc:".$lat.",".$long;
+             echo "<a href='".$map."' target='_blank'>".$map."</a>";
+              $content_type = 'Location';
+            }else{
+            echo $row['content'];
+            $content_type = 'Text';
+            }
+            
+            ?></td>
+            <td><?php echo ucfirst($content_type); ?></td>
+            
             <td><?php
                 $old_date = $row['update_on'];
                 $old_date_timestamp = strtotime($old_date);
