@@ -89,6 +89,12 @@
     
     $(function () {
         $("#add_hsn_code").submit(function (e) {
+            var hsnVal = $("#hsn_code").val();
+            if(hsnVal.length > 8){
+                $("#hsn_code").val('');
+                alert("HSN code length should not be greater than eight digit.");
+                return false;
+            }
             e.preventDefault();
             $.ajax({
                 url: '<?php echo base_url() ?>employee/invoice/post_add_new_hsncode',
@@ -100,7 +106,7 @@
                        $("#add_details_status").html("Data inserted successfully").css({'color':'green'});
                        location.reload();
                     }else{
-                       $("#add_details_status").html("Something is wrong please try again.").css({'color':'red'}); 
+                       $("#add_details_status").html(data['status']).css({'color':'red'}); 
                        $('#add_hsn_code').trigger("reset");
                     }
                 }
@@ -116,14 +122,19 @@
      var hsnTextVal =  $("#hsntextbox_"+idArray[1]).val();
      var gstTextVal =  $("#gsttextbox_"+idArray[1]).val();
         if(hsnTextVal!= undefined){
-         var numbers = /^[0-9]+$/;
+            alert(hsnTextVal);
+            if(hsnTextVal.length > 8){
+                $("#hsntextbox_"+idArray[1]).val('');
+                alert("HSN code length should not be greater than eight digit."); 
+                return false;
+            }
              var regex = /^[0-9\s]*$/;
              if(!regex.test(hsnTextVal)){
                  $("#hsntextbox_"+idArray[1]).val('');
                  alert("HSN Code Should Be Numeric.");
                  return false;
-             }
-
+                 }
+                 
         }
 
        if(gstTextVal !=undefined){

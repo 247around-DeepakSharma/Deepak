@@ -6119,16 +6119,22 @@ exit();
         $this->checkUserSession();
         $hsn_code = $this->input->post('hsn_code');
         if (!empty($hsn_code)) {
-            $hsn = array('hsn_code' => $hsn_code, 'gst_rate' => $this->input->post('gst_rate'), 'agent_id' => $this->input->post('agent_id'));
-            $last_inserted_id = $this->inventory_model->insert_query('hsn_code_details', $hsn);
-            if(!empty($last_inserted_id)){
-                echo json_encode(array('status'=>'success'));
+            $hsn_details = $this->inventory_model->get_hsn_code_details("hsn_code_details.id, hsn_code_details.hsn_code, hsn_code_details.gst_rate", array("hsn_code_details.hsn_code" => $hsn_code));
+            if (empty($hsn_details)) {
+                $hsn = array('hsn_code' => $hsn_code, 'gst_rate' => $this->input->post('gst_rate'), 'agent_id' => $this->input->post('agent_id'));
+                $last_inserted_id = $this->inventory_model->insert_query('hsn_code_details', $hsn);
+                if (!empty($last_inserted_id)) {
+                    echo json_encode(array('status' => 'success'));
+                } else {
+                    echo json_encode(array('status' => 'failed'));
+                }
             } else {
-            echo json_encode(array('status'=>'failed'));                
+                echo json_encode(array('status' => 'HSN code already exist in our system'));
             }
         }
     }
-      /**
+
+    /**
      * @desc This is used to update hsn code details related field. Just pass field name, value and table primary key id
      */
     function update_hsn_code_details_column(){
