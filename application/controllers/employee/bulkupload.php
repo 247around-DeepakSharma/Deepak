@@ -266,7 +266,7 @@ class Bulkupload extends CI_Controller {
                 $data['post_data'] = $this->input->post();
 
                 //column which must be present in the  upload inventory file
-                $header_column_need_to_be_present = array('plan_name', 'plan_desc', 'dop_start_date', 'dop_end_date', 'svc_charge', 'gas_charge', 'transport_charge', 'tenure', 'tenure_grace', 'branch', 'part_category', 'active');
+                $header_column_need_to_be_present = array('plan_name', 'plan_desc', 'dop_start_date', 'dop_end_date', 'svc_charge', 'gas_charge', 'transport_charge', 'tenure', 'tenure_grace', 'branch', 'part_category', 'active', 'plan_depends_on');
                 //check if required column is present in upload file header
                 $check_header = $this->check_column_exist($header_column_need_to_be_present, array_filter($data['header_data']));
 
@@ -407,108 +407,111 @@ class Bulkupload extends CI_Controller {
                             }
                         }
                     }
-                }
-                // ********************* UPLOAD MODEL DATA   ***********************************************************************                // 
-                //get file header
-                $arr_model_mapping_result = [];
+                    
+                    // ********************* UPLOAD MODEL DATA   ***********************************************************************                // 
+                    //get file header
+                    $arr_model_mapping_result = [];
 
-                //column which must be present in the  upload inventory file
-                $header_column_need_to_be_present = array('product', 'plan_name', 'model_list');
-                //check if required column is present in upload file header
-                $check_header = $this->check_column_exist($header_column_need_to_be_present, array_filter($data['header_data1']));
+                    //column which must be present in the  upload inventory file
+                    $header_column_need_to_be_present = array('product', 'plan_name', 'model_list');
+                    //check if required column is present in upload file header
+                    $check_header = $this->check_column_exist($header_column_need_to_be_present, array_filter($data['header_data1']));
 
-                if ($check_header['status']) {
-                    // Get Plans Data
-                    $arr_service_wise_warranty_plans = [];
-                    $arr_plans = $this->reusable_model->get_search_result_data('warranty_plans', '*', NULL, NULL, NULL, NULL, NULL, NULL);
-                    foreach ($arr_plans as $arr_plan) {
-                        $arr_service_wise_warranty_plans[$arr_plan['service_id']][$arr_plan['plan_name']] = $arr_plan['plan_id'];
-                    }
+                    if ($check_header['status']) {
+                        // Get Plans Data
+                        $arr_service_wise_warranty_plans = [];
+                        $arr_plans = $this->reusable_model->get_search_result_data('warranty_plans', '*', NULL, NULL, NULL, NULL, NULL, NULL);
+                        foreach ($arr_plans as $arr_plan) {
+                            $arr_service_wise_warranty_plans[$arr_plan['service_id']][$arr_plan['plan_name']] = $arr_plan['plan_id'];
+                        }
 
-                    // Get Models Data
-                    $arr_service_wise_models = [];
-                    $arr_models = $this->reusable_model->get_search_result_data('appliance_model_details', '*', NULL, NULL, NULL, NULL, NULL, NULL);
-                    foreach ($arr_models as $arr_model) {
-                        $arr_service_wise_models[$arr_model['service_id']][$arr_model['model_number']] = $arr_model['id'];
-                    }
+                        // Get Models Data
+                        $arr_service_wise_models = [];
+                        $arr_models = $this->reusable_model->get_search_result_data('appliance_model_details', '*', NULL, NULL, NULL, NULL, NULL, NULL);
+                        foreach ($arr_models as $arr_model) {
+                            $arr_service_wise_models[$arr_model['service_id']][$arr_model['model_number']] = $arr_model['id'];
+                        }
 
-                    // apply loop for validation.
-                    for ($row = 2, $i = 0; $row <= $data['highest_row1']; $row++, $i++) {
-                        $rowData_array = $data['sheet1']->rangeToArray('A' . $row . ':' . $data['highest_column1'] . $row, NULL, TRUE, FALSE);
-                        $sanitizes_row_data = $rowData_array[0];
-                        $is_data_validated = true;
+                        // apply loop for validation.
+                        for ($row = 2, $i = 0; $row <= $data['highest_row1']; $row++, $i++) {
+                            $rowData_array = $data['sheet1']->rangeToArray('A' . $row . ':' . $data['highest_column1'] . $row, NULL, TRUE, FALSE);
+                            $sanitizes_row_data = $rowData_array[0];
+                            $is_data_validated = true;
 
-                        if (!empty(array_filter($sanitizes_row_data))) {
+                            if (!empty(array_filter($sanitizes_row_data))) {
 
-                            // Check if Product Exists
-                            $service_name = trim($sanitizes_row_data[0]);
-                            if (empty($arr_services[$service_name])):
-                                $arr_model_mapping_result[$row] = "Product Not Found";
-                                continue;
-                            endif;
-                            $service_id = $arr_services[$service_name];
+                                // Check if Product Exists
+                                $service_name = trim($sanitizes_row_data[0]);
+                                if (empty($arr_services[$service_name])):
+                                    $arr_model_mapping_result[$row] = "Product Not Found";
+                                    continue;
+                                endif;
+                                $service_id = $arr_services[$service_name];
 
-                            // Check if Plan Exists
-                            $plan_name = trim($sanitizes_row_data[1]);
-                            if (empty($arr_service_wise_warranty_plans[$service_id][$plan_name])):
-                                $arr_model_mapping_result[$row] = "Plan Not Found";
-                                continue;
-                            endif;
-                            $plan_id = $arr_service_wise_warranty_plans[$service_id][$plan_name];
+                                // Check if Plan Exists
+                                $plan_name = trim($sanitizes_row_data[1]);
+                                if (empty($arr_service_wise_warranty_plans[$service_id][$plan_name])):
+                                    $arr_model_mapping_result[$row] = "Plan Not Found";
+                                    continue;
+                                endif;
+                                $plan_id = $arr_service_wise_warranty_plans[$service_id][$plan_name];
 
-                            // Check if Product Exists
-                            $model_name = trim($sanitizes_row_data[2]);
-                            if (empty($arr_service_wise_models[$service_id][$model_name])):
-                                $arr_model_mapping_result[$row] = "Model Not Found";
-                                continue;
-                            endif;
-                            $model_id = $arr_service_wise_models[$service_id][$model_name];
-                            
-                            // Insert Data
-                            $model_mapping_data = [];
-                            $model_mapping_data['service_id'] = $service_id;
-                            $model_mapping_data['model_id'] = $model_id;
-                            $model_mapping_data['plan_id'] = $plan_id;
-                            $model_mapping_data['create_date'] = date('Y-m-d H:i:s');
-                            $model_mapping_data['created_by'] = $this->session->userdata('employee_id');
-                            $plan_model_mapping_id = $this->reusable_model->insert_into_table('warranty_plan_model_mapping', $model_mapping_data);
-                            $arr_model_mapping_result[$row] = "Success";
-                            if(empty($plan_model_mapping_id))
-                            {
-                                $arr_model_mapping_result[$row] = "Fail``".$this->db->last_query();
+                                // Check if Product Exists
+                                $model_name = trim($sanitizes_row_data[2]);
+                                if (empty($arr_service_wise_models[$service_id][$model_name])):
+                                    $arr_model_mapping_result[$row] = "Model Not Found";
+                                    continue;
+                                endif;
+                                $model_id = $arr_service_wise_models[$service_id][$model_name];
+
+                                // Insert Data
+                                $model_mapping_data = [];
+                                $model_mapping_data['service_id'] = $service_id;
+                                $model_mapping_data['model_id'] = $model_id;
+                                $model_mapping_data['plan_id'] = $plan_id;
+                                $model_mapping_data['create_date'] = date('Y-m-d H:i:s');
+                                $model_mapping_data['created_by'] = $this->session->userdata('employee_id');
+                                $plan_model_mapping_id = $this->reusable_model->insert_into_table('warranty_plan_model_mapping', $model_mapping_data);
+                                $arr_model_mapping_result[$row] = "Success";
+                                if(empty($plan_model_mapping_id))
+                                {
+                                    $arr_model_mapping_result[$row] = "Fail``".$this->db->last_query();
+                                }
                             }
                         }
                     }
+                    
+                    $file_path = TMP_FOLDER . "warranty_data_log-" . date('Y-m-d');
+                    $file = fopen($file_path . ".txt", "a+") or die("Unable to open file!");
+                    if(!empty($arr_state_mapping_result)){
+                        fwrite($file, "*******************  STATE MAPPING ***************************" . "\n");        
+                        fwrite($file, print_r($arr_state_mapping_result, true) . "\n");
+                    }        
+                    if(!empty($arr_part_mapping_result)){
+                        fwrite($file, "*******************  PART TYPE MAPPING ***************************" . "\n");
+                        fwrite($file, print_r($arr_part_mapping_result, true) . "\n");
+                    }
+                    if(!empty($arr_model_mapping_result)){
+                        fwrite($file, "*******************  MODEL MAPPING ***************************" . "\n");
+                        fwrite($file, print_r($arr_model_mapping_result, true) . "\n");
+                    }
+                    fclose($file);
                 }
                 else
                 {
-                    echo $check_header['message'];exit;
+                    $this->session->set_userdata('file_error', "File format not matches with requested format !");
                 }
             }
             else
             {
-                echo $check_header['message'];exit;
+                $this->session->set_userdata('file_error', "Invalid File Format!");
             }
         }
-        $file_path = TMP_FOLDER . "warranty_data_log-" . date('Y-m-d');
-        $file = fopen($file_path . ".txt", "a+") or die("Unable to open file!");
-        if(!empty($arr_state_mapping_result)){
-        fwrite($file, "*******************  STATE MAPPING ***************************" . "\n");
-        fwrite($file, print_r($arr_state_mapping_result, true) . "\n");
-        }        
-        if(!empty($arr_part_mapping_result)){
-        fwrite($file, "*******************  PART TYPE MAPPING ***************************" . "\n");
-        fwrite($file, print_r($arr_part_mapping_result, true) . "\n");
-        }
-        if(!empty($arr_model_mapping_result)){
-        fwrite($file, "*******************  MODEL MAPPING ***************************" . "\n");
-        fwrite($file, print_r($arr_model_mapping_result, true) . "\n");
-        }
-        fclose($file);                       
     
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/bulk_upload_add_warranty', ['data' => $returnMsg, 'partner_id' => $post_data['partner_id']]);
     }
+    
     /** @desc: This function is to download partner list with ID to show in bulk check_warranty page
      * @param: void
      * @return void
