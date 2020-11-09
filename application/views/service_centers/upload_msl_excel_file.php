@@ -172,6 +172,7 @@
                                                       <input type="hidden" name="sender_entity_id" value="<?php echo $this->session->userdata('service_center_id'); ?>">
                                                       <input type="hidden" name="invoice_tag" value="<?php echo MSL; ?>">
                                                       <input type="hidden" name="transfered_by" value="<?php echo MSL_TRANSFERED_BY_WAREHOUSE; ?>">
+                                                      <input type="hidden" name="tcs_rate" value="0">
                                                       <button type="submit" class="btn btn-small btn-success" id="search">Upload</button> 
                                                   </div>
                                               </div>
