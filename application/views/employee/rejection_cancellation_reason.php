@@ -222,14 +222,14 @@
             statusFlag = "Activate";
         }
 
-        if (!confirm("Are you sure, You want to " + statusFlag + " Reason ?"))
+        if (!confirm("Are you sure, You want to " + statusFlag + " Mapping ?"))
         {
             return false;
         }
 
         var id = btnId.substr(3);
         // alert(id);
-        $.post('<?php echo base_url(); ?>penalty/update_inventory_status', {id: id, status: status}, function (data) {
+        $.post('<?php echo base_url(); ?>penalty/update_cancellation_rejection_penalty_mapping_status', {id: id, status: status}, function (data) {
             data = $.trim(data);
             if (data == '1')
             {

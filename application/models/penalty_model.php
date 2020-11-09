@@ -578,5 +578,15 @@ class Penalty_model extends CI_Model {
             return 0;
         }
     }
+    
+    function update_cancellation_rejection_penalty_mapping_status($where, $data) {
+        $this->db->where($where, FALSE);
+        $this->db->update('cancellation_rejection_penalty_mapping', $data);
+        if ($this->db->affected_rows() > 0) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
 
 }

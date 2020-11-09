@@ -711,7 +711,7 @@
                         $(params).each(function (index, element) {
                             formData.append(element.name, element.value);
                         });
-                        
+                        formData.append("tcs_rate", 0);
                         $.ajax({
                             method:"POST",
                             url:"<?php echo base_url();?>employee/inventory/process_spare_invoice_tagging",
@@ -1521,6 +1521,8 @@
         $(params).each(function (index, element) {
             formData.append(element.name, element.value);
         });
+        
+        formData.append("tcs_rate", 0);
         $.ajax({
             method:"POST",
             url:"<?php echo base_url();?>employee/inventory/process_spare_invoice_tagging",
