@@ -402,7 +402,7 @@
                                 </div>
                             </div>
                             <div class="form-group ">
-                                <label for="type" class="col-md-4">Remarks</label>
+                                <label for="type" class="col-md-4">Remarks *</label>
                                 <div class="col-md-6">
                                     <textarea class="form-control" rows="4" name="query_remarks" id="query_remarks" placeholder="Enter Query Remarks"  ></textarea>
                                 </div>
