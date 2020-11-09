@@ -160,7 +160,7 @@ class Penalty extends CI_Controller {
         $count_data_present = $this->penalty_model->show_cancel_reject_list($where);
         if(empty($count_data_present) || !empty($data['id'])){
             $this->penalty_model->save_review_data($data);  
-            $this->session->set_userdata(array("success"=> "Mapping added"));
+            $this->session->set_userdata(array("success"=> "Mapping added successfully"));
         }else{
         $this->session->set_userdata(array("error"=> "Mapping already exist"));
         }
@@ -269,6 +269,22 @@ class Penalty extends CI_Controller {
             'id' => $this->input->post('id')
         );
         $response = $this->penalty_model->update_review_rejection_reason_status($where, $data);
+        echo $response;
+    }
+    
+    /**
+     * @desc: This function is used to activate and deactivate rejection reason status
+     * @params: void
+     * @return: boolean
+     */
+    public function update_cancellation_rejection_penalty_mapping_status() {
+        $data = array(
+            'active' => $this->input->post('status')
+        );
+        $where = array(
+            'id' => $this->input->post('id')
+        );
+        $response = $this->penalty_model->update_cancellation_rejection_penalty_mapping_status($where, $data);
         echo $response;
     }
     
