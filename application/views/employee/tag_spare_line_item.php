@@ -16,19 +16,19 @@
                    <div class="form-group">
                        
                        <label class="radio-inline col-md-6" style="font-weight:bold">
-                           <input type="radio" name="part[<?php echo ($key +$count); ?>][shippingStatus]" required="" class="shippingStatus" id="<?php echo "s_shippingStatus_".($key +$count);?>" value="1">Shipping
+                           <input type="radio" name="part[<?php echo ($key +$count); ?>][shippingStatus]" required="" class="shippingStatus" onchange="onbooking_invoice_amount('on_b_')" id="<?php echo "s_shippingStatus_".($key +$count);?>" value="1">Shipping
                           </label>
                     </div>
                     <div class="form-group">
                        
                         <label class="radio-inline col-md-6" style="font-weight:bold">
-                            <input type="radio" name="part[<?php echo ($key +$count); ?>][shippingStatus]" required="" class="shippingStatus" id="<?php echo "n_shippingStatus_".($key +$count);?>" value="0">Not Shipping
+                            <input type="radio" name="part[<?php echo ($key +$count); ?>][shippingStatus]" required="" class="shippingStatus"onchange="onbooking_invoice_amount('on_b_')" id="<?php echo "n_shippingStatus_".($key +$count);?>" value="0">Not Shipping
                           </label>
                     </div>
                     <div class="form-group">
                        
                          <label class="radio-inline col-md-6" style="font-weight:bold">
-                             <input type="radio" name="part[<?php echo ($key +$count); ?>][shippingStatus]" required="" class="shippingStatus" id="<?php echo "l_shippingStatus_".($key +$count);?>" value="-1">To be Shipped
+                             <input type="radio" name="part[<?php echo ($key +$count); ?>][shippingStatus]" required="" class="shippingStatus" onchange="onbooking_invoice_amount('on_b_')" id="<?php echo "l_shippingStatus_".($key +$count);?>" value="-1">To be Shipped
                       </label>
                     </div>
                     <span id="error_<?php echo "shippingStatus_".($key +$count);?>" class="error" style="color: red;"></span>

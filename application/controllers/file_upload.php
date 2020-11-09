@@ -985,6 +985,7 @@ class File_upload extends CI_Controller {
             $post_data['appliance']['partner_name'] = $this->input->post("partner_name");
             $post_data['appliance']['wh_name'] = $this->input->post("wh_name");
             $post_data['appliance']['invoice_tag'] = 'MSL';
+            $post_data['appliance']['tcs_rate'] = $this->input->post('tcs_rate');
             if ($this->input->post("transfered_by") == MSL_TRANSFERED_BY_WAREHOUSE) {
                 $post_data['appliance']['transfered_by'] = MSL_TRANSFERED_BY_WAREHOUSE;
                 $post_data['appliance']['sender_entity_type'] = $this->input->post("sender_entity_type");
