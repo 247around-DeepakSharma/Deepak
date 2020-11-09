@@ -139,6 +139,11 @@
                                               </div>
                                           </div>
                                           <div class="form-group">
+                                              <label class="col-xs-2 control-label">TCS Rate </label>
+                                                  <div class="col-xs-4">
+                                                      <input type="number" step=".1" name="tcs_rate" class="form-control" id="tcs_rate" value="0.00">
+                                                      <label for="from_gst_number" class="error"></label>
+                                                  </div>
                                              <label class="col-xs-2 control-label"> Upload MSL File</label>
                                               <div class="col-md-4">
                                                   <div class="form-group">
