@@ -294,16 +294,38 @@
                                     </div>
                                 </div>
                                 <hr>
-                                <div class="form-group">
-                                    <div class="row">
-                                        <div class="col-xs-12 col-md-12">
-                                            <div class="pull-right" style="margin-right:15px;">
-                                                <strong>
-                                                Total Price : <span id="total_spare_invoice_price">0</span>
-                                                </strong>
+                                <div class="form-group" <?php if($this->session->userdata('partner_id') != VIDEOCON_ID){ echo "style='display:none'";} ?>>
+                                        <div class="row">
+                                            <div class="col-xs-12">
+                                                <div class="pull-right" style="margin-right:15px;">
+                                                    <strong>
+                                                    <label>  Total Price : </label>&nbsp;&nbsp; <span ><input type="number" class="form-group" step=".1" readonly="readonly" id="total_spare_invoice_price" name="total_spare_invoice_price"value="0.00"></span>
+                                                    </strong>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="form-group" <?php if($this->session->userdata('partner_id') != VIDEOCON_ID){ echo "style='display:none'";} ?>>
+                                        <div class="row">
+                                            <div class="col-xs-12">
+                                                <div class="pull-right" style="margin-right:15px;">
+                                                    <strong>
+                                                    <label>  (+) TCS Rate % : </label>&nbsp;&nbsp;  <span ><input type="number" onblur="change_tcs_rate()" class="form-group" step=".1" name="tcs_rate"value="0.00" id="tcs_rate"></span>
+                                                    </strong>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <div class="form-group">
+                                    <div class="row">
+                                            <div class="col-xs-12">
+                                                <div class="pull-right" style="margin-right:15px;">
+                                                    <strong>
+                                                    <label>  Final Price : </label>&nbsp;&nbsp; <span ><input type="number" class="form-group" step=".1" readonly="readonly" id="final_total" name="final_total"value="0.00" ></span>
+                                                    </strong>
+                                                </div>
+                                            </div>
+                                        </div>
                                     <hr>
                                     <div class="row">
                                         <div class="col-xs-12 col-md-4 col-md-offset-5">
@@ -508,7 +530,39 @@
                     </div>
                     </div>
                 </div>
-            
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="pull-right" style="margin-right:15px;">
+                                <strong>
+                                    <label>  Total Price : </label>&nbsp;&nbsp; <span ><input type="number" class="form-group" step=".1" readonly="readonly" id="on_b_total_spare_invoice_price" name="total_spare_invoice_price"value="0.00" ></span>
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" <?php if($this->session->userdata('partner_id') != VIDEOCON_ID){ echo "style='display:none'";} ?>>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="pull-right" style="margin-right:15px;">
+                                <strong>
+                                    <label>  (+) TCS Rate % : </label>&nbsp;&nbsp;  <span ><input type="number" onblur="change_tcs_rate('on_b_')" class="form-group" step=".1" name="on_b_tcs_rate"value="0.00" id="on_b_tcs_rate"></span>
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" <?php if($this->session->userdata('partner_id') != VIDEOCON_ID){ echo "style='display:none'";} ?>>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="pull-right" style="margin-right:15px;">
+                                <strong>
+                                    <label>  Final Price : </label>&nbsp;&nbsp; <span ><input type="number" class="form-group" step=".1" readonly="readonly" id="on_b_final_total" name="final_total"value="0.00" ></span>
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             <div class="form-group">
                 <div class="row">
                     <div class="col-xs-12 col-md-4 col-md-offset-4">
@@ -1129,6 +1183,8 @@ $("#on_invoice_file").change(function(){
         $(params).each(function (index, element) {
             formData.append(element.name, element.value);
         });
+        
+        formData.append("tcs_rate", $("#tcs_rate").val());
     
         $.ajax({
             method:"POST",
@@ -1165,7 +1221,7 @@ $("#on_invoice_file").change(function(){
                     $('#select2-partName_0-container').attr('title','Select Part Name');
                     $('#select2-partNumber_0-container').text('Select Part Number');
                     $('#select2-partNumber_0-container').attr('title','Select Part Number');
-                    $('#total_spare_invoice_price').html('0');
+                    $('#total_spare_invoice_price').val('0');
                     $(".warehouse_print_address").css({'display':'block'});
                     $("#print_warehouse_addr").attr("href","<?php echo base_url();?>employee/inventory/print_warehouse_address/"+obj['partner_id']+"/"+obj['warehouse_id']+"/"+obj['total_quantity']+"");
                 }else{
@@ -1317,7 +1373,7 @@ $("#on_invoice_file").change(function(){
                                     total_spare_invoice_price += Number($('#partBasicPrice_'+i).val()) + (Number($('#partBasicPrice_'+i).val()) * Number($('#partGstRate_'+i).val())/100);
                                 }
                             }
-                            $('#total_spare_invoice_price').html(Number(total_spare_invoice_price.toFixed(2)));
+                            $('#total_spare_invoice_price').val(Number(total_spare_invoice_price.toFixed(2)));
                         }else{
                             showConfirmDialougeBox('Inventory Details not found for the selected combination', 'warning');
                             $('#submit_btn').attr('disabled',true);
@@ -1695,6 +1751,7 @@ $("#on_invoice_file").change(function(){
         $(params).each(function (index, element) {
             formData.append(element.name, element.value);
         });
+        formData.append("tcs_rate", $("#on_b_tcs_rate").val());
         $.ajax({
             method:"POST",
             url:"<?php echo base_url();?>employee/inventory/process_spare_invoice_tagging",
@@ -1764,9 +1821,9 @@ $("#on_invoice_file").change(function(){
     
            // Update the name attributes
            $clone
-               .find('[id="shipping_status_1"]').attr('name', 'part[' + onBookingIndex + '][shippingStatus]').attr('id','s_shippingStatus_'+onBookingIndex).attr("required", true).attr('class','shippingStatus').end()
-               .find('[id="shipping_status_2"]').attr('name', 'part[' + onBookingIndex + '][shippingStatus]').attr('id','n_shippingStatus_'+onBookingIndex).attr("required", true).attr('class','shippingStatus').end()
-               .find('[id="shipping_status_3"]').attr('name', 'part[' + onBookingIndex + '][shippingStatus]').attr('id','l_shippingStatus_'+onBookingIndex).attr("required", true).attr('class','shippingStatus').end()
+               .find('[id="shipping_status_1"]').attr('name', 'part[' + onBookingIndex + '][shippingStatus]').attr('id','s_shippingStatus_'+onBookingIndex).attr("required", true).attr('onchange', 'onbooking_invoice_amount("on_b_")').attr('class','shippingStatus').end()
+               .find('[id="shipping_status_2"]').attr('name', 'part[' + onBookingIndex + '][shippingStatus]').attr('id','n_shippingStatus_'+onBookingIndex).attr("required", true).attr('onchange', 'onbooking_invoice_amount("on_b_")').attr('class','shippingStatus').end()
+               .find('[id="shipping_status_3"]').attr('name', 'part[' + onBookingIndex + '][shippingStatus]').attr('id','l_shippingStatus_'+onBookingIndex).attr("required", true).attr('onchange', 'onbooking_invoice_amount("on_b_")').attr('class','shippingStatus').end()
                .find('[id="error_shippingStatus"]').attr('id','error_shippingStatus_'+onBookingIndex).end()
                .find('[id="onpartName"]').attr('name', 'part[' + onBookingIndex + '][part_name]').attr('id','onpartName_'+onBookingIndex).attr('onchange','get_part_number_on_booking("'+ onBookingIndex+'")').addClass('part_name').attr("required", true).end()
                .find('[id="error_onpartName"]').attr('id','error_onpartName_'+onBookingIndex).end()
@@ -1960,7 +2017,7 @@ $("#on_invoice_file").change(function(){
                     total_spare_invoice_price += Number($('#partBasicPrice_'+i).val()) + (Number($('#partBasicPrice_'+i).val()) * Number($('#partGstRate_'+i).val())/100);
                 }
             }
-            $('#total_spare_invoice_price').html(Number(total_spare_invoice_price.toFixed(2)));
+            $('#total_spare_invoice_price').val(Number(total_spare_invoice_price.toFixed(2)));
        }
        
        function booking_calculate_total_price(id){
@@ -2016,4 +2073,34 @@ $("#on_invoice_file").change(function(){
     $(".shippingStatus").click(function(){
         $('#on_submit_btn').attr('disabled',false);
     });
+    
+        function change_tcs_rate(prefix = ""){
+        var total_spare_invoice_price  = $("#"+prefix+"total_spare_invoice_price").val();
+        var tcs_rate = $("#"+prefix+"tcs_rate").val();
+        var total = Number(total_spare_invoice_price) + ((Number(total_spare_invoice_price) * Number(tcs_rate))/100);
+        console.log(total);
+        $("#"+prefix+"final_total").val(total.toFixed(2));
+    }
+    
+    function onbooking_invoice_amount(){
+        var our_invoice_amt = 0;
+        $(".total_spare_amount").each(function (i) {
+            if(Number($(this).val()) > 0){
+                var sh_id = this.id;
+                var split_id = sh_id.split('_');
+                var c = split_id[2];
+
+                if ($("#s_shippingStatus_" + c+":checked").val()) {
+                    var checked_shipped = $("#s_shippingStatus_" + c).val();
+                     if(Number(checked_shipped) === 1 ){
+                        our_invoice_amt += Number($(this).val());
+                     }
+                 }
+
+            }
+
+        });
+        
+        $("#on_b_total_spare_invoice_price").val(our_invoice_amt);
+    }
 </script>

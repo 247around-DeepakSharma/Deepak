@@ -994,7 +994,80 @@ class File_upload extends CI_Controller {
                         $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
                     }
                 }
+                
+            $post_data['appliance']['is_wh_micro'] = $this->input->post("is_wh_micro");
+            $post_data['appliance']['dated'] = date('Y-m-d H:i:s');
+            $post_data['appliance']['invoice_id'] = $this->input->post("invoice_id");
+            $post_data['appliance']['invoice_amount'] = round(($invoice_price_with_gst), 2);
+            $post_data['appliance']['courier_name'] = $this->input->post("courier_name");
+            $post_data['appliance']['awb_number'] = $this->input->post("awb_number");
+            $post_data['appliance']['courier_shipment_date'] = $this->input->post("courier_shipment_date");
+            $post_data['appliance']['from_gst_number'] = $this->input->post("from_gst_number");
+            $post_data['appliance']['to_gst_number'] = $this->input->post("to_gst_number");
+            $post_data['appliance']['wh_id'] = $this->input->post("wh_id");
+            $post_data['appliance']['partner_id'] = $this->input->post("partner_id");
+            $post_data['appliance']['partner_name'] = $this->input->post("partner_name");
+            $post_data['appliance']['wh_name'] = $this->input->post("wh_name");
+            $post_data['appliance']['invoice_tag'] = 'MSL';
+            $post_data['appliance']['tcs_rate'] = $this->input->post('tcs_rate');
+            if ($this->input->post("transfered_by") == MSL_TRANSFERED_BY_WAREHOUSE) {
+                $post_data['appliance']['transfered_by'] = MSL_TRANSFERED_BY_WAREHOUSE;
+                $post_data['appliance']['sender_entity_type'] = $this->input->post("sender_entity_type");
+                $post_data['appliance']['sender_entity_id'] = $this->input->post("sender_entity_id");
+            } else {
+                $post_data['appliance']['transfered_by'] = MSL_TRANSFERED_BY_PARTNER;
             }
+
+            $post_data['appliance']['is_defective_part_return_wh'] = 1;
+            $post_data['appliance']['files'] = $file_data;
+            $post_data['appliance']['part'] = $parts_list;
+            $session = array();
+            if ($this->session->userdata('service_center_id')) {
+                $session['session_id'] = $this->session->userdata("session_id");
+                $session['ip_address'] = $this->session->userdata("ip_address");
+                $session['user_agent'] = $this->session->userdata("user_agent");
+                $session['last_activity'] = $this->session->userdata("last_activity");
+                $session['user_data'] = $this->session->userdata("user_data");
+                $session['service_center_id'] = $this->session->userdata("service_center_id");
+                $session['service_center_name'] = $this->session->userdata("service_center_name");
+                $session['service_center_agent_id'] = $this->session->userdata("service_center_agent_id");
+                $session['is_upcountry'] = $this->session->userdata("is_upcountry");
+                $session['is_update'] = $this->session->userdata("is_update");
+                $session['is_engineer_app'] = $this->session->userdata("is_engineer_app");
+                $session['sess_expiration'] = $this->session->userdata("sess_expiration");
+                $session['loggedIn'] = $this->session->userdata("loggedIn");
+                $session['userType'] = $this->session->userdata("userType");
+                $session['is_sf'] = $this->session->userdata("is_sf");
+                $session['is_cp'] = $this->session->userdata("is_cp");
+                $session['is_wh'] = $this->session->userdata("is_wh");
+                $session['wh_name'] = $this->session->userdata("wh_name");
+                $session['is_gst_exist'] = $this->session->userdata("is_gst_exist");
+                $session['is_micro_wh'] = $this->session->userdata("is_micro_wh");
+                $session['poc_email'] = $this->session->userdata("poc_email");
+                $session['agent_name'] = $this->session->userdata("agent_name");
+                $session['covid_popup'] = $this->session->userdata("covid_popup");
+            } else {
+                $session['session_id'] = $this->session->userdata("session_id");
+                $session['ip_address'] = $this->session->userdata("ip_address");
+                $session['user_agent'] = $this->session->userdata("user_agent");
+                $session['last_activity'] = $this->session->userdata("last_activity");
+                $session['user_data'] = $this->session->userdata("user_data");
+                $session['employee_id'] = $this->session->userdata("employee_id");
+                $session['id'] = $this->session->userdata("id");
+                $session['phone'] = $this->session->userdata("phone");
+                $session['sess_expiration'] = $this->session->userdata("sess_expiration");
+                $session['loggedIn'] = $this->session->userdata("loggedIn");
+                $session['userType'] = $this->session->userdata("userType");
+                $session['user_group'] = $this->session->userdata("user_group");
+                $session['official_email'] = $this->session->userdata("official_email");
+                $session['emp_name'] = $this->session->userdata("emp_name");
+                $session['is_am'] = $this->session->userdata("is_am");
+                $session['user_source'] = $this->session->userdata("user_source");
+                $session['warehouse_id'] = $this->session->userdata("warehouse_id");
+            }
+            
+            $post_data['appliance']['session'] = $session;
+            
         } else {
             $this->table->add_row("-", "-", "-", "Excel header is Incorrect");
         }

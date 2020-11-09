@@ -4310,6 +4310,7 @@ class Inventory extends CI_Controller {
         $to_gst_number = $this->input->post("to_gst_number");
         $box_count = $this->input->post("box_count");
         $small_box_count = $this->input->post("small_box_count");
+        $tcs_rate = $this->input->post("tcs_rate");
         $req = TRUE;
         if (!empty($partner_id) && !empty($invoice_dated) && !empty($wh_id) && !empty($awb_number) && !empty($courier_name)) {
             if ($transfered_by == MSL_TRANSFERED_BY_PARTNER && (empty($invoice_id) || empty($invoice_amount))) {
@@ -5099,6 +5100,13 @@ class Inventory extends CI_Controller {
     function insert_inventory_main_invoice($invoice_id, $partner_id, $booking_id_array, $tqty, $invoice_dated, $total_basic_amount, $total_cgst_tax_amount, $total_sgst_tax_amount, $total_igst_tax_amount, $invoice_file, $wh_id) {
         log_message('info', __METHOD__ . " For Invoice ID " . $invoice_id);
         $total_invoice_amount = ($total_basic_amount + $total_cgst_tax_amount + $total_sgst_tax_amount + $total_igst_tax_amount);
+        $tcs_rate = $this->input->post('tcs_rate');
+        $tcs_amount = 0;
+        
+        if($tcs_rate > 0){
+            $tcs_amount = ($total_invoice_amount * $tcs_rate)/100;
+        }
+        
         if ($this->session->userdata('id')) {
             $agent_id = $this->session->userdata('id');
         } else {
@@ -5119,9 +5127,9 @@ class Inventory extends CI_Controller {
             'due_date' => date("Y-m-d", strtotime($invoice_dated)),
             'parts_cost' => $total_basic_amount,
             "parts_count" => $tqty,
-            'total_amount_collected' => ($total_invoice_amount),
+            'total_amount_collected' => ($total_invoice_amount + $tcs_amout),
             //Amount needs to be Paid to Vendor
-            'amount_collected_paid' => (0 - $total_invoice_amount),
+            'amount_collected_paid' => (0 - ($total_invoice_amount +$tcs_amout)),
             'agent_id' => $agent_id,
             "cgst_tax_rate" => 0,
             "sgst_tax_rate" => 0,
@@ -5133,7 +5141,9 @@ class Inventory extends CI_Controller {
             "vertical" => SERVICE,
             "category" => SPARES,
             "sub_category" => $this->input->post('invoice_tag'),
-            "accounting" => 1
+            "accounting" => 1,
+            "tcs_rate" => $tcs_rate,
+            "tcs_amount" => $tcs_amount
         );
 
         // insert invoice details into vendor partner invoices table
