@@ -14,6 +14,16 @@
                 <center><img id="loader_gif_title" src="<?php echo base_url(); ?>images/loader.gif" style="display: none;"></center>
             </div>
         </div>
+         <?php
+            if ($this->session->userdata('file_error')) {
+                echo '<div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:10px;">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <strong>' . $this->session->userdata('file_error') . '</strong>
+                    </div>';
+            }
+        ?> 
         <div class="row">
             <div class="col-lg-12">                
                 <h1 class="page-header">
@@ -135,3 +145,4 @@
         $('#loader_gif_title').show();
     }
 </script>
+<?php if($this->session->userdata('file_error')){$this->session->unset_userdata('file_error');} ?>
