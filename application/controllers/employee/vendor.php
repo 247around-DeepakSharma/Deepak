@@ -658,9 +658,6 @@ class vendor extends CI_Controller {
         if (!empty($updated_vendor_details[0]['signature_file'])) {
             $this->email->attach($s3_url . $updated_vendor_details[0]['signature_file'], 'attachment');
         }
-		if (!empty($updated_vendor_details[0]['stamp_file'])) {		
-            $this->email->attach($s3_url . $updated_vendor_details[0]['stamp_file'], 'attachment');		
-        }
         if (!empty($updated_vendor_details[0]['address_proof_file'])) {
             $this->email->attach($s3_url . $updated_vendor_details[0]['address_proof_file'], 'attachment');
         }
@@ -775,15 +772,7 @@ class vendor extends CI_Controller {
         $results['select_state'] = $this->vendor_model->get_allstates();
         $results['employee_rm'] = $this->employee_model->get_rm_details();
         $results['bank_name'] = $this->vendor_model->get_bank_details();
-		$select = "stamp_file";		
-        $where['vendor_id'] = $id;		
-        $where['status'] = 1;		
-        $stamp_file = $this->vendor_model->fetch_sf_miscellaneous_data($select,$where);		
-        if(!empty($stamp_file)){		
-            $query[0]['stamp_file'] = $stamp_file[0]['stamp_file'];		
-		}else{		
-            $query[0]['stamp_file'] ='';		
-        }
+
         $appliances = $query[0]['appliances'];
         $selected_appliance_list = explode(",", $appliances);
         $brands = $this->vendor_model->get_mapped_brands($id);
@@ -6572,16 +6561,4 @@ class vendor extends CI_Controller {
         file_put_contents($imageName, $signature_file);
         echo json_encode(array('filename' => $filename));
     }
-	function stamp_file(){		
-         //   if (!empty($_POST["image"])){		
-            $stamp_file = $_POST["image"];		
-            $image_stamp_array_1 = explode(";", $stamp_file);		
-            $image_stamp_array_2 = explode(",", $image_stamp_array_1[1]);		
-            $stamp_file = base64_decode($image_stamp_array_2[1]);		
-            $filename='stamp'.time().'.png';		
-            $imageName = TMP_FOLDER.$filename;		
-            file_put_contents($imageName, $stamp_file);		
-            echo json_encode(array('filename' => $filename));          		
-         // }		
-        }
 }
