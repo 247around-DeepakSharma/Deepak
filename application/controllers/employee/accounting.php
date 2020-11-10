@@ -890,9 +890,10 @@ class Accounting extends CI_Controller {
             default :
                break; 
         }
+        
        if($download_all == 1){
            //download data
-           $headings = array("Party Name", "Invoice Id", "Type", "Bookings/ Parts", "Invoice Period", "Total Invoice", "Service Charges", "Additional Service Charges",
+           $headings = array("Party Name", "Invoice Id", "Type", "Bookings", "Parts", "Invoice Period", "Total Invoice", "Service Charges", "Additional Service Charges",
                             "Parts / Stands", "TDS Amount","TCS Amount", "Penalty", "GST Amount", "Amount to be Paid By 247Around", "Amount to be Paid By Partner",
                             "Amount Paid", "Remarks", "Vertical", "Category", "Sub Category");
            $this->miscelleneous->downloadCSV($data,$headings,"invoice");
@@ -1031,7 +1032,8 @@ class Accounting extends CI_Controller {
         
         $row[] = $invoice_list->invoice_id.$invoice_links;
         $row[] = $invoice_list->type;
-        $row[] = "'".$invoice_list->num_bookings."/".$invoice_list->parts_count;
+        $row[] = $invoice_list->num_bookings;
+        $row[] = $invoice_list->parts_count;
         if($download_all == 0){
             $row[] = date("d-M-Y", strtotime($invoice_list->invoice_date))." <br/><br/> ".date("d-M-Y", strtotime($invoice_list->from_date)). " to ". date("d-M-Y", strtotime($invoice_list->to_date));
         }else{
