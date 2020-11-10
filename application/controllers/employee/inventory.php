@@ -7756,9 +7756,26 @@ class Inventory extends CI_Controller {
         if (!empty($service_center_id) && is_numeric($service_center_id)) {
             $where['booking_details.assigned_vendor_id'] = $service_center_id;
         }
-        
+               
         if (!empty($spare_part_status)) {
-            $where['spare_parts_details.status'] = trim($spare_part_status);
+             $i = 0;
+             $single_status = '';
+             $multiple_status = '';
+            foreach ($spare_part_status as $key => $value) {
+                if($key < 1) {
+                    $single_status .= "'" . $value . "'";
+                } else {
+                    $multiple_status .= ",'".$value."'";
+                }
+                $i++;
+            }
+            
+            if ($i > 1) {
+                $status = $single_status . $multiple_status;
+            } else {
+                $status = $single_status;
+            }
+            $where['spare_parts_details.status IN(' . $status . ')'] = NULL;
         }
 
 
