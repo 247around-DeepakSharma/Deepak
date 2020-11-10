@@ -4199,7 +4199,8 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
 
 
 
-    }
+    
+    
     
         /**
      * @desc This function is used to view  spare transfer page
