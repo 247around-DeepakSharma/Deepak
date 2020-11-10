@@ -149,8 +149,8 @@ class Penalty extends CI_Controller {
          $this->miscelleneous->load_nav_header();
         $this->load->view('employee/rejection_cancellation_reason',$data);
     }
-    public function save_reject_cancel() {
-        //print_r($_POST); die;
+    
+    public function save_cancellation_rejection_penalty_mapping() {
         $data['id'] = $this->input->post('review_id');
         $data['rejection_reason'] = $this->input->post('review_reject');
         $data['cancellation_reason'] = $this->input->post('cancellation');
@@ -158,13 +158,12 @@ class Penalty extends CI_Controller {
         $where['rejection_reason'] = $this->input->post('review_reject');
         $where['cancellation_reason'] = $this->input->post('cancellation');
         $count_data_present = $this->penalty_model->show_cancel_reject_list($where);
-        if(empty($count_data_present) || !empty($data['id'])){
-            $this->penalty_model->save_review_data($data);  
-            $this->session->set_userdata(array("success"=> "Mapping added successfully"));
-        }else{
-        $this->session->set_userdata(array("error"=> "Mapping already exist"));
-        }
-        // $this->inventory_model->save_review_data($data);                
+        if(!empty($count_data_present)){
+            $this->session->set_flashdata(array("error"=> "Mapping already exist"));
+        } else {            
+            $this->penalty_model->save_cancellation_rejection_mapping_data($data);  
+            $this->session->set_flashdata(array("success"=> "Mapping saved successfully"));
+        }               
         redirect(base_url() . 'penalty/map_rejection_cancellation_reason');
     }
     
