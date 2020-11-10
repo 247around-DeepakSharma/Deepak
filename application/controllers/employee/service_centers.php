@@ -6299,7 +6299,7 @@ class Service_centers extends CI_Controller {
                 . " spare_parts_details.quantity,"
                 . " spare_parts_details.shipped_quantity,"
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.remarks_by_sc) as remarks_by_sc, spare_parts_details.partner_id, "
-                . " GROUP_CONCAT(DISTINCT spare_parts_details.id) as spare_id, serial_number_pic, GROUP_CONCAT(DISTINCT spare_parts_details.inventory_invoice_on_booking) as inventory_invoice_on_booking, i.part_number ";
+                . " GROUP_CONCAT(DISTINCT spare_parts_details.id) as spare_id, serial_number_pic, GROUP_CONCAT(DISTINCT spare_parts_details.inventory_invoice_on_booking) as inventory_invoice_on_booking, i.part_number, service_centres.active, service_centres.on_off";
         $data['spare_parts'] = $this->service_centers_model->get_spare_parts_on_group($where, $select, "spare_parts_details.booking_id", $data['sf_id']);
         $data['is_ajax'] = $this->input->post('is_ajax');
         $data['is_send_to_sf'] = false;
@@ -6344,7 +6344,7 @@ class Service_centers extends CI_Controller {
                 . " spare_parts_details.quantity,"
                 . " spare_parts_details.shipped_quantity,"
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.remarks_by_sc) as remarks_by_sc, spare_parts_details.partner_id, "
-                . " GROUP_CONCAT(DISTINCT spare_parts_details.id) as spare_id, serial_number_pic, GROUP_CONCAT(DISTINCT spare_parts_details.inventory_invoice_on_booking) as inventory_invoice_on_booking, i.part_number ";
+                . " GROUP_CONCAT(DISTINCT spare_parts_details.id) as spare_id, serial_number_pic, GROUP_CONCAT(DISTINCT spare_parts_details.inventory_invoice_on_booking) as inventory_invoice_on_booking, i.part_number, service_centres.active, service_centres.on_off";
 
         $data['spare_parts'] = $this->service_centers_model->get_spare_parts_on_group($where, $select, "spare_parts_details.booking_id", $data['sf_id']);
 
@@ -9315,7 +9315,7 @@ class Service_centers extends CI_Controller {
                 . " spare_parts_details.quantity,"
                 . " spare_parts_details.shipped_quantity,"
                 . "spare_parts_details.remarks_by_sc as remarks_by_sc, spare_parts_details.partner_id, "
-                . " spare_parts_details.id as spare_id, serial_number_pic, spare_parts_details.inventory_invoice_on_booking, i.part_number ";
+                . " spare_parts_details.id as spare_id, serial_number_pic, spare_parts_details.inventory_invoice_on_booking, i.part_number, service_centres.active, service_centres.on_off ";
 
         $data['spare_parts'] = $this->service_centers_model->spare_assigned_to_partner($where, $select, "spare_parts_details.booking_id", $sf_id, -1, -1, 0, ['column' => 'age_of_request', 'sorting' => 'desc']);
 
