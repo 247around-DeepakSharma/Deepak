@@ -64,17 +64,18 @@ class Questionnaire_model extends CI_Model {
     function update_question($where, $data) {
         $arr_options = array();
         $rrtm_data['request_type_id'] = $data['request_type'];        
-        unset($data['request_type']);
-        unset($data['service_id']);
         if(!empty($data['options']))
         {
             $arr_options = explode(",", $data['options']);
-            unset($data['options']);
         } 
         if(empty($data['active'])){
             $data['active'] = 0;
         }
-        
+        unset($data['request_type']);
+        unset($data['service_id']);        
+        if(isset($data['options'])){
+            unset($data['options']);
+        }
         // update data in review_questionare
         $this->db->where($where, FALSE);
         $this->db->update('review_questionare', $data);
