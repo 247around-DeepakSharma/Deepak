@@ -5643,9 +5643,9 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $is_active = $this->input->post('is_active');
         if ($is_active == 1) {
             $where = "spare_parts_details.status !='NULL' GROUP BY spare_parts_details.status";
-            $select = "spare_parts_details.id, spare_parts_details.status";
+            $select = "DISTINCT(spare_parts_details.status), spare_parts_details.id";
             $status_list = $this->inventory_model->get_generic_table_details('spare_parts_details', $select, $where, array());
-            $option = '<option selected="" disabled="">Select Spare Parts Status</option>';
+            //$option = '<option selected="" disabled="">Select Spare Parts Status</option>';
             foreach ($status_list as $value) {
                 $option .= "<option value='" . $value['status'] . "'> " . $value['status'] . "</option>";
             }
