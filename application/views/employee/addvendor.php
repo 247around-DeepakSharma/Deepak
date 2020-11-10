@@ -542,9 +542,15 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                 <div class="form-group ">
                                     <label for="upcountry_min_distance_threshold" class="col-md-4 vertical-align">Municipal Limit</label>
                                     <div class="col-md-8">
-                                        <input  type="text" id="municipal_limit" class="form-control"  name="min_upcountry_distance" value = "<?php if (isset($query[0]['min_upcountry_distance'])) {
-                                            echo $query[0]['min_upcountry_distance'];
-                                        } ?>">
+                                        <select id="municipal_limit" class="form-control" name="min_upcountry_distance">
+                                            <option value="5" <?php if (isset($query[0]['min_upcountry_distance']) && $query[0]['min_upcountry_distance'] ==5) {echo "selected";   }?>>5</option>
+                                            <option value="10" <?php if (isset($query[0]['min_upcountry_distance']) && $query[0]['min_upcountry_distance'] == 10) {echo "selected";   }?>>10</option>
+                                            <option value="15" <?php if (isset($query[0]['min_upcountry_distance']) && $query[0]['min_upcountry_distance'] ==15) {echo "selected";   }?>>15</option>
+                                            <option value="20" <?php if (isset($query[0]['min_upcountry_distance']) && $query[0]['min_upcountry_distance'] ==20) {echo "selected";   }?>>20</option>
+                                            <option value="25" <?php if (isset($query[0]['min_upcountry_distance']) && $query[0]['min_upcountry_distance'] ==25) {echo "selected";   }?>>25</option>
+                                            
+                                        </select>
+                                        
                                     </div>
                                     
                                 </div>
