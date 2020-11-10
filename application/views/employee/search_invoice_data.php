@@ -107,7 +107,8 @@
          <th>Party Name</th>
          <th>Invoice Id</th>
          <th>Type</th>
-         <th>Bookings/ Parts</th>
+         <th>No. of Bookings</th>
+         <th>No. of Parts</th>
          <th>Invoice Period</th>
          <th>Total Invoice</th>
          <th>Service Charges</th>

@@ -1262,6 +1262,13 @@ class Partner extends CI_Controller {
         $search_type = trim($this->input->post('optradio'));
         if ($search_type === 'phone_number') {
             $phone_number = $this->input->post('phone_number');
+        
+        $search_value = preg_replace('/[^A-Za-z0-9\-]/', '',trim($this->input->post('search_value')));
+        $search_type =trim($this->input->post('optradio'));
+      
+        if ($search_type === 'phone_number') 
+            {
+            $phone_number =($this->input->post('phone_number'));
         }
 
         if ($phone_number != "") {
