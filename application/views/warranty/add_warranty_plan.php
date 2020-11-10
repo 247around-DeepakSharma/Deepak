@@ -498,7 +498,7 @@
             
             if(!$('#warranty_grace_period').val())
             {
-                 $(this).val(0);
+                 display_error("warranty_grace_period_error", "Please Enter Warranty Grace Period");
             }
             else
             {
