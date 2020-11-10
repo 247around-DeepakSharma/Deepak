@@ -9,6 +9,16 @@
                 <th class="jumbotron" >Agent profile</th>
                 <th class="jumbotron" >Recording</th>
             </tr>
+            <?php
+            if(empty($data))
+            {
+                ?>
+                <tr>
+                <td colspan="5" style="text-align: center;">No Recording available</td>
+                </tr>
+                <?php
+            }
+             ?>
             <?php foreach ($data as $key => $row) { ?>
                 <tr>
                     <td><?php echo ($key + 1) . '.'; ?></td>                    
