@@ -434,6 +434,7 @@ class Penalty_model extends CI_Model {
                 AND  closed_date >= '".$from_date."'
                 AND closed_date < '".$to_date."'
                 AND service_center_id = '".$vendor_id."'
+                AND p.penalty_amount > 0
                 $invoice_check
                 AND booking_details.booking_id = p.booking_id $where
                 GROUP BY p.booking_id, criteria_id  ";
