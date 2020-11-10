@@ -768,7 +768,7 @@ define('FAILURE_MESSAGE_SF_AGREEMENT','Thanks for Accepting! Agreement Sent on y
 define('FAILURE_MESSAGE_PARTS_CONSUMED_OW','It allows only for Micro Warehouse');
 define('FAILURE_MESSAGE_UNSETTLE_INVENTORY_NOT_EXIST','There is no exist unsettle Micro Warehouse invoice.');
 define('SUCESS_MESSAGE_PARTS_CONSUMED_OW','Updated Sucessfully! Thanks.');
-define('COVID_SMS', true);
+define('COVID_SMS', FALSE);
 
 define('REVIEW_REJECT_COMPLETION_REASON', 1);
 define('REVIEW_REJECT_CANCELLATION_REASON', 2);
