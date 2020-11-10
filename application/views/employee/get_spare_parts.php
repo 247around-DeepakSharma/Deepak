@@ -65,7 +65,7 @@
                             <p id="service_centers_id_err"></p>
                         </div>
                         <div class="col-md-3">
-                            <select class="form-control" name="spare_part_status"  id="spare_part_status" required=""></select>
+                            <select class="form-control" name="spare_part_status"  id="spare_part_status" multiple="multiple" required=""></select>
                             <p id="service_centers_id_err"></p>
                         </div>
                         <div class="col-md-4">
