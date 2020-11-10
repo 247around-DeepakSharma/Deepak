@@ -172,13 +172,10 @@ class Penalty_model extends CI_Model {
         return $query->result_array();
     }
 
-         public function save_review_data($data) {
-       // $data['last_updated_by'] = $this->session->userdata("employee_id");
+    public function save_cancellation_rejection_mapping_data($data) {
         if (empty($data['active'])) {
             $data['active'] = 0;
         }
-       // $data['criteria'] = $data['criteria'];        
-
         // CASE : UPDATE
         if (!empty($data['id'])) {
             $this->db->where('id', $data['id']);
