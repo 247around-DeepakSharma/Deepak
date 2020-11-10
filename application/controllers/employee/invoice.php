@@ -37,6 +37,7 @@ class Invoice extends CI_Controller {
         $this->load->library('push_notification_lib');
         $this->load->library("invoice_lib");
         $this->load->library('email');
+        $this->load->library('booking_creation_lib');
 
     }
 
@@ -957,38 +958,50 @@ class Invoice extends CI_Controller {
     }
 
     function download_invoice_files($invoice_id, $output_file_excel, $output_pdf_file_name) {
-       ob_start();
+       //ob_start();
+       $array_files = array();
         if (file_exists($output_file_excel)) {
             if (explode('.', $output_pdf_file_name)[1] === 'pdf') {
                 $output_file_pdf = TMP_FOLDER . $invoice_id . '-draft.pdf';
 
                 $cmd = "curl https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_pdf_file_name . " -o " . $output_file_pdf;
                 exec($cmd);
-                system('zip ' . TMP_FOLDER . $invoice_id . '.zip ' . TMP_FOLDER . $invoice_id . '-draft.xlsx' . ' ' . TMP_FOLDER . $invoice_id . '-draft.pdf'
-                        . ' ' . $output_file_excel);
+                
+                
+                array_push($array_files, $invoice_id . '-draft.pdf');
+                
+                
+                //system('zip ' . TMP_FOLDER . $invoice_id . '.zip ' . TMP_FOLDER . $invoice_id . '-draft.xlsx' . ' ' . TMP_FOLDER . $invoice_id . '-draft.pdf'
+                //        . ' ' . $output_file_excel);
             } else {
-                echo 'zip ' . TMP_FOLDER . $invoice_id . '.zip ' . TMP_FOLDER . $invoice_id . '-draft.xlsx' . ' ' . $output_file_excel;
-                system('zip ' . TMP_FOLDER . $invoice_id . '.zip ' . TMP_FOLDER . $invoice_id . '-draft.xlsx' . ' ' . $output_file_excel);
+                //echo 'zip ' . TMP_FOLDER . $invoice_id . '.zip ' . TMP_FOLDER . $invoice_id . '-draft.xlsx' . ' ' . $output_file_excel;
+                //system('zip ' . TMP_FOLDER . $invoice_id . '.zip ' . TMP_FOLDER . $invoice_id . '-draft.xlsx' . ' ' . $output_file_excel);
             }
             
-            header('Content-Description: File Transfer');
-            header('Content-Type: application/octet-stream');
-            header("Content-Disposition: attachment; filename=\"$invoice_id.zip\"");
-            if(ob_get_length()>0) {
-                ob_end_flush();
-            }
-            $res1 = 0;
-            system(" chmod 777 " . TMP_FOLDER . $invoice_id . '.zip ', $res1);
-            if(file_exists(TMP_FOLDER . $invoice_id. '.zip')) {
-                system(" chmod 777 " . TMP_FOLDER . $invoice_id . '.zip ', $res1);
-               readfile(TMP_FOLDER . $invoice_id. '.zip'); 
-            }
-            exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoice_id . '.zip'));
+            array_push($array_files, $invoice_id . '-draft.xlsx');
+            array_push($array_files, (str_replace(TMP_FOLDER, '', $output_file_excel)));
+            $this->booking_creation_lib->create_and_download_zip_file($invoice_id . '.zip', $array_files);
+            
+//            header('Content-Description: File Transfer');
+//            header('Content-Type: application/octet-stream');
+//            header("Content-Disposition: attachment; filename=\"$invoice_id.zip\"");
+//            if(ob_get_length()>0) {
+//                ob_end_flush();
+//            }
+//            $res1 = 0;
+          //  system(" chmod 777 " . TMP_FOLDER . $invoice_id . '.zip ', $res1);
+//            if(file_exists(TMP_FOLDER . $invoice_id. '.zip')) {
+//                system(" chmod 777 " . TMP_FOLDER . $invoice_id . '.zip ', $res1);
+//               readfile(TMP_FOLDER . $invoice_id. '.zip'); 
+//            }
+            
+
+//            exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoice_id . '.zip'));
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $invoice_id . "-draft.xlsx"));
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $invoice_id . "-draft.pdf"));
-            exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoice_id . '-draft.pdf'));
-            exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoice_id . '-draft.xlsx'));
-            
+//            exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoice_id . '-draft.pdf'));
+//            exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoice_id . '-draft.xlsx'));
+//            
             if (file_exists(TMP_FOLDER . $invoice_id . '.zip')) {
                 unlink(TMP_FOLDER . $invoice_id . '.zip');
             }
@@ -1004,6 +1017,8 @@ class Invoice extends CI_Controller {
             if (file_exists(TMP_FOLDER . $invoice_id . '-draft.xlsx')) {
                 unlink(TMP_FOLDER . $invoice_id . '-draft.xlsx');
             }
+            
+            exit();
         }                                              
     }
 
@@ -1381,17 +1396,11 @@ class Invoice extends CI_Controller {
             } 
         }
     }
-
-    /**
-     * @desc: This is used to generates foc type invoices for vendor
-     * @param: Array()
-     * @return: Array (booking id)
-     */
-    function generate_foc_details_invoices_for_vendors($invoice_details, $invoice_data, $vendor_id, $invoice_type, $agent_id,$from_date,$to_date ) {
+    
+    function _generate_foc_details_invoices_for_vendors($invoice_details, $invoice_data){
         log_message('info', __FUNCTION__ . '=> Entering...');
         
         $is_upcountry = FALSE;
-        $files = array();
         $total_upcountry_booking = $upcountry_rate = $upcountry_distance = $total_inst_charge = $total_st_charge = $total_stand_charge =  $total_vat_charge = 0;
         $total_upcountry_price = 0;
        
@@ -1479,6 +1488,33 @@ class Invoice extends CI_Controller {
             $this->generate_foc_detailed_invoice_excel($template, $invoice_data, $invoice_details, $output_file_excel);
             log_message('info', __FUNCTION__ . " Excel File Created " . $output_file_excel);
             
+            return array('data' => $invoice_data, 'files' => $output_file_excel,
+                'total_inst_charge' => $total_inst_charge, 
+                'total_stand_charge' => $total_stand_charge,
+                'total_upcountry_booking' =>$total_upcountry_booking,
+                'upcountry_rate' => $upcountry_rate,
+                'upcountry_distance' => $upcountry_distance,
+                'total_misc_charges' => $total_misc_charges);
+        
+    }
+
+    /**
+     * @desc: This is used to generates foc type invoices for vendor
+     * @param: Array()
+     * @return: Array (booking id)
+     */
+    function generate_foc_details_invoices_for_vendors($invoice_details, $invoice_data_temp, $vendor_id, $invoice_type, $agent_id,$from_date,$to_date ) {
+            $files = array();
+        
+            $in_data = $this->_generate_foc_details_invoices_for_vendors($invoice_details, $invoice_data_temp );
+            $invoice_data = $in_data['data'];
+            $output_file_excel = $in_data['files'];
+            $total_inst_charge= $in_data['total_inst_charge'];
+            $total_stand_charge = $in_data['total_stand_charge'];
+            $total_upcountry_booking = $in_data['total_upcountry_booking'];
+            $upcountry_rate = $in_data['upcountry_rate'];
+            $upcountry_distance = $in_data['upcountry_distance'];
+            $total_misc_charges = $in_data['total_misc_charges'];
             array_push($files, $output_file_excel);
             $convert = $this->invoice_lib->convert_invoice_file_into_pdf($invoice_data, $invoice_type, true, FALSE);
             //$convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($invoice_data['meta']['invoice_id'], $invoice_type,true); 
@@ -1613,7 +1649,7 @@ class Invoice extends CI_Controller {
                  //Upload Excel files to AWS
                 $this->upload_invoice_to_S3($invoice_data['meta']['invoice_id']);
                 
-                $mail_ret = $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement,FOC_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG);
+                $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement,FOC_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG);
                 
                 //Send SMS to PoC/Owner
                 $this->send_invoice_sms("FOC", $invoice_data['meta']['sd'], $invoice_data['meta']['t_vp_w_tds'], $invoice_data['meta']['owner_phone_1'], $vendor_id);
@@ -2880,6 +2916,13 @@ exit();
                         //Finding number of days between last time we sent negative FOC email and current date
                         $no_of_days_passed = $this->invoice_lib->get_no_of_days_between_dates($last_mail_date, date("Y-m-d"));
                         if($no_of_days_passed >= NEGATIVE_FOC_MAIL_PERIOD){
+                            
+                           $in_detailed = $this->invoices_model->generate_vendor_foc_detailed_invoices($vendor_id, $from_date, $to_date, $is_regenerate);
+                           
+                           $invoices['meta']['invoice_id'] = "TMP_INVOICE_FILE";
+                  
+                           $in_d = $this->_generate_foc_details_invoices_for_vendors($in_detailed, $invoices);
+                            
                             //Send mail
                             $email_template = $this->booking_model->get_booking_email_template(NEGATIVE_FOC_INVOICE_FOR_VENDORS_EMAIL_TAG);
                             $subject = vsprintf($email_template[4], array($invoices['meta']['company_name'],$invoices['meta']['sd'],$invoices['meta']['ed']));
@@ -2899,11 +2942,21 @@ exit();
                             echo "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount'].PHP_EOL;
                             log_message('info', __FUNCTION__ . "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount']);
 
-                            $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, "", "",NEGATIVE_FOC_INVOICE_FOR_VENDORS_EMAIL_TAG);
+                            $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $in_d['files'], "",NEGATIVE_FOC_INVOICE_FOR_VENDORS_EMAIL_TAG);
                             $this->vendor_model->edit_vendor(array("last_foc_mail_send_date" => date("Y-m-d H:i:s")), $vendor_id);
                         }
                         
                     }
+                } else {
+                    $in_detailed = $this->invoices_model->generate_vendor_foc_detailed_invoices($vendor_id, $from_date, $to_date, $is_regenerate);
+                           
+                    $invoices['meta']['invoice_id'] = "TMP_NEGATIVE_INVOICE";
+
+                    $in_d = $this->_generate_foc_details_invoices_for_vendors($in_detailed, $invoices);
+                    $array_files = array();
+                    array_push($array_files, (str_replace(TMP_FOLDER, '', $in_d['files'])));
+                    $this->booking_creation_lib->create_and_download_zip_file($invoices['meta']['invoice_id'] . '.zip', $array_files);
+                    exit();
                 }
                 
                 
@@ -4515,10 +4568,13 @@ exit();
 
                 $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($sp_data[0]->service_center_id);
                 $rem_email_id = "";
+                $asm_email_id = "";
                 if (!empty($rm_details)) {
                     $rem_email_id = ", " . $rm_details[0]['official_email'];
                 }
-                
+                if (!empty($rm_details[1]['official_email'])) {
+                    $asm_email_id = ", " . $rm_details[1]['official_email'];
+                }
 
                 $invoice_details = array(
                     'invoice_id' => $response['meta']['invoice_id'],
@@ -4570,7 +4626,7 @@ exit();
                 
                 $to = $vendor_details[0]['owner_email'] . ", " . $vendor_details[0]['primary_contact_email'];
 //                $to = $email_template[3];
-                $cc = $email_template[3];;
+                $cc = $email_template[3].$asm_email_id.$rem_email_id;
 
                 $this->upload_invoice_to_S3($response['meta']['invoice_id'], false);
 
@@ -4900,12 +4956,23 @@ exit();
             $email_from = $email_template[2];
 
             $to = $email_template[3];
+            $cc = "";
             //set emails o which we have to send mails on reverse sale invoice generation
             if(!empty($vendor_email)){
                 $cc = implode(',',$vendor_email);
-            }else{
-                $cc = "";
             }
+            
+            $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($spare[0]['service_center_id']);
+            $rem_email_id = "";
+            $asm_email_id = "";
+            if (!empty($rm_details)) {
+                $rem_email_id = ", " . $rm_details[0]['official_email'];
+            }
+            if (!empty($rm_details[1]['official_email'])) {
+                $asm_email_id = ", " . $rm_details[1]['official_email'];
+            }
+            
+            $cc = $cc.$rem_email_id.$asm_email_id;
             
             unset($response['meta']['main_company_logo_cell']);
             unset($response['meta']['main_company_seal_cell']);

@@ -278,6 +278,7 @@ class booking_creation_lib {
      * @author Ghanshyam
      */
     function create_and_download_zip_file($filename = '', $array_files = '') {
+        ob_start();
         if (!empty($filename) && !empty($array_files)) {
             $array_files = array_filter($array_files);
             $dir = TMP_FOLDER;
@@ -297,7 +298,12 @@ class booking_creation_lib {
                 header('Content-Type: application/zip');
                 header('Content-Disposition: attachment; filename="' . basename($filename) . '"');
                 header('Content-Length: ' . filesize($filename));
-                flush();
+                //flush();
+                $res1 = 0;
+                system(" chmod 777 " . $filename, $res1);
+                if(ob_get_length()>0) {
+                    ob_end_flush();
+                }
                 readfile($filename);
                 unlink($filename);
                 foreach ($array_files as $value_unlink) {
