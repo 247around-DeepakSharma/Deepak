@@ -100,7 +100,20 @@ if ($this->uri->segment(3)) {
                             <tbody>
                                 <?php
                                     $i = 1;
-                                    foreach ($spare_parts as $key => $row) {
+                                foreach ($spare_parts as $key => $row) {
+
+                                    if ($row['active'] == 0) {
+                                        $sc_icon_style = "color:#e10f0fd1;";
+                                        $sf_status = "Permanently Off";
+                                    } else if ($row['on_off'] == 0) {
+                                        $sc_icon_style = "color:#f1bc44;";
+                                        $sf_status = "Temporary Off";
+                                    } else {
+                                        $sc_icon_style = "color:#14d914;";
+                                        $sf_status = "On";
+                                    }
+
+                                    $vendor_name = "<i class='fa fa-circle' aria-hidden='true' style='margin-right:5px;" . $sc_icon_style . "'></i>" . $row['vendor_name'] . "<p style='font-weight: bold;" . $sc_icon_style . "'> - " . $sf_status . "</p>";
                                     ?>
                                     <tr style="text-align: center;" >
                                         <td style="<?php if($row['inventory_invoice_on_booking'] == 1){ echo 'background: green;color: #FFFfff;';} ?>">
@@ -120,7 +133,8 @@ if ($this->uri->segment(3)) {
                                             <?php echo $row['purchase_invoice_id']; ?>
                                         </td>
                                         <td>
-                                            <?php echo $row['vendor_name']; ?>
+                                            <?php echo $vendor_name; ?>
+                                            
                                         </td>
                                         <td>
                                             <?php echo $row['age_of_request']; ?>
