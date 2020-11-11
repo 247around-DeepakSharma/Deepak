@@ -584,5 +584,10 @@ class Penalty_model extends CI_Model {
             return 0;
         }
     }
-
+    
+    function get_sf_penalty_percentage($sf_id, $review_status, $penalty_period) {
+        $query = "SELECT sfPenaltyStatus($sf_id, '$review_status', $penalty_period) as penalty_percentage";
+        $result = $this->db->query($query)->result_array();
+        return $result;   
+    }
 }
