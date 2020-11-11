@@ -25,7 +25,7 @@
         <div class="row">
             <div class="col-lg-12">
                 <h1 class="page-header">
-                    Reason
+                    Admin Review Rejection Reasons
                     <a class="btn btn-primary btn-md pull-right" href='javascript:void(0)' id="add_reason" title="Add Reason"><i class="glyphicon glyphicon-plus"></i></a>
                 </h1>                        
             </div>
@@ -35,7 +35,7 @@
                 <thead>
                     <tr>
                         <th>S.No.</th>
-                        <th>Reason</th>
+                        <th>Rejection Reason</th>
                         <th>Penalty Point</th>
                         <th>Reason Of</th>
                         <th>Agent Name</th>
@@ -104,7 +104,7 @@
                             </div>
                             <div class="col-md-8 col-md-offset-2">
                                 <div class="form-group">
-                                    <label class="col-md-4">Reason*</label>
+                                    <label class="col-md-4">Rejection Reason*</label>
                                     <div class="col-md-8">
                                         <input type="text" name="criteria" id="criteria" class="form-control" value="" required>
                                     </div>
@@ -114,7 +114,7 @@
                                 <div class="form-group">
                                     <label class="col-md-4">Penalty Point*</label>
                                     <div class="col-md-8">
-                                        <input type="number" name="penalty_point" id="penalty_point" class="form-control" value="" min="1" max="10" equired>
+                                        <input type="number" name="penalty_point" id="penalty_point" class="form-control" value="" min="1" max="10" required>
                                     </div>
                                 </div>
                             </div>
@@ -265,6 +265,12 @@
         return true;
     }
 
+    $('#reason_data').on('hidden.bs.modal', function () {
+        $('#reason_id').val('');
+        $('#reason_of').val('');
+        $('#criteria').val('');
+        $('#penalty_point').val('');
+    });
 </script>
 
 <style>
