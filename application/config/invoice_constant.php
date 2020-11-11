@@ -146,4 +146,6 @@ define('MSL_Debit_Note', 'MSL Debit Note');
 define('CASH_INVOICE_LIMIT', 10);
 //MSL Credit Note
 define('MSL_Credit_Note', 'MSL Credit Note');
+//BULK Debite Note TAG
+define('BULK_DEBIT_NOTE_TAG', 'BULK_DEBIT_NOTE_TAG');
 ?>

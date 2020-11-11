@@ -4497,7 +4497,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
      * @author Abhishek 
      * @since 31-May-2019
      */    
-     function spare_transfer_from_wh_to_wh_process() {
+    function spare_transfer_from_wh_to_wh_process() {
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center')) {
             
         } else {
@@ -4623,7 +4623,6 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         }
     }
     }
-
 
 
      /**
