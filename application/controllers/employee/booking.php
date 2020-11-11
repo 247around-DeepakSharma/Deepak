@@ -5927,7 +5927,7 @@ function check_and_update_partner_extra_spare($booking_id) {
      }
     }
     
-    function review_bookings_by_status($review_status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason_id = NULL, $partner_id = NULL, $state_code = NULL, $request_type = NULL, $min_review_age = 0, $max_review_age = 0, $sort_on = 0, $sort_order = 0){
+    function review_bookings_by_status($review_status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason_id = NULL, $partner_id = NULL, $state_code = NULL, $request_type = NULL, $min_review_age = 0, $max_review_age = 0, $sort_on = 0, $sort_order = 0, $service_id = 0,$free_paid = 0, $sf_id = 0, $sf_wise_data = 0){
         $arr_request_types = [1 => 'Installation & Demo (Paid)',2 => 'Installation & Demo (Free)', 3 => 'Repair - In Warranty', 4 => 'Repair - Out Of Warranty', 5 => 'Extended Warranty', 6 => 'Gas Recharge', 7 => 'PDI', 8 => 'Repeat Booking', 9 => 'Presale Repair'];
         $data_id = !empty($this->input->post('data_id')) ? $this->input->post('data_id') : "";
         $this->checkUserSession();
@@ -5987,19 +5987,39 @@ function check_and_update_partner_extra_spare($booking_id) {
            $where['REPLACE(UPPER(booking_details.request_type)," ","") LIKE "%'.$request_type_selected.'%"'] = NULL;
         }
         // Added filter for Review Range
-        if(!empty($min_review_age) || !empty($max_review_age)) {
+        if(isset($min_review_age) && $min_review_age != NOT_SET && $min_review_age != '' && isset($max_review_age) && $max_review_age != NOT_SET && $max_review_age != '') {
            $where['(DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.service_center_closed_date,"%Y-%m-%d")) BETWEEN "'.$min_review_age.'" AND "'.$max_review_age.'") '] = NULL;
         }
-        
+        // Added Filter of Service 
+        if(!empty($service_id)){
+            $whereIN['booking_details.service_id'] = [$service_id];
+        }
+        // Added Filter of Free/Paid
+        if(!empty($free_paid)){
+            if($free_paid == "Yes"){
+               $where['booking_details.amount_due'] = '0';
+            }
+            else{
+               $where['booking_details.amount_due != 0'] = NULL;
+            }
+        }
+        // Added Filter of SF
+        if(!empty($sf_id) && $sf_id != NOT_SET ){
+             $whereIN['booking_details.assigned_vendor_id'] = [$sf_id];
+        }
         // put all selected values in array to show these filter values above filtered data
         $data['partners'] = $this->reusable_model->get_search_result_data("partners", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
         $data['request_types'] = $arr_request_types;
         $data['partner_selected'] = !empty($partner_id) ? $partner_id : 0;
         $data['request_type_selected'] = !empty($request_type) ? $request_type : 0;
-        $data['min_review_age_selected'] = !empty($min_review_age) ? $min_review_age : 0;
-        $data['max_review_age_selected'] = !empty($max_review_age) ? $max_review_age : 0;
+        $data['min_review_age_selected'] = !empty($min_review_age) ? $min_review_age : '';
+        $data['max_review_age_selected'] = !empty($max_review_age) ? $max_review_age : '';
         $data['sort_on_selected'] = $sort_on;
         $data['sort_order_selected'] = $sort_order;
+        $data['service_selected'] = !empty($service_id) ? $service_id : 0;
+        $data['free_paid_selected'] = !empty($free_paid) ? $free_paid : 0;
+        $data['sf_selected'] = !empty($sf_id) ? $sf_id : 0;
+        $data['sf_wise_data'] = $sf_wise_data;
         
         // Add sorting
         $orderBY = NULL;
@@ -6009,7 +6029,7 @@ function check_and_update_partner_extra_spare($booking_id) {
         
         $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join,$having);
         
-        if(!empty($total_rows)){
+        if(!empty($total_rows) || !empty($sf_wise_data)){
             $data['per_page'] = 50;
             $data['offset'] = $offset;
             $data['charges'] = $this->booking_model->get_booking_for_review($booking_id,$status,$whereIN,$is_partner,$offset,$data['per_page'],$having, $where, $orderBY, $join);
@@ -6052,6 +6072,9 @@ function check_and_update_partner_extra_spare($booking_id) {
             }
             // Function ends here
             $data['data_id'] = $data_id;
+            if(!empty($sf_wise_data)){
+                $this->miscelleneous->load_nav_header();
+            }
             $this->load->view('employee/completed_cancelled_review', $data);
         }
         else{
@@ -6065,8 +6088,11 @@ function check_and_update_partner_extra_spare($booking_id) {
         $review_status = $post_data['review_status'];
         $is_partner = $post_data['is_partner'];
         $request_type = $post_data['request_type'];
-        $review_age_min = !empty($post_data['review_age_min']) ? (int) $post_data['review_age_min'] : 0;
-        $review_age_max = !empty($post_data['review_age_max']) ? (int) $post_data['review_age_max'] : 0;
+        $review_age_min = !empty($post_data['review_age_min']) ? (int) $post_data['review_age_min'] : NOT_SET;
+        $review_age_max = !empty($post_data['review_age_max']) ? (int) $post_data['review_age_max'] : NOT_SET;
+        $service_id = $post_data['service_id'];
+        $free_paid = $post_data['free_paid'];
+        $sf_id = $post_data['sf_id'];
         $whereIN = $having = $where = [];
         $join = array();
         if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
@@ -6122,8 +6148,28 @@ function check_and_update_partner_extra_spare($booking_id) {
         }
         
         // Added Review Age Filter
-        if(!empty($review_age_min) || !empty($review_age_max)) {
+        if(isset($review_age_min) && $review_age_min != NOT_SET && $review_age_min != '' && isset($review_age_max) && $review_age_max != NOT_SET && $review_age_max != '') {
            $where['(DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.service_center_closed_date,"%Y-%m-%d")) BETWEEN "'.$review_age_min.'" AND "'.$review_age_max.'") '] = NULL;
+        }
+        
+        // Added Filter of Service 
+        if(!empty($service_id)){
+            $whereIN['booking_details.service_id'] = [$service_id];
+        }
+        
+        // Added Filter of Free/Paid
+        if(!empty($free_paid)){
+            if($free_paid == "Yes"){
+               $where['booking_details.amount_due'] = '0';
+            }
+            else{
+               $where['booking_details.amount_due != 0'] = NULL;
+            }
+        }
+        
+        // Added Filter of SF
+        if(!empty($sf_id) && $sf_id != NOT_SET ){
+             $whereIN['booking_details.assigned_vendor_id'] = [$sf_id];
         }
         
         $data = $this->booking_model->get_booking_for_review(NULL, $status,$whereIN, $is_partner,NULL,-1,$having, $where,NULL,$join);
@@ -6920,5 +6966,204 @@ function check_and_update_partner_extra_spare($booking_id) {
         $select = "agent_outbound_call_log.create_date, agent_outbound_call_log.recording_url, employee.full_name, employee.groups";
         $data['data'] = $this->booking_model->get_booking_recordings_by_id($booking_primary_id, $select);
         $this->load->view('employee/show_booking_recordings', $data);
-    }    
+    }  
+    
+    function review_bookings_by_status_sf_wise($review_status){
+        $this->checkUserSession();
+        $post_data = $this->input->post();
+    
+        // Get all Data
+        $data['sf_data'] = $this->get_review_bookings_data_sf_wise($review_status, $post_data);                     
+        if(!empty($data['sf_data'])){ 
+            $list_data = $this->get_review_bookings_data_sf_wise_list($data['sf_data'], $review_status);
+            if(!empty($post_data['is_ajax_request'])){                
+                echo $list_data; exit;
+            }
+            else
+            {
+                // Put all selected values in array to show these filter values above filtered data
+                $data['list_data'] = $list_data;
+                $data['status'] = $review_status;
+                $data['partners'] = $this->reusable_model->get_search_result_data("partners", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
+                $data['states'] = $this->reusable_model->get_search_result_data("state_code", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
+                $data['services'] = $this->reusable_model->get_search_result_data("services", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
+                $data['request_types'] = [1 => 'Installation & Demo (Paid)',2 => 'Installation & Demo (Free)', 3 => 'Repair - In Warranty', 4 => 'Repair - Out Of Warranty', 5 => 'Extended Warranty', 6 => 'Gas Recharge', 7 => 'PDI', 8 => 'Repeat Booking', 9 => 'Presale Repair'];   
+                // load View
+                $this->load->view('employee/completed_cancelled_review_sf_wise', $data);
+            }
+        }
+        else{
+            echo "<center style='margin-top:30px;'>No Booking Found</center>";
+        }
+    }
+    
+    function get_review_bookings_data_sf_wise($review_status, $post_data)
+    {
+        $whereIN = $where = $join = $having = array();
+        
+        // For RM/ASM/AMs fetch bookings assigned to their SFs only
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
+            $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
+            $serviceCenters = $sf_list[0]['service_centres_id'];
+            $whereIN =array("sc.service_center_id"=>explode(",",$serviceCenters));
+        }
+        if($this->session->userdata('is_am') == '1'){
+            $am_id = $this->session->userdata('id');
+            $where['agent_filters.agent_id ='.$am_id] = NULL;
+            $where['partners.is_active =1'] = NULL;
+            $where["agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."'"] = NULL;
+            $join['agent_filters'] =  "partners.id=agent_filters.entity_id AND agent_filters.state = booking_details.state AND agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."' ";
+        }
+        
+        if($review_status == _247AROUND_COMPLETED) {
+            $having['count(sc.booking_id)=sum(if(sc.added_by_SF=0,1,0))'] = NULL;
+        }
+        
+        if($review_status == _247AROUND_CANCELLED) {
+            $where['(sc.cancellation_reason IS NULL OR sc.cancellation_reason <> "'.CANCELLATION_REASON_WRONG_AREA_ID.'")'] = NULL;
+        }              
+
+        // For Partner Filter
+        if(!empty($post_data['partners'])) {
+           $whereIN['booking_details.partner_id'] = [$post_data['partners']];
+           $data['filters']['partner_id'] = $post_data['partners'];
+        }
+        
+        // For Product Filter
+        if(!empty($post_data['services'])) {
+           $whereIN['booking_details.service_id'] = [$post_data['services']];
+           $data['filters']['service_id'] = $post_data['services'];
+        }
+
+        // For Request Type Filter
+        $arr_request_types = [1 => 'Installation & Demo (Paid)',2 => 'Installation & Demo (Free)', 3 => 'Repair - In Warranty', 4 => 'Repair - Out Of Warranty', 5 => 'Extended Warranty', 6 => 'Gas Recharge', 7 => 'PDI', 8 => 'Repeat Booking', 9 => 'Presale Repair'];
+        if(!empty($post_data['request_type'])) {           
+           $request_type_selected = !empty($arr_request_types[$post_data['request_type']]) ? $arr_request_types[$post_data['request_type']] : "";   
+           $request_type_selected = strtoupper(str_replace(" ", "", $request_type_selected));
+           $where['REPLACE(UPPER(booking_details.request_type)," ","") LIKE "%'.$request_type_selected.'%"'] = NULL;
+           $data['filters']['request_type'] = $post_data['request_type'];
+        }
+        
+        // For Free/Paid Filter
+        if(!empty($post_data['free_paid'])) {
+            if($post_data['free_paid'] == "Yes"){
+               $where['booking_details.amount_due'] = '0';
+            }
+            else{
+               $where['booking_details.amount_due != 0'] = NULL;
+            }
+            $data['filters']['free_paid'] = $post_data['free_paid'];
+        }
+        
+        // For State Filter
+        if(!empty($post_data['states'])) {
+           $state =  $this->reusable_model->get_search_result_data("state_code", "*", array('state_code' => $post_data['states']), NULL, NULL, NULL, NULL, NULL, array())[0]['state'];
+           $whereIN['booking_details.state'] = [$state];
+           $data['filters']['states'] = $post_data['states'];
+        }
+        
+        $data = $this->service_centers_model->get_admin_review_bookings_sf_wise($review_status,$whereIN,0,$where,$join,$having);
+        return $data;
+    }
+    
+    function get_review_bookings_data_sf_wise_list($data, $review_status)
+    {
+        $index = 0;
+        $str = "";
+        
+        // Get Penalty Status against each SF            
+        foreach($data as $key => $values){ 
+            $index++;
+            $str .= "<tr>";
+            $str .= "<td>$index</td>";
+            $str .= "<td class='sf_".$review_status."' data-sf='".$values['sf_id']."'>"
+                    . $values['sf_name']
+                    . "<span id='penalty_".$review_status."_".$values['sf_id']."'></span>"
+                    . "<span id='status_".$review_status."_".$values['sf_id']."'></span>"
+                    . "</td>";
+            $str .= "<td>".$values['state']."</td>";
+            $str .= "<td><button data-sf='".$values['sf_id']."' data-review-age-min='0'  data-review-age-max='0' class='btn btn-count btn-success'>". $values['Day0'] ."</button></td>";
+            $str .= "<td><button data-sf='".$values['sf_id']."' data-review-age-min='1'  data-review-age-max='1' class='btn btn-count btn-success'>". $values['Day1'] ."</button></td>";
+            $str .= "<td><button data-sf='".$values['sf_id']."' data-review-age-min='2'  data-review-age-max='2' class='btn btn-count ".($values['Day2'] > 0 ? 'btn-danger' : 'btn-success')."'>".$values['Day2']."</button></td>";
+            $str .= "<td><button data-sf='".$values['sf_id']."' data-review-age-min='3'  data-review-age-max='3' class='btn btn-count ".($values['Day3'] > 0 ? 'btn-danger' : 'btn-success')."'>".$values['Day3']."</button></td>";
+            $str .= "<td><button data-sf='".$values['sf_id']."' data-review-age-min='4'  data-review-age-max='4' class='btn btn-count ".($values['Day4'] > 0 ? 'btn-danger' : 'btn-success')."'>".$values['Day4']."</button></td>";
+            $str .= "<td><button data-sf='".$values['sf_id']."' data-review-age-min='5'  data-review-age-max='7' class='btn btn-count ".($values['Day5-Day7'] > 0 ? 'btn-danger' : 'btn-success')."'>".$values['Day5-Day7']."</button></td>";
+            $str .= "<td><button data-sf='".$values['sf_id']."' data-review-age-min='8'  data-review-age-max='15' class='btn btn-count ".($values['Day8-Day15'] > 0 ? 'btn-danger' : 'btn-success')."'>".$values['Day8-Day15']."</button></td>";
+            $str .= "<td><button data-sf='".$values['sf_id']."' data-review-age-min='16' data-review-age-max='500' class='btn btn-count ".($values['>Day15'] > 0 ? 'btn-danger' : 'btn-success')."'>".$values['>Day15']."</button></td>";
+            $str .= "<td><button data-sf='".$values['sf_id']."' data-review-age-min='".NOT_SET."'  data-review-age-max='".NOT_SET."' class='btn btn-count ".($values['Total'] > 0 ? 'btn-danger' : 'btn-success')."'>".$values['Total']."</button></td>";
+            $str .= "</tr>";
+        }
+        
+        // Get Total Row
+        $str .= "<tr>";
+        $str .= "<td>".++$index."</td>";
+        $str .= "<td>Total</td>";
+        $str .= "<td>All</td>";
+        $str .= "<td><button data-sf='".NOT_SET."' data-review-age-min='0'  data-review-age-max='0' class='btn btn-count btn-success'>". array_sum(array_column($data, 'Day0')) ."</button></td>";
+        $str .= "<td><button data-sf='".NOT_SET."' data-review-age-min='1'  data-review-age-max='1' class='btn btn-count btn-success'>". array_sum(array_column($data, 'Day1')) ."</button></td>";
+        $str .= "<td><button data-sf='".NOT_SET."' data-review-age-min='2'  data-review-age-max='2' class='btn btn-count ".(array_sum(array_column($data, 'Day2')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($data, 'Day2'))."</button></td>";
+        $str .= "<td><button data-sf='".NOT_SET."' data-review-age-min='3'  data-review-age-max='3' class='btn btn-count ".(array_sum(array_column($data, 'Day3')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($data, 'Day3'))."</button></td>";
+        $str .= "<td><button data-sf='".NOT_SET."' data-review-age-min='4'  data-review-age-max='4' class='btn btn-count ".(array_sum(array_column($data, 'Day4')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($data, 'Day4'))."</button></td>";
+        $str .= "<td><button data-sf='".NOT_SET."' data-review-age-min='5'  data-review-age-max='7' class='btn btn-count ".(array_sum(array_column($data, 'Day5-Day7')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($data, 'Day5-Day7'))."</button></td>";
+        $str .= "<td><button data-sf='".NOT_SET."' data-review-age-min='8'  data-review-age-max='15' class='btn btn-count ".(array_sum(array_column($data, 'Day8-Day15')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($data, 'Day8-Day15'))."</button></td>";
+        $str .= "<td><button data-sf='".NOT_SET."' data-review-age-min='16'  data-review-age-max='500' class='btn btn-count ".(array_sum(array_column($data, '>Day15')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($data, '>Day15'))."</button></td>";
+        $str .= "<td><button data-sf='".NOT_SET."' data-review-age-min='".NOT_SET."'  data-review-age-max='".NOT_SET."' class='btn btn-count ".(array_sum(array_column($data, 'Total')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($data, 'Total'))."</button></td>";
+        $str .= "</tr>";
+        
+        // Return HTML    
+        return $str;                                                                                    
+    }
+    
+    /**
+     * This function shows OW completed bookings percentage against a SF
+     * @param type $sf_id
+     * @param type $time_period
+     * @param type $status
+     */
+    function get_ow_completed_percentage($sf_id, $time_period, $status = 0){
+        $data = $this->booking_model->get_sf_ow_completed_percentage($sf_id, $time_period);
+        $ow_completed_percentage = 0;
+        if(!empty($data[0]['ow_completed_percentage'])){
+            $ow_completed_percentage = $data[0]['ow_completed_percentage'];
+        }
+        
+        if($status){
+            $str = "";
+            if($ow_completed_percentage < OW_COMPLETED_THRESHOLD){
+                $str = "<span style='color:red;margin-left:5px;font-weight:bold'>O</span>";
+            }
+            echo $str;
+        }
+        else
+        {
+            echo $ow_completed_percentage;
+        }
+    }
+    
+    /**
+     * 
+     * @param type $sf_id
+     * @param type $time_period
+     * @param type $status
+     */
+    function get_cancelled_percentage($sf_id, $time_period, $status = 0){
+        $data = $this->booking_model->get_sf_cancelled_percentage($sf_id, $time_period);
+        $cancelled_percentage = 0;
+        if(!empty($data[0]['cancelled_percentage'])){
+            $cancelled_percentage = $data[0]['cancelled_percentage'];
+        }
+        
+        if($status){
+            $str = "";
+            if($cancelled_percentage < CANCELLATION_THRESHOLD){
+                $str = "<span style='color:red;margin-left:5px;font-weight:bold'>C</span>";
+            }
+            echo $str;
+        }
+        else
+        {
+            echo $cancelled_percentage;
+        }
+    }
+    
 }

@@ -1713,5 +1713,105 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         $query = $this->db->query($sql);
         return $query->result_array();
     }
-
+    
+    /**
+    * This function is used to calculate Day wise TAT count for Bookings on Review Page
+     * Used on Bookings Completed by SF/ Bookings Cancelled by SF Tab on review Page
+     * @author : Prity Sharma
+     * @Date : 29-10-2020
+    */
+    function get_admin_review_bookings_sf_wise($status,$whereIN,$is_partner,$where=array(),$join_arr=array(),$having_arr=array()){
+        $where_in = $join = $having = "";
+        $where_sc = "AND (partners.booking_review_for NOT LIKE '%".$status."%' OR partners.booking_review_for IS NULL OR booking_details.amount_due != 0)";
+        if($is_partner){
+            $where_sc = " AND (partners.booking_review_for IS NOT NULL)";
+        }                
+        // Add Status Condition
+        if($status == _247AROUND_CANCELLED){
+            $where_sc = $where_sc." AND NOT EXISTS (SELECT 1 FROM service_center_booking_action sc_sub WHERE sc_sub.booking_id = sc.booking_id "
+                    . "AND (sc_sub.internal_status ='Completed' OR sc_sub.internal_status ='Defective Part To Be Shipped By SF' OR sc_sub.internal_status ='Defective Part Received By Partner'"
+                    . "OR sc_sub.internal_status ='Defective Part Shipped By SF') LIMIT 1) ";
+        }
+        else if($status == _247AROUND_COMPLETED){
+            $where_sc = $where_sc." AND EXISTS (SELECT 1 FROM service_center_booking_action sc_sub WHERE sc_sub.booking_id = sc.booking_id AND sc_sub.internal_status ='Completed' LIMIT 1) ";
+        }
+        // Add Where In Condition
+        if(!empty($whereIN)){
+            foreach ($whereIN as $fieldName=>$conditionArray){
+                $where_in .= " AND ".$fieldName." IN ('".implode("','",$conditionArray)."')";
+            }
+        }
+        // Add Where Condition
+        if(!empty($where)){
+            foreach ($where as $fieldName=>$conditionArray){
+                $where_sc =$where_sc. " AND ".$fieldName;
+            }
+        }
+        // Add Join Condition
+        if (!empty($join_arr)) {
+            foreach($join_arr as $key=>$values){
+                $join = $join." JOIN ".$key." ON ".$values;
+            }
+        }
+        // Add Having Condition
+        if(!empty($having_arr)){
+            foreach ($having_arr as $fieldName=>$conditionArray){
+                $having = $having. $fieldName." AND ";
+            }
+            $having = " having ".trim($having," AND ");
+        }
+        // Query
+        $sql = "SELECT
+                    sf_id,
+                    sf_name,
+                    state,
+                    group_concat(qry.booking_id) as booking_id,
+                    SUM(D0) as 'Day0',
+                    SUM(D1) as 'Day1',
+                    SUM(D2) as 'Day2',
+                    SUM(D3) as 'Day3',
+                    SUM(D4) as 'Day4',
+                    SUM(D5) as 'Day5-Day7',
+                    SUM(D8) as 'Day8-Day15',
+                    SUM(D15) as '>Day15',
+                    SUM(Total) as 'Total'
+                FROM
+                    (SELECT 
+			service_centres.id as sf_id,
+			service_centres.company_name as sf_name,
+			service_centres.state,
+			GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,
+			COUNT(DISTINCT booking_details.booking_id) as booking_count,
+			(CASE WHEN DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.service_center_closed_date, '%Y-%m-%d')) = 0 THEN 1 ELSE 0 END) AS 'D0',
+			(CASE WHEN DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.service_center_closed_date, '%Y-%m-%d')) = 1 THEN 1 ELSE 0 END) AS 'D1',
+			(CASE WHEN DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.service_center_closed_date, '%Y-%m-%d')) = 2 THEN 1 ELSE 0 END) AS 'D2',
+			(CASE WHEN DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.service_center_closed_date, '%Y-%m-%d')) = 3 THEN 1 ELSE 0 END) AS 'D3',
+			(CASE WHEN DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.service_center_closed_date, '%Y-%m-%d')) = 4 THEN 1 ELSE 0 END) AS 'D4',
+			(CASE WHEN (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.service_center_closed_date, '%Y-%m-%d')) BETWEEN 5 AND 7) THEN 1 ELSE 0 END) AS 'D5',
+			(CASE WHEN (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.service_center_closed_date, '%Y-%m-%d')) BETWEEN 8 AND 15) THEN 1 ELSE 0 END) AS 'D8',
+			(CASE WHEN (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.service_center_closed_date, '%Y-%m-%d')) > 15) THEN 1 ELSE 0 END) AS 'D15',
+                        1 as 'Total'
+                    FROM
+			service_center_booking_action sc
+                        JOIN booking_details ON booking_details.booking_id = sc.booking_id
+			JOIN service_centres ON booking_details.assigned_vendor_id = service_centres.id
+                        JOIN partners ON booking_details.partner_id = partners.id
+                        $join
+                    WHERE
+			sc.current_status = 'InProcess'
+                        $where_sc
+                        $where_in
+                        AND sc.internal_status IN ('Cancelled','Completed')
+                        AND booking_details.is_in_process = 0
+                    GROUP BY
+                        booking_details.booking_id
+                    $having
+                    ) as qry
+                GROUP BY sf_id
+                ORDER BY Total DESC";        
+        $query = $this->db->query($sql);
+//        echo '<pre>';print_R($this->db->last_query());exit;
+        $booking = $query->result_array();        
+        return $booking;
+    }
 }

@@ -3260,4 +3260,16 @@ class Booking_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+    
+    function get_sf_ow_completed_percentage($sf_id, $time_period) {
+        $query = "SELECT sfOWCompletedBookingPercentage($sf_id, $time_period) as ow_completed_percentage";
+        $result = $this->db->query($query)->result_array();
+        return $result;   
+    }
+    
+    function get_sf_cancelled_percentage($sf_id, $time_period) {
+        $query = "SELECT sfCancelledBookingPercentage($sf_id, $time_period) as cancelled_percentage";
+        $result = $this->db->query($query)->result_array();
+        return $result;   
+    }
 }

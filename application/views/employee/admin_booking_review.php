@@ -14,12 +14,12 @@
                                 </a>
                             </li>
                             <li role="presentation">
-                                <a href="#tabs-2" data-id="completed" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php //echo base_url();?>employee/booking/review_bookings_by_status/Completed/0">
+                                <a href="#tabs-2" data-id="completed" role="tab" data-toggle="tab" aria-expanded="true" data-url="employee/booking/review_bookings_by_status_sf_wise/Completed">
                                     Completed Bookings By SF 
                                 </a>
                             </li>
                             <li role="presentation">
-                                <a href="#tabs-3" data-id="cancelled" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php //echo base_url();?>employee/booking/review_bookings_by_status/Cancelled/0">
+                                <a href="#tabs-3" data-id="cancelled" role="tab" data-toggle="tab" aria-expanded="true" data-url="employee/booking/review_bookings_by_status_sf_wise/Cancelled">
                                     Cancelled Bookings By SF
                                 </a>
                             </li>

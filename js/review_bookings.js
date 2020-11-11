@@ -200,8 +200,8 @@ function review_search(status,is_partner,sub_id,sort_on){
     }
     
     // set value for the Review Range filter
-    var min_review_age = 0;
-    var max_review_age = 0;
+    var min_review_age = 'not_set';
+    var max_review_age = 'not_set';
     if($('#review_age_min_'+is_partner+'_'+status+sub_id).length && $('#review_age_min_'+is_partner+'_'+status+sub_id).val() != '') {
         var min_review_age_id = '#review_age_min_'+is_partner+'_'+status+sub_id;
         min_review_age = $(min_review_age_id).val();
@@ -210,6 +210,31 @@ function review_search(status,is_partner,sub_id,sort_on){
         var max_review_age_id = '#review_age_max_'+is_partner+'_'+status+sub_id;
         max_review_age = $(max_review_age_id).val();
     }
+    
+    var service = '0';
+    if($('#service_id_'+is_partner+'_'+status+sub_id).length && $('#service_id_'+is_partner+'_'+status+sub_id).val() != '') {    
+        var service_id = '#service_id_'+is_partner+'_'+status+sub_id;
+        service = $(service_id).val();
+    }
+    
+    var free_paid = '0';
+    if($('#free_paid_'+is_partner+'_'+status+sub_id).length && $('#free_paid_'+is_partner+'_'+status+sub_id).val() != '') {    
+        var free_paid_id = '#free_paid_'+is_partner+'_'+status+sub_id;
+        free_paid = $(free_paid_id).val();
+    }
+    
+    var sf = '0';
+    if($('#sf_id_'+is_partner+'_'+status+sub_id).length && $('#sf_id_'+is_partner+'_'+status+sub_id).val() != '') {    
+        var sf_id = '#sf_id_'+is_partner+'_'+status+sub_id;
+        sf = $(sf_id).val();
+    }
+    
+    var sf_wise_data = 0;
+    if($('#sf_wise_data_'+is_partner+'_'+status+sub_id).length && $('#sf_wise_data_'+is_partner+'_'+status+sub_id).val() != '') {    
+        var sf_wise_data_id = '#sf_wise_data_'+is_partner+'_'+status+sub_id;
+        sf_wise_data = $(sf_wise_data_id).val();
+    }
+    
     var tab = "#tabs-3";
     if(status == "Completed"){
        var tab = "#tabs-2";
@@ -223,5 +248,13 @@ function review_search(status,is_partner,sub_id,sort_on){
     if(sub_id != ""){
         var tab = "#tabs-6";
     }
-    load_view('employee/booking/review_bookings_by_status/'+status+'/0/'+is_partner+'/'+bookingID+'/'+ cancellation_reason+'/'+partner+'/'+state+'/'+request_type+'/'+min_review_age+'/'+max_review_age+'/'+sort_on+'/'+sort_order, tab,0);
+    // Load View
+    if(sf_wise_data == 0)
+    {
+        load_view('employee/booking/review_bookings_by_status/'+status+'/0/'+is_partner+'/'+bookingID+'/'+ cancellation_reason+'/'+partner+'/'+state+'/'+request_type+'/'+min_review_age+'/'+max_review_age+'/'+sort_on+'/'+sort_order+'/'+service+'/'+free_paid+'/'+sf+'/'+sf_wise_data, tab,0);
+    }
+    else
+    {
+        window.open(baseUrl+'/employee/booking/review_bookings_by_status/'+status+'/0/0/'+bookingID+'/0/'+partner+'/'+state+'/'+request_type+'/'+min_review_age+'/'+max_review_age+'/'+sort_on+'/'+sort_order+'/'+service+'/'+free_paid+'/'+sf+'/'+sf_wise_data, '_self');        
+    }
 }
