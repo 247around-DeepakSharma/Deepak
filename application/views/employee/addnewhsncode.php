@@ -121,8 +121,8 @@
       idArray = textbox_id.split("_");
      var hsnTextVal =  $("#hsntextbox_"+idArray[1]).val();
      var gstTextVal =  $("#gsttextbox_"+idArray[1]).val();
+     var edit_flag = ''; 
         if(hsnTextVal!= undefined){
-            alert(hsnTextVal);
             if(hsnTextVal.length > 8){
                 $("#hsntextbox_"+idArray[1]).val('');
                 alert("HSN code length should not be greater than eight digit."); 
@@ -133,7 +133,9 @@
                  $("#hsntextbox_"+idArray[1]).val('');
                  alert("HSN Code Should Be Numeric.");
                  return false;
-                 }
+              }else{
+                  edit_flag = 'HSN';
+              }
                  
         }
 
@@ -143,8 +145,10 @@
                $("#gsttextbox_"+idArray[1]).val('');
                alert('Please enter valid GST.');
                return false;
+           }else{
+                  edit_flag = 'GST';
+              }
            }
-       }
         
         if ($(this).siblings(".hsncode_details_text").is(":hidden")) {
             var prethis = $(this);
@@ -161,14 +165,14 @@
                     beforeSend: function(){                
                          prethis.html('<i class="fa fa-circle-o-notch fa-lg" aria-hidden="true"></i>');
                      },
-                    data: { data: data_value, id: line_item_id, column:column},
+                    data: {update_to :edit_flag, data: data_value, id: line_item_id, column:column},
                     success: function (data) {
                         if(data === "Success"){                    
                             prethis.siblings("input").remove();
                             prethis.siblings(".hsncode_details_text").show();
                             prethis.html('<i class="fa fa-pencil fa-lg" aria-hidden="true"></i>');                 
                         } else {
-                            alert("There is a problem to update");
+                            alert(data);
                         }                
                     }
                 });

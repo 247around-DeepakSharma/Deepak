@@ -6212,12 +6212,31 @@ exit();
         if ($this->form_validation->run()) {
             $data = $this->input->post('data');
             $id = $this->input->post('id');
-            $column = $this->input->post('column');            
-            $this->invoices_model->update_hsn_code_details(array('id' => $id), array($column => $data));
-            echo "Success";
-        } else {
-            echo "Error";
-        }
+            $column = $this->input->post('column'); 
+            $update_to = $this->input->post('update_to');             
+            $flag = false;
+            if($update_to == 'HSN'){
+                $hsn_details = $this->inventory_model->get_hsn_code_details("hsn_code_details.id, hsn_code_details.hsn_code, hsn_code_details.gst_rate", array("hsn_code_details.hsn_code" => $data));
+                if(empty($hsn_details)){
+                  $flag = TRUE;
+                } else {
+                    echo 'HSN code already exist in our system';  
+                    return false;
+                }
+            } else {
+                 $flag = TRUE;
+            }
+            
+            if($flag){
+             $this->invoices_model->update_hsn_code_details(array('id' => $id), array($column => $data, 'hsn_code_details.agent_id' => $this->session->userdata("id")));   
+             echo "Success";
+            } else {
+               echo "There is a problem to update"; 
+            }
+            
+            
+            
+        } 
     }
     
     /**
