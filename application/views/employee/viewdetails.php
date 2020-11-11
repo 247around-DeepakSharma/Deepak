@@ -269,67 +269,7 @@
                             <td style="max-width: 330px;"><?php echo $customer_dissatisfactory_reason;?></td>
                         </tr>
                         
-                    </table>
-
-                    <table class="table  table-striped table-bordered cloned" >
-                        <tr>
-                            <th colspan="2" style="font-size: 16px; color: #2c9d9c;">
-                                Support Files
-                                <?php if(isset($booking_files) && !empty($booking_files)) { ?>
-                                <button class="btn btn-sm btn-primary" id="btn_addSupportFile" style="float:right;margin-right:5px;">Add Support File</button>
-                                <?php } ?>
-                            </th>
-                        </tr>
-                        <tr>
-                            <th style="width: 50%;">File Type </th>
-                            <th style="width: 50%;">File</th>
-                        </tr>
-                        <?php $count=0;
-                        if(isset($booking_files) && !empty($booking_files)) {
-                            $count = count($booking_files);
-                        foreach($booking_files as $key => $files) { ?>
-                        <tr class="uploaded_support_file">
- 
-                            <td style="width: 50%;"><?php if(isset($files['file_description'])) echo $files['file_description']; ?></td>
-                            <td style="width: 50%;">
-                                <input type="file" id="supportfileLoader_<?=$key?>" name="files" onchange="uploadsupportingfile(this.id,'<?=$files['id']?>')" style="display:none" />
-                                <div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogress_supproting_file_".$key;?>"  role="progressbar" style="width:0%">0%</div>
-                                <?php $src = base_url() . 'images/no_image.png';
-                                $image_src = $src;
-                                if (isset($files['file_name']) && !empty($files['file_name'])) {
-                                    //Path to be changed
-                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/purchase-invoices/".$files['file_name'];
-                                    $image_src = base_url().'images/view_image.png';
-                                }
-                                ?>
-                                <a id="a_order_support_file_<?=$key?>" href="<?php  echo $src?>" target="_blank"><img id="m_order_support_file_<?=$key?>" src="<?php  echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:10px;" /></a>
-                                &nbsp;&nbsp;<button type="button" class="btn btn-sm btn-primary fa fa-pencil fa-lg" title="Update File" id="supporting_file_<?=$key?>" onclick="upload_supporting_file(this.id);" style="width:35px;height:35px;"></button>
-                            </td>
-                        </tr>
-                        <?php } } ?>
-                        <tr class="clonedInput" id="cat<?=$count?>">
-                            <td style="width: 50%;">
-                                <select class="form-control" id="file_description_<?=$count?>"  name="file_description" style="width:40%" >
-                                    <option selected disabled>Select File Type</option>
-                                    <?php if(!empty($file_type)) {
-                                        foreach($file_type as $val) { ?>
-                                    <option value="<?=$val['id']?>" ><?=$val['file_type']?></option>
-                                    <?php  }
-                                    } ?>
-                                </select>
-                            </td>
-                            <td style="width: 50%;">
-                                <input type="file" id="supportfileLoader_<?=$count?>" name="files[]" onchange="uploadsupportingfile(this.id)" style="display:none" />
-                                <div class="progress-bar progress-bar-success myprogress" id="myprogress_supproting_file_<?=$count?>"  role="progressbar" style="width:0%">0%</div>
-                                <?php $src = base_url() . 'images/no_image.png';
-                                $image_src = $src;    ?>
-                                <a id="a_order_support_file_<?=$count?>" href="<?php  echo $src?>" target="_blank"><img id="m_order_support_file_<?=$count?>" src="<?php  echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:10px;" /></a>
-                                &nbsp;&nbsp;<button type="button" class="btn btn-sm btn-primary fa fa-plus fa-lg" title="Add File" id="supporting_file_<?=$count?>" onclick="upload_supporting_file(this.id);" style="width:35px;height:35px;"></button>
-                                &nbsp;&nbsp;<button type="button" class="btn btn-sm btn-primary" title="Remove Row" id="remove_row_<?=$count?>" onclick="remove(this.id)" style="float:right;margin-right:7px;">Remove</button>
-                                &nbsp;&nbsp;<button type="button" class="clone btn btn-sm btn-primary" title="Add Row" id="add_row_<?=$count?>" style="float:right;margin-right:5px;">Add</button>
-                            </td>
-                        </tr>
-                    </table>
+                    </table>                    
                     <table class="table  table-striped table-bordered" >
                         <tr>
                             <th colspan="4" style="font-size: 16px; color: #2c9d9c;">Dealer Detail</th>
@@ -648,6 +588,64 @@
                         <?php } ?>
                     </div>
                 </div>
+                
+                <h1 style='font-size:24px;margin-top: 40px;'>
+                    Support Files
+                    <?php if(isset($booking_files) && !empty($booking_files)) { ?>
+                        <button class="btn btn-sm btn-primary" id="btn_addSupportFile" style="float:right;margin-right:5px;">Add Support File</button>
+                    <?php } ?>
+                </h1>
+                <table class="table  table-striped table-bordered cloned" >
+                        <tr>
+                            <th style="width: 50%;">File Type </th>
+                            <th style="width: 50%;">File</th>
+                        </tr>
+                        <?php $count=0;
+                        if(isset($booking_files) && !empty($booking_files)) {
+                            $count = count($booking_files);
+                        foreach($booking_files as $key => $files) { ?>
+                        <tr class="uploaded_support_file">
+ 
+                            <td style="width: 50%;"><?php if(isset($files['file_description'])) echo $files['file_description']; ?></td>
+                            <td style="width: 50%;">
+                                <input type="file" id="supportfileLoader_<?=$key?>" name="files" onchange="uploadsupportingfile(this.id,'<?=$files['id']?>')" style="display:none" />
+                                <div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogress_supproting_file_".$key;?>"  role="progressbar" style="width:0%">0%</div>
+                                <?php $src = base_url() . 'images/no_image.png';
+                                $image_src = $src;
+                                if (isset($files['file_name']) && !empty($files['file_name'])) {
+                                    //Path to be changed
+                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/purchase-invoices/".$files['file_name'];
+                                    $image_src = base_url().'images/view_image.png';
+                                }
+                                ?>
+                                <a id="a_order_support_file_<?=$key?>" href="<?php  echo $src?>" target="_blank"><img id="m_order_support_file_<?=$key?>" src="<?php  echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:10px;" /></a>
+                                &nbsp;&nbsp;<button type="button" class="btn btn-sm btn-primary fa fa-pencil fa-lg" title="Update File" id="supporting_file_<?=$key?>" onclick="upload_supporting_file(this.id);" style="width:35px;height:35px;"></button>
+                            </td>
+                        </tr>
+                        <?php } } ?>
+                        <tr class="clonedInput" id="cat<?=$count?>">
+                            <td style="width: 50%;">
+                                <select class="form-control" id="file_description_<?=$count?>"  name="file_description" style="width:40%" >
+                                    <option selected disabled>Select File Type</option>
+                                    <?php if(!empty($file_type)) {
+                                        foreach($file_type as $val) { ?>
+                                    <option value="<?=$val['id']?>" ><?=$val['file_type']?></option>
+                                    <?php  }
+                                    } ?>
+                                </select>
+                            </td>
+                            <td style="width: 50%;">
+                                <input type="file" id="supportfileLoader_<?=$count?>" name="files[]" onchange="uploadsupportingfile(this.id)" style="display:none" />
+                                <div class="progress-bar progress-bar-success myprogress" id="myprogress_supproting_file_<?=$count?>"  role="progressbar" style="width:0%">0%</div>
+                                <?php $src = base_url() . 'images/no_image.png';
+                                $image_src = $src;    ?>
+                                <a id="a_order_support_file_<?=$count?>" href="<?php  echo $src?>" target="_blank"><img id="m_order_support_file_<?=$count?>" src="<?php  echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:10px;" /></a>
+                                &nbsp;&nbsp;<button type="button" class="btn btn-sm btn-primary fa fa-plus fa-lg" title="Add File" id="supporting_file_<?=$count?>" onclick="upload_supporting_file(this.id);" style="width:35px;height:35px;"></button>
+                                &nbsp;&nbsp;<button type="button" class="btn btn-sm btn-primary" title="Remove Row" id="remove_row_<?=$count?>" onclick="remove(this.id)" style="float:right;margin-right:7px;">Remove</button>
+                                &nbsp;&nbsp;<button type="button" class="clone btn btn-sm btn-primary" title="Add Row" id="add_row_<?=$count?>" style="float:right;margin-right:5px;">Add</button>
+                            </td>
+                        </tr>
+                    </table>
                 <div class="row">
                     <center><img id="misc_charge_loader" style="width: 50px;" src="<?php echo base_url(); ?>images/loader.gif"/></center>
                      <div class="col-md-12" id="misc_charge_div" >
