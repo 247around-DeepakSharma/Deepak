@@ -157,6 +157,9 @@ class Penalty extends CI_Controller {
         $data['active'] = $this->input->post('active');
         $where['rejection_reason'] = $this->input->post('review_reject');
         $where['cancellation_reason'] = $this->input->post('cancellation');
+        if(!empty($data['id'])){
+            $where['cancellation_rejection_penalty_mapping.id <> '.$data['id']] = NULL;
+        }
         $count_data_present = $this->penalty_model->show_cancel_reject_list($where);
         if(!empty($count_data_present)){
             $this->session->set_flashdata(array("error"=> "Mapping already exist"));
