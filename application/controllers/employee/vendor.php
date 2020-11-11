@@ -5827,29 +5827,6 @@ class vendor extends CI_Controller {
                     $vendor_data_miscellaneous['status'] = 1;
                     $this->vendor_model->sf_insert_miscellaneous($vendor_data_miscellaneous);
                 }
-                $attachment_stamp = $this->upload_stamp_file($data);
-               // print_r($attachment_signature);
-                // if($attachment_stamp){
-                // } else {
-                    
-                    //return FALSE;
-                // }
-                }else{
-                $attachment_stamp = $this->input->post('stamp_file_hd');
-            }
-                //$data['vendor_id'] = $this->input->post('id');
-                $data_miscelleneous['stamp_file'] = $attachment_stamp;
-                $data_miscelleneous['status'] = 0;
-                $where_miscellaneous['vendor_id'] = $this->input->post('id');
-                $where_miscellaneous['status'] =1;
-                $this->vendor_model->sf_update_miscellaneous($where_miscellaneous,$data_miscelleneous);
-             //print_r($attachment_stamp); die;  
-             $vendor_data_miscellaneous['agent_id'] = $this->session->userdata('id');
-                $vendor_data_miscellaneous['agent_type'] = _247AROUND_EMPLOYEE_STRING;  
-                $vendor_data_miscellaneous['vendor_id'] = $this->input->post('id');
-                $vendor_data_miscellaneous['stamp_file'] = $attachment_stamp;
-                $vendor_data_miscellaneous['status'] = 1;
-                $this->vendor_model->sf_insert_miscellaneous($vendor_data_miscellaneous);
                 $this->notify->insert_state_change('', NEW_SF_DOCUMENTS, NEW_SF_DOCUMENTS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'),
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
                
@@ -5857,6 +5834,7 @@ class vendor extends CI_Controller {
                 // $this->session->set_usergdata('current_tab', 2);
                 redirect(base_url() . 'employee/vendor/editvendor/'.$data['id']);
             } 
+		}
     
        //save brand details 
     function save_vendor_brand_mapping(){
