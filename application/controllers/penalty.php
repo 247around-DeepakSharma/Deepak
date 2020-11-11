@@ -307,5 +307,23 @@ class Penalty extends CI_Controller {
         echo(json_encode($penalty));
     }
 
-
+    function get_sf_penalty_percentage($sf_id, $review_status, $penalty_period, $status = 0){
+        $data = $this->penalty_model->get_sf_penalty_percentage($sf_id, $review_status, $penalty_period);
+        $penalty_percentage = 0;
+        if(!empty($data[0]['penalty_percentage'])){
+            $penalty_percentage = $data[0]['penalty_percentage'];
+        }
+        
+        if($status){
+            $str = "<i class='fa fa-circle' style='color:green;margin-left:5px;'></i>";
+            if($penalty_percentage > PENALTY_THRESHOLD){
+                $str = "<i class='fa fa-circle' style='color:red;margin-left:5px;'></i>";
+            }
+            echo $str;
+        }
+        else
+        {
+            echo $penalty_percentage;
+        }
+    }
 }

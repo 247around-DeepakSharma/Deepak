@@ -1,3 +1,4 @@
+<div class="review_data">
 <?php
 $tab_class = !empty($data_id) ? $data_id : "all";
 // create strings to make Ids of Common controls Unique
@@ -38,7 +39,11 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
         </div>
         <!--Filter Panel-->        
         <div class="row" style="margin-left:10px;border:1px solid #ddd;">
-            <input type="hidden" name="sub_id" id="sub_id" value="<?php echo $sub_id; ?>">                 
+            <input type="hidden" name="sub_id" id="sub_id" value="<?php echo $sub_id; ?>"> 
+            <input type="hidden" name="sf_wise_data_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" id="sf_wise_data_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" value="<?php echo $sf_wise_data; ?>"> 
+            <input type="hidden" name="service_id_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" id="service_id_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" value="<?php echo $service_selected; ?>"> 
+            <input type="hidden" name="free_paid_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" id="free_paid_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" value="<?php echo $free_paid_selected; ?>"> 
+            <input type="hidden" name="sf_id_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" id="sf_id_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" value="<?php echo $sf_selected; ?>"> 
             <div class="col-md-2 pull-right" style="padding:10px;width:12%">               
                 <label for="search">Custom Search</label>
                 <input type="search" class="form-control pull-right"  id="search_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>" placeholder="search" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>,'<?php echo $sub_id ?>','<?php echo $sort_on_selected; ?>')">
@@ -433,8 +438,10 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
             var request_type = $('#request_type_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>').val();
             var review_age_min = $('#review_age_min_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>').val();
             var review_age_max = $('#review_age_max_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>').val();
-
-            window.open("<?php echo base_url(); ?>employee/booking/download_review_bookings_data?partner_id="+partner_id+"&state_id="+state_id+"&request_type="+request_type+"&review_age_min="+review_age_min+"&review_age_max="+review_age_max+"&is_partner=<?php echo $is_partner; ?>&review_status=<?php echo $review_status;?>", '_blank');
+            var service_id = $('#service_id_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>').val();
+            var free_paid = $('#free_paid_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>').val();
+            var sf_id = $('#sf_id_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>').val();
+            window.open("<?php echo base_url(); ?>employee/booking/download_review_bookings_data?partner_id="+partner_id+"&state_id="+state_id+"&request_type="+request_type+"&review_age_min="+review_age_min+"&review_age_max="+review_age_max+"&is_partner=<?php echo $is_partner; ?>&review_status=<?php echo $review_status;?>&service_id="+service_id+"&free_paid="+free_paid+"&sf_id="+sf_id, '_blank');
         }
         
         if(download_btn == 'download_cancelled_booking') {
@@ -444,8 +451,11 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
             var request_type = $('#request_type_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>').val();
             var review_age_min = $('#review_age_min_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>').val();
             var review_age_max = $('#review_age_max_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>').val();
-
-             window.open("<?php echo base_url(); ?>employee/booking/download_review_bookings_data?partner_id="+partner_id+"&state_id="+state_id+ "&request_type="+request_type+"&review_age_min="+review_age_min+"&review_age_max="+review_age_max+"&is_partner=<?php echo $is_partner; ?>&review_status=<?php echo $review_status;?>&cancellation_reason_id="+cancellation_reason_id, '_blank');
+            var service_id = $('#service_id_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>').val();
+            var free_paid = $('#free_paid_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>').val();
+            var sf_id = $('#sf_id_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>').val();
+            
+            window.open("<?php echo base_url(); ?>employee/booking/download_review_bookings_data?partner_id="+partner_id+"&state_id="+state_id+ "&request_type="+request_type+"&review_age_min="+review_age_min+"&review_age_max="+review_age_max+"&is_partner=<?php echo $is_partner; ?>&review_status=<?php echo $review_status;?>&cancellation_reason_id="+cancellation_reason_id+"&service_id="+service_id+"&free_paid="+free_paid+"&sf_id="+sf_id, '_blank');
         }
     });
 
@@ -746,3 +756,4 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
 
 
    </script> 
+</div>
