@@ -1259,6 +1259,7 @@ class Partner extends CI_Controller {
     function finduser($offset = 0, $page = 0, $phone_number = '') {
         $this->checkUserSession();
         $search_value = trim($this->input->post('search_value'));
+        $search_value = preg_replace('/[^A-Za-z0-9\-]/', '',trim($this->input->post('search_value')));
         $search_type = trim($this->input->post('optradio'));
         if ($search_type === 'phone_number') {
             $phone_number = $this->input->post('phone_number');
