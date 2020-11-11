@@ -4083,6 +4083,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         }
 
     }
+	}
     /**
     * @Desc: This function is to get all micro-warehouse booking landed count last 4 month
     * @params: none
@@ -4192,16 +4193,6 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $this->miscelleneous->downloadCSV($array_to_download,$heading,$file_name);
 
     }
-
-
-
-       }
-
-
-
-    
-    
-    
         /**
      * @desc This function is used to view  spare transfer page
      */
