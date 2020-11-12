@@ -229,14 +229,6 @@ if(empty($booking_history[0]['booking_id'])){
                                     <div class="col-md-8">                                    
                                         <input style="width:65px;height:20px;display:inline;" id="query" type="radio" class="form-control booking_type" onclick="check_prepaid_balance('Query')" name="type" value="Query" required <?php if($is_repeat){ echo 'disabled'; } ?> >Query
                                         <input style="width:65px;height:20px;display:inline;" id="booking" type="radio" class="form-control booking_type" onclick="check_prepaid_balance('Booking')" name="type" value="Booking" <?php if($is_repeat){ echo "checked"; } ?> required <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>>Booking
-                                        <input style="width:65px;height:20px;display:inline;" id="query" type="radio" class="form-control booking_type" onclick="check_prepaid_balance('Query')" name="type" <?php if(!empty($booking_history[0]['type']) && $booking_history[0]['type'] =="Query")
-                                                {
-                                                    echo "checked";
-                                                }?>>Query
-                                        <input style="width:65px;height:20px;display:inline;" id="booking" type="radio" class="form-control booking_type" onclick="check_prepaid_balance('Booking')" name="type" <?php if(!empty($booking_history[0]['type']) && $booking_history[0]['type'] =="Booking")
-                                                {
-                                                    echo "checked";
-                                                }?> required >Booking
                                     </div>
                                 </div>
                                 <div class="form-group ">
