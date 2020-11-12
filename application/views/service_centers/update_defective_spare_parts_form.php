@@ -215,6 +215,7 @@
         yesterday.setDate(today.getDate() - 3);
         return yesterday;
         }(),
+        maxDate: new Date(),
         setDate: new Date(),
         locale: {
             format: 'YYYY-MM-DD'

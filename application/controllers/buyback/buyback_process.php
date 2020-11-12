@@ -564,14 +564,17 @@ class Buyback_process extends CI_Controller {
         $row[] = $order_list->current_status;
         $row[] = $order_list->partner_basic_charge;
         $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
-        $row[] = "<div class='dropdown'>
+        $a = "<div class='dropdown'>
                             <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions
                             <span class='caret'></span></button>
                             <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showDialogueBox('" . base_url() . "buyback/buyback_process/update_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Received</a></li>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."buyback/buyback_process/update_bb_report_issue_order_details/".rawurlencode($order_list->partner_order_id)."/".rawurlencode($order_list->service_id)."/".rawurlencode($order_list->city)."/".rawurlencode($order_list->assigned_cp_id)."/".rawurlencode($order_list->current_status)."'>Broken/Wrong Product</a></li>
-                            </ul>
-                          </div>";
+                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showDialogueBox('" . base_url() . "buyback/buyback_process/update_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Received</a></li>";
+        if($order_list->service_id != _247AROUND_TV_SERVICE_ID){
+            $a .= "<li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."buyback/buyback_process/update_bb_report_issue_order_details/".rawurlencode($order_list->partner_order_id)."/".rawurlencode($order_list->service_id)."/".rawurlencode($order_list->city)."/".rawurlencode($order_list->assigned_cp_id)."/".rawurlencode($order_list->current_status)."'>Broken/Wrong Product</a></li>";
+        }
+        $a .= "</ul></div>";
+        
+        $row[] = $a;
         
         return $row;
     }
@@ -590,15 +593,18 @@ class Buyback_process extends CI_Controller {
         $row[] = $order_list->current_status;
         $row[] = $order_list->partner_basic_charge;
         $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
-        $row[] = "<div class='dropdown'>
+        $a = "<div class='dropdown'>
                             <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions
                             <span class='caret'></span></button>
                             <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
                               <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showDialogueBox('" . base_url() . "buyback/buyback_process/update_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Received</a></li>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showDialogueBox('".base_url()."buyback/buyback_process/update_not_received_bb_order/".rawurlencode($order_list->partner_order_id)."/".rawurlencode($order_list->service_id)."/".rawurlencode($order_list->city)."/".rawurlencode($order_list->assigned_cp_id)."')>Not Received</a></li>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."buyback/buyback_process/update_bb_report_issue_order_details/".rawurlencode($order_list->partner_order_id)."/".rawurlencode($order_list->service_id)."/".rawurlencode($order_list->city)."/".rawurlencode($order_list->assigned_cp_id)."/".rawurlencode($order_list->current_status)."'>Broken/Wrong Product</a></li>
-                            </ul>
-                          </div>";
+                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showDialogueBox('".base_url()."buyback/buyback_process/update_not_received_bb_order/".rawurlencode($order_list->partner_order_id)."/".rawurlencode($order_list->service_id)."/".rawurlencode($order_list->city)."/".rawurlencode($order_list->assigned_cp_id)."')>Not Received</a></li>";
+        if($order_list->service_id != _247AROUND_TV_SERVICE_ID){
+            $a .="<li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."buyback/buyback_process/update_bb_report_issue_order_details/".rawurlencode($order_list->partner_order_id)."/".rawurlencode($order_list->service_id)."/".rawurlencode($order_list->city)."/".rawurlencode($order_list->assigned_cp_id)."/".rawurlencode($order_list->current_status)."'>Broken/Wrong Product</a></li>";
+        }
+        $a .= "</ul></div>";
+        
+        $row[] = $a;
         
         return $row;
     }

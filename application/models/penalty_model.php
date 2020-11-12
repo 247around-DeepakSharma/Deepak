@@ -305,7 +305,7 @@ class Penalty_model extends CI_Model {
                         if (empty($data)) {
                             $data1['agent_id'] = _247AROUND_DEFAULT_AGENT;
                             $data1['remarks'] = 'Booking Not Updated On Time';
-                            $where = array('criteria' => BOOKING_NOT_UPDATED_BY_SERVICE_CENTER, 'active' => '1');
+                            $where = array('penalty_details.criteria' => BOOKING_NOT_UPDATED_BY_SERVICE_CENTER, 'penalty_details.active' => '1');
                             $data1['booking_id'] = $booking_id;
                             $data1['assigned_vendor_id'] = $value['assigned_vendor_id'];
                             $data1['agent_type'] = 'admin';
@@ -587,5 +587,10 @@ class Penalty_model extends CI_Model {
             return 0;
         }
     }
-
+    
+    function get_sf_penalty_percentage($sf_id, $review_status, $penalty_period) {
+        $query = "SELECT sfPenaltyStatus($sf_id, '$review_status', $penalty_period) as penalty_percentage";
+        $result = $this->db->query($query)->result_array();
+        return $result;   
+    }
 }
