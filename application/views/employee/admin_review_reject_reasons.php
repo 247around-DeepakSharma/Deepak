@@ -74,9 +74,11 @@
                                 <a class="btn btn-primary btn-xs" href='javascript:void(0)' title="Update Reason" id="update_reason" reason_id="<?= $rec['id']; ?>"><i class="glyphicon glyphicon-pencil"></i></a>
                             </td>
                             <td style="display: none;">
-
-                                <?php 
-                                    echo $rec['active'];
+                                <?php if(!empty($rec['active'])) {
+                                    echo "Yes";
+                                } else  {
+                                    echo "No";
+                                }
                                 ?>
                             </td>
                         </tr>
@@ -162,9 +164,9 @@
                 {
                     extend: 'excel',
                     text: 'Export',
-                    title: 'review-reject-list',
+                    title: 'admin-review-rejection-reasons-list',
                     exportOptions: {
-                        columns: [0, 1, 2, 5]
+                        columns: [0, 1, 2, 3, 4, 7]
                     }
                 }
         ]                        
