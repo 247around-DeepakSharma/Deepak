@@ -84,11 +84,14 @@
                                             <li role='presentation'><a role='menuitem' tabindex='-1'  onclick="showConfirmDialougeBox('<?php echo base_url();?>service_center/buyback/update_not_received_bb_order/<?php echo 
                                                 rawurlencode($value->partner_order_id) . "/" . rawurlencode($value->service_id) . "/" . rawurlencode($value->city) . "/" . rawurlencode($value->assigned_cp_id); ?>')" >Not Received</a></li>
                                             <?php } ?>
-                                            <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank'
-                                                href="<?php echo base_url();?>service_center/buyback/update_order_details/<?php  echo rawurlencode($value->partner_order_id) . "/" 
-                                                    . rawurlencode($value->service_id) . "/" . rawurlencode($value->city) . "/" . rawurlencode($value->assigned_cp_id)."/". rawurlencode($value->current_status);?>" >
-                                                Broken/Wrong Product</a>
-                                            </li>
+                                            if($value->service_id != _247AROUND_TV_SERVICE_ID){
+                                                <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank'
+                                                    href="<?php echo base_url();?>service_center/buyback/update_order_details/<?php  echo rawurlencode($value->partner_order_id) . "/" 
+                                                        . rawurlencode($value->service_id) . "/" . rawurlencode($value->city) . "/" . rawurlencode($value->assigned_cp_id)."/". rawurlencode($value->current_status);?>" >
+                                                    Broken/Wrong Product</a>
+                                                </li>
+                                            }
+                                            
                                         </ul>
                                     </div>
                                     <?php } ?>

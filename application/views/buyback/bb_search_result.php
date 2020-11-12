@@ -75,7 +75,9 @@
                                         <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
                                             <li role='presentation'><a role='menuitem' tabindex='-1' onclick="showDialogueBox('<?php echo base_url();?>buyback/buyback_process/update_received_bb_order/<?php echo (rawurlencode($value->partner_order_id)  . "/" . rawurlencode($value->service_id) . "/" . rawurlencode($value->city) . "/" . rawurlencode($value->assigned_cp_id))?>')">Received</a></li>
                                             <li role='presentation'><a role='menuitem' tabindex='-1' onclick="showDialogueBox('<?php echo base_url();?>buyback/buyback_process/update_not_received_bb_order/<?php echo (rawurlencode($value->partner_order_id)  . "/" . rawurlencode($value->service_id) . "/" . rawurlencode($value->city) . "/" . rawurlencode($value->assigned_cp_id))?>')">Not Received</a></li>
+                                            <?php if($value->service_id != _247AROUND_TV_SERVICE_ID){ ?>
                                             <li role='presentation'><a role='menuitem' tabindex='-1' href='<?php echo base_url();?>buyback/buyback_process/update_bb_report_issue_order_details/<?php echo (rawurlencode($value->partner_order_id)  . "/" . rawurlencode($value->service_id) . "/" . rawurlencode($value->city) . "/" . rawurlencode($value->assigned_cp_id). "/" . rawurlencode($value->current_status))?>' target='_blank'>Broken/Wrong Product</a></li>
+                                            <?php } ?>
                                         </ul>
                                     </div>
                                 </td>
