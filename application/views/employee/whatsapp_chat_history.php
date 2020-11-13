@@ -56,7 +56,7 @@
 
 
 
-        <div class="row chat-window col-xs-6 col-md-3" id="chat_window_1" style="margin-left:10px;z-index:9999;">
+        <div class="row chat-window col-xs-6 col-md-3" id="chat_window_1" style="margin-left:10px;z-index:9999;right: 10px;">
             <div class="col-xs-12 col-md-12">
                 <div class="panel panel-default">
                     <div class="panel-heading top-bar">
@@ -76,14 +76,14 @@
 
 
                     </div>
-                    <div class="panel-footer">
+                    <!--<div class="panel-footer">
                         <div class="input-group">
                             <input id="btn-inputchat" type="text" class="form-control input-sm chat_input" placeholder="Write your message here..." />
                             <span class="input-group-btn">
                                 <button class="btn btn-primary btn-sm" id="btn-chat">Send</button>
                             </span>
                         </div>
-                    </div>
+                    </div>-->
                 </div>
             </div>
         </div>
@@ -129,7 +129,7 @@
             background: #e5e5e5;
             margin: 0;
             padding: 0 10px 10px;
-            max-height:300px;
+            max-height:600px;
             overflow-x:hidden;
         }
         .top-bar {
@@ -446,8 +446,14 @@
                     alert("Error in loading chat. please try after some time");
                 }
             });
-
+            
+            //if($('#msg_container_base').isVisible()){
+            if(document.getElementsByClassName("msg_container_base").style.display !== "none"){
+            alert(1);
+            }else{
+             alert(2);
             $('.panel-heading span.icon_minim').click();
+            }
         });
 
         $('.panel-heading span.icon_minim').click();

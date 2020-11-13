@@ -601,6 +601,19 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        <div class="panel panel-default" style="margin-left:10px; margin-right:10px;">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-12">                                       
+                                            <label for="prob_desc" class="col-md-2">Part brought at*</label>
+                                            <input type='radio' name='part_brought_at' value=1 <?php if (!empty($booking_set_location[0]['part_brought_at']) && $booking_set_location[0]['part_brought_at'] == 1) { ?>checked <?php } ?> <?php if (!empty($booking_set_location[0]['part_brought_at']) && $booking_set_location[0]['part_brought_at'] == 2) { ?> onclick='return false'<?php } ?>>&nbsp;&nbsp;Customer Location&nbsp;&nbsp;
+                                            <input type='radio' name='part_brought_at' value=2 <?php if (!empty($booking_set_location[0]['part_brought_at']) && $booking_set_location[0]['part_brought_at'] == 2) { ?> checked onclick='return false'<?php } ?>>&nbsp;&nbsp;SF Workshop                                                                      
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="text-warning"> <span class="badge badge-info"><i class="fa fa-info"></i></span> * These fields are required</div>
                     </div>
                     <div  id="hide_rescheduled" >
@@ -613,6 +626,19 @@
                                 </div>
                             </div>
                         </div>
+                        <?php
+                       if($spare_flag == SPARE_PARTS_REQUIRED || $spare_flag == SPARE_OOW_EST_REQUESTED){
+                       ?>
+                       <div class="form-group" id="hide_part_brought_at">
+                           <label for="remarks" class="col-md-2">Part brought at*</label>
+                           <div class="col-md-4" style="width:24%">                           
+                               <input type='radio' name='part_brought_at_res' value=1 <?php if (!empty($booking_set_location[0]['part_brought_at']) && $booking_set_location[0]['part_brought_at'] == 1) { ?>checked <?php } ?> <?php if (!empty($booking_set_location[0]['part_brought_at']) && $booking_set_location[0]['part_brought_at'] == 2) { ?> onclick='return false'<?php } ?>>&nbsp;&nbsp;Customer Location&nbsp;&nbsp;
+                               <input type='radio' name='part_brought_at_res' value=2 <?php if (!empty($booking_set_location[0]['part_brought_at']) && $booking_set_location[0]['part_brought_at'] == 2) { ?> checked onclick='return false'<?php } ?>>&nbsp;&nbsp;SF Workshop                                                                      
+                           </div>  
+                       </div> 
+                       <?php
+                       }
+                       ?>
                     </div>
                     <div class="form-group" id="hide_remarks">
                         <label for="remarks" class="col-md-2">Remarks *</label>
@@ -620,6 +646,9 @@
                             <textarea class="form-control remarks"  id="sc_remarks" name="sc_remarks" value = "" placeholder="Enter Remarks" rows="5" ></textarea>
                         </div>
                     </div>
+                    
+                    
+                    
                     <?php 
                    //if current status is completed or cancelled by admin. SF cannot update the booking.
                    if(($bookinghistory[0]['current_status'] == _247AROUND_COMPLETED)||($bookinghistory[0]['current_status'] == _247AROUND_CANCELLED)){
@@ -975,7 +1004,8 @@ function alpha(e) {
                 return false;
                } 
               
-  <?php } ?>            
+  <?php } ?>       
+       
 
               
               
@@ -1093,6 +1123,13 @@ function alpha(e) {
                 checkbox_value = 0;
                 return false;
             }
+            //Check if any Option selected or not
+            if($('input[name=part_brought_at]:checked').length > 0){
+            }else{
+                alert('Please select Part brought at Option');
+                checkbox_value = 0;
+            }
+            
                           
           } else if(around_flag === '1'){
               var parts_name1 = $('#247parts_name').val();
@@ -1112,6 +1149,7 @@ function alpha(e) {
               }
               
           }
+        
       } else {
           var sc_remarks = $("#sc_remarks").val();
           if(sc_remarks === ""){
@@ -1120,6 +1158,7 @@ function alpha(e) {
           }
 
       }
+       
          
       if(checkbox_value === 0){
           $('#submitform').val("Update Booking");
@@ -1170,6 +1209,7 @@ function alpha(e) {
             $('#hide_rescheduled').hide();
             $(".remarks").attr("disabled", "true");
             $('#hide_remarks').hide();
+            $('#hide_part_brought_at').hide();
             $('#submitform').val('Update Booking');
         } else  if(id ==="rescheduled" || id === "product_not_delivered" 
                 || id=== "reschedule_for_upcountry"
@@ -1179,6 +1219,7 @@ function alpha(e) {
             $('#hide_rescheduled').show();
             $(".rescheduled_form").removeAttr("disabled");
             $('#hide_remarks').show();
+            
             $(".remarks").removeAttr("disabled");
         
             //$('#submitform').val('Proceed');

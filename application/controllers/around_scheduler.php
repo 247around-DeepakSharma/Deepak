@@ -40,6 +40,7 @@ class Around_scheduler extends CI_Controller {
         $this->load->library('push_notification_lib');
         $this->load->library("invoice_lib");
         $this->load->helper(array('form', 'url', 'file'));
+        $this->load->library('trackingmore_api');
         $this->load->dbutil();
     }
 
@@ -3260,5 +3261,151 @@ class Around_scheduler extends CI_Controller {
                 }
             }
         }
+    }
+     function st(){
+      // exit;
+  
+    $payloadName = array("category"=> "account_update", 
+        'language_code'=> "en_US", 
+        "whatsapp_account_uid" =>'2fa4af4d-5b4f-498a-add8-f97e01524987',
+        "name" => 'complete_booking_and_ask_rating_new',
+        "attachment" => null,
+        "text" => "Dear {{*}}, {{*}} of your {{*}} is completed against Booking ID: {{*}} on {{*}} {{*}}. Thank you for choosing us! 247around, Videocon Service Partner. Reply 1 / 2 / 3 / 4 / 5 for rating: 5 for Excellent, 4 for Good, 3 for Satisfactory, 2 for Bad, 1 for Terrible.",
+        );
+    $payloadName = json_encode($payloadName);
+     $headers = array(
+    'Content-Type:application/json',
+    'Authorization: Basic '. API_KARIX_PASSWORD // <---
+     );
+     $additionalHeaders ="";
+     $ch = curl_init("https://api.karix.io/whatsapp/template/");
+     curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', $additionalHeaders));
+//curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+     curl_setopt($ch, CURLOPT_HEADER, 0);
+     curl_setopt($ch, CURLOPT_USERPWD, API_KARIX_USER_ID . ":" . API_KARIX_PASSWORD);
+     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+     curl_setopt($ch, CURLOPT_POST, 1);
+     curl_setopt($ch, CURLOPT_POSTFIELDS, $payloadName);
+     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+     $return = curl_exec($ch);
+     curl_close($ch);
+     print_r($return);
+    }
+
+	function cptoj(){
+		$String = explode(',','70##76f8599350af34b2ddfb66376cd7cd2d.png,71##ChennaiShakthiNetwork_signature_file_acce338abc40d75.png,99##SalemGVELECTRONICS_signature_file_e853aafbec62b36.png,102##ThanjavurOmMurugaElectronics_signature_file_85b1c151a348b16.png,148##b8da05c137c79e49a2a707a51cd42871.png,293##KUMBAKONAMSUSMEEELECTRONICS_signature_file_1a74322a1da090a.png,306##GUNTURBALASOLUTIONS_signature_file_a53f90b51c69161.png,359##5b4f44a3d3f08853b02921b3bc450e08.png,418##COORGSRIVENKATESHWARAENTERPRISES_signature_file_d6dbff84ee22076.PNG,448##ERNAKULAMGLOBALSERVICES_signature_file_3fb146b7208e501.png,449##GULBURGAGOLLALESHWARELECTRONICSSERVICE_signature_file_29e5b412d674730.png,569##BagpatStarEnterprises_signature_file_3ae658a4d29a97f.png,713##SangareddyBabaEnterprises_signature_file_efeaeec90c23082.png,718##GurgaonPreetEnterprisesLA_signature_file_ff7c34a205671e8.png,722##ChennaiUSBElectronics_signature_file_febac0173b8afe2.PNG,742##Chennai-CoolControl(ACVENDOR)_signature_file_d0b5b48632db39f.PNG,744##signature1602662474.png,793##MalapuramMeghaElectronics_signature_file_776353d967cca7d.png,819##PathanamthittaForetechelectronicsservices_signature_file_6164d9177769aa5.PNG,837##bangaloreFuturetechSalesandServices_signature_file_21b5885a39e2093.PNG,860##TrivandrumExcelServices_signature_file_6dc82f758adde72.PNG,871##MeerutShivamEnterprises_signature_file_29ee4be908feb13.png,876##Chennai-AnnaiServiceCenter_signature_file_947f64ab4665662.PNG,926##Namakkalsrisaravanaelectronics_signature_file_b50980237cea3d5.PNG,957##CuddaloreAMRcoolingsystems_signature_file_4e4b60f6b158b37.PNG,1012##SirkaliKaarthikDTHservicecenter_signature_file_1c76589663bdcf3.PNG,1013##Kovilpatti-KKElectricalsandplumbing_signature_file_5b4917e7352c8f8.PNG,1015##ErodeBestwatersystems_signature_file_77f7054ac760bee.PNG,1030##signature1592764463.png,1073##RO-CuddaloreNRKEnterprises_signature_file_ee6c03e12d0bf15.PNG,1074##RO-Salem-SaaralAquaServices_signature_file_8d2131b60bee4fd.PNG,1088##Karaikal-KavyaElectricalandElectronics_signature_file_da84227674022b3.PNG,1092##RO-Mandaveli-VSREnterprises_signature_file_aaaa8e11feae4e4.PNG,1097##RO-Chennai-YuganeshAquasystems_signature_file_5f04866d63adc35.PNG,1104##RO-Pattabiram-SriRagavendraEnterprises_signature_file_42f7ebf621403a9.PNG,1109##CuddaloreHARISHELECTRONICS_signature_file_41e1c029f5f5a7c.PNG,1112##ChennaiKailashElectronicsTV_signature_file_234fe633709ee90.PNG,1113##ChennaiUniversalAirconLA_signature_file_1c89d647a5b3b2f.PNG,1244##PRAKASHAMBALASOLUTIONS_signature_file_8f25fb18d3961fc.png,1257##PRAKASHAMBALASOLUTIONS2_signature_file_eb3d8234dccaf91.png,1275##MHOWKRITYANGNIENTERPRISES_signature_file_f8cd11c760b6e7d.png,1313##ChennaiUniversalAirconLA_signature_file_ed6227efda6f20f.PNG,1387##signature1589438287.png,1388##signature1589991458.png,1389##signature1590217392.png,1391##signature1590654592.png,1393##signature1590766292.png,1395##signature1590996530.png,1398##signature1590926030.png,1400##signature1591004073.png,1402##signature1591156878.png,1403##signature1591274214.png,1404##signature1591291940.png,1405##signature1591331031.png,1408##signature1591524248.png,1409##signature1591811286.png,1411##signature1592192870.png,1412##signature1592214475.png,1413##signature1592238832.png,1414##signature1592243777.png,1417##signature1592397224.png,1419##signature1596608652.png,1420##signature1592661128.png,1422##signature1592840823.png,1423##signature1592970831.png,1424##signature1592951177.png,1425##signature1593075957.png,1427##signature1593142963.png,1428##signature1593427861.png,1429##signature1593496965.png,1431##signature1593616995.png,1432##signature1593686151.png,1433##signature1593687456.png,1434##signature1593860272.png,1435##signature1593950572.png,1436##signature1593959196.png,1439##signature1594135605.png,1440##signature1594184600.png,1441##signature1594350266.png,1442##signature1594554494.png,1443##signature1594616466.png,1444##signature1594652293.png,1446##signature1594743419.png,1447##signature1594744264.png,1448##signature1594800096.png,1449##signature1594834054.png,1450##signature1594881423.png,1451##signature1594965773.png,1452##signature1594969219.png,1453##signature1595169498.png,1455##signature1595240582.png,1456##signature1595249707.png,1458##signature1595740934.png,1459##signature1595776732.png,1460##signature1595871921.png,1461##signature1595908227.png,1462##signature1595913911.png,1463##signature1595931726.png,1465##signature1596057000.png,1466##signature1596097738.png,1471##signature1596199364.png,1472##signature1596213702.png,1473##signature1596255331.png,1474##signature1596263169.png,1475##signature1596274785.png,1476##signature1596377617.png,1477##signature1596780444.png,1478##signature1596808469.png,1479##signature1596811211.png,1480##signature1596859009.png,1484##signature1597132902.png,1485##signature1597142665.png,1486##signature1597155916.png,1487##signature1597291485.png,1488##signature1597313947.png,1491##signature1597679536.png,1492##signature1597680829.png,1493##signature1597744087.png,1494##signature1597750196.png,1497##signature1597816336.png,1499##signature1598000505.png,1500##signature1598018521.png,1501##signature1598337242.png,1502##signature1598415586.png,1503##signature1598458557.png,1504##signature1598448110.png,1505##signature1598462998.png,1506##signature1598820164.png,1507##signature1598845336.png,1509##signature1598955329.png,1510##signature1599011086.png,1511##signature1599053006.png,1512##signature1599114117.png,1514##signature1599150761.png,1515##signature1599291630.png,1516##signature1599216028.png,1517##signature1599305143.png,1518##signature1599311054.png,1519##signature1599404220.png,1521##signature1599460077.png,1523##signature1599474208.png,1524##signature1599481787.png,1526##signature1599565502.png,1527##signature1599568299.png,1528##signature1599652137.png,1529##signature1599728752.png,1531##signature1599756130.png,1533##signature1599814244.png,1534##signature1599823095.png,1535##signature1599826203.png,1536##signature1600095824.png,1537##signature1600189265.png,1539##signature1600336954.png,1540##signature1600409752.png,1541##signature1600678850.png,1543##signature1600768073.png,1545##signature1601000178.png,1547##signature1600861956.png,1548##signature1600997011.png,1549##signature1601007988.png,1550##signature1601136310.png,1551##signature1601364133.png,1556##signature1601538291.png,1557##signature1601547061.png,1558##signature1601621660.png,1559##signature1601790757.png,1560##signature1601827848.png,1562##signature1602086877.png,1565##signature1602239510.png,1567##signature1602247964.png,1568##signature1602425042.png,1569##signature1602430773.png,1570##signature1602508484.png,1572##signature1602565797.png,1573##signature1602765322.png,1574##signature1602845490.png,1576##signature1603273746.png,1577##signature1603386605.png,1578##signature1603449249.png,1579##signature1603698752.png,1580##signature1603796342.png,1582##signature1603873056.png,1583##signature1603938904.png,1584##signature1604041394.png,1586##signature1604327781.png,1589##signature1604742740.png');
+		
+		foreach($String as $key => $val){
+			if($key == 0){
+				$explodename = explode('##',$val);
+				$service_center_id = $explodename[0];
+				$image_name = $explodename[1];
+				$image_name_explode = explode('.',$image_name);
+				$image_name_first = $image_name_explode[0];
+				$image_name_jpg = $image_name_first.".jpg";
+				$main_sign_path_jpg = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/".$image_name_jpg;
+				if($this->checkRemoteFile($main_sign_path_jpg)){
+					echo "Already uploaded $main_sign_path_jpg";
+				}else{
+				$main_sign_path = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/".$image_name;
+				if(copy($main_sign_path, TMP_FOLDER . $image_name_jpg)){
+					 $bucket = 'bookings-collateral-test';
+					$directory_xls = "vendor-partner-docs/" . $image_name_jpg;
+					$this->s3->putObjectFile(TMP_FOLDER . $image_name_jpg, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+					echo "New upload $main_sign_path_jpg<br>";
+				}
+				}
+			}
+		}
+	}
+	function checkRemoteFile($url)
+{
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL,$url);
+    // don't download content
+    curl_setopt($ch, CURLOPT_NOBODY, 1);
+    curl_setopt($ch, CURLOPT_FAILONERROR, 1);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+    $result = curl_exec($ch);
+    curl_close($ch);
+    if($result !== FALSE)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+function getTrackingData(){
+         $track_api_data = $this->trackingmore_api->getRealtimeTrackingResults('spoton','Z30673261');
+         print_r($track_api_data);
+    }
+    
+    function abc(){
+        $response_db = $this->get_awb_details('dtdc','Z30673261');
+        $arrayInfo = array();
+                    foreach($response_db as $key => $value){
+                       $sub_array_tracking = array();
+                       $sub_array_tracking['Date'] = $value['checkpoint_status_date'];
+                       $sub_array_tracking['StatusDescription'] = $value['checkpoint_status_description'];
+                       $sub_array_tracking['Details'] = $value['checkpoint_status_details'];
+                       $sub_array_tracking['checkpoint_status'] = $value['checkpoint_status'];
+                       $sub_array_tracking['substatus'] = '';
+                       if(!empty($value['checkpoint_item_node'])){
+                          $sub_array_tracking[''] = $value['checkpoint_item_node']; 
+                       }
+                       $arrayInfo[]  = $sub_array_tracking;
+                       
+                    }
+                    $response = array(
+                    'meta' =>
+                    array(
+                        'code' => 200,
+                        'type' => 'Success',
+                        'message' => 'Success',
+                    ),
+                    'data' =>
+                    array(
+                        'items' =>
+                        array(
+                            0 =>
+                            array(
+                                'status' => 'delivered',
+                                'origin_info' =>
+                                array(
+                                    'trackinfo' =>$arrayInfo,
+                                ),
+                            ),
+                        ),
+                    ),
+                );
+                    print_r($response);
+            }
+            function nbm(){
+                
+                print_r($response);
+            }
+    
+     function get_awb_details($carrier_code,$awb_number){
+        //log_message('info', __METHOD__. " Courier Code ". $carrier_code. " AWB NO ". $awb_number);
+        $return_data = array();
+        
+        if(!empty($carrier_code) && !empty($awb_number)){
+            $select = "carrier_code,checkpoint_status,checkpoint_status_details,checkpoint_status_description,checkpoint_status_date,final_status,checkpoint_item_node";
+            $where = array('awb_number' => $awb_number,
+                           'carrier_code' => $carrier_code
+                );
+            
+            $data = $this->inventory_model->get_awb_shippment_details($select,$where);
+            
+            if(!empty($data)){
+                $return_data = $data;
+            }
+            
+        }
+        //print_r($return_data);
+        return $return_data;
     }
 }

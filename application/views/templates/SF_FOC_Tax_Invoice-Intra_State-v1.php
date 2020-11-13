@@ -1,3 +1,5 @@
+
+
 <html>
     <head>
         <title>SF FOC Invoice</title>
@@ -114,8 +116,8 @@
             <tr>
                 <td width="30%" rowspan="4" align="left">Declaration: We declare that this invoice shows the actual price of the goods and services described and that all particulars are true and correct.</td>
                 <td rowspan="4" colspan="3" style="text-align: center;">
-                    <?php if(!empty($meta['vendor_stamp'])){ ?>
-                    <img src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/sf-stamp/".$meta['vendor_stamp']; ?>" style="width: 120px;">
+                    <?php if(!empty($meta['vendor_stamp']) && 5==6){ ?>
+                    <img src="<?php echo 'data:image/jpg;base64,'.base64_encode(file_get_contents(TMP_FOLDER.$meta['vendor_stamp'])); ?>" style="width:100%;">
                     <?php } ?>
                 </td>
                 <td colspan="5" align="left"><b>GST on Reverse Charge</td>
@@ -126,9 +128,14 @@
             </tr>
 
             <tr>
+                 <?php
+    $image = imagecreatefrompng(TMP_FOLDER.$meta['vendor_stamp']);
+$newimage = imagejpeg($image, 'yournewlocation/image.jpg', 70);
+imagedestroy($image);
+    ?>
                 <td colspan="6" style="padding: 3%; border-right: 2px solid"  align="center">
                     <?php if(!empty($meta['sign_path'])){ ?>
-                    <img src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$meta['sign_path']; ?>" style="width: 170px;">
+                    <img src="<?php echo 'data:image/jpg;base64,'.$newimage; ?>" style="width:100%;">
                     <?php } ?>
                 </td>
             </tr>
@@ -140,7 +147,9 @@
     </td>
 </tr>
 <p style="text-align: center; margin-top: 0px"><small>This is a computer generated invoice, no signature is required.</small>
+   
 
 </body>
 </html>
+
 

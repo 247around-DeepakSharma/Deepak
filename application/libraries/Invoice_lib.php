@@ -222,10 +222,10 @@ class Invoice_lib {
            unlink($seal_path);
         }
         if(file_exists($sign_path)){
-            unlink($sign_path);
+           // unlink($sign_path);
         }
         if(!empty($stamp_path) && file_exists($stamp_path)){
-            unlink($stamp_path);
+           // unlink($stamp_path);
         }
         
         log_message('info', __FUNCTION__ . ' File created ' . $output_file_excel);

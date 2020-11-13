@@ -671,6 +671,7 @@ class Inventory_model extends CI_Model {
         } else {
             $result = $query->result_array();
         }
+        //echo $this->db->last_query();exit;
         
         return $result;
         
