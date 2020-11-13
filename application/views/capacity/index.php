@@ -93,7 +93,7 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <input type="submit" name="Save" id="Save" class="btn btn-primary" onclick="return validate_form()">
+                            <input type="submit" name="Save" id="Save" class="btn btn-primary" onclick="return check()">
                             <p class="pull-left text-danger">* These fields are required</p>
                             <!--<br/> <p class="pull-left text-danger">* No Special Characters are allowed in Name except dot(.) and Hyphen(-)</p>-->
                         </div>
@@ -125,8 +125,6 @@
             ]
                         
      });
-
-
     $(document).on("click", "#add_capacity", function () {
         // Display the Bootstrap modal
         $('#modal_title_action').html("Create Capacity");
@@ -180,7 +178,20 @@
             }
         });
     }
+    function check()
+    {
+        var name = $('#name').val().trim();
+        $("#errorMessage").html('');
+        if(name=="")
+        {
+            $("#errorMessage").html('Name ' + name + ' cannot be empty');
 
+            return false;
+        }
+        else{
+            validate_form();
+        }
+    }
     function validate_form()
     {
         var flag = 1;
