@@ -227,8 +227,10 @@ if(empty($booking_history[0]['booking_id'])){
                                     <label for="type" class="col-md-4">Type *</label>
                                     <p id="booking_old_type_holder" style="display:none;"><?php if(!empty($booking_history[0]['type'])) { echo $booking_history[0]['type']; } ?></p>
                                     <div class="col-md-8">                                    
-                                        <input style="width:65px;height:20px;display:inline;" id="query" type="radio" class="form-control booking_type" onclick="check_prepaid_balance('Query')" name="type" value="Query" required <?php if($is_repeat){ echo 'disabled'; } ?> >Query
-                                        <input style="width:65px;height:20px;display:inline;" id="booking" type="radio" class="form-control booking_type" onclick="check_prepaid_balance('Booking')" name="type" value="Booking" <?php if($is_repeat){ echo "checked"; } ?> required <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>>Booking
+                                        <input style="width:65px;height:20px;display:inline;" id="query" type="radio" class="form-control booking_type" onclick="check_prepaid_balance('Query')" name="type" value="Query" required <?php if($is_repeat){ echo 'disabled'; } ?> 
+                                            <?php if(!empty($booking_history[0]['type']) && $booking_history[0]['type'] == "Query") { echo "checked"; }?>>Query
+                                        <input style="width:65px;height:20px;display:inline;" id="booking" type="radio" class="form-control booking_type" onclick="check_prepaid_balance('Booking')" name="type" value="Booking" <?php if($is_repeat){ echo "checked"; } ?> required <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>
+                                            <?php if(!empty($booking_history[0]['type']) && $booking_history[0]['type'] == "Booking")  { echo "checked"; }?>>Booking
                                     </div>
                                 </div>
                                 <div class="form-group ">
@@ -960,7 +962,7 @@ if(empty($booking_history[0]['booking_id'])){
                             </div>
 
                             <div class="form-group ">
-                                <label for="type" class="col-md-4">Remarks</label>
+                                <label for="type" class="col-md-4">Remarks *</label>
                                 <div class="col-md-6">
                                     <textarea class="form-control" rows="4" name="query_remarks"  id="query_remarks" placeholder="Enter Query Remarks" ><?php if (isset($booking_history[0]['type'])) {
                                         if ($booking_history[0]['type'] == "Booking") {

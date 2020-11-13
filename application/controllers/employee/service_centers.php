@@ -4304,11 +4304,11 @@ class Service_centers extends CI_Controller {
         foreach ($generate_challan as $key => $value) {
             if (!empty($generate_challan)) {
                 $post = array();
-                $post['where_in'] = array('spare_parts_details.id' => $value, 'spare_parts_details.status' => SPARE_PARTS_REQUESTED);
+                $post['where_in'] = array('spare_parts_details.booking_id' => $value, 'spare_parts_details.entity_type'=> _247AROUND_SF_STRING, 'spare_parts_details.status' => SPARE_PARTS_REQUESTED);
                 $post['is_inventory'] = true;
                 $select = 'booking_details.booking_id, booking_details.assigned_vendor_id, spare_parts_details.id,spare_parts_details.requested_inventory_id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id,IF(spare_consumption_status.consumed_status !="" , spare_consumption_status.consumed_status, "NA") as consumed_status';
                 $part_details = $this->partner_model->get_spare_parts_by_any($select, array(), true, false, false, $post);
-                            
+                
 
                 if (!empty($part_details)) {
                     $spare_details = array();
@@ -4450,6 +4450,162 @@ class Service_centers extends CI_Controller {
         }
     }
     
+     /**
+     * @desc: It's used to generate Assign to partner challan
+     * @param String $generate_challan
+     */
+    function generate_sf_challan_assign_to_partner($generate_challan) {
+
+        $delivery_challan_file_name_array = array();
+
+        foreach ($generate_challan as $key => $value) {
+            if (!empty($generate_challan)) {
+                $post = array();
+                $post['where_in'] = array('spare_parts_details.booking_id' => $value, 'spare_parts_details.status' => SPARE_PARTS_REQUESTED);
+                $post['is_inventory'] = true;
+                $select = 'booking_details.booking_id, booking_details.assigned_vendor_id, spare_parts_details.id,spare_parts_details.requested_inventory_id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id,IF(spare_consumption_status.consumed_status !="" , spare_consumption_status.consumed_status, "NA") as consumed_status';
+                $part_details = $this->partner_model->get_spare_parts_by_any($select, array(), true, false, false, $post);
+                
+
+                if (!empty($part_details)) {
+                    $spare_details = array();
+                    foreach ($part_details as $value) {
+                        $spare_parts = array();
+                        if ($value['part_warranty_status'] !== SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                            $spare_parts['spare_id'] = $value['id'];
+                            $spare_parts['booking_id'] = $value['booking_id'];
+                            $spare_parts['parts_shipped'] = $value['parts_requested'];
+                            $spare_parts['challan_approx_value'] = $value['challan_approx_value'];
+                            $spare_parts['part_number'] = $value['part_number'];
+                            $spare_parts['shipped_quantity'] = $value['quantity'];
+                            $spare_parts['inventory_id'] = $value['requested_inventory_id'];
+                            $spare_parts['consumed_status'] = $value['consumed_status']; 
+                            if (!empty($value['assigned_vendor_id'])) {
+                                $vendor_details = $this->vendor_model->getVendorDetails("service_centres.id, service_centres.pincode", array("service_centres.id" => $value['assigned_vendor_id']), 'name', array(), array(), array());
+                                if (!empty($vendor_details)) {
+                                    $serviceable_area = $this->inventory_model->get_generic_table_details("courier_serviceable_area", "courier_serviceable_area.courier_company_name", array("courier_serviceable_area.pincode" => $vendor_details[0]['pincode'], "courier_serviceable_area.status"=> 1), array());
+                                    if (!empty($serviceable_area)) {
+                                        $couriers_name = implode(', ', array_map(function ($entry) {
+                                                    return $entry['courier_company_name'];
+                                                }, $serviceable_area));
+                                    } else {
+                                        $couriers_name = 'NA';
+                                    }
+                                } else {
+                                    $couriers_name = 'NA';
+                                }
+                            }
+                            $spare_parts['courier_name'] = $couriers_name;  
+                        }
+                        $spare_details[][] = $spare_parts;
+                    }
+                    $assigned_vendor_id = $part_details[0]['partner_id'];
+                    $service_center_id = $part_details[0]['assigned_vendor_id'];
+                }
+
+
+
+                $sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,district, pincode, state,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name, primary_contact_phone_1 as contact_number, service_centres.gst_no as gst_number', array('id' => $service_center_id));
+
+
+
+                if (!empty($part_details)) {
+                    $select = "concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address,contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number,service_centres.gst_no as gst_number";
+
+                    $where = array('contact_person.entity_id' => $part_details[0]['partner_id'],
+                        'contact_person.entity_type' => $part_details[0]['entity_type']);
+                    $wh_address_details = $this->inventory_model->get_warehouse_details($select, $where, false, true, true);
+
+                    $partner_details = array();
+
+                    if ($part_details[0]['entity_type'] == _247AROUND_PARTNER_STRING) {
+
+                        if ($this->session->userdata("userType") == "service_center" || !empty($this->session->userdata('warehouse_id'))) {
+                            if (!empty($this->session->userdata('warehouse_id'))) {
+                                $login_sc_id = $this->session->userdata("warehouse_id");
+                            } else {
+                                $login_sc_id = $this->session->userdata("service_center_id");
+                            }
+
+                            $partner_details = $this->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number', array('id' => $login_sc_id));
+                        } else {
+
+                            $partner_details = $this->partner_model->getpartner_details('company_name, address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number', array('partners.id' => $part_details[0]['partner_id']));
+                        }
+                    } else if ($part_details[0]['entity_type'] === _247AROUND_SF_STRING) {
+                        $partner_details = $this->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number', array('id' => $part_details[0]['partner_id']));
+                    }
+
+                    if (!empty($wh_address_details)) {
+                        $partner_details[0]['address'] = $wh_address_details[0]['address'];
+                        $partner_details[0]['contact_person_name'] = $wh_address_details[0]['contact_person_name'];
+                        $partner_details[0]['contact_number'] = $wh_address_details[0]['contact_number'];
+                    }
+                }
+
+
+                $data = array();
+                if (!empty($sf_details)) {
+                    $data['partner_challan_number'] = $this->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code'], true);
+                    $sf_details[0]['address'] = $sf_details[0]['address'] . ", " . $sf_details[0]['district'] . ", " . $sf_details[0]['state'] . ", Pincode -" . $sf_details[0]['pincode'];
+                }
+
+                if (!empty($spare_details)) {
+                    $data['partner_challan_file'] = $this->invoice_lib->process_create_sf_challan_file($sf_details, $partner_details, $data['partner_challan_number'], $spare_details,'','',false,true,false);
+                    array_push($delivery_challan_file_name_array, $data['partner_challan_file']);
+                    if (!empty($data['partner_challan_file'])) {
+                        if (!empty($spare_details)) {
+                            foreach ($spare_details as $val) {
+                                if ($this->session->userdata("userType") == "service_center" || !empty($this->session->userdata('warehouse_id'))) {
+                                    if (!empty($this->session->userdata('warehouse_id'))) {
+                                        $login_sc_entity_id = $this->session->userdata("warehouse_id");
+                                    } else {
+                                        $login_sc_entity_id = $this->session->userdata("service_center_id");
+                                    }
+                                    $data['spare_parts_details.entity_type'] = _247AROUND_SF_STRING;
+                                    $data['spare_parts_details.partner_id'] = $login_sc_entity_id;
+                                    $data['spare_parts_details.defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                                    $data['spare_parts_details.defective_return_to_entity_id'] = $login_sc_entity_id;
+                                }
+                                $this->service_centers_model->update_spare_parts(array('id' => $val[0]['spare_id']), $data);
+                            }
+                        }
+                    }
+                }
+            }
+        }  //// for end 
+        ////  ZIP The Challan files ///
+        $challan_file = 'challan_file' . date('dmYHis');
+        if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
+            unlink(TMP_FOLDER . $challan_file . '.zip');
+        }
+        $zip = 'zip ' . TMP_FOLDER . $challan_file . '.zip ';
+        foreach ($delivery_challan_file_name_array as $value1) {
+            $zip .= " " . TMP_FOLDER . $value1 . " ";
+        }
+        $challan_file_zip = $challan_file . ".zip";
+        $res = 0;
+        system($zip, $res);
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header("Content-Disposition: attachment; filename=\"$challan_file_zip\"");
+
+        $res2 = 0;
+        system(" chmod 777 " . TMP_FOLDER . $challan_file . '.zip ', $res2);
+        readfile(TMP_FOLDER . $challan_file . '.zip');
+        if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
+            unlink(TMP_FOLDER . $challan_file . '.zip');
+            if (file_exists(TMP_FOLDER . $challan_file_zip)) {
+                unlink(TMP_FOLDER . $challan_file_zip);  // ZIP extension coming two times // 
+            }
+
+            foreach ($delivery_challan_file_name_array as $value_unlink) {
+                if (file_exists(TMP_FOLDER . $value_unlink)) {
+                    unlink(TMP_FOLDER . $value_unlink);
+                }
+            }
+        }
+    }
     /**
      * @desc: Call by Ajax to load group upcountry details
      * @param String $booking_id
@@ -5456,9 +5612,10 @@ class Service_centers extends CI_Controller {
 
         $a .= "<li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/buyback/update_not_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Not Received</a></li>";
         //  }
-        $a .= "<li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/buyback/update_order_details/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "/" . rawurlencode(_247AROUND_BB_DELIVERED) . "'>Broken/Wrong Product</a></li>
-                            </ul>
-                          </div>";
+        if($order_list->service_id != _247AROUND_TV_SERVICE_ID){
+            $a .= "<li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/buyback/update_order_details/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "/" . rawurlencode(_247AROUND_BB_DELIVERED) . "'>Broken/Wrong Product</a></li>";
+        }
+         $a .= " </ul></div>";
         $row[] = $a;
 
         return $row;
@@ -5481,14 +5638,17 @@ class Service_centers extends CI_Controller {
         $row[] = $order_list->category;
         $row[] = $order_list->order_date;
         $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
-        $row[] = "<div class='dropdown'>
+        $a = "<div class='dropdown'>
                             <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions
                             <span class='caret'></span></button>
                             <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/buyback/update_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Received</a></li>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/buyback/update_order_details/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "/" . rawurlencode(_247AROUND_BB_IN_TRANSIT) . "'>Broken/Wrong Product</a></li>
-                            </ul>
-                          </div>";
+                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/buyback/update_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Received</a></li>";
+        if($order_list->service_id !=_247AROUND_TV_SERVICE_ID){
+            $a .= "<li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/buyback/update_order_details/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "/" . rawurlencode(_247AROUND_BB_IN_TRANSIT) . "'>Broken/Wrong Product</a></li>";
+        }
+        $a .= "</ul></div>";
+        
+        $row[] = $a;
         return $row;
     }
 
@@ -5523,13 +5683,15 @@ class Service_centers extends CI_Controller {
             switch ($order_list->internal_status) {
                 case _247AROUND_BB_NOT_DELIVERED:
                 case _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS:
-                    $row[] = "<div class='dropdown'>
+                    $a = "<div class='dropdown'>
                             <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions
                             <span class='caret'></span></button>
                             <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/buyback/update_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Received</a></li>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/buyback/update_order_details/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "/" . rawurlencode($order_list->current_status) . "'>Broken/Wrong Product</a></li>
-                            </ul>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/buyback/update_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Received</a></li>";
+                    if($order_list->service_id !=_247AROUND_TV_SERVICE_ID){
+                        $a .="<li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/buyback/update_order_details/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "/" . rawurlencode($order_list->current_status) . "'>Broken/Wrong Product</a></li>";
+                    }
+                    $a .= "</ul>
                           </div>";
                     break;
                 default:
@@ -6298,7 +6460,7 @@ class Service_centers extends CI_Controller {
                 . " spare_parts_details.quantity,"
                 . " spare_parts_details.shipped_quantity,"
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.remarks_by_sc) as remarks_by_sc, spare_parts_details.partner_id, "
-                . " GROUP_CONCAT(DISTINCT spare_parts_details.id) as spare_id, serial_number_pic, GROUP_CONCAT(DISTINCT spare_parts_details.inventory_invoice_on_booking) as inventory_invoice_on_booking, i.part_number ";
+                . " GROUP_CONCAT(DISTINCT spare_parts_details.id) as spare_id, serial_number_pic, GROUP_CONCAT(DISTINCT spare_parts_details.inventory_invoice_on_booking) as inventory_invoice_on_booking, i.part_number, service_centres.active, service_centres.on_off";
         $data['spare_parts'] = $this->service_centers_model->get_spare_parts_on_group($where, $select, "spare_parts_details.booking_id", $data['sf_id']);
         $data['is_ajax'] = $this->input->post('is_ajax');
         $data['is_send_to_sf'] = false;
@@ -6343,7 +6505,7 @@ class Service_centers extends CI_Controller {
                 . " spare_parts_details.quantity,"
                 . " spare_parts_details.shipped_quantity,"
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.remarks_by_sc) as remarks_by_sc, spare_parts_details.partner_id, "
-                . " GROUP_CONCAT(DISTINCT spare_parts_details.id) as spare_id, serial_number_pic, GROUP_CONCAT(DISTINCT spare_parts_details.inventory_invoice_on_booking) as inventory_invoice_on_booking, i.part_number ";
+                . " GROUP_CONCAT(DISTINCT spare_parts_details.id) as spare_id, serial_number_pic, GROUP_CONCAT(DISTINCT spare_parts_details.inventory_invoice_on_booking) as inventory_invoice_on_booking, i.part_number, service_centres.active, service_centres.on_off";
 
         $data['spare_parts'] = $this->service_centers_model->get_spare_parts_on_group($where, $select, "spare_parts_details.booking_id", $data['sf_id']);
 
@@ -7517,7 +7679,7 @@ class Service_centers extends CI_Controller {
         $booking_manifest = $this->input->post('download_courier_manifest');
         $declaration_detail = $this->input->post('coueriers_declaration');
         $generate_challan = $this->input->post('generate_challan');
-        
+        $assign_to_partner = $this->input->post('generate_challan_assign_to_partner');
         if (!empty($booking_address)) {
 
             $this->download_shippment_address($booking_address);
@@ -7527,9 +7689,14 @@ class Service_centers extends CI_Controller {
         } else if (!empty($generate_challan)) {
 
             $this->generate_sf_challan($generate_challan);
+            
+        } else if (!empty($assign_to_partner)) {
+            
+            $this->generate_sf_challan_assign_to_partner($assign_to_partner);
+            
         } else if (!empty($declaration_detail)) {
             $this->print_declaration_detail();
-        } else if (empty($booking_address) && empty($booking_manifest) && empty($declaration_detail)) {
+        } else if (empty($booking_address) && empty($booking_manifest) && empty($declaration_detail) && empty ($assign_to_partner)) {
             echo "Please Select Any Checkbox";
         }
     }
@@ -9396,7 +9563,7 @@ class Service_centers extends CI_Controller {
                 . " spare_parts_details.quantity,"
                 . " spare_parts_details.shipped_quantity,"
                 . "spare_parts_details.remarks_by_sc as remarks_by_sc, spare_parts_details.partner_id, "
-                . " spare_parts_details.id as spare_id, serial_number_pic, spare_parts_details.inventory_invoice_on_booking, i.part_number ";
+                . " spare_parts_details.id as spare_id, serial_number_pic, spare_parts_details.inventory_invoice_on_booking, i.part_number, service_centres.active, service_centres.on_off ";
 
         $data['spare_parts'] = $this->service_centers_model->spare_assigned_to_partner($where, $select, "spare_parts_details.booking_id", $sf_id, -1, -1, 0, ['column' => 'age_of_request', 'sorting' => 'desc']);
 

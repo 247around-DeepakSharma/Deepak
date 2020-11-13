@@ -668,6 +668,8 @@ class Partner extends CI_Controller {
                 $edit_partner_data['partner']['upcountry_max_distance_threshold'] = $edit_partner_data['partner']['upcountry_max_distance_threshold'];
                 $edit_partner_data['partner']['update_date'] = date("Y-m-d h:i:s");
                 $edit_partner_data['partner']['agent_id'] = $this->session->userdata('id');
+                    //add wrranty 
+                 $edit_partner_data['partner']['check_warranty_from'] = $this->input->post('warranty');
                 
                 /* show notification on partner's panal if grace period increases */
                 if($edit_partner_data['partner']['grace_period_date'] > $this->input->post("old_grace_period_date")){
@@ -1257,6 +1259,7 @@ class Partner extends CI_Controller {
     function finduser($offset = 0, $page = 0, $phone_number = '') {
         $this->checkUserSession();
         $search_value = trim($this->input->post('search_value'));
+        $search_value = preg_replace('/[^A-Za-z0-9\-]/', '',trim($this->input->post('search_value')));
         $search_type = trim($this->input->post('optradio'));
         if ($search_type === 'phone_number') {
             $phone_number = $this->input->post('phone_number');

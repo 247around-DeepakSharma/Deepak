@@ -82,7 +82,22 @@ if ($this->uri->segment(3)) {
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($spare_parts as $key => $row) { ?>
+                                <?php foreach ($spare_parts as $key => $row) { 
+                                    
+                                    if ($row['active'] == 0) {
+                                        $sc_icon_style = "color:#e10f0fd1;";
+                                        $sf_status = "Permanently Off";
+                                    } else if ($row['on_off'] == 0) {
+                                        $sc_icon_style = "color:#f1bc44;";
+                                        $sf_status = "Temporary Off";
+                                    } else {
+                                        $sc_icon_style = "color:#14d914;";
+                                        $sf_status = "On";
+                                    }
+                                    
+                                $vendor_name = "<i class='fa fa-circle' aria-hidden='true' style='margin-right:5px;" . $sc_icon_style . "'></i>" . $row['vendor_name'] . "<p style='font-weight: bold;" . $sc_icon_style . "'> - " . $sf_status . "</p>";
+                                    
+                                    ?>
                                     <tr style="text-align: center;" >
                                         <td style="<?php if($row['inventory_invoice_on_booking'] == 1){ echo 'background: green;color: #FFFfff;';} ?>">
                                             <?php if ($row['is_upcountry'] == 1 && $row['upcountry_paid_by_customer'] == 0) { ?>
@@ -101,7 +116,7 @@ if ($this->uri->segment(3)) {
                                             <?php echo $row['purchase_invoice_id']; ?>
                                         </td>
                                         <td>
-                                            <?php echo $row['vendor_name']; ?>
+                                            <?php echo $vendor_name; ?>
                                         </td>
                                         <td>
                                             <?php echo $row['age_of_request']; ?>
@@ -166,8 +181,8 @@ if ($this->uri->segment(3)) {
                                         </td>
 
 
-                                        <td>
-                                      <input type="checkbox" class="form-control checkbox_challan" name="generate_challan[<?php echo $row['service_center_id']; ?>][]" id="generate_challan_<?php echo $key; ?>" onclick='check_checkbox(2)' data-service_center_id="<?php echo $row['service_center_id']; ?>" value="<?php echo $row['id']; ?>" />
+                                   <td>
+                                      <input type="checkbox" class="form-control checkbox_challan" name="generate_challan_assign_to_partner[<?php echo $row['service_center_id']; ?>][]" id="generate_challan_<?php echo $key; ?>" onclick='check_checkbox(2)' data-service_center_id="<?php echo $row['service_center_id']; ?>" value="<?php echo $row['id']; ?>" />
                                   </td>
                                     </tr>
                                     <?php

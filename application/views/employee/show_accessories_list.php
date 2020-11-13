@@ -57,9 +57,9 @@
 
                                         <td class="text-center">
                                             
-                                            <a type="button" class="btn btn-sm btn-danger open-adminremarks" onclick="update_accessories_status(<?php echo $row['id']; ?>, 0)" id='btn_<?php echo $row['id']; ?>' title='delete' style='display:<?php echo $deactivateshow; ?>'><i class="fa fa-trash"></i></a>
+                                            <a type="button" class="btn btn-sm btn-danger open-adminremarks" onclick="update_accessories_status(<?php echo $row['id']; ?>, 0)" id='btn_<?php echo $row['id']; ?>' title='Active' style='display:<?php echo $deactivateshow; ?>'><i class="fa fa-ban fa-1.25x "></i></a>
 
-                                            <a type="button" class="btn btn-sm btn-success open-adminremarks" onclick="update_accessories_status(<?php echo $row['id']; ?>, 1)" id='btn_s_<?php echo $row['id']; ?>' title='Restore' style='display:<?php echo $activateshow; ?>'><i class="fa fa-undo"></i></a>
+                                            <a type="button" class="btn btn-sm btn-success open-adminremarks" onclick="update_accessories_status(<?php echo $row['id']; ?>, 1)" id='btn_s_<?php echo $row['id']; ?>' title='Inactive' style='display:<?php echo $activateshow; ?>'><i class="fa fa-undo"></i></a>
                                         </td>
                                     </tr>
                                     <?php
@@ -129,7 +129,7 @@
             },
             success: function (data)
             {
-                $("#btn_" + idtodelete).html("<i class='fa fa-trash' ></i>");
+                $("#btn_" + idtodelete).html("<i class='fa fa-ban' ></i>");
                 $("#btn_" + idtodelete).css('pointer-events', '');
                 $("#btn_" + idtodelete).css('opacity', '');
 

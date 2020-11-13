@@ -2,6 +2,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
+
                 <h1 class="page-header">
                     Capacity List
                     <a class="btn btn-primary btn-md pull-right" href='javascript:void(0)' id="add_capacity" title="Add Capacity"><i class="glyphicon glyphicon-plus"></i></a>
@@ -94,7 +95,7 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <input type="submit" name="Save" id="Save" class="btn btn-primary" onclick="return validate_form()">
+                            <input type="submit" name="Save" id="Save" class="btn btn-primary" onclick="return check()">
                             <p class="pull-left text-danger">* These fields are required</p>
                             <!--<br/> <p class="pull-left text-danger">* No Special Characters are allowed in Name except dot(.) and Hyphen(-)</p>-->
                         </div>
@@ -179,7 +180,20 @@
             }
         });
     }
-
+    function check()
+    {
+        var name = $('#name').val().trim();
+        $("#errorMessage").html('');
+        if(name=="")
+        {
+            $("#errorMessage").html('Name ' + name + ' cannot be empty');
+            
+            return false;
+        }
+        else{
+            validate_form();
+        }
+    }
     function validate_form()
     {
         var flag = 1;
