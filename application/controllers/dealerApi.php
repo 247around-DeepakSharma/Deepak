@@ -36,6 +36,7 @@ class dealerApi extends CI_Controller {
         $this->load->model("reusable_model");
         $this->load->model("service_centers_model");
         $this->load->model('indiapincode_model');
+        $this->load->model('inventory_model');
         $this->load->library('notify');
         $this->load->library("miscelleneous");
         $this->load->library('booking_utilities');
@@ -863,7 +864,49 @@ function getTrackingData(){
         $validation = $this->validateKeys(array("carrier_code","awb_number"), $requestData);
         if (!empty($requestData['carrier_code']) && !empty($requestData['awb_number'])) { 
             /* getting tracking data of AWB from trackmoreAPI */
-                $response =  $this->around_generic_lib->getTrackingData($requestData['carrier_code'],$requestData['awb_number']); 
+                $response_db = $this->get_awb_details($requestData['carrier_code'],$requestData['awb_number']);
+                if(empty($response_db)){
+                    $response =  $this->around_generic_lib->getTrackingData($requestData['carrier_code'],$requestData['awb_number']); 
+                }else{
+                    $arrayInfo = array();
+                    $finalStatus = '';
+                    foreach($response_db as $key => $value){
+                       $sub_array_tracking = array();
+                       $sub_array_tracking['Date'] = $value['checkpoint_status_date'];
+                       $sub_array_tracking['StatusDescription'] = $value['checkpoint_status_description'];
+                       $sub_array_tracking['Details'] = $value['checkpoint_status_details'];
+                       $sub_array_tracking['checkpoint_status'] = $value['checkpoint_status'];
+                       $sub_array_tracking['substatus'] = '';
+                       $finalStatus = $value['final_status'];
+                       if(!empty($value['checkpoint_item_node'])){
+                          $sub_array_tracking[''] = $value['checkpoint_item_node']; 
+                       }
+                       $arrayInfo[]  = $sub_array_tracking;
+                       
+                    }
+                    $response = array(
+                    'meta' =>
+                    array(
+                        'code' => 200,
+                        'type' => 'Success',
+                        'message' => 'Success',
+                    ),
+                    'data' =>
+                    array(
+                        'items' =>
+                        array(
+                            0 =>
+                            array(
+                                'status' => $finalStatus,
+                                'origin_info' =>
+                                array(
+                                    'trackinfo' =>$arrayInfo,
+                                ),
+                            ),
+                        ),
+                    ),
+                );
+                }
                  $this->jsonResponseString['response'] = $response;
                  $this->sendJsonResponse(array('0000', "Tracking details found successfully")); // send success response //
                
@@ -875,6 +918,30 @@ function getTrackingData(){
 
 }
 
+
+    /** @desc: this function is used to get awb_number details from database
+     * @param string $carrierCode Carrier code
+     * @param string $awb_number  Tracking number 
+     * @return array 
+     */
+    function get_awb_details($carrier_code,$awb_number){
+        //log_message('info', __METHOD__. " Courier Code ". $carrier_code. " AWB NO ". $awb_number);
+        $return_data = array();
+        
+        if(!empty($carrier_code) && !empty($awb_number)){
+            $select = "carrier_code,checkpoint_status,checkpoint_status_details,checkpoint_status_description,checkpoint_status_date,final_status,checkpoint_item_node";
+            $where = array('awb_number' => $awb_number,
+                           'carrier_code' => $carrier_code
+                );
+            
+            $data = $this->inventory_model->get_awb_shippment_details($select,$where);
+            
+            if(!empty($data)){
+                $return_data = $data;
+            }
+        }
+        return $return_data;
+    }
 
   /*
      * @Desc - This function is used to get spare tracking details
