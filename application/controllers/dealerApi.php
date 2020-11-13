@@ -879,7 +879,7 @@ function getTrackingData(){
                        $sub_array_tracking['substatus'] = '';
                        $finalStatus = $value['final_status'];
                        if(!empty($value['checkpoint_item_node'])){
-                          $sub_array_tracking[''] = $value['checkpoint_item_node']; 
+                          $sub_array_tracking['ItemNode'] = $value['checkpoint_item_node']; 
                        }
                        $arrayInfo[]  = $sub_array_tracking;
                        
