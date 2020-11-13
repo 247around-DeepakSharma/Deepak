@@ -1682,7 +1682,6 @@ function get_data_for_partner_callback($booking_id) {
         }
         
         $query = $this->db->get();
-        //echo $this->db->last_query();exit;
         return $query->result_array();
         
     }

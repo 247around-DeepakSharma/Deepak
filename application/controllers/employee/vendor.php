@@ -1359,27 +1359,8 @@ class vendor extends CI_Controller {
 
             $reassign_reason = $this->vendor_model->getReassignReason("*",array('reason_of'=>'reassign'));   
             
-            $is_spare_required = 0;
-            $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
-            foreach ($unit_details as $value) {
-                if (stristr($value['price_tags'], "Repair") 
-                            || stristr($value['price_tags'], "Repeat") 
-                            || stristr($value['price_tags'], "Replacement") 
-                            || stristr($value['price_tags'], EXTENDED_WARRANTY_TAG) 
-                            || stristr($value['price_tags'], PRESALE_REPAIR_TAG) 
-                            || stristr($value['price_tags'], GAS_RECHARGE_IN_WARRANTY) 
-                            || stristr($value['price_tags'], AMC_PRICE_TAGS) 
-                            || stristr($value['price_tags'], GAS_RECHARGE_OUT_OF_WARRANTY)){
-                    $is_spare_required = 1;
-                }
-            }
-            $bookinghistory = $this->booking_model->getbooking_history($booking_id);
-            $booking_set_location = $this->service_centers_model->select_booking_set_location_data('id,part_brought_at',array('booking_primary_id'=>$bookinghistory[0]['id']));
-            
-           
-            
             $this->miscelleneous->load_nav_header();
-            $this->load->view('employee/reassignvendor', array('booking_id' => $booking_id, 'service_centers' => $service_centers, 'arr_validation_checks' => $arr_validation_checks,'spare'=>$sp_details,'reassign_reasons'=>$reassign_reason,'is_spare_required' => $is_spare_required, 'booking_set_location' => $booking_set_location));
+            $this->load->view('employee/reassignvendor', array('booking_id' => $booking_id, 'service_centers' => $service_centers, 'arr_validation_checks' => $arr_validation_checks,'spare'=>$sp_details,'reassign_reasons'=>$reassign_reason));
         }
     }
 
@@ -6589,7 +6570,7 @@ class vendor extends CI_Controller {
             $image_array_1 = explode(";", $signature_file);
             $image_array_2 = explode(",", $image_array_1[1]);
             $signature_file = base64_decode($image_array_2[1]);
-            $filename='signature'.time().'.jpg';
+            $filename='signature'.time().'.png';
             $imageName = TMP_FOLDER.$filename;
             file_put_contents($imageName, $signature_file);
             echo json_encode(array('filename' => $filename));          
@@ -6602,7 +6583,7 @@ class vendor extends CI_Controller {
             $image_stamp_array_1 = explode(";", $stamp_file);
             $image_stamp_array_2 = explode(",", $image_stamp_array_1[1]);
             $stamp_file = base64_decode($image_stamp_array_2[1]);
-            $filename='stamp'.time().'.jpg';
+            $filename='stamp'.time().'.png';
             $imageName = TMP_FOLDER.$filename;
             file_put_contents($imageName, $stamp_file);
             echo json_encode(array('filename' => $filename));          

@@ -3031,7 +3031,6 @@ function generate_image($base64, $image_name,$directory){
         log_message('info', __FUNCTION__ . " => Entering, Booking ID: " . $booking_id);
         require_once __DIR__ . '/pdf/vendor/autoload.php';
         $mpdf = new \Mpdf\Mpdf();
-      // $mpdf->showImageErrors = true;
         if($backgournd_url != ''){
             $mpdf->SetDefaultBodyCSS('background', $backgournd_url);
             $mpdf->SetDefaultBodyCSS('background-image-resize', 6);

@@ -879,7 +879,7 @@ function getTrackingData(){
                        $sub_array_tracking['substatus'] = '';
                        $finalStatus = $value['final_status'];
                        if(!empty($value['checkpoint_item_node'])){
-                          $sub_array_tracking['ItemNode'] = $value['checkpoint_item_node']; 
+                          $sub_array_tracking[''] = $value['checkpoint_item_node']; 
                        }
                        $arrayInfo[]  = $sub_array_tracking;
                        
@@ -2042,7 +2042,6 @@ function  getPartnerCompareTAT(){
                     foreach ($curl_response->TAT as $key=>$value){
                      $state =   $value->entity; 
                      if($state!='Total' && ($value->TAT_0_per!=0 || $value->TAT_1_per!=0 || $value->TAT_2_per!=0 || $value->TAT_3_per!=0)){
-                     
                      $return_data['D0'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_0_per)  ;
                      //$return['D0'][]['state'][]  = $value->TAT_0  ;
                      $return_data['D1'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_1_per)  ;

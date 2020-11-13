@@ -1,6 +1,3 @@
-<?php
-exit;
-?>
 <html>
     <head>
         <title>SF FOC Tax Invoice</title>
@@ -140,8 +137,7 @@ exit;
     </td>
 </tr>
 <p style="text-align: center; margin-top: 0px"><small>This is a computer generated invoice, no signature is required.</small>
-<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$meta['sign_path']; ?>
-    
+
 </body>
 </html>
 
