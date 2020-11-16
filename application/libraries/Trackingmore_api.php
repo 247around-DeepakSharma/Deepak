@@ -484,5 +484,65 @@ class Trackingmore_api {
         }
         return $returnData;
     }
+    
+    
+    // RAPID API CODE //
+
+    const RAPIDAPI_BASE_URL = 'https://trackingmore.p.rapidapi.com';
+    const RAPID_ROUTE_TRACKINGS_REALTIME = '/packages/track';
+
+// RAPID API KEY //
+
+    protected $rapidapiKey = RAPID_TRACKING_API_KEY;
+
+// TRACKING FUNCTIONS //
+
+    protected function _getRapidApiData($route, $method = 'GET') {
+        $method = strtoupper($method);
+        $hostUrl = self::RAPIDAPI_BASE_URL;
+        $requestUrl = self::RAPIDAPI_BASE_URL . $route;
+        $curlObj = curl_init();
+        if ($method == 'GET') {
+            $headers = array(
+                'x-rapidapi-host: ' => $hostUrl,
+                'x-rapidapi-key: ' . $this->rapidapiKey,
+            );
+
+            curl_setopt_array($curlObj, [
+                CURLOPT_URL => $requestUrl,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => $method,
+                CURLOPT_HTTPHEADER => $headers,
+            ]);
+        }
+
+        $response = curl_exec($curlObj);
+        curl_close($curlObj);
+        unset($curlObj);
+        return $response;
+    }
+
+    /**
+     * Get realtime tracking results of a single tracking Using RapidAPI
+     * @access public 
+     * @param string $trackingNumber  Tracking number 
+     * @param string $carrierCode Carrier code
+     * @return array 
+     */
+    public function getRapidApiRealTimeTrackingResults($carrierCode, $trackingNumber, $extraInfo = array()) {
+        $returnData = array();
+        $apiUrl = self::RAPID_ROUTE_TRACKINGS_REALTIME;
+        $requestUrl = $apiUrl . "?trackingNumber=" . $trackingNumber . "&carrierCode=" . $carrierCode . "&lang=en";
+        $result = $this->_getRapidApiData($requestUrl, 'GET');
+        if ($result) {
+            $returnData = json_decode($result, true);
+        }
+        return $returnData;
+    }
 
 }
