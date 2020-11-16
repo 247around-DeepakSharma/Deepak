@@ -1555,7 +1555,16 @@ function  getPartnerCompareTAT(){
                     curl_close($ch);
                     
                     if(!empty($curl_response)){
-                    foreach ($curl_response->TAT as $key=>$value){
+                    $tat = $curl_response->TAT;
+                    $db = (array) $tat;
+                    $col  = 'entity';
+                    $sort = array();
+                    foreach ($db as $i => $obj) {
+                        $sort[$i] = $obj->{$col};
+                    }
+                    array_multisort($sort, SORT_ASC,SORT_NATURAL|SORT_FLAG_CASE, $db);
+                    $object = (object) $db;
+                    foreach ($object as $key=>$value){
                      $state =   $value->entity; 
                      if($state!='Total'){
                      $return_data['D0'][]  = array('state'=>ucwords($state),'percent'=>(int)$value->TAT_0_per,'count'=>$value->TAT_0)  ;
