@@ -2682,13 +2682,34 @@ background-color: #f5f5f5;
 }
 
 
-    function get_awb_details(courier_code,awb_number,status,id){
+//    function get_awb_details(courier_code,awb_number,status,id){
+//        if(courier_code && awb_number && status){
+//            $('#'+id).show();
+//            $.ajax({
+//                method:"POST",
+//                data : {courier_code: courier_code, awb_number: awb_number, status: status},
+//                url:'<?php echo base_url(); ?>courier_tracking/get_awb_real_time_tracking_details',
+//                success: function(res){
+//                    $('#'+id).hide();
+//                    $('#gen_model_title').html('<h3> AWB Number : ' + awb_number + '</h3>');
+//                    $('#gen_model_body').html(res);
+//                    $('#gen_model').modal('toggle');
+//                }
+//            });
+//        }else{
+//            alert('Something Wrong. Please Refresh Page...');
+//        }
+//    }
+
+
+
+function get_awb_details(courier_code,awb_number,status,id){
         if(courier_code && awb_number && status){
             $('#'+id).show();
             $.ajax({
                 method:"POST",
                 data : {courier_code: courier_code, awb_number: awb_number, status: status},
-                url:'<?php echo base_url(); ?>courier_tracking/get_awb_real_time_tracking_details',
+                url:'<?php echo base_url(); ?>courier_tracking/get_real_time_courier_tracking_using_rapidapi',
                 success: function(res){
                     $('#'+id).hide();
                     $('#gen_model_title').html('<h3> AWB Number : ' + awb_number + '</h3>');
