@@ -3485,7 +3485,7 @@ exit();
                 $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($service_center_id);
 
                 $sc_details['rm_name'] = (!empty($rm))? $rm[0]['full_name']:"";
-                $sc_details['remarks'] = preg_replace("/[^A-Za-z0-9]/", "", $sc['name']);
+                $sc_details['remarks'] = preg_replace("/[^A-Za-z0-9]/", " ", $sc['name']);
                 $sc_details['gst_no'] = $sc['gst_no'];
                 $sc_details['is_signature'] = !empty($sc['signature_file']) ?"Yes":"NO";
                 
@@ -3517,7 +3517,6 @@ exit();
                 $sc_details['is_micro_wh'] = ($sc['is_micro_wh'] ==0) ? "No" : "Yes";
                 $sc_details['active'] = (!empty($sc['active']) && ($sc['active'] == 1)) ?"Yes":"NO";
                 $sc_details['on_off'] = (!empty($sc['on_off']) && ($sc['on_off'] == 1)) ?"On":"Off";
-                $sc_details['check_file'] = !empty($sc['cancelled_cheque_file']) ? S3_WEBSITE_URL."vendor-partner-docs/".$sc['cancelled_cheque_file'] : "";
                   
                 $payment_hold_reason = $this->invoices_model->payment_hold_reason_list(array('sf_payment_hold_reason.service_center_id' => $service_center_id, 'sf_payment_hold_reason.status' =>1));
                 if(!empty($payment_hold_reason)){
@@ -3757,20 +3756,20 @@ exit();
         $sc_details['gst_no'] = "GST Number";
         $sc_details['is_signature'] = "Signature Exist";
         
-        $sc_details['defective_parts'] = "No Of Defective Parts";
+        $sc_details['defective_parts'] = "Defective parts pending on SF for > 15 days";
         $sc_details['defective_parts_max_age'] = "Max Age of Spare Pending";
         $sc_details['shipped_parts_name'] = "Shipped Parts Type";
-        $sc_details['challan_value'] = "Defective Challan Approx Value";
+        $sc_details['challan_value'] = "Value of OOT defective spares not shipped";
         
-        $sc_details['oot_defective_parts_shipped'] = "No Of OOT Shipped Part";
+        $sc_details['oot_defective_parts_shipped'] = "Defective parts sent after 15 days of booking completion and NOT received in Warehouse";
         $sc_details['oot_defective_parts_max_age'] = "Max Age of OOT Spare Pending";
         $sc_details['oot_part_type'] = "OOT Shipped Parts Type";
-        $sc_details['oot_challan_value'] = "OOT Challan Approx Value";
+        $sc_details['oot_challan_value'] = "Value of spares shipped after TAT";
         
-        $sc_details['defective_parts_shipped'] = "No Of Defective Parts shipped";
+        $sc_details['defective_parts_shipped'] = "Spares shipped by SF at any point of time and NOT received by warehouse within 15 days of SF shipped date";
         $sc_details['defective_parts_shipped_max_age'] = "Max Age of Shipped Part";
         $sc_details['defective_shipped_part_type'] = "Shipped Parts Type";
-        $sc_details['shipped_challan_value'] = "Shipped Challan Approx Value";
+        $sc_details['shipped_challan_value'] = "Value of spares yet to be confirmed";
 
         $sc_details['is_verified'] = "Bank Account Verified";
         $sc_details['amount_type'] = "Type";
@@ -3781,7 +3780,6 @@ exit();
         $sc_details['is_micro_wh'] = "Micro Warehouse";
         $sc_details['active'] = "Active";
         $sc_details['on_off'] = "Temporary On/Off";
-        $sc_details['check_file'] = "Check File";
         $sc_details['payment_hold_reason'] = "Payment Hold Reason";
         $sc_details['last_payment_date'] = "Last Payment Date";
         $sc_details['last_payment_amount'] = "Last Payment Amount";
