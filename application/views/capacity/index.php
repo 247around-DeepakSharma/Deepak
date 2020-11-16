@@ -1,26 +1,6 @@
 <div id="page-wrapper">
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-12">
-            <?php
-                $success=$this->session->userData('success');
-                if($success!="")
-                {
-                    ?>
-                    <div class="alert alert-success"><?php echo $success;?></div>
-                    <?php
-                }
-            ?>
-            <?php
-                $failure=$this->session->userData('failure');
-                if($failure!="")
-                {
-                    ?>
-                    <div class="alert alert-success"><?php echo $failure;?></div>
-                    <?php
-                }
-            ?>
-        </div>
             <div class="col-lg-12">
 
                 <h1 class="page-header">

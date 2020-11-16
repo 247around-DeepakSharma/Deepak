@@ -27,8 +27,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php
-                        static $k=0;
+                        <?php $k=0;
                          if (!empty($service_centers)) { ?>
                             <?php foreach ($service_centers as $service_center) { ?>
 
