@@ -5361,12 +5361,13 @@ class Service_centers extends CI_Controller {
      * @return array
      */
     function get_acknowledge_data() {
+      
         $post = $this->get_post_view_data();
         $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'), "bb_order_details.auto_acknowledge" => $this->input->post('auto_acknowledge'));
         $post['where_in'] = array('bb_cp_order_action.current_status' => array(_247AROUND_BB_DELIVERED, _247AROUND_BB_NOT_DELIVERED, _247AROUND_BB_Damaged_STATUS),
             'bb_cp_order_action.internal_status' => array(_247AROUND_BB_DELIVERED, _247AROUND_BB_NOT_DELIVERED, _247AROUND_BB_247APPROVED_STATUS, _247AROUND_BB_Damaged_STATUS));
         $post['column_order'] = array(NULL, 'bb_order_details.partner_order_id', 'bb_order_details.partner_tracking_id', 'services', 'category',
-            'order_date', 'delivery_date', 'cp_basic_charge', NULL, NULL);
+            'order_date', 'delivery_date', 'cp_basic_charge', NULL, 'bb_cp_order_action.current_status','bb_order_details.acknowledge_date');
         $post['column_search'] = array('bb_order_details.partner_order_id', 'bb_order_details.partner_tracking_id', 'services', 'city',
             'order_date', 'delivery_date', 'bb_cp_order_action.current_status');
         $list = $this->cp_model->get_bb_cp_order_list($post);
