@@ -4454,16 +4454,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         echo json_encode($array);
     }
     
-    /*
-     *  @desc : This function is used to create the view page to upload msl file from warehouse panel.
-     *  @param : void()
-     */
-    function upload_msl_excel_file() {
-        log_message('info', __METHOD__);
-        $this->load->view('service_centers/header');
-        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
-        $this->load->view("service_centers/upload_msl_excel_file", $data);
-    }
+    
 
     /*
      *  @desc : This function is used to create the view page to upload msl file from warehouse panel.

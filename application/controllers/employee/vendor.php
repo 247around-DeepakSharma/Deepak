@@ -1095,6 +1095,7 @@ class vendor extends CI_Controller {
 
         return $row;
     }
+    }
 
     function get_filterd_sf_cp_data(){
         $this->checkUserSession();
