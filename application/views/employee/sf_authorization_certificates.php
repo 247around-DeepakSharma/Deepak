@@ -18,6 +18,7 @@
                 <table id="auth_cert" class="table table-bordered table-hover table-striped">
                     <thead>
                         <tr>
+                            <th>S. No. </th>
                             <th>Vendor name</th>
                             <th>Validation</th>
                             <th>Document</th>
@@ -26,10 +27,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (!empty($service_centers)) { ?>
+                        <?php $k=0; 
+                        if (!empty($service_centers)) { ?>
                             <?php foreach ($service_centers as $service_center) { ?>
 
                                 <tr>
+                                    <td><?php echo ++$k; ?></td>
                                     <td><?php echo $service_center['name']; ?></td>
                                     <td><?php echo $service_center['auth_certificate_validate_year']; ?></td>
                                     <td> <?php if ($service_center['auth_certificate_file_name'] != NULL) { ?> <a href="<?php echo S3_WEBSITE_URL . 'authorization_certificate/' . $service_center['auth_certificate_file_name']; ?>" target="_blank">Certificate</a> <?php } ?></td>
@@ -68,7 +71,7 @@
 <script>
     $(document).ready(function () {
         $('#auth_cert').DataTable({
-            "order": [[0, "desc"]],
+            "order": [[0, "asc"]],
             'columnDefs': [{
                     'targets': [2, 3], // column index (start from 0)
                     'orderable': false, // set orderable false for selected columns
