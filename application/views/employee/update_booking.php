@@ -2,8 +2,11 @@
 <script src="<?php echo base_url();?>js/validation_js.js"></script>
 <script src="<?php echo base_url();?>js/custom_js.js?v=<?=mt_rand()?>"></script>
 <?php
-// if spare is requested on any booking or the booking is invoiced to partner, then booking details can not be edited
-$str_disabled = ($is_spare_requested || $is_partner_invoiced) ? "pointer-events:none;background:#eee;" : "";
+// Booking can not be Edited if
+// 1. spare is requested on any booking 
+// 2. the booking is invoiced to partner
+// 3. SF has complete/cancelled the booking
+$str_disabled = ($is_spare_requested || $is_partner_invoiced || !empty($booking_history[0]['service_center_closed_date'])) ? "pointer-events:none;background:#eee;" : "";
 
 // If Booking not found, do not show this page
 if(empty($booking_history[0]['booking_id'])){
