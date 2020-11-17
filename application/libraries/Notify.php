@@ -24,6 +24,7 @@ class Notify {
 	$this->My_CI->load->model('booking_model');
     $this->My_CI->load->model('engineer_model');
     $this->My_CI->load->model('apis');
+    $this->My_CI->load->model("whatsapp_model");
     }
 
     /**
@@ -1284,7 +1285,8 @@ class Notify {
    function send_whatsapp_on_booking_complete($phone_number, $whatsapp_array = array()){
     $phone_number = "+91" . $phone_number;
 /*  Making templet for sending message */
-    $template = $this->My_CI->vendor_model->getVendorSmsTemplate(SEND_COMPLETE_WHATSAPP_NUMBER_TAG);
+
+    $template = $this->My_CI->whatsapp_model->get_whatsapp_template_by_tag(SEND_COMPLETE_WHATSAPP_NUMBER_TAG_WITH_RATING)[0];
     $sms['smsData']['name'] = $whatsapp_array['name'];
     $sms['smsData']['request_type'] = $whatsapp_array['request'];
     $sms['smsData']['appliance'] = $whatsapp_array['appliance'];
@@ -1292,7 +1294,10 @@ class Notify {
     $sms['smsData']['cdate'] = date("d-M-Y");
     $sms['smsData']['ctime'] = date("h:i:s A"); // New Templet data 
     $sms['smsData']['partner'] = $whatsapp_array['partner'];
-    $smsBody = vsprintf($template, $sms['smsData']);
+
+
+    $smsBody = vsprintf($template['template'], $sms['smsData']);
+
 
     $payloadName = '{
        "channel": "'.API_KARIX_CHANNEL.'",
@@ -1324,6 +1329,7 @@ class Notify {
      $return = curl_exec($ch);
      curl_close($ch);
      $data = json_decode($return);
+
 
      if(isset($data->objects[0]->channel) && isset($data->objects[0]->source)){
 
@@ -1395,7 +1401,7 @@ class Notify {
             'json_response' => $response,
             'booking_id' => $whatsapp_array['booking_id'],
             'muid'=>$msg_id,
-            'message_tag'=>SEND_COMPLETE_WHATSAPP_NUMBER_TAG,
+            'message_tag'=>SEND_COMPLETE_WHATSAPP_NUMBER_TAG_WITH_RATING,
         );
        $insert_id =  $this->My_CI->apis->logWhatsapp($whatsapp);
        }else{
