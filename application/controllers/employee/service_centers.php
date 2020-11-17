@@ -9530,7 +9530,7 @@ function do_delivered_spare_transfer() {
                 echo 'fail';
             } else {
                 $to_details_array = array(
-                    'status' => $form_details[0]['status'],
+                    'status' => SPARE_DELIVERED_TO_SF,
                     'entity_type' => $form_details[0]['entity_type'],
                     'partner_id' => $form_details[0]['partner_id'],
                     'is_micro_wh' => $form_details[0]['is_micro_wh'],
