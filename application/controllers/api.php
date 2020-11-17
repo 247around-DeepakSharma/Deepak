@@ -4554,7 +4554,103 @@ class Api extends CI_Controller {
             'message_type' => $message_type,
             'json_response' => $response
         );
+        $source_number = str_replace('+','',$source);
         $this->apis->logWhatsapp($whatsapp);
+
+        if(!empty($content)){
+           
+            $five_rating_possiblilities = array("5","five","FIVE","55","05","50");
+            $four_rating_possiblilities = array("4","four","FOUR","04");
+            $three_rating_possiblilities = array("3","three","THREE","03");
+            $two_rating_possiblilities = array("2","two","TWO","02");
+            $one_rating_possiblilities = array("1","one","ONE","01");
+            if(in_array($content, $five_rating_possiblilities)){
+               $rating = 5; 
+            }else if($content >= 5){
+               $rating = 5; 
+            }else if(in_array($content, $four_rating_possiblilities)){
+                $rating = 4; 
+            }else if(in_array($content, $three_rating_possiblilities)){
+                $rating = 3; 
+            }else if(in_array($content, $two_rating_possiblilities)){
+                $rating = 2; 
+            }else if(in_array($content, $one_rating_possiblilities)){
+                $rating = 1; 
+            }else{
+                
+                
+            }
+
+        
+        $message_tag =$data['message_tag'];
+        
+        
+        if($message_tag==SEND_COMPLETE_WHATSAPP_NUMBER_TAG_WITH_RATING && !empty($rating)){
+            $reply= $rating;
+            
+            $get_whatsapp_template_array = $this->whatsapp_model->get_whatsapp_template('id,template,category',array('tag'=>$message_tag,'active'=>1));
+            if(!empty($get_whatsapp_template_array)){
+            $last_message = $get_whatsapp_template_array[0];
+            $data_options = $this->whatsapp_model->get_last_whatsapp_message_send_tag_options('action_id',array('msg_tag_id'=>$last_message['id'],'option_text'=>$reply))[0];
+
+            $template_array = $this->whatsapp_model->get_whatsapp_template('id,template,category,tag',array('id'=>$data_options['action_id'],'active'=>1));
+            if(!empty($template_array)){
+                $template = $template_array[0];
+                $message['smsData']['rating'] = $reply;
+                $smsBody = vsprintf($template['template'], $message['smsData']);
+
+                $tag = $template['tag'];
+                $whatsapp_sms['booking_id'] = $booking_id;
+                $whatsapp_sms['tag'] = $tag;
+                $this->notify->send_whatsapp_to_any_number($source_number,$smsBody, $whatsapp_sms);
+
+                $rating_data = array(
+                        'rating_stars'=>$rating
+                );
+                $this->booking_model->update_booking($booking_id,$rating_data);
+            }
+            }
+            
+        }
+            
+            
+            
+            
+        }
+        
+        
+        
+        
+    }
+    
+    function test1(){
+        
+        
+        $template = $this->whatsapp_model->get_whatsapp_template_by_tag(SEND_COMPLETE_WHATSAPP_NUMBER_TAG_WITH_RATING)[0];
+        
+        
+//        $data = $this->whatsapp_model->get_last_whatsapp_message_send_tag("7275746702")[0];
+//        $booking_id = $data['booking_id'];
+//        $message_tag_id = $data['message_tag'];
+//        $reply=1;
+//        $data_options = $this->whatsapp_model->get_last_whatsapp_message_send_tag_options($message_tag_id,$reply)[0];   
+//        $template = $this->whatsapp_model->get_whatsapp_template_by_id($data_options['action_id'])[0];
+//        
+    $sms['smsData']['name'] = 'Abhishek';
+    $sms['smsData']['request_type'] = 'Installation';
+    $sms['smsData']['appliance'] = 'Television';
+    $sms['smsData']['booking_id'] = 'LP-544575454874545';
+    $sms['smsData']['cdate'] = date("d-M-Y");
+    $sms['smsData']['ctime'] = date("h:i:s A"); // New Templet data 
+    $sms['smsData']['partner'] = 'Partner';
+    //$smsBody = vsprintf($template, $sms['smsData']);
+    $smsBody = vsprintf($template['template'], $sms['smsData']);
+        
+        
+       // $booking_id  = $data['booking_id'];
+        echo "<pre>";
+        print_r($smsBody); exit;
+
 
     }
 
