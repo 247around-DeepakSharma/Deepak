@@ -78,6 +78,14 @@ class Engineer_model extends CI_Model {
         return $this->db->insert_id();
     }
     
+    function delete_engineer_sign($where){
+        if(!empty($where)){
+            $this->db->where($where);
+            $this->db->delete('engineer_table_sign');
+        }
+        log_message('info', __FUNCTION__ . '=> Delete engineer_table_sign : ' .$this->db->last_query());
+    }
+    
     function get_engineer_sign($select, $where){
         $this->db->select($select);
         $this->db->where($where);

@@ -860,6 +860,8 @@ class Booking extends CI_Controller {
                     $data['booking_id'] = "Q-" . $booking_id;
                     log_message('info', __FUNCTION__ . " Booking to be Converted to Query Booking ID" . print_r($data['booking_id'], true));
 
+                    // Delete Data from engineer_table_sign If any
+                    $this->engineer_model->delete_engineer_sign(['booking_id' => $booking_id]);
                     $data['old_state'] = _247AROUND_PENDING;
                     $data['new_state'] = _247AROUND_FOLLOWUP;
                     $data['booking_update_flag'] = 0;
