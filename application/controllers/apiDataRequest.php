@@ -116,7 +116,7 @@ class ApiDataRequest extends CI_Controller {
             $row[] = "<a style='color:#337ab7' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$sp_list->serial_number_pic."' target = '_blank' >Click Here</a>";
 
             $c = '"'.$sp_list->id.'", "'.$sp_list->booking_id.'", "'.$sp_list->assigned_vendor_id.'", "'.$sp_list->amount_due.'" , "'.$sp_list->partner_id.'"';
-            $row[] = '<input type="number" placeholder="Enter your Billing Price" style="width: fit-content;" step="0.01" id="estimate_cost_'.$sp_list->id.'" class="col-md-8"/>';
+            $row[] = '<input type="number" placeholder="Enter Cost" style="width: 120px;" step="0.01" id="estimate_cost_'.$sp_list->id.'" class="col-md-8" min="0"/>';
             $row[] = "<button id='btn_oow_".$sp_list->id."' "
                     . "class = 'btn btn-sm btn-info' onclick='update_spare_estimate_cost(".$c .")' >Submit</button>";
 
