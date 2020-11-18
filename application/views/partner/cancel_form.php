@@ -1,5 +1,9 @@
 <?php
 $isdisable = false;
+if(empty($user_and_booking_details[0])) {
+    echo " Booking not exist ";
+    exit;
+}
 if (isset($user_and_booking_details['spare_parts'])) {
     foreach ($user_and_booking_details['spare_parts'] as $sp) {
         /**
