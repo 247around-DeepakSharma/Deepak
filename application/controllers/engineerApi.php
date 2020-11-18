@@ -2092,6 +2092,12 @@ class engineerApi extends CI_Controller {
             $this->jsonResponseString['response'] = $response;
             $this->sendJsonResponse(array('0000', 'success'));
         } else {
+            if(empty($requestData["engineer_id"])){
+                $requestData["engineer_id"] = '';
+            }
+            if(empty($requestData["service_center_id"])){
+                $requestData["service_center_id"] = '';
+            }
             log_message("info", __METHOD__ . " Engineer ID Not Found - " . $requestData["engineer_id"] . " or Service Center Id not found - " . $requestData["service_center_id"]);
             $this->sendJsonResponse(array('0022', 'Booking ID Not Found'));
         }
