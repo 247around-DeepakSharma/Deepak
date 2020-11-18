@@ -4707,7 +4707,10 @@ class Partner extends CI_Controller {
         //$data['account_manager_details'] = $this->miscelleneous->get_am_data($partner_id);
         $data['account_manager_details'] = $this->partner_model->getpartner_data("employee.*,group_concat(distinct agent_filters.state separator ', ') as state", 
                 array('partners.id' => $partner_id),"",1,1,1,"employee.id");
-        $state_arr = explode(", ", $data['account_manager_details'][0]['state']);
+                $state_arr=[];
+                if(!empty($data['account_manager_details'])){
+                    $state_arr = explode(", ", $data['account_manager_details'][0]['state']);
+                }
         $arr_state = $this->booking_model->get_state();
         if(count($state_arr) === count($arr_state)) {
             $data['account_manager_details'][0]['state'] = "Pan India";
