@@ -56,7 +56,7 @@ class Paytm_gateway extends CI_Controller {
             //$param_list["TXN_AMOUNT"] = 1;
             $param_list["WEBSITE"] = PAYTM_GATEWAY_MERCHANT_WEBSITE;
             $param_list["CALLBACK_URL"] = PAYTM_GATEWAY_CALLBACK_URL;
-            $param_list['ORDER_DETAILS'] = json_encode(array('ORDER_ID' => $ORDER_ID, 'TXN_AMOUNT' => $TXN_AMOUNT, 'TDS_RATE' => $tds_rate, 'TDS_AMOUNT' => $tds_amount), true);
+            $param_list['ORDER_DETAILS'] = $ORDER_ID." ".$TXN_AMOUNT;
             /*
               $param_list["MSISDN"] = $MSISDN; //Mobile number of customer
               $param_list["EMAIL"] = $EMAIL; //Email ID of customer
