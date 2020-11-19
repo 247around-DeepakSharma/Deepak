@@ -1437,7 +1437,7 @@ class Booking_model extends CI_Model {
 
             return $service_centre_ids;
         } else {
-            $sql =  " SELECT id, name, 'SF_NOT_EXIST' AS sf_status FROM service_centres where active = 1 ";
+            $sql =  " SELECT id, name, 'SF_NOT_EXIST' AS sf_status FROM service_centres where service_centres.active = 1 AND service_centres.is_wh = 0 ";
             //No service centre found, return all SCs as of now
             $query2 = $this->db->query($sql);
             return $query2->result_array();
