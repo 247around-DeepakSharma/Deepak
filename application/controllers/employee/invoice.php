@@ -803,11 +803,12 @@ class Invoice extends CI_Controller {
             $email_from = $email_template[2];
 
             $to = $invoice_email_to;
-            $cc = $invoice_email_cc.", " .ACCOUNTANT_EMAILID;
+            $cc = $invoice_email_cc;
+            $bcc= $email_template[5];
             $this->upload_invoice_to_S3($meta['invoice_id']);
             $pdf_attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' . $output_pdf_file_name;
 
-            $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement_url,PARTNER_INVOICE_DETAILED_EMAIL_TAG);
+            $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement_url,PARTNER_INVOICE_DETAILED_EMAIL_TAG, $bcc);
 
             foreach ($data as $value1) {
 
@@ -1313,11 +1314,12 @@ class Invoice extends CI_Controller {
         return true;
     }
     
-    function send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement,$invoiceTag, $multipleResponse = array()) {
+    function send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement,$invoiceTag, $multipleResponse = array(), $bcc = "") {
         $this->email->clear(TRUE);
         $this->email->from($email_from, '247around Team');
         $this->email->to($to);
         $this->email->cc($cc);
+        $this->email->bcc($bcc);
         
         if(!empty($multipleResponse)){
             foreach ($multipleResponse as $value) {
