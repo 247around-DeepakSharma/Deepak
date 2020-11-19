@@ -136,19 +136,19 @@ class Buyback {
     function get_service_id_by_appliance() {
         $appliance_name = "";
 
-        if (stristr($this->POST_DATA['subcat'], "Laundry") || stristr($this->POST_DATA['subcat'], "WashingMachine")) {
+        if (!empty($this->POST_DATA['subcat']) && (stristr($this->POST_DATA['subcat'], "Laundry") || stristr($this->POST_DATA['subcat'], "WashingMachine"))) {
             $appliance_name = 'Washing Machine';
         }
         if (stristr($this->POST_DATA['subcat'], "Air Conditioners") || strstr($this->POST_DATA['subcat'], "AC")) {
             $appliance_name = 'Air Conditioner';
         }
-        if (stristr($this->POST_DATA['subcat'], "Refrigerators") || stristr($this->POST_DATA['subcat'], "Refrigerator")) {
+        if (!empty($this->POST_DATA['subcat']) && (stristr($this->POST_DATA['subcat'], "Refrigerators") || stristr($this->POST_DATA['subcat'], "Refrigerator"))) {
             $appliance_name = 'Refrigerator';
         }
-        if (stristr($this->POST_DATA['subcat'], "Tv")) {
+        if (!empty($this->POST_DATA['subcat']) && stristr($this->POST_DATA['subcat'], "Tv")) {
             $appliance_name = 'Television';
         }
-        if (stristr($this->POST_DATA['subcat'], "mobile")) {
+        if (!empty($this->POST_DATA['subcat']) && stristr($this->POST_DATA['subcat'], "mobile")) {
             $appliance_name = 'Mobile';
         }
 
