@@ -1390,7 +1390,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
 
     if($escalationBookingData['escalation']){
         foreach($escalationBookingData['escalation'] as $escalationData){
-            if(array_key_exists('escalation', $rmArray["RM_".$escalationData['rm_id']])){
+            if(!empty($rmArray["RM_".$escalationData['rm_id']]) && array_key_exists('escalation', $rmArray["RM_".$escalationData['rm_id']])){
                 $rmArray["RM_".$escalationData['rm_id']]['escalation'] = $rmArray["RM_".$escalationData['rm_id']]['escalation'] +$escalationData['total_escalation'];
             }
             else{
@@ -1404,7 +1404,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $tempArray = [];
         if(!empty($rmArray)){
             foreach($rmArray as $RM=>$escalation){
-                if(!empty($escalation['zone']) && !empty($escalation['escalation']) && !empty($escalation['rm_name']))
+                if(!empty($escalation['zone']) && !empty($escalation['escalation']) && !empty($escalation['rm_name']) && !empty($escalation['bookings']))
                 {
                     $tempArray[$escalation['zone']]= array("esclation_per"=>round((($escalation['escalation']*100)/$escalation['bookings']),2),"rm_id"=>$RM,
                         "total_booking"=>$escalation['bookings'],"total_escalation"=>$escalation['escalation'],"rm_name"=>$escalation['rm_name'],"startDate"=>$startDate,"endDate"=>$endDate,"zone"=>$escalation['zone']);
