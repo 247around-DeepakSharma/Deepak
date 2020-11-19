@@ -326,7 +326,7 @@ class Bulkupload extends CI_Controller {
                             $returnMsg[$row][4] = "Plan Start Date is Not Valid";
                             continue;
                         }
-                        if(empty($sanitizes_row_data[3]) || $date_period_end == '1970-01-01 00:00:00' || empty($date_period_end)){
+                        if(empty($sanitizes_row_data[3]) || $date_period_end == '1970-01-01 23:59:59' || empty($date_period_end)){
                             $returnMsg[$row][4] = "Plan End Date is Not Valid";
                             continue;
                         }
