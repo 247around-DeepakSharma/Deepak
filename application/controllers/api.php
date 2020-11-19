@@ -4554,6 +4554,7 @@ class Api extends CI_Controller {
             'message_type' => $message_type,
             'json_response' => $response
         );
+        $source_number = str_replace('+','',$source);
         $this->apis->logWhatsapp($whatsapp);
 
         if(!empty($content)){
@@ -4578,20 +4579,32 @@ class Api extends CI_Controller {
             }else{
                 
                 
-            }            
+            }
+
         
-        $message_tag_id = $data['message_tag'];
-        $reply= $rating;
-        $data_options = $this->whatsapp_model->get_last_whatsapp_message_send_tag_options($message_tag_id,$reply)[0];   
-        $template = $this->whatsapp_model->get_whatsapp_template_by_id($data_options['action_id'])[0];
+        $message_tag_id =$data['message_tag'];
         
-        $message['smsData']['rating'] = $reply;
-        $smsBody = vsprintf($template['template'], $message['smsData']);
         
-        $rating_data = array(
-                'rating_stars'=>$rating
-        );
-        $this->booking_model->update_booking($booking_id,$rating_data);
+        if($message_tag_id==SEND_COMPLETE_WHATSAPP_NUMBER_TAG_WITH_RATING && !empty($rating)){
+            $reply= $rating;
+
+            $data_options = $this->whatsapp_model->get_last_whatsapp_message_send_tag_options(1,$reply)[0];
+
+            $template = $this->whatsapp_model->get_whatsapp_template_by_id($data_options['action_id'])[0];
+
+            $message['smsData']['rating'] = $reply;
+            $smsBody = vsprintf($template['template'], $message['smsData']);
+
+            $tag = $template['tag'];
+            $whatsapp_sms['booking_id'] = $booking_id;
+            $whatsapp_sms['tag'] = $tag;
+            $this->notify->send_whatsapp_to_any_number($source_number,$smsBody, $whatsapp_sms);
+
+            $rating_data = array(
+                    'rating_stars'=>$rating
+            );
+            $this->booking_model->update_booking($booking_id,$rating_data);
+        }
             
             
             
