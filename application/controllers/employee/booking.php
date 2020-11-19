@@ -2776,9 +2776,10 @@ class Booking extends CI_Controller {
                 $review_questionnaire_data = $this->input->post('review_questionnaire');
                 $this->save_review_questionnaire_data($review_questionnaire_booking_id, $review_questionnaire_data);
             }
-            
+            $this->session->set_userdata('success', 'Booking Completed Successfully.');
             redirect(base_url() . 'employee/booking/view_bookings_by_status/Pending');
         } else {
+            $this->session->set_userdata('success', 'Booking Completed Successfully.');
             redirect(base_url() . 'employee/booking/view_bookings_by_status/' . $internal_status);
         }
         }
