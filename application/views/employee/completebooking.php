@@ -27,6 +27,7 @@
                         && ($this->session->userdata('user_group') == _247AROUND_ADMIN) 
                         || ($this->session->userdata('user_group') == _247AROUND_CLOSURE)
                         || ($this->session->userdata('user_group') == INVENTORY_USER_GROUP ) 
+                        || ($this->session->userdata('user_group') == INVENTORY_USER_GROUP_HOD )
                         || ($this->session->userdata('user_group') == _247AROUND_DEVELOPER )
                         || ($this->session->userdata('user_group') == _247AROUND_RM ))  {
                              $enable_button = TRUE; 

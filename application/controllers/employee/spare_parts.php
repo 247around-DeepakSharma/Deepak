@@ -4003,7 +4003,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             }
         }
 
-        $user = $this->employee_model->get_employee_by_group(array('groups' => INVENTORY_USER_GROUP, 'active' => 1));
+        $user = $this->employee_model->get_employee_by_group(array('groups IN ("'.INVENTORY_USER_GROUP.'", "'.INVENTORY_USER_GROUP_HOD.'") ' => NULL, 'active' => 1));
 
         $email = implode(', ', array_unique(array_map(function ($k) {
                             return $k['official_email'];

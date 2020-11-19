@@ -1031,7 +1031,7 @@
                                         </td>
                                         <td><?php echo $sp['edd']; ?></td>
                                         <td>
-                                            <?php if($booking_history[0]['current_status'] != _247AROUND_COMPLETED && in_array($this->session->userdata('user_group'), [_247AROUND_ADMIN, INVENTORY_USER_GROUP])) { ?>
+                                            <?php if($booking_history[0]['current_status'] != _247AROUND_COMPLETED && in_array($this->session->userdata('user_group'), [_247AROUND_ADMIN, INVENTORY_USER_GROUP, INVENTORY_USER_GROUP_HOD])) { ?>
                                                 <span class="serial_no_text" id="<?php echo $sp['id']."|remarks_by_partner";?>"><?php echo $sp['remarks_by_partner']; ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span>
                                                 <input type="hidden" value="<?php echo $sp['remarks_by_partner'];  ?>" id="<?php echo $sp['id']."_remarks_by_partner";?>" />
                                             <?php } else { echo $sp['remarks_by_partner']; }?>
