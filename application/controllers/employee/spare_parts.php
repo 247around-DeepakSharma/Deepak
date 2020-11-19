@@ -3934,7 +3934,7 @@ class Spare_parts extends CI_Controller {
             }
         }
 
-        $user = $this->employee_model->get_employee_by_group(array('groups' => INVENTORY_USER_GROUP, 'active' => 1));
+        $user = $this->employee_model->get_employee_by_group(array('groups IN ("'.INVENTORY_USER_GROUP.'", "'.INVENTORY_USER_GROUP_HOD.'") ' => NULL, 'active' => 1));
 
         $email = implode(', ', array_unique(array_map(function ($k) {
                             return $k['official_email'];
