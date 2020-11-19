@@ -2676,14 +2676,14 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         }
         $where = array();
         $internal_status = $this->booking_model->get_internal_status($where_internal_status);
-        $appliance_wise_hsn_code = array(_247AROUND_TV_SERVICE_ID => _247AROUND_TV_HSN_CODE , _247AROUND_WASHING_MACHINE_SERVICE_ID => _247AROUND_WASHING_MACHINE_HSN_CODE , _247AROUND_MICROWAVE_SERVICE_ID => _247AROUND_MICROWAVE_HSN_CODE ,
-            _247AROUND_WATER_PURIFIER_SERVICE_ID => _247AROUND_WATER_PURIFIER_HSN_CODE , _247AROUND_AC_SERVICE_ID => _247AROUND_AC_HSN_CODE , _247AROUND_REFRIGERATOR_SERVICE_ID => _247AROUND_REFRIGERATOR_HSN_CODE , _247AROUND_GEYSER_SERVICE_ID => _247AROUND_GEYSER_HSN_CODE ,
-            _247AROUND_AUDIO_SYSTEM_SERVICE_ID => _247AROUND_AUDIO_SYSTEM_HSN_CODE , _247AROUND_CHIMNEY_SERVICE_ID => _247AROUND_CHIMNEY_HSN_CODE);
-        
-        $appliance_wise_gst_rates = array(_247AROUND_TV_SERVICE_ID => _247AROUND_TV_GST_RATE , _247AROUND_WASHING_MACHINE_SERVICE_ID => _247AROUND_WASHING_MACHINE_GST_RATE , _247AROUND_MICROWAVE_SERVICE_ID => _247AROUND_MICROWAVE_GST_RATE ,
-            _247AROUND_WATER_PURIFIER_SERVICE_ID => _247AROUND_WATER_PURIFIER_GST_RATE , _247AROUND_AC_SERVICE_ID => _247AROUND_AC_GST_RATE , _247AROUND_REFRIGERATOR_SERVICE_ID => _247AROUND_REFRIGERATOR_GST_RATE , _247AROUND_GEYSER_SERVICE_ID => _247AROUND_GEYSER_GST_RATE ,
-            _247AROUND_AUDIO_SYSTEM_SERVICE_ID => _247AROUND_AUDIO_SYSTEM_GST_RATE , _247AROUND_CHIMNEY_SERVICE_ID => _247AROUND_CHIMNEY_GST_RATE);
-        
+//        $appliance_wise_hsn_code = array(_247AROUND_TV_SERVICE_ID => _247AROUND_TV_HSN_CODE, _247AROUND_WASHING_MACHINE_SERVICE_ID => _247AROUND_WASHING_MACHINE_HSN_CODE, _247AROUND_MICROWAVE_SERVICE_ID => _247AROUND_MICROWAVE_HSN_CODE,
+//            _247AROUND_WATER_PURIFIER_SERVICE_ID => _247AROUND_WATER_PURIFIER_HSN_CODE, _247AROUND_AC_SERVICE_ID => _247AROUND_AC_HSN_CODE, _247AROUND_REFRIGERATOR_SERVICE_ID => _247AROUND_REFRIGERATOR_HSN_CODE, _247AROUND_GEYSER_SERVICE_ID => _247AROUND_GEYSER_HSN_CODE,
+//            _247AROUND_AUDIO_SYSTEM_SERVICE_ID => _247AROUND_AUDIO_SYSTEM_HSN_CODE, _247AROUND_CHIMNEY_SERVICE_ID => _247AROUND_CHIMNEY_HSN_CODE);
+//
+//        $appliance_wise_gst_rates = array(_247AROUND_TV_SERVICE_ID => _247AROUND_TV_GST_RATE, _247AROUND_WASHING_MACHINE_SERVICE_ID => _247AROUND_WASHING_MACHINE_GST_RATE, _247AROUND_MICROWAVE_SERVICE_ID => _247AROUND_MICROWAVE_GST_RATE,
+//            _247AROUND_WATER_PURIFIER_SERVICE_ID => _247AROUND_WATER_PURIFIER_GST_RATE, _247AROUND_AC_SERVICE_ID => _247AROUND_AC_GST_RATE, _247AROUND_REFRIGERATOR_SERVICE_ID => _247AROUND_REFRIGERATOR_GST_RATE, _247AROUND_GEYSER_SERVICE_ID => _247AROUND_GEYSER_GST_RATE,
+//            _247AROUND_AUDIO_SYSTEM_SERVICE_ID => _247AROUND_AUDIO_SYSTEM_GST_RATE, _247AROUND_CHIMNEY_SERVICE_ID => _247AROUND_CHIMNEY_GST_RATE);
+
         $select = "spare_parts_details.id, spare_parts_details.booking_id, parts_shipped, shipped_parts_type, challan_approx_value, service_center_id, spare_parts_details.status, partner_challan_file , hsn_code, gst_rate, price, shipped_quantity, booking_details.service_id";
         $booking_id = $this->input->post('booking_id');
         $part_warranty_status = $this->input->post('part_warranty_status');
@@ -2700,10 +2700,10 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         
         $data['data'] = $this->inventory_model->get_spare_parts_details($select, $where, true, true);
         $data['remarks'] = $internal_status;
-        if(count($data['data']) > 0) {
-            foreach($data['data'] as $key => $val) {
-                $data['data'][$key]['hsn_code'] = (($val['hsn_code'] !== NULL) ? $val['hsn_code'] : $appliance_wise_hsn_code[$val['service_id']]);
-                $data['data'][$key]['gst_rate'] = (($val['gst_rate'] !== NULL) ? $val['gst_rate'] : $appliance_wise_gst_rates[$val['service_id']]);
+        if (count($data['data']) > 0) {
+            foreach ($data['data'] as $key => $val) {
+                $data['data'][$key]['hsn_code'] = (($val['hsn_code'] !== NULL) ? $val['hsn_code'] : SPARE_HSN_CODE);
+                $data['data'][$key]['gst_rate'] = (($val['gst_rate'] !== NULL) ? $val['gst_rate'] : DEFAULT_TAX_RATE);
             }
         }
         echo json_encode($data);
