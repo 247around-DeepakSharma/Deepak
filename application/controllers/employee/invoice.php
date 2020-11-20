@@ -850,9 +850,9 @@ class Invoice extends CI_Controller {
             if (!empty($misc_data['open_cell'])) {
                 foreach ($misc_data['open_cell'] as $open_cell_booking_details) {
                     $open_cell_data = array(
-                        'spare_id' => $open_cell_booking_details['spare_id'],
+                        'booking_id' => $open_cell_booking_details['b_id'],
                         'invoice_id' => $meta['invoice_id'],
-                        'quantity' => $open_cell_booking_details['shipped_quantity'],
+                        'quantity' => 1,
                         'price' => $open_cell_booking_details['partner_charge']
                     );
                     $this->invoices_model->insert_open_cell_data($open_cell_data);
