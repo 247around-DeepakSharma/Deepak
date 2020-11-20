@@ -1291,7 +1291,9 @@ class Notify {
     $phone_number = "+91" . $phone_number;
 /*  Making templet for sending message */
 
-    $template = $this->My_CI->whatsapp_model->get_whatsapp_template('id,template,category',array('tag'=>SEND_COMPLETE_WHATSAPP_NUMBER_TAG_WITH_RATING,'active'=>1))[0];
+    $template_array = $this->My_CI->whatsapp_model->get_whatsapp_template('id,template,category',array('tag'=>SEND_COMPLETE_WHATSAPP_NUMBER_TAG_WITH_RATING,'active'=>1));
+    if(!empty($template_array)){
+     $template =   $template_array[0]; 
     $sms['smsData']['name'] = $whatsapp_array['name'];
     $sms['smsData']['request_type'] = $whatsapp_array['request'];
     $sms['smsData']['appliance'] = $whatsapp_array['appliance'];
@@ -1423,6 +1425,7 @@ class Notify {
         } catch (Exception $e) {
             return FALSE;
         }
+    }
 
 
    }
