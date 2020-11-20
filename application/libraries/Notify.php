@@ -1448,6 +1448,7 @@ class Notify {
                         if (!empty($template)) {
                             $template_data = $template[0];
                             $whatsapp_message = vsprintf($template_data['template'], $whatsapp_sms['smsData']);
+                            $phone_number = '91' . $data['booking_primary_contact_no'];
                             $whatsapp_sms['tag'] = $tag;
                             $whatsapp_sms['booking_id'] = $booking_id;
                             $this->send_whatsapp_to_any_number($phone_number, $whatsapp_message, $whatsapp_sms);
