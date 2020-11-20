@@ -58,11 +58,11 @@
                                                     break;
 
                                                 case 'Cancelled':
-                                                    $view = 'partner/closed_booking/Cancelled/0/' . $row['booking_id'];
+                                                    $view = 'partner/closed_booking/Cancelled/0/0/' . $row['booking_id'];
                                                     break;
 
                                                 case 'Completed':
-                                                    $view = 'partner/closed_booking/Completed/0/' . $row['booking_id'];
+                                                    $view = 'partner/closed_booking/Completed/0/0/' . $row['booking_id'];
                                                     break;
 
                                                 default:
