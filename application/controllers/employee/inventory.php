@@ -5249,9 +5249,9 @@ class Inventory extends CI_Controller {
             'due_date' => date("Y-m-d", strtotime($invoice_dated)),
             'parts_cost' => $total_basic_amount,
             "parts_count" => $tqty,
-            'total_amount_collected' => ($total_invoice_amount + $tcs_amout),
+            'total_amount_collected' => ($total_invoice_amount + $tcs_amount),
             //Amount needs to be Paid to Vendor
-            'amount_collected_paid' => (0 - ($total_invoice_amount +$tcs_amout)),
+            'amount_collected_paid' => (0 - ($total_invoice_amount +$tcs_amount)),
             'agent_id' => $agent_id,
             "cgst_tax_rate" => 0,
             "sgst_tax_rate" => 0,
