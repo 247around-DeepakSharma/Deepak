@@ -612,7 +612,6 @@ admin_dashboard.controller('admin_escalationController', function ($scope, $http
        //Escalation Start
     $scope.loadAllRMView = function(escalation_url){
          $http.get(escalation_url).then(function (response) {
-             response = $.trim(response);
              $("#loader_gif_escalation").css("display", "none");
               $scope.escalationAllRMData = response.data;
          });
