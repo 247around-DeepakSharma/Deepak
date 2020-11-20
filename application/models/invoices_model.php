@@ -761,12 +761,15 @@ class invoices_model extends CI_Model {
             "entity_id" => $partner_id, "variable_charges_type.type" => OPENCELL_LEDBAR_SPARE_PARTS_CHARGES_TYPE, 
                 "vendor_partner_variable_charges.status" => 1,
                 "fixed_charges > 0 " => NULL, "vendor_partner_variable_charges.active" => 1));
+            
             if (!empty($open_cell_led_bar_charges)){
                 //calling function to get total Open cell and LED bar spare parts used in partner bookings
-                $spare_parts_select = "SELECT CONCAT('''', bd.order_id) as order_id, spd.booking_id, spd.shipped_quantity, spd.id as spare_id, '".OPENCELL_LEDBAR_CHARGES."' as product_or_services, spd.parts_requested_type as description, ".$open_cell_led_bar_charges[0]['fixed_charges']." * spd.shipped_quantity as partner_charge "
+                $spare_parts_select = "SELECT CONCAT('''', bd.order_id) as order_id, spd.booking_id, bd.id as b_id, SUM(spd.shipped_quantity) as shipped_quantity, '".OPENCELL_LEDBAR_CHARGES."' as product_or_services, spd.parts_requested_type as description, ".$open_cell_led_bar_charges[0]['fixed_charges']." as partner_charge "
                                        ."FROM spare_parts_details as spd inner join booking_details as bd "
-                                       ."on (bd.booking_id = spd.booking_id) left join bill_to_partner_opencell as btpo on(spd.id = btpo.spare_id) "
-				       ."WHERE spd.parts_requested_type in ('".LED_BAR."', '".OPEN_CELL_PART_TYPE."') and spd.status != 'Cancelled' AND bd.current_status = '"._247AROUND_COMPLETED."' and spd.shipped_date is not null and bd.partner_id = '".$partner_id."' and bd.closed_date >= '".$from_date."' and bd.closed_date < '".$to_date."' and btpo.invoice_id is null;";
+                                       ."on (bd.booking_id = spd.booking_id) left join bill_to_partner_opencell as btpo on(bd.id = btpo.booking_id) "
+				       ."WHERE spd.parts_requested_type in ('".LED_BAR."', '".OPEN_CELL_PART_TYPE."') and spd.status != 'Cancelled' "
+                        . "AND bd.current_status = '"._247AROUND_COMPLETED."' and spd.shipped_date is not null and bd.partner_id = '".$partner_id."' "
+                        . "and bd.closed_date >= '".$from_date."' and bd.closed_date < '".$to_date."' and btpo.invoice_id is null Group by spd.booking_id ;";
                 $opencell_data = $this->db->query($spare_parts_select);
                 $spare_parts_open_cell_led_bar_data = $opencell_data->result_array();
             }
@@ -989,7 +992,7 @@ class invoices_model extends CI_Model {
         if (!empty($spare_parts_open_cell_led_bar_data)) {
             if (!empty($open_cell_led_bar_charges)){
                 //get total open cell parts quantity
-                $total_open_cell_quantity = (array_sum(array_column($spare_parts_open_cell_led_bar_data, 'shipped_quantity')));
+                $total_open_cell_quantity = count($spare_parts_open_cell_led_bar_data);
                 //get total open cell parts price
                 $total_open_cell_price = $total_open_cell_quantity * $open_cell_led_bar_charges[0]['fixed_charges'];
                 $spare_parts_data = array();
