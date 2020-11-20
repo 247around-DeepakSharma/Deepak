@@ -5641,6 +5641,16 @@ class Inventory extends CI_Controller {
                             log_message("info", __FUNCTION__ . " Error in inserting stocks" . print_r($insert_data, true));
                         }
                     }
+
+                    //update courier deliverd date on basis of inventory
+                    $get_courier_id = $this->inventory_model->get_inventory_ledger_details('courier_id', array('id' => $value->ledger_id));
+                    if (!empty($get_courier_id)) {
+                        $courier_id_array = $get_courier_id[0];
+                        $courier_id = $courier_id_array['courier_id'];
+                        if (!empty($courier_id)) {
+                            $this->inventory_model->update_courier_company_invoice_details(array('id' => $courier_id, 'delivered_date IS NULL' => NULL), array('delivered_date' => date('Y-m-d H:i:s')));
+                        }
+                    }
                 }
             }
             //for now comment this code as per discussion with anuj and abhay. No need to send email when wh/partner acknowledged that they received spare
