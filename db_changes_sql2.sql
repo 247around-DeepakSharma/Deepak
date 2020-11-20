@@ -2776,3 +2776,7 @@ ALTER TABLE `zopper_estimate_details` ADD `around_courier_commission` DECIMAL(10
 
 --ABhay
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `booking_id`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'sf_agreement_template', 'SF Agreement Copy', 'Hi,\r\n\r\nPlease find the attached agreement', NULL, 'noreply@2r7around.com', '', 'ap@247around.com', '', '1', CURRENT_TIMESTAMP);
+
+--Abhay 10 Nov
+INSERT INTO `entity_role` (`id`, `entity_type`, `department`, `role`, `is_filter_applicable`) VALUES (NULL, '247Around', 'Operations', 'inventory_manager_hod', '1');
+ALTER TABLE `bill_to_partner_opencell` ADD `booking_id` INT(11) NULL DEFAULT NULL AFTER `spare_id`;
