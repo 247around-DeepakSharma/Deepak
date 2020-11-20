@@ -1486,6 +1486,7 @@ class Notify {
                             $this->send_whatsapp_to_any_number($phone_number, $whatsapp_message, $whatsapp_sms);
                         }
                     }
+                    break;
                 case SPARE_ON_OUT_OF_WARRANTY_SMS_TAG:
                 case SPARE_ON_IN_WARRANTY_SMS_TAG:
                     $booking_details = $this->My_CI->booking_model->getbooking_history($booking_id);
@@ -1510,6 +1511,7 @@ class Notify {
                             $this->send_whatsapp_to_any_number($phone_number, $whatsapp_message, $whatsapp_sms);
                         }
                     }
+                    break;
                 case SPARE_DELIVERED_CUSTOMER_SMS_TAG:
                     $booking_details = $this->My_CI->booking_model->getbooking_history($booking_id);
                     if (!empty($booking_details)) {
@@ -1532,6 +1534,7 @@ class Notify {
                             $whatsapp_message = vsprintf($template_data['template'], $whatsapp_sms['smsData']);
                         }
                     }
+                    break;
                 case 'customer_paid_invoice_pdf_not_generated':
                 case 'customer_paid_invoice':
                     $booking_details = $this->My_CI->booking_model->getbooking_history($booking_id);
