@@ -7060,7 +7060,7 @@ class Partner extends CI_Controller {
         $partner_id = $this->session->userdata('partner_id');
         $selectData = " services.services,users.name as customername, users.phone_number,booking_details.*,appliance_brand,"
                 . "DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) as aging, count_escalation, booking_files.file_name as booking_files_purchase_inv";
-        $selectCount = "Count(DISTINCT ud.booking_id) as count";
+        $selectCount = "Count(DISTINCT booking_details.booking_id) as count";
         $bookingsCount = $this->partner_model->getPending_booking($partner_id, $selectCount,$bookingID,$state,NULL,NULL,$this->input->post('state'),$order,false)[0]->count;
         $bookings = $this->partner_model->getPending_booking($partner_id, $selectData,$bookingID,$state,$this->input->post('start'),$this->input->post('length'),$this->input->post('state'),$order);       
         $sn_no = $this->input->post('start')+1;
