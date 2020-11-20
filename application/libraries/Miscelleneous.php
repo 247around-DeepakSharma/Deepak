@@ -2852,7 +2852,9 @@ class Miscelleneous {
          log_message('info', __FUNCTION__);
          foreach ($reschedule_booking_id as $booking_id) {
             $partner_id = $partner_id_array[$booking_id];
-            $booking['booking_date'] = date('Y-m-d', strtotime($reschedule_booking_date[$booking_id]));
+            if(!empty($reschedule_booking_date[$booking_id])){
+                $booking['booking_date'] = date('Y-m-d', strtotime($reschedule_booking_date[$booking_id]));
+            }
             $booking['current_status'] = 'Rescheduled';
             $booking['internal_status'] = 'Rescheduled';
             $booking['update_date'] = date("Y-m-d H:i:s");
