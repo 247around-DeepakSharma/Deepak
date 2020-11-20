@@ -1128,6 +1128,8 @@
                         <button type="button"class="btn btn-default" style="float:right" data-toggle="tooltip"data-placement="left"title="To calculate escalation percentage, logic use current months booking and current month escalation ">?</button>
                         <button type="button" class="btn btn-info" ng-click="mytoggle = !mytoggle" id="order_by_toggal" onclick="change_toggal_text()"style="float:right">Sort By Number Of Escalation</button>
                         <form class="form-inline"style="float:left;background: #46b8da;color: #fff;padding: 3px;border-radius: 4px;">
+                            <input type='hidden' name='esDate' id='esDate' value="<?php echo date("Y-m-d", strtotime("first day of previous month")); ?>">
+                            <input type='hidden' name='eeDate' id='eeDate' value="<?php echo date('Y-m-d'); ?>">
                             <div class="form-group">
                                 <input type="text" class="form-control" name="daterange" id="daterange_id" ng-change="daterangeloadFullRMView()" ng-model="dates">
                             </div>
@@ -1146,7 +1148,7 @@
                             <tbody>
                                 <tr ng-repeat="y in escalationAllRMData|orderBy:!mytoggle?'-esclation_per':'-total_escalation'" ng-cloak="">
                                     <td>{{$index + 1}}</td>
-                                    <td><a type="button" id="vendor_{{y.vendor_id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/escalation_full_view/{{y.rm_id}}/{{y.startDate}}/{{y.endDate}}">{{y.rm_name}}</a></td>
+                                    <td><a type="button" id="rm_{{y.rm_id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/escalation_full_view/{{y.rm_id}}/{{y.startDate}}/{{y.endDate}}">{{y.rm_name}}</a></td>
                                     <td>{{y.total_booking}}</td>
                                     <td>{{y.total_escalation}}</td>
                                     <td>{{y.esclation_per}}%</td>
@@ -3090,18 +3092,32 @@
     }
 
 function initiate_escalation_data(){
-//    var d = new Date();
-//    n = d.getMonth()+1;
-//    y = d.getFullYear();
-//    date = d.getDate();
     $('input[name="daterange"]').daterangepicker({
         timePicker: true,
         timePickerIncrement: 30,
         locale: {
             format: 'YYYY-MM-DD'
         },
-       // startDate: y+'-'+n+'-01'
        startDate: "<?php echo date("Y-m-d", strtotime("first day of previous month")); ?>"
+    },  function(start, end, label) {
+            var startDateObj = new Date(start);
+            var endDateObj = new Date(end);
+            var timeDiff = Math.abs(endDateObj.getTime() - startDateObj.getTime());
+            var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
+
+            var date = startDateObj.getFullYear()+'-'+(("0" + (startDateObj.getMonth() + 1)).slice(-2))+'-'+(("0" + startDateObj.getDate()).slice(-2))+' - '+endDateObj.getFullYear()+'-'+(("0" + (endDateObj.getMonth() + 1)).slice(-2))+'-'+(("0" + endDateObj.getDate()).slice(-2));
+            var esDate = startDateObj.getFullYear()+'-'+(("0" + (startDateObj.getMonth() + 1)).slice(-2))+'-'+(("0" + startDateObj.getDate()).slice(-2));
+            var eeDate = endDateObj.getFullYear()+'-'+(("0" + (endDateObj.getMonth() + 1)).slice(-2))+'-'+(("0" + endDateObj.getDate()).slice(-2));
+            if(diffDays > 92) {
+                alert("Maximum range allowed is 3 month.");
+                $('#daterange_id').data('daterangepicker').setStartDate("<?php echo date("Y-m-d", strtotime("-1 month")); ?>");
+                $('#daterange_id').data('daterangepicker').setEndDate("<?php echo date("Y-m-d"); ?>");
+                $("#esDate").val("<?php echo date("Y-m-d", strtotime("-1 month")); ?>");
+                $("#eeDate").val("<?php echo date("Y-m-d"); ?>");
+                return false;
+            }
+            $("#esDate").val(esDate);
+            $("#eeDate").val(eeDate);
     });
 }
     function open_full_view(id,url,is_am,is_pending,form_id,entity_type="",sub_id=""){
