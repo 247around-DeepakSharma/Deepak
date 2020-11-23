@@ -115,7 +115,7 @@
                 <td width="10%" colspan="1"><?php echo $meta['total_taxable_value']; ?></td>
             </tr>
             <tr align="left">
-                <td colspan="4" rowspan="3" style="padding: 2%" align="center"><?php echo $meta['price_inword'];?></td>
+                <td colspan="4" rowspan="<?php  if(!empty($meta['tcs_rate'])){ echo "3"; } else { echo "2";}?>" style="padding: 2%" align="center"><?php echo $meta['price_inword'];?></td>
                 <td colspan="3"><b>Add: IGST</td>
                 <td colspan="1"><?php echo $meta['igst_total_tax_amount'];?></td>
             </tr>
