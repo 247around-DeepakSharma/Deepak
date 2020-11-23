@@ -121,7 +121,7 @@
                 <td colspan="1" align="center" style="border-right: 2px solid;"><?php echo $meta['total_taxable_value']; ?></td>
             </tr>
             <tr>
-                <td colspan="4" rowspan="4" style="padding: 2%; text-align: center;"><?php echo $meta['price_inword']; ?></td>
+                <td colspan="4" rowspan="<?php  if(!empty($meta['tcs_rate'])){ echo "4"; } else { echo "3";}?>" style="padding: 2%; text-align: center;"><?php echo $meta['price_inword']; ?></td>
                 <td colspan="5"><b>Add: CGST</td>
                 <td colspan="1" align="center" style="border-right: 2px solid;"><?php echo $meta['cgst_total_tax_amount'];; ?></td>
             <tr >
