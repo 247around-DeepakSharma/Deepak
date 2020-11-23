@@ -74,8 +74,10 @@ define('DEFACTIVE_PART_DELIVERED_DATE_BY_COURIER_API','defactive_part_received_d
 //Delivered Spare Status 
 define('DELIVERED_SPARE_STATUS','Delivered');
 define("MICRO_WAREHOUSE_CHARGES_TYPE", "micro-warehouse-charges");
-//open cell and led bar spare parts charge type
-define("OPENCELL_LEDBAR_SPARE_PARTS_CHARGES_TYPE", "opencell-ledbar-charges-fixed");
+//led bar spare parts charge type
+define("LEDBAR_SPARE_PARTS_CHARGES_TYPE", "ledbar-charges-fixed");
+//open cell spare parts charge type
+define("OPENCELL_SPARE_PARTS_CHARGES_TYPE", "opencell-charges-fixed");
 //Micro Warehouse Description
 define("MICRO_WAREHOUSE_CHARGES_DESCRIPTION", "Micro Warehouse");
 

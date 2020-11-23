@@ -683,14 +683,14 @@ class Invoice extends CI_Controller {
         
         // Generate Open Cell and LED Bar Spare Parts Excel
         if (!empty($misc_data['open_cell'])) {
-            $meta['total_open_cell_price'] = $misc_data['open_cell'][0]['total_open_cell_price'];
-            $meta['total_open_cell_quantity'] = $misc_data['open_cell'][0]['total_open_cell_quantity'];
+            $meta['total_open_cell_price'] = (array_sum(array_column($misc_data['open_cell'], 'partner_charge')));
+            $meta['total_open_cell_quantity'] = count($misc_data['open_cell']);
             $sp_files_name = $this->generate_partner_open_cell_excel($partner_id, $misc_data['open_cell'], $meta);
             array_push($files, $sp_files_name);
 
             log_message('info', __METHOD__ . "=> File created " . $sp_files_name);
         }
-        
+                 
         // Generate NRN Approval Parts Excel
         if (!empty($misc_data['nrn'])) {
             $meta['total_nrn_price'] = $misc_data['nrn'][0]['total_nrn_price'];
