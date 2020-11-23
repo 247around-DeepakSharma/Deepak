@@ -671,19 +671,26 @@ class invoices_model extends CI_Model {
         }
     }
     
-    function get_partner_invoice_data($partner_id, $from_date, $to_date, $tmp_from_date) {
-        $spare_requested_data = $this->get_unit_for_requested_spare($partner_id);
-        $s = "";
-        if(!empty($spare_requested_data)){
-            $u = array_column($spare_requested_data, 'id');
-            $s = " OR ( ud.id IN(". implode(",", $u).") ) ";
+    function get_partner_invoice_data($partner_id, $from_date, $to_date, $tmp_from_date, $booking_id = "") {
+        
+        $s = ""; $n=""; $spare_requested_data = array(); $b= "";
+        
+        if($booking_id ==""){
+            $spare_requested_data = $this->get_unit_for_requested_spare($partner_id);
+            if(!empty($spare_requested_data)){
+                $u = array_column($spare_requested_data, 'id');
+                $s = " OR ( ud.id IN(". implode(",", $u).") ) ";
+            }
+
+            $nrn_data = $this->get_nrn_approved_booking($partner_id, $from_date, $to_date);
+            if(!empty($nrn_data)){
+                $nd = array_column($nrn_data, 'unit_id');
+                $n = " OR ( ud.id IN(". implode(",", $nd).") ) ";
+            }
+        } else{
+            $b = " AND ud.booking_id = '".$booking_id."' ";
         }
-        $n="";
-        $nrn_data = $this->get_nrn_approved_booking($partner_id, $from_date, $to_date);
-        if(!empty($nrn_data)){
-            $nd = array_column($nrn_data, 'unit_id');
-            $n = " OR ( ud.id IN(". implode(",", $nd).") ) ";
-        }
+        
         
         $sql = "SELECT DISTINCT (`partner_net_payable` + partner_spare_extra_charge) AS rate, " . HSN_CODE . " AS hsn_code, 
                 CASE 
@@ -724,6 +731,7 @@ class invoices_model extends CI_Model {
                 AND ud.service_id = services.id
                 AND partner_refuse_to_pay = 0
                 AND partners.id = ud.partner_id
+                $b
                 AND partner_invoice_id IS NULL
                 AND ( ( ud.partner_id =  '$partner_id'
                         AND ud.booking_status =  'Completed'
@@ -737,27 +745,36 @@ class invoices_model extends CI_Model {
         $result['result'] = $query->result_array();
 
         //if (!empty($result['result'])) {
-        $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date, $s);
-        $courier  = $this->generate_partner_courier_invoice($partner_id, $from_date, $to_date, 0);
+        $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date, $s, $n, $booking_id);
+        $courier  = $this->generate_partner_courier_invoice($partner_id, $from_date, $to_date, 0, $booking_id);
         
-        $spare_parts_open_cell_led_bar_data = array();
-        $open_cell_led_bar_charges = array();
+        $spare_parts_led_bar_data = array();
+        $led_bar_charges = array();
+        $open_cell_data = array();
         //checking if selected partner is Videocon because we want open cell and led bar spare parts invoice for Videocon only
         if($partner_id == VIDEOCON_ID){
             //finding fixed charges for open cell and led bar spare parts
-            $open_cell_led_bar_charges = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
-            "entity_id" => $partner_id, "variable_charges_type.type" => OPENCELL_LEDBAR_SPARE_PARTS_CHARGES_TYPE, 
+            $led_bar_charges = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
+            "entity_id" => $partner_id, "variable_charges_type.type" => LEDBAR_SPARE_PARTS_CHARGES_TYPE, 
                 "vendor_partner_variable_charges.status" => 1,
-                "fixed_charges > 0 " => NULL, "vendor_partner_variable_charges.active" => 1));
-            if (!empty($open_cell_led_bar_charges)){
+                "vendor_partner_variable_charges.active" => 1));
+            
+            if (!empty($led_bar_charges)){
                 //calling function to get total Open cell and LED bar spare parts used in partner bookings
-                $spare_parts_select = "SELECT CONCAT('''', bd.order_id) as order_id, spd.booking_id, spd.shipped_quantity, spd.id as spare_id, '".OPENCELL_LEDBAR_CHARGES."' as product_or_services, spd.parts_requested_type as description, ".$open_cell_led_bar_charges[0]['fixed_charges']." * spd.shipped_quantity as partner_charge "
-                                       ."FROM spare_parts_details as spd inner join booking_details as bd "
-                                       ."on (bd.booking_id = spd.booking_id) left join bill_to_partner_opencell as btpo on(spd.id = btpo.spare_id) "
-				       ."WHERE spd.parts_requested_type in ('".LED_BAR."', '".OPEN_CELL_PART_TYPE."') and spd.status != 'Cancelled' AND bd.current_status = '"._247AROUND_COMPLETED."' and spd.shipped_date is not null and bd.partner_id = '".$partner_id."' and bd.closed_date >= '".$from_date."' and bd.closed_date < '".$to_date."' and btpo.invoice_id is null;";
-                $opencell_data = $this->db->query($spare_parts_select);
-                $spare_parts_open_cell_led_bar_data = $opencell_data->result_array();
+                $spare_parts_select = "SELECT CONCAT('''', bd.order_id) as order_id, spd.booking_id, bd.id as b_id, SUM(spd.shipped_quantity) as shipped_quantity, "
+                        . "'".LEDBAR_CHARGES."' as product_or_services, "
+                        . "spd.parts_requested_type as description, ".$led_bar_charges[0]['fixed_charges']." as partner_charge "
+                        ."FROM spare_parts_details as spd inner join booking_details as bd "
+                        ."on (bd.booking_id = spd.booking_id) left join bill_to_partner_opencell as btpo on(bd.id = btpo.booking_id) "
+                        ."WHERE spd.parts_requested_type = '".LED_BAR."' and spd.status != 'Cancelled' "
+                        . "AND bd.current_status = '"._247AROUND_COMPLETED."' and spd.shipped_date is not null and bd.partner_id = '".$partner_id."' "
+                        . "and bd.closed_date >= '".$from_date."' and bd.closed_date < '".$to_date."' and btpo.invoice_id is null Group by spd.booking_id ;";
+                $led_data = $this->db->query($spare_parts_select);
+
+                $spare_parts_led_bar_data = $led_data->result_array();
             }
+            
+            $open_cell_data = $this->get_open_cell_data($partner_id, $from_date, $to_date);
         }
 
         $misc_select = 'CONCAT(\'\'\'\', booking_details.order_id) AS order_id, miscellaneous_charges.booking_id, '
@@ -765,7 +782,7 @@ class invoices_model extends CI_Model {
                 . 'miscellaneous_charges.partner_charge, miscellaneous_charges.id,'
                 . 'CONCAT("' . S3_WEBSITE_URL . 'misc-images/",approval_file) as approval_file, CONCAT("' . S3_WEBSITE_URL . 'purchase-invoices/",purchase_invoice_file) as purchase_invoice_file';
 
-        $misc = $this->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.partner_invoice_id IS NULL", $from_date, $to_date, "booking_details.partner_id", $partner_id, "partner_charge", _247AROUND_COMPLETED);
+        $misc = $this->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.partner_invoice_id IS NULL", $from_date, $to_date, "booking_details.partner_id", $partner_id, "partner_charge", _247AROUND_COMPLETED, $booking_id);
         $result['upcountry'] = array();
         $result['pickup_courier'] = array();
         $result['courier'] = array();
@@ -974,27 +991,43 @@ class invoices_model extends CI_Model {
         }
 
     
-        if (!empty($spare_parts_open_cell_led_bar_data)) {
-            if (!empty($open_cell_led_bar_charges)){
+        if (!empty($spare_parts_led_bar_data)) {
+            if (!empty($led_bar_charges)){
                 //get total open cell parts quantity
-                $total_open_cell_quantity = (array_sum(array_column($spare_parts_open_cell_led_bar_data, 'shipped_quantity')));
+                $total_led_bar_quantity = count($spare_parts_led_bar_data);
                 //get total open cell parts price
-                $total_open_cell_price = $total_open_cell_quantity * $open_cell_led_bar_charges[0]['fixed_charges'];
+                $total_led_bar_price = $total_led_bar_quantity * $led_bar_charges[0]['fixed_charges'];
                 $spare_parts_data = array();
-                $spare_parts_data[0]['description'] = OPENCELL_LEDBAR_CHARGES;
+                $spare_parts_data[0]['description'] = $led_bar_charges[0]['description'];
                 $spare_parts_data[0]['hsn_code'] = '';
-                $spare_parts_data[0]['qty'] = $total_open_cell_quantity;
-                $spare_parts_data[0]['rate'] = $open_cell_led_bar_charges[0]['fixed_charges'];
+                $spare_parts_data[0]['qty'] = $total_led_bar_quantity;
+                $spare_parts_data[0]['rate'] = $led_bar_charges[0]['fixed_charges'];
                 $spare_parts_data[0]['gst_rate'] = DEFAULT_TAX_RATE;
-                $spare_parts_data[0]['product_or_services'] = OPENCELL_LEDBAR_CHARGES;
-                $spare_parts_data[0]['taxable_value'] = sprintf("%.2f", $total_open_cell_price);
-                $spare_parts_open_cell_led_bar_data[0]['total_open_cell_price'] = $total_open_cell_price;
-                $spare_parts_open_cell_led_bar_data[0]['total_open_cell_quantity'] = $total_open_cell_quantity;
+                $spare_parts_data[0]['product_or_services'] = LEDBAR_CHARGES;
+                $spare_parts_data[0]['taxable_value'] = sprintf("%.2f", $total_led_bar_price);
                 $result['result'] = array_merge($result['result'], $spare_parts_data);
-                $result['open_cell'] = $spare_parts_open_cell_led_bar_data;
+                $result['open_cell'] = $spare_parts_led_bar_data;
             }
             
         }
+        
+        if (!empty($open_cell_data)){
+                //get total open cell parts quantity
+                $total_open_cell_quantity = count($open_cell_data['data']);
+                //get total open cell parts price
+                $total_open_cell_price = $total_open_cell_quantity * $open_cell_data['type'][0]['fixed_charges'];
+                $spare_parts_data = array();
+                $spare_parts_data[0]['description'] = $open_cell_data['type'][0]['description'];
+                $spare_parts_data[0]['hsn_code'] = '';
+                $spare_parts_data[0]['qty'] = $total_open_cell_quantity;
+                $spare_parts_data[0]['rate'] = $open_cell_data['type'][0]['fixed_charges'];
+                $spare_parts_data[0]['gst_rate'] = DEFAULT_TAX_RATE;
+                $spare_parts_data[0]['product_or_services'] = OPENCELL_CHARGES;
+                $spare_parts_data[0]['taxable_value'] = sprintf("%.2f", $total_open_cell_price);
+                $result['result'] = array_merge($result['result'], $spare_parts_data);
+                $m = array_merge($spare_parts_led_bar_data, $open_cell_data['data']);
+                $result['open_cell'] = $m;
+            }
         
         //set values for NRN annexure 
         if (!empty($nrn_data)) {
@@ -1071,6 +1104,36 @@ class invoices_model extends CI_Model {
             return false;
         }
     }
+    
+    function get_open_cell_data($partner_id, $from_date, $to_date) {
+        //finding fixed charges for open cell and led bar spare parts
+        $open_cell_charges = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
+            "entity_id" => $partner_id, "variable_charges_type.type" => OPENCELL_SPARE_PARTS_CHARGES_TYPE,
+            "vendor_partner_variable_charges.status" => 1,
+            "vendor_partner_variable_charges.active" => 1));
+        if (!empty($open_cell_charges)) {
+            //calling function to get total Open cell and LED bar spare parts used in partner bookings
+            $spare_parts_select = "SELECT CONCAT('''', bd.order_id) as order_id, spd.booking_id, bd.id as b_id, SUM(spd.shipped_quantity) as shipped_quantity, "
+                    . "'" . OPENCELL_CHARGES . "' as product_or_services, "
+                    . "spd.parts_requested_type as description, " . $open_cell_charges[0]['fixed_charges'] . " as partner_charge "
+                    . "FROM spare_parts_details as spd inner join booking_details as bd "
+                    . "on (bd.booking_id = spd.booking_id) left join bill_to_partner_opencell as btpo on(bd.id = btpo.booking_id) "
+                    . "WHERE spd.parts_requested_type = '" . OPEN_CELL_PART_TYPE . "' and spd.status != 'Cancelled' "
+                    . "AND bd.current_status = '" . _247AROUND_COMPLETED . "' and spd.shipped_date is not null and bd.partner_id = '" . $partner_id . "' "
+                    . "and bd.closed_date >= '" . $from_date . "' and bd.closed_date < '" . $to_date . "' and btpo.invoice_id is null Group by spd.booking_id ;";
+            $query = $this->db->query($spare_parts_select);
+            $data = $query->result_array();
+            
+            if(!empty($data)){
+                return array('type' => $open_cell_charges, 'data' => $data);
+            }
+            
+            return false;
+        }
+
+        return false;
+    }
+
     /**
      * @desc This function is used to get micro warehouse invoice data for Partner
      * It will create full amount invoice when Micro warehouse created before requested from date
