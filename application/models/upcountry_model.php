@@ -1023,13 +1023,17 @@ class Upcountry_model extends CI_Model {
      * @param string
      * @return string 
      */
-    function update_pincode_distance($pincode1,$pincode2,$distance){
+    function update_pincode_distance($pincode1,$pincode2,$distance, $agent_id = ""){
         if($pincode1 < $pincode2){ $dp1 = $pincode1;$dp2 = $pincode2;} 
         else { $dp1 = $pincode2;  $dp2 = $pincode1; }
         $set = array('distance' => $distance);
+        if(!empty($agent_id)){
+            $set['agent_id'] = $agent_id;
+        }
         $this->db->where('pincode1',$dp1);
         $this->db->where('pincode2',$dp2);
         $this->db->update('distance_between_pincode',$set);
+        echo $this->db->last_query();
         if ($this->db->affected_rows() > 0) {
             return true;
         } else {
@@ -1122,6 +1126,16 @@ class Upcountry_model extends CI_Model {
     function truncate_upcountry_sf_level_table(){
         $sql = "TRUNCATE TABLE `upcountry_pincode_services_sf_level`";
         $this->db->query($sql);
+    }
+    
+    function get_all_distance_between_pincodes($select, $where = array()){
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $query = $this->db->get('distance_between_pincode');
+        return $query->result_array();
+        
     }
     
     
