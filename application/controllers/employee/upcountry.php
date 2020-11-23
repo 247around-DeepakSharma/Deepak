@@ -356,5 +356,30 @@ class Upcountry extends CI_Controller {
             echo "error";
         }
     }
+    
+    function refresh_all_upcountry_data(){
+        $data = $this->upcountry_model->get_all_distance_between_pincodes("*");
+        if(!empty($data)){
+            foreach ($data as $value) {
+                $distance = $this->upcountry_model->calculate_distance_between_pincode($value['pincode1'], $value['city'], $value['pincode2'], "");
+                if(!empty($distance)){
+                    $distance1 = (round($distance['distance']['value'] / 1000, 2));
+                    if($distance1 != $value['distance']){
+                      $status = $this->upcountry_model->update_pincode_distance($value['pincode1'], $value['pincode2'], $distance1, 12);
+                      
+                      if($status){
+                          echo PHP_EOL.'Distance Updated';
+                      } else {
+                          echo PHP_EOL.'Distance SQL Not Updated';
+                      }
+                    } else {
+                        echo PHP_EOL.'Distance Same';
+                    }
+                } else {
+                    echo PHP_EOL.'Distance Not Updated';
+                }
+            }
+        }
+    }
 
 }
