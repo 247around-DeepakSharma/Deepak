@@ -27,13 +27,12 @@
                     <h3>Whatsapp Chat History 
 
                     </h3>
-                    <hr>
-                    <div class="clearfix"></div>
+                    
+                   
                 </div>
                 <div class="x_content">
 
-                    <div class="clearfix"></div>
-                    <hr>
+                  
                     <div class="inventory_stock_list">
                         <table id="chat_table" class="table table-bordered table-responsive">
                             <thead>
@@ -44,6 +43,7 @@
                                     <th>Channel</th>
                                     <th>Direction</th>
                                     <th>Content</th>
+                                    <th>Content Type</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
@@ -56,7 +56,7 @@
 
 
 
-        <div class="row chat-window col-xs-6 col-md-3" id="chat_window_1" style="margin-left:10px;z-index:9999;">
+        <div class="row chat-window col-xs-6 col-md-3" id="chat_window_1" style="margin-left:10px;z-index:9999;right: 10px;">
             <div class="col-xs-12 col-md-12">
                 <div class="panel panel-default">
                     <div class="panel-heading top-bar">
@@ -64,8 +64,8 @@
                             <h3 class="panel-title"><span class="glyphicon glyphicon-comment"></span> Chat - <span id="chat_number"></span></h3>
                         </div>
                         <div class="col-md-4 col-xs-4" style="text-align: right;">
-                            <a href="#"><span id="minim_chat_window" class="glyphicon glyphicon-minus icon_minim"></span></a>
-                            <a href="#"><span class="glyphicon hide glyphicon-remove icon_close" data-id="chat_window_1"></span></a>
+                            <a href="jquery:void(0)"><span id="minim_chat_window" class="glyphicon glyphicon-minus icon_minim"></span></a>
+                            <a href="jquery:void(0)"><span class="glyphicon hide glyphicon-remove icon_close" data-id="chat_window_1"></span></a>
                         </div>
                     </div>
                     <div class="panel-body msg_container_base">
@@ -76,32 +76,18 @@
 
 
                     </div>
-                    <div class="panel-footer">
+                    <!--<div class="panel-footer">
                         <div class="input-group">
                             <input id="btn-inputchat" type="text" class="form-control input-sm chat_input" placeholder="Write your message here..." />
                             <span class="input-group-btn">
                                 <button class="btn btn-primary btn-sm" id="btn-chat">Send</button>
                             </span>
                         </div>
-                    </div>
+                    </div>-->
                 </div>
             </div>
         </div>
 
-
-        <div class="btn-group dropup">
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                <span class="glyphicon glyphicon-cog"></span>
-                <span class="sr-only">Toggle Dropdown</span>
-            </button>
-            <ul class="dropdown-menu" role="menu">
-                <li><a href="#" id="new_chat"><span class="glyphicon glyphicon-plus"></span> Admin</a></li>
-                <li><a href="#"><span class="glyphicon glyphicon-list"></span> List All</a></li>
-                <li><a href="#"><span class="glyphicon glyphicon-remove"></span> Close</a></li>
-                <li class="divider"></li>
-                <li><a href="#"><span class="glyphicon glyphicon-eye-close"></span>Hide</a></li>
-            </ul>
-        </div>
 
     </div>
 
@@ -129,7 +115,7 @@
             background: #e5e5e5;
             margin: 0;
             padding: 0 10px 10px;
-            max-height:300px;
+            max-height:500px;
             overflow-x:hidden;
         }
         .top-bar {
@@ -238,6 +224,7 @@
         }
 
     </style>
+    
 
 
 
@@ -333,6 +320,9 @@
 
 
         //get_inventory_list();
+        </script>
+        
+        <script>
 
 
 
@@ -375,7 +365,10 @@
             $("#chat_number").text(number);
             var dataid = $(this).attr('data-id');
             $("#btn-chat").attr("data-id", dataid);
-
+            $(".msg_container_base").show();
+            $(".msg_container_base").html("<img src='../../images/loadring.gif' style='width: 100px;margin: 50px auto;'>");
+            $("#minim_chat_window").removeClass('glyphicon-plus');
+            $("#minim_chat_window").addClass('glyphicon-minus');
 
             $.ajax({
                 url: '<?php echo base_url(); ?>employee/whatsapp/getChatByNumber/',
@@ -384,6 +377,7 @@
                 success: function (data) {
                     //called when successful
                     // console.log(data);
+                    $(".msg_container_base").show();
                     var result = JSON.parse(data);
                     //  console.log(result.result);
                     var chat = result.result;
@@ -447,7 +441,7 @@
                 }
             });
 
-            $('.panel-heading span.icon_minim').click();
+           // $('.panel-heading span.icon_minim').click();
         });
 
         $('.panel-heading span.icon_minim').click();
