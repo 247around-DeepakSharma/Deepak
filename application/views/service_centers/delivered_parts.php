@@ -27,6 +27,7 @@ if ($this->uri->segment(3)) {
                     <h1 class="panel-title" >Spare Parts Delivered To SF</h1>
                 </div>
                 <div class="panel-body">
+                    <div class="table-responsive">
                     <table id="delivered_parts_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                         <thead>
                             <tr>
@@ -108,6 +109,7 @@ if ($this->uri->segment(3)) {
                             <?php }?>
                         </tbody>
                     </table>
+                    </div>
                 </div>
             </div>
         </div>
