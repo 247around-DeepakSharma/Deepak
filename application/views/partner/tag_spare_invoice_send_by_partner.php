@@ -902,7 +902,7 @@ $("#on_invoice_file").change(function(){
                 });
                 
                 var entered_invoice_amt = Number($('#invoice_amount').val());
-                var our_invoice_amt = Number($('#total_spare_invoice_price').text());
+                var our_invoice_amt = Number($('#final_total').val());
                 if((our_invoice_amt >= entered_invoice_amt - 10) && (our_invoice_amt <= entered_invoice_amt + 10) ){
                     $('#invoice_amount').css('border','1px solid #ccc');
                     $('#total_spare_invoice_price').removeClass('text-danger');
@@ -1688,7 +1688,7 @@ $("#on_invoice_file").change(function(){
                         var wh_name = $('#on_wh_id option:selected').text();
                         $('#on_wh_name').val(wh_name);
                         var entered_invoice_amt = Number($('#on_invoice_amount').val());
-                        var our_invoice_amt = 0;
+                       // var our_invoice_amt = 0;
                         $(".total_spare_amount").each(function (i) {
                             if(Number($(this).val()) > 0){
                                 var sh_id = this.id;
@@ -1698,13 +1698,15 @@ $("#on_invoice_file").change(function(){
                                 if ($("#s_shippingStatus_" + c+":checked").val()) {
                                     var checked_shipped = $("#s_shippingStatus_" + c).val();
                                      if(Number(checked_shipped) === 1 ){
-                                        our_invoice_amt += Number($(this).val());
+                                       // our_invoice_amt += Number($(this).val());
                                      }
                                  }
 
                             }
 
                         });
+                        
+                        var our_invoice_amt = Number($('#on_b_final_total').val());
                         if((our_invoice_amt >= entered_invoice_amt - 10) && (our_invoice_amt <= entered_invoice_amt + 10) ){
 
                             onBookingshowConfirmDialougeBox('Are you sure you want to submit ?', 'info');
