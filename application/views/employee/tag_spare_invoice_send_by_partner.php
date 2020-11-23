@@ -799,7 +799,7 @@
                 });
                 
                 var entered_invoice_amt = Number($('#invoice_amount').val());
-                var our_invoice_amt = Number($('#total_spare_invoice_price').val());
+                var our_invoice_amt = Number($('#final_total').val());
                 var box_count = $("#box_count").val() || 0;
                 var small_box_count = $("#small_box_count").val() || 0;
                 $('#box_count').css('border','');
