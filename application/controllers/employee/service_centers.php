@@ -10124,11 +10124,18 @@ function do_delivered_spare_transfer() {
         $this->checkUserSession();
         log_message('info', __FUNCTION__ . ' Used by :' . $this->session->userdata('service_center_name'));
         $service_center_id = $this->session->userdata('service_center_id');
+        
+        if(!empty($this->session->userdata('warehouse_id'))) {         
+            $service_center_id = $this->session->userdata('warehouse_id');
+        } else {
+            $service_center_id = $this->session->userdata('service_center_id');
+        }
 
         $where = array (
             "status NOT IN ('" . _247AROUND_CANCELLED . "')  " => NULL,
             "spare_parts_details.parts_shipped is not null and spare_parts_details.shipped_date is not null" => NULL,
             "spare_parts_details.defective_part_shipped is null and spare_parts_details.defective_part_shipped_date is null" => NULL,
+            "spare_parts_details.service_center_id" => $service_center_id
         );
 
         $select = "booking_details.service_center_closed_date,booking_details.create_date,booking_details.booking_primary_contact_no as mobile, spare_parts_details.*, "
