@@ -1572,7 +1572,7 @@ class engineerApi extends CI_Controller {
                 $cancellation_reason_id = "";
                 if(!empty($requestData["cancellationReason"])){
                     $arr_cancellation_reason =  $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('reason' => $requestData["cancellationReason"], 'reason_of' => 'vendor'), NULL, NULL, NULL, NULL, NULL, array());
-                    $cancellation_reason_id = !empty($arr_cancellation_reason[0]['id']) ? $arr_cancellation_reason[0]['id'] : ""; 
+                    $cancellation_reason_id = !empty($arr_cancellation_reason[0]['id']) ? $arr_cancellation_reason[0]['id'] : $requestData["cancellationReason"]; 
                 }
                 $en['cancellation_reason'] = $cancellation_reason_id;
                 $en['cancellation_remark'] = $requestData["remarks"];

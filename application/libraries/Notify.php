@@ -1286,7 +1286,9 @@ class Notify {
     $phone_number = "+91" . $phone_number;
 /*  Making templet for sending message */
 
-    $template = $this->My_CI->whatsapp_model->get_whatsapp_template('id,template,category',array('tag'=>SEND_COMPLETE_WHATSAPP_NUMBER_TAG_WITH_RATING,'active'=>1))[0];
+    $template_array = $this->My_CI->whatsapp_model->get_whatsapp_template('id,template,category',array('tag'=>SEND_COMPLETE_WHATSAPP_NUMBER_TAG_WITH_RATING,'active'=>1));
+    if(!empty($template_array)){
+     $template =   $template_array[0]; 
     $sms['smsData']['name'] = $whatsapp_array['name'];
     $sms['smsData']['request_type'] = $whatsapp_array['request'];
     $sms['smsData']['appliance'] = $whatsapp_array['appliance'];
@@ -1418,6 +1420,7 @@ class Notify {
         } catch (Exception $e) {
             return FALSE;
         }
+    }
 
 
    }
@@ -1449,6 +1452,7 @@ class Notify {
                         if (!empty($template)) {
                             $template_data = $template[0];
                             $whatsapp_message = vsprintf($template_data['template'], $whatsapp_sms['smsData']);
+                            $phone_number = '91' . $data['booking_primary_contact_no'];
                             $whatsapp_sms['tag'] = $tag;
                             $whatsapp_sms['booking_id'] = $booking_id;
                             $this->send_whatsapp_to_any_number($phone_number, $whatsapp_message, $whatsapp_sms);
@@ -1486,6 +1490,7 @@ class Notify {
                             $this->send_whatsapp_to_any_number($phone_number, $whatsapp_message, $whatsapp_sms);
                         }
                     }
+                    break;
                 case SPARE_ON_OUT_OF_WARRANTY_SMS_TAG:
                 case SPARE_ON_IN_WARRANTY_SMS_TAG:
                     $booking_details = $this->My_CI->booking_model->getbooking_history($booking_id);
@@ -1510,6 +1515,7 @@ class Notify {
                             $this->send_whatsapp_to_any_number($phone_number, $whatsapp_message, $whatsapp_sms);
                         }
                     }
+                    break;
                 case SPARE_DELIVERED_CUSTOMER_SMS_TAG:
                     $booking_details = $this->My_CI->booking_model->getbooking_history($booking_id);
                     if (!empty($booking_details)) {
@@ -1533,6 +1539,7 @@ class Notify {
                             $this->send_whatsapp_to_any_number($phone_number, $whatsapp_message, $whatsapp_sms);
                         }
                     }
+                    break;
                 case 'customer_paid_invoice_pdf_not_generated':
                 case 'customer_paid_invoice':
                     $booking_details = $this->My_CI->booking_model->getbooking_history($booking_id);
