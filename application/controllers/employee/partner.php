@@ -6143,8 +6143,8 @@ class Partner extends CI_Controller {
             $tempArray[] = $sparePartBookings['part_number'];
             $tempArray[] = $sparePartBookings['received_defective_part_date'];
             $tempArray[] = $sparePartBookings['awb_by_partner'];
-            $tempArray[] = $sparePartBookings[' courier_name_by_partner'];
-            $tempArray[] = $sparePartBookings[' partner_challan_number'];
+            $tempArray[] = $sparePartBookings['courier_name_by_partner'];
+            $tempArray[] = $sparePartBookings['partner_challan_number'];
             $tempArray[] = $sparePartBookings['remarks_defective_part_by_sf'];
             $CSVData[]  = $tempArray;
         }
