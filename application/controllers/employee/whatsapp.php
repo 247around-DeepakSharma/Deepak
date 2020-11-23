@@ -84,36 +84,31 @@ class Whatsapp extends CI_Controller {
     private function get_whatsapp_table($log_list, $sn) {
         $row = array();
         $row[] = $sn;
-        $row[] = '<a class="" style="text-decoration:none;cursor:not-allowed;" data-number="' . $log_list['source'] . '" href="#">' . $log_list['source'] . '<a>';
-        $row[] = '<a class="chat_number" data-id="' . $log_list['id'] . '" id="destination' . $log_list['id'] . '" style="text-decoration:none;" data-number="' . $log_list['destination'] . '" href="#">' . $log_list['destination'] . '<a>';
+        //$row[] = '<a class="" style="text-decoration:none;cursor:not-allowed;" data-number="' . $log_list['source'] . '" href="#">' . $log_list['source'] . '<a>';
+        $row[] = '<a  class="chat_number" style="text-decoration:none;" data-number="' . $log_list['source'] . '" href="jquery:void(0)">' . $log_list['source'] . '<a>';
+        $row[] = '<a class="chat_number" data-id="' . $log_list['id'] . '" id="destination' . $log_list['id'] . '" style="text-decoration:none;" data-number="' . $log_list['destination'] . '" href="jquery:void(0)">' . $log_list['destination'] . '<a>';
         $row[] = $log_list['channel'];
         $row[] = $log_list['direction'];
         
         if($log_list['content_type']=='media'){
              $media = json_decode($log_list['content']);
-           //  print_r($media);
+           //  print_r($media);not-allowed
              $url = $media->url;
-             $type_media = $media->type;
-             if($type_media=='image'){
-                 $row[] = "<img src='".$url."' style='height:50px;width:50px;' />" ;
-             }else if($type_media=='video'){
-               $video = ' <video width="50" height="50" controls src="https://api.karix.io/media/cadcf426-f30f-4cc4-baa8-43cee0e059d2">Video</video>';
-                 $row[] = $video ;
-             }else{
-                 $row[] = "<a target='_blank' href='".$url."' style='height:50px;width:50px;' >Download</a>" ;
-             }
-             
-             
+             $type_media = $media->type;             
+                 $row[] = "<a target='_blank' href='".$url."' style='height:50px;width:50px;' >$url</a>" ;            
         }else if($log_list['content_type']=='location'){
              $location = json_decode($log_list['content']);
              $lat  = $location->latitude;
              $long = $location->longitude;   
-             $map = "http://maps.google.com/maps?q=loc:".$lat.",".$long."77.7060387";
-             $row[] ='<a style="font-size: 25px;" href="'.$map.'" ><i class="fa fa-map-marker" aria-hidden="true"></i> Click on icon </a>'; 
+             $map = "http://maps.google.com/maps?q=loc:".$lat.",".$long;
+             $row[] ='<a href="'.$map.'" target="_blank">Click Here</a>';
+             $type_media = 'Location';
             
         }else{
-           $row[] = $log_list['content'];   
+           $row[] = $log_list['content'];
+           $type_media = 'Text';
         } 
+        $row[] = ucfirst($type_media);
         
        
         
