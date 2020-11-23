@@ -103,7 +103,9 @@ define('FNF', 'FNF');
 //Default Charges Limit for Courier & Upcountry
 define('DEFAULT_CHARGES_LIMIT', 10);
 //OPENCELLInvoice 
-define('OPENCELL_LEDBAR_CHARGES', 'Open Cell & LED Bar Charges');
+define('OPENCELL_CHARGES', 'Replacement Charge - Open Cell');
+//LED BAR Charges Invoice 
+define('LEDBAR_CHARGES', 'Replacement Charge - LED Bar');
 //MSL courier large box packaging price
 define('LARGE_MSL_BOX_PACKAGING_PRICE', '10');
 //MSL courier small box packaging price

@@ -35,25 +35,28 @@
                        
                        <tbody>
                            <tbody>
-                                <?php  foreach($data as $key =>$row){?>
-                               <tr <?php if($row->mismatch_pincode == 1){ echo "style='color:red;'"; echo 'data-toogle="tooltip" title= "Engineer’s pincode location while completing this booking, was not same as the customer pincode location"';} ?>>
-                                    <td class="text-center">
+                                <?php foreach($data as $key =>$row){ $tool=""; 
+                                    if($row->mismatch_pincode==1) { 
+                                        $tool=' style="color:red" data-toogle="tooltip" data-container="body" data-boundary="window" title= "Engineer’s pincode location while completing this booking, was not same as the customer pincode location"';
+                                    } ?>
+                               <tr >
+                                    <td class="text-center" >
                                         <?php echo $key +1; ?>
                                     </td>
-                                     <td class="text-center">
+                                     <td class="text-center" <?php  echo $tool; ?>>
                                          <a href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id)); ?>"><?php echo $row->booking_id; ?></a>
                                     </td>
-                                    <td class="text-center">
+                                    <td class="text-center" <?php  echo $tool; ?>>
                                         <?php if(!empty($row->engineer_name)){ print_r($row->engineer_name[0]['name']);} ?>
                                     </td>
                                    
-                                     <td class="text-center">
+                                     <td class="text-center" <?php  echo $tool; ?>>
                                           <i class="fa fa-inr" aria-hidden="true"></i> <?php echo $row->amount_due; ?>
                                     </td>
-                                    <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo $row->amount_paid?></td>
-                                    <td class="text-center"><?php echo $row->remarks;?></td>
-                                    <td class="text-center"><?php echo $row->status; ?></td>
-                                    <td class="text-center">
+                                    <td class="text-center" <?php echo $tool; ?>><i class="fa fa-inr" aria-hidden="true"></i> <?php echo $row->amount_paid?></td>
+                                    <td class="text-center" <?php echo $tool; ?> ><?php echo $row->remarks;?></td>
+                                    <td class="text-center" <?php echo $tool; ?>><?php echo $row->status; ?></td>
+                                    <td class="text-center" >
                                         <?php if($row->status == _247AROUND_COMPLETED) {?>
 <!--                                        <button onclick="openmodel('<?php //echo $row->booking_id;?>')" class='btn btn-sm btn-success'><i class='fa fa-check' aria-hidden='true'></i></button>-->
                                         <?php
