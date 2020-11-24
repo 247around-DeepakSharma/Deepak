@@ -173,7 +173,7 @@ class accounting_model extends CI_Model {
                 . " IFNULL(sc.state,partners.state ) as state,  "
                 . " IFNULL(sc.gst_taxpayer_type, '') as gst_reg_type, "
                 . " invoice_date, from_date,  to_date,"
-                . " `reference_invoice_id`,"
+                . " `reference_invoice_id`, tcs_rate, tcs_amount,"
                 . $g_string
                 . " abs(`amount_collected_paid`) as amount_collected_paid, total_amount_collected,"
                 . " `tds_rate`,`tds_amount`,"
