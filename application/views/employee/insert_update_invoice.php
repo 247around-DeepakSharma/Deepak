@@ -177,7 +177,7 @@
                                 <div class="form-group <?php if( form_error('type') ) { echo 'has-error';} ?>">
                                     <label for="type_code" class="col-md-4">Type *</label>
                                     <div class="col-md-6">
-                                        <select name="type" class="form-control" id="type_code" onchange="tds_input_change()" required>
+                                        <select name="type" class="form-control" id="type_code" onchange="tds_input_change(), tcs_input_change()" required>
                                             <option value="" disabled selected>Select Invoice Type</option>
                                             <option value="Buyback" <?php if (isset($invoice_details[0]['type'])) {
                                                 if($invoice_details[0]['type'] == "Buyback"){ echo "selected";}
@@ -1318,7 +1318,7 @@
         }
     }
     tds_input_change();
-    //tcs_input_change();
+   // tcs_input_change();
     function tds_input_change(){
        var type = $("#type_code").val();
        var vendor_partner_type = '<?php echo $vendor_partner; ?>';
