@@ -5153,8 +5153,13 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         
         /* get spare part detail of $spare_id */ 
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $data['spare_id']], NULL, NULL, NULL, NULL, NULL)[0];
+		if(empty($spare_part_detail['awb_by_partner'])){
+			echo "<div class='alert alert-warning'>AWB Number not found for this booking, you cannot mark RTO for this booking.</div>";
+			exit;
+		}
         if (!empty($post_data['rto'])) {
             // upload rto document.
+		if(!empty($spare_part_detail['awb_by_partner'])){
             $post_data['rto_file'] = NULL;
             if (!empty($_FILES['rto_file'])) {
                 $rto_pod_file_name = $this->upload_rto_doc($spare_part_detail['booking_id'], $_FILES['rto_file']['tmp_name'], ' ', $_FILES['rto_file']['name']);
@@ -5175,6 +5180,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             $this->inventory_model->update_courier_company_invoice_details(['awb_number' => $spare_part_detail['awb_by_partner']], ['is_rto' => 1, 'rto_file' => $post_data['rto_file']]);
             
             return $spare_part_detail['awb_by_partner'];
+		}
         }
         
         $this->load->view('employee/rto_spare_part', $data);
