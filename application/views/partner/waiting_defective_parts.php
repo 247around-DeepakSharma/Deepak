@@ -36,26 +36,26 @@
         <div class="x_content">
             <form target="_blank"  action="<?php echo base_url(); ?>partner/print_all" name="fileinfo1"  method="POST" enctype="multipart/form-data">
                 <table class="table table-bordered table-hover table-striped" id="waiting_defactive_parts">
-                    <thead>
-                        <tr>
-                            <th class="text-center">S.N</th>
-                            <th class="text-center">Booking ID</th>
-                            <th class="text-center">Customer Name</th>
-                            <th class="text-center">Parts Shipped</th>
-                            <th class="text-center">Parts Number</th>
-                            <th class="text-center">Quantity</th>
-                            <th class="text-center">Defective Quantity</th>
-                            <th class="text-center">Courier Name</th>
-                            <th class="text-center">AWB</th>
-                            <th class="text-center">WH Challan</th>
-                            <th class="text-center">Partner Challan</th>
-                            <th class="text-center">Shipped Date</th>
-                            <th class="text-center">Send Email</th>                            
-                            <th class="text-center">Remarks</th>
-                            <th class="text-center">Consumption</th>
-                            <th class="text-center">Receive</th>
-                            <th class="text-center">Reject</th>
-                        </tr>
+                    <thead>                                          
+                            <tr>
+                                <th class="text-center">S.N</th>
+                                <th class="text-center">Booking ID</th>
+                                <th class="text-center">Customer Name</th>
+                                <th class="text-center">Parts Shipped</th>
+                                <th class="text-center">Parts Number</th>
+                                <th class="text-center">Quantity</th>
+                                <th class="text-center">Defective Quantity</th>
+                                <th class="text-center">Courier Name</th>
+                                <th class="text-center">AWB</th>
+                                <th class="text-center">WH Challan</th>
+                                <th class="text-center">Partner Challan</th>
+                                <th class="text-center">Shipped Date</th>
+                                <th class="text-center">Send Email</th>                            
+                                <th class="text-center">Remarks</th>
+                                <th class="text-center">Consumption</th>
+                                <th class="text-center">Receive</th>
+                                <th class="text-center">Reject</th>
+                            </tr>
                     </thead>
                 </table>
         </div>
