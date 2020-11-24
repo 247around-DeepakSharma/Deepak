@@ -204,7 +204,6 @@
     </div>
 </div>
 <script type="text/javascript">
-    //    $("#defective_part_shipped_date").datepicker({dateFormat: 'yy-mm-dd'});
     $('#defective_part_shipped_date').daterangepicker({
         autoUpdateInput: false,
         singleDatePicker: true,
@@ -216,6 +215,7 @@
         return yesterday;
         }(),
         setDate: new Date(),
+        maxDate: new Date(),
         locale: {
             format: 'YYYY-MM-DD'
         }
