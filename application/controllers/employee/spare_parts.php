@@ -4095,11 +4095,12 @@ class Spare_parts extends CI_Controller {
 
         $data = $this->invoices_model->get_oow_revenue_report();
         $array_to_download=array();
-        $heading = array('Sl. No.','Brand Name','Appliance','SF name','Part Number','Part Description','Last 247 Purchase Price (Without GST)','Last 247 to SF Sale Price (Without GST)','Qty','Amount','RM Name','ASM Name','Date');
+        $heading = array('Sl. No.','Invoice ID','Brand Name','Appliance','SF name','Part Number','Part Description','Last 247 Purchase Price (Without GST)','Last 247 to SF Sale Price (Without GST)','Qty','Amount','RM Name','ASM Name','Invoice Date');
         $sn = 0;
 
         foreach($data as $key => $value){
           $array_to_download[$key][] =   ++$sn;
+          $array_to_download[$key][] =   $value['invoice_id'];
           $array_to_download[$key][] =   $value['public_name'];
           $array_to_download[$key][] =   $value['services'];
           $array_to_download[$key][] =   $value['name'];
@@ -5137,11 +5138,18 @@ class Spare_parts extends CI_Controller {
         $this->checkUserSession();
         $post_data = $this->input->post();
         $data['spare_id'] = $post_data['spare_id'];
+
+		
         
         /* get spare part detail of $spare_id */ 
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $data['spare_id']], NULL, NULL, NULL, NULL, NULL)[0];
+		if(empty($spare_part_detail['awb_by_partner'])){
+			echo "<div class='alert alert-warning'>AWB Number not found for this booking, you cannot mark RTO for this booking.</div>";
+			exit;
+		}
         if (!empty($post_data['rto'])) {
             // upload rto document.
+	if(!empty($spare_part_detail['awb_by_partner'])){
             $post_data['rto_file'] = NULL;
             if (!empty($_FILES['rto_file'])) {
                 $rto_pod_file_name = $this->upload_rto_doc($spare_part_detail['booking_id'], $_FILES['rto_file']['tmp_name'], ' ', $_FILES['rto_file']['name']);
@@ -5162,6 +5170,7 @@ class Spare_parts extends CI_Controller {
             $this->inventory_model->update_courier_company_invoice_details(['awb_number' => $spare_part_detail['awb_by_partner']], ['is_rto' => 1, 'rto_file' => $post_data['rto_file']]);
 
             return $spare_part_detail['awb_by_partner'];
+		}
         }
         
         $this->load->view('employee/rto_spare_part', $data);
