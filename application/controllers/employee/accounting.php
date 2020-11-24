@@ -376,10 +376,8 @@ class Accounting extends CI_Controller {
         $header['reference_invoice_id'] = "Refrence Invoice ID";
         $header['total_amount_collected'] = "Total Amount";
         $header['amount_collected_paid'] = "Amount Collected Paid";
-        $header['tds_amount'] = "TDS Amount";
+        $header['tds_amount'] = "TDS Aamount";
         $header['tds_rate'] = "TDS Rate";
-        $header['tcs_amount'] = "TCS Amount";
-        $header['tcs_rate'] = "TCS Rate";
         $header['type_code'] = "Type Code";
         $header['vertical'] = "Vertical";
         $header['category'] = "Category";
