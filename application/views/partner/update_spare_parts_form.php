@@ -1400,7 +1400,10 @@
 <script type="text/javascript">
         
     $(".validate_hsn_code").bind("keyup paste", function(e) {
-        this.value = this.value.replace(/[^a-zA-Z0-9]/g, '');
+        this.value = this.value.replace(/[^0-9]/g, '');
+        if(this.value.length > 8){
+            this.value = '';
+        }
     });
         
     var validate_gst = function() {

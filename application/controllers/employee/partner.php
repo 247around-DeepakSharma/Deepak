@@ -2366,6 +2366,7 @@ class Partner extends CI_Controller {
                     
                     if (!empty($value['spare_id'])) {
                         $spare_id = $value['spare_id'];
+                        $data['invoice_gst_rate'] = $value['gst_rate'];
                         $where = array('id' => $spare_id, 'partner_id' => $partner_id, 'entity_type' => _247AROUND_PARTNER_STRING);
                         $response = $this->service_centers_model->update_spare_parts($where, $data);
                     } else {
