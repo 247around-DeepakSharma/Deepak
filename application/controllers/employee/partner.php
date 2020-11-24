@@ -2360,6 +2360,7 @@ class Partner extends CI_Controller {
                     
                     if (!empty($value['spare_id'])) {
                         $spare_id = $value['spare_id'];
+                        $data['invoice_gst_rate'] = $value['gst_rate'];
                         $where = array('id' => $spare_id, 'partner_id' => $partner_id, 'entity_type' => _247AROUND_PARTNER_STRING);
                         $response = $this->service_centers_model->update_spare_parts($where, $data);
                     } else {
@@ -7436,14 +7437,21 @@ class Partner extends CI_Controller {
         );
         echo json_encode($output);
     }
-     function get_defactive_part_shipped_by_sf_bookings(){
+    
+/*
+*  @desc : This function is list the line items that send by wh to partners
+*  @param : void
+*  @return : JSON
+*/     
+    
+    function get_defactive_part_shipped_by_sf_bookings(){
       $finalArray = array();
       $postData = $this->input->post();
       $state = 0;
       $where_internal_status = array("page" => "defective_parts", "active" => '1');
       $internal_status = $this->booking_model->get_internal_status($where_internal_status);
       $columnMappingArray = array("column_1"=>"spare_parts_details.booking_id","column_3"=>"CONCAT('',GROUP_CONCAT((defective_part_shipped ) ))",
-          "column_4"=>"courier_name_by_sf","column_9"=>"spare_parts_details.defective_part_shipped_date");    
+          "column_4"=>"spare_parts_details.courier_name_by_wh","column_9"=>"spare_parts_details.defective_part_shipped_date");    
       $order_by = "spare_parts_details.defective_part_shipped_date DESC, spare_parts_details.booking_id DESC";
       if(array_key_exists("order", $postData)){
             $order_by = $columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
@@ -7469,7 +7477,8 @@ class Partner extends CI_Controller {
        if($this->input->post('booking_id')){
            $where['spare_parts_details.booking_id'] = $this->input->post('booking_id');
        }
-        $select = "defective_part_shipped, spare_parts_details.defactive_part_return_to_partner_from_wh_date_by_courier_api, "
+
+        $select = "defective_part_shipped,spare_parts_details.defactive_part_received_date_by_courier_api,defective_part_shipped, spare_parts_details.defactive_part_return_to_partner_from_wh_date_by_courier_api, "
                 . " spare_parts_details.booking_id, users.name, spare_parts_details.courier_name_by_wh, spare_parts_details.awb_by_wh, spare_parts_details.wh_to_partner_defective_shipped_date,"
                 . "spare_parts_details.remarks_defective_part_by_wh,spare_parts_details.wh_challan_number"
                 . ",spare_parts_details.wh_challan_file, spare_parts_details.shipped_quantity,spare_parts_details.quantity,spare_parts_details.partner_challan_number, spare_parts_details.id, spare_parts_details.status, i.part_number, spare_consumption_status.is_consumed";
