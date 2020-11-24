@@ -11,7 +11,7 @@ class Questionnaire_model extends CI_Model {
 
     public function get_questions($where = array()) {
         $this->db->_protect_identifiers = FALSE;
-        $this->db->select("review_questionare.*,services.id as service_id,services.services,review_request_type_mapping.request_type_id,request_type.service_category, group_concat(review_questionare_checklist.answer) as answers");
+        $this->db->select("review_questionare.*,review_questionare.sequence,services.id as service_id,services.services,review_request_type_mapping.request_type_id,request_type.service_category, group_concat(review_questionare_checklist.answer) as answers");
         if (!empty($this->input->get("search"))) {
             $this->db->like('question', $this->input->get("search"));
         }
@@ -39,7 +39,7 @@ class Questionnaire_model extends CI_Model {
         unset($data['request_type']);
         unset($data['service_id']);
         unset($data['options']);        
-                
+            
         // insert data in review_questionare 
         $data['created_by'] = $this->session->userdata('id');
         $this->db->insert('review_questionare', $data);

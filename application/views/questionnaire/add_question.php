@@ -104,6 +104,14 @@
                                         <?php echo form_error('question'); ?>
                                     </div>
                                 </div>
+                                <!-- Add Sequence -->
+                                <div class="form-group <?php if (form_error('sequence')) { echo 'has-error'; } ?>">
+                                    <label for="question" class="col-md-3">Sequence *</label>
+                                    <div class="col-md-6">
+                                        <textarea class="form-control" rows="4" wrap="physical" id="sequence" name="sequence" placeholder="Enter Sequence" required><?php if (!empty($q_data[0]->sequence)) { echo $q_data[0]->sequence; } ?></textarea>
+                                        <?php echo form_error('sequence'); ?>
+                                    </div>
+                                </div>
                                 <!-- Add Options (if any) -->
                                 <div class="form-group">
                                     <label for="options" class="col-md-3">Options</label>
