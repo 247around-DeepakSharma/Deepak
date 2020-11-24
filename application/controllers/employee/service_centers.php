@@ -4297,18 +4297,23 @@ class Service_centers extends CI_Controller {
      * @desc: It's used to generate SF Challan
      * @param String $generate_challan
      */
-    function generate_sf_challan($generate_challan) {
+    function generate_sf_challan($generate_challan, $flag) {
 
         $delivery_challan_file_name_array = array();
 
         foreach ($generate_challan as $key => $value) {
             if (!empty($generate_challan)) {
                 $post = array();
-                $post['where_in'] = array('spare_parts_details.id' => $value, 'spare_parts_details.status' => SPARE_PARTS_REQUESTED);
+                if (!empty($flag)) {
+                    $post['where_in'] = array('spare_parts_details.booking_id' => $value, 'spare_parts_details.status' => SPARE_PARTS_REQUESTED);
+                } else {
+                    $post['where_in'] = array('spare_parts_details.booking_id' => $value, 'spare_parts_details.entity_type' => _247AROUND_SF_STRING, 'spare_parts_details.status' => SPARE_PARTS_REQUESTED);
+                }
+
                 $post['is_inventory'] = true;
                 $select = 'booking_details.booking_id, booking_details.assigned_vendor_id, spare_parts_details.id,spare_parts_details.requested_inventory_id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id,IF(spare_consumption_status.consumed_status !="" , spare_consumption_status.consumed_status, "NA") as consumed_status';
                 $part_details = $this->partner_model->get_spare_parts_by_any($select, array(), true, false, false, $post);
-                            
+
 
                 if (!empty($part_details)) {
                     $spare_details = array();
@@ -4322,11 +4327,11 @@ class Service_centers extends CI_Controller {
                             $spare_parts['part_number'] = $value['part_number'];
                             $spare_parts['shipped_quantity'] = $value['quantity'];
                             $spare_parts['inventory_id'] = $value['requested_inventory_id'];
-                            $spare_parts['consumed_status'] = $value['consumed_status']; 
+                            $spare_parts['consumed_status'] = $value['consumed_status'];
                             if (!empty($value['assigned_vendor_id'])) {
                                 $vendor_details = $this->vendor_model->getVendorDetails("service_centres.id, service_centres.pincode", array("service_centres.id" => $value['assigned_vendor_id']), 'name', array(), array(), array());
                                 if (!empty($vendor_details)) {
-                                    $serviceable_area = $this->inventory_model->get_generic_table_details("courier_serviceable_area", "courier_serviceable_area.courier_company_name", array("courier_serviceable_area.pincode" => $vendor_details[0]['pincode'], "courier_serviceable_area.status"=> 1), array());
+                                    $serviceable_area = $this->inventory_model->get_generic_table_details("courier_serviceable_area", "courier_serviceable_area.courier_company_name", array("courier_serviceable_area.pincode" => $vendor_details[0]['pincode'], "courier_serviceable_area.status" => 1), array());
                                     if (!empty($serviceable_area)) {
                                         $couriers_name = implode(', ', array_map(function ($entry) {
                                                     return $entry['courier_company_name'];
@@ -4338,7 +4343,7 @@ class Service_centers extends CI_Controller {
                                     $couriers_name = 'NA';
                                 }
                             }
-                            $spare_parts['courier_name'] = $couriers_name;  
+                            $spare_parts['courier_name'] = $couriers_name;
                         }
                         $spare_details[][] = $spare_parts;
                     }
@@ -4394,7 +4399,7 @@ class Service_centers extends CI_Controller {
                 }
 
                 if (!empty($spare_details)) {
-                    $data['partner_challan_file'] = $this->invoice_lib->process_create_sf_challan_file($sf_details, $partner_details, $data['partner_challan_number'], $spare_details,'','',false,true,false);
+                    $data['partner_challan_file'] = $this->invoice_lib->process_create_sf_challan_file($sf_details, $partner_details, $data['partner_challan_number'], $spare_details, '', '', false, true, false);
                     array_push($delivery_challan_file_name_array, $data['partner_challan_file']);
                     if (!empty($data['partner_challan_file'])) {
                         if (!empty($spare_details)) {
@@ -4449,7 +4454,7 @@ class Service_centers extends CI_Controller {
             }
         }
     }
-    
+
     /**
      * @desc: Call by Ajax to load group upcountry details
      * @param String $booking_id
@@ -7519,7 +7524,7 @@ class Service_centers extends CI_Controller {
      * @return void
      */
     function print_all() {
-        if(!empty($this->session->userdata('warehouse_id'))) {
+        if (!empty($this->session->userdata('warehouse_id'))) {
             $this->checkEmployeeUserSession();
         } else {
             $this->check_WH_UserSession();
@@ -7529,6 +7534,8 @@ class Service_centers extends CI_Controller {
         $booking_manifest = $this->input->post('download_courier_manifest');
         $declaration_detail = $this->input->post('coueriers_declaration');
         $generate_challan = $this->input->post('generate_challan');
+        $assign_to_partner = $this->input->post('generate_challan_assign_to_partner');
+
         if (!empty($booking_address)) {
 
             $this->download_shippment_address($booking_address);
@@ -7537,10 +7544,13 @@ class Service_centers extends CI_Controller {
             $this->download_mainfest($booking_manifest);
         } else if (!empty($generate_challan)) {
 
-            $this->generate_sf_challan($generate_challan);
+            $this->generate_sf_challan($generate_challan, false);
+        } else if (!empty($assign_to_partner)) {
+
+            $this->generate_sf_challan($assign_to_partner, true);
         } else if (!empty($declaration_detail)) {
             $this->print_declaration_detail();
-        } else if (empty($booking_address) && empty($booking_manifest) && empty($declaration_detail)) {
+        } else if (empty($booking_address) && empty($booking_manifest) && empty($declaration_detail) && empty($assign_to_partner)) {
             echo "Please Select Any Checkbox";
         }
     }
@@ -7553,7 +7563,7 @@ class Service_centers extends CI_Controller {
     function forcefully_generate_sf_challan($booking_id, $sf_id) {
         $generate_challan = array("$sf_id" => $booking_id);
 
-        $this->generate_sf_challan($generate_challan);
+        $this->generate_sf_challan($generate_challan, false);
     }
 
     /**
