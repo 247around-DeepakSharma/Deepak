@@ -24,6 +24,7 @@ class Notify {
 	$this->My_CI->load->model('booking_model');
     $this->My_CI->load->model('engineer_model');
     $this->My_CI->load->model('apis');
+    $this->My_CI->load->model("whatsapp_model");
     }
 
     /**
@@ -1284,7 +1285,10 @@ class Notify {
    function send_whatsapp_on_booking_complete($phone_number, $whatsapp_array = array()){
     $phone_number = "+91" . $phone_number;
 /*  Making templet for sending message */
-    $template = $this->My_CI->vendor_model->getVendorSmsTemplate(SEND_COMPLETE_WHATSAPP_NUMBER_TAG);
+
+    $template_array = $this->My_CI->whatsapp_model->get_whatsapp_template('id,template,category',array('tag'=>SEND_COMPLETE_WHATSAPP_NUMBER_TAG_WITH_RATING,'active'=>1));
+    if(!empty($template_array)){
+     $template =   $template_array[0]; 
     $sms['smsData']['name'] = $whatsapp_array['name'];
     $sms['smsData']['request_type'] = $whatsapp_array['request'];
     $sms['smsData']['appliance'] = $whatsapp_array['appliance'];
@@ -1292,7 +1296,10 @@ class Notify {
     $sms['smsData']['cdate'] = date("d-M-Y");
     $sms['smsData']['ctime'] = date("h:i:s A"); // New Templet data 
     $sms['smsData']['partner'] = $whatsapp_array['partner'];
-    $smsBody = vsprintf($template, $sms['smsData']);
+
+
+    $smsBody = vsprintf($template['template'], $sms['smsData']);
+
 
     $payloadName = '{
        "channel": "'.API_KARIX_CHANNEL.'",
@@ -1324,6 +1331,7 @@ class Notify {
      $return = curl_exec($ch);
      curl_close($ch);
      $data = json_decode($return);
+
 
      if(isset($data->objects[0]->channel) && isset($data->objects[0]->source)){
 
@@ -1395,7 +1403,7 @@ class Notify {
             'json_response' => $response,
             'booking_id' => $whatsapp_array['booking_id'],
             'muid'=>$msg_id,
-            'message_tag'=>SEND_COMPLETE_WHATSAPP_NUMBER_TAG,
+            'message_tag'=>SEND_COMPLETE_WHATSAPP_NUMBER_TAG_WITH_RATING,
         );
        $insert_id =  $this->My_CI->apis->logWhatsapp($whatsapp);
        }else{
@@ -1412,6 +1420,7 @@ class Notify {
         } catch (Exception $e) {
             return FALSE;
         }
+    }
 
 
    }
@@ -1439,10 +1448,11 @@ class Notify {
                         $whatsapp_sms['smsData']['cc_number'] = $cc_number;
                         $whatsapp_sms['smsData']['public_name'] = $data['public_name'];
                         $tag = VIDEOCON_CANCELLED_BOOKING_TAG;
-                        $template = $this->My_CI->whatsapp_model->get_whatsapp_template_by_tag($tag);
+                        $template = $this->My_CI->whatsapp_model->get_whatsapp_template('id,template,category',array('tag'=>$tag,'active'=>1));
                         if (!empty($template)) {
                             $template_data = $template[0];
                             $whatsapp_message = vsprintf($template_data['template'], $whatsapp_sms['smsData']);
+                            $phone_number = '91' . $data['booking_primary_contact_no'];
                             $whatsapp_sms['tag'] = $tag;
                             $whatsapp_sms['booking_id'] = $booking_id;
                             $this->send_whatsapp_to_any_number($phone_number, $whatsapp_message, $whatsapp_sms);
@@ -1456,7 +1466,7 @@ class Notify {
                         } else {
                             $cc_number = _247AROUND_WHATSAPP_NUMBER;
                         }
-                        $template = $this->My_CI->whatsapp_model->get_whatsapp_template_by_tag($tag);
+                        $template = $this->My_CI->whatsapp_model->get_whatsapp_template('id,template,category',array('tag'=>$tag,'active'=>1));
                         if (!empty($template)) {
                             $template_data = $template[0];
                             $whatsapp_sms['smsData']['service'] = $data['services'];
@@ -1480,6 +1490,7 @@ class Notify {
                             $this->send_whatsapp_to_any_number($phone_number, $whatsapp_message, $whatsapp_sms);
                         }
                     }
+                    break;
                 case SPARE_ON_OUT_OF_WARRANTY_SMS_TAG:
                 case SPARE_ON_IN_WARRANTY_SMS_TAG:
                     $booking_details = $this->My_CI->booking_model->getbooking_history($booking_id);
@@ -1497,13 +1508,14 @@ class Notify {
                         } else {
                             $whatsapp_sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER;
                         }
-                        $template = $this->My_CI->whatsapp_model->get_whatsapp_template_by_tag($state);
+                        $template = $this->My_CI->whatsapp_model->get_whatsapp_template('id,template,category',array('tag'=>$state,'active'=>1));
                         if (!empty($template)) {
                             $template_data = $template[0];
                             $whatsapp_message = vsprintf($template_data['template'], $whatsapp_sms['smsData']);
                             $this->send_whatsapp_to_any_number($phone_number, $whatsapp_message, $whatsapp_sms);
                         }
                     }
+                    break;
                 case SPARE_DELIVERED_CUSTOMER_SMS_TAG:
                     $booking_details = $this->My_CI->booking_model->getbooking_history($booking_id);
                     if (!empty($booking_details)) {
@@ -1520,18 +1532,20 @@ class Notify {
                             $whatsapp_sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER;
                         }
                         $phone_number = '91' . $booking_details[0]['booking_primary_contact_no'];
-                        $template = $this->My_CI->whatsapp_model->get_whatsapp_template_by_tag($state);
+                        $template = $this->My_CI->whatsapp_model->get_whatsapp_template('id,template,category',array('tag'=>$state,'active'=>1));
                         if (!empty($template)) {
                             $template_data = $template[0];
                             $whatsapp_message = vsprintf($template_data['template'], $whatsapp_sms['smsData']);
+                            $this->send_whatsapp_to_any_number($phone_number, $whatsapp_message, $whatsapp_sms);
                         }
                     }
+                    break;
                 case 'customer_paid_invoice_pdf_not_generated':
                 case 'customer_paid_invoice':
                     $booking_details = $this->My_CI->booking_model->getbooking_history($booking_id);
                     if (!empty($booking_details)) {
                         $phone_number = '91' . $booking_details[0]['booking_primary_contact_no'];
-                        $template = $this->My_CI->whatsapp_model->get_whatsapp_template_by_tag($state);
+                        $template = $this->My_CI->whatsapp_model->get_whatsapp_template('id,template,category',array('tag'=>$state,'active'=>1));
                         if (!empty($template)) {
                             $template_data = $template[0];
                             $whatsapp_sms['smsData']['part_type'] = $extra_parameter['amount'];
@@ -1539,7 +1553,10 @@ class Notify {
                             if ($state == 'customer_paid_invoice') {
                                 $whatsapp_sms['smsData']['tiny_url'] = $extra_parameter['tiny_url'];
                             }
-                            echo $whatsapp_message = vsprintf($template_data['template'], $whatsapp_sms['smsData']);
+                            $whatsapp_message = vsprintf($template_data['template'], $whatsapp_sms['smsData']);
+                            $whatsapp_sms['tag'] = $state;
+                            $whatsapp_sms['booking_id'] = $booking_id;
+                            $this->send_whatsapp_to_any_number($phone_number, $whatsapp_message, $whatsapp_sms);
                         }
                     }
             }

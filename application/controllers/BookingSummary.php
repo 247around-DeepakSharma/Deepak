@@ -1267,20 +1267,22 @@ EOD;
                 $not_assigned_vendors .= $val['id'] . ',';
             }
         }
-        if(!empty($not_assigned_vendors))
-            $not_assigned_vendors_crime = $this->reporting_utils->get_sc_crimes("AND service_centres.id IN (" . rtrim($not_assigned_vendors, ',') . ")");
-
+        
         $not_assigned_old_crimes = 0;
         $not_assigned_update = 0;
         $not_assigned_not_update = 0;
         $not_assigned_total_crimes = 0;
         $not_assigned_escalations = 0;
-        foreach ($not_assigned_vendors_crime as $vals) {
-            $not_assigned_old_crimes += $vals['monthly_total_crimes'];
-            $not_assigned_update += $vals['update'];
-            $not_assigned_not_update += $vals['not_update'];
-            $not_assigned_total_crimes += $vals['total_booking'];
-            $not_assigned_escalations += $vals['monthly_escalations'];
+        if(!empty($not_assigned_vendors))
+        {
+            $not_assigned_vendors_crime = $this->reporting_utils->get_sc_crimes("AND service_centres.id IN (" . rtrim($not_assigned_vendors, ',') . ")");
+            foreach ($not_assigned_vendors_crime as $vals) {
+                $not_assigned_old_crimes += $vals['monthly_total_crimes'];
+                $not_assigned_update += $vals['update'];
+                $not_assigned_not_update += $vals['not_update'];
+                $not_assigned_total_crimes += $vals['total_booking'];
+                $not_assigned_escalations += $vals['monthly_escalations'];
+            }
         }
         $temp_not_assigned['monthly_total_crimes'] = $not_assigned_old_crimes;
         $temp_not_assigned['update'] = $not_assigned_update;

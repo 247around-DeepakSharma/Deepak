@@ -78,6 +78,14 @@ class Engineer_model extends CI_Model {
         return $this->db->insert_id();
     }
     
+    function delete_engineer_sign($where){
+        if(!empty($where)){
+            $this->db->where($where);
+            $this->db->delete('engineer_table_sign');
+        }
+        log_message('info', __FUNCTION__ . '=> Delete engineer_table_sign : ' .$this->db->last_query());
+    }
+    
     function get_engineer_sign($select, $where){
         $this->db->select($select);
         $this->db->where($where);
@@ -100,7 +108,7 @@ class Engineer_model extends CI_Model {
 
 
      function count_all_review_engineer_action($post) {
-        $this->_get_engineer_action_table_list($post, 'count( DISTINCT engineer_booking_action.id) as numrows');
+        $this->_get_engineer_action_table_list($post, 'count( DISTINCT engineer_booking_action.booking_id) as numrows');
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
@@ -109,7 +117,7 @@ class Engineer_model extends CI_Model {
 
     function count_filtered_review_engineer_action($post) {
         $sfIDArray = array();
-        $this->_get_engineer_action_table_list($post, 'count( DISTINCT engineer_booking_action.id) as numrows');
+        $this->_get_engineer_action_table_list($post, 'count( DISTINCT engineer_booking_action.booking_id) as numrows');
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }

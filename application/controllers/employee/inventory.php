@@ -5217,9 +5217,9 @@ class Inventory extends CI_Controller {
             'due_date' => date("Y-m-d", strtotime($invoice_dated)),
             'parts_cost' => $total_basic_amount,
             "parts_count" => $tqty,
-            'total_amount_collected' => ($total_invoice_amount + $tcs_amout),
+            'total_amount_collected' => ($total_invoice_amount + $tcs_amount),
             //Amount needs to be Paid to Vendor
-            'amount_collected_paid' => (0 - ($total_invoice_amount +$tcs_amout)),
+            'amount_collected_paid' => (0 - ($total_invoice_amount +$tcs_amount)),
             'agent_id' => $agent_id,
             "cgst_tax_rate" => 0,
             "sgst_tax_rate" => 0,
@@ -5639,6 +5639,16 @@ class Inventory extends CI_Controller {
                             $flag = TRUE;
                         } else {
                             log_message("info", __FUNCTION__ . " Error in inserting stocks" . print_r($insert_data, true));
+                        }
+                    }
+
+                    //update courier deliverd date on basis of inventory
+                    $get_courier_id = $this->inventory_model->get_inventory_ledger_details('courier_id', array('id' => $value->ledger_id));
+                    if (!empty($get_courier_id)) {
+                        $courier_id_array = $get_courier_id[0];
+                        $courier_id = $courier_id_array['courier_id'];
+                        if (!empty($courier_id)) {
+                            $this->inventory_model->update_courier_company_invoice_details(array('id' => $courier_id, 'delivered_date IS NULL' => NULL), array('delivered_date' => date('Y-m-d H:i:s')));
                         }
                     }
                 }

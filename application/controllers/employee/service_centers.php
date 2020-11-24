@@ -5522,12 +5522,18 @@ class Service_centers extends CI_Controller {
      * @return array
      */
     function get_acknowledge_data() {
+      
         $post = $this->get_post_view_data();
+        if(!empty($this->input->post('auto_acknowledge')) && $this->input->post('auto_acknowledge')==1){
+            $order_by_auto = 'bb_order_details.auto_acknowledge_date';
+        }else{
+            $order_by_auto = 'bb_order_details.acknowledge_date';
+        }
         $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'), "bb_order_details.auto_acknowledge" => $this->input->post('auto_acknowledge'));
         $post['where_in'] = array('bb_cp_order_action.current_status' => array(_247AROUND_BB_DELIVERED, _247AROUND_BB_NOT_DELIVERED, _247AROUND_BB_Damaged_STATUS),
             'bb_cp_order_action.internal_status' => array(_247AROUND_BB_DELIVERED, _247AROUND_BB_NOT_DELIVERED, _247AROUND_BB_247APPROVED_STATUS, _247AROUND_BB_Damaged_STATUS));
         $post['column_order'] = array(NULL, 'bb_order_details.partner_order_id', 'bb_order_details.partner_tracking_id', 'services', 'category',
-            'order_date', 'delivery_date', 'cp_basic_charge', NULL, NULL);
+            'order_date', 'delivery_date', 'cp_basic_charge', NULL, 'bb_cp_order_action.current_status',$order_by_auto);
         $post['column_search'] = array('bb_order_details.partner_order_id', 'bb_order_details.partner_tracking_id', 'services', 'city',
             'order_date', 'delivery_date', 'bb_cp_order_action.current_status');
         $list = $this->cp_model->get_bb_cp_order_list($post);
@@ -9593,7 +9599,12 @@ class Service_centers extends CI_Controller {
         }
         
         if (isset($from) && isset($to) && !empty($from) && !empty($to)) {
-            $from_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $from, 'wh_ack_received_part' => 1, 'status' => SPARE_DELIVERED_TO_SF, 'part_warranty_status' => SPARE_PART_IN_WARRANTY_STATUS, 'service_center_id' => $sf_id));
+            $where_from = array('booking_id' => $from,
+                'wh_ack_received_part' => 1,
+                "status in ('" . SPARE_DELIVERED_TO_SF . "','" . OK_PART_TO_BE_SHIPPED . "')" => null,
+                'part_warranty_status' => SPARE_PART_IN_WARRANTY_STATUS,
+                'service_center_id' => $sf_id);
+            $from_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", $where_from);
             if (!empty($from_details)) {
                 $frominventory_req_id = $from_details[0]['requested_inventory_id'];
             }
@@ -9673,7 +9684,7 @@ function do_delivered_spare_transfer() {
                 echo 'fail';
             } else {
                 $to_details_array = array(
-                    'status' => $form_details[0]['status'],
+                    'status' => SPARE_DELIVERED_TO_SF,
                     'entity_type' => $form_details[0]['entity_type'],
                     'partner_id' => $form_details[0]['partner_id'],
                     'is_micro_wh' => $form_details[0]['is_micro_wh'],
@@ -10113,11 +10124,18 @@ function do_delivered_spare_transfer() {
         $this->checkUserSession();
         log_message('info', __FUNCTION__ . ' Used by :' . $this->session->userdata('service_center_name'));
         $service_center_id = $this->session->userdata('service_center_id');
+        
+        if(!empty($this->session->userdata('warehouse_id'))) {         
+            $service_center_id = $this->session->userdata('warehouse_id');
+        } else {
+            $service_center_id = $this->session->userdata('service_center_id');
+        }
 
         $where = array (
             "status NOT IN ('" . _247AROUND_CANCELLED . "')  " => NULL,
             "spare_parts_details.parts_shipped is not null and spare_parts_details.shipped_date is not null" => NULL,
             "spare_parts_details.defective_part_shipped is null and spare_parts_details.defective_part_shipped_date is null" => NULL,
+            "spare_parts_details.service_center_id" => $service_center_id
         );
 
         $select = "booking_details.service_center_closed_date,booking_details.create_date,booking_details.booking_primary_contact_no as mobile, spare_parts_details.*, "

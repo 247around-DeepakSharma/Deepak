@@ -126,6 +126,35 @@ class Whatsapp_model extends CI_Model {
         $query = $this->db->query($sql); 
         return $query->result_array();
     }
+     /**
+     *  @desc : This function is used to get whatsapp template
+     *  @param : $select $where
+     *  @return: result Array()
+     *  Ghanshyam
+     */
+    
+    function get_whatsapp_template($select,$where){
+        if(!empty($select) && !empty($where)){
+            $this->db->where($where);
+            $this->db->select($select);
+            $query = $this->db->get('whatsapp_template');
+            return $query->result_array();
+        }
+    }
+     /**
+     *  @desc : This function is used to get whatsapp option by template ID and reply message
+     *  @param : $phone string
+     *  @return: Array()
+     *  Ghanshyam
+     */
+    function get_last_whatsapp_message_send_tag_options($select,$where){
+        if(!empty($select) && !empty($where)){
+            $this->db->where($where);
+            $this->db->select($select);
+            $query = $this->db->get('whatsapp_options');
+            return $query->result_array();
+        }
+    }
     
      
 

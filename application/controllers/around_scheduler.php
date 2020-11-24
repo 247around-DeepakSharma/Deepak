@@ -191,25 +191,31 @@ class Around_scheduler extends CI_Controller {
     
     function send_mail_list_of_having_expired_or_no_contracts_partners(){
         // Get All Partnners name having expired contracts
-        $query1  = " p.public_name, c.end_date FROM collateral c JOIN partners p ON c.entity_id = p.id and c.id in (SELECT max(id) id FROM collateral WHERE collateral_id = 7 GROUP BY entity_id) and end_date < now() and p.is_active = 1";
+        $query1  = " p.public_name, c.end_date FROM collateral c JOIN partners p ON c.entity_id = p.id and c.id in (SELECT max(id) id FROM collateral WHERE collateral_id = 7 GROUP BY entity_id) and end_date < now()  join bookings_sources bs on bs.partner_id=p.id where bs.partner_type='ECOMMERCE' or bs.partner_type='OEM' or bs.partner_type='EXT_WARRANTY_PROVIDER'";
         $data1 = $this->partner_model->get_expired_contract_partner_list($query1);
         
         // Get All Partnners name having no contracts
-        $query2 = " public_name FROM partners WHERE id not in (SELECT entity_id FROM collateral WHERE collateral_id = 7 GROUP BY entity_id) and is_active = 1";
+        $query2 = "public_name, is_active FROM partners join bookings_sources bs on bs.partner_id=partners.id where partners.id not in (SELECT entity_id FROM collateral WHERE collateral_id = 7 GROUP BY entity_id)  and (bs.partner_type='ECOMMERCE' or bs.partner_type='OEM' or bs.partner_type='EXT_WARRANTY_PROVIDER')";
         $data2 = $this->partner_model->get_expired_contract_partner_list($query2);
         $body = "";
         if(!empty($data1))
         {
             foreach($data1 as $key => $value)
             {
-                $body .= "<tr><td>".$value['public_name']."</td><td> Contract ended on ".$value['end_date']."</td></tr>";
+                $body .= "<tr><td>".$value['public_name']."</td><td> Contract ended on ".$value['end_date']."</td><td></td></tr>";
             }
         }
         if(!empty($data2))
         {
             foreach($data2 as $key => $value)
             {
-                $body .= "<tr><td>".$value['public_name']."</td><td> Contract not present</td></tr>";
+                if($value['is_active']==1) {
+                    $body .= "<tr><td>".$value['public_name']."</td><td> Contract not present</td><td>Active</td></tr>";
+                }                    
+                else {
+                    $body .= "<tr><td>".$value['public_name']."</td><td> Contract not present</td><td>Not Active</td></tr>";
+                }
+                
             }
         }
         

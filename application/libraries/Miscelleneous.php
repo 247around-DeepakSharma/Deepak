@@ -2536,8 +2536,13 @@ class Miscelleneous {
         $data['right_nav'] = $this->get_main_nav_data("right_nav",$entity_type);
         if($entity_type == "Partner"){
             $agent_id=$this->My_CI->session->userdata('agent_id');
-            $data['loginname']=$this->My_CI->reusable_model->get_search_query('entity_login_table','agent_name',array('agent_id'=>$agent_id),array(),array(),array(),array(),array())->row_array()['agent_name'];
-            $msg = $this->My_CI->load->view('partner/header_navigation',$data,TRUE);
+            $data['loginname']="";
+            $login_data=$this->My_CI->reusable_model->get_search_query('entity_login_table','agent_name',array('agent_id'=>$agent_id),array(),array(),array(),array(),array())->row_array();
+            if(!empty($login_data)) {
+                $data['loginname']=$login_data['agent_name'];
+            }
+            
+           $msg = $this->My_CI->load->view('partner/header_navigation',$data,TRUE);
            $this->My_CI->cache->file->save('navigationHeader_partner_'.$this->My_CI->session->userdata('user_group').'_'.$this->My_CI->session->userdata('agent_id'), $msg, 36000);
         }
         else{
@@ -2847,7 +2852,9 @@ class Miscelleneous {
          log_message('info', __FUNCTION__);
          foreach ($reschedule_booking_id as $booking_id) {
             $partner_id = $partner_id_array[$booking_id];
-            $booking['booking_date'] = date('Y-m-d', strtotime($reschedule_booking_date[$booking_id]));
+            if(!empty($reschedule_booking_date[$booking_id])){
+                $booking['booking_date'] = date('Y-m-d', strtotime($reschedule_booking_date[$booking_id]));
+            }
             $booking['current_status'] = 'Rescheduled';
             $booking['internal_status'] = 'Rescheduled';
             $booking['update_date'] = date("Y-m-d H:i:s");

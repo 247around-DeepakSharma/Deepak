@@ -1153,7 +1153,7 @@ function submitEscalation(){
 
 
 // Shipped details//
-                if ($parts_shipped) {
+                if ($parts_shipped && !empty($spare['parts_shipped'])) {
                     $spare_shipped[$key]['id'] = $spare['id'];
                     $spare_shipped[$key]['entity_type'] = $spare['entity_type'];
                     $spare_shipped[$key]['parts_shipped'] = $spare['parts_shipped'];
@@ -1173,6 +1173,7 @@ function submitEscalation(){
                     $spare_shipped[$key]['awb_by_partner'] = $spare['awb_by_partner'];
                     $spare_shipped[$key]['p_box_count'] = $spare['p_box_count'];
                     if (!empty($spare['p_billable_weight'])) {
+                        $kg = $gm = '';
                         $expl_data = explode('.', $spare['p_billable_weight']);
                         if (!empty($expl_data[0])) {
                             $kg = $expl_data[0] . ' KG ';
@@ -1191,7 +1192,7 @@ function submitEscalation(){
                     $spare_shipped[$key]['courier_pic_by_partner'] = S3_WEBSITE_URL . 'vendor-partner-docs/' . $spare['courier_pic_by_partner'];
                 }
 /// DEFECTIVE DETAILS//  
-                if ($defective_parts_shipped) {
+                if ($defective_parts_shipped && !empty($spare['defective_part_shipped'])) {
                     $spare_defective[$key]['id'] = $spare['id'];
                     if (!empty($sp['send_defective_to'])) {
                      $spare_defective[$key]['send_defective_to'] = $spare['send_defective_to'];
@@ -1250,7 +1251,7 @@ function submitEscalation(){
 
 
 /// OOW  DETAILS //
-                if ($estimate_given) {
+                if ($estimate_given && $spare['purchase_price'] > 0) {
                     $spare_oow[$key]['id'] = $spare['id'];
                     if ($spare['entity_type'] == _247AROUND_PARTNER_STRING) {
                         $spare_oow[$key]['entity_type'] = 'Partner';
@@ -1561,6 +1562,7 @@ function  getPartnerCompareTAT(){
                     curl_close($ch);
                     
                     if(!empty($curl_response)){
+                    
                     foreach ($curl_response->TAT as $key=>$value){
                      $state =   $value->entity; 
                      if($state!='Total' && ($value->TAT_0_per!=0 || $value->TAT_1_per!=0 || $value->TAT_2_per!=0 || $value->TAT_3_per!=0)){
@@ -2041,7 +2043,16 @@ function  getPartnerCompareTAT(){
                     curl_close($ch);
                     
                     if(!empty($curl_response)){
-                    foreach ($curl_response->TAT as $key=>$value){
+                    $tat = $curl_response->TAT;
+                    $db = (array) $tat;
+                    $col  = 'entity';
+                    $sort = array();
+                    foreach ($db as $i => $obj) {
+                        $sort[$i] = $obj->{$col};
+                    }
+                    array_multisort($sort, SORT_ASC,SORT_NATURAL|SORT_FLAG_CASE, $db);
+                    $object = (object) $db;
+                    foreach ($object as $key=>$value){
                      $state =   $value->entity; 
                      if($state!='Total' && ($value->TAT_0_per!=0 || $value->TAT_1_per!=0 || $value->TAT_2_per!=0 || $value->TAT_3_per!=0)){
                      $return_data['D0'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_0_per)  ;

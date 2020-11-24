@@ -683,14 +683,14 @@ class Invoice extends CI_Controller {
         
         // Generate Open Cell and LED Bar Spare Parts Excel
         if (!empty($misc_data['open_cell'])) {
-            $meta['total_open_cell_price'] = $misc_data['open_cell'][0]['total_open_cell_price'];
-            $meta['total_open_cell_quantity'] = $misc_data['open_cell'][0]['total_open_cell_quantity'];
+            $meta['total_open_cell_price'] = (array_sum(array_column($misc_data['open_cell'], 'partner_charge')));
+            $meta['total_open_cell_quantity'] = count($misc_data['open_cell']);
             $sp_files_name = $this->generate_partner_open_cell_excel($partner_id, $misc_data['open_cell'], $meta);
             array_push($files, $sp_files_name);
 
             log_message('info', __METHOD__ . "=> File created " . $sp_files_name);
         }
-        
+                 
         // Generate NRN Approval Parts Excel
         if (!empty($misc_data['nrn'])) {
             $meta['total_nrn_price'] = $misc_data['nrn'][0]['total_nrn_price'];
@@ -803,11 +803,12 @@ class Invoice extends CI_Controller {
             $email_from = $email_template[2];
 
             $to = $invoice_email_to;
-            $cc = $invoice_email_cc.", " .ACCOUNTANT_EMAILID;
+            $cc = $invoice_email_cc;
+            $bcc= $email_template[5];
             $this->upload_invoice_to_S3($meta['invoice_id']);
             $pdf_attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' . $output_pdf_file_name;
 
-            $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement_url,PARTNER_INVOICE_DETAILED_EMAIL_TAG);
+            $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement_url,PARTNER_INVOICE_DETAILED_EMAIL_TAG, $bcc);
 
             foreach ($data as $value1) {
 
@@ -850,9 +851,9 @@ class Invoice extends CI_Controller {
             if (!empty($misc_data['open_cell'])) {
                 foreach ($misc_data['open_cell'] as $open_cell_booking_details) {
                     $open_cell_data = array(
-                        'spare_id' => $open_cell_booking_details['spare_id'],
+                        'booking_id' => $open_cell_booking_details['b_id'],
                         'invoice_id' => $meta['invoice_id'],
-                        'quantity' => $open_cell_booking_details['shipped_quantity'],
+                        'quantity' => 1,
                         'price' => $open_cell_booking_details['partner_charge']
                     );
                     $this->invoices_model->insert_open_cell_data($open_cell_data);
@@ -1313,11 +1314,12 @@ class Invoice extends CI_Controller {
         return true;
     }
     
-    function send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement,$invoiceTag, $multipleResponse = array()) {
+    function send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement,$invoiceTag, $multipleResponse = array(), $bcc = "") {
         $this->email->clear(TRUE);
         $this->email->from($email_from, '247around Team');
         $this->email->to($to);
         $this->email->cc($cc);
+        $this->email->bcc($bcc);
         
         if(!empty($multipleResponse)){
             foreach ($multipleResponse as $value) {
@@ -3485,7 +3487,7 @@ exit();
                 $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($service_center_id);
 
                 $sc_details['rm_name'] = (!empty($rm))? $rm[0]['full_name']:"";
-                $sc_details['remarks'] = preg_replace("/[^A-Za-z0-9]/", "", $sc['name']);
+                $sc_details['remarks'] = preg_replace("/[^A-Za-z0-9]/", " ", $sc['name']);
                 $sc_details['gst_no'] = $sc['gst_no'];
                 $sc_details['is_signature'] = !empty($sc['signature_file']) ?"Yes":"NO";
                 
@@ -3517,7 +3519,6 @@ exit();
                 $sc_details['is_micro_wh'] = ($sc['is_micro_wh'] ==0) ? "No" : "Yes";
                 $sc_details['active'] = (!empty($sc['active']) && ($sc['active'] == 1)) ?"Yes":"NO";
                 $sc_details['on_off'] = (!empty($sc['on_off']) && ($sc['on_off'] == 1)) ?"On":"Off";
-                $sc_details['check_file'] = !empty($sc['cancelled_cheque_file']) ? S3_WEBSITE_URL."vendor-partner-docs/".$sc['cancelled_cheque_file'] : "";
                   
                 $payment_hold_reason = $this->invoices_model->payment_hold_reason_list(array('sf_payment_hold_reason.service_center_id' => $service_center_id, 'sf_payment_hold_reason.status' =>1));
                 if(!empty($payment_hold_reason)){
@@ -3757,20 +3758,20 @@ exit();
         $sc_details['gst_no'] = "GST Number";
         $sc_details['is_signature'] = "Signature Exist";
         
-        $sc_details['defective_parts'] = "No Of Defective Parts";
+        $sc_details['defective_parts'] = "Defective parts pending on SF for > 15 days";
         $sc_details['defective_parts_max_age'] = "Max Age of Spare Pending";
         $sc_details['shipped_parts_name'] = "Shipped Parts Type";
-        $sc_details['challan_value'] = "Defective Challan Approx Value";
+        $sc_details['challan_value'] = "Value of OOT defective spares not shipped";
         
-        $sc_details['oot_defective_parts_shipped'] = "No Of OOT Shipped Part";
+        $sc_details['oot_defective_parts_shipped'] = "Defective parts sent after 15 days of booking completion and NOT received in Warehouse";
         $sc_details['oot_defective_parts_max_age'] = "Max Age of OOT Spare Pending";
         $sc_details['oot_part_type'] = "OOT Shipped Parts Type";
-        $sc_details['oot_challan_value'] = "OOT Challan Approx Value";
+        $sc_details['oot_challan_value'] = "Value of spares shipped after TAT";
         
-        $sc_details['defective_parts_shipped'] = "No Of Defective Parts shipped";
+        $sc_details['defective_parts_shipped'] = "Spares shipped by SF at any point of time and NOT received by warehouse within 15 days of SF shipped date";
         $sc_details['defective_parts_shipped_max_age'] = "Max Age of Shipped Part";
         $sc_details['defective_shipped_part_type'] = "Shipped Parts Type";
-        $sc_details['shipped_challan_value'] = "Shipped Challan Approx Value";
+        $sc_details['shipped_challan_value'] = "Value of spares yet to be confirmed";
 
         $sc_details['is_verified'] = "Bank Account Verified";
         $sc_details['amount_type'] = "Type";
@@ -3781,7 +3782,6 @@ exit();
         $sc_details['is_micro_wh'] = "Micro Warehouse";
         $sc_details['active'] = "Active";
         $sc_details['on_off'] = "Temporary On/Off";
-        $sc_details['check_file'] = "Check File";
         $sc_details['payment_hold_reason'] = "Payment Hold Reason";
         $sc_details['last_payment_date'] = "Last Payment Date";
         $sc_details['last_payment_amount'] = "Last Payment Amount";
@@ -5773,7 +5773,8 @@ exit();
                     $get_rm_email =$this->vendor_model->get_rm_sf_relation_by_sf_id($invoice_details[0]['vendor_partner_id']); 
                     $get_owner_email = $this->vendor_model->getVendorDetails("owner_email", array('id' =>$invoice_details[0]['vendor_partner_id']));
                     $to = $get_owner_email[0]['owner_email'];
-                    $cc = $email_template[3].(!empty($get_rm_email[0]['official_email'])? ", ".$get_rm_email[0]['official_email']:"");
+                    $cc = $email_template[3].(!empty($get_rm_email[1]['official_email'])? ", ".$get_rm_email[1]['official_email']:"");
+                    //Keep ASM in mail CC
                     $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, '', CN_AGAINST_GST_DN);
                 }
                 

@@ -17,11 +17,11 @@
                                 <?php
                                     foreach($states as $state){
                                         $selected = "";
-                                        if(!empty($selected_state) && $selected_state == $state['state']){
+                                        if(!empty($selected_state) && $selected_state == $state['state_code']){
                                             $selected = "selected";
                                         }
                                 ?>
-                                <option value="<?php echo $state['state'] ?>" <?php echo $selected; ?>><?php echo $state['state'] ?></option>
+                                <option value="<?php echo $state['state_code'] ?>" <?php echo $selected; ?>><?php echo $state['state'] ?></option>
                                 <?php
                                     }
                                 ?>

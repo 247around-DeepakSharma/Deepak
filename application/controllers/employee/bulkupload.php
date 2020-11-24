@@ -292,22 +292,13 @@ class Bulkupload extends CI_Controller {
                     // Store all Products data in Array
                     $arr_services = $this->reusable_model->get_search_result_data('services', 'services,id', NULL, NULL, NULL, NULL, NULL, NULL);
                     $arr_services = array_column($arr_services, 'id', 'services');
+                    
                     // apply loop for validation.
                     for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                         $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
                         $sanitizes_row_data = $rowData_array[0];   
                         $is_data_validated = true;
-
-                        // Check If Product exists or not
-                        $returnMsg[$row][4] = "";
-                        if (empty($arr_services[$sanitizes_row_data[4]])) {
-                            $returnMsg[$row][0] = $arr_data['plan_name'] = $sanitizes_row_data[0];
-                            $returnMsg[$row][1] = $arr_data['plan_description'] = $sanitizes_row_data[1];
-                            $returnMsg[$row][4] = "Product ".$sanitizes_row_data[4]." Not Found";
-                            continue;
-                        }
-                        $service_id = $arr_services[trim($sanitizes_row_data[4])];
-
+                        
                         // Calculate Plan Start End Date
                         $date_period_start = date('Y-m-d 00:00:00', strtotime($sanitizes_row_data[2]));
                         $date_period_end = date('Y-m-d 23:59:59', strtotime($sanitizes_row_data[3]));
@@ -325,7 +316,34 @@ class Bulkupload extends CI_Controller {
                             $unix_date1 = ($excel_date1 - 25569) * 86400;
                             $date_period_end = date('Y-m-d 23:59:59', $unix_date1);
                         endif;
+                        
+                        // Validate Data in Rows
+                        if(empty($sanitizes_row_data[0])){
+                            $returnMsg[$row][4] = "Plan Name Not Valid";
+                            continue;
+                        }
+                        if(empty($sanitizes_row_data[2]) || $date_period_start == '1970-01-01 00:00:00' || empty($date_period_start)){
+                            $returnMsg[$row][4] = "Plan Start Date is Not Valid";
+                            continue;
+                        }
+                        if(empty($sanitizes_row_data[3]) || $date_period_end == '1970-01-01 23:59:59' || empty($date_period_end)){
+                            $returnMsg[$row][4] = "Plan End Date is Not Valid";
+                            continue;
+                        }
+                        // Check If Product exists or not
+                        $returnMsg[$row][4] = "";
+                        if (empty($arr_services[$sanitizes_row_data[4]])) {
+                            $returnMsg[$row][0] = $arr_data['plan_name'] = $sanitizes_row_data[0];
+                            $returnMsg[$row][1] = $arr_data['plan_description'] = $sanitizes_row_data[1];
+                            $returnMsg[$row][4] = "Product ".$sanitizes_row_data[4]." Not Found";
+                            continue;
+                        }
+                        if(empty($sanitizes_row_data[8]) || (gettype($sanitizes_row_data[8]) != 'double' && gettype($sanitizes_row_data[8]) != 'integer')){
+                            $returnMsg[$row][4] = "Plan Tenure is Not Valid";
+                            continue;
+                        }
 
+                        $service_id = $arr_services[trim($sanitizes_row_data[4])];
                         if (!empty(array_filter($sanitizes_row_data))) {
                             $arr_data = [];
                             $returnMsg[$row][0] = $arr_data['plan_name'] = $sanitizes_row_data[0];

@@ -119,7 +119,7 @@ class Partner extends CI_Controller {
     /**
      * @desc: this is used to display completed booking for specific service center
      */
-    function closed_booking($status, $state="all", $offset = 0, $booking_id = "") {
+    function closed_booking($status, $state_code="all", $offset = 0, $booking_id = "") {
         ini_set('memory_limit', '-1');
         ini_set('max_execution_time', 36000);
         $this->checkUserSession();
@@ -128,11 +128,11 @@ class Partner extends CI_Controller {
         if($this->session->userdata('is_filter_applicable') == 1){
             $stateCity = 1;
         }
-        $config['base_url'] = base_url() . 'partner/closed_booking/' . $status.'/'.$state;
+        $config['base_url'] = base_url() . 'partner/closed_booking/' . $status.'/'.$state_code;
         if (!empty($booking_id)) {
-            $config['total_rows'] = $this->partner_model->getclosed_booking("count", "", $partner_id, $status, $booking_id,$stateCity,$state);
+            $config['total_rows'] = $this->partner_model->getclosed_booking("count", "", $partner_id, $status, $booking_id,$stateCity,$state_code);
         } else {
-            $config['total_rows'] = $this->partner_model->getclosed_booking("count", "", $partner_id, $status,"",$stateCity,$state);
+            $config['total_rows'] = $this->partner_model->getclosed_booking("count", "", $partner_id, $status,"",$stateCity,$state_code);
         }
 
         $config['per_page'] = 50;
@@ -143,17 +143,17 @@ class Partner extends CI_Controller {
         $data['links'] = $this->pagination->create_links();
         $data['count'] = $config['total_rows'];
         if (!empty($booking_id)) {
-            $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $status, $booking_id,$stateCity,$state);
+            $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $status, $booking_id,$stateCity,$state_code);
         } else {
-            $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $status,"",$stateCity,$state);
+            $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $status,"",$stateCity,$state_code);
         }
 
         if ($this->session->flashdata('result') != '')
             $data['success'] = $this->session->flashdata('result');
 
         $data['status'] = $status;
-        $data['selected_state'] = $state;
-        $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+        $data['selected_state'] = $state_code;
+        $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT state_code,UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         log_message('info', 'Partner view ' . $status . ' booking  partner id' . $partner_id . " Partner name" . $this->session->userdata('partner_name') . " data " . print_r($data, true));
         $this->miscelleneous->load_partner_nav_header();
         //$this->load->view('partner/header');
@@ -4701,7 +4701,10 @@ class Partner extends CI_Controller {
         //$data['account_manager_details'] = $this->miscelleneous->get_am_data($partner_id);
         $data['account_manager_details'] = $this->partner_model->getpartner_data("employee.*,group_concat(distinct agent_filters.state separator ', ') as state", 
                 array('partners.id' => $partner_id),"",1,1,1,"employee.id");
-        $state_arr = explode(", ", $data['account_manager_details'][0]['state']);
+                $state_arr=[];
+                if(!empty($data['account_manager_details'])){
+                    $state_arr = explode(", ", $data['account_manager_details'][0]['state']);
+                }
         $arr_state = $this->booking_model->get_state();
         if(count($state_arr) === count($arr_state)) {
             $data['account_manager_details'][0]['state'] = "Pan India";
@@ -6141,8 +6144,8 @@ class Partner extends CI_Controller {
             $tempArray[] = $sparePartBookings['part_number'];
             $tempArray[] = $sparePartBookings['received_defective_part_date'];
             $tempArray[] = $sparePartBookings['awb_by_partner'];
-            $tempArray[] = $sparePartBookings[' courier_name_by_partner'];
-            $tempArray[] = $sparePartBookings[' partner_challan_number'];
+            $tempArray[] = $sparePartBookings['courier_name_by_partner'];
+            $tempArray[] = $sparePartBookings['partner_challan_number'];
             $tempArray[] = $sparePartBookings['remarks_defective_part_by_sf'];
             $CSVData[]  = $tempArray;
         }

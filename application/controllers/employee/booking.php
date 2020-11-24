@@ -872,6 +872,8 @@ class Booking extends CI_Controller {
                     $data['booking_id'] = "Q-" . $booking_id;
                     log_message('info', __FUNCTION__ . " Booking to be Converted to Query Booking ID" . print_r($data['booking_id'], true));
 
+                    // Delete Data from engineer_table_sign If any
+                    $this->engineer_model->delete_engineer_sign(['booking_id' => $booking_id]);
                     $data['old_state'] = _247AROUND_PENDING;
                     $data['new_state'] = _247AROUND_FOLLOWUP;
                     $data['booking_update_flag'] = 0;
@@ -2820,9 +2822,10 @@ class Booking extends CI_Controller {
                 $review_questionnaire_data = $this->input->post('review_questionnaire');
                 $this->save_review_questionnaire_data($review_questionnaire_booking_id, $review_questionnaire_data);
             }
-            
+            $this->session->set_userdata('success', 'Booking Completed Successfully.');
             redirect(base_url() . 'employee/booking/view_bookings_by_status/Pending');
         } else {
+            $this->session->set_userdata('success', 'Booking Completed Successfully.');
             redirect(base_url() . 'employee/booking/view_bookings_by_status/' . $internal_status);
         }
         }
@@ -5709,9 +5712,9 @@ class Booking extends CI_Controller {
                     . "booking_details.partner_internal_status as 'Final Status Level 2',"
                     . "booking_details.current_status as 'Final Status Level 1', booking_details.actor as 'Dependency On',"
                     . "DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) as Ageing,"
-                    . "CASE WHEN in_req.part_number != '' THEN 'YES' ELSE 'No' END AS 'Is Part Involved', in_req.part_number as 'Requested Part Code', spare_parts_details.parts_requested as 'Requested Part Name',"
+                    . "CASE WHEN in_req.part_number != '' THEN 'YES' ELSE 'No' END AS 'Is Part Involved', in_req.part_number as 'Requested Part Code', REPLACE(group_concat(spare_parts_details.parts_requested),trim(','),' | ') as 'Requested Part Name',"
                     . "spare_parts_details.parts_requested_type as 'Requested Part Type',spare_parts_details.date_of_request as 'Part Requested Date'"
-                    . ",in_sh.part_number as 'Shipped Part Code', spare_parts_details.parts_shipped as 'Shipped Part Name',spare_parts_details.shipped_parts_type as 'Shipped Part Type'"
+                    . ",in_sh.part_number as 'Shipped Part Code', REPLACE(group_concat(spare_parts_details.parts_shipped),trim(','),' | ') as 'Shipped Part Name',spare_parts_details.shipped_parts_type as 'Shipped Part Type'"
                     . ",spare_parts_details.shipped_date as 'Part Shipped Date',spare_parts_details.acknowledge_date as 'SF Acknowledged Date'"
                     . ",CASE WHEN spare_parts_details.auto_acknowledeged = 1 THEN 'YES' ELSE 'No' END AS 'Is auto Acknowledge',penalty_on_booking.active as 'Penalty Active'";
             // Show Distinct Bookings
