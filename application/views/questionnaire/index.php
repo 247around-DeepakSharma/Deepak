@@ -30,6 +30,49 @@
             $this->session->unset_userdata('success');
             $this->session->unset_userdata('failed');          
         ?>
+        
+                
+        <form method="post" name="filtering" action="<?php echo base_url().'employee/questionnaire/index';?>" >
+            <div class="col-md-3">
+                <div class="item form-group">
+                    <div class="col-md-12 col-sm-12 col-xs-12">                
+                        <select id="panel" name="panel" class="form-control filter_table">
+                            <option id="Select Form Value" value="0" selected>Select Panel Value</option>
+                            <option id="Admin" value="1" <?php if(!empty($selected_panel) && ($selected_panel==1)){ echo 'selected';} ?>>Admin</option>
+                            <option id="Partner" value="2"  <?php if(!empty($selected_panel) && ($selected_panel==2)){ echo 'selected';} ?>>Partner</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="item form-group">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <select id="product" name="product" class="form-control filter_table">
+                            <option id="Select Product Value" value="0"  >Select Product Value</option>
+                                <?php if(!empty($selected_product)) { ?>
+                                    <option value="<?php echo $selected_product?>" selected><?php echo $selected_product;?></option>
+                                <?php }
+                                $d=$this->booking_model->selectservice();
+                                foreach ($d as $key=>$rec ) { if($selected_product==$rec->services) { continue; } ?>
+                                <option  value="<?php echo $rec->services; ?>"><?php echo $rec->services; ?></option>
+                                <?php } ?>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="item form-group">
+                    <div class="col-md-12 col-sm-12 col-xs-12" >
+                        <select id="form_value" name="form_value" class="form-control filter_table">
+                            <option id="Select Form Value" value="0" selected>Select Form Value</option>
+                            <option id="Booking Completion" value="2" <?php if(!empty($selected_form) && ($selected_form==2)){ echo 'selected';}?>> Booking Completion</option>
+                            <option id="Booking Cancellation" value="1" <?php if(!empty($selected_form) && ($selected_form==1)){ echo 'selected';}?>>Booking Cancellation</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-primary">Search</button>
+        </form></div>
         <div class="x_panel" style="height: auto;">
             <table id="question_list" class="table table-striped table-bordered">
                 <thead>
@@ -43,6 +86,7 @@
                         <th style="display: none;">Question</th>
                         <th style="display: none;">Options</th>
                         <th style="display: none;">Active</th>
+                        <th class="no-sort">Sequence</th>
                         <th class="no-sort">Active</th> 
                         <th class="no-sort">Action</th>
                     </tr>
@@ -84,6 +128,7 @@
                             </td>
                             <td style="display: none;"><?php echo $rec->question; ?></td>
                             <td style="display: none;"><?php echo $rec->answers; ?></td>
+                            <td><?php echo $rec->sequence;?></td>
                             <td style="display: none;">
                                 <?php echo(empty($rec->active) ? "No" : "Yes") ;  ?>
                             </td>
@@ -101,7 +146,7 @@
                             </td>
                             <td>
                                 <a class="btn btn-primary btn-xs" href='<?php echo base_url(); ?>employee/questionnaire/add_question/<?= $rec->q_id ?>' title="Update Question" id="update_question"><i class="glyphicon glyphicon-pencil"></i></a>
-                            </td>
+                            </td>                            
                         </tr>
                     <?php } ?>
                 </tbody>
@@ -127,7 +172,8 @@
                     columns: [0, 1, 2, 3, 4, 6, 7, 8]
                 }
             }
-        ]                        
+        ],
+                               
     });    
 
     function changeStatus(btnId, status)
