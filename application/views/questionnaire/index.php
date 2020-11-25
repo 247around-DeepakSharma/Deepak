@@ -87,6 +87,7 @@
                         <th style="display: none;">Options</th>
                         <th style="display: none;">Active</th>
                         <th class="no-sort">Sequence</th>
+                        <th class="no-sort"> Is Required </th>
                         <th class="no-sort">Active</th> 
                         <th class="no-sort">Action</th>
                     </tr>
@@ -128,7 +129,23 @@
                             </td>
                             <td style="display: none;"><?php echo $rec->question; ?></td>
                             <td style="display: none;"><?php echo $rec->answers; ?></td>
-                            <td><?php echo $rec->sequence;?></td>
+                            <td><?php echo $rec->sequence;?></td>                            
+                            <td style="display: none;">
+                                <?php echo($rec->is_required==0 ? "No" : "Yes") ;  ?>
+                            </td>
+                            <td>
+                                <img id="loader_gif_<?= $rec->q_id ?>" src="" style="display: none;">
+                                <div id="status<?= $rec->q_id ?>">
+                                    <?php
+                                    if (!empty($rec->is_required)) {
+                                        echo '<i class="fa fa-check-circle fa-2x text-success" id="btn' . $rec->q_id . '" ></i>';
+                                    } else {
+                                        echo '<i class="fa fa-times-circle  fa-2x text-danger" id="btn' . $rec->q_id . '" ></i>';
+                                    }
+                                    ?>
+                                </div>
+                            </td>
+                            
                             <td style="display: none;">
                                 <?php echo(empty($rec->active) ? "No" : "Yes") ;  ?>
                             </td>

@@ -346,7 +346,7 @@
                     </div>
                     </div>
                     <div class="col-md-1" style="float: right;">
-                        <span class="collape_icon" href="#state_type_booking_chart_div" data-toggle="collapse" onclick="collapse_icon_change(this);"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                        <span class="collape_icon" href="#state_type_booking_chart_div" data-toggle="collapse"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
                     </div>
                     <div class="clearfix"></div>
                 </div>
