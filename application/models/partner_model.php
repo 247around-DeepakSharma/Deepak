@@ -3069,7 +3069,7 @@ function get_detailed_summary_report_query($partner_id,$whereConditions=NULL){
                     '' AS 'Reverse Purchase Invoice Id',
                     '' AS 'Purchase Invoice Id',
                     '' AS 'Sale Invoice Id',
-                    '' AS 'Dealer Name'                   
+                    dealer_details.dealer_name AS 'Dealer Name'              
             FROM
                     booking_details
                     LEFT JOIN booking_unit_details ud ON (booking_details.booking_id = ud.booking_id)
