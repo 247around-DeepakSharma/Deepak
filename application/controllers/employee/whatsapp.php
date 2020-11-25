@@ -84,9 +84,16 @@ class Whatsapp extends CI_Controller {
     private function get_whatsapp_table($log_list, $sn) {
         $row = array();
         $row[] = $sn;
+        $disable_source = $disable_destination = '';
+        if($log_list['source'] == API_KARIX_SOURCE){
+            $disable_source = 'pointer-events:none;cursor:not-allowed';
+        }
+        if($log_list['destination'] == API_KARIX_SOURCE){
+            $disable_destination = 'pointer-events:none;cursor:not-allowed';
+        }
         //$row[] = '<a class="" style="text-decoration:none;cursor:not-allowed;" data-number="' . $log_list['source'] . '" href="#">' . $log_list['source'] . '<a>';
-        $row[] = '<a  class="chat_number" style="text-decoration:none;" data-number="' . $log_list['source'] . '" href="jquery:void(0)">' . $log_list['source'] . '<a>';
-        $row[] = '<a class="chat_number" data-id="' . $log_list['id'] . '" id="destination' . $log_list['id'] . '" style="text-decoration:none;" data-number="' . $log_list['destination'] . '" href="jquery:void(0)">' . $log_list['destination'] . '<a>';
+        $row[] = '<a class="chat_number" style="text-decoration:none;'.$disable_source.'" data-number="' . $log_list['source'] . '" href="jquery:void(0)">' . $log_list['source'] . '<a>';
+        $row[] = '<a class="chat_number" data-id="' . $log_list['id'] . '" id="destination' . $log_list['id'] . '" style="text-decoration:none;'.$disable_destination.'" data-number="' . $log_list['destination'] . '" href="jquery:void(0)">' . $log_list['destination'] . '<a>';
         $row[] = $log_list['channel'];
         $row[] = $log_list['direction'];
         
