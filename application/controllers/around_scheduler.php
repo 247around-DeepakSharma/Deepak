@@ -1596,7 +1596,6 @@ class Around_scheduler extends CI_Controller {
         $rm_details = $this->employee_model->get_rm_details();
         foreach ($rm_details as $rm) {
             $sf_list = $this->vendor_model->get_employee_relation($rm['id']);
-            if(!empty($sf_list)) {
             $select = "group_concat(name) as name,group_concat(primary_contact_email,',',owner_email) as email";
             $where = array('is_gst_doc' => 0, 'active' => 1, 'on_off'=>1, '(is_signature_doc IS null OR is_signature_doc = 0)' => NULL, '(signature_file IS Null OR signature_file = "")' => NULL, "id IN(" . $sf_list[0]['service_centres_id'] . ")" => NULL);
             $data = $this->vendor_model->getVendorDetails($select, $where);
@@ -1636,7 +1635,6 @@ class Around_scheduler extends CI_Controller {
             } 
         }
     }
-}
 
     /**
      * @desc     used to send the reminder to sf and rm to update GST file
