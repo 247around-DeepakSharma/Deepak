@@ -3094,7 +3094,7 @@ function get_data_for_partner_callback($booking_id) {
                     '' AS 'Reverse Purchase Invoice Id',
                     '' AS 'Purchase Invoice Id',
                     '' AS 'Sale Invoice Id',
-                    '' AS 'Dealer Name'                   
+                    dealer_details.dealer_name AS 'Dealer Name'              
             FROM
                     booking_details
                     LEFT JOIN booking_unit_details ud ON (booking_details.booking_id = ud.booking_id)
