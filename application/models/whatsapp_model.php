@@ -154,19 +154,5 @@ class Whatsapp_model extends CI_Model {
             return $query->result_array();
         }
     }  
- 
-
-      /**
-     *  @desc : This function is used to get last message details sent available options
-     *  @param : $message_tag_id ,$reply  
-     *  @return: Array()
-     *  Abhishek Awasthi
-     */    
-
-    function get_last_whatsapp_message_send_tag_options($message_tag_id,$reply){
-        $sql = "select * from whatsapp_options where msg_tag_id='" . $message_tag_id . "' AND option_text='".$reply."' ";
-        $query = $this->db->query($sql);
-        return $query->result_array();
-    }
 
 }
