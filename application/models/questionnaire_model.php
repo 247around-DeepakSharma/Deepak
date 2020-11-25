@@ -25,6 +25,10 @@ class Questionnaire_model extends CI_Model {
         }
             
         $this->db->group_by('review_questionare.q_id');
+        $this->db->order_by('review_questionare.form');
+        $this->db->order_by('services.services');
+        $this->db->order_by('review_request_type_mapping.request_type_id');
+        $this->db->order_by('review_questionare.sequence');
         $query = $this->db->get("review_questionare");
         return $query->result();
     }
@@ -42,6 +46,7 @@ class Questionnaire_model extends CI_Model {
             
         // insert data in review_questionare 
         $data['created_by'] = $this->session->userdata('id');
+        $data['updated_by'] = $this->session->userdata('id');
         $this->db->insert('review_questionare', $data);
         $q_id = $this->db->insert_id();
                  
@@ -76,6 +81,7 @@ class Questionnaire_model extends CI_Model {
         if(isset($data['options'])){
             unset($data['options']);
         }
+        $data['updated_by'] = $this->session->userdata('id');
         // update data in review_questionare
         $this->db->where($where, FALSE);
         $this->db->update('review_questionare', $data);

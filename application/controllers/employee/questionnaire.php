@@ -97,6 +97,8 @@ class Questionnaire extends CI_Controller {
         $this->form_validation->set_rules('service_id', 'Product', 'required');
         $this->form_validation->set_rules('request_type', 'Request Type', 'required');
         $this->form_validation->set_rules('question', 'Question', 'required');
+        $this->form_validation->set_rules('sequence', 'Sequence', 'required');
+        $this->form_validation->set_rules('is_required', 'Is Required', 'required');
         $validation = $this->form_validation->run();
         $data = $this->input->post();
         if ($validation) {  
@@ -108,6 +110,7 @@ class Questionnaire extends CI_Controller {
             // Update data
             else {
                 $where = ['q_id' => $data['q_id']];
+                $data['updated_by']=$this->input->post('id');
                 $this->Questionnaire_model->update_question($where, $data); 
             }  
             $this->db->trans_complete();
