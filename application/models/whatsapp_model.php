@@ -153,28 +153,7 @@ class Whatsapp_model extends CI_Model {
             $query = $this->db->get('whatsapp_options');
             return $query->result_array();
         }
-    }
-    
-      /**
-     *  @desc : This function is used to get template by ID
-     *  @param : $id  
-     *  @return: Array()
-     *  Abhishek Awasthi
-     */    
-    function get_whatsapp_template_by_id($id){
-     
-        $sql = "select * from whatsapp_template where id='".$id."'";
-        $query = $this->db->query($sql);
-        return $query->result_array();
-        
-    }
-    
-    
-    function get_whatsapp_template_by_tag($tag){
-        $sql = "select * from whatsapp_template where tag='" . $tag . "' and active = 1";
-        $query = $this->db->query($sql);
-        return $query->result_array();
-    }
+    }  
  
 
       /**
