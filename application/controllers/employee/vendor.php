@@ -6632,7 +6632,13 @@ class vendor extends CI_Controller {
                 $arr_validation_checks[] = 'Parts already shipped, Booking can not be re-assigned.';
                 return $arr_validation_checks;
             }
-            
+            //case 6: Booking completed by vendor
+            $booking_completed_by_partner = $this->booking_model->get_booking_details('*', array('booking_id' => $booking_id, 'service_center_closed_date IS NOT NULL' => NULL, 'internal_status = "'.InProcess_Completed.'"' => NULL));            
+            if(!empty($booking_completed_by_partner))
+            {
+                $arr_validation_checks[] = 'Booking already completed by Vendor, can not be reassigned.';
+                return $arr_validation_checks;
+            }
             return $arr_validation_checks;
         }
 
