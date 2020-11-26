@@ -1,9 +1,6 @@
 <div class="modal-header" style="    background: #164f4e;">
     <h4 class="modal-title" style="text-align: center;color: #fff;">247around Call Center - 9555000247</h4>
 </div>       
-
-
-
 <div class="modal-header" style="padding: 26px 0px;">
     <div class="col-md-12" style="margin-top: -12px;">
         <div class="col-md-6" style="padding-left: 16px;">
@@ -69,7 +66,7 @@
 <div class="modal-body">
     <div class="row">
         <div class="col-md-4">
-            <div class="card" style="padding: 10px 2px; height: 300px;">
+            <div class="card" style="padding: 10px 2px; height: 200px;">
                 <div class="container" style="width: 100%; height:100%; word-break: break-all;">
 <!--                    <h5><b>Pickup & Dispatch</b></h5> 
                     <p>Delhi Office</p>
@@ -81,16 +78,16 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card" style="padding: 10px 2px; height: 300px;">
+            <div class="card" style="padding: 10px 2px; height: 200px;">
                 <div class="container" style="width: 100%; height:100%; word-break: break-all;">
                     <h5><b>Aurangabad Warehouse</b></h5> 
                     <p><i class="fa fa-newspaper-o"></i> Dhade No-1 Plot 13, Phase 3 Near <br>Ekdant Udyog Mitra Coprative <br>Estate Chitegaon, Ta Paithan, <br>Dist Aurangabad</li></p>
-                    <p><i class="fa fa-envelope"></i> warehouse_aurangabad@247around<br>.com</p>
+                    <p><i class="fa fa-envelope"></i> warehouse_aurangabad@247around.com</p>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card" style="padding: 10px 2px; height: 300px;">
+            <div class="card" style="padding: 10px 2px; height: 200px;">
                 <div class="container" style="width: 100%; height:100%; word-break: break-all;">
 <!--                <h5><b>Escalation</b></h5> 
                     <p><b>Mr. Sachin Sharma</b></p>
@@ -128,11 +125,12 @@
     </div>-->
     <div class="col-md-12">
         <div class="modal-header col-md-6">
-            <h4 class="modal-title">CRM Training and Invoice Queries<br/>Helpline Number:</h4>
+            <h4 class="modal-title">CRM Training and Invoice Queries Helpline<br> Number:</h4>
         </div>
-        <div class="modal-header col-md-6">
-            <h4 class="modal-title">Spare Approval<br/>Helpline:</h4>
-        </div> 
+        <div class="modal-header col-md-4">
+            <h4 class="modal-title" style="margin-top:5px;">Spare Approval Helpline:</h4><br>
+        </div>
+    </div>  
         <div class="modal-body">
             <div class="row">
                 <div class="col-md-6">
@@ -155,12 +153,11 @@
                 </div>
             </div>
         </div>
-    </div>
 
 
-        <div class="col-md-12">
-        <div class="modal-header col-md-6">
-            <h4 class="modal-title">For Spares / Accessories Purchase<br/>Pls Contact:</h4>
+       <div class="col-md-12">
+        <div class="modal-header col-md-8">
+            <h4 class="modal-title">For Spares / Accessories Purchase Please Contact:</h4>
         </div> 
         <div class="modal-body">
             <div class="row">

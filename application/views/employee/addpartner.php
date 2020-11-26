@@ -954,18 +954,16 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         <label for="is_wh" class="col-md-6" style="width: 40%;">Warranty will depend on</label>
                                         <div class="col-md-2 " style = "margin-top: 5px;margin-bottom: -5px;width: ">
                                             <select name="warranty" style = "width:200px " class="form-control">
-                                                 <option disabled="disabled" selected="selected" style = "margin-top: 5px;margin-bottom: -5px;width: "> Select</option>
-                                                
                                                 <option value="1" <?php if(!empty($query[0]['check_warranty_from']) && $query[0]['check_warranty_from'] ==1)
-                                                {
+                                                  {
                                                     echo "selected";
-                                                }
-                                                ?>>Date of Installation</option>
-                                                <option value="2" <?php if(!empty($query[0]['check_warranty_from']) && $query[0]['check_warranty_from'] ==2)
-                                                {
-                                                    echo "selected";
-                                                }
+                                                  }
                                                 ?>>Date of Purchase</option>
+                                                <option value="2" <?php if(!empty($query[0]['check_warranty_from']) && $query[0]['check_warranty_from'] ==2)
+                                                 {
+                                                    echo "selected";
+                                                 }
+                                                ?>>Date of Installation</option>
                                             </select>
                                            
                                         </div>

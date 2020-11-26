@@ -104,6 +104,21 @@
                                         <?php echo form_error('question'); ?>
                                     </div>
                                 </div>
+                                <!-- Add Sequence -->
+                                <div class="form-group <?php if (form_error('sequence')) { echo 'has-error'; } ?>">
+                                    <label for="sequence" class="col-md-3">Sequence *</label>
+                                    <div class="col-md-6">
+                                        <input type="number" class="form-control" id="sequence" name="sequence" placeholder="Enter Sequence" max="10" min="1" required value="<?php if (!empty($q_data[0]->sequence)) { echo $q_data[0]->sequence; } ?>">
+                                        <?php echo form_error('sequence'); ?>
+                                    </div>
+                                </div>
+                                <!-- Add Is Required -->
+                                <div class="form-group">
+                                    <label for="is_required" class="col-md-3">Is Required *</label>
+                                    <div class="col-md-6">
+                                        <input type="checkbox" id="is_required" name="is_required" value="1" <?php if (!empty($q_data[0]->is_required)) { echo "checked"; } ?>>
+                                    </div>
+                                </div>
                                 <!-- Add Options (if any) -->
                                 <div class="form-group">
                                     <label for="options" class="col-md-3">Options</label>
@@ -141,7 +156,7 @@
     $(document).ready(function(){
        getPriceTags(); 
     });
-    
+
     function getPriceTags(){
         var get_price_tag_url = '<?php echo base_url(); ?>employee/service_centre_charges/get_service_category_request_type';
         var postData = {};
