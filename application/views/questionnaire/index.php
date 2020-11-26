@@ -31,24 +31,26 @@
             $this->session->unset_userdata('failed');          
         ?>
         
-                
+        <div  class="col-lg-12 panel" >        
         <form method="post" name="filtering" action="<?php echo base_url().'employee/questionnaire/index';?>" >
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <div class="item form-group">
-                    <div class="col-md-12 col-sm-12 col-xs-12">                
-                        <select id="panel" name="panel" class="form-control filter_table">
-                            <option id="Select Form Value" value="0" selected>Select Panel Value</option>
+                    <div class="col-md-14 col-sm-14 col-xs-14">   
+                            <label style="">Panel </label>             
+                            <select id="panel" name="panel" class="form-control filter_table" style="margin-bottom:10%;">
+                            <option id="Select Form Value" value="0" selected>Select All</option>
                             <option id="Admin" value="1" <?php if(!empty($selected_panel) && ($selected_panel==1)){ echo 'selected';} ?>>Admin</option>
                             <option id="Partner" value="2"  <?php if(!empty($selected_panel) && ($selected_panel==2)){ echo 'selected';} ?>>Partner</option>
-                        </select>
+                            </select>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <div class="item form-group">
-                    <div class="col-md-12 col-sm-12 col-xs-12">
-                        <select id="product" name="product" class="form-control filter_table">
-                            <option id="Select Product Value" value="0"  >Select Product Value</option>
+                    <div class="col-md-14 col-sm-14 col-xs-14">
+                    <label style="">Product </label>             
+                        <select id="product" name="product" class="form-control filter_table" style="margin-bottom:10%">
+                            <option id="Select Product Value" value="0"  >Select All</option>
                                 <?php if(!empty($selected_product)) { ?>
                                     <option value="<?php echo $selected_product?>" selected><?php echo $selected_product;?></option>
                                 <?php }
@@ -60,18 +62,26 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <div class="item form-group">
-                    <div class="col-md-12 col-sm-12 col-xs-12" >
-                        <select id="form_value" name="form_value" class="form-control filter_table">
-                            <option id="Select Form Value" value="0" selected>Select Form Value</option>
+                    <div class="col-md-14 col-sm-14 col-xs-14" >
+                    <label style="">Form </label>             
+                        <select id="form_value" name="form_value" class="form-control filter_table" style="margin-bottom:10%">
+                            <option id="Select Form Value" value="0" selected>Select All</option>
                             <option id="Booking Completion" value="2" <?php if(!empty($selected_form) && ($selected_form==2)){ echo 'selected';}?>> Booking Completion</option>
                             <option id="Booking Cancellation" value="1" <?php if(!empty($selected_form) && ($selected_form==1)){ echo 'selected';}?>>Booking Cancellation</option>
                         </select>
                     </div>
                 </div>
             </div>
-            <button class="btn btn-primary">Search</button>
+            <div class="col-md-2">
+                <div class="item form-group">
+                    <div class="col-md-14 col-sm-14 col-xs-14" >
+                        <br>
+                        <button class="btn btn-primary " style="margin-bottom:10%">Search</button>
+                    </div>
+                </div>
+            </div>
         </form></div>
         <div class="x_panel" style="height: auto;">
             <table id="question_list" class="table table-striped table-bordered">
@@ -87,7 +97,7 @@
                         <th style="display: none;">Options</th>
                         <th style="display: none;">Active</th>
                         <th class="no-sort">Sequence</th>
-                        <th class="no-sort"> Is Required </th>
+                        <th class="no-sort"> Mandatory </th>
                         <th class="no-sort">Active</th> 
                         <th class="no-sort">Action</th>
                     </tr>
@@ -138,9 +148,9 @@
                                 <div id="status<?= $rec->q_id ?>">
                                     <?php
                                     if (!empty($rec->is_required)) {
-                                        echo '<i class="fa fa-check-circle fa-2x text-success" id="btn' . $rec->q_id . '" ></i>';
+                                        echo "Yes";
                                     } else {
-                                        echo '<i class="fa fa-times-circle  fa-2x text-danger" id="btn' . $rec->q_id . '" ></i>';
+                                        echo "No";
                                     }
                                     ?>
                                 </div>
