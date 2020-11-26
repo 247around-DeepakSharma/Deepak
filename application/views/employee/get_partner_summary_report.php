@@ -4,7 +4,13 @@
             <div class="col-lg-12">
                 <h3 class="page-header">
                     <b> Download Summary Report</b>
-                    <a id="download_realtime_summary_report" href="<?php echo base_url() . "employee/partner/download_real_time_summary_report/" . $this->session->userdata('partner_id') ?>" class="btn btn-success" style="float:right">Download Real Time Summary Report</a>
+                    <?php
+                    // DO not show Download Real Time Summary Report Button , If Partner is not selected
+                    $display = "";
+                    if(empty($this->session->userdata('partner_id'))) { 
+                        $display = "display:none;"; 
+                    } ?>
+                    <a id="download_realtime_summary_report" href="<?php echo base_url() . "employee/partner/download_real_time_summary_report/" . $this->session->userdata('partner_id') ?>" class="btn btn-success" style="float:right;<?php echo $display; ?>">Download Real Time Summary Report</a>
                     <div class="clear"></div>
                     
                 </h3>
@@ -150,10 +156,10 @@
         
        $('#partner_id').on('change', function(){
             var partner_id = $(this).val();
-            if(partner_id != '' || partner_id != null) {
+            if(partner_id != '' && partner_id != null) {
                 var url = '<?php echo base_url()."employee/partner/download_real_time_summary_report/"?>'+partner_id;
                 $('#download_realtime_summary_report').attr('href', url);
-                
+                $('#download_realtime_summary_report').show();
                 var dataUrl = '<?php echo base_url()."employee/booking/get_summary_report_data/"?>'+partner_id;
                 $.ajax({
                     type: 'POST',
