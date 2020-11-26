@@ -1118,6 +1118,7 @@
             }
         });
         $('#total_spare_invoice_price').val(Number(total_spare_invoice_price.toFixed(2)));
+        change_tcs_rate();
     }
     
     function get_part_price(index){
@@ -1850,5 +1851,6 @@
         });
         
         $("#on_b_total_spare_invoice_price").val(our_invoice_amt);
+        change_tcs_rate("on_b_");
     }
 </script>
