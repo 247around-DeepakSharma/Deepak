@@ -9442,6 +9442,12 @@ class Service_centers extends CI_Controller {
         $data = array();
         $from = trim($this->input->post('frombooking'));
         $to = trim($this->input->post('tobooking'));
+		 $sf_id = '';
+        if(!empty($this->session->userdata('warehouse_id'))) {
+            $sf_id = $this->session->userdata('warehouse_id');
+        } else {
+            $sf_id = $this->session->userdata('service_center_id');
+        }
         if (isset($from) && isset($to) && !empty($from) && !empty($to)) {
 
             $where_from = array('booking_id' => $from,
