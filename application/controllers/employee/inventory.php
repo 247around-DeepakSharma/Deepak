@@ -6616,7 +6616,7 @@ class Inventory extends CI_Controller {
                     $response['meta']['tcs_rate_text'] = "Add: TCS ".TCS_TAX_RATE." %";
                     $response['meta']['tcs_amount'] =  sprintf("%.2f",($response['meta']['sub_total_amount'] * TCS_TAX_RATE)/100);
                     $response['meta']['sub_total_amount'] =  $response['meta']['sub_total_amount'] + $response['meta']['tcs_amount'];
-                    $response['meta']['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
+                    $response['meta']['price_inword'] = convert_number_to_words(round($response['meta']['sub_total_amount'],0));
                 
                 }
                 
