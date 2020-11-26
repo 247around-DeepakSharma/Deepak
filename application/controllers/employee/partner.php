@@ -2319,8 +2319,7 @@ class Partner extends CI_Controller {
             $remarks_by_partner = "";
             foreach ($shipped_part_details as $key => $value) {   
                 if ($value['shippingStatus'] == 1) {
-
-                    if ($value['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                    if (isset($value['spare_part_warranty_status']) && $value['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
                       $status = $data['status'] = SPARE_OOW_SHIPPED;
                     } else {
                       $status = $data['status'] = SPARE_SHIPPED_BY_PARTNER;
