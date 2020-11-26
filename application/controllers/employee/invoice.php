@@ -3288,8 +3288,7 @@ exit();
 
     function get_create_update_invoice_input($vendor_partner) {
         $invoice_id_tmp = $this->input->post('invoice_id');
-        $invoice_id_tmp_1 = str_replace("/","-",$invoice_id_tmp); 
-        $invoice_id = str_replace("_","-",$invoice_id_tmp_1);
+        $invoice_id = str_replace("/","-",$invoice_id_tmp); 
         $data['invoice_id'] = $invoice_id;
         $data['reference_invoice_id'] = (!empty($this->input->post('reference_invoice_id'))?$this->input->post('reference_invoice_id'):NULL);
         $data['type'] = $this->input->post('type');
