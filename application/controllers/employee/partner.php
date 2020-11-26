@@ -5209,6 +5209,7 @@ class Partner extends CI_Controller {
             
             $option .= $value['public_name'] . "</option>";
         }
+        $option .= "<option value='All'>All</option>";  
         echo $option;
     }
 
