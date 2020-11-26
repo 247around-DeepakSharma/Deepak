@@ -2271,8 +2271,9 @@ class invoices_model extends CI_Model {
                 $commission_charge[0]['product_or_services'] = _247AROUND_SERVICE_STRING;
                 $meta['total_taxable_value'] = $commission_charge[0]['taxable_value'];
                 $meta['sub_total_amount'] = sprintf("%.2f",$commission_charge[0]['total_amount']);
-
-                $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
+                $meta['total_amount_with_tax'] = $meta['sub_total_amount'];
+            
+                $meta['price_inword'] = convert_number_to_words(round($meta['total_amount_with_tax'],0));
                 $meta['sd'] = date("d-M-Y", strtotime($from_date));
                 $meta['ed'] = date('jS M, Y', strtotime($to_date_tmp));
                 $meta['invoice_date'] = date("d-M-Y");
