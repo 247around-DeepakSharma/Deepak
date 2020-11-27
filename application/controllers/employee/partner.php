@@ -5209,6 +5209,7 @@ class Partner extends CI_Controller {
             
             $option .= $value['public_name'] . "</option>";
         }
+        $option .= "<option value='All'>All</option>";  
         echo $option;
     }
 
@@ -6083,7 +6084,7 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
         $CSVData = array();
         $partner_id = $this->session->userdata('partner_id');
-        $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND status IN ('".Shipped."') ";
+        $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND status IN ('".SPARE_PARTS_SHIPPED."') ";
         $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true);
         $headings = array("Customer Name","Booking ID","Shipped Parts","Part Code","Courier Name","AWB","Challan","Shipped Date","Remarks");
         foreach($data as $sparePartBookings){

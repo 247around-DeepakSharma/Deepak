@@ -5548,6 +5548,7 @@ class Service_centers extends CI_Controller {
                     }
                     $a .= "</ul>
                           </div>";
+                    $row[] = $a;
                     break;
                 default:
                     $row[] = "";
