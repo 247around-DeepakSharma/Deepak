@@ -946,6 +946,32 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                             </div>
                         </div>
                     </div>
+                    <div class="col-md-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading"><b>Warranty</b></div>
+                            <div class="panel-body">
+                                <div class="col-md-6">
+                                    <div class="form-group ">
+                                        <label for="check_warranty_from" class="col-md-6" style="width: 40%;">Warranty will depend on</label>
+                                        <div class="col-md-2 " style = "margin-top: 5px;margin-bottom: -5px;width: ">
+                                            <select name="check_warranty_from" style = "width:200px " class="form-control">
+                                                <option value="1" <?php if(!empty($query[0]['check_warranty_from']) && $query[0]['check_warranty_from'] == 1)
+                                                  {
+                                                    echo "selected";
+                                                  }
+                                                ?>>Date of Purchase</option>
+                                                <option value="2" <?php if(!empty($query[0]['check_warranty_from']) && $query[0]['check_warranty_from'] == 2)
+                                                 {
+                                                    echo "selected";
+                                                 }
+                                                ?>>Date of Installation</option>
+                                            </select>                                           
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                                         <?php } ?>
                     <div class="clear clear_bottom">
                         <br>
