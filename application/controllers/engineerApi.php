@@ -2617,7 +2617,7 @@ class engineerApi extends CI_Controller {
                 }
             }
             
-            $unit_details = $this->booking_model->get_unit_details($requestData['booking_id']);
+            $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $requestData['booking_id']));
             $spare_part_can_requested = false;
             foreach ($unit_details as $value) {
           if (stristr($value['price_tags'], "Repair") 
