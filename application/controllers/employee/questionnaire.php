@@ -26,9 +26,31 @@ class Questionnaire extends CI_Controller {
     }
 
     public function index() {
-        $data['data'] = $this->Questionnaire_model->get_questions();
-        $this->miscelleneous->load_nav_header();
-        $this->load->view('questionnaire/index', $data);
+        $form_value=$this->input->post('form_value');
+        $product=$this->input->post('product');
+        $panel=$this->input->post('panel');
+        $data['selected_panel'] = $this->input->post('panel');
+        $data['selected_product']=$this->input->post('product');
+        $data['selected_form']=$this->input->post('form_value');
+        if(empty($product)&&empty($form_value)&&empty($panel))
+        {
+            $data['data'] = $this->Questionnaire_model->get_questions();
+            $this->miscelleneous->load_nav_header();
+            $this->load->view('questionnaire/index', $data);
+        }
+        else
+        {
+            if(!empty($product) && $product!="0")
+                $where['services.services']=$product;
+            if(!empty($form_value) && $form_value!="0")
+                $where['review_questionare.form']=$form_value;
+            if(!empty($panel) && $panel!="0")
+                $where['review_questionare.panel']=$panel;
+
+            $data['data'] = $this->Questionnaire_model->get_questions($where);
+            $this->miscelleneous->load_nav_header();
+            $this->load->view('questionnaire/index', $data);
+        }
     }
     
     /**
@@ -75,6 +97,8 @@ class Questionnaire extends CI_Controller {
         $this->form_validation->set_rules('service_id', 'Product', 'required');
         $this->form_validation->set_rules('request_type', 'Request Type', 'required');
         $this->form_validation->set_rules('question', 'Question', 'required');
+        $this->form_validation->set_rules('sequence', 'Sequence', 'required');
+        $this->form_validation->set_rules('is_required', 'Is Required', 'required');
         $validation = $this->form_validation->run();
         $data = $this->input->post();
         if ($validation) {  
@@ -86,6 +110,7 @@ class Questionnaire extends CI_Controller {
             // Update data
             else {
                 $where = ['q_id' => $data['q_id']];
+                $data['updated_by']=$this->input->post('id');
                 $this->Questionnaire_model->update_question($where, $data); 
             }  
             $this->db->trans_complete();

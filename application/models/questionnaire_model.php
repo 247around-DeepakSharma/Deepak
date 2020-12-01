@@ -11,7 +11,7 @@ class Questionnaire_model extends CI_Model {
 
     public function get_questions($where = array()) {
         $this->db->_protect_identifiers = FALSE;
-        $this->db->select("review_questionare.*,services.id as service_id,services.services,review_request_type_mapping.request_type_id,request_type.service_category, group_concat(review_questionare_checklist.answer) as answers");
+        $this->db->select("review_questionare.*,review_questionare.sequence,services.id as service_id,services.services,review_request_type_mapping.request_type_id,request_type.service_category, group_concat(review_questionare_checklist.answer) as answers");
         if (!empty($this->input->get("search"))) {
             $this->db->like('question', $this->input->get("search"));
         }
@@ -25,6 +25,10 @@ class Questionnaire_model extends CI_Model {
         }
             
         $this->db->group_by('review_questionare.q_id');
+        $this->db->order_by('review_questionare.form');
+        $this->db->order_by('services.services');
+        $this->db->order_by('review_request_type_mapping.request_type_id');
+        $this->db->order_by('review_questionare.sequence');
         $query = $this->db->get("review_questionare");
         return $query->result();
     }
@@ -39,9 +43,10 @@ class Questionnaire_model extends CI_Model {
         unset($data['request_type']);
         unset($data['service_id']);
         unset($data['options']);        
-                
+        
         // insert data in review_questionare 
         $data['created_by'] = $this->session->userdata('id');
+        $data['updated_by'] = $this->session->userdata('id');
         $this->db->insert('review_questionare', $data);
         $q_id = $this->db->insert_id();
                  
@@ -76,6 +81,7 @@ class Questionnaire_model extends CI_Model {
         if(isset($data['options'])){
             unset($data['options']);
         }
+        $data['updated_by'] = $this->session->userdata('id');
         // update data in review_questionare
         $this->db->where($where, FALSE);
         $this->db->update('review_questionare', $data);
