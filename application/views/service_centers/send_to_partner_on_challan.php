@@ -898,7 +898,7 @@
         if($('#selectall_challan_file').is(':checked') == true){
             var i = 1;
             $(".checkbox_challan").each(function(){
-               if(i <= 30){
+               if(i <= 250){
                    i++;
                    $(this).attr("disabled", false);
                    $(this).prop("checked", true);
@@ -910,7 +910,7 @@
         } else {
             var i = 1;
             $(".checkbox_challan").each(function(){
-               if(i <= 30){
+               if(i <= 250){
                    i++;
                    $(this).prop("checked", false);
                }else{
@@ -923,7 +923,7 @@
     
     $(".checkbox_challan").change(function(){
         
-        if(($('.checkbox_challan:checked').length) == 30 ){
+        if(($('.checkbox_challan:checked').length) == 250 ){
             $(".checkbox_challan:checkbox:not(:checked)").each(function () {
                 $(this).attr("disabled", true);
             });
