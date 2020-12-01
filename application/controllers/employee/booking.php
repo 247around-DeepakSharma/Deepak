@@ -5664,8 +5664,7 @@ class Booking extends CI_Controller {
             // $post['join']['employee as emp_asm'] = "service_centres.asm_id = emp_asm.id";    
             $post['joinTypeArray'] = ['spare_parts_details' => "left",'partners' => "left",'agent_filters' => 'left', 'employee as employee_am' => "left",  'inventory_master_list as in_req' => 'left', 'inventory_master_list as in_sh' => 'left'];
 
-            // Select Statement
-            
+            // Select Statement            
             $select = " booking_details.booking_id as 'Booking ID', booking_details.create_date as 'Create Date', partners.public_name as Partner, "
                     . "employee_am.full_name as AM, users.name as 'Customer Name',booking_details.booking_pincode as 'Pincode',booking_details.city as 'City'"
                     . ",booking_details.state as 'State',booking_details.booking_address as 'Booking Address', users.phone_number as 'Phone',"
@@ -5685,10 +5684,8 @@ class Booking extends CI_Controller {
                     . ",spare_parts_details.shipped_date as 'Part Shipped Date',spare_parts_details.acknowledge_date as 'SF Acknowledged Date'"
                     . ",CASE WHEN spare_parts_details.auto_acknowledeged = 1 THEN 'YES' ELSE 'No' END AS 'Is auto Acknowledge',penalty_on_booking.active as 'Penalty Active'";
             // Show Distinct Bookings
-
-            $group_by = 'booking_details.booking_id';
-            
-            $list =  $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,1,'',0,array(),array(),$group_by);
+            $post['group_by'] = 'booking_details.booking_id';            
+            $list =  $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,1,'',0,array(),array());
 
         }
         else if($booking_status == 'Completed' || $booking_status == 'Cancelled'){
