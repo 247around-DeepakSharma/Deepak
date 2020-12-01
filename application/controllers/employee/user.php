@@ -1209,7 +1209,7 @@ class User extends CI_Controller {
         } else {
         $asmID = $agent_ID;
         $rm_ID_Array = $this->employee_model->getemployeeManagerfromid(array('employee_id' => $agent_ID));
-        if(!empty($rm_ID_Array)){
+        if(!empty($rm_ID_Array[0]['manager_id'])){
             $rm_ID = $rm_ID_Array[0]['manager_id'];
         }
         $result1 = $this->employee_model->get_district_of_rm_asm($reqDistrict, _247AROUND_RM, $rm_ID);
