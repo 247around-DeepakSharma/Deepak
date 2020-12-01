@@ -56,7 +56,8 @@
                                 <th>Invoice Period</th>
                                 <th>Sub-Category</th>
                                 <th>Bookings/ Parts</th>
-                                 <th>TDS</th>
+                                <th>TDS</th>
+                                <th>TCS</th>
                                 <th>Total Invoice Amount</th>
 
                                 <th>Paid Amount</th>
