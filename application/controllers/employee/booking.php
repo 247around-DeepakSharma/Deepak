@@ -5833,7 +5833,7 @@ class Booking extends CI_Controller {
         if($this->session->userdata('is_am') == '1'){
             $am_id = $this->session->userdata('id');
             $where = array('agent_filters.agent_id' => $am_id,'agent_filters.is_active'=>1,'agent_filters.entity_type'=>_247AROUND_EMPLOYEE_STRING);
-            $join['agent_filters'] =  "booking_details.partner_id=agent_filters.entity_id and service_centres.state=agent_filters.state";
+            $join['agent_filters'] =  "booking_details.partner_id=agent_filters.entity_id and service_centres.state=agent_filters.state and agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."'";
         }
         $data['data'] = $this->booking_model->review_reschedule_bookings_request($whereIN, $where, $join);
         $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
@@ -5897,7 +5897,7 @@ class Booking extends CI_Controller {
             $where['agent_filters.agent_id ='.$am_id] = NULL;
             $where['partners.is_active =1'] = NULL;
             $where["agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."'"] = NULL;
-            $join['agent_filters'] =  "partners.id=agent_filters.entity_id AND agent_filters.state = booking_details.state ";
+            $join['agent_filters'] =  "partners.id=agent_filters.entity_id AND agent_filters.state = booking_details.state AND agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."'";
         }
         
         $status=$review_status;
