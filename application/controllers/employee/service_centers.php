@@ -769,12 +769,14 @@ class Service_centers extends CI_Controller {
                     $model_details = $this->partner_model->get_model_number('category, capacity', array('appliance_model_details.model_number' => $value,
                         'appliance_model_details.entity_id' => $partner_id, 'appliance_model_details.active' => 1, 'partner_appliance_details.active' => 1, 'partner_appliance_details.brand' => $brand));
                     $sc_change = false;
-                    if (($unit[0]['appliance_category'] == $model_details[0]['category']) && ($unit[0]['appliance_capacity'] == $model_details[0]['capacity'])) {
+                    if(!empty($unit[0]['appliance_category']) && !empty($model_details[0]['category']) && !empty($unit[0]['appliance_capacity'])&& !empty($model_details[0]['capacity']))
+                    {
+                     if($unit[0]['appliance_category'] == $model_details[0]['category'] && $unit[0]['appliance_capacity'] == $model_details[0]['capacity']){
                         $sc_change = false;
-                    } else {
+                      } else {
                         $sc_change = true;
-                    }
-
+                      }
+                    }         
                     if ($sc_change) {
                         $partner_data = $this->partner_model->get_partner_code($partner_id);
                         $partner_type = $partner_data[0]['partner_type'];
