@@ -16,46 +16,44 @@
     <div class="x_panel">
         <div class="x_title">
                     <h2>Defective/Ok Parts Delivered to Partner</h2>
-                    <div class="pull-right"><a style="background: #2a3f54; border-color: #2a3f54;" href="<?php echo base_url(); ?>partner/download_waiting_defective_parts"  class="btn btn-sm btn-primary">Download</a></div>
+                    <div class="pull-right"><button style="background: #2a3f54; border-color: #2a3f54;" onclick="download_get_waiting_defective_parts()" class="btn btn-sm btn-primary">Download</button></div>
                     <div class="right_holder" style="float:right;margin-right:10px;">
-                            <select class="form-control " id="state_search_waiting" style="border-radius:3px;" onchange="booking_search_waiting()">
-                    <option value="">States</option>
-      <?php
-      foreach($states as $state){
-          ?>
-      <option value="<?php echo $state['state'] ?>"><?php echo $state['state'] ?></option>
-      <?php
-      }
-      ?>
-  </select>            
-</div>
-                    <div class="clearfix"></div>
+                       <select class="form-control " id="state_search_waiting" style="border-radius:3px;" onchange="booking_search_waiting()" name="state">
+                         <option value="">All</option>
+                        <?php
+                          foreach($states as $state){
+                        ?>
+                       <option value="<?php echo $state['state_code'];?>"><?php echo $state['state'];?></option>
+                       <?php } ?>
+                     </select>            
+                   </div>
+                   <div class="clearfix"></div>
                     
-                </div>
+        </div>
         <input type="text" id="booking_id_search_waiting" onchange="booking_search_waiting()" style="float: right;margin-bottom: -32px;border: 1px solid #ccc;padding: 5px;z-index: 100;position: inherit;" placeholder="Search">
         <div class="x_content">
             <form target="_blank"  action="<?php echo base_url(); ?>partner/print_all" name="fileinfo1"  method="POST" enctype="multipart/form-data">
                 <table class="table table-bordered table-hover table-striped" id="waiting_defactive_parts">
-                    <thead>                                          
-                            <tr>
-                                <th class="text-center">S.N</th>
-                                <th class="text-center">Booking ID</th>
-                                <th class="text-center">Customer Name</th>
-                                <th class="text-center">Parts Shipped</th>
-                                <th class="text-center">Parts Number</th>
-                                <th class="text-center">Quantity</th>
-                                <th class="text-center">Defective Quantity</th>
-                                <th class="text-center">Courier Name</th>
-                                <th class="text-center">AWB</th>
-                                <th class="text-center">WH Challan</th>
-                                <th class="text-center">Partner Challan</th>
-                                <th class="text-center">Shipped Date</th>
-                                <th class="text-center">Send Email</th>                            
-                                <th class="text-center">Remarks</th>
-                                <th class="text-center">Consumption</th>
-                                <th class="text-center">Receive</th>
-                                <th class="text-center">Reject</th>
-                            </tr>
+                    <thead>
+                        <tr>
+                            <th class="text-center">S.N</th>
+                            <th class="text-center">Booking ID</th>
+                            <th class="text-center">Customer Name</th>
+                            <th class="text-center">Parts Shipped</th>
+                            <th class="text-center">Parts Number</th>
+                            <th class="text-center">Quantity</th>
+                            <th class="text-center">Defective Quantity</th>
+                            <th class="text-center">Courier Name</th>
+                            <th class="text-center">AWB</th>
+                            <th class="text-center">WH Challan</th>
+                            <th class="text-center">Partner Challan</th>
+                            <th class="text-center">Shipped Date</th>
+                            <th class="text-center">Send Email</th>                            
+                            <th class="text-center">Remarks</th>
+                            <th class="text-center">Consumption</th>
+                            <th class="text-center">Receive</th>
+                            <th class="text-center">Reject</th>
+                        </tr>
                     </thead>
                 </table>
         </div>
@@ -142,7 +140,7 @@
                 "type": "POST",
                 "data": function(d){
                     d.booking_id =  $('#booking_id_search_waiting').val();
-                    d.state =  $('#state_search_waiting').val();
+                    d.state =  $('#state_search_waiting option:selected').text();
                  }
             },
             "columnDefs": [
@@ -236,6 +234,11 @@ function confirm_received(id){
         }else{
             alert('Something Wrong. Please Refresh Page...');
         }
+    }
+    function download_get_waiting_defective_parts()
+    {
+       var state1= $('#state_search_waiting').val();
+       window.location.href="<?php echo base_url()?>partner/download_waiting_defective_parts/"+state1+"";
     }
 </script>
     <style>
