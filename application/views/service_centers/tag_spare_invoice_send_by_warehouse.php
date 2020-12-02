@@ -1650,40 +1650,107 @@
     var returnItemArray = [];
     
     function createInvoiceForIW(){
-    var formData = new FormData();
-    var from_gst_id = $("#from_gst_number_tab_2").val();
-    var to_gst_id = $("#to_gst_number_tab_2").val();
-    var partner_id = $("#partner_id_iw").val();
-    if(partner_id ==""){
-        alert('Please Select Partner');
-        return false
+        if( confirm("Are you sure you want to continue?") ) {
+             var formData = new FormData();
+                var from_gst_id = $("#from_gst_number_tab_2").val();
+                var to_gst_id = $("#to_gst_number_tab_2").val();
+                var partner_id = $("#partner_id_iw").val();
+                if(partner_id ==""){
+                    alert('Please Select Partner');
+                    return false
+                }
+
+                if(to_gst_id ==""){
+                    alert('Please Select Partner Gst Number');
+                    return false
+                }
+
+                if(from_gst_id ==""){
+                    alert('Please Select 247around Gst Number');
+                    return false
+                }
+
+                if(returnItemArray.length > 0){
+                        formData.append('inventory_data',JSON.stringify(returnItemArray));  
+                        formData.append("label", "WEBUPLOAD");
+                        formData.append("partner_id", $("#partner_id_iw").val());
+                        formData.append("to_gst_id", $("#to_gst_number_tab_2").val());
+                        formData.append("from_gst_id", $("#from_gst_number_tab_2").val());
+                        $('#return_consumed_parts').attr('disabled',true); 
+                    $.ajax({
+                        method:'POST',
+                        url:  '<?php echo base_url();?>/employee/user_invoice/non_return_msl_reverse_partner_invoice',
+                        data:formData,
+                        contentType: false,
+                        processData: false,
+                        beforeSend: function(){
+
+                            $('body').loadingModal({
+                            position: 'auto',
+                            text: 'Loading Please Wait...',
+                            color: '#fff',
+                            opacity: '0.7',
+                            backgroundColor: 'rgb(0,0,0)',
+                            animation: 'wave'
+                        });
+
+                            },
+
+                        success:function(response){
+                             obj = JSON.parse(response);
+                        $('#return_consumed_parts').attr('disabled',false);
+
+                    if(obj.status){
+                        swal("Thanks!", "Details updated successfully!", "success");
+                        $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
+                        $('#success_msg').html(obj.message);
+
+                        //non_consumable_parts_iw.ajax.reload(null, false); 
+                        location.reload();
+                    }else{
+                        showConfirmDialougeBox(obj.message, 'warning');
+                        $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
+                        $('#error_msg').html(obj.message);
+                    }
+
+
+                    },
+                    complete: function() {
+                $('body').loadingModal('destroy');
+                        }
+                    });
+                }
+        } else {
+            
+            return false;
+        }
+    
     }
     
-    if(to_gst_id ==""){
-        alert('Please Select Partner Gst Number');
-        return false
-    }
-    
-    if(from_gst_id ==""){
-        alert('Please Select 247around Gst Number');
-        return false
-    }
-    
-    if(returnItemArray.length > 0){
+    function adjust_consumed_parts(){
+        if( confirm("Are you sure you want to continue?") ) {
+            var formData = new FormData();
+            var vendor_id = $("#nc_vendor_id").val();
+            if(vendor_id ===""){
+            alert("Please select Micro Warehouse");
+            }
+
+            if(returnItemArray.length > 0){
             formData.append('inventory_data',JSON.stringify(returnItemArray));  
             formData.append("label", "WEBUPLOAD");
-            formData.append("partner_id", $("#partner_id_iw").val());
-            formData.append("to_gst_id", $("#to_gst_number_tab_2").val());
-            formData.append("from_gst_id", $("#from_gst_number_tab_2").val());
-            $('#return_consumed_parts').attr('disabled',true); 
-        $.ajax({
+            formData.append("warehouse_id", $("#nc_vendor_id").val());
+            formData.append("wh_type", 2);
+            formData.append("invoice_type", 4);
+            $('#adjust_consumed_msl').attr('disabled',true); 
+            $.ajax({
             method:'POST',
-            url:  '<?php echo base_url();?>/employee/user_invoice/non_return_msl_reverse_partner_invoice',
+            url:  '<?php echo base_url();?>/employee/user_invoice/process_consumed_non_return_mwh_msl',
             data:formData,
             contentType: false,
             processData: false,
             beforeSend: function(){
-    
+
+
                 $('body').loadingModal({
                 position: 'auto',
                 text: 'Loading Please Wait...',
@@ -1692,93 +1759,35 @@
                 backgroundColor: 'rgb(0,0,0)',
                 animation: 'wave'
             });
-    
+
                 },
-            
             success:function(response){
-                 obj = JSON.parse(response);
-            $('#return_consumed_parts').attr('disabled',false);
-    
-        if(obj.status){
-            swal("Thanks!", "Details updated successfully!", "success");
-            $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
-            $('#success_msg').html(obj.message);
-            
-            //non_consumable_parts_iw.ajax.reload(null, false); 
-            location.reload();
-        }else{
-            showConfirmDialougeBox(obj.message, 'warning');
-            $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
-            $('#error_msg').html(obj.message);
-        }
-    
-    
-        },
-        complete: function() {
-    $('body').loadingModal('destroy');
+               obj = JSON.parse(response);
+                    $('#adjust_consumed_msl').attr('disabled',false);
+
+                if(obj.status){
+                    swal("Thanks!", "Details updated successfully!", "success");
+                    $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
+                    $('#success_msg').html(obj.message);
+                   // non_consumable_parts_vendor.ajax.reload(null, false); 
+                    location.reload();
+                }else{
+                    showConfirmDialougeBox(obj.message, 'warning');
+                    $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
+                    $('#error_msg').html(obj.message);
+                }
+            },
+            complete: function() {
+               $('body').loadingModal('destroy');
             }
-        });
-    }
-    }
-    
-    function adjust_consumed_parts(){
-    var formData = new FormData();
-    var vendor_id = $("#nc_vendor_id").val();
-    if(vendor_id ===""){
-    alert("Please select Micro Warehouse");
-    }
-    
-    if(returnItemArray.length > 0){
-    formData.append('inventory_data',JSON.stringify(returnItemArray));  
-    formData.append("label", "WEBUPLOAD");
-    formData.append("warehouse_id", $("#nc_vendor_id").val());
-    formData.append("wh_type", 2);
-    formData.append("invoice_type", 4);
-    $('#adjust_consumed_msl').attr('disabled',true); 
-    $.ajax({
-    method:'POST',
-    url:  '<?php echo base_url();?>/employee/user_invoice/process_consumed_non_return_mwh_msl',
-    data:formData,
-    contentType: false,
-    processData: false,
-    beforeSend: function(){
-                
-    
-        $('body').loadingModal({
-        position: 'auto',
-        text: 'Loading Please Wait...',
-        color: '#fff',
-        opacity: '0.7',
-        backgroundColor: 'rgb(0,0,0)',
-        animation: 'wave'
-    });
-    
-        },
-    success:function(response){
-       obj = JSON.parse(response);
-            $('#adjust_consumed_msl').attr('disabled',false);
-    
-        if(obj.status){
-            swal("Thanks!", "Details updated successfully!", "success");
-            $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
-            $('#success_msg').html(obj.message);
-           // non_consumable_parts_vendor.ajax.reload(null, false); 
-            location.reload();
-        }else{
-            showConfirmDialougeBox(obj.message, 'warning');
-            $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
-            $('#error_msg').html(obj.message);
+            });
+            } else {
+            alert('Please select checkbox');
+            }
+
+        } else {
+            return false;
         }
-    },
-    complete: function() {
-       $('body').loadingModal('destroy');
-    }
-    });
-    } else {
-    alert('Please select checkbox');
-    }
-    
-    
     }
     
     

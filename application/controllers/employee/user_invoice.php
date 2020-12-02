@@ -2162,7 +2162,7 @@ class User_invoice extends CI_Controller {
                 }
             }
             
-            echo json_encode(array('success'));
+            echo json_encode(array('status'=> true, 'message' => 'Invoice Created Successfully'));
         }
     }
 }
