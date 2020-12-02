@@ -7041,7 +7041,7 @@ class Partner extends CI_Controller {
     function get_pending_bookings(){
         $this->checkUserSession();
           $columnMappingArray = array("column_1"=>"booking_details.booking_id","column_3"=>"appliance_brand","column_4"=>"booking_details.partner_internal_status","column_7"=>"booking_details.city",
-                "column_8"=>"booking_details.state","column_9"=>"DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y')","column_10"=>"DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'))");
+                "column_8"=>"booking_details.state","column_9"=>"DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%m-%Y')","column_10"=>"DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'))");
         $order['column'] = $columnMappingArray["column_10"];
         $order['sorting'] = "desc";
         $state = 0;
