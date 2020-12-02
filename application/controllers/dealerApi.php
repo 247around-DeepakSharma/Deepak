@@ -637,17 +637,24 @@ function check_for_upgrade(){
             }
 
             if (!empty($booking_id)) {
-                $post['where'] = array("booking_details.booking_id like '%$booking_id%'" => null, 'nrn_approved' => 0);
+                $post['where'] = array("booking_details.booking_id like '%$booking_id%'" => null);
             } else {
                 // Search   booking  on phone number
-                $post['where'] = array("`users`.`phone_number` = '".$phone_number."' OR booking_details.booking_primary_contact_no = '".$phone_number."' OR booking_details.booking_alternate_contact_no = '".$phone_number."'" => null, 'nrn_approved' => 0); 
+                $post['where'] = array("`users`.`phone_number` = '".$phone_number."' OR booking_details.booking_primary_contact_no = '".$phone_number."' OR booking_details.booking_alternate_contact_no = '".$phone_number."'" => null); 
             }
             $post['column_search'] = array('booking_details.booking_id');
-            $post['order'] = array(array('column' => 0, 'dir' => 'asc'));
+            $post['order'] = array(array('column' => 0, 'dir' => 'desc'));
             $post['order_performed_on_count'] = TRUE;
-            $post['column_order'] = array('booking_details.booking_id');
+            $post['column_order'] = array('booking_details.id');
             $post['unit_not_required'] = true;
+            $post['length'] = 10;
+            $post['start']  = 0;
             $data['Bookings'] = $this->booking_model->get_bookings_by_status($post, $select, array(), 2)->result_array();
+            
+            if(empty($data['Bookings']) && empty($booking_id)) {
+                $post['where'] = array("booking_details.booking_id like '%$phone_number%'" => null);
+                $data['Bookings'] = $this->booking_model->get_bookings_by_status($post, $select, array(), 2)->result_array();
+            }
 
             if (!empty($data['Bookings'])) {
                 $dealer_pincode = $requestData["dealer_pincode"];

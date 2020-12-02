@@ -268,6 +268,7 @@ $route['partner/contracts'] = 'employee/partner/get_contracts';
 $route['partner/contact_us'] = 'employee/partner/get_contact_us_page';
 $route['partner/upcountry_report'] = 'employee/partner/download_upcountry_report';
 $route['partner/download_waiting_defective_parts'] = 'employee/partner/download_waiting_defective_parts';
+$route['partner/download_waiting_defective_parts/(:any)'] = 'employee/partner/download_waiting_defective_parts/$1';
 $route['partner/download_waiting_upcountry_bookings'] = 'employee/partner/download_waiting_upcountry_bookings';
 $route['partner/download_all_spare_parts'] = 'employee/partner/download_all_spare_parts';
 $route['partner/download_mwh_msl_data'] = 'employee/spare_parts/get_msl_data/2';
