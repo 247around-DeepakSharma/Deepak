@@ -1388,7 +1388,6 @@ class Accounting extends CI_Controller {
         $row[] = $order_list->num_bookings;
        
         $row[] = $order_list->tds_amount;
-        $row[] = $order_list->tcs_amount;
         if($order_list->amount_collected_paid < 0){ 
             $row[] = abs($order_list->amount_collected_paid); 
             
