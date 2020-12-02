@@ -650,6 +650,11 @@ function check_for_upgrade(){
             $post['length'] = 10;
             $post['start']  = 0;
             $data['Bookings'] = $this->booking_model->get_bookings_by_status($post, $select, array(), 2)->result_array();
+            
+            if(empty($data['Bookings']) && empty($booking_id)) {
+                $post['where'] = array("booking_details.booking_id like '%$phone_number%'" => null);
+                $data['Bookings'] = $this->booking_model->get_bookings_by_status($post, $select, array(), 2)->result_array();
+            }
 
             if (!empty($data['Bookings'])) {
                 $dealer_pincode = $requestData["dealer_pincode"];
