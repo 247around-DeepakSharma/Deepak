@@ -4567,10 +4567,13 @@ exit();
 
                 $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($sp_data[0]->service_center_id);
                 $rem_email_id = "";
+                $asm_email_id = "";
                 if (!empty($rm_details)) {
                     $rem_email_id = ", " . $rm_details[0]['official_email'];
                 }
-                
+                if (!empty($rm_details[1]['official_email'])) {
+                    $asm_email_id = ", " . $rm_details[1]['official_email'];
+                }
 
                 $invoice_details = array(
                     'invoice_id' => $response['meta']['invoice_id'],
@@ -4622,7 +4625,7 @@ exit();
                 
                 $to = $vendor_details[0]['owner_email'] . ", " . $vendor_details[0]['primary_contact_email'];
 //                $to = $email_template[3];
-                $cc = $email_template[3];;
+                $cc = $email_template[3].$asm_email_id.$rem_email_id;
 
                 $this->upload_invoice_to_S3($response['meta']['invoice_id'], false);
 
@@ -4952,12 +4955,23 @@ exit();
             $email_from = $email_template[2];
 
             $to = $email_template[3];
+            $cc = "";
             //set emails o which we have to send mails on reverse sale invoice generation
             if(!empty($vendor_email)){
                 $cc = implode(',',$vendor_email);
-            }else{
-                $cc = "";
             }
+            
+            $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($spare[0]['service_center_id']);
+            $rem_email_id = "";
+            $asm_email_id = "";
+            if (!empty($rm_details)) {
+                $rem_email_id = ", " . $rm_details[0]['official_email'];
+            }
+            if (!empty($rm_details[1]['official_email'])) {
+                $asm_email_id = ", " . $rm_details[1]['official_email'];
+            }
+            
+            $cc = $cc.$rem_email_id.$asm_email_id;
             
             unset($response['meta']['main_company_logo_cell']);
             unset($response['meta']['main_company_seal_cell']);
