@@ -2686,34 +2686,34 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             }
             $tempArray[] = $values['TAT_0'];
             if(!array_key_exists('Total_Pending',$values)){
-                  $tempArray[] = $values['TAT_0_per'];
+                  $tempArray[] = $values['TAT_0_per']."%";
             }
             $tempArray[] = $values['TAT_1'];
             if(!array_key_exists('Total_Pending',$values)){
-                  $tempArray[] = $values['TAT_1_per'];
+                  $tempArray[] = $values['TAT_1_per']."%";
             }
             $tempArray[] = $values['TAT_2'];
             if(!array_key_exists('Total_Pending',$values)){
-                  $tempArray[] = $values['TAT_2_per'];
-            }
+                  $tempArray[] = $values['TAT_2_per']."%";
+           }
             $tempArray[] = $values['TAT_3'];
-            if(!array_key_exists('Total_Pending',$values)){
-                  $tempArray[] = $values['TAT_3_per'];
-            }
+           if(!array_key_exists('Total_Pending',$values)){
+                  $tempArray[] = $values['TAT_3_per']."%";
+           }
             $tempArray[] = $values['TAT_4'];
             if(!array_key_exists('Total_Pending',$values)){
-                  $tempArray[] = $values['TAT_4_per'];
+                  $tempArray[] = $values['TAT_4_per']."%";
             }
             $tempArray[] = $values['TAT_5'];
             if(!array_key_exists('Total_Pending',$values)){
-                  $tempArray[] = $values['TAT_5_per'];
+                  $tempArray[] = $values['TAT_5_per']."%";
             }
             $tempArray[] = $values['TAT_8'];
-            if(!array_key_exists('Total_Pending',$values)){
-                  $tempArray[] = $values['TAT_8_per'];
+           if(!array_key_exists('Total_Pending',$values)){
+                  $tempArray[] = $values['TAT_8_per']."%";
             }
             $tempArray[] = $values['TAT_16'];
-            if(array_key_exists('Total_Pending',$values)){
+           if(array_key_exists('Total_Pending',$values)){
                  $tempArray[] = $values['Total_Pending'];
             }
             $csv.=implode(",",$tempArray)."\n"; //Append data to csv
@@ -2724,40 +2724,40 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $headings[] = "Covid Zone";
         }
         $headings[] = "State";
-         if(array_key_exists('Total_Pending',$values)){
-            $headings[] = ">TAT_3";
-         }
-        $headings[] = "TAT_0";
-         if(!array_key_exists('Total_Pending',$values)){
-             $headings[] = "TAT_0_percentage";
-        }
-        $headings[] = "TAT_1";
-        if(!array_key_exists('Total_Pending',$values)){
-             $headings[] = "TAT_1_percentage";
-        }
-        $headings[] = "TAT_2";
-        if(!array_key_exists('Total_Pending',$values)){
-             $headings[] = "TAT_2_percentage";
-        }
-        $headings[] = "TAT_3";
-        if(!array_key_exists('Total_Pending',$values)){
-             $headings[] = "TAT_3_percentage";
-        }
-        $headings[] = "TAT_4";
-        if(!array_key_exists('Total_Pending',$values)){
-             $headings[] = "TAT_4_percentage";
-        }
-        $headings[] = "TAT_5";
-        if(!array_key_exists('Total_Pending',$values)){
-             $headings[] = "TAT_5_percentage";
-        }
-        $headings[] = "TAT_8";
-        if(!array_key_exists('Total_Pending',$values)){
-             $headings[] = "TAT_8_percentage";
-        }
-        $headings[] = ">TAT_15";
         if(array_key_exists('Total_Pending',$values)){
-             $headings[] = 'Total';
+            $headings[] = ">D3";
+         }
+        $headings[] = "D0";
+        if(!array_key_exists('Total_Pending',$values)){
+             $headings[] = "D0%";
+          }
+        $headings[] = "D1";
+        if(!array_key_exists('Total_Pending',$values)){
+             $headings[] = "D1%";
+        }
+        $headings[] = "D2";
+       if(!array_key_exists('Total_Pending',$values)){
+             $headings[] = "D2%";
+        }
+        $headings[] = "D3";
+        if(!array_key_exists('Total_Pending',$values)){
+             $headings[] = "D3%";
+        }
+        $headings[] = "D4";
+        if(!array_key_exists('Total_Pending',$values)){
+             $headings[] = "D4%";
+        }
+        $headings[] = "D5";
+        if(!array_key_exists('Total_Pending',$values)){
+             $headings[] = "D5%";
+        }
+        $headings[] = "D8";
+        if(!array_key_exists('Total_Pending',$values)){
+             $headings[] = "D8%";
+       }
+        $headings[] = ">D15";
+        if(array_key_exists('Total_Pending',$values)){
+            $headings[] = 'Total';
         }
         $finalcsv = implode(",",$headings)." \n".$csv;//Column headers
         header('Content-Description: File Transfer');
