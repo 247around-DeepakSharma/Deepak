@@ -2353,7 +2353,7 @@ class Partner extends CI_Controller {
                         $spare_id = $this->inset_new_spare_request($booking_id, $data, $value);
                     }
                     
-                    if ($value['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                    if (isset($value['spare_part_warranty_status']) && $value['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
 
                         if (!empty($spare_id)) {
                             $invoide_data = array("invoice_id" => $value['invoice_id'],
