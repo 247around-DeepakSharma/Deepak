@@ -3062,10 +3062,10 @@ exit();
         $this->form_validation->set_rules('invoice_date', 'Invoice Date', 'required|trim');
         $this->form_validation->set_rules('from_date', 'Invoice Period', 'required|trim');
         $this->form_validation->set_rules('type', 'Type', 'required|trim');
-        $this->form_validation->set_rules('tds_rate', 'TDS Rate', 'required|trim');
-        $this->form_validation->set_rules('tds_amount', 'Tds Amount', 'required|trim');
-        $this->form_validation->set_rules('tcs_rate', 'TCS Rate', 'required|trim');
-        $this->form_validation->set_rules('tcs_amount', 'TCS Amount', 'required|trim');
+        $this->form_validation->set_rules('tds_rate', 'TDS Rate', 'trim');
+        $this->form_validation->set_rules('tds_amount', 'Tds Amount', 'trim');
+        $this->form_validation->set_rules('tcs_rate', 'TCS Rate', 'trim');
+        $this->form_validation->set_rules('tcs_amount', 'TCS Amount', 'trim');
         
         if ($this->form_validation->run()) {
             $flag = true;
