@@ -294,7 +294,6 @@ class Dealers extends CI_Controller {
        
         $post['session_data'] = $this->session->userdata;
         $postData = json_encode($post, true);
-
         $ch = curl_init(base_url() . 'partner/insertBookingByPartner');
         curl_setopt_array($ch, array(
             CURLOPT_POST => TRUE,
@@ -311,6 +310,7 @@ class Dealers extends CI_Controller {
         // Send the request
         $response = curl_exec($ch);
         $responseData = json_decode($response, TRUE);
+        log_message('info', ' Dealer :-'." booking response mgs" . print_r($response, true));
         if (isset($responseData['data']['code'])) {
             if($responseData['data']['code'] == -1003){
                  $output_msg = "Order ID Already Exists, Booking ID: ".$responseData['data']['response']['247aroundBookingID'] ;
@@ -324,13 +324,19 @@ class Dealers extends CI_Controller {
                  log_message('info', 'Partner ' . $this->session->userdata('partner_name') . "  booking Inserted " . print_r($postData, true));
                
 
-             } else {
+             }
+             else if ($responseData['data']['code'] == -24700) {
                  log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
                  $this->insertion_failure($postData);
 
+                 $output_msg = "Same booking has already been created. Please try after some time.";
+                 $output = array('msg' => $output_msg);
+             }
+             else {
+                 log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
+                 $this->insertion_failure($postData);
                  $output_msg = "Sorry, Booking Could Not be Inserted. Please Try Again.";
                  $output = array('msg' => $output_msg);
-                                      
              }
 
              
