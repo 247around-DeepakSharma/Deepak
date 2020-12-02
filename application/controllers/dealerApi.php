@@ -637,10 +637,10 @@ function check_for_upgrade(){
             }
 
             if (!empty($booking_id)) {
-                $post['where'] = array("booking_details.booking_id like '%$booking_id%'" => null, 'nrn_approved' => 0);
+                $post['where'] = array("booking_details.booking_id like '%$booking_id%'" => null);
             } else {
                 // Search   booking  on phone number
-                $post['where'] = array("`users`.`phone_number` = '".$phone_number."' OR booking_details.booking_primary_contact_no = '".$phone_number."' OR booking_details.booking_alternate_contact_no = '".$phone_number."'" => null, 'nrn_approved' => 0); 
+                $post['where'] = array("`users`.`phone_number` = '".$phone_number."' OR booking_details.booking_primary_contact_no = '".$phone_number."' OR booking_details.booking_alternate_contact_no = '".$phone_number."'" => null); 
             }
             $post['column_search'] = array('booking_details.booking_id');
             $post['order'] = array(array('column' => 0, 'dir' => 'desc'));
