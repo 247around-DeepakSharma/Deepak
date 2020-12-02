@@ -8344,6 +8344,8 @@ class Inventory extends CI_Controller {
             $inventory_master_list = $this->inventory_model->get_inventory_master_list_data('inventory_id', array('entity_id' => $this->input->post('partner_id'),'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $this->input->post('service_id')));
             if(!empty($inventory_master_list)) {
                 $option = UPDATE_INVENTORY_MASTER_LIST_MSG;
+            } else {
+                $option = '<option selected disabled>Select Part Type</option>';
             }
         } else {
             $inventory_parts_type = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.id,inventory_parts_type.service_id,inventory_parts_type.part_type,inventory_parts_type.hsn_code_details_id', array('inventory_parts_type.service_id' => $this->input->post('service_id')), TRUE);

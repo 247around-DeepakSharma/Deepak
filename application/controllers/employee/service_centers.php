@@ -9975,12 +9975,6 @@ function do_delivered_spare_transfer() {
         $this->checkUserSession();
         log_message('info', __FUNCTION__ . ' Used by :' . $this->session->userdata('service_center_name'));
         $service_center_id = $this->session->userdata('service_center_id');
-        
-        if(!empty($this->session->userdata('warehouse_id'))) {         
-            $service_center_id = $this->session->userdata('warehouse_id');
-        } else {
-            $service_center_id = $this->session->userdata('service_center_id');
-        }
 
         $where = array (
             "status NOT IN ('" . _247AROUND_CANCELLED . "')  " => NULL,
