@@ -39,7 +39,6 @@
                         <input type="text" class="form-control"  name="current_booking_date" value = "<?php if (!empty($data[0]['booking_date']) && $data[0]['booking_date'] != '0000-00-00') {echo $data[0]['booking_date']; }?>"  disabled>
                         
                       </div>
-                    </div>
 
                     
               </div>
