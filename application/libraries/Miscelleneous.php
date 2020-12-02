@@ -4224,54 +4224,54 @@ function generate_image($base64, $image_name,$directory){
 
                 $spare = $this->My_CI->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.model_number, spare_parts_details.old_status, requested_inventory_id, "
                         . "shipped_inventory_id", array('booking_id' => $booking_id), false);
-                foreach ($spare as $sp) {
-                    if($sp['old_status'] == SPARE_PARTS_REQUESTED ){
-                        
-                        if(!empty($sp['requested_inventory_id'])){
-                            $sf_state = $this->My_CI->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $assigned_vendor_id));
-                            $stock =$this->My_CI->miscelleneous->check_inventory_stock($sp['requested_inventory_id'], $partner_id, $sf_state[0]['state'], $assigned_vendor_id,$sp['model_number']);
-                            if(!empty($stock)){
-
-                                $this->My_CI->service_centers_model->update_spare_parts(array('id' => $sp['id']), 
-                                        array('status' => $sp['old_status'], 'entity_type' => $stock['entity_type'],
-                                            'is_micro_wh' => $stock['is_micro_wh'],
-                                            'defective_return_to_entity_type' => $stock['defective_return_to_entity_type'],
-                                            'defective_return_to_entity_id' => $stock['defective_return_to_entity_id'],
-                                            'partner_id' => $stock['entity_id']));
-                                if($stock['is_micro_wh'] == 2 || $stock['is_micro_wh'] == 1){
-                                    $this->My_CI->inventory_model->update_pending_inventory_stock_request($stock['entity_type'], $stock['entity_id'], $sp['requested_inventory_id'], 1);
-
-                                }
-                                
-                                
-                            } else {
-                                //Update Spare parts details table
-                               $this->My_CI->service_centers_model->update_spare_parts(array('id' => $sp['id']), array(
-                                   'status' => $sp['old_status'],
-                                   'is_micro_wh' => 0, 
-                                   'defective_return_to_entity_type' => _247AROUND_SF_STRING, 
-                                   "entity_type" => _247AROUND_PARTNER_STRING, 
-                                   "partner_id" => $partner_id,
-                                   "defective_return_to_entity_id" => DEFAULT_WAREHOUSE_ID
-                                ));
-                            }
-                        } else {
-                           //Update Spare parts details table
-                          $this->My_CI->service_centers_model->update_spare_parts(array('id' => $sp['id']), array(
-                                   'status' => $sp['old_status'],
-                                   'is_micro_wh' => 0, 
-                                   'defective_return_to_entity_type' => _247AROUND_SF_STRING, 
-                                   "entity_type" => _247AROUND_PARTNER_STRING, 
-                                   "partner_id" => $partner_id,
-                                   "defective_return_to_entity_id" => DEFAULT_WAREHOUSE_ID
-                                ));
-                        }
-                        
-                        $this->My_CI->vendor_model->update_service_center_action($booking_id, array('current_status' => 'InProcess', 'internal_status' => SPARE_PARTS_REQUIRED));
-                    } else if(empty($sp['requested_inventory_id'])){
-                        $this->My_CI->service_centers_model->update_spare_parts(array('id' => $sp['id']), array('status' => $sp['old_status']));
-                    } 
-                }
+//                foreach ($spare as $sp) {
+//                    if($sp['old_status'] == SPARE_PARTS_REQUESTED ){
+//                        
+//                        if(!empty($sp['requested_inventory_id'])){
+//                            $sf_state = $this->My_CI->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $assigned_vendor_id));
+//                            $stock =$this->My_CI->miscelleneous->check_inventory_stock($sp['requested_inventory_id'], $partner_id, $sf_state[0]['state'], $assigned_vendor_id,$sp['model_number']);
+//                            if(!empty($stock)){
+//
+//                                $this->My_CI->service_centers_model->update_spare_parts(array('id' => $sp['id']), 
+//                                        array('status' => $sp['old_status'], 'entity_type' => $stock['entity_type'],
+//                                            'is_micro_wh' => $stock['is_micro_wh'],
+//                                            'defective_return_to_entity_type' => $stock['defective_return_to_entity_type'],
+//                                            'defective_return_to_entity_id' => $stock['defective_return_to_entity_id'],
+//                                            'partner_id' => $stock['entity_id']));
+//                                if($stock['is_micro_wh'] == 2 || $stock['is_micro_wh'] == 1){
+//                                    $this->My_CI->inventory_model->update_pending_inventory_stock_request($stock['entity_type'], $stock['entity_id'], $sp['requested_inventory_id'], 1);
+//
+//                                }
+//                                
+//                                
+//                            } else {
+//                                //Update Spare parts details table
+//                               $this->My_CI->service_centers_model->update_spare_parts(array('id' => $sp['id']), array(
+//                                   'status' => $sp['old_status'],
+//                                   'is_micro_wh' => 0, 
+//                                   'defective_return_to_entity_type' => _247AROUND_SF_STRING, 
+//                                   "entity_type" => _247AROUND_PARTNER_STRING, 
+//                                   "partner_id" => $partner_id,
+//                                   "defective_return_to_entity_id" => DEFAULT_WAREHOUSE_ID
+//                                ));
+//                            }
+//                        } else {
+//                           //Update Spare parts details table
+//                          $this->My_CI->service_centers_model->update_spare_parts(array('id' => $sp['id']), array(
+//                                   'status' => $sp['old_status'],
+//                                   'is_micro_wh' => 0, 
+//                                   'defective_return_to_entity_type' => _247AROUND_SF_STRING, 
+//                                   "entity_type" => _247AROUND_PARTNER_STRING, 
+//                                   "partner_id" => $partner_id,
+//                                   "defective_return_to_entity_id" => DEFAULT_WAREHOUSE_ID
+//                                ));
+//                        }
+//                        
+//                        $this->My_CI->vendor_model->update_service_center_action($booking_id, array('current_status' => 'InProcess', 'internal_status' => SPARE_PARTS_REQUIRED));
+//                    } else if(empty($sp['requested_inventory_id'])){
+//                        $this->My_CI->service_centers_model->update_spare_parts(array('id' => $sp['id']), array('status' => $sp['old_status']));
+//                    } 
+//                }
                 // Update Engineer Action table Status When Booking Opened
                 $en_where = array("engineer_booking_action.booking_id" => $booking_id);
                 $this->My_CI->engineer_model->update_engineer_table(array("current_status" => _247AROUND_PENDING, "internal_status" =>_247AROUND_PENDING), $en_where);
