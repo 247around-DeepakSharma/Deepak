@@ -554,6 +554,7 @@ function send_vendor_creation_notification(){
         log_message('info', __FUNCTION__);
         $booking_id = $this->input->post('booking_id');
         $state = $this->input->post('state');
+        $part_type = '';
         if($this->input->post('part_type')){
             $part_type = $this->input->post('part_type');
         }
