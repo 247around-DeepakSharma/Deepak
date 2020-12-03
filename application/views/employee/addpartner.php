@@ -63,6 +63,7 @@ input[type=file][readonly]
     pointer-events: none;
 }
 </style>
+
 <?php
 $readonly = true;
 if(!empty($this->session->userdata('user_group')) && $this->session->userdata('user_group') == _247AROUND_ACCOUNTANT){
@@ -70,6 +71,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
 }
 
 ?>
+
 <div id="page-wrapper">
     <?php
 		$current_tab=$this->session->flashdata('current_tab');
@@ -944,38 +946,32 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                             </div>
                         </div>
                     </div>           
-                                
                     <div class="col-md-12">
                         <div class="panel panel-default">
                             <div class="panel-heading"><b>Warranty</b></div>
                             <div class="panel-body">
                                 <div class="col-md-6">
                                     <div class="form-group ">
-                                        <label for="is_wh" class="col-md-6" style="width: 40%;">Warranty will depend on</label>
+                                        <label for="check_warranty_from" class="col-md-6" style="width: 40%;">Warranty will depend on</label>
                                         <div class="col-md-2 " style = "margin-top: 5px;margin-bottom: -5px;width: ">
-                                            <select name="warranty" style = "width:200px " class="form-control">
-                                                <option value="1" <?php if(!empty($query[0]['check_warranty_from']) && $query[0]['check_warranty_from'] ==1)
+                                            <select name="check_warranty_from" style = "width:200px " class="form-control">
+                                                <option value="1" <?php if(!empty($query[0]['check_warranty_from']) && $query[0]['check_warranty_from'] == 1)
                                                   {
                                                     echo "selected";
                                                   }
                                                 ?>>Date of Purchase</option>
-                                                <option value="2" <?php if(!empty($query[0]['check_warranty_from']) && $query[0]['check_warranty_from'] ==2)
+                                                <option value="2" <?php if(!empty($query[0]['check_warranty_from']) && $query[0]['check_warranty_from'] == 2)
                                                  {
                                                     echo "selected";
                                                  }
                                                 ?>>Date of Installation</option>
                                             </select>
-                                           
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                                
-                                
-                           
-                    
                                         <?php } ?>
                     <div class="clear clear_bottom">
                         <br>
