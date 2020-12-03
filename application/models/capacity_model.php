@@ -42,7 +42,7 @@ class Capacity_model extends CI_Model {
         $this->db->from('capacity');
         $query = $this->db->get();   
         $qarray=$query->result_array();     
-        if( empty($qarray) || $qarray[0]['id'] == 'id' ){
+        if( empty($qarray) || $qarray[0]['id'] == $data['capacity_id'] ){
             // CASE : UPDATE
             if (!empty($data['capacity_id'])) {
                 $this->db->where('id', $data['capacity_id']);

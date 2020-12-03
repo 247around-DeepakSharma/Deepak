@@ -40,7 +40,7 @@ class Category_model extends CI_Model {
         $this->db->from('category');
         $query = $this->db->get();   
         $qarray=$query->result_array();     
-        if( empty($qarray) || $qarray[0]['id'] == 'id' ){
+        if( empty($qarray) || $qarray[0]['id'] == $data['category_id'] ){
             // CASE : UPDATE
             if (!empty($data['category_id'])) {
                 $this->db->where('id', $data['category_id']);
