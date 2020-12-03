@@ -1273,6 +1273,7 @@ class Invoice extends CI_Controller {
             $subject = vsprintf($email_template[4], array($meta['company_name'],$meta['sd'],$meta['ed']));
             $message = $email_template[0];
             $email_from = $email_template[2];
+            $cc .= ",".$email_template[3];
                 
             $mail_ret = $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement,CASH_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG);
 
@@ -1646,7 +1647,7 @@ class Invoice extends CI_Controller {
                 $email_from = $email_template[2];
                 $to = $invoice_data['meta']['owner_email'] . ", " . $invoice_data['meta']['primary_contact_email'];
                 
-                $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id . $asm_email_id;
+                $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id . $asm_email_id.", ". $email_template[3];
                 $pdf_attachement = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$output_file_main;
                  //Upload Excel files to AWS
                 $this->upload_invoice_to_S3($invoice_data['meta']['invoice_id']);
@@ -2940,7 +2941,7 @@ exit();
                             if (!empty($rm_details[1]['official_email'])) {
                                 $asm_email_id = ", " . $rm_details[1]['official_email'];
                             }
-                            $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id . $asm_email_id;
+                            $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id . $asm_email_id. ", ".$email_template[3];
                             echo "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount'].PHP_EOL;
                             log_message('info', __FUNCTION__ . "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount']);
 
@@ -3064,10 +3065,10 @@ exit();
         $this->form_validation->set_rules('invoice_date', 'Invoice Date', 'required|trim');
         $this->form_validation->set_rules('from_date', 'Invoice Period', 'required|trim');
         $this->form_validation->set_rules('type', 'Type', 'required|trim');
-        $this->form_validation->set_rules('tds_rate', 'TDS Rate', 'required|trim');
-        $this->form_validation->set_rules('tds_amount', 'Tds Amount', 'required|trim');
-        $this->form_validation->set_rules('tcs_rate', 'TCS Rate', 'required|trim');
-        $this->form_validation->set_rules('tcs_amount', 'TCS Amount', 'required|trim');
+        $this->form_validation->set_rules('tds_rate', 'TDS Rate', 'trim');
+        $this->form_validation->set_rules('tds_amount', 'Tds Amount', 'trim');
+        $this->form_validation->set_rules('tcs_rate', 'TCS Rate', 'trim');
+        $this->form_validation->set_rules('tcs_amount', 'TCS Amount', 'trim');
         
         if ($this->form_validation->run()) {
             $flag = true;

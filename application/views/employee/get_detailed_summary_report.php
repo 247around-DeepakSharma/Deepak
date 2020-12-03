@@ -193,7 +193,7 @@
         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
         
         if(diffDays>90){
-            alert("Maximum range allowed is 3 months");
+            alert("Maximum range allowed for Registration Date is 3 months");
             return false;
         }  
         
@@ -208,12 +208,16 @@
             var completiondiffDays = Math.ceil(completionTimeDiff / (1000 * 3600 * 24)); 
 
             if(completiondiffDays > 90){
-                alert("Maximum range allowed is 3 months");
+                alert("Maximum range allowed for Completion Date is 3 months");
                 return false;
             }        
         }
         
         var status = $('#status').val();
+        if( status == 'All' && partnerID == 'All' ) {
+            alert('Either Partner or Status can be All');
+            return false;
+        }
         var state = getMultipleSelectedValues('state');
         if(!state){
             state = 'All';
@@ -224,6 +228,9 @@
         var cell1 = row.insertCell(0);
         var cell2 = row.insertCell(1);
         var cell3 = row.insertCell(2);
+        if( partnerID == 'All' ) {
+            partnerID=0;
+        }
         cell1.innerHTML = " Registration Date :"+create_date+", Completion Date : "+completion_date+", Status : "+status+", State : "+state;
         cell2.innerHTML = cur_date;
         cell3.innerHTML = '<img id="loader_gif_title" src="<?php echo base_url(); ?>images/loadring.gif" style="width: 15%;">';

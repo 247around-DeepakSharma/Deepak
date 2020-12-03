@@ -720,12 +720,6 @@ class Partner extends CI_Controller {
                         $html .= "<li><b>" . $key . '</b> =>';
                         $html .= " " . $value . '</li>';
                     }
-                    /*
-                    foreach ($edit_partner_data['partner'] as $key => $value) {
-                        $html .= "<li><b>" . $key . '</b> =>';
-                        $html .= " " . $value . '</li>';
-                    }
-                    */
                     $html .= "</ul>";
                     // ----------------------------------------------------------------
                     $email_data['to'] = $am_email. ",". $this->session->userdata("official_email");
@@ -782,8 +776,13 @@ class Partner extends CI_Controller {
                     //Echoing inserted ID in Log file
                     log_message('info', __FUNCTION__ . ' New Partner has been added with ID ' . $partner_id . " Done By " . $this->session->userdata('employee_id'));
                     log_message('info', __FUNCTION__ . ' Partner Added Details : ' . print_r($this->input->post(), TRUE));
-                    //Adding details in Booking State Change
-                    // $this->notify->insert_state_change('', NEW_PARTNER_ADDED, NEW_PARTNER_ADDED, 'Partner ID : ' . $partner_id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                    
+                    //Adding Partner code in Bookings_sources table
+                    $bookings_sources['source'] = $this->input->post('public_name');
+                    $bookings_sources['code'] = $code;
+                    $bookings_sources['partner_id'] = $partner_id;
+                    $partner_code = $this->partner_model->add_partner_code($bookings_sources);
+                    
                     //Sending Mail for Updated details
                     /* This is old template for email */
                     $cc="";
@@ -800,7 +799,7 @@ class Partner extends CI_Controller {
                     }
                     $subject = "New Partner Added " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
                     $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $html, "", NEW_PARTNER_ADDED_EMAIL_TAG);
-                     
+                                    
                     // Send new brand onboard notification email to all employee
                     $email_template = $this->booking_model->get_booking_email_template(NEW_PARTNER_ONBOARD_NOTIFICATION);
                     if(!empty($email_template)){
@@ -812,7 +811,13 @@ class Partner extends CI_Controller {
                         $this->table->add_row(array($this->input->post('company_name'),$this->input->post('public_name'), $this->input->post('partner_type')));
                         $html_table = $this->table->generate();
                         
-                        $to = $email_template[1];//ALL_EMP_EMAIL//all-emp@247around.com;
+                        $to = $email_template[1];//ALL_EMP_EMAIL (all-emp@247around.com);
+                        $cc = $email_template[3];
+                        $bcc = '';                        
+                        $subject = vsprintf($email_template[4], array($this->input->post('public_name')));
+                        $message = vsprintf($email_template[0], array($html_table));
+                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
+                        
                         $sf_list = $this->vendor_model->viewvendor('', 1,'','','','','',1);
                         $all_poc = implode(',', array_map(function ($entry) {
                                     return $entry['primary_contact_email'];
@@ -823,36 +828,22 @@ class Partner extends CI_Controller {
                                 }, $sf_list));
                         $all_owner_array = explode(',', $all_owner);
                         $email_list = array_unique(array_filter(array_merge($all_poc_array, $all_owner_array)));
-                        $bcc = '';
-                        $cc = $email_template[3];
-                        $subject = vsprintf($email_template[4], array($this->input->post('public_name')));
-                        $message = vsprintf($email_template[0], array($html_table));
-                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
-                        
-                        
                         if (count($email_list) > 0) {
                             $email_list = array_unique($email_list);
                             $email_list = array_filter($email_list);
-                            $bcc_array = array_values($email_list);
+                            $recipients_array = array_values($email_list);
                         }
                         // Unable to send mails for too many mail ids in bcc , So we process email one by one to each sf appearing in bcc
-                        if(!empty($bcc_array))
-                        {
-                            $cc = '';
-                            $bcc = '';
-                            for($i=0;count($bcc_array)>$i;$i++)
-                            {
-                                $to = $bcc_array[$i];
-                                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
-                            }
+                        if(!empty($recipients_array))
+                        {        
+                            $mail_data['recipients_array'] = $recipients_array;
+                            $mail_data['subject'] = $subject;
+                            $mail_data['html'] = $message;
+                            $sendUrl = base_url().'employee/partner/send_partner_onboarding_mail_to_all';
+                            $this->asynchronous_lib->do_background_process($sendUrl, $email_data);
                         }
                     }
                     
-                    //Adding Partner code in Bookings_sources table
-                    $bookings_sources['source'] = $this->input->post('public_name');
-                    $bookings_sources['code'] = $code;
-                    $bookings_sources['partner_id'] = $partner_id;
-                    $partner_code = $this->partner_model->add_partner_code($bookings_sources);
                     if ($partner_code) {
                         log_message('info', ' Parnter code has been added in Bookings_sources table ' . print_r($bookings_sources, TRUE));
                     } else {
@@ -2378,7 +2369,7 @@ class Partner extends CI_Controller {
                         $spare_id = $this->inset_new_spare_request($booking_id, $data, $value);
                     }
                     
-                    if ($value['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                    if (isset($value['spare_part_warranty_status']) && $value['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
 
                         if (!empty($spare_id)) {
                             $invoide_data = array("invoice_id" => $value['invoice_id'],
@@ -2848,10 +2839,10 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
         $agent_id = $this->session->userdata('agent_id');
         if($this->session->userdata('is_filter_applicable') == 1){
-            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER(state_code.state) as state,state_code.state_code ",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
         }
         else{
-            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER(state_code.state) as state,state_code.state_code",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         }
         $data['is_ajax'] = $this->input->post('is_ajax');
         if(empty($this->input->post('is_ajax'))){
@@ -5198,7 +5189,7 @@ class Partner extends CI_Controller {
         if(!empty($this->input->post('is_all_partner'))){
           $option .= '<option value="all">All</option>';  
         }
-
+        $option .= "<option value='All'>All</option>";  
         foreach ($partner_list as $value) {
             $option .= "<option value='" . $value['id'] . "'";
             if(count($partner_list) == 1){
@@ -5865,8 +5856,13 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . ' Function End');
         //unlink($csv);
     }
-    function download_waiting_defective_parts(){
-         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
+    function download_waiting_defective_parts($state_code=""){
+        if(!empty($state_code))
+        {
+          $data1=$data['states']= $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER(state_code.state) as state",array('state_code'=>$state_code),NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());         
+          $state=$data1[0]['state'];
+        }
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
         $where = array(
@@ -5876,6 +5872,10 @@ class Partner extends CI_Controller {
             "spare_parts_details.defective_return_to_entity_type" => _247AROUND_PARTNER_STRING,
             "status IN ('".OK_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_SHIPPED."')" => NULL
         );
+        if(!empty($state))
+        {
+          $where['booking_details.state']=$state;
+        }
         $select = "CONCAT( '', GROUP_CONCAT((defective_part_shipped ) ) , '' ) as defective_part_shipped, i.part_number as part_code, spare_parts_details.shipped_quantity as shipped_quantity,"
                 . " spare_parts_details.booking_id, users.name, courier_name_by_sf, awb_by_sf, spare_parts_details.sf_challan_number, spare_parts_details.partner_challan_number, "
                 . "defective_part_shipped_date,remarks_defective_part_by_sf";
@@ -6083,7 +6083,7 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
         $CSVData = array();
         $partner_id = $this->session->userdata('partner_id');
-        $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND status IN ('".Shipped."') ";
+        $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND status IN ('".SPARE_PARTS_SHIPPED."') ";
         $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true);
         $headings = array("Customer Name","Booking ID","Shipped Parts","Part Code","Courier Name","AWB","Challan","Shipped Date","Remarks");
         foreach($data as $sparePartBookings){
@@ -7040,7 +7040,7 @@ class Partner extends CI_Controller {
     function get_pending_bookings(){
         $this->checkUserSession();
           $columnMappingArray = array("column_1"=>"booking_details.booking_id","column_3"=>"appliance_brand","column_4"=>"booking_details.partner_internal_status","column_7"=>"booking_details.city",
-                "column_8"=>"booking_details.state","column_9"=>"DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y')","column_10"=>"DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'))");
+                "column_8"=>"booking_details.state","column_9"=>"DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%m-%Y')","column_10"=>"DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'))");
         $order['column'] = $columnMappingArray["column_10"];
         $order['sorting'] = "desc";
         $state = 0;
@@ -7462,7 +7462,7 @@ class Partner extends CI_Controller {
          }
         $where = array(
             "spare_parts_details.defective_part_required" => 1,
-            "approved_defective_parts_by_admin" => 1,
+           "approved_defective_parts_by_admin" => 1,
             '((spare_parts_details.defective_return_to_entity_id ="'.$partner_id.'" '
             . 'AND spare_parts_details.defective_return_to_entity_type = "'._247AROUND_PARTNER_STRING.'" '
             . ' AND status IN ("'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'", "'.OK_PARTS_SEND_TO_PARTNER_BY_WH.'") ) OR '
@@ -7471,7 +7471,7 @@ class Partner extends CI_Controller {
             . 'AND booking_details.partner_id = "'.$partner_id.'" '
             . 'AND spare_parts_details.status IN ("'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'","'.OK_PARTS_SEND_TO_PARTNER_BY_WH.'")))' => NULL
         );
-       if($this->input->post('state')){
+       if($this->input->post('state') && $this->input->post('state')!='All'){
            $where['booking_details.state'] = $this->input->post('state');
        }
        if($this->input->post('booking_id')){
@@ -7814,7 +7814,7 @@ class Partner extends CI_Controller {
        $partner_id = $this->session->userdata('partner_id');
                $where = array(
             "spare_parts_details.defective_part_required" => 1,
-            "booking_details.partner_id" => $partner_id,
+           "booking_details.partner_id" => $partner_id,
             "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '".DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE."', '".OK_PART_TO_BE_SHIPPED."', '".DAMAGE_PART_TO_BE_SHIPPED."')  " => NULL
         );
        if($this->input->post('state')){
@@ -10067,6 +10067,22 @@ class Partner extends CI_Controller {
         $this->miscelleneous->load_partner_nav_header();
         $this->load->view('partner/show_stock_by_model', $data);
         $this->load->view('partner/partner_footer');
+    }
+    
+    /**
+     * @desc : this method send mail to AM after updating partner details
+    */
+    function send_partner_onboarding_mail_to_all() {
+        $cc = '';
+        $bcc = '';
+        $recipients_array = $data['recipients_array'];
+        $subject = $data['subject'];
+        $html = $data['html'];
+        for($i=0;count($recipients_array)>$i;$i++)
+        {
+            $to = $recipients_array[$i];
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $html, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
+        }
     }
 
 }

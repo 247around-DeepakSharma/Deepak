@@ -989,14 +989,14 @@
            
             document.getElementById("type_code").options[1].disabled = false;
             document.getElementById("type_code").options[2].disabled = false;
-            document.getElementById("type_code").options[3].disabled = true;
-            document.getElementById("type_code").options[4].disabled = true;
+            document.getElementById("type_code").options[3].disabled = false;
+            document.getElementById("type_code").options[4].disabled = false;
             document.getElementById("type_code").options[6].disabled = true;
                
         } else if(radioValue === 'B'){
            
-            document.getElementById("type_code").options[1].disabled = true;
-            document.getElementById("type_code").options[2].disabled = true;
+            document.getElementById("type_code").options[1].disabled = false;
+            document.getElementById("type_code").options[2].disabled = false;
             document.getElementById("type_code").options[3].disabled = false;
             document.getElementById("type_code").options[4].disabled = false;
             document.getElementById("type_code").options[6].disabled = false;

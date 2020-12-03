@@ -27,7 +27,7 @@
         </div>
     </div>
 <div class="row">
-    <div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px;">
             <div class="x_panel">
                 <div class="x_title">
                     <h2>TAT Reporting<button type="button"class="btn btn-default" style="float: right;margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #f7a35c;

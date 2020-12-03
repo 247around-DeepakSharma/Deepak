@@ -769,12 +769,14 @@ class Service_centers extends CI_Controller {
                     $model_details = $this->partner_model->get_model_number('category, capacity', array('appliance_model_details.model_number' => $value,
                         'appliance_model_details.entity_id' => $partner_id, 'appliance_model_details.active' => 1, 'partner_appliance_details.active' => 1, 'partner_appliance_details.brand' => $brand));
                     $sc_change = false;
-                    if (($unit[0]['appliance_category'] == $model_details[0]['category']) && ($unit[0]['appliance_capacity'] == $model_details[0]['capacity'])) {
+                    if(!empty($unit[0]['appliance_category']) && !empty($model_details[0]['category']) && !empty($unit[0]['appliance_capacity'])&& !empty($model_details[0]['capacity']))
+                    {
+                     if($unit[0]['appliance_category'] == $model_details[0]['category'] && $unit[0]['appliance_capacity'] == $model_details[0]['capacity']){
                         $sc_change = false;
-                    } else {
+                      } else {
                         $sc_change = true;
-                    }
-
+                      }
+                    }         
                     if ($sc_change) {
                         $partner_data = $this->partner_model->get_partner_code($partner_id);
                         $partner_type = $partner_data[0]['partner_type'];
@@ -5409,7 +5411,7 @@ class Service_centers extends CI_Controller {
         $post['where_in'] = array('bb_cp_order_action.current_status' => array('InProcess'),
             'bb_cp_order_action.internal_status' => array(_247AROUND_BB_DELIVERED, _247AROUND_BB_NOT_DELIVERED, _247AROUND_BB_247APPROVED_STATUS, _247AROUND_BB_Damaged_STATUS, _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS));
         $post['column_order'] = array(NULL, 'bb_order_details.partner_order_id', 'bb_order_details.partner_tracking_id', 'services', 'category',
-            'order_date', 'delivery_date', 'cp_basic_charge', NULL, NULL);
+            'order_date', 'delivery_date', 'cp_basic_charge', NULL, 'bb_cp_order_action.current_status');
         $post['column_search'] = array('bb_order_details.partner_order_id', 'bb_order_details.partner_tracking_id', 'services', 'city',
             'order_date', 'delivery_date', 'bb_cp_order_action.current_status');
         $list = $this->cp_model->get_bb_cp_order_list($post);
@@ -5548,6 +5550,7 @@ class Service_centers extends CI_Controller {
                     }
                     $a .= "</ul>
                           </div>";
+                    $row[] = $a;
                     break;
                 default:
                     $row[] = "";
@@ -9972,12 +9975,6 @@ function do_delivered_spare_transfer() {
         $this->checkUserSession();
         log_message('info', __FUNCTION__ . ' Used by :' . $this->session->userdata('service_center_name'));
         $service_center_id = $this->session->userdata('service_center_id');
-        
-        if(!empty($this->session->userdata('warehouse_id'))) {         
-            $service_center_id = $this->session->userdata('warehouse_id');
-        } else {
-            $service_center_id = $this->session->userdata('service_center_id');
-        }
 
         $where = array (
             "status NOT IN ('" . _247AROUND_CANCELLED . "')  " => NULL,

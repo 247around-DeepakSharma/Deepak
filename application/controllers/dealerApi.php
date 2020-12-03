@@ -626,22 +626,34 @@ function check_for_upgrade(){
                 }
             }
             // Add alternate number ///
-            $select = "services.services, users.phone_number,users.alternate_phone_number,users.name as name, users.phone_number, booking_details.*";
+            if(strlen($search) >=8){
+            $select = "services.services, users.phone_number,users.alternate_phone_number,users.name as name, users.phone_number, booking_details.*,service_centres.name as service_center_name,service_centres.phone_1,service_centres.phone_2,service_centres.primary_contact_phone_1,service_centres.primary_contact_phone_2";
             $post['length'] = -1;
-            if (!empty($booking_id)) {
-                $post['where'] = array('booking_details.booking_id' => $booking_id, 'nrn_approved' => 0);
-                // full booking text search
-                $post['column_search'] = array('booking_details.booking_id');
-                $post['order'] = array(array('column' => 0, 'dir' => 'asc'));
-                $post['order_performed_on_count'] = TRUE;
-                $post['column_order'] = array('booking_details.booking_id');
-                $post['unit_not_required'] = true;
-                
 
-                $data['Bookings'] = $this->booking_model->get_bookings_by_status($post, $select, array(), 2)->result_array();
+            $employee_login = false;
+            $employee_search = $this->employee_model->get_employee_by_group(array('phone' => $requestData['entity_id']));
+            if(!empty($employee_search)){
+                $employee_login = true;
+            }
+
+            if (!empty($booking_id)) {
+                $post['where'] = array("booking_details.booking_id like '%$booking_id%'" => null);
             } else {
                 // Search   booking  on phone number
-                $data['Bookings'] = $this->dealer_model->dealer_partner_bookings_on_user($phone_number, $requestData['entity_id'] , $requestData['entity_type']);
+                $post['where'] = array("`users`.`phone_number` = '".$phone_number."' OR booking_details.booking_primary_contact_no = '".$phone_number."' OR booking_details.booking_alternate_contact_no = '".$phone_number."'" => null); 
+            }
+            $post['column_search'] = array('booking_details.booking_id');
+            $post['order'] = array(array('column' => 0, 'dir' => 'desc'));
+            $post['order_performed_on_count'] = TRUE;
+            $post['column_order'] = array('booking_details.id');
+            $post['unit_not_required'] = true;
+            $post['length'] = 10;
+            $post['start']  = 0;
+            $data['Bookings'] = $this->booking_model->get_bookings_by_status($post, $select, array(), 2)->result_array();
+            
+            if(empty($data['Bookings']) && empty($booking_id)) {
+                $post['where'] = array("booking_details.booking_id like '%$phone_number%'" => null);
+                $data['Bookings'] = $this->booking_model->get_bookings_by_status($post, $select, array(), 2)->result_array();
             }
 
             if (!empty($data['Bookings'])) {
@@ -672,6 +684,13 @@ function check_for_upgrade(){
                             $data['Bookings'][$key]['appliance_capacity'] = '';
                             //Return blank if booking not found in booking unit details
                         }
+                        if($employee_login){
+                            $data['Bookings'][$key]['service_center_name'] = $value['service_center_name'];
+                            $data['Bookings'][$key]['service_center_poc'] = implode(', ',array_filter(array($value['phone_1'],$value['phone_2'],$value['primary_contact_phone_1'],$value['primary_contact_phone_2'])));
+                        }else{
+                            $data['Bookings'][$key]['service_center_name'] = '';
+                            $data['Bookings'][$key]['service_center_poc'] = '';
+                        }
                         // Abhishek Send Spare Details of booking //
                         $spares_details = $this->around_generic_lib->getSpareDetailsOfBooking($value['booking_id']);
                         $data['Bookings'][$key]['spares'] =  $spares_details;
@@ -690,6 +709,10 @@ function check_for_upgrade(){
             } else {
                 log_message("info", __METHOD__ . "Data not found");
                 $this->sendJsonResponse(array("1003", "Data not found"));
+            }
+            }else{
+                log_message("info", __METHOD__ . "Please type mimimum 8 character to search data.");
+                $this->sendJsonResponse(array("1003", "Please type mimimum 8 character to search data."));
             }
         } else {
             log_message("info", __METHOD__ . $validation['message']);
