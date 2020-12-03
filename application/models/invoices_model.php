@@ -2087,7 +2087,7 @@ class invoices_model extends CI_Model {
 //                $meta['sign_path'] = $path1;
 //                $meta['cell'] = "K".(26 + count($data['booking']));
 //            }
-            if(!empty($data['booking'][0]['signature_file'])){
+            /*if(!empty($data['booking'][0]['signature_file'])){
                 $meta['sign_path'] = $data['booking'][0]['signature_file'];
                 $meta['sign_path_cell'] = "I".($sign_cell + count($data['booking']));
             }
@@ -2096,7 +2096,7 @@ class invoices_model extends CI_Model {
             if(!empty($vendorStamp)){
                 $meta['vendor_stamp'] = $vendorStamp[0]['stamp_file'];
                 $meta['vendor_stamp_cell'] = "D".(23 + count($data['booking']));
-            }
+            }*/
            
             if ($meta['sub_total_amount'] >= 0) {
                
