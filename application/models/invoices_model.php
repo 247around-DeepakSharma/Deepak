@@ -1367,6 +1367,7 @@ class invoices_model extends CI_Model {
             $meta['tcs_rate'] = "";
             $meta['tcs_rate_text'] = "";
             $meta['tds_amount'] = "";
+            $meta['tcs_amount'] = "";
            
             $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
             if($result[0]['description'] == QC_INVOICE_DESCRIPTION){
@@ -2192,6 +2193,9 @@ class invoices_model extends CI_Model {
                 $meta['reverse_charge_type'] = "N";
                 $meta['reverse_charge'] = '';
                 $meta['invoice_type'] = 'Tax Invoice';
+                $meta['tcs_rate'] = "";
+                $meta['tcs_rate_text'] = "";
+                $meta['tcs_amount'] = "";
 
                 $meta['total_qty'] = $meta['total_rate'] = $commission_charge[0]['qty'] = $commission_charge[0]['rate'] = "";
                 $commission_charge[0]['hsn_code'] = COMMISION_CHARGE_HSN_CODE;
@@ -2314,6 +2318,11 @@ class invoices_model extends CI_Model {
             $meta['owner_email'] = $commission_charge[0]['owner_email'];
             $meta['primary_contact_email'] = $commission_charge[0]['primary_contact_email'];
             $meta['owner_phone_1'] = $commission_charge[0]['owner_phone_1'];
+            $meta['total_amount_with_tax'] = $meta['sub_total_amount'];
+            $meta['tcs_rate'] = "";
+            $meta['tcs_rate_text'] = "";
+            $meta['tcs_amount'] = "";
+
             
             //get main partner detail
             $partner_on_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);

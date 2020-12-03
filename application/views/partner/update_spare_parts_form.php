@@ -787,7 +787,7 @@
                 form.submit();   
                 }
             }else{
-		$("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', false);
+                $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', false);
                form.submit(); 
             } 
                 }
