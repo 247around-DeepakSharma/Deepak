@@ -988,7 +988,7 @@ class Partner extends CI_Controller {
             $return_data['upcountry_approval'] = 0;
             $return_data['upcountry_bill_to_partner'] = 0;
         }
-//        $partner_data_final['partner'] = $return_data;
+        $return_data['check_warranty_from'] = $this->input->post('check_warranty_from');
         return $return_data;
     }
 
