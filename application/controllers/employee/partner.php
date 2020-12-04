@@ -668,8 +668,7 @@ class Partner extends CI_Controller {
                 $edit_partner_data['partner']['upcountry_max_distance_threshold'] = $edit_partner_data['partner']['upcountry_max_distance_threshold'];
                 $edit_partner_data['partner']['update_date'] = date("Y-m-d h:i:s");
                 $edit_partner_data['partner']['agent_id'] = $this->session->userdata('id');
-                    //add wrranty 
-                 $edit_partner_data['partner']['check_warranty_from'] = $this->input->post('warranty');
+                $edit_partner_data['partner']['check_warranty_from'] = $this->input->post('check_warranty_from');
                 
                 /* show notification on partner's panal if grace period increases */
                 if($edit_partner_data['partner']['grace_period_date'] > $this->input->post("old_grace_period_date")){
@@ -989,7 +988,7 @@ class Partner extends CI_Controller {
             $return_data['upcountry_approval'] = 0;
             $return_data['upcountry_bill_to_partner'] = 0;
         }
-//        $partner_data_final['partner'] = $return_data;
+        $return_data['check_warranty_from'] = $this->input->post('check_warranty_from');
         return $return_data;
     }
 
