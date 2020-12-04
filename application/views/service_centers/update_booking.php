@@ -181,9 +181,9 @@ $selected_price_tags = implode(",", $selected_price_tags);
                                             <div class="col-md-6">
                                                 <select type="text" class="form-control appliance_capacity"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="appliance_capacity_1" name="appliance_capacity[]"  onChange="getPricesForCategoryCapacity(this.id);getModelForServiceCategoryCapacity(this.id);" <?php if($is_repeat && (isset($unit_details[0]['capacity']) && (trim($unit_details[0]['capacity']) !== ''))){ echo 'readonly="readonly"'; } ?> style="background: #eee;pointer-events: none;" tabindex=-1>
                                                     <option  selected disabled>Select Appliance Capacity</option>
-                                                    <?php foreach ($capacity[0] as $appliance_capacity) { ?>
+                                                    <?php if(!empty($capacity[0])) { foreach ($capacity[0] as $appliance_capacity) { ?>
                                                     <option  <?php if(isset($unit_details[0]['capacity'])) {if(strtoupper(str_replace(" ","",$appliance_capacity['capacity'])) == strtoupper(str_replace(" ","",$unit_details[0]['capacity']))) { echo "selected"; }  } ?>  ><?php echo $appliance_capacity['capacity']; ?></option>
-                                                    <?php } ?>
+                                                    <?php } } ?>
                                                 </select>
                                             </div>
                                         </div>

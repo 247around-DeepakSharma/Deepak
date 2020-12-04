@@ -3987,7 +3987,7 @@ class Partner extends CI_Controller {
      */
     function upcountry_charges_approval($booking_id, $status) {
         log_message('info', __FUNCTION__ . " => Booking Id" . $booking_id . ' status: ' . $status);
-
+        $msg = "";
         $data = $this->upcountry_model->get_upcountry_service_center_id_by_booking($booking_id);
         if (!empty($data)) {
             if ($data[0]['upcountry_partner_approved'] == 0 & empty($data[0]['assigned_vendor_id'])) {
@@ -4705,12 +4705,13 @@ class Partner extends CI_Controller {
         $partner_details = $this->partner_model->getpartner_details("partners.id, public_name, "
                 . "postpaid_credit_period, is_active, postpaid_notification_limit, postpaid_grace_period, "
                 . "invoice_email_to,invoice_email_cc, is_prepaid", array('partners.id' => $partner_id));
-        $postpaid = $this->invoice_lib->get_postpaid_partner_outstanding($partner_details[0]);
-
-        $userSession = array('status' => $postpaid['active'], "message" => $postpaid['notification_msg']);
-        log_message("info", __METHOD__. " POSTPAID partner is active ". $postpaid['active']);
-        $this->session->set_userdata($userSession);
-        return true;
+        if(!empty($partner_details[0])){
+            $postpaid = $this->invoice_lib->get_postpaid_partner_outstanding($partner_details[0]);
+            $userSession = array('status' => $postpaid['active'], "message" => $postpaid['notification_msg']);
+            log_message("info", __METHOD__. " POSTPAID partner is active ". $postpaid['active']);
+            $this->session->set_userdata($userSession);
+            return true;
+        }        
     }
 
     public function get_contact_us_page() {
