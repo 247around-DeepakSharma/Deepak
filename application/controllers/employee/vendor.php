@@ -4339,8 +4339,11 @@ class vendor extends CI_Controller {
                 $rm_official_email = $this->employee_model->getemployeefromid($rm_id)[0]['official_email'];
                 // Send Mail To asm also
                 $asm_details = $this->vendor_model->get_asm_contact_details_by_sf_id($booking_details[0]['assigned_vendor_id']);
+                $asm_mail = "";
                 if(!empty($asm_details))
+                {
                     $asm_mail = "," . $asm_details[0]['official_email'];
+                }
                 //Sending Mail
                 $email['booking_id'] = $booking_id[$key];
                 $emailBody = vsprintf($template[0], $email);

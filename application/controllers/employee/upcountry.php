@@ -368,15 +368,15 @@ class Upcountry extends CI_Controller {
                       $status = $this->upcountry_model->update_pincode_distance($value['pincode1'], $value['pincode2'], $distance1, 12);
                       
                       if($status){
-                          echo PHP_EOL.'Distance Updated';
+                          echo '<br/>Distance Updated';
                       } else {
-                          echo PHP_EOL.'Distance SQL Not Updated';
+                          echo '<br/>Distance SQL Not Updated';
                       }
                     } else {
-                        echo PHP_EOL.'Distance Same';
+                        echo '<br/>Distance Same';
                     }
                 } else {
-                    echo PHP_EOL.'Distance Not Updated';
+                    echo '<br/>Distance Not Updated';
                 }
             }
         }
