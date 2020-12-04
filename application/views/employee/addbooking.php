@@ -596,13 +596,7 @@ $("#purchase_date_1").datepicker({dateFormat: 'dd-mm-yy', maxDate: 0, changeYear
 // function to cross check request type of booking with warranty status of booking 
 function check_booking_request()
 {
-    $(".price_checkbox:checked").each(function(){
-        if(($(this).attr('data-price_tag') != "Gas Recharge - Out of Warranty") && ($(this).attr('data-price_tag') != "Gas Recharge - In Warranty") && ($(this).attr('data-price_tag') != "Gas Recharge (R410) - In Warranty"));
-        {
-            $(".price_checkbox").attr("disabled", false);
-        }
-    });
-    
+    $(".price_checkbox").attr("disabled", false);
     if($(".input-model").is(":hidden"))
     {
         var model_number = $(".select-model").val();
