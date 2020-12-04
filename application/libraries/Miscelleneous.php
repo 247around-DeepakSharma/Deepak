@@ -5402,16 +5402,19 @@ function generate_image($base64, $image_name,$directory){
                 if(!empty($res[0]['date'])){
                     $where['create_date > "'.$res[0]['date'].'"'] = NULL;
                 }
-                $data = $this->My_CI->reusable_model->get_search_result_data($table_name, '*', $where, NULL, NULL, NULL, NULL, NULL);
+                $data = $this->My_CI->reusable_model->get_search_result_data($table_name, '*', $where, NULL, NULL, ['create_date' => 'asc'], NULL, NULL);
                 foreach ($data as $invoice_data) {
                     // copy file from misc-images to purchase-invoices
                     $file = $invoice_data[$column_name];
                     $csv = TMP_FOLDER . $file;
-                    $object = $this->My_CI->s3->getObject(BITBUCKET_DIRECTORY, "misc-images/".$file);
-                    if($object->body){
-                        write_file($csv, $object->body);
-                        $this->My_CI->s3->putObjectFile($csv, BITBUCKET_DIRECTORY, 'purchase-invoices/'.$file, S3::ACL_PUBLIC_READ);
-                        unlink($csv);
+                    $file_exists = $this->My_CI->s3->getObjectInfo(BITBUCKET_DIRECTORY, "misc-images/".$file);
+                    if($file_exists) {
+                        $object = $this->My_CI->s3->getObject(BITBUCKET_DIRECTORY, "misc-images/".$file);
+                        if($object->body){
+                            write_file($csv, $object->body);
+                            $this->My_CI->s3->putObjectFile($csv, BITBUCKET_DIRECTORY, 'purchase-invoices/'.$file, S3::ACL_PUBLIC_READ);
+                            unlink($csv);
+                        }
                     }
                     // Update date in config table 
                     $this->My_CI->reusable_model->update_table("cron_config",['date' => $invoice_data['create_date']],['table' => $table_name, 'column' => $column_name]);
