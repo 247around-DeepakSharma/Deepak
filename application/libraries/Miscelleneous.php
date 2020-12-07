@@ -1732,8 +1732,10 @@ class Miscelleneous {
                         }
                         else{
                             $notFoundSfArray['asm_id'] = $resultTemp[0]['asm_id'];
-                        }                        
-                        $notFoundSfArray['state'] = $resultTemp[0]['state_id'];
+                        } 
+                        if(!empty($resultTemp[0]['state_id'])){
+                            $notFoundSfArray['state'] = $resultTemp[0]['state_id'];
+                        }
                         $notFoundSfArray['city'] = $city;
                         $notFoundSfArray['is_pincode_valid'] = 1;
                         $this->My_CI->vendor_model->update_not_found_sf_table(array("pincode"=>$pincode),$notFoundSfArray);
