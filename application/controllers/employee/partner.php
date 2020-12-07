@@ -835,7 +835,7 @@ class Partner extends CI_Controller {
                             $mail_data['subject'] = $subject;
                             $mail_data['html'] = $message;
                             $sendUrl = base_url().'employee/partner/send_partner_onboarding_mail_to_all';
-                            $this->asynchronous_lib->do_background_process($sendUrl, $email_data);
+                            $this->asynchronous_lib->do_background_process($sendUrl, $mail_data);
                         }
                     }
                     
@@ -10170,5 +10170,22 @@ class Partner extends CI_Controller {
         }
         
         echo $str_body;
+    }
+    
+    /**
+     * @desc : this method send mail to AM after updating partner details
+    */
+    function send_partner_onboarding_mail_to_all() {
+        $cc = '';
+        $bcc = '';
+        $data = $this->input->post();
+        $recipients_array = $data['recipients_array'];
+        $subject = $data['subject'];
+        $html = $data['html'];
+        for($i=0;count($recipients_array)>$i;$i++)
+        {
+            $to = $recipients_array[$i];
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $html, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
+        }
     }
 }
