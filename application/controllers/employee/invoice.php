@@ -5322,7 +5322,7 @@ exit();
                             $booking_details = $this->reusable_model->get_search_query('booking_details', '*', array('booking_details.booking_id' => $value->booking_id), NULL, NULL, NULL, NULL, NULL)->result_array()[0];
                             
                             
-                            $margin = $this->inventory_model->get_oow_margin($value->shipped_inventory_id, array('part_type' => $value->shipped_parts_type, 'inventory_parts_type.service_id' => $booking_details[0]['service_id']));
+                            $margin = $this->inventory_model->get_oow_margin($value->shipped_inventory_id, array('part_type' => $value->shipped_parts_type, 'inventory_parts_type.service_id' => $booking_details['service_id']));
                
                             $spare_oow_around_margin = $margin['oow_around_margin']/100;
                             $spare_oow_est_margin = $margin['oow_est_margin']/100;
