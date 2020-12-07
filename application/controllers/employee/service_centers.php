@@ -2826,8 +2826,6 @@ class Service_centers extends CI_Controller {
                 echo json_encode($returnData);
             }
         }
-
-        log_message('info', __FUNCTION__ . " Exit Service_center ID: " . $service_center_id);
     }
 
     /**

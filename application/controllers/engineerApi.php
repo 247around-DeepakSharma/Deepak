@@ -1410,7 +1410,10 @@ class engineerApi extends CI_Controller {
                 if ($bookinghistory[0]['booking_pincode'] != $location['pincode']) {
                     $en['mismatch_pincode'] = 1;
                 }
-                $en["city"] = $location['city'];
+                if(!empty($location['city']))
+                {
+                    $en["city"] = $location['city'];
+                }
                 $en["address"] = $location['address'];
                 $en["latitude"] = $location['latitude'];
                 $en["longitude"] = $location['longitude'];
@@ -2387,7 +2390,9 @@ class engineerApi extends CI_Controller {
                 $this->sendJsonResponse(array('0025', 'Incorrect Booking Status'));
             }
         } else {
-            log_message("info", __METHOD__ . " Engineer ID Not Found - " . $requestData["engineer_id"] . " or Service Center Id not found - " . $requestData["service_center_id"]);
+            if(!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])){
+                log_message("info", __METHOD__ . " Engineer ID Not Found - " . $requestData["engineer_id"] . " or Service Center Id not found - " . $requestData["service_center_id"]);
+            }
             $this->sendJsonResponse(array('0026', 'Engineer ID Not Found or Service Center Id or Booking Status Not found'));
         }
     }
