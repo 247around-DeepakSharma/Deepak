@@ -1005,6 +1005,9 @@ class Booking extends CI_Controller {
         $data['booking_id'] = $booking_id;
         //Get Booking Details
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
+        if(empty($data['booking_history'][0]['booking_id'])){
+            echo "Booking Not Found"; exit;
+        }
         //Get Booking Symptom Details
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
         //Get Booking Unit Details Data
