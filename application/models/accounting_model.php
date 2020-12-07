@@ -129,7 +129,7 @@ class accounting_model extends CI_Model {
                 . " `around_royalty`,`total_service_charge`,abs(`amount_collected_paid`) as amount_collected_paid,"
                 . " `hsn_code`,`cgst_tax_amount`,`igst_tax_amount`,"
                 . "`sgst_tax_amount`,`cgst_tax_rate`,"
-                . "`igst_tax_rate`,`sgst_tax_rate`,`tds_rate`,"
+                . "`igst_tax_rate`,`sgst_tax_rate`,`tds_rate`, tcs_rate, tcs_amount,"
                 . "`tds_amount`,`upcountry_price`,`penalty_amount`,"
                 . "`credit_penalty_amount`,`courier_charges`,`num_bookings`,vpi.type,vpi.type_code,  vertical, category, sub_category "
                 . " FROM vendor_partner_invoices as vpi LEFT JOIN service_centres as sc ON vendor_partner = 'vendor' "
@@ -184,7 +184,7 @@ class accounting_model extends CI_Model {
                 . " sum(invoice_details.`cgst_tax_amount`) as cgst_tax_amount, "
                 . " sum(invoice_details.`sgst_tax_amount`) as sgst_tax_amount,  "
                 . " sum(invoice_details.`igst_tax_amount`) as igst_tax_amount, "
-                . " sum(`total_amount`) as total_amount, "
+                . " sum(`total_amount`) as total_amount, tcs_rate, tcs_amount,"
                 . " invoice_details.igst_tax_rate, invoice_details.cgst_tax_rate, invoice_details.sgst_tax_rate "
                 . " FROM vendor_partner_invoices as vpi "
                 . " LEFT JOIN service_centres as sc ON vendor_partner = 'vendor' AND sc.id = vpi.vendor_partner_id "
@@ -224,13 +224,13 @@ class accounting_model extends CI_Model {
                     pan_no, owner_name, vpi.total_service_charge, vpi.type, vpi.reference_invoice_id, vpi.type_code,
                     vpi.total_additional_service_charge, vpi.service_tax, vpi.parts_count, vpi.parts_cost,
                     vpi.total_amount_collected,(total_amount_collected - vpi.tds_amount) as net_amount,
-                    vpi.tds_amount, tds_rate ,abs(vpi.amount_collected_paid) as amount_collected_paid,sc.gst_no, vertical, category, sub_category,cgst_tax_amount,sgst_tax_amount,igst_tax_amount,cgst_tax_rate,sgst_tax_rate,igst_tax_rate,`num_bookings`";
+                    vpi.tds_amount, tds_rate, tcs_rate, tcs_amount, abs(vpi.amount_collected_paid) as amount_collected_paid,sc.gst_no, vertical, category, sub_category,cgst_tax_amount,sgst_tax_amount,igst_tax_amount,cgst_tax_rate,sgst_tax_rate,igst_tax_rate,`num_bookings`";
         } else {
             $select = "name,company_name, company_type, vpi.invoice_id, vpi.invoice_date,name_on_pan, address, state, gst_taxpayer_type,
                     pan_no, owner_name, SUM(vpi.total_service_charge) as total_service_charge, vpi.type, vpi.reference_invoice_id, vpi.type_code,
                     SUM(vpi.total_additional_service_charge) as total_additional_service_charge, SUM(vpi.service_tax) as service_tax, SUM(vpi.parts_count) as parts_count, SUM(vpi.parts_cost) as parts_cost,
                     SUM(vpi.total_amount_collected) as total_amount_collected,SUM(total_amount_collected - vpi.tds_amount) as net_amount,
-                    SUM(vpi.tds_amount) as tds_amount, tds_rate ,SUM(abs(vpi.amount_collected_paid)) as amount_collected_paid,sc.gst_no, vertical, category, sub_category,SUM(cgst_tax_amount) as cgst_tax_amount,SUM(sgst_tax_amount) as sgst_tax_amount,SUM(igst_tax_amount) as igst_tax_amount,cgst_tax_rate,sgst_tax_rate,igst_tax_rate,SUM(`num_bookings`) as num_bookings";
+                    SUM(vpi.tds_amount) as tds_amount, tds_rate, tcs_rate, tcs_amount,SUM(abs(vpi.amount_collected_paid)) as amount_collected_paid,sc.gst_no, vertical, category, sub_category,SUM(cgst_tax_amount) as cgst_tax_amount,SUM(sgst_tax_amount) as sgst_tax_amount,SUM(igst_tax_amount) as igst_tax_amount,cgst_tax_rate,sgst_tax_rate,igst_tax_rate,SUM(`num_bookings`) as num_bookings";
 //            $select = "name,company_name,company_type,name_on_pan,pan_no,SUM(tds_amount) as tds_amount, vertical, category, sub_category,
 //                      tds_rate, (SUM(total_service_charge)+ SUM(courier_charges) + SUM(warehouse_storage_charges) + SUM(miscellaneous_charges) + SUM(upcountry_price) + SUM(credit_penalty_amount) + SUM(total_additional_service_charge) - SUM(penalty_amount)) as tds_taxable_amount";
             $group_by = " GROUP BY sc.id, tds_rate";
@@ -269,7 +269,7 @@ class accounting_model extends CI_Model {
         
         $sql ="SELECT vpi.invoice_id as invoice_id, p.public_name as partner_name,p.address,p.state, total_service_charge, total_additional_service_charge,
                 cgst_tax_amount, cgst_tax_rate, sgst_tax_amount, sgst_tax_rate, igst_tax_amount, igst_tax_rate, total_amount_collected, invoice_date,gst_number, from_date,
-                to_date, vpi.type, vpi.type_code, vertical, category, sub_category, credit_debit, abs(amount_collected_paid) as amount_collected_paid, vpi.tds_rate, vpi.tds_amount, reference_invoice_id, vpi.parts_count, `num_bookings`
+                to_date, vpi.type, vpi.type_code, vertical, category, tcs_amount, tcs_rate, sub_category, credit_debit, abs(amount_collected_paid) as amount_collected_paid, vpi.tds_rate, vpi.tds_amount, reference_invoice_id, vpi.parts_count, `num_bookings`
                 FROM vendor_partner_invoices as vpi, bank_transactions as bt, partners as p
                 WHERE vpi.vendor_partner = 'partner' AND vpi.type = 'Partner_Voucher' AND type_code = 'B' AND bt.is_advance = '1' AND bt.invoice_id = vpi.invoice_id AND p.id = vpi.vendor_partner_id AND vendor_partner ='partner' $where";
 
@@ -354,7 +354,7 @@ class accounting_model extends CI_Model {
                 . " `around_royalty`,`amount_collected_paid`,"
                 . " `hsn_code`,"
                 . " case when((`cgst_tax_amount`+`igst_tax_amount`+`sgst_tax_amount`) = 0) Then buyback_tax_amount ELSE (`cgst_tax_amount`+`igst_tax_amount`+`sgst_tax_amount`) END as tax,"
-                . "`cgst_tax_rate`,`igst_tax_rate`,`sgst_tax_rate`,`tds_rate`,"
+                . "`cgst_tax_rate`,`igst_tax_rate`,`sgst_tax_rate`,`tds_rate`, tcs_amount, tcs_rate, "
                 . "`tds_amount`,`upcountry_price`,`penalty_amount`,"
                 . "`credit_penalty_amount`,`courier_charges`,`num_bookings`, vertical, category, sub_category, reference_invoice_id"
                 . " FROM vendor_partner_invoices as vpi LEFT JOIN service_centres as sc ON vendor_partner = 'vendor' "
