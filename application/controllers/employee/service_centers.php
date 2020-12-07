@@ -2830,8 +2830,6 @@ class Service_centers extends CI_Controller {
                 echo json_encode($returnData);
             }
         }
-
-        log_message('info', __FUNCTION__ . " Exit Service_center ID: " . $service_center_id);
     }
 
     /**
@@ -6890,11 +6888,15 @@ class Service_centers extends CI_Controller {
                        //$this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $sf_id, $part_details['requested_inventory_id'], -$data['quantity']);
                     } else if ($part_details['shippingStatus'] == -1) {
                         /* Insert Spare Tracking Details */
+                        $shipped_parts_name = "";
+                        if(!empty($part_details['shipped_parts_name'])){
+                            $shipped_parts_name = $part_details['shipped_parts_name'];
+                        }
                             if (!empty($part_details['spare_id'])) {
-                                $tracking_details = array('spare_id' => $part_details['spare_id'], 'action' => "SPARE TO BE SHIP", 'remarks' => "Warehouse Update - " . $part_details['parts_name'] . " To Be Shipped", 'agent_id' => $this->session->userdata("service_center_agent_id"), 'entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING);
+                                $tracking_details = array('spare_id' => $part_details['spare_id'], 'action' => "SPARE TO BE SHIP", 'remarks' => "Warehouse Update - " . $shipped_parts_name . " To Be Shipped", 'agent_id' => $this->session->userdata("service_center_agent_id"), 'entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING);
                                 $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                             }
-                        $this->insert_details_in_state_change($booking_id, "SPARE TO BE SHIP", "Warehouse Update - " . $part_details['parts_name'] . " To Be Shipped", "", "", $part_details['spare_id']);
+                        $this->insert_details_in_state_change($booking_id, "SPARE TO BE SHIP", "Warehouse Update - " . $shipped_parts_name . " To Be Shipped", "", "", $part_details['spare_id']);
                     }
                 }
                 //If challan was already generated and some part shipped different from requested then regenerate challan

@@ -932,8 +932,13 @@ function getTrackingData(){
                     ),
                 );
                 }
+                if(!empty($response)){
                  $this->jsonResponseString['response'] = $response;
                  $this->sendJsonResponse(array('0000', "Tracking details found successfully")); // send success response //
+                }else{
+                 $this->jsonResponseString['response'] = $response;
+                 $this->sendJsonResponse(array('0010', "No tracking Details found.")); // send success response //   
+                }
                
         } else {
             log_message("info", __METHOD__ . $validation['message']);
