@@ -280,22 +280,22 @@ else{
                            }
                             html +='<div class="col-md-12" >';
                             html += '<div class="col-md-4 "> <div class="form-group col-md-12  "><label for="remarks">Booking ID *</label>';
-                            html += '<input required type="text" class="form-control" style="font-size: 13px;"  id="bookingid_'+k+'" placeholder="Enter Booking ID" name="part['+data_list[k]["spare_id"]+'][booking_id]" value = "'+data[k]['booking_id']+'" >';
+                            html += '<input required type="text" class="form-control" style="font-size: 13px;"  id="bookingid_'+k+'" readonly placeholder="Enter Booking ID" name="part['+data_list[k]["spare_id"]+'][booking_id]" value = "'+data[k]['booking_id']+'" >';
                             html += '</div></div>';
 
                             html += '<div class="col-md-3 " style="width: 18%"><div class="form-group col-md-12  ">';
                             html += ' <label for="remarks">HSN Code *</label>';
-                            html += '<input required type="text" class="form-control" style="font-size: 13px;"  id="hsncode_'+k+'" placeholder="HSN Code" name="part['+data_list[k]["spare_id"]+'][hsn_code]" value = "'+data[k]["hsn_code"]+'" >';
+                            html += '<input required type="number" min="0" class="form-control" style="font-size: 13px;"  id="hsncode_'+k+'" placeholder="HSN Code" name="part['+data_list[k]["spare_id"]+'][hsn_code]" value = "'+data[k]["hsn_code"]+'" >';
                             html += '</div></div>';
 
                             html += '<div class="col-md-3 " style="width: 17%"><div class="form-group col-md-12  ">';
                             html += ' <label for="remarks">GST Rate *</label>';
-                            html += '<input required type="number" class="form-control" style="font-size: 13px;"  id="gstrate'+k+'" placeholder="GST Rate" name="part['+data_list[k]["spare_id"]+'][gst_rate]" value = "'+data[k]["gst_rate"]+'" >';
+                            html += '<input required type="number" min="0" class="form-control" style="font-size: 13px;"  id="gstrate'+k+'" placeholder="GST Rate" name="part['+data_list[k]["spare_id"]+'][gst_rate]" value = "'+data[k]["gst_rate"]+'" onkeyup="validateGST(this.value)">';
                             html += '</div></div>';
 
-                            html += '<div class="col-md-4 " style="width: 30%"><div class="form-group col-md-12  ">';
+                            html += '<div class="col-md-4 " style="width: 30%"><div class="form-group col-md-12">';
                             html += ' <label for="remarks">Basic Amount *</label>';
-                            html += '<input required type="number" step=".01" class="form-control" style="font-size: 13px;"  id="basic_amount'+k+'" placeholder="Enter Amount" name="part['+data_list[k]["spare_id"]+'][basic_amount]" value = "'+data[k]["invoice_amount"]+'" >';
+                            html += '<input required type="number" step=".01" min="0" class="form-control invoice_amount" style="font-size: 13px;"  id="basic_amount'+k+'" placeholder="Enter Amount" name="part['+data_list[k]["spare_id"]+'][basic_amount]" value = "'+data[k]["invoice_amount"]+'">';
                             html += '</div></div>';
                             html += '</div>';
                        }  
@@ -418,6 +418,84 @@ else{
     function disable_btn(id){
         $("#"+id).attr('disabled',true);
     }
+    
+    $("#invoice_id").keypress(function (e) {
+        var keyCode = e.keyCode || e.which;
+        var regex = /^[A-Za-z0-9-.]+$/;
+        //Validate TextBox value against the Regex.
+        var isValid = regex.test(String.fromCharCode(keyCode));
+        if (!isValid) {
+            alert("Invoice id should not be special character.");
+        }
+        return isValid;
+    });
+    
+    
+        $('.invoice_amount').bind('keydown', function (event) {
+        switch (event.keyCode) {
+            case 8:  // Backspace
+            case 9:  // Tab
+            case 13: // Enter
+            case 37: // Left
+            case 38: // Up
+            case 39: // Right
+            case 40: // Down
+                break;
+            default:
+                var regex = new RegExp("^[a-df-zA-DF-Z0-9,]+$");
+                var key = event.key;
+                if (!regex.test(key)) {
+                    event.preventDefault();
+                    return false;
+                }
+                break;
+        }
+    });
+    
+    
+      $(".invoice_amount").on({
+        "click": function () {
+            var amount = $(this).val();
+            if (amount < 0 || amount == 0) {
+                $(this).val('');
+                return false;
+            }
+ 
+        },
+        "keyup": function () {
+            var amount = $(this).val();
+            if (amount < 0 || amount == 0) {
+                $(this).val('');
+                return false;
+            }
+ 
+        },
+        "mouseleave": function () {
+            var amount = $(this).val();
+            if (amount < 0 || amount == 0) {
+                $(this).val('');
+                return false;
+            }
+ 
+        },
+        "mouseout": function () {
+            var amount = $(this).val();
+            if (amount < 0 || amount == 0 ) {
+                $(this).val('');
+                return false;
+            }
+        }
+    });
+    
+    function validateGST(textVal){
+        var regexp = /^\d+(\.\d{1,2})?$/;
+        if(!regexp.test(textVal)){
+            $("#gstrate0").val('');
+            alert('Please enter valid GST.');
+            return false;
+        }
+    }
+    
 </script>
 <style>
     .height-full-length
