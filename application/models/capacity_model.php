@@ -38,14 +38,25 @@ class Capacity_model extends CI_Model {
         $data['last_updated_by'] = $this->session->userdata("employee_id");
         
         // CASE : UPDATE
-        if (!empty($data['capacity_id'])) {
-            $this->db->where('id', $data['capacity_id']);
-            unset($data['Save'], $data['capacity_id']);
-            $this->db->update('capacity', $data);
-        } else {
-        // CASE : CREATE
-            unset($data['Save'], $data['capacity_id']);
-            $this->db->insert('capacity', $data);
+        $this->db->where('private_key',$data['private_key']);
+        $this->db->from('capacity');
+        $query = $this->db->get();   
+        $qarray=$query->result_array();     
+        if( empty($qarray) || $qarray[0]['id'] == $data['capacity_id'] ){
+            // CASE : UPDATE
+            if (!empty($data['capacity_id'])) {
+                $this->db->where('id', $data['capacity_id']);
+                unset($data['Save'], $data['capacity_id']);
+                $this->db->update('capacity', $data);
+            } else {
+            // CASE : CREATE
+                unset($data['Save'], $data['capacity_id']);
+                $this->db->insert('capacity', $data);
+            }
+        }
+        else
+        {
+            $this->session->set_flashdata('error','Capacity already exists as '.$data['private_key']);
         }
     }
     
