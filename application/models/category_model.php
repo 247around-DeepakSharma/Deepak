@@ -36,16 +36,25 @@ class Category_model extends CI_Model {
             $data['active'] = 0;
         }
         $data['private_key'] = strtoupper(preg_replace("/[^a-zA-Z0-9.-]/", "", $data['name']));        
-        
-        // CASE : UPDATE
-        if (!empty($data['category_id'])) {
-            $this->db->where('id', $data['category_id']);
-            unset($data['Save'], $data['category_id']);
-            $this->db->update('category', $data);
-        } else {
-        // CASE : CREATE
-            unset($data['Save'], $data['category_id']);
-            $this->db->insert('category', $data);
+        $this->db->where('private_key',$data['private_key']);
+        $this->db->from('category');
+        $query = $this->db->get();   
+        $qarray=$query->result_array();     
+        if( empty($qarray) || $qarray[0]['id'] == $data['category_id'] ){
+            // CASE : UPDATE
+            if (!empty($data['category_id'])) {
+                $this->db->where('id', $data['category_id']);
+                unset($data['Save'], $data['category_id']);
+                $this->db->update('category', $data);
+            } else {
+            // CASE : CREATE
+                unset($data['Save'], $data['category_id']);
+                $this->db->insert('category', $data);
+            }
+        }
+        else
+        {
+            $this->session->set_flashdata('error','Category already exists as '.$data['private_key']);
         }
     }
     
