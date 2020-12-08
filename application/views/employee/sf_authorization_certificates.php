@@ -1,6 +1,12 @@
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css"/>
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.5/css/buttons.dataTables.min.css" />
+</head>
 <style>
     #auth_cert_filter{
         float:right;
+    }   
+    .dt-buttons{
+        margin-left:20px;
     }
 </style>
 <div class="col-md-12 col-sm-12 col-xs-12">
@@ -27,7 +33,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php $k=0; 
+                        <?php $k=0;
                         if (!empty($service_centers)) { ?>
                             <?php foreach ($service_centers as $service_center) { ?>
 
@@ -73,9 +79,12 @@
         $('#auth_cert').DataTable({
             "order": [[0, "asc"]],
             'columnDefs': [{
-                    'targets': [2, 3], // column index (start from 0)
+                    'targets': [2, 3,4], // column index (start from 0)
                     'orderable': false, // set orderable false for selected columns
-                }]
+                }],
+              dom:'lBfrtip',
+              buttons:['excel']        
+        
         });
     });
 
