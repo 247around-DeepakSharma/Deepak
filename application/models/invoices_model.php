@@ -1576,7 +1576,7 @@ class invoices_model extends CI_Model {
 
         $sql1 = "SELECT  booking_unit_details.id AS unit_id, `booking_details`.booking_id, 
                     `booking_details`.city, `booking_details`.internal_status,
-		     date_format(`booking_unit_details`.`ud_closed_date`,'%d/%m/%Y') as closed_date, 
+		     date_format(`booking_unit_details`.`ud_closed_date`,'%d-%b-%Y') as closed_date,
                      `booking_unit_details`.ud_closed_date as closed_booking_date, 
                       rating_stars, `booking_unit_details`.price_tags,
 		     `booking_unit_details`.appliance_category, 
@@ -2065,7 +2065,7 @@ class invoices_model extends CI_Model {
             $sql = "SELECT booking_unit_details.id AS unit_id, "
                     . "`booking_details`.booking_id, "
                     . "`booking_details`.city,"
-                    . " date_format(`booking_unit_details`.`ud_closed_date`,'%d/%m/%Y') as closed_date,"
+                    . " date_format(`booking_unit_details`.`ud_closed_date`,'%d-%b-%Y') as closed_date,"
                     . "`booking_unit_details`.ud_closed_date as closed_booking_date, "
                     . " `booking_unit_details`.price_tags, "
                     . "`booking_unit_details`.appliance_category,"

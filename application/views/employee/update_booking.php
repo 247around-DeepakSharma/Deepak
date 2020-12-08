@@ -1021,7 +1021,7 @@ if(empty($booking_history[0]['booking_id'])){
     </div>
 </div>
 <!-- Repeat Booking Model  -->
-<div class="modal fade" id="repeat_booking_model" tabindex="-1" role="dialog" aria-labelledby="repeat_booking_model" aria-hidden="true" style="z-index: 2">
+<div class="modal fade" id="repeat_booking_model" tabindex="-1" role="dialog" aria-labelledby="repeat_booking_model" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">

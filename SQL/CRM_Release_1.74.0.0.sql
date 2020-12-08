@@ -7,8 +7,13 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 -- Ankit 02-07-2020
 INSERT INTO `partner_summary_report_mapping` (`id`, `Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES (NULL, 'Covid Zone', 'india_district_coordinates.zone_color AS \'Covid Zone\'', '1', '', '1', '2');
 
-I-- Raman
--- 30-06-2020
+
+UPDATE `email_template` SET `from` = 'ar@247around.com' WHERE `email_template`.`id` = 44;
+
+-- Ankit
+ALTER TABLE `inventory_ledger` ADD `spare_id` int(11) NULL DEFAULT NULL;
+
+ 
 
 CREATE TABLE custom_report_queries (
     id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -31,12 +36,19 @@ INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `
 ALTER TABLE `custom_report_queries` ADD `active` TINYINT(1) NOT NULL DEFAULT '0' AFTER `query`;
 
 UPDATE`custom_report_queries` SET `active` = 1;
+<<<<<<< HEAD
 
 INSERT INTO `custom_report_queries` (`id`, `tag`, `subject`, `query`, `active`, `create_date`) VALUES (NULL, 'covid_zone_details_sf_wise', '', 'SELECT service_centres.id, service_centres.name as Name, service_centres.company_name as \'Company Name\',service_centres.state as State,service_centres.district as District, india_district_coordinates.zone_color as \'Zone Color\' FROM service_centres JOIN india_district_coordinates ON service_centres.district = india_district_coordinates.district WHERE service_centres.active = 1', '1', CURRENT_TIMESTAMP);
 ALTER TABLE `custom_report_queries` ADD `active` TINYINT(1) NOT NULL DEFAULT '0' AFTER `query`;
 
 
 UPDATE`custom_report_queries` SET `active` = 1;
+=======
+ 
+---27-july--Abhishek--
+ALTER TABLE `engineer_table_sign` ADD `device_info` TEXT NULL DEFAULT NULL AFTER `mismatch_pincode`;
+ 
+>>>>>>> 18fa5404e... CRMS-965	 Update Device Info While Complete Booking from APP in engineer_booking_sign_table
 
 INSERT INTO `custom_report_queries` (`id`, `tag`, `subject`, `query`, `active`, `create_date`) VALUES (NULL, 'covid_zone_details_sf_wise', '', 'SELECT service_centres.id, service_centres.name as Name, service_centres.company_name as \'Company Name\',service_centres.state as State,service_centres.district as District, india_district_coordinates.zone_color as \'Zone Color\' FROM service_centres JOIN india_district_coordinates ON service_centres.district = india_district_coordinates.district WHERE service_centres.active = 1', '1', CURRENT_TIMESTAMP);
 
