@@ -839,7 +839,7 @@ class Partner extends CI_Controller {
                             $mail_data['subject'] = $subject;
                             $mail_data['html'] = $message;
                             $sendUrl = base_url().'employee/partner/send_partner_onboarding_mail_to_all';
-                            $this->asynchronous_lib->do_background_process($sendUrl, $email_data);
+                            $this->asynchronous_lib->do_background_process($sendUrl, $mail_data);
                         }
                     }
                     
@@ -5747,8 +5747,10 @@ class Partner extends CI_Controller {
         if(!empty($postArray['Completion_Date_Range'])) {
             $completionDateArray = explode(" - ",$postArray['Completion_Date_Range']);
             $completion_start_date = date('Y-m-d',strtotime($completionDateArray[0]));
-            $completion_end_date = date('Y-m-d',strtotime($completionDateArray[1]));
-            
+            $completion_end_date = date('Y-m-d',strtotime($completionDateArray[0]));
+            if(!empty($completionDateArray[1])){
+                $completion_end_date = date('Y-m-d',strtotime($completionDateArray[1]));
+            }
             $where[] = "(date(booking_details.service_center_closed_date)>='".$completion_start_date."' AND date(booking_details.service_center_closed_date)<='".$completion_end_date."')";
         }
         
@@ -7590,7 +7592,7 @@ class Partner extends CI_Controller {
          if($this->session->userdata('is_filter_applicable') == 1){
               $state = 1;
            }  
-        if(array_key_exists("order", $postData)){
+         if(!empty($postData['order']) && array_key_exists("order", $postData)){
               $order_by = $columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
           }
          $partner_id = $this->session->userdata('partner_id');
@@ -9626,8 +9628,10 @@ class Partner extends CI_Controller {
         if(!empty($postArray['Completion_Date_Range'])) {
             $completionDateArray = explode(" - ",$postArray['Completion_Date_Range']);
             $completion_start_date = date('Y-m-d',strtotime($completionDateArray[0]));
-            $completion_end_date = date('Y-m-d',strtotime($completionDateArray[1]));
-            
+            $completion_end_date = date('Y-m-d',strtotime($completionDateArray[0]));
+            if(!empty($completionDateArray[1])){
+                $completion_end_date = date('Y-m-d',strtotime($completionDateArray[1]));
+            }
             $where[] = "(date(booking_details.service_center_closed_date)>='".$completion_start_date."' AND date(booking_details.service_center_closed_date)<='".$completion_end_date."')";
         }
         
@@ -10075,6 +10079,7 @@ class Partner extends CI_Controller {
     function send_partner_onboarding_mail_to_all() {
         $cc = '';
         $bcc = '';
+        $data = $this->input->post();
         $recipients_array = $data['recipients_array'];
         $subject = $data['subject'];
         $html = $data['html'];
