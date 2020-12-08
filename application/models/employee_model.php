@@ -274,9 +274,16 @@ class Employee_model extends CI_Model{
    */
 
    function updateManager($data){
-   	$query = "";
+        $query = "";
         foreach($data as $value) {
-            $query .=  "Update employee_hierarchy_mapping set manager_id=".$value['manager']." where employee_id=".$value['id']."; ";
+             $select_query = $this->db->select('manager_id');
+             $this->db->from('employee_hierarchy_mapping');
+             $this->db->where(['employee_id' => $value['id'], 'manager_id' => $value['manager']]);
+             $query_select = $this->db->get();
+             $result = $query_select->result();
+             if(empty($result)){
+             $query .= "Update employee_hierarchy_mapping SET manager_id=".$value['manager']." WHERE employee_id=".$value['id'];
+             }    
         }
         $result=$this->db->query($query);
    }
