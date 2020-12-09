@@ -130,11 +130,11 @@ class Employee_model extends CI_Model{
           return $query->result_array();
       }
       
-
     /**
-    * @Desc: This function is used for getting rm region
-    * @assumption funtion to be called by employee where group is regionalmanager
-    * @return: Array
+       * @Desc: This function is used to get RM's name mapped with region from employee table and rm region mapping table
+       * @params: void
+       * @return: Array
+       * 
     */
       function get_rm_region($region=null){
         $this->db->select('employee.full_name, zones.zone');
@@ -146,6 +146,7 @@ class Employee_model extends CI_Model{
         $query = $this->db->get('rm_zone_mapping');
         return $query->result_array(); 
      }
+
       /**
        * @Desc: This function is used to get RM's from employee table
        * @params: void
@@ -266,19 +267,26 @@ class Employee_model extends CI_Model{
             $result=$this->db->query($query);
         }
    }
-   /**
-   * @desc : This funtion for update employee managerial mapping
-   * @param : data
-   * @return : void
-   */
-
-   function updateManager($data){
-   	$query = "";
+   
+    /**
+    * @desc : This funtion for update employee managerial mapping
+    * @param : data
+    * @return : void
+    */
+    function updateManager($data){
         foreach($data as $value) {
-            $query .=  "Update employee_hierarchy_mapping set manager_id=".$value['manager']." where employee_id=".$value['id']."; ";
-        }
-        $result=$this->db->query($query);
-   }
+            $this->db->select('manager_id');
+            $this->db->from('employee_hierarchy_mapping');
+            $this->db->where(['employee_id' => $value['id'], 'manager_id' => $value['manager']]);
+            $query_select = $this->db->get();
+            $result = $query_select->result();
+            if(empty($result)){
+                $query = "Update employee_hierarchy_mapping SET manager_id = '".$value['manager']."' WHERE employee_id = '".$value['id']."'";
+                $result = $this->db->query($query);
+            }    
+        }        
+    }
+    
    /**
    * @desc : This funtion get employee managerial mapping
    * @param : employee id
@@ -643,4 +651,5 @@ class Employee_model extends CI_Model{
         $this->db->insert($table_name,$data);
         return  $this->db->insert_id();
     }
+
 }
