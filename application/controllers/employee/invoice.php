@@ -6707,15 +6707,24 @@ exit();
      *  @return : Boolean 0 or 1
      */
     function check_gst_tax_type() {
+        log_message('info', __METHOD__. json_encode($_POST, true));
         $gst_number_id = $this->input->post('gst_number');
         $vendor_partner_type = $this->input->post('vendor_partner_type');
         $vendor_partner_id = $this->input->post('vendor_partner_id');
+        $entity_gst_id = $this->input->post('entity_gst_id');
         
         $c_s_gst = '';
         if(!empty($gst_number_id) && !empty($vendor_partner_type) && !empty($vendor_partner_id)) {
-            $entity_details = (($vendor_partner_type == _247AROUND_PARTNER_STRING) ? $this->partner_model->getpartner($vendor_partner_id) : $this->vendor_model->getVendorDetails("district, state", array('service_centres.id' => $vendor_partner_id)) );
-            $entity_state_code = $this->invoices_model->get_state_code(array('state' => $entity_details[0]['state']))[0]['state_code'];
+            if(empty($entity_gst_id)){
+                $entity_details = (($vendor_partner_type == _247AROUND_PARTNER_STRING) ? $this->partner_model->getpartner($vendor_partner_id) : $this->vendor_model->getVendorDetails("district, state", array('service_centres.id' => $vendor_partner_id)) );
             
+                $entity_state_code = $this->invoices_model->get_state_code(array('state' => $entity_details[0]['state']))[0]['state_code'];
+            } else {
+                $en_gst = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $entity_gst_id));
+                
+                $entity_state_code = $en_gst[0]['state'];
+            }
+
             $around_gst = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $gst_number_id));
             
             if ($around_gst[0]['state'] == $entity_state_code) {
