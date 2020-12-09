@@ -267,26 +267,26 @@ class Employee_model extends CI_Model{
             $result=$this->db->query($query);
         }
    }
-   /**
-   * @desc : This funtion for update employee managerial mapping
-   * @param : data
-   * @return : void
-   */
-
-   function updateManager($data){
-        $query = "";
+   
+    /**
+    * @desc : This funtion for update employee managerial mapping
+    * @param : data
+    * @return : void
+    */
+    function updateManager($data){
         foreach($data as $value) {
-             $select_query = $this->db->select('manager_id');
-             $this->db->from('employee_hierarchy_mapping');
-             $this->db->where(['employee_id' => $value['id'], 'manager_id' => $value['manager']]);
-             $query_select = $this->db->get();
-             $result = $query_select->result();
-             if(empty($result)){
-             $query .= "Update employee_hierarchy_mapping SET manager_id=".$value['manager']." WHERE employee_id=".$value['id'];
-             }    
-        }
-        $result=$this->db->query($query);
-   }
+            $this->db->select('manager_id');
+            $this->db->from('employee_hierarchy_mapping');
+            $this->db->where(['employee_id' => $value['id'], 'manager_id' => $value['manager']]);
+            $query_select = $this->db->get();
+            $result = $query_select->result();
+            if(empty($result)){
+                $query = "Update employee_hierarchy_mapping SET manager_id = '".$value['manager']."' WHERE employee_id = '".$value['id']."'";
+                $result = $this->db->query($query);
+            }    
+        }        
+    }
+    
    /**
    * @desc : This funtion get employee managerial mapping
    * @param : employee id
