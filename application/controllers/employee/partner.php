@@ -573,9 +573,9 @@ class Partner extends CI_Controller {
         }
         return $post;
     }
-
-        $to = DEVELOPER_EMAIL;
+        
     function insertion_failure($post, $error_msg = "", $api_response = array()) {
+        $to = DEVELOPER_EMAIL;
         $cc = "";
         $bcc = "";
         $subject = "Booking Insertion Failure By " . $this->session->userdata('partner_name'). " : ".$error_msg;
