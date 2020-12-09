@@ -475,7 +475,7 @@ class Partner extends CI_Controller {
                     }
                     else if ($responseData['data']['code'] == -24700) {
                         log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  Same booking has already been created. Please try after some time. " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
-                        $this->insertion_failure($postData);
+                        $this->insertion_failure($postData, "Duplicate Booking", $responseData['data']);
 
                         $output = "Same booking has already been created. Please try after some time.";
                         $userSession = array('error' => $output);
@@ -484,7 +484,7 @@ class Partner extends CI_Controller {
                     }
                     else {
                         log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
-                        $this->insertion_failure($postData);
+                        $this->insertion_failure($postData, "Internal Server Error", $responseData['data']);
 
                         $output = "Sorry, Booking Could Not be Inserted. Please Try Again.";
                         $userSession = array('error' => $output);
@@ -493,7 +493,7 @@ class Partner extends CI_Controller {
                     }
                 } else {
                     log_message('info', 'Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
-                    $this->insertion_failure($postData);
+                    $this->insertion_failure($postData, "Invalid Response from API", $responseData['data']);
 
                     $output = "Sorry, Booking Could Not Be Inserted. 247around Team Is Looking Into This.";
                     $userSession = array('error' => $output);
@@ -571,13 +571,16 @@ class Partner extends CI_Controller {
         }
         return $post;
     }
-
-    function insertion_failure($post) {
+        
+    function insertion_failure($post, $error_msg = "", $api_response = array()) {
         $to = DEVELOPER_EMAIL;
         $cc = "";
         $bcc = "";
-        $subject = "Booking Insertion Failure By " . $this->session->userdata('partner_name');
+        $subject = "Booking Insertion Failure By " . $this->session->userdata('partner_name'). " : ".$error_msg;
         $message = $post;
+        if(!empty($api_response) && is_array($api_response)){
+            $message .= json_encode($api_response);
+        }
         $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "",BOOKING_INSERTION_FAILURE);
     }
 
@@ -839,7 +842,7 @@ class Partner extends CI_Controller {
                             $mail_data['subject'] = $subject;
                             $mail_data['html'] = $message;
                             $sendUrl = base_url().'employee/partner/send_partner_onboarding_mail_to_all';
-                            $this->asynchronous_lib->do_background_process($sendUrl, $email_data);
+                            $this->asynchronous_lib->do_background_process($sendUrl, $mail_data);
                         }
                     }
                     
@@ -10079,6 +10082,7 @@ class Partner extends CI_Controller {
     function send_partner_onboarding_mail_to_all() {
         $cc = '';
         $bcc = '';
+        $data = $this->input->post();
         $recipients_array = $data['recipients_array'];
         $subject = $data['subject'];
         $html = $data['html'];

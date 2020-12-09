@@ -228,7 +228,7 @@
                                         if (form_error('invoice_amount')) { echo 'has-error'; } ?>">
                                         <label for="invoice_amount" class="col-md-4">Invoice Amount (including tax)</label>
                                         <div class="col-md-7">
-                                            <input type="number" class="form-control" id="<?php echo "invoiceamount_". $key; ?>" name="part[<?php echo $key; ?>][invoiceamount]" value = "" placeholder="Please Enter Invoice Amount"  required>
+                                            <input type="number" class="form-control invoice_amount" id="<?php echo "invoiceamount_". $key; ?>" name="part[<?php echo $key; ?>][invoiceamount]" value = "" placeholder="Please Enter Invoice Amount"  required>
                                             <?php echo form_error('invoice_amount'); ?>
                                         </div>
                                     </div>
@@ -420,7 +420,7 @@
                                     <div class="form-group">
                                         <label for="invoice_amount" class="col-md-4">Invoice Amount (including tax)</label>
                                         <div class="col-md-7">
-                                            <input type="number" class="form-control" id="invoiceamount"  value = "" placeholder="Please Enter Invoice Amount"  required>
+                                            <input type="number" class="form-control invoice_amount" id="invoiceamount"  value = "" placeholder="Please Enter Invoice Amount"  required>
                                         </div>
                                     </div>
                                     <?php } ?>
@@ -838,7 +838,79 @@
         });  
         return str;  
     }
+    
        
+    $('.invoice_amount').bind('keydown', function (event) {
+        switch (event.keyCode) {
+            case 8:  // Backspace
+            case 9:  // Tab
+            case 13: // Enter
+            case 37: // Left
+            case 38: // Up
+            case 39: // Right
+            case 40: // Down
+                break;
+            default:
+                var regex = new RegExp("^[a-df-zA-DF-Z0-9,]+$");
+                var key = event.key;
+                if (!regex.test(key)) {
+                    event.preventDefault();
+                    return false;
+                }
+                break;
+        }
+    });
+    
+    
+      $(".invoice_amount").on({
+        "click": function () {
+            var amount = $(this).val();
+            if (amount < 0 || amount == 0) {
+                $(this).val('');
+                return false;
+            }
+ 
+        },
+        "keyup": function () {
+            var amount = $(this).val();
+            if (amount < 0 || amount == 0) {
+                $(this).val('');
+                return false;
+            }
+ 
+        },
+        "mouseleave": function () {
+            var amount = $(this).val();
+            if (amount < 0 || amount == 0) {
+                $(this).val('');
+                return false;
+            }
+ 
+        },
+        "mouseout": function () {
+            var amount = $(this).val();
+            if (amount < 0 || amount == 0 ) {
+                $(this).val('');
+                return false;
+            }
+        }
+    });
+    
+   
+       
+   
+ 
+        $(".invoice_id_class").keypress(function (e) {
+            var keyCode = e.keyCode || e.which;
+            var regex = /^[A-Za-z0-9-.]+$/;
+            //Validate TextBox value against the Regex.
+            var isValid = regex.test(String.fromCharCode(keyCode));
+            if (!isValid) {
+                alert("Invoice id should not be special character.");
+            }
+            return isValid;
+        });
+        
     <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
 
     $('.shipped_model_number_id').select2();
