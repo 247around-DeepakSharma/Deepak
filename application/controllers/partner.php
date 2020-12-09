@@ -1647,16 +1647,12 @@ class Partner extends CI_Controller {
                     $booking['created_by_agent_type'] = $created_by_agent_type;
                     $booking['created_by_agent_id'] = $created_by;
                     $booking['created_source'] = $created_source;
-                    // Check if user already created a booking with the combintion of same appliance, appliance category, capacity within the interval of 10 miutes. if it is , then booking is not created.
-                    $is_booking_exist = $this->booking_model->is_booking_exist($booking['user_id'],$requestData['appliance_name'],$requestData['category'],$requestData['capacity'],$requestData['service_id']);
-                    $return_id = "";
-                    if(empty($is_booking_exist))
-                    {
-                        $return_id = $this->booking_model->addbooking($booking);
-                        if($requestData['booking_request_symptom']) {
-                            $symptomStatus = $this->booking_model->addBookingSymptom($booking_symptom);
-                        }
+                    
+                    $return_id = $this->booking_model->addbooking($booking);
+                    if($requestData['booking_request_symptom']) {
+                        $symptomStatus = $this->booking_model->addBookingSymptom($booking_symptom);
                     }
+                    
                     
                     if (!empty($return_id)) {
                         //Send Push Notification to Partner
