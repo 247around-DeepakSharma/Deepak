@@ -1219,20 +1219,23 @@
         }
     }
     function check_gst_tax_type() {
+        
         var gst_number = $("#gst_number").val();
         var vendor_partner_type = '<?php echo $vendor_partner; ?>';
         var vendor_partner_id =  $("#vendor_partner_id").val();
         var id = index = '';
-        var type_code = $("#type_code").val();
+        var type_code = $("input[name='around_type']:checked").val();
         var entity_gst_id = "";
-        <?php if (isset($invoice_details[0]['vendor_partner_id']) && !empty($invoice_details[0]['from_gst_number']) && !empty($invoice_details[0]['to_gst_number']) ) { ?>
-        if(type_code  === "A"){
-            entity_gst_id = '<?php echo $invoice_details[0]['to_gst_number'];?>';
-        } else {
-            entity_gst_id = '<?php echo $invoice_details[0]['from_gst_number'];?>';
-        }
-        <?php } ?>
         
+        <?php if (isset($invoice_breakup[0]['from_gst_number']) && !empty($invoice_breakup[0]['from_gst_number']) && !empty($invoice_breakup[0]['to_gst_number']) ) { ?>
+            
+            if(type_code  === "A"){
+                entity_gst_id = '<?php echo $invoice_breakup[0]['to_gst_number'];?>';
+            } else {
+                entity_gst_id = '<?php echo $invoice_breakup[0]['from_gst_number'];?>';
+            }
+        
+        <?php } ?>
         if((gst_number != null) && (vendor_partner_id != null)) {
             
             if(vendor_partner_id === '<?php echo VIDEOCON_ID;?>'){
