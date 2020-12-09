@@ -4356,48 +4356,69 @@ class vendor extends CI_Controller {
             //Getting Booking Details 
             $booking_details = $this->booking_model->getbooking_history($booking_id[$key], 'service_centres');
            
-                log_message("info", __METHOD__. " remove key ".$penalty_remove_reason[$key]);
-            $a = array('service_center_id' => $booking_details[0]['assigned_vendor_id'],
-                    "criteria_id" => BOOKING_NOT_UPDATED_PENALTY_CRITERIA,
-                    "active" => 1,
-                    "booking_id" => $booking_id[$key]);
-            $aData = $this->reusable_model->get_search_query('penalty_on_booking','*',$a,NULL,NULL,NULL,NULL,NULL,NULL)->result_array();
-            
+            log_message("info", __METHOD__. " remove key ".$penalty_remove_reason[$key]);
+            if(!empty($booking_details[0]['assigned_vendor_id'])){
+                $a = array('service_center_id' => $booking_details[0]['assigned_vendor_id'],
+                        "criteria_id" => BOOKING_NOT_UPDATED_PENALTY_CRITERIA,
+                        "active" => 1,
+                        "booking_id" => $booking_id[$key]);
+                $aData = $this->reusable_model->get_search_query('penalty_on_booking','*',$a,NULL,NULL,NULL,NULL,NULL,NULL)->result_array();
+            }
             if(empty($aData)){
                 $this->booking_model->update_booking($booking_id[$key], array('is_penalty' => 0));
             }
             
-            
-            
             //Sending Mails
-
             $template = $this->booking_model->get_booking_email_template("remove_penalty_on_booking");
             if (!empty($template)) {
-                $to = $booking_details[0]['primary_contact_email'] . ',' . $booking_details[0]['owner_email'];
-                //From will be currently logged in user's official Email
-                $from = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['official_email'];
-                $cc = $template[3];
-                //Getting RM Official Email details to send Welcome Mails to them as well
-                $rm_id = $this->vendor_model->get_rm_sf_relation_by_sf_id($booking_details[0]['assigned_vendor_id'])[0]['agent_id'];
-                $rm_official_email = $this->employee_model->getemployeefromid($rm_id)[0]['official_email'];
-                $cc .= ",".$rm_official_email;
-                // Send Mail To asm also
-                $asm_details = $this->vendor_model->get_asm_contact_details_by_sf_id($booking_details[0]['assigned_vendor_id']);
-                if(!empty($asm_details[0]['official_email']))
-                {
-                    $asm_mail = "," . $asm_details[0]['official_email'];
-                    $cc .= ",".$asm_mail;
+                $to = "";
+                if(!empty($booking_details[0]['primary_contact_email'])){
+                    $to = $booking_details[0]['primary_contact_email'];
+                }
+                if(!empty($booking_details[0]['owner_email'])){
+                    if(empty($to)){
+                        $to = $booking_details[0]['primary_contact_email'];
+                    }
+                    else
+                    {
+                        $to .= ",".$booking_details[0]['primary_contact_email'];
+                    }
                 }                
+                //From will be currently logged in user's official Email
+                $from = "";
+                $emp_data = $this->employee_model->getemployeefromid($this->session->userdata('id'));
+                if(!empty($emp_data[0]['official_email'])){
+                    $from = $emp_data[0]['official_email'];
+                }
+
+                $rm_official_email = "";
+                $asm_mail = "";
+                if(!empty($booking_details[0]['assigned_vendor_id'])){
+                    //Getting RM Official Email details to send Welcome Mails to them as well                
+                    $rm_data = $this->vendor_model->get_rm_sf_relation_by_sf_id($booking_details[0]['assigned_vendor_id']);
+                    if(!empty($rm_data[0]['agent_id'])){
+                        $rm_id = $rm_data[0]['agent_id'];
+                        $rm_official_email = $this->employee_model->getemployeefromid($rm_id)[0]['official_email'];
+                    }
+                    // Send Mail To asm also
+                    $asm_details = $this->vendor_model->get_asm_contact_details_by_sf_id($booking_details[0]['assigned_vendor_id']);
+                    if(!empty($asm_details))
+                    {
+                        $asm_mail = "," . $asm_details[0]['official_email'];
+                    }
+                }               
                 //Sending Mail
                 $email['booking_id'] = $booking_id[$key];
                 $emailBody = vsprintf($template[0], $email);
 
                 $subject['booking_id'] = $booking_id[$key];
                 $subjectBody = vsprintf($template[4], $subject);
-                $this->notify->sendEmail($from, $to, $cc, '', $subjectBody, $emailBody, "",'remove_penalty_on_booking', "", $booking_id[$key]);
-
-                //Logging
-                log_message('info', " Remove Penalty Report Mail Send successfully" . $emailBody);
+                if(!empty($from) && !empty($to))
+                {
+                    $this->notify->sendEmail($from, $to, $template[3] . "," . $rm_official_email . $asm_mail, '', $subjectBody, $emailBody, "",'remove_penalty_on_booking', "", $booking_id[$key]);
+                    //Logging
+                    log_message('info', " Remove Penalty Report Mail Send successfully" . $emailBody);
+                }
             } else {
                 //Logging
                 log_message('info', __FUNCTION__ . ' Error in getting Email Template for remove_penalty_on_booking');

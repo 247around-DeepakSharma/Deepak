@@ -2692,6 +2692,12 @@ class Inventory extends CI_Controller {
 
         return $row;
     }
+    
+    /*
+     * Desc: This function is used to rendor to generate OOW spare invoice 
+     * @param: void
+     * @rendor: spare_invoice_list  
+     */
 
     function spare_invoice_list() {
         log_message("info", __METHOD__);
@@ -2710,6 +2716,7 @@ class Inventory extends CI_Controller {
         if($this->input->post('dashboard')){
             $data['dashboard']  =   $this->input->post('dashboard');
         }else{
+            $data['dashboard'] = '';
         $this->miscelleneous->load_nav_header();
         }
         $this->load->view("employee/spare_invoice_list", $data);

@@ -839,7 +839,7 @@ class Partner extends CI_Controller {
                             $mail_data['subject'] = $subject;
                             $mail_data['html'] = $message;
                             $sendUrl = base_url().'employee/partner/send_partner_onboarding_mail_to_all';
-                            $this->asynchronous_lib->do_background_process($sendUrl, $email_data);
+                            $this->asynchronous_lib->do_background_process($sendUrl, $mail_data);
                         }
                     }
                     
@@ -3960,7 +3960,7 @@ class Partner extends CI_Controller {
      */
     function upcountry_charges_approval($booking_id, $status) {
         log_message('info', __FUNCTION__ . " => Booking Id" . $booking_id . ' status: ' . $status);
-
+        $msg = "";
         $data = $this->upcountry_model->get_upcountry_service_center_id_by_booking($booking_id);
         if (!empty($data)) {
             if ($data[0]['upcountry_partner_approved'] == 0 & empty($data[0]['assigned_vendor_id'])) {
@@ -4678,12 +4678,13 @@ class Partner extends CI_Controller {
         $partner_details = $this->partner_model->getpartner_details("partners.id, public_name, "
                 . "postpaid_credit_period, is_active, postpaid_notification_limit, postpaid_grace_period, "
                 . "invoice_email_to,invoice_email_cc, is_prepaid", array('partners.id' => $partner_id));
-        $postpaid = $this->invoice_lib->get_postpaid_partner_outstanding($partner_details[0]);
-
-        $userSession = array('status' => $postpaid['active'], "message" => $postpaid['notification_msg']);
-        log_message("info", __METHOD__. " POSTPAID partner is active ". $postpaid['active']);
-        $this->session->set_userdata($userSession);
-        return true;
+        if(!empty($partner_details[0])){
+            $postpaid = $this->invoice_lib->get_postpaid_partner_outstanding($partner_details[0]);
+            $userSession = array('status' => $postpaid['active'], "message" => $postpaid['notification_msg']);
+            log_message("info", __METHOD__. " POSTPAID partner is active ". $postpaid['active']);
+            $this->session->set_userdata($userSession);
+            return true;
+        }        
     }
 
     public function get_contact_us_page() {
@@ -5746,8 +5747,10 @@ class Partner extends CI_Controller {
         if(!empty($postArray['Completion_Date_Range'])) {
             $completionDateArray = explode(" - ",$postArray['Completion_Date_Range']);
             $completion_start_date = date('Y-m-d',strtotime($completionDateArray[0]));
-            $completion_end_date = date('Y-m-d',strtotime($completionDateArray[1]));
-            
+            $completion_end_date = date('Y-m-d',strtotime($completionDateArray[0]));
+            if(!empty($completionDateArray[1])){
+                $completion_end_date = date('Y-m-d',strtotime($completionDateArray[1]));
+            }
             $where[] = "(date(booking_details.service_center_closed_date)>='".$completion_start_date."' AND date(booking_details.service_center_closed_date)<='".$completion_end_date."')";
         }
         
@@ -7589,7 +7592,7 @@ class Partner extends CI_Controller {
          if($this->session->userdata('is_filter_applicable') == 1){
               $state = 1;
            }  
-        if(array_key_exists("order", $postData)){
+         if(!empty($postData['order']) && array_key_exists("order", $postData)){
               $order_by = $columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
           }
          $partner_id = $this->session->userdata('partner_id');
@@ -9625,8 +9628,10 @@ class Partner extends CI_Controller {
         if(!empty($postArray['Completion_Date_Range'])) {
             $completionDateArray = explode(" - ",$postArray['Completion_Date_Range']);
             $completion_start_date = date('Y-m-d',strtotime($completionDateArray[0]));
-            $completion_end_date = date('Y-m-d',strtotime($completionDateArray[1]));
-            
+            $completion_end_date = date('Y-m-d',strtotime($completionDateArray[0]));
+            if(!empty($completionDateArray[1])){
+                $completion_end_date = date('Y-m-d',strtotime($completionDateArray[1]));
+            }
             $where[] = "(date(booking_details.service_center_closed_date)>='".$completion_start_date."' AND date(booking_details.service_center_closed_date)<='".$completion_end_date."')";
         }
         
@@ -10074,6 +10079,7 @@ class Partner extends CI_Controller {
     function send_partner_onboarding_mail_to_all() {
         $cc = '';
         $bcc = '';
+        $data = $this->input->post();
         $recipients_array = $data['recipients_array'];
         $subject = $data['subject'];
         $html = $data['html'];
