@@ -508,7 +508,6 @@ class Service_centers extends CI_Controller {
         if (count($data['technical_defect']) <= 0) {
             $data['technical_defect'][0] = array('defect_id' => 0, 'defect' => 'Default');
         }
-
         $data['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL, '(spare_parts_details.consumed_part_status_id is null or spare_parts_details.consumed_part_status_id = '.OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID.')' => NULL, 'defective_part_shipped is null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);
         $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag', ['active' => 1, "tag <> '".PART_NOT_RECEIVED_TAG."'" => NULL], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
         $this->load->view('service_centers/header');
@@ -770,12 +769,14 @@ class Service_centers extends CI_Controller {
                     $model_details = $this->partner_model->get_model_number('category, capacity', array('appliance_model_details.model_number' => $value,
                         'appliance_model_details.entity_id' => $partner_id, 'appliance_model_details.active' => 1, 'partner_appliance_details.active' => 1, 'partner_appliance_details.brand' => $brand));
                     $sc_change = false;
-                    if (($unit[0]['appliance_category'] == $model_details[0]['category']) && ($unit[0]['appliance_capacity'] == $model_details[0]['capacity'])) {
-                        $sc_change = false;
-                    } else {
-                        $sc_change = true;
-                    }
-
+                    if(!empty($unit[0]['appliance_category']) && !empty($model_details[0]['category']) && !empty($unit[0]['appliance_capacity']) && !empty($model_details[0]['capacity']))
+                    {
+                        if($unit[0]['appliance_category'] == $model_details[0]['category'] && $unit[0]['appliance_capacity'] == $model_details[0]['capacity']){
+                            $sc_change = false;
+                        } else {
+                            $sc_change = true;
+                        }
+                    }         
                     if ($sc_change) {
                         $partner_data = $this->partner_model->get_partner_code($partner_id);
                         $partner_type = $partner_data[0]['partner_type'];
