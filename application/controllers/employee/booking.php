@@ -120,11 +120,7 @@ class Booking extends CI_Controller {
             if ($checkValidation) {
                 log_message('info', __FUNCTION__);
                 log_message('info', " Booking Insert Contact No: " . $primary_contact_no);
-                // Check if user already created a booking with the combintion of same appliance, appliance category, capacity within the interval of 10 miutes. if it is , then booking is not created.                
-                $status = "";
-                $is_booking_exist = $this->booking_model->is_booking_exist($this->input->post("user_id"),$this->input->post('service'),$this->input->post('appliance_category')[0],$this->input->post('appliance_capacity')[0]);
-                if(empty($is_booking_exist))
-                    $status = $this->getAllBookingInput($user_id, INSERT_NEW_BOOKING);
+                $status = $this->getAllBookingInput($user_id, INSERT_NEW_BOOKING);
                 if ($status) {  
                     log_message('info', __FUNCTION__ . " Booking ID " . $status['booking_id']);
                     
@@ -134,10 +130,6 @@ class Booking extends CI_Controller {
                     
                     redirect(base_url() . DEFAULT_SEARCH_PAGE);
                 } else {
-                    if(!empty($is_booking_exist))
-                    {
-                        $this->session->set_userdata(['error' => 'Same booking has already been created. Please try after some time.']);
-                    }
                     $this->addbooking($primary_contact_no);
                 }
             } else {
