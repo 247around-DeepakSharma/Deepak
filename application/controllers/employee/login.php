@@ -759,7 +759,7 @@ class Login extends CI_Controller {
                     $update = $this->partner_model->update_login_details($data,array('agent_id'=>$agent[0]['agent_id']));
                     if(!empty($update)){
                         //send email
-                        $login_template = $this->booking_model->get_booking_email_template("resend_login_details");
+                        $login_template = $this->booking_model->get_booking_email_template("resend_partner_login_details");
                         if (!empty($login_template)) {
                             $login_email['username'] = strtolower($agent[0]['user_id']);
                             $login_email['password'] = $new_pw;
