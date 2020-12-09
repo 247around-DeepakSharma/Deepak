@@ -87,7 +87,7 @@
                                 <div id="courier_charges_by_sfrow" class="form-group <?php if (form_error('courier_charges_by_sf')) {
                                     echo 'has-error';
                                     } ?>">
-                                    <label for="courier_charges_by_sf" class="col-md-4">Courier Charges</label>
+                                    <label for="courier_charges_by_sf" class="col-md-4">Courier Charges *</label>
                                     <div class="col-md-6">
                                         
                                         <input type="text" class="form-control" id="courier_charges_by_sf" name="courier_charges_by_sf" value = "<?php if ((set_value("courier_charges_by_sf"))) {
