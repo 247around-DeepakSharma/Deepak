@@ -4463,8 +4463,8 @@ class Booking extends CI_Controller {
                 $receieved_Data['draw'] = 1;
                 $data = $this->get_advance_search_result_data($receieved_Data,$select);
                
-                $headings = array("S.no","Customer Name ","Booking ID","Sub Order ID","Partner","City","Service Center","Service","Brand","Category","Capacity","Model Number","Request Type","Product/Service","Current_status","Internal Status","Order_ID","Type",
-                    "Partner Source","Partner Current Status","Partner Internal Status","Booking Address","Pincode","District","State","Primary Contact Number","Alternate Number ","Current Booking Date","First Booking Date","Age Of Booking",
+                $headings = array("S.no","Customer Name ","Booking ID","Sub Order ID","Partner","City","Service Center","Service","Brand","Category","Capacity","Model Number","Request Type","Product/Service","Final Status Level 1","Internal Status","Order_ID","Type",
+                    "Partner Source","Partner Current Status","Final Status Level 2","Booking Address","Pincode","District","State","Primary Contact Number","Alternate Number ","Current Booking Date","First Booking Date","Age Of Booking",
                     "TAT","Booking Timeslot","Booking Remarks","Query Remarks","Cancellation Reason","Reschedule_reason","Vendor(SF)",
                     "Rating","Vendor Rating Comments","Closing Remarks","Count Reschedule","Count Escalation",
                     "Is Upcountry","Upcountry Pincode","Upcountry Distance","IS Penalty","Create Date","Update Date","Service Center Closed Date","247Around Closed","ASM Name","RM Name","AM Name","Part Name Requested", "Part Type Requested", "Part Name Shipped", "Part Type Shipped", "Part Shipped Date", "Dependency");
