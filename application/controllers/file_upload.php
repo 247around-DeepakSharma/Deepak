@@ -790,7 +790,7 @@ class File_upload extends CI_Controller {
      * @param $return_data array
 
      * */
-    function process_upload_msl_file($data) {
+function process_upload_msl_file($data) {
         log_message('info', __FUNCTION__ . " => process upload msl file");
         //  $partner_id = $this->input->post('partner_id');
         //  $service_id = $this->input->post('service_id');
@@ -800,7 +800,6 @@ class File_upload extends CI_Controller {
             $agent_id = $this->session->userdata('service_center_id');
             $action_agent_id = $this->session->userdata('id');
             $action_entity_id = $this->session->userdata('service_center_id');
-            ;
             $agent_type = _247AROUND_SF_STRING;
         } else if ($this->session->userdata('id')) {
             $agent_id = $this->session->userdata('id');
@@ -857,6 +856,7 @@ class File_upload extends CI_Controller {
             $invoice_price = 0;
             $invoice_price_with_gst = 0;
             $uniqu_part_number_arr = array();
+            $parts_list = array();  
             for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                 $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
                 $sanitizes_row_data = array_map('trim', $rowData_array[0]);
@@ -921,68 +921,24 @@ class File_upload extends CI_Controller {
                             }
 
                             if (!empty($part_details)) {
-                                if (isset($post_data[$rowData['appliance']])) {
-                                    $invoice_price = round(($part_details[0]['price'] * $rowData['quantity']), 2);
-                                    $invoice_price_with_gst = ($invoice_price_with_gst + ($invoice_price + (($invoice_price * $rowData['gst_rate']) / 100)));
-                                    $part = array(
-                                        'shippingStatus' => 1,
-                                        'service_id' => $part_details[0]['service_id'],
-                                        'part_name' => $part_details[0]['part_name'],
-                                        'part_number' => $part_details[0]['part_number'],
-                                        'booking_id' => '',
-                                        'quantity' => $rowData['quantity'],
-                                        'part_total_price' => round(($part_details[0]['price'] * $rowData['quantity']), 2),
-                                        'hsn_code' => $rowData['hsn_code'],
-                                        'gst_rate' => $rowData['gst_rate'],
-                                        'inventory_id' => $part_details[0]['inventory_id'],
-                                    );
-                                    unset($post_data[$rowData['appliance']]['invoice_amount']);
-                                    $post_data[$rowData['appliance']]['invoice_amount'] = round(($invoice_price_with_gst), 2);
-                                    array_push($post_data[$rowData['appliance']]['part'], $part);
-                                } else {
-                                    $part = array(
-                                        'shippingStatus' => 1,
-                                        'service_id' => $part_details[0]['service_id'],
-                                        'part_name' => $part_details[0]['part_name'],
-                                        'part_number' => $part_details[0]['part_number'],
-                                        'booking_id' => '',
-                                        'quantity' => $rowData['quantity'],
-                                        'part_total_price' => round(($part_details[0]['price'] * $rowData['quantity']), 2),
-                                        'hsn_code' => $rowData['hsn_code'],
-                                        'gst_rate' => $rowData['gst_rate'],
-                                        'inventory_id' => $part_details[0]['inventory_id'],
-                                    );
 
-                                    $invoice_price = $invoice_price + round(($part_details[0]['price'] * $rowData['quantity']), 2);
-                                    $invoice_price_with_gst = $invoice_price + (($invoice_price * $rowData['gst_rate']) / 100);
-                                    $post_data[$rowData['appliance']]['is_wh_micro'] = $this->input->post("is_wh_micro");
-                                    $post_data[$rowData['appliance']]['dated'] = date('Y-m-d H:i:s');
-                                    $post_data[$rowData['appliance']]['invoice_id'] = $this->input->post("invoice_id");
-                                    $post_data[$rowData['appliance']]['invoice_amount'] = $invoice_price_with_gst;
-                                    $post_data[$rowData['appliance']]['courier_name'] = $this->input->post("courier_name");
-                                    $post_data[$rowData['appliance']]['awb_number'] = $this->input->post("awb_number");
-                                    $post_data[$rowData['appliance']]['courier_shipment_date'] = $this->input->post("courier_shipment_date");
-                                    $post_data[$rowData['appliance']]['from_gst_number'] = $this->input->post("from_gst_number");
-                                    $post_data[$rowData['appliance']]['to_gst_number'] = $this->input->post("to_gst_number");
-                                    $post_data[$rowData['appliance']]['wh_id'] = $this->input->post("wh_id");
-                                    $post_data[$rowData['appliance']]['partner_id'] = $this->input->post("partner_id");
-                                    $post_data[$rowData['appliance']]['partner_name'] = $this->input->post("partner_name");
-                                    $post_data[$rowData['appliance']]['wh_name'] = $this->input->post("wh_name");
-                                    $post_data[$rowData['appliance']]['invoice_tag'] = 'MSL';
-                                    if($this->input->post("transfered_by") == MSL_TRANSFERED_BY_WAREHOUSE){
-                                     $post_data[$rowData['appliance']]['transfered_by'] = MSL_TRANSFERED_BY_WAREHOUSE; 
-                                     $post_data[$rowData['appliance']]['sender_entity_type'] = $this->input->post("sender_entity_type");
-                                     $post_data[$rowData['appliance']]['sender_entity_id'] = $this->input->post("sender_entity_id");
-                                    } else {
-                                    $post_data[$rowData['appliance']]['transfered_by'] = MSL_TRANSFERED_BY_PARTNER;
-                                    }
-                                    
-                                    $post_data[$rowData['appliance']]['is_defective_part_return_wh'] = 1;
-                                    $post_data[$rowData['appliance']]['part'] = array();
-                                    $post_data[$rowData['appliance']]['files'] = $file_data;
-                                    array_push($post_data[$rowData['appliance']]['part'], $part);
-                                }
+                                $parts_list[] = array(
+                                    'shippingStatus' => 1,
+                                    'service_id' => $part_details[0]['service_id'],
+                                    'part_name' => $part_details[0]['part_name'],
+                                    'part_number' => $part_details[0]['part_number'],
+                                    'booking_id' => '',
+                                    'quantity' => $rowData['quantity'],
+                                    'part_total_price' => round(($part_details[0]['price'] * $rowData['quantity']), 2),
+                                    'hsn_code' => $rowData['hsn_code'],
+                                    'gst_rate' => $rowData['gst_rate'],
+                                    'inventory_id' => $part_details[0]['inventory_id'],
+                                );
+                                
+                               $invoice_price = round(($part_details[0]['price'] * $rowData['quantity']), 2);
+                               $invoice_price_with_gst = ($invoice_price_with_gst + ($invoice_price + (($invoice_price * $rowData['gst_rate']) / 100)));
                             }
+                        }
                         } else {
                             $error_type = "Error in header Or excel value should not be null.";
                             $error_array[] = $error_type;
@@ -992,7 +948,8 @@ class File_upload extends CI_Controller {
                         $error_type = "Duplicate part number not allowed ".$rowData['part_code'];
                         $error_array[] = $error_type;
                         $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
-                    }
+                    }                   
+                    
                 }
                 
             $post_data['appliance']['is_wh_micro'] = $this->input->post("is_wh_micro");
@@ -1071,21 +1028,25 @@ class File_upload extends CI_Controller {
         } else {
             $this->table->add_row("-", "-", "-", "Excel header is Incorrect");
         }
-
+        
         $err_msg = $this->table->generate();
-      
+        
         if (empty($error_array)) {
-
-            foreach ($post_data as $post) {
-                $post_json = json_encode($post, true);
+            if (!empty($post_data)) {
+                $post_json = json_encode($post_data['appliance'], true);
                 $url = base_url() . 'employee/inventory/process_msl_upload_excel';
                 $ch = curl_init($url);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $post_json);
                 curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
                 $response1 = curl_exec($ch);
                 curl_close($ch);
             }
+            
+            echo $response1;
+           
             $response['status'] = TRUE;
             $response['message'] = $err_msg;
             $response['bulk_msl'] = TRUE;
@@ -1105,19 +1066,18 @@ class File_upload extends CI_Controller {
                 $response['redirect_to'] = 'employee/inventory/upload_msl_excel_file';
             }
             // $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_FAILED_STATUS, "", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
-            $this->miscelleneous->load_nav_header();
-            if ($this->input->post("transfered_by") == MSL_TRANSFERED_BY_WAREHOUSE) {
-                $this->load->view('employee/msl_excel_upload_errors', $response); 
-                //$this->load->view('service_center/msl_excel_upload_errors', $response);
-            } else {
-               $this->load->view('employee/msl_excel_upload_errors', $response); 
-            }
+            //$this->miscelleneous->load_nav_header();
+//            if ($this->input->post("transfered_by") == MSL_TRANSFERED_BY_WAREHOUSE) {
+//                $this->load->view('employee/msl_excel_upload_errors', $response); 
+//                //$this->load->view('service_center/msl_excel_upload_errors', $response);
+//            } else {
+//               $this->load->view('employee/msl_excel_upload_errors', $response); 
+//            }
         }
 
         return $response;
         
-    }
-    
+    }    
 
     /**
      * @desc: This function is used to create new part number based on partner_id,service_id and part description
