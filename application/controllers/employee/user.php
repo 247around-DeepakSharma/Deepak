@@ -772,7 +772,7 @@ class User extends CI_Controller {
         if(!$this->process_mail_to_employee($tag,$id,$manager)) {
             //Logging error if there is some error in sending mail
             log_message('info', __FUNCTION__ . " Sending Mail Error..  ");
-            $error = ' Sending Mail Error..  ';
+            $error = ' Employee Added Successfully but Mail can not be Sent.. ';
             $this->session->set_flashdata('error', $error);
             redirect(base_url() . "employee/user/add_employee");
         }
