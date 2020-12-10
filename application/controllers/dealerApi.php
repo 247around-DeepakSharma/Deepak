@@ -1116,6 +1116,7 @@ function submitEscalation(){
 
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("booking_id"), $requestData);
+
         if (!empty($requestData['booking_id'])) {
             $select = "spare_parts_details.*,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number, booking_cancellation_reasons.reason as part_cancel_reason,spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, wrong_part_shipped_details.part_name as wrong_part_name, wrong_part_shipped_details.remarks as wrong_part_remarks, sc.name AS send_defective_to, oow_spare_invoice_details.invoice_id as oow_invoice_id, oow_spare_invoice_details.invoice_date as oow_invoice_date, oow_spare_invoice_details.hsn_code as oow_hsn_code, oow_spare_invoice_details.gst_rate as oow_gst_rate, oow_spare_invoice_details.invoice_amount as oow_incoming_invoice_amount, oow_spare_invoice_details.invoice_pdf as oow_incoming_invoice_pdf, ccid.box_count as sf_box_count,ccid.billable_weight as sf_billable_weight,cc_invoice_details.box_count as wh_box_count,cc_invoice_details.billable_weight as wh_billable_weight, cci_details.box_count as p_box_count, cci_details.billable_weight as p_billable_weight";
             $where = array('spare_parts_details.booking_id' => $requestData['booking_id']);
@@ -1145,61 +1146,61 @@ function submitEscalation(){
                 }
 
 /// REQ DETAILS //
-                $spare_request[$key]['id'] = $spare['id'];
-                $spare_request[$key]['entity_type'] = $spare['entity_type'];
-                $spare_request[$key]['model_number'] = $spare['model_number'];
-                $spare_request[$key]['part_number'] = $spare['part_number'];
-                $spare_request[$key]['original_parts_number'] = $spare['original_parts_number'];
-                $spare_request[$key]['parts_requested'] = $spare['parts_requested'];
-                $spare_request[$key]['parts_requested_type'] = $spare['parts_requested_type'];
+                $spare_request[]['id'] = $spare['id'];
+                $spare_request[]['entity_type'] = $spare['entity_type'];
+                $spare_request[]['model_number'] = $spare['model_number'];
+                $spare_request[]['part_number'] = $spare['part_number'];
+                $spare_request[]['original_parts_number'] = $spare['original_parts_number'];
+                $spare_request[]['parts_requested'] = $spare['parts_requested'];
+                $spare_request[]['parts_requested_type'] = $spare['parts_requested_type'];
                 if ($spare['part_warranty_status'] == 1) {
-                $spare_request[$key]['part_warranty_status'] = 'In - Warranty';
+                $spare_request[]['part_warranty_status'] = 'In - Warranty';
                 } else {
-                $spare_request[$key]['part_warranty_status'] = 'Out Of Warranty';
+                $spare_request[]['part_warranty_status'] = 'Out Of Warranty';
                 }
-                $spare_request[$key]['quantity'] = $spare['quantity'];
-                $spare_request[$key]['date_of_request'] = $spare['date_of_request'];
-                $spare_request[$key]['spare_approval_date'] = $spare['spare_approval_date'];
-                $spare_request[$key]['date_of_purchase'] = $spare['date_of_purchase'];
-                $spare_request[$key]['invoice_pic'] = $spare['invoice_pic'];
-                $spare_request[$key]['serial_number_pic'] = $spare['serial_number_pic'];
-                $spare_request[$key]['defective_parts_pic'] = $spare['defective_parts_pic'];
-                $spare_request[$key]['defective_back_parts_pic'] = $spare['defective_back_parts_pic'];
-                $spare_request[$key]['serial_number'] = $spare['serial_number'];
-                $spare_request[$key]['acknowledge_date'] = $spare['acknowledge_date'];
-                $spare_request[$key]['remarks_by_sc'] = $spare['remarks_by_sc'];
-                $spare_request[$key]['status'] = $spare['status'];
-                $spare_request[$key]['part_cancel_reason'] = $spare['part_cancel_reason'];
+                $spare_request[]['quantity'] = $spare['quantity'];
+                $spare_request[]['date_of_request'] = $spare['date_of_request'];
+                $spare_request[]['spare_approval_date'] = $spare['spare_approval_date'];
+                $spare_request[]['date_of_purchase'] = $spare['date_of_purchase'];
+                $spare_request[]['invoice_pic'] = $spare['invoice_pic'];
+                $spare_request[]['serial_number_pic'] = $spare['serial_number_pic'];
+                $spare_request[]['defective_parts_pic'] = $spare['defective_parts_pic'];
+                $spare_request[]['defective_back_parts_pic'] = $spare['defective_back_parts_pic'];
+                $spare_request[]['serial_number'] = $spare['serial_number'];
+                $spare_request[]['acknowledge_date'] = $spare['acknowledge_date'];
+                $spare_request[]['remarks_by_sc'] = $spare['remarks_by_sc'];
+                $spare_request[]['status'] = $spare['status'];
+                $spare_request[]['part_cancel_reason'] = $spare['part_cancel_reason'];
                 if ($spare['is_consumed'] == 1) {
-                $spare_request[$key]['is_consumed'] = 'Yes';
+                $spare_request[]['is_consumed'] = 'Yes';
                 } else {
-                $spare_request[$key]['is_consumed'] = 'No';
+                $spare_request[]['is_consumed'] = 'No';
                 }
-                $spare_request[$key]['consumed_status'] = $spare['consumed_status'];
-                $spare_request[$key]['consumption_remarks'] = $spare['consumption_remarks'];
-                $spare_request[$key]['consumed_status'] = $spare['consumed_status'];
+                $spare_request[]['consumed_status'] = $spare['consumed_status'];
+                $spare_request[]['consumption_remarks'] = $spare['consumption_remarks'];
+                $spare_request[]['consumed_status'] = $spare['consumed_status'];
 
 
 // Shipped details//
                 if ($parts_shipped && !empty($spare['parts_shipped'])) {
-                    $spare_shipped[$key]['id'] = $spare['id'];
-                    $spare_shipped[$key]['entity_type'] = $spare['entity_type'];
-                    $spare_shipped[$key]['parts_shipped'] = $spare['parts_shipped'];
-                    $spare_shipped[$key]['shipped_part_number'] = $spare['shipped_part_number'];
-                    $spare_shipped[$key]['shipped_parts_type'] = $spare['shipped_parts_type'];
-                    $spare_shipped[$key]['shipped_quantity'] = $spare['shipped_quantity'];
+                    $spare_shipped[]['id'] = $spare['id'];
+                    $spare_shipped[]['entity_type'] = $spare['entity_type'];
+                    $spare_shipped[]['parts_shipped'] = $spare['parts_shipped'];
+                    $spare_shipped[]['shipped_part_number'] = $spare['shipped_part_number'];
+                    $spare_shipped[]['shipped_parts_type'] = $spare['shipped_parts_type'];
+                    $spare_shipped[]['shipped_quantity'] = $spare['shipped_quantity'];
 
                     if ($spare['around_pickup_from_service_center'] == COURIER_PICKUP_REQUEST) {
-                    $spare_shipped[$key]['around_pickup_from_service_center'] = 'Pickup Requested';
+                    $spare_shipped[]['around_pickup_from_service_center'] = 'Pickup Requested';
                     }
 
                     if ($spare['around_pickup_from_service_center'] == COURIER_PICKUP_SCHEDULE) {
-                    $spare_shipped[$key]['around_pickup_from_service_center'] = 'Pickup Schedule';
+                    $spare_shipped[]['around_pickup_from_service_center'] = 'Pickup Schedule';
                     }
 
-                    $spare_shipped[$key]['courier_name_by_partner'] = $spare['courier_name_by_partner'];
-                    $spare_shipped[$key]['awb_by_partner'] = $spare['awb_by_partner'];
-                    $spare_shipped[$key]['p_box_count'] = $spare['p_box_count'];
+                    $spare_shipped[]['courier_name_by_partner'] = $spare['courier_name_by_partner'];
+                    $spare_shipped[]['awb_by_partner'] = $spare['awb_by_partner'];
+                    $spare_shipped[]['p_box_count'] = $spare['p_box_count'];
                     if (!empty($spare['p_billable_weight'])) {
                         $kg = $gm = '';
                         $expl_data = explode('.', $spare['p_billable_weight']);
@@ -1209,31 +1210,31 @@ function submitEscalation(){
                         if (!empty($expl_data[1])) {
                             $gm = $expl_data[1] . ' Gram';
                         }
-                        $spare_shipped[$key]['p_billable_weight'] = $kg . " " . $gm;
+                        $spare_shipped[]['p_billable_weight'] = $kg . " " . $gm;
                     }
-                    $spare_shipped[$key]['shipped_date'] = $spare['shipped_date'];
-                    $spare_shipped[$key]['edd'] = $spare['edd'];
-                    $spare_shipped[$key]['remarks_by_partner'] = $spare['remarks_by_partner'];
-                    $spare_shipped[$key]['partner_challan_number'] = $spare['partner_challan_number'];
-                    $spare_shipped[$key]['challan_approx_value'] = $spare['challan_approx_value'];
-                    $spare_shipped[$key]['partner_challan_file'] = S3_WEBSITE_URL . 'vendor-partner-docs/' . $spare['partner_challan_file'];
-                    $spare_shipped[$key]['courier_pic_by_partner'] = S3_WEBSITE_URL . 'vendor-partner-docs/' . $spare['courier_pic_by_partner'];
+                    $spare_shipped[]['shipped_date'] = $spare['shipped_date'];
+                    $spare_shipped[]['edd'] = $spare['edd'];
+                    $spare_shipped[]['remarks_by_partner'] = $spare['remarks_by_partner'];
+                    $spare_shipped[]['partner_challan_number'] = $spare['partner_challan_number'];
+                    $spare_shipped[]['challan_approx_value'] = $spare['challan_approx_value'];
+                    $spare_shipped[]['partner_challan_file'] = S3_WEBSITE_URL . 'vendor-partner-docs/' . $spare['partner_challan_file'];
+                    $spare_shipped[]['courier_pic_by_partner'] = S3_WEBSITE_URL . 'vendor-partner-docs/' . $spare['courier_pic_by_partner'];
                 }
 /// DEFECTIVE DETAILS//  
                 if ($defective_parts_shipped && !empty($spare['defective_part_shipped'])) {
-                    $spare_defective[$key]['id'] = $spare['id'];
+                    $spare_defective[]['id'] = $spare['id'];
                     if (!empty($sp['send_defective_to'])) {
-                     $spare_defective[$key]['send_defective_to'] = $spare['send_defective_to'];
+                     $spare_defective[]['send_defective_to'] = $spare['send_defective_to'];
                     } else {
-                     $spare_defective[$key]['send_defective_to'] = ucfirst(_247AROUND_PARTNER_STRING);
+                     $spare_defective[]['send_defective_to'] = ucfirst(_247AROUND_PARTNER_STRING);
                     }
 
-                    $spare_defective[$key]['defective_part_shipped'] = $spare['defective_part_shipped'];
-                    $spare_defective[$key]['shipped_part_number'] = $spare['shipped_part_number'];
-                    $spare_defective[$key]['shipped_quantity'] = $spare['shipped_quantity'];
-                    $spare_defective[$key]['courier_name_by_sf'] = $spare['courier_name_by_sf'];
-                    $spare_defective[$key]['awb_by_sf'] = $spare['awb_by_sf'];
-                    $spare_defective[$key]['sf_box_count'] = $spare['sf_box_count'];
+                    $spare_defective[]['defective_part_shipped'] = $spare['defective_part_shipped'];
+                    $spare_defective[]['shipped_part_number'] = $spare['shipped_part_number'];
+                    $spare_defective[]['shipped_quantity'] = $spare['shipped_quantity'];
+                    $spare_defective[]['courier_name_by_sf'] = $spare['courier_name_by_sf'];
+                    $spare_defective[]['awb_by_sf'] = $spare['awb_by_sf'];
+                    $spare_defective[]['sf_box_count'] = $spare['sf_box_count'];
                     if (!empty($spare['awb_by_sf'])) {
                         if (!empty($spare['sf_billable_weight'])) {
                             $expl_data = explode('.', $spare['sf_billable_weight']);
@@ -1251,50 +1252,50 @@ function submitEscalation(){
                         }else{
                             $kg = $gm = '';
                         }
-                        $spare_defective[$key]['sf_billable_weight'] = $kg . " " . $gm;
+                        $spare_defective[]['sf_billable_weight'] = $kg . " " . $gm;
                     }
-                    $spare_defective[$key]['courier_charges_by_sf'] = $spare['courier_charges_by_sf'];
-                    $spare_defective[$key]['defective_courier_receipt'] = S3_WEBSITE_URL . 'bookings-collateral/misc-images/' . $spare['defective_courier_receipt'];
-                    $spare_defective[$key]['defective_part_shipped_date'] = $spare['defective_part_shipped_date'];
-                    $spare_defective[$key]['remarks_defective_part_by_sf'] = $spare['remarks_defective_part_by_sf'];
-                    $spare_defective[$key]['remarks_defective_part_by_partner'] = $spare['remarks_defective_part_by_partner'];
-                    $spare_defective[$key]['received_defective_part_pic_by_wh'] = S3_WEBSITE_URL . 'bookings-collateral/misc-images/' . $spare['defective_courier_receipt'];
-                    $spare_defective[$key]['rejected_defective_part_pic_by_wh'] = S3_WEBSITE_URL . 'bookings-collateral/misc-images/' . $spare['rejected_defective_part_pic_by_wh'];
-                    $spare_defective[$key]['sf_challan_number'] = $spare['sf_challan_number'];
+                    $spare_defective[]['courier_charges_by_sf'] = $spare['courier_charges_by_sf'];
+                    $spare_defective[]['defective_courier_receipt'] = S3_WEBSITE_URL . 'bookings-collateral/misc-images/' . $spare['defective_courier_receipt'];
+                    $spare_defective[]['defective_part_shipped_date'] = $spare['defective_part_shipped_date'];
+                    $spare_defective[]['remarks_defective_part_by_sf'] = $spare['remarks_defective_part_by_sf'];
+                    $spare_defective[]['remarks_defective_part_by_partner'] = $spare['remarks_defective_part_by_partner'];
+                    $spare_defective[]['received_defective_part_pic_by_wh'] = S3_WEBSITE_URL . 'bookings-collateral/misc-images/' . $spare['defective_courier_receipt'];
+                    $spare_defective[]['rejected_defective_part_pic_by_wh'] = S3_WEBSITE_URL . 'bookings-collateral/misc-images/' . $spare['rejected_defective_part_pic_by_wh'];
+                    $spare_defective[]['sf_challan_number'] = $spare['sf_challan_number'];
                 }
 /// INVOICE DETAILS //
-                $spare_invoice[$key]['id'] = $spare['id'];
-                $spare_invoice[$key]['model_number_shipped'] = $spare['model_number_shipped'];
-                $spare_invoice[$key]['parts_shipped'] = $spare['parts_shipped'];
-                $spare_invoice[$key]['shipped_part_number'] = $spare['shipped_part_number'];
-                $spare_invoice[$key]['shipped_parts_type'] = $spare['shipped_parts_type'];
-                $spare_invoice[$key]['purchase_invoice_id'] = $spare['purchase_invoice_id'];
-                $spare_invoice[$key]['sell_invoice_id'] = $spare['sell_invoice_id'];
-                $spare_invoice[$key]['reverse_purchase_invoice_id'] = $spare['reverse_purchase_invoice_id'];
-                $spare_invoice[$key]['reverse_sale_invoice_id'] = $spare['reverse_sale_invoice_id'];
-                $spare_invoice[$key]['warehouse_courier_invoice_id'] = $spare['warehouse_courier_invoice_id'];
-                $spare_invoice[$key]['partner_courier_invoice_id'] = $spare['partner_courier_invoice_id'];
-                $spare_invoice[$key]['vendor_courier_invoice_id'] = $spare['vendor_courier_invoice_id'];
+                $spare_invoice[]['id'] = $spare['id'];
+                $spare_invoice[]['model_number_shipped'] = $spare['model_number_shipped'];
+                $spare_invoice[]['parts_shipped'] = $spare['parts_shipped'];
+                $spare_invoice[]['shipped_part_number'] = $spare['shipped_part_number'];
+                $spare_invoice[]['shipped_parts_type'] = $spare['shipped_parts_type'];
+                $spare_invoice[]['purchase_invoice_id'] = $spare['purchase_invoice_id'];
+                $spare_invoice[]['sell_invoice_id'] = $spare['sell_invoice_id'];
+                $spare_invoice[]['reverse_purchase_invoice_id'] = $spare['reverse_purchase_invoice_id'];
+                $spare_invoice[]['reverse_sale_invoice_id'] = $spare['reverse_sale_invoice_id'];
+                $spare_invoice[]['warehouse_courier_invoice_id'] = $spare['warehouse_courier_invoice_id'];
+                $spare_invoice[]['partner_courier_invoice_id'] = $spare['partner_courier_invoice_id'];
+                $spare_invoice[]['vendor_courier_invoice_id'] = $spare['vendor_courier_invoice_id'];
 
 
 
 /// OOW  DETAILS //
                 if ($estimate_given && $spare['purchase_price'] > 0) {
-                    $spare_oow[$key]['id'] = $spare['id'];
+                    $spare_oow[]['id'] = $spare['id'];
                     if ($spare['entity_type'] == _247AROUND_PARTNER_STRING) {
-                        $spare_oow[$key]['entity_type'] = 'Partner';
+                        $spare_oow[]['entity_type'] = 'Partner';
                     } else {
-                        $spare_oow[$key]['entity_type'] = 'Warehouse';
+                        $spare_oow[]['entity_type'] = 'Warehouse';
                     }
-                    $spare_oow[$key]['purchase_price'] = $spare['purchase_price'];
-                    $spare_oow[$key]['estimate_cost_given_date'] = $spare['estimate_cost_given_date'];
+                    $spare_oow[]['purchase_price'] = $spare['purchase_price'];
+                    $spare_oow[]['estimate_cost_given_date'] = $spare['estimate_cost_given_date'];
 
                     if (!is_null($spare['incoming_invoice_pdf'])) {
                         if ($spare['incoming_invoice_pdf'] !== '0')
-                            $spare_oow[$key]['incoming_invoice_pdf'] = S3_WEBSITE_URL . 'invoices-excel/' . $spare['incoming_invoice_pdf'];
+                            $spare_oow[]['incoming_invoice_pdf'] = S3_WEBSITE_URL . 'invoices-excel/' . $spare['incoming_invoice_pdf'];
                     }
-                    $spare_oow[$key]['sell_invoice_id'] = $spare['sell_invoice_id'];
-                    $spare_oow[$key]['status'] = $spare['status'];
+                    $spare_oow[]['sell_invoice_id'] = $spare['sell_invoice_id'];
+                    $spare_oow[]['status'] = $spare['status'];
                 }
             }
 
