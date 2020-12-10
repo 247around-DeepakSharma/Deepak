@@ -17,15 +17,15 @@
    <div class="container-fluid">
       <div class="row">
             <?php 
-            if(!empty($this->session->flashdata('fail'))){ ?>
+            if(!empty($this->session->userdata('fail'))){ ?>
                
                  <div class="alert alert-danger">
-                 <strong>Failed!</strong>  <?php echo $this->session->flashdata('fail'); ?>
+                 <strong>Failed!</strong> Click View Error button to see the details <a href="#" class="btn btn-sm btn-warning"  data-toggle="modal" data-target="#myModal"> View Error</a>
                 </div>
-            <?php }else if(!empty($this->session->flashdata('details'))){ ?>
+            <?php }else if(!empty($this->session->userdata('details'))){ ?>
                    <div class="alert alert-dangers">
                    <strong>Success!</strong> Click See details button to see the details because some data may not be updated
-                   <?php if(!empty($this->session->flashdata('fail')) || !empty($this->session->flashdata('details'))){ ?>
+                   <?php if(!empty($this->session->userdata('fail')) || !empty($this->session->userdata('details'))){ ?>
                              <a href="#" class="btn btn-sm btn-warning"  data-toggle="modal" data-target="#myModal">See details</a>
                        <?php  } ?>
                   </div>
@@ -49,11 +49,12 @@
                                              <label class="col-xs-3 control-label"> Upload Courier Serviceable Area File</label>
                                               <div class="col-md-4">
                                                   <div class="form-group">
-                                                      <input type="file" class="form-control"  id="serviceable_excel" name="file" required  accept=".xls,.xlsx" />
+                                                      <input type="file" class="form-control"  id="serviceable_excel" name="file" required  accept=".xls,.xlsx"/>
                                                   </div>
                                               </div>
                                               <input type="hidden" name="file_type" value="<?php echo UPLOAD_COURIER_SERVICEABLE_AREA_EXCEL_FILE; ?>" />
-                                                <button type="submit" class="btn btn-small btn-success" id="button_upload_file">Upload</button> 
+                                              <input type="hidden" name="redirect_url" id="redirect_url" value="employee/inventory/upload_courier_serviceable_area_file"> 
+                                              <button type="submit" class="btn btn-small btn-success" id="button_upload_file">Upload</button> 
                                           </div>
                                       </div>
                                   </div>
@@ -72,13 +73,14 @@
                               <h4 class="modal-title">Excel Entries Not Updated</h4>
                           </div>
                           <div class="modal-body">
-                              <?php
-                              if (!empty($this->session->flashdata('fail'))) {
-                                  echo $this->session->flashdata('fail');
+                            <?php
+                              if (!empty($this->session->userdata('fail'))) {
+                                  echo $this->session->userdata('fail');
                               } else {
-                                  echo $this->session->flashdata('details');
+                                  echo $this->session->userdata('details');
                               }
-                              ?>
+                            ?>
+                              <br>
                           </div>
                           <div class="modal-footer">
                               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -108,6 +110,10 @@
       </div>
    </div>
 </div>
+<?php 
+    $this->session->unset_userdata('fail');
+    $this->session->unset_userdata('details');
+?>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script>
 <script>
@@ -122,7 +128,6 @@
                 alert("Please select courier serviceable area file.");
               return false;  
             }
-            $("#button_upload_file").prop("disabled", true);
             $('#button_upload_file').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
         });       
     });
@@ -152,5 +157,15 @@
         });
     }
        
+    $("body").on("click", "#button_upload_file", function () {
+        var allowedFiles = [".xls", ".xlsx"];
+        var fileUpload = $("#serviceable_excel");
+        var regex = new RegExp("([a-zA-Z0-9\s_\\.\-:()])+(" + allowedFiles.join('|') + ")$");
+        if (!regex.test(fileUpload.val().toLowerCase())) {
+            alert("Please upload files having extensions:(" + allowedFiles.join(', ') + ") only.");
+            return false;
+        }
+    });     
+    
 </script>
  

@@ -125,7 +125,11 @@ class File_upload extends CI_Controller {
                         if ($data['post_data']['file_type'] == UPLOAD_MSL_EXCEL_FILE) {
                             $this->session->set_userdata('fail', $response['message']);
                         } else {
-                            $this->session->set_flashdata('file_error', $response['message']);
+                            if ($data['post_data']['file_type'] == UPLOAD_COURIER_SERVICEABLE_AREA_EXCEL_FILE) {
+                                $this->session->set_userdata('fail', $response['message']);
+                            } else {
+                                $this->session->set_flashdata('file_error', $response['message']);
+                            }
                         }
                     }
                     
@@ -147,8 +151,9 @@ class File_upload extends CI_Controller {
                     }
                 } else {
                     //redirect to upload page
-                    $this->session->set_flashdata('file_error', 'Empty file has been uploaded');
-                    //redirect(base_url() . $redirect_to);
+                    //$this->session->set_flashdata('file_error', 'Empty file has been uploaded');
+                    $this->session->set_userdata('fail', '<h5 style="color:red; margin-left:10px;">Empty file has been uploaded</h5>');
+                    redirect(base_url() . $redirect_to);
                 }
             } else {
                 //redirect to upload page
@@ -1171,7 +1176,7 @@ class File_upload extends CI_Controller {
             $this->table->add_row("-", "-", "-", "Excel header is incorrect");
         }
         $err_msg = $this->table->generate();
-       
+        
         if (!empty($this->dataToInsert)) {
             $this->inventory_model->insert_courier_serviceable_area_details_batch($this->dataToInsert);
             $response['status'] = TRUE;
@@ -1181,8 +1186,6 @@ class File_upload extends CI_Controller {
             $response['status'] = FALSE;
             $response['message'] = $err_msg;
             $response['redirect_to'] = 'employee/inventory/upload_courier_serviceable_area_file';
-            $this->miscelleneous->load_nav_header();
-            $this->load->view('employee/msl_excel_upload_errors', $response);
         }
 
         return $response;
