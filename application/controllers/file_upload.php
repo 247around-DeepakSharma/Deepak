@@ -119,7 +119,15 @@ class File_upload extends CI_Controller {
                     } else {
                         //save file and upload on s3
                         $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $file_type, FILE_UPLOAD_FAILED_STATUS, "", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
-                        $this->session->set_flashdata('file_error', $response['message']);
+                        if ($data['post_data']['file_type'] == UPLOAD_MSL_EXCEL_FILE) {
+                            $this->session->set_userdata('fail', $response['message']);
+                        } else {
+                            if ($data['post_data']['file_type'] == UPLOAD_COURIER_SERVICEABLE_AREA_EXCEL_FILE) {
+                                $this->session->set_userdata('fail', $response['message']);
+                            } else {
+                                $this->session->set_flashdata('file_error', $response['message']);
+                            }
+                        }
                     }
 
                      //send email
@@ -138,8 +146,9 @@ class File_upload extends CI_Controller {
                     }
                 } else {
                     //redirect to upload page
-                    $this->session->set_flashdata('file_error', 'Empty file has been uploaded');
-                    //redirect(base_url() . $redirect_to);
+                    //$this->session->set_flashdata('file_error', 'Empty file has been uploaded');
+                    $this->session->set_userdata('fail', '<h5 style="color:red; margin-left:10px;">Empty file has been uploaded</h5>');
+                    redirect(base_url() . $redirect_to);
                 }
             } else {
                 //redirect to upload page
@@ -1095,8 +1104,95 @@ function process_upload_msl_file($data) {
         }
 
         return $response;
+    }
+    
+       
+    /**
+
+     * @desc: This function is used to validate upload file header, courier serviceable area.
+     * @param $actual_header array this is actual header. It contains all the required column
+     * @param $upload_file_header array this is upload file header. It contains all column from the upload file header
+     * @param $return_data array
+
+     * */
+    function process_upload_courier_serviceable_area_file($data) {
+        log_message('info', __FUNCTION__ . " => process upload msl file");
+
+        if ($this->session->userdata('service_center_id')) {
+            $agent_id = $this->session->userdata('service_center_id');
+            $action_agent_id = $this->session->userdata('id');
+            $action_entity_id = $this->session->userdata('service_center_id');
+            $agent_type = _247AROUND_SF_STRING;
+        } else if ($this->session->userdata('id')) {
+            $agent_id = $this->session->userdata('id');
+            $action_agent_id = $this->session->userdata('id');
+            $action_entity_id = _247AROUND;
+            $agent_type = _247AROUND_EMPLOYEE_STRING;
+        } else {
+            $agent_id = $this->session->userdata('partner_id');
+            $action_agent_id = $this->session->userdata('agent_id');
+            $action_entity_id = $this->session->userdata('partner_id');
+            $agent_type = _247AROUND_PARTNER_STRING;
+        }
+
+        $sheetUniqueRowData = array();
+        $header_column_need_to_be_present = array('courier_company_name', 'pincode');
+        //check if required column is present in upload file header
+        $check_header = $this->check_column_exist($header_column_need_to_be_present, $data['header_data']);
+       
+        if ($check_header['status']) {
+            
+            $flag = 1;
+            $valid_flage = 1;
+            $msg = "";
+            $template1 = array(
+                'table_open' => '<table border="1" class="table" cellpadding="2" cellspacing="0" class="mytable">'
+            );
+
+            $this->table->set_template($template1);
+            $this->table->set_heading(array('Courier Name', 'Pincode', 'Error Type'));
+            //get file data to process
+            $error_type = "";
+            for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
+                $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
+                $sanitizes_row_data = array_map('trim', $rowData_array[0]);
+                if (!empty($sanitizes_row_data)) {
+                    $rowData = array_combine($data['header_data'], $rowData_array[0]);
+                    if (!empty($rowData['courier_company_name']) && !empty($rowData['pincode'])) {
+                        $select = 'courier_serviceable_area.id, courier_serviceable_area.courier_company_name, courier_serviceable_area.pincode';
+                        $courier_details = $this->inventory_model->get_generic_table_details('courier_serviceable_area', $select, array('courier_serviceable_area.courier_company_name' => trim($rowData['courier_company_name']), 'courier_serviceable_area.pincode' => trim($rowData['pincode'])), '');
+                        if (!empty($courier_details)) {
+                            $error_type = "Already Exists In Our System.";
+                            $this->table->add_row($rowData['courier_company_name'], $rowData['pincode'], $error_type);
+                        } else {
+                            $tmp_data['courier_company_name'] = trim($rowData['courier_company_name']);
+                            $tmp_data['pincode'] = trim($rowData['pincode']);
+                            array_push($this->dataToInsert, $tmp_data);
+                        }
+                    } else {
+                        $error_type = "Error in header Or excel value should not be null.";
+                        $this->table->add_row($rowData['courier_company_name'], $rowData['pincode'], $error_type);
+                    }
+                }
+            }
+        } else {
+            $this->table->add_row("-", "-", "-", "Excel header is incorrect");
+        }
+        $err_msg = $this->table->generate();
         
-    }    
+        if (!empty($this->dataToInsert)) {
+            $this->inventory_model->insert_courier_serviceable_area_details_batch($this->dataToInsert);
+            $response['status'] = TRUE;
+            $response['message'] = 'Courier serviceable area file uploaded successfully';
+            $response['redirect_to'] = 'employee/inventory/upload_courier_serviceable_area_file';
+        } else {
+            $response['status'] = FALSE;
+            $response['message'] = $err_msg;
+            $response['redirect_to'] = 'employee/inventory/upload_courier_serviceable_area_file';
+        }
+
+        return $response;
+    }
 
     /**
      * @desc: This function is used to create new part number based on partner_id,service_id and part description
