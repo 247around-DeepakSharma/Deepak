@@ -30,7 +30,6 @@
             $this->session->unset_userdata('success');
             $this->session->unset_userdata('failed');          
         ?>
-        
         <div  class="col-lg-12 panel" >        
         <form method="post" name="filtering" action="<?php echo base_url().'employee/questionnaire/index';?>" >
             <div class="col-md-2">
@@ -140,14 +139,11 @@
                             <td style="display: none;"><?php echo $rec->question; ?></td>
                             <td style="display: none;"><?php echo $rec->answers; ?></td>
                             <td><?php echo $rec->sequence;?></td>                            
-                            <td style="display: none;">
-                                <?php echo($rec->is_required==0 ? "No" : "Yes") ;  ?>
-                            </td>
                             <td>
-                                <img id="loader_gif_<?= $rec->q_id ?>" src="" style="display: none;">
+                                <img id="loader_gif_<?= $rec->q_id ?>" src="" style="">
                                 <div id="status<?= $rec->q_id ?>">
                                     <?php
-                                    if (!empty($rec->is_required)) {
+                                    if ($rec->is_required==1) {
                                         echo "Yes";
                                     } else {
                                         echo "No";
@@ -155,7 +151,6 @@
                                     ?>
                                 </div>
                             </td>
-                            
                             <td style="display: none;">
                                 <?php echo(empty($rec->active) ? "No" : "Yes") ;  ?>
                             </td>
@@ -199,7 +194,7 @@
                     columns: [0, 1, 2, 3, 4, 6, 7, 8]
                 }
             }
-        ],
+        ]
                                
     });    
 

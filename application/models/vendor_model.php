@@ -572,20 +572,20 @@ class vendor_model extends CI_Model {
      *  @return : State
      */
     function get_state_from_india_pincode($pincode) {
+        $this->db->_protect_identifiers = FALSE;
 	$this->db->distinct();
-    // Do not make state capital. It should be 'state'.
-	$this->db->select('state');
-	$this->db->where('pincode', $pincode);
-
+        // Do not make state capital. It should be 'state'.
+	$this->db->select('state_code.state_code, india_pincode.state');
+	$this->db->where('india_pincode.pincode', $pincode);
+        $this->db->join('state_code', 'UPPER(india_pincode.state) = UPPER(state_code.state)', 'left');
 	$query = $this->db->get('india_pincode');
-    if($query->num_rows > 0){
-        return $query->result_array()[0];
-    } else {
-        $state['state'] = "";
-        return $state;
-    }
-
-
+        if($query->num_rows > 0){
+            return $query->result_array()[0];
+        } else {
+            $state['state'] = "";
+            $state['state_code'] = "";
+            return $state;
+        }
     }
 
 

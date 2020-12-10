@@ -1219,11 +1219,23 @@
         }
     }
     function check_gst_tax_type() {
+        
         var gst_number = $("#gst_number").val();
         var vendor_partner_type = '<?php echo $vendor_partner; ?>';
         var vendor_partner_id =  $("#vendor_partner_id").val();
         var id = index = '';
+        var type_code = $("input[name='around_type']:checked").val();
+        var entity_gst_id = "";
         
+        <?php if (isset($invoice_breakup[0]['from_gst_number']) && !empty($invoice_breakup[0]['from_gst_number']) && !empty($invoice_breakup[0]['to_gst_number']) ) { ?>
+            
+            if(type_code  === "A"){
+                entity_gst_id = '<?php echo $invoice_breakup[0]['to_gst_number'];?>';
+            } else {
+                entity_gst_id = '<?php echo $invoice_breakup[0]['from_gst_number'];?>';
+            }
+        
+        <?php } ?>
         if((gst_number != null) && (vendor_partner_id != null)) {
             
             if(vendor_partner_id === '<?php echo VIDEOCON_ID;?>'){
@@ -1233,7 +1245,7 @@
                 type: 'POST',
                 url: '<?php echo base_url() ?>employee/invoice/check_gst_tax_type',
                 async: false,
-                data:{gst_number:gst_number,vendor_partner_type:vendor_partner_type,vendor_partner_id:vendor_partner_id},
+                data:{gst_number:gst_number,vendor_partner_type:vendor_partner_type,vendor_partner_id:vendor_partner_id, entity_gst_id:entity_gst_id},
                 success: function (response) {
                     $(".quantity").each(function () {
                         id = $(this).attr('id');
@@ -1252,9 +1264,16 @@
                             $("#cgsttaxamount_"+index).attr('required','');
                             $("#sgsttaxrate_"+index).attr('readonly',false).attr('required','');
                             $("#sgsttaxamount_"+index).attr('required','');
+                            $("#igsttaxrate_"+index).val(0);
+                            $("#igsttaxamount_"+index).val(0);
                         }
                         else {
                             $("#is_igst").val("1");
+                            $("#cgsttaxrate_"+index).val(0);
+                            $("#sgsttaxrate_"+index).val(0);
+                            $("#cgsttaxamount_"+index).val(0);
+                            $("#cgsttaxamount_"+index).val(0);
+                            
                             $("#igsttaxrate_"+index).attr('readonly',false).attr('required','');
                             $("#igsttaxamount_"+index).attr('required','');
                         }

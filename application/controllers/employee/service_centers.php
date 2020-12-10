@@ -9508,16 +9508,18 @@ function do_delivered_spare_transfer() {
 
         if ($this->session->userdata('userType') == 'employee') {
             $agent_id = _247AROUND_DEFAULT_AGENT;
-            $entity_id = _247AROUND;
+            $partner_id  = $entity_id = _247AROUND;
+            $service_center_id = NULL;
             $entity_type = _247AROUND_EMPLOYEE_STRING;
             $agent_name = _247AROUND_DEFAULT_AGENT_NAME;
         } else {
             $agent_id = $this->session->userdata("service_center_agent_id");
-            $entity_id = $this->session->userdata('service_center_id');
+            $service_center_id = $entity_id = $this->session->userdata('service_center_id');
             $entity_type = _247AROUND_SF_STRING;
+            $partner_id = NULL;
             $agent_name = $this->session->userdata('service_center_name');
         }
-
+        
         $from_spare_id = $this->input->post('fromspareid');
         $to_spare_id = $this->input->post('tospareid');
         $frombooking = $this->input->post('frombooking');
@@ -9623,7 +9625,7 @@ function do_delivered_spare_transfer() {
                     $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                 }
 
-                $this->notify->insert_state_change($frombooking, SPARE_PARTS_REQUESTED, "", "Spare Part Transfer from " . $frombooking . " to " . $tobooking, $agent_id, $agent_name, "", "", $entity_id, "", $to_spare_id);
+                $this->notify->insert_state_change($frombooking, SPARE_PARTS_REQUESTED, "", "Spare Part Transfer from " . $frombooking . " to " . $tobooking, $agent_id, $agent_name, "", "", $partner_id, $service_center_id, $to_spare_id);
 
                 $sc_data['current_status'] = _247AROUND_PENDING;
                 $sc_data['internal_status'] = SPARE_DELIVERED_TO_SF;
@@ -9655,7 +9657,7 @@ function do_delivered_spare_transfer() {
                     $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                 }
 
-                $this->notify->insert_state_change($tobooking, SPARE_DELIVERED_TO_SF, "", "Spare Part Transfer from " . $tobooking . " to " . $frombooking, $agent_id, $agent_name, "", "", $entity_id, "", $from_spare_id);
+                $this->notify->insert_state_change($tobooking, SPARE_DELIVERED_TO_SF, "", "Spare Part Transfer from " . $tobooking . " to " . $frombooking, $agent_id, $agent_name, "", "", $partner_id, $service_center_id, $from_spare_id);
 
                 $sc_data1['current_status'] = _247AROUND_PENDING;
                 $sc_data1['internal_status'] = SPARE_PARTS_REQUESTED;
