@@ -2334,7 +2334,9 @@ class Partner extends CI_Controller {
                     
                     if (!empty($value['spare_id'])) {
                         $spare_id = $value['spare_id'];
-                        $data['invoice_gst_rate'] = $value['gst_rate'];
+                        if(isset($value['gst_rate'])){
+                            $data['invoice_gst_rate'] = $value['gst_rate'];
+                        }
                         $where = array('id' => $spare_id, 'partner_id' => $partner_id, 'entity_type' => _247AROUND_PARTNER_STRING);
                         $response = $this->service_centers_model->update_spare_parts($where, $data);
                     } else {
@@ -9612,11 +9614,13 @@ class Partner extends CI_Controller {
     private function create_detailed_summary_report_file($partnerID,$postArray){
         $where = array();
         if(!empty($postArray['Date_Range'])) {
+            if(!empty($dateArray[0]) && !empty($dateArray[1])){
             $dateArray  = explode(" - ",$postArray['Date_Range']);
             $start = date('Y-m-d',strtotime($dateArray[0]));
             $end = date('Y-m-d',strtotime($dateArray[1]));
             
             $where[] = "(date(booking_details.create_date)>='".$start."' AND date(booking_details.create_date)<='".$end."')";
+            }
         }
         
         $status = $postArray['Status'];
