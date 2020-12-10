@@ -677,10 +677,12 @@
                                         swal("Error !", "Sum of weight in KG and GM must be greater than 0");
                                         }else{
                                         $('#submit_form').attr('disabled', true);
+                                        $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', false);
                                         form.submit();   
                                         }
                                     }else{
                                        $('#submit_form').attr('disabled', true);
+                                       $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', false);
                                        form.submit(); 
                                     } 
                                 }
