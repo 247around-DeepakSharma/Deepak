@@ -1560,7 +1560,9 @@ class engineerApi extends CI_Controller {
                 if (!empty($requestData['location'])) {
                     $location = json_decode($requestData['location'], true);
                     $en["pincode"] = $location['pincode'];
-                    $en["city"] = $location['city'];
+                    if(!empty($location['city'])){
+                        $en["city"] = $location['city'];
+                    }
                     $en["address"] = $location['address'];
                     $en["latitude"] = $location['latitude'];
                     $en["longitude"] = $location['longitude'];
