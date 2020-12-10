@@ -469,7 +469,7 @@
                                 echo 'has-error';
                             }
                             ?>">
-                                <label for="shipment_date" class="col-md-4">Shipment Date</label>
+                                <label for="shipment_date" class="col-md-4">Shipment Date *</label>
                                 <div class="col-md-6">
                                     <input type="text" class="form-control"  id="shipment_date" name="shipment_date"  value = "<?php echo date("Y-m-d", strtotime("+0 day")); ?>"  required>
                                     <?php echo form_error('shipment_date'); ?>
@@ -585,7 +585,7 @@
         yesterday.setDate(today.getDate() - 3);
         return yesterday;
         }(),
-        maxDate: false,
+        maxDate: new Date(),
         setDate: new Date(),
         locale: {
             format: 'YYYY-MM-DD'
