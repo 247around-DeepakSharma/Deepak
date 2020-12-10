@@ -476,7 +476,7 @@ class Partner extends CI_Controller {
                         redirect(base_url() . "partner/pending_booking");
                     } else {
                         log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
-                        $this->insertion_failure($postData);
+                        $this->insertion_failure($postData, "Internal Server Error", $responseData['data']);
 
                         $output = "Sorry, Booking Could Not be Inserted. Please Try Again.";
                         $userSession = array('error' => $output);
@@ -485,7 +485,7 @@ class Partner extends CI_Controller {
                     }
                 } else {
                     log_message('info', 'Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
-                    $this->insertion_failure($postData);
+                    $this->insertion_failure($postData, "Invalid Response from API", $responseData['data']);
 
                     $output = "Sorry, Booking Could Not Be Inserted. 247around Team Is Looking Into This.";
                     $userSession = array('error' => $output);
@@ -564,12 +564,15 @@ class Partner extends CI_Controller {
         return $post;
     }
 
-    function insertion_failure($post) {
+    function insertion_failure($post, $error_msg = "", $api_response = array()) {
         $to = DEVELOPER_EMAIL;
         $cc = "";
         $bcc = "";
-        $subject = "Booking Insertion Failure By " . $this->session->userdata('partner_name');
+        $subject = "Booking Insertion Failure By " . $this->session->userdata('partner_name'). " : ".$error_msg;
         $message = $post;
+        if(!empty($api_response) && is_array($api_response)){
+            $message .= json_encode($api_response);
+        }
         $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "",BOOKING_INSERTION_FAILURE);
     }
 

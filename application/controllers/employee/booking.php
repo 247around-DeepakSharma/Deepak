@@ -5649,7 +5649,8 @@ class Booking extends CI_Controller {
             $post['where']['service_center_closed_date IS NULL'] = NULL;
             $post['where']['booking_details.internal_status NOT IN ("'.SPARE_PARTS_SHIPPED.'","'.SPARE_OOW_SHIPPED.'","'.SF_BOOKING_CANCELLED_STATUS.'","'.SF_BOOKING_COMPLETE_STATUS.'","'.SPARE_PARTS_SHIPPED_BY_WAREHOUSE.'")'] = NULL; 
             // Join with employee Table to fetch AM name
-			$post['join']['spare_parts_details'] = "booking_details.booking_id  = spare_parts_details.booking_id and spare_parts_details.status!='"._247AROUND_CANCELLED."'";
+
+            $post['join']['spare_parts_details'] = "booking_details.booking_id  = spare_parts_details.booking_id and spare_parts_details.status!='"._247AROUND_CANCELLED."'";
 
             $post['join']['partners'] = "booking_details.partner_id  = partners.id";
             $post['join']['agent_filters'] =  "booking_details.partner_id=agent_filters.entity_id AND agent_filters.state = booking_details.state AND agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."' ";
