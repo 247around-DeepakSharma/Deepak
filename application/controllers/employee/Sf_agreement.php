@@ -67,6 +67,7 @@ class Sf_agreement extends CI_Controller {
 
                         $cc = $email_template[3] . $sf[0]['owner_email'] .", ".$sf[0]['primary_contact_email']. $rm_email . $asm_poc_email;
 
+                        $bcc = $email_template[5];
                         $filename = str_replace(' ', '', $sf[0]['company_name']) . '_agreement_' . time() . '.pdf';
                         $s3_folder = 'sf_agreements';
                         $response_data1 = $this->miscelleneous->convert_html_to_pdf($agreement_template['template'], $sf[0]['id'], $filename, $s3_folder, '');
@@ -84,7 +85,7 @@ class Sf_agreement extends CI_Controller {
                             log_message('info', __METHOD__. " ". $subject);
 
                             $body = $email_template[0];
-                            $this->notify->sendEmail($from, $to, $cc, "", $subject, $body, $response_data['temp_path'], NULL);
+                            $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $body, $response_data['temp_path'], NULL);
                             unlink($response_data['temp_path']);
                             echo json_encode(array('success' => 1), true);
                             die;
