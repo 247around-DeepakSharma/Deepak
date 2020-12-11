@@ -305,7 +305,7 @@
                 $('#states').append(newOption).trigger('change');
                 $.each(data1, function (i, item) {
                     //alert(item.district);
-                    var newOption = new Option(item.state, item.state, false, true);
+                    var newOption = new Option(item.state, item.state_code, false, true);
                     $('#states').append(newOption).trigger('change');
                 });                
             });
