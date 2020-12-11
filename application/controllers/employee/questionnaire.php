@@ -75,6 +75,7 @@ class Questionnaire extends CI_Controller {
         $this->form_validation->set_rules('service_id', 'Product', 'required');
         $this->form_validation->set_rules('request_type', 'Request Type', 'required');
         $this->form_validation->set_rules('question', 'Question', 'required');
+        $this->form_validation->set_rules('sequence', 'Sequence', 'required');
         $validation = $this->form_validation->run();
         $data = $this->input->post();
         if ($validation) {  
