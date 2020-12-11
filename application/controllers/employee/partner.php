@@ -2823,10 +2823,10 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
         $agent_id = $this->session->userdata('agent_id');
         if($this->session->userdata('is_filter_applicable') == 1){
-            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER(state_code.state) as state,state_code.state_code ",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
         }
         else{
-            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER(state_code.state) as state,state_code.state_code",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         }
         $data['is_ajax'] = $this->input->post('is_ajax');
         if(empty($this->input->post('is_ajax'))){
@@ -5858,13 +5858,8 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . ' Function End');
         //unlink($csv);
     }
-    function download_waiting_defective_parts($state_code=""){
-        if(!empty($state_code))
-        {
-          $data1=$data['states']= $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER(state_code.state) as state",array('state_code'=>$state_code),NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());         
-          $state=$data1[0]['state'];
-        }
-        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
+    function download_waiting_defective_parts(){
+         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
         $where = array(
@@ -5874,10 +5869,6 @@ class Partner extends CI_Controller {
             "spare_parts_details.defective_return_to_entity_type" => _247AROUND_PARTNER_STRING,
             "status IN ('".OK_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_SHIPPED."')" => NULL
         );
-        if(!empty($state))
-        {
-          $where['booking_details.state']=$state;
-        }
         $select = "CONCAT( '', GROUP_CONCAT((defective_part_shipped ) ) , '' ) as defective_part_shipped, i.part_number as part_code, spare_parts_details.shipped_quantity as shipped_quantity,"
                 . " spare_parts_details.booking_id, users.name, courier_name_by_sf, awb_by_sf, spare_parts_details.sf_challan_number, spare_parts_details.partner_challan_number, "
                 . "defective_part_shipped_date,remarks_defective_part_by_sf";
@@ -7463,7 +7454,7 @@ class Partner extends CI_Controller {
          }
         $where = array(
             "spare_parts_details.defective_part_required" => 1,
-           "approved_defective_parts_by_admin" => 1,
+            "approved_defective_parts_by_admin" => 1,
             '((spare_parts_details.defective_return_to_entity_id ="'.$partner_id.'" '
             . 'AND spare_parts_details.defective_return_to_entity_type = "'._247AROUND_PARTNER_STRING.'" '
             . ' AND status IN ("'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'", "'.OK_PARTS_SEND_TO_PARTNER_BY_WH.'") ) OR '
@@ -7472,7 +7463,7 @@ class Partner extends CI_Controller {
             . 'AND booking_details.partner_id = "'.$partner_id.'" '
             . 'AND spare_parts_details.status IN ("'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'","'.OK_PARTS_SEND_TO_PARTNER_BY_WH.'")))' => NULL
         );
-       if($this->input->post('state') && $this->input->post('state')!='All'){
+       if($this->input->post('state')){
            $where['booking_details.state'] = $this->input->post('state');
        }
        if($this->input->post('booking_id')){
@@ -7814,7 +7805,7 @@ class Partner extends CI_Controller {
        $partner_id = $this->session->userdata('partner_id');
                $where = array(
             "spare_parts_details.defective_part_required" => 1,
-           "booking_details.partner_id" => $partner_id,
+            "booking_details.partner_id" => $partner_id,
             "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '".DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE."', '".OK_PART_TO_BE_SHIPPED."', '".DAMAGE_PART_TO_BE_SHIPPED."')  " => NULL
         );
        if($this->input->post('state')){
