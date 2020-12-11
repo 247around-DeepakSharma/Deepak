@@ -1185,9 +1185,18 @@ class vendor extends CI_Controller {
                             }
                     }
                     $email['action_by'] = $agent_name;
-                    
+                    //Send mail to asm also in cc
+                    $asm_details = $this->vendor_model->get_asm_contact_details_by_sf_id($id);
+                    if(!empty($asm_details[0]['official_email']))
+                    {
+                        $cc = $template[3].",".$asm_details[0]['official_email'];
+                    }
+                    else 
+                    {
+                        $cc = $template[3];
+                    }
                     $emailBody = vsprintf($template[0], $email);
-                        $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "",$tag);
+                    $this->notify->sendEmail($template[2], $to, $cc, '', $subject, $emailBody, "",$tag);
                 }
 
                 log_message('info', __FUNCTION__ . ' Permanent ON/OFF of Vendor' . $sf_name. " status ". $is_active);
