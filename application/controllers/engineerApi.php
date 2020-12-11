@@ -87,7 +87,7 @@ class engineerApi extends CI_Controller {
 
             }
             //username is user email address, not her name
-            if (array_key_exists("username", $requestData)) {
+            if (!empty($requestData) && is_array($requestData) && array_key_exists("username", $requestData)) {
                 $this->user = $requestData['username'];
             }
 
@@ -106,15 +106,19 @@ class engineerApi extends CI_Controller {
             }
 
             $this->tokenArray = explode('.', $this->token);
-            $header = $this->tokenArray[0];
-            $jsonData = $this->tokenArray[1];
-            $signature = $this->tokenArray[2];
+            if (count($this->tokenArray) == 3) {
+                $header = $this->tokenArray[0];
+                $jsonData = $this->tokenArray[1];
+                $signature = $this->tokenArray[2];
+            }else{
+                $header = $jsonData = $signature;
+            }
             $type = 'post';
 
             $details = array(
-                'header' => base64_decode($this->tokenArray[0]),
-                'request' => base64_decode($this->tokenArray[1]),
-                'signature' => base64_decode($this->tokenArray[2]),
+                'header' => base64_decode($header),
+                'request' => base64_decode($jsonData),
+                'signature' => base64_decode($signature),
                 'request_id' => $this->requestId,
                 'device_id' => $this->deviceId,
                 'email_id' => $this->user,
@@ -2492,7 +2496,7 @@ class engineerApi extends CI_Controller {
                 $this->sendJsonResponse(array('0030', 'Engineer Profile not found'));
             }
         } else {
-            log_message("info", __METHOD__ . "Engineer id not found - " . $requestData["engineer_id"]);
+            log_message("info", __METHOD__ . "Engineer id not found.");
             $this->sendJsonResponse(array('0031', 'Engineer Id not found'));
         }
     }
