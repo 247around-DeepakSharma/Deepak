@@ -469,7 +469,7 @@
                                 echo 'has-error';
                             }
                             ?>">
-                                <label for="shipment_date" class="col-md-4">Shipment Date</label>
+                                <label for="shipment_date" class="col-md-4">Shipment Date *</label>
                                 <div class="col-md-6">
                                     <input type="text" class="form-control"  id="shipment_date" name="shipment_date"  value = "<?php echo date("Y-m-d", strtotime("+0 day")); ?>"  required>
                                     <?php echo form_error('shipment_date'); ?>
@@ -585,7 +585,7 @@
         yesterday.setDate(today.getDate() - 3);
         return yesterday;
         }(),
-        maxDate: false,
+        maxDate: new Date(),
         setDate: new Date(),
         locale: {
             format: 'YYYY-MM-DD'
@@ -677,10 +677,12 @@
                                         swal("Error !", "Sum of weight in KG and GM must be greater than 0");
                                         }else{
                                         $('#submit_form').attr('disabled', true);
+                                        $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', false);
                                         form.submit();   
                                         }
                                     }else{
                                        $('#submit_form').attr('disabled', true);
+                                       $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', false);
                                        form.submit(); 
                                     } 
                                 }
