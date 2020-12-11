@@ -76,6 +76,9 @@ class Questionnaire_model extends CI_Model {
         if(empty($data['active'])){
             $data['active'] = 0;
         }
+        if(empty($data['is_required'])){
+            $data['is_required'] = 0;
+        }
         unset($data['request_type']);
         unset($data['service_id']);        
         if(isset($data['options'])){
