@@ -43,14 +43,9 @@ class Questionnaire_model extends CI_Model {
         unset($data['request_type']);
         unset($data['service_id']);
         unset($data['options']);        
-        
+            
         // insert data in review_questionare 
         $data['created_by'] = $this->session->userdata('id');
-        if($this->session->userdata('is_required')=='Yes')
-        {
-            $data['is_required']=1;
-        }
-        else $data['is_required']=1;
         $data['updated_by'] = $this->session->userdata('id');
         $this->db->insert('review_questionare', $data);
         $q_id = $this->db->insert_id();
@@ -81,20 +76,15 @@ class Questionnaire_model extends CI_Model {
         if(empty($data['active'])){
             $data['active'] = 0;
         }
+        if(empty($data['is_required'])){
+            $data['is_required'] = 0;
+        }
         unset($data['request_type']);
         unset($data['service_id']);        
         if(isset($data['options'])){
             unset($data['options']);
         }
         $data['updated_by'] = $this->session->userdata('id');
-        if($this->session->userdata('is_required')=='Yes')
-        {
-            $data['is_required']=1;
-        }
-        else
-        {
-            $data['is_required']=0;
-        }
         // update data in review_questionare
         $this->db->where($where, FALSE);
         $this->db->update('review_questionare', $data);

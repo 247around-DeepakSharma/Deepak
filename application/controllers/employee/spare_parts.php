@@ -3014,6 +3014,11 @@ class Spare_parts extends CI_Controller {
                             if (isset($warehouse_details['challan_approx_value'])) {
                                 $spare_data['challan_approx_value'] = round(($warehouse_details['challan_approx_value'] * $data['quantity']), 2);
                             }
+                            
+                            if (isset($warehouse_details['inventory_id'])) {
+                                $spare_data['requested_inventory_id'] = $warehouse_details['inventory_id'];
+                            }
+                            
                             $spare_data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
                             $spare_data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
                             $spare_data['parts_requested_type'] = $spare_parts_details[0]['parts_requested_type'];
@@ -5537,6 +5542,7 @@ class Spare_parts extends CI_Controller {
     
     function get_spare_parts_status() {
         $is_active = $this->input->post('is_active');
+        $option = '';
         if ($is_active == 1) {
             $where = "spare_parts_details.status !='NULL' GROUP BY spare_parts_details.status";
             $select = "DISTINCT(spare_parts_details.status), spare_parts_details.id";
