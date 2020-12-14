@@ -431,7 +431,7 @@ function get_data_for_partner_callback($booking_id) {
         return $data;
     }
     //Return all leads shared by Partner in the last 30 days in CSV
-    function get_partner_leads_csv_for_summary_email($partner_id,$percentageLogic,$whereConditions=NULL){
+    function get_partner_leads_csv_for_summary_email($partner_id,$percentageLogic,$whereConditions=NULL,$booing_location = false){
         $mappingData = $this->get_partner_summary_report_fields($partner_id);
         foreach($mappingData as $values){
             $subQueryArray[$values['Title']] = $values['sub_query'];
@@ -482,9 +482,13 @@ function get_data_for_partner_callback($booking_id) {
                     LEFT JOIN symptom completion_symptom ON booking_symptom_defect_details.symptom_id_booking_completion_time = completion_symptom.id
                     LEFT JOIN defect ON booking_symptom_defect_details.defect_id_completion = defect.id
                     LEFT JOIN symptom_completion_solution ON booking_symptom_defect_details.solution_id = symptom_completion_solution.id
-                    LEFT JOIN engineer_details ON engineer_details.id = booking_details.assigned_engineer_id";
+                     LEFT JOIN engineer_details ON engineer_details.id = booking_details.`assigned_engineer_id`";
                     
         //}
+            if(!empty($booing_location)){
+              $sql .= "LEFT JOIN booking_set_location b_sl ON booking_details.id = b_sl.booking_primary_id";  
+            }
+           
         
         $sql .= " WHERE product_or_services != 'Product' AND $where GROUP BY ud.booking_id";
         
