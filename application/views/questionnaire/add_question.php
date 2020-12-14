@@ -116,7 +116,7 @@
                                 <div class="form-group">
                                     <label for="is_required" class="col-md-3">Is Required *</label>
                                     <div class="col-md-6">
-                                        <input type="checkbox" id="is_required" name="is_required" value="1" <?php if (!empty($q_data[0]->is_required) ) { echo "checked"; } ?>>
+                                        <input type="checkbox" id="is_required" name="is_required" value="1" <?php if (!empty($q_data[0]->is_required)) { echo "checked"; } ?>>
                                     </div>
                                 </div>
                                 <!-- Add Options (if any) -->
