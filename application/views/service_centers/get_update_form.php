@@ -10,7 +10,7 @@
 <div id="page-wrapper">
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-12" style='padding-bottom: 10px'>
                 <h2 class="page-header">
                     Update Booking
                 </h2>
@@ -601,6 +601,7 @@
                                 </div>
                             </div>
                         </div>
+                        
                         <div class="text-warning"> <span class="badge badge-info"><i class="fa fa-info"></i></span> * These fields are required</div>
                     </div>
                     <div  id="hide_rescheduled" >
@@ -618,6 +619,14 @@
                         <label for="remarks" class="col-md-2">Remarks *</label>
                         <div class="col-md-4" style="width:24%">
                             <textarea class="form-control remarks"  id="sc_remarks" name="sc_remarks" value = "" placeholder="Enter Remarks" rows="5" ></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class='row' style='padding-bottom: 10px;display:none' id='part_brought_at'>
+                        <label for="prob_desc" class="col-md-2">Part brought at*</label>
+                        <div class='col-md-6'>
+                            <input type='radio' name='part_brought_at' value=1 <?php if (!empty($booking_set_location[0]['part_brought_at']) && $booking_set_location[0]['part_brought_at'] == 1) { ?>checked <?php } ?> <?php if (!empty($booking_set_location[0]['part_brought_at']) && $booking_set_location[0]['part_brought_at'] == 2) { ?> onclick='return false'<?php } ?>>&nbsp;&nbsp;Customer Location&nbsp;&nbsp;
+                            <input type='radio' name='part_brought_at' value=2 <?php if (!empty($booking_set_location[0]['part_brought_at']) && $booking_set_location[0]['part_brought_at'] == 2) { ?> checked onclick='return false'<?php } ?>>&nbsp;&nbsp;SF Workshop                                                                      
                         </div>
                     </div>
                     <?php 
@@ -1171,6 +1180,7 @@ function alpha(e) {
             $(".remarks").attr("disabled", "true");
             $('#hide_remarks').hide();
             $('#submitform').val('Update Booking');
+            $("#part_brought_at").show();
         } else  if(id ==="rescheduled" || id === "product_not_delivered" 
                 || id=== "reschedule_for_upcountry"
                 || id=== "spare_not_delivered"){
@@ -1180,7 +1190,7 @@ function alpha(e) {
             $(".rescheduled_form").removeAttr("disabled");
             $('#hide_remarks').show();
             $(".remarks").removeAttr("disabled");
-        
+            $("#part_brought_at").show();
             //$('#submitform').val('Proceed');
         }  else {
          $(".spare_parts").attr("disabled", "true");
@@ -1190,6 +1200,7 @@ function alpha(e) {
          $('#hide_remarks').show();
          $(".remarks").removeAttr("disabled");
          $('#submitform').val('Update Booking');
+         $("#part_brought_at").hide();
         }
     }
     

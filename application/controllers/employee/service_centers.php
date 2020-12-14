@@ -1498,7 +1498,7 @@ class Service_centers extends CI_Controller {
             $service_center_id = $this->input->post('service_center_id');
             $sc_agent_id = $this->input->post('sc_agent_id');  /// SC Agent ID 
         }
-
+        
 
         if ($check_validation == FALSE) {
             log_message('info', __FUNCTION__ . '=> Rescheduled Booking Validation failed ');
@@ -1537,6 +1537,22 @@ class Service_centers extends CI_Controller {
             }
             $partner_id = $this->input->post("partner_id");
             $this->update_booking_internal_status($booking_id, $reason, $partner_id, 'reshedule');
+            //Update Booking Set location Starts here
+            if ($this->input->post("part_brought_at") && $this->input->post("booking_id")) {
+                $part_brought_at = $this->input->post("part_brought_at");
+                $booking_id_part = $this->input->post("booking_id");
+                $booking_details_part = $this->booking_model->getbooking_history($booking_id_part);
+                if (!empty($booking_details_part)) {
+                    $booking_primary_id = $booking_details_part[0]['booking_primary_id'];
+                    $booking_id_booking_set = $this->booking_model->get_booking_set_location(array('booking_primary_id' => $booking_primary_id), 'id,booking_primary_id,part_brought_at');
+                    if (!empty($booking_id_booking_set)) {
+                        $this->booking_model->update_booking_set_location(array('booking_primary_id' => $booking_primary_id), array('part_brought_at' => $part_brought_at));
+                    } else {
+                        $this->booking_model->insert_booking_set_location(array('booking_primary_id' => $booking_primary_id, 'part_brought_at' => $part_brought_at, 'agent_id' => $sc_agent_id));
+                    }
+                }
+            }
+            //Update Booking Set location 
             if (!$this->input->post("call_from_api")) {
                 $userSession = array('success' => 'Booking Updated');
                 $this->session->set_userdata($userSession);
@@ -1750,6 +1766,11 @@ class Service_centers extends CI_Controller {
                     $data['on_saas'] = TRUE;
                 }
             }
+             if (!empty($data['bookinghistory'])) {
+                 $booking_primary_id = $data['bookinghistory'][0]['booking_primary_id'];
+                 $booking_id_booking_set = $this->booking_model->get_booking_set_location(array('booking_primary_id' => $booking_primary_id), 'id,booking_primary_id,part_brought_at');
+                 $data['booking_set_location'] = $booking_id_booking_set;
+             }
 
             if (!empty($data['bookinghistory'][0])) {
                 $spare_shipped_flag = false;
@@ -2780,7 +2801,22 @@ class Service_centers extends CI_Controller {
                     foreach ($delivered_sp_all as $deliver_data) {
                         $this->auto_delivered_for_micro_wh($deliver_data, $partner_id);
                     }
-
+                    //Update Booking Set location Starts here
+                    if ($this->input->post("part_brought_at") && $this->input->post("booking_id")) {
+                        $part_brought_at = $this->input->post("part_brought_at");
+                        $booking_id_part = $this->input->post("booking_id");
+                        $booking_details_part = $this->booking_model->getbooking_history($booking_id_part);
+                        if (!empty($booking_details_part)) {
+                            $booking_primary_id = $booking_details_part[0]['booking_primary_id'];
+                            $booking_id_booking_set = $this->booking_model->get_booking_set_location(array('booking_primary_id' => $booking_primary_id), 'id,booking_primary_id,part_brought_at');
+                            if (!empty($booking_id_booking_set)) {
+                                $this->booking_model->update_booking_set_location(array('booking_primary_id' => $booking_primary_id), array('part_brought_at' => $part_brought_at));
+                            } else {
+                                $this->booking_model->insert_booking_set_location(array('booking_primary_id' => $booking_primary_id, 'part_brought_at' => $part_brought_at, 'agent_id' => $agent_id));
+                            }
+                        }
+                    }
+                    //Update Booking Set location
                     /* End auto deliver  */
                     if (!$this->input->post("call_from_api")) {
                         $userSession = array('success' => 'Booking Updated');
@@ -2791,6 +2827,7 @@ class Service_centers extends CI_Controller {
                         $returnData['message'] = "Booking Updated Successfully";
                         echo json_encode($returnData);
                     }
+                     
                 } else { // if($status_spare){
                     if (!$this->input->post("call_from_api")) {
                         log_message('info', __FUNCTION__ . " Not update Spare parts Service_center ID: " . $service_center_id . " Data: " . print_r($data));
