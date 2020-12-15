@@ -109,6 +109,7 @@
          <th>Type</th>
          <th>No. of Bookings</th>
          <th>No. of Parts</th>
+         <th>Invoice Date</th>
          <th>Invoice Period</th>
          <th>Total Invoice</th>
          <th>Service Charges</th>
