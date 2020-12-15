@@ -2719,6 +2719,8 @@ class Miscelleneous {
             $booking_date = strtotime($booking_date_timeslot[0]['booking_date']);
             $escalation['booking_date'] = date('Y-m-d', $booking_date);
             $escalation['booking_time'] = $booking_date_timeslot[0]['booking_timeslot'];
+            $escalation['agent_id'] = $id;
+            $escalation['escalation_source'] = _247AROUND_EMPLOYEE_STRING;
             //inserts vendor escalation details
             $escalation_id = $this->My_CI->vendor_model->insertVendorEscalationDetails($escalation);
             if ($escalation_id) {
