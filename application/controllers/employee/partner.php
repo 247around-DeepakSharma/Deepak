@@ -1636,7 +1636,15 @@ class Partner extends CI_Controller {
             $escalation['booking_date'] = date('Y-m-d', strtotime($bookinghistory[0]['booking_date']));
             $escalation['booking_time'] = $bookinghistory[0]['booking_timeslot'];
             $escalation['vendor_id'] = $bookinghistory[0]['assigned_vendor_id'];
-
+            
+            if(!$this->input->post("call_from_api")){
+                $escalation['agent_id'] = $this->session->userdata('agent_id');
+                $escalation['escalation_source'] = _247AROUND_EMPLOYEE_STRING;
+            }
+            else{
+                $escalation['agent_id'] = $this->input->post("dealer_agent_id");
+                $escalation['escalation_source'] = _247AROUND_DEALER_STRING;
+            }
             log_message('info', __FUNCTION__ . " escalation_reason  " . print_r($escalation, true));
 
             $escalation_id = "";
