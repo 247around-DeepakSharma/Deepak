@@ -2964,20 +2964,20 @@ exit();
                 return false;
             }
         } else {
-            if($invoice_type == "final"){
-                $select = 'company_name, minimum_guarantee_charge ';
-                $vendor_details = $this->vendor_model->getVendorDetails($select, array('id' => $vendor_id));
-            
-                if(!empty($vendor_details) && $vendor_details[0]['minimum_guarantee_charge'] > 0){
-                    $basic_min_guarantee_charge =  ($vendor_details[0]['minimum_guarantee_charge'] * SERVICE_TAX_RATE)/(1 + SERVICE_TAX_RATE);
-
-
-                    $this->send_guarantee_exist_mail(array('minimum_guarantee_charge' => $vendor_details[0]['minimum_guarantee_charge'],
-                      'invoice_amount' => 0, "company_name" => $vendor_details[0]['company_name'], 
-                        'from_date' => date('M', strtotime($from_date)), 'vendor_id' => $vendor_id));
-
-                }
-            }
+//            if($invoice_type == "final"){
+//                $select = 'company_name, minimum_guarantee_charge ';
+//                $vendor_details = $this->vendor_model->getVendorDetails($select, array('id' => $vendor_id));
+//            
+//                if(!empty($vendor_details) && $vendor_details[0]['minimum_guarantee_charge'] > 0){
+//                    $basic_min_guarantee_charge =  ($vendor_details[0]['minimum_guarantee_charge'] * SERVICE_TAX_RATE)/(1 + SERVICE_TAX_RATE);
+//
+//
+//                    $this->send_guarantee_exist_mail(array('minimum_guarantee_charge' => $vendor_details[0]['minimum_guarantee_charge'],
+//                      'invoice_amount' => 0, "company_name" => $vendor_details[0]['company_name'], 
+//                        'from_date' => date('M', strtotime($from_date)), 'vendor_id' => $vendor_id));
+//
+//                }
+//            }
         
             echo "Data Not Found - ".$vendor_id.PHP_EOL;
             log_message('info', __FUNCTION__ . " Data Not Found -". $vendor_id);
