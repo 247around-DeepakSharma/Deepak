@@ -163,21 +163,21 @@ class Around_scheduler extends CI_Controller {
                     $this->table->set_heading(array('Company Name', 'Public Name', 'Partner Type'));
                     $this->table->add_row(array($company_name,$public_name, $partner_type));
                     $html_table = $this->table->generate();
-                    $to = $email_template[1];//ALL_EMP_EMAIL//all-emp@247around.com;
-                    $bcc = '';
+                    //ALL_EMP_EMAIL -> all-emp@247around.com;
+                    $to = $email_template[1];
                     $cc = $email_template[3];
-                    $subject = vsprintf($email_template[4], array($this->input->post('public_name')));
+                    $subject = vsprintf($email_template[4], array($public_name));
                     $message = vsprintf($email_template[0], array($html_table));
-                    $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
-                     //Unable to send mails for too many mail ids in bcc , So we process email one by one to each sf appearing in bcc
+                    //Unable to send mails for too many mail ids in bcc , So we process email one by one to each sf appearing in bcc
                     if(!empty($bcc_array))
                     {
-                        $cc = '';
-                        $bcc = '';
-                        for($i=0;count($bcc_array)>$i;$i++)
+                        $bcc_sub_array = array_chunk($bcc_array,100);
+                        foreach($bcc_sub_array as $bcc_batch)
                         {
-                            $to = $bcc_array[$i];
+                            $bcc = implode(',', $bcc_batch);
                             $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
+                            //sleep for 10 seconds , to avoid mail blacklisting by AWS 
+                            sleep(10);
                         }
                     }
                 }

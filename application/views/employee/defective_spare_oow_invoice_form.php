@@ -79,6 +79,11 @@
 <?php if($this->session->userdata('success')){ $this->session->unset_userdata('success');  } ?>
 <script type="text/javascript">
 
+    $("#spare_form").submit(function(e){
+		e.preventDefault();
+		$("#submit_btn").trigger('click');
+	});
+
     function get_spare_parts(){
         var booking_id = $("#booking_id").val();
         if(booking_id){
