@@ -1292,7 +1292,7 @@ class Partner extends CI_Controller {
                 redirect(base_url() . 'employee/partner/get_user_form');
             }
         } else if ($search_type === 'booking_id') {  //if booking id given and matched, will be displayed
-            $where['MATCH (booking_details.booking_id) AGAINST ("'.$search_value.'")'] = NULL;
+            $where['booking_details.booking_id LIKE "%'.$search_value.'%"'] = NULL;
             $Bookings = $this->booking_model->search_bookings($where, $this->session->userdata('partner_id'));
             $data['data'] = json_decode(json_encode($Bookings), True);
             $this->miscelleneous->load_partner_nav_header();
@@ -9249,7 +9249,6 @@ class Partner extends CI_Controller {
        if(!empty($postData['search'])){
             $booking_id = $postData['search']['value'];
            $where = $where." AND booking_details.booking_id LIKE '%".$booking_id."%'";
-           $where = $where.' AND (MATCH (booking_details.booking_id) AGAINST ("'.$search_value.'"))';
        }
        if($this->session->userdata('is_filter_applicable') == 1){
             $state = 1;

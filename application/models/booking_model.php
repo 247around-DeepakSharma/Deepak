@@ -1596,7 +1596,7 @@ class Booking_model extends CI_Model {
             $trim_booking_id = preg_replace("/[^0-9]/", "", $booking_id);
             if (!empty($trim_booking_id) &&  strlen($trim_booking_id) > 7) {
                 $this->db->select('id, price_tags,appliance_capacity');
-                $this->db->where('MATCH (booking_id) AGAINST ("'.$trim_booking_id.'")', NULL, FALSE);
+                $this->db->like('booking_id', $trim_booking_id);
                 $this->db->where_not_in('id', $unit_id_array);
                 $query = $this->db->get('booking_unit_details');
                 if ($query->num_rows > 0 && $query->num_rows < 10) {
@@ -1665,7 +1665,7 @@ class Booking_model extends CI_Model {
             $this->db->select('id, customer_total, price_tags, vendor_basic_percentage, booking_status');
             $this->db->where('appliance_id', $services_details['appliance_id']);
             $this->db->where('price_tags', $data[0]['price_tags']);
-            $this->db->where('MATCH (booking_id) AGAINST ("'.$trimed_booking_id.'")', NULL, FALSE);
+            $this->db->like('booking_id', $trimed_booking_id);
             $query = $this->db->get('booking_unit_details');
             $unit_details = $query->result_array();
             $result = array_merge($data[0], $services_details);
@@ -1843,7 +1843,7 @@ class Booking_model extends CI_Model {
     }
     function update_request_type_history_table($booking_id,$oldRequestType,$oldPriceTag,$newRequest){
             log_message('info', __METHOD__ . " Booking ID " . $booking_id . "Old Price Tags " . print_r($oldPriceTag, true));
-            $whereNewPrice['( MATCH (booking_id) AGAINST ("'.preg_replace("/[^0-9]/","",$booking_id).'"))'] = NULL;
+            $whereNewPrice['booking_id LIKE "%'.preg_replace("/[^0-9]/","",$booking_id).'%"'] = NULL;
             $groupBY  = array('appliance_id');
             $newPriceTag = $this->reusable_model->get_search_result_data('booking_unit_details','appliance_id,GROUP_CONCAT(price_tags) as price_tag',$whereNewPrice,NULL,NULL,NULL,NULL,NULL,$groupBY);
             $finalOldPrice = array();

@@ -175,24 +175,23 @@ class User_model extends CI_Model {
  
 
     /** @description : Function to search booking with booking id from find user page
-        @PrityBhardwaj Function not in Use, code commented
      *  @param : booking id
      *  @return : array(matching bookings)
      */
-//    function search_bookings_by_booking_id($booking_id) {
-//        $query = $this->db->query("Select services.services,
-//            users.name as customername, users.phone_number,
-//            booking_details.*, service_centres.name as service_centre_name,
-//            service_centres.primary_contact_name,service_centres.primary_contact_phone_1
-//            from booking_details
-//            JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
-//            JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
-//            LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` 
-//            = `service_centres`.`id` WHERE booking_id like '%$booking_id%'"
-//        );
-//
-//        return $query->result();
-//    }
+    function search_bookings_by_booking_id($booking_id) {
+        $query = $this->db->query("Select services.services,
+            users.name as customername, users.phone_number,
+            booking_details.*, service_centres.name as service_centre_name,
+            service_centres.primary_contact_name,service_centres.primary_contact_phone_1
+            from booking_details
+            JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
+            JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
+            LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` 
+            = `service_centres`.`id` WHERE booking_id like '%$booking_id%'"
+        );
+
+        return $query->result();
+    }
 
     /** @description : Function to add new user
      * 
