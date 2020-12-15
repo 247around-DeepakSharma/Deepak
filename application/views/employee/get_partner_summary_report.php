@@ -8,9 +8,10 @@
                     // DO not show Download Real Time Summary Report Button , If Partner is not selected
                     $display = "";
                     if(empty($this->session->userdata('partner_id'))) { 
-                        $display = "display:none;"; 
+                        $display = "disabled"; 
                     } ?>
-                    <a id="download_realtime_summary_report" href="<?php echo base_url() . "employee/partner/download_real_time_summary_report/" . $this->session->userdata('partner_id') ?>" class="btn btn-success" style="float:right;<?php echo $display; ?>">Download Real Time Summary Report</a>
+                    <i class="fa fa-info-circle text-success" style="float:right;margin-left:5px;padding-top:5px;" title="Select any Partner to download Real Time Summary Report"></i>                    
+                    <a id="download_realtime_summary_report" href="<?php echo base_url() . "employee/partner/download_real_time_summary_report/" . $this->session->userdata('partner_id') ?>" class="btn btn-success" style="float:right;" <?php echo $display; ?>>Download Real Time Summary Report</a>
                     <div class="clear"></div>
                     
                 </h3>
@@ -156,10 +157,11 @@
         
        $('#partner_id').on('change', function(){
             var partner_id = $(this).val();
-            if(partner_id != '' && partner_id != null) {
+            $('#download_realtime_summary_report').attr('disabled', true);
+            if(partner_id != '' && partner_id != null && partner_id != 'All') {
                 var url = '<?php echo base_url()."employee/partner/download_real_time_summary_report/"?>'+partner_id;
                 $('#download_realtime_summary_report').attr('href', url);
-                $('#download_realtime_summary_report').show();
+                $('#download_realtime_summary_report').attr('disabled', false);
                 var dataUrl = '<?php echo base_url()."employee/booking/get_summary_report_data/"?>'+partner_id;
                 $.ajax({
                     type: 'POST',
