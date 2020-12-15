@@ -893,7 +893,7 @@ class Accounting extends CI_Controller {
         
        if($download_all == 1){
            //download data
-           $headings = array("Party Name", "Invoice Id", "Type", "Bookings", "Parts", "Invoice Period", "Total Invoice", "Service Charges", "Additional Service Charges",
+           $headings = array("Party Name", "Invoice Id", "Type", "Bookings", "Parts", "Invoice Date", "Invoice Period", "Total Invoice", "Service Charges", "Additional Service Charges",
                             "Parts / Stands", "TDS Amount","TCS Amount", "Penalty", "GST Amount", "Amount to be Paid By 247Around", "Amount to be Paid By Partner",
                             "Amount Paid", "Remarks", "Vertical", "Category", "Sub Category");
            $this->miscelleneous->downloadCSV($data,$headings,"invoice");
@@ -1034,11 +1034,8 @@ class Accounting extends CI_Controller {
         $row[] = $invoice_list->type;
         $row[] = $invoice_list->num_bookings;
         $row[] = $invoice_list->parts_count;
-        if($download_all == 0){
-            $row[] = date("d-M-Y", strtotime($invoice_list->invoice_date))." <br/><br/> ".date("d-M-Y", strtotime($invoice_list->from_date)). " to ". date("d-M-Y", strtotime($invoice_list->to_date));
-        }else{
-            $row[] = date("d-M-Y", strtotime($invoice_list->invoice_date))."  ".date("d-M-Y", strtotime($invoice_list->from_date)). " to ". date("d-M-Y", strtotime($invoice_list->to_date));
-        }
+        $row[] = date("d-M-Y", strtotime($invoice_list->invoice_date));
+        $row[]= date("d-M-Y", strtotime($invoice_list->from_date)). " to ". date("d-M-Y", strtotime($invoice_list->to_date));
         
         $row[] = $invoice_list->total_amount_collected;
         $row[] = sprintf("%.2f",($invoice_list->total_service_charge + $invoice_list->service_tax));
