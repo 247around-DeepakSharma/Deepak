@@ -1301,7 +1301,7 @@ class Courier_tracking extends CI_Controller {
 
             if (!empty($val['tracking_number']) && !empty($val['tracking_number'])) {
 
-                $awb_number_list = $this->trackingmore_api->getRapidApiRealTimeTrackingResults($val->couriercode, $val->tracking_number);
+                $awb_number_list = $this->trackingmore_api->getRapidApiRealTimeTrackingResults($val['tracking_number'], $val['tracking_number']);
 
                 if (!empty($awb_number_list) && isset($awb_number_list['meta']['code']) == 200) {
 
