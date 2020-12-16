@@ -5111,7 +5111,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
 
         $row = array();
         $row[] = $no;
-        $row[] = $spare_list->booking_id;
+        $row[] = '<a href="' . base_url() . 'employee/booking/viewdetails/' . $spare_list->booking_id . '" target= "_blank" >' . $spare_list->booking_id . '</a>';
         $row[] = "<span class='line_break'>" . $spare_list->sf_name . "</span>";
         $row[] = $spare_list->sf_status;
         $row[] = $spare_list->partner_name;
@@ -5328,8 +5328,8 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
       function total_parts_shipped_to_sf_table_data($spare_list, $no) {
 
         $row = array();
-        $row[] = $no;
-        $row[] = $spare_list->booking_id;
+        $row[] = $no;        
+        $row[] = '<a href="' . base_url() . 'employee/booking/viewdetails/' . $spare_list->booking_id . '" target= "_blank" >' . $spare_list->booking_id . '</a>';
         $row[] = "<span class='line_break'>" . $spare_list->sf_name . "</span>";
         $row[] = $spare_list->sf_status;
         $row[] = $spare_list->partner_name;
@@ -5408,7 +5408,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
 
         $row = array();
         $row[] = $no;
-        $row[] = $spare_list->booking_id;
+        $row[] = '<a href="' . base_url() . 'employee/booking/viewdetails/' . $spare_list->booking_id . '" target= "_blank" >' . $spare_list->booking_id . '</a>';
         $row[] = "<span class='line_break'>" . $spare_list->sf_name . "</span>";
         $row[] = $spare_list->sf_status;
         $row[] = $spare_list->partner_name;
