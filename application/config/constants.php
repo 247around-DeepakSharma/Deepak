@@ -22,6 +22,7 @@ include('api_response_code_constants.php'); /// Include api constants response
 include('engineer_config.php'); /// Include engg constants
 include('around_lib_constant.php'); /// Include around generic constant file
 include('karix_constant.php');
+include('dealer_config.php'); // Deal app config and constants
 include('cancellation_reasons_constant.php');
 
 
