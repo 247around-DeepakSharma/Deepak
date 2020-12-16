@@ -375,7 +375,7 @@
                             </ul>
                         </li>
                         <?php if($this->session->userdata('covid_popup')){ ?>
-                        <li><a style="color:#00ff7e;font-size:20px;font-weight:900;" data-toggle="modal" data-target="#myModal" id="myBtncovid">COVID-19</a></li>
+                        <li><a style="color:#00ff7e;font-size:20px;font-weight:900;" data-toggle="modal" data-target="#myModal7" id="myBtncovid">COVID-19</a></li>
                         <?php  }else{ ?>
 
                              <li><a style="color:#00ff7e;font-size:20px;font-weight:900;" data-toggle="modal" data-target="#myModal7" >COVID-19</a></li>
