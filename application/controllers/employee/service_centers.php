@@ -7156,7 +7156,7 @@ class Service_centers extends CI_Controller {
      * @return Void
      */
     function acknowledge_received_defective_parts($spare_id, $booking_id, $partner_id, $is_cron = "") {
-        
+        exit;
         $sf_id = "";
         if (empty($is_cron)) {
             if (!empty($this->session->userdata('warehouse_id'))) { 
@@ -7188,6 +7188,13 @@ class Service_centers extends CI_Controller {
         // fetch record from booking details of $booking_id.
         $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
+        //Return false is Spare is already defective return acknowledged
+        $defective_part_received_date_by_wh = $spare_part_detail['defective_part_received_date_by_wh'];
+        if(!empty($defective_part_received_date_by_wh)){
+            echo json_encode(array('This Defective / OK part is already acknowledged.', 'error'));
+            return false;
+        }
+        //
         if (!empty($post_data['spare_consumption_status'][$spare_id]) && ($post_data['spare_consumption_status'][$spare_id] != $spare_part_detail['consumed_part_status_id'])) {
             $this->miscelleneous->change_consumption_by_warehouse($post_data, $booking_id);
         }
