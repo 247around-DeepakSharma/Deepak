@@ -337,21 +337,7 @@
                             <span id="same_awb" style="display:none">This AWB already used same price will be added</span>
                     </div>
                     <br/>
-                  <table id="return_new_parts_data" class="table table-bordered table-responsive">
-                            <thead>
-                                <tr>
-                                    <th>S.No</th>
-                                    <th>Appliance</th>
-                                    <th>Type</th>
-                                    <th>Name</th>
-                                    <th>Number</th>
-                                    <th>Quantity</th>
-                                    <th>Remove</th>
-                                    
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+                    <div id="return_new_parts_id"></div>
                 </div>
                   <div class="modal-footer">
                       <button type="button" class="btn btn-success" id="submit_courier_form" onclick="check_return_new_parts()" >Submit</button>
@@ -375,24 +361,7 @@
                     <form class="form-horizontal" id="consumed_ow_form" action="javascript:void(0)" method="post" novalidate="novalidate">
                     </form>
                     <br/>
-                  <table id="sell_mwh_parts_data" class="table table-bordered table-responsive">
-                            <thead>
-                                <tr>
-                                    <th>S.No</th>
-                                    <th>Appliance</th>
-                                    <th>Type</th>
-                                    <th>Name</th>
-                                    <th>Number</th>
-                                    <th>Basic Price</th>
-                                    <th>GST Rate</th>
-                                    <th>Quantity</th>
-                                    <th>Total Price</th>
-                                    <th>Remove</th>
-                                    
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+                    <div id="sell_mwh_parts_id"></div>
                 </div>
                 <div class="modal-footer">
                   <button type="button" class="btn btn-success" id="submit_mwh_consumed_form" onclick="mwh_consumed_ow()" >Remove Stock</button>
@@ -431,6 +400,44 @@
         Around_GST_ID = ((($("#wh_id").find(':selected').attr('data-warehose') == 1) && ($("#wh_id").find(':selected').val() == 804)) ? 6 : 7 );
         $('#from_gst_number option[value="'+Around_GST_ID+'"]').prop('selected',true);
         if(wh_id && partner_id){
+            
+            var HTMLBODy = '';
+                HTMLBODy+= '<table id="return_new_parts_data" class="table table-bordered table-responsive">';
+                    HTMLBODy+= '<thead>';
+                        HTMLBODy+= '<tr>';
+                            HTMLBODy+= '<th>S.No</th>';
+                            HTMLBODy+= '<th>Appliance</th>';
+                            HTMLBODy+= '<th>Type</th>';
+                            HTMLBODy+= '<th>Name</th>';
+                            HTMLBODy+= '<th>Number</th>';
+                            HTMLBODy+= '<th>Quantity</th>';
+                            HTMLBODy+= '<th>Remove</th>';
+                        HTMLBODy+= '</tr>';
+                    HTMLBODy+= '</thead>';
+                    HTMLBODy+= '<tbody></tbody>';
+                HTMLBODy+= '</table>';
+            $("#return_new_parts_id").html(HTMLBODy);
+            
+            var HTMLTableBody = '';
+             HTMLTableBody+= '<table id="sell_mwh_parts_data" class="table table-bordered table-responsive">';
+                    HTMLTableBody+= '<thead>';
+                        HTMLTableBody+= '<tr>';
+                            HTMLTableBody+= '<th>S.No</th>';
+                            HTMLTableBody+= '<th>Appliance</th>';
+                            HTMLTableBody+= '<th>Type</th>';
+                            HTMLTableBody+= '<th>Name</th>';
+                            HTMLTableBody+= '<th>Number</th>';
+                            HTMLTableBody+= '<th>Basic Price</th>';  
+                            HTMLTableBody+= '<th>GST Rate</th>';
+                            HTMLTableBody+= '<th>Quantity</th>';
+                            HTMLTableBody+= '<th>Total Price</th>';
+                            HTMLTableBody+= '<th>Remove</th>';
+                        HTMLTableBody+= '</tr>';
+                    HTMLTableBody+= '</thead>';
+                    HTMLTableBody+= '<tbody></tbody>';
+                HTMLTableBody+= '</table>';
+                   
+            $("#sell_mwh_parts_id").html(HTMLTableBody);
             is_admin_crm = true;
             returnItemArray = [];
             inventory_stock_table.ajax.reload( function ( json ) { 
