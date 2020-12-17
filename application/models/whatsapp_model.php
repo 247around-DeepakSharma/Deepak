@@ -153,6 +153,21 @@ class Whatsapp_model extends CI_Model {
             $query = $this->db->get('whatsapp_options');
             return $query->result_array();
         }
-    }  
+
+    }
+    /**
+     *  @desc : This function is used to update whatsapp log
+     *  @param : $phone string
+     *  @return: Array()
+     *  Ghanshyam
+     */
+    function update_whatsapp_log($where,$data){
+      if(!empty($where) && !empty($data)){
+         $this->db->where($where); 
+         $this->db->update('whatsapp_logs',$data);
+      }
+    }
+     
+
 
 }
