@@ -1065,8 +1065,8 @@ class Spare_parts extends CI_Controller {
         $row[] = date("jS M, Y", strtotime($spare_list->defective_part_shipped_date));
         $row[] = $spare_list->consumed_status;
         $row[] = $spare_list->courier_name_by_sf;
-        $row[] = $spare_list->awb_by_sf;
-        $row[] = "<i class='fa fa-inr'></i>".$spare_list->courier_charges_by_sf;
+        $row[] = '<span class="awb_number_by_sf_no_text"  style="color:blue; pointer:cursor" data-awb-number ="'.$spare_list->awb_by_sf.'">'.$spare_list->awb_by_sf.'</span><span class="awb_number_by_sf_edit"><i class="fa fa-pencil fa-lg"></i></span>';
+        $row[] = "<i class='fa fa-inr'></i>" . $spare_list->courier_charges_by_sf;
         $row[] = $spare_list->remarks_defective_part_by_sf;
         if(!empty($spare_list->defective_courier_receipt)){
             $row[] =  '<a href="'.S3_WEBSITE_URL.'misc-images/'.$spare_list->defective_courier_receipt.' " target="_blank">Click Here</a>';
@@ -5730,6 +5730,48 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
 
                 echo json_encode($res);
             }
+        }
+    }
+    
+    /*
+     * @desc: This Function is used to update the awb number by SF
+     * @param: void
+     * @return : json
+     */
+    
+    function process_update_awb_number_sf() {
+        log_message('info', __METHOD__ . ' Processing...');
+
+        $pre_awb_by_sf = $this->input->post("pre_awb_by_sf");
+        $change_awb_number_by_sf = $this->input->post("change_awb_number_by_sf");
+
+        $agent_id = $this->session->userdata("id");
+        $entity_id = _247AROUND;
+        $entity_type = _247AROUND_EMPLOYEE_STRING;
+
+        if (!empty($change_awb_number_by_sf)) {
+            $select = 'spare_parts_details.id,spare_parts_details.quantity,spare_parts_details.status,spare_parts_details.entity_type,spare_parts_details.booking_id, spare_parts_details.awb_by_sf';
+            $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.awb_by_sf' => $pre_awb_by_sf), false, false, false);
+            foreach ($spare_parts_details as $value) {
+                $spare_id = $value['id'];
+                $status = $value['status'];
+                if (!empty($spare_id)) {
+                    $this->service_centers_model->update_spare_parts(array('spare_parts_details.id' => $spare_id), array("spare_parts_details.awb_by_sf" => trim($change_awb_number_by_sf)));
+                    /* Insert in Spare Tracking Details */
+                    $remarks = "AWB Number Changes From AWB Number" . $pre_awb_by_sf . " To AWB Number " . $change_awb_number_by_sf;
+                    $old_state = "Old AWB Number Is " . $pre_awb_by_sf;
+                    $new_state = "New AWB Number Is " . $change_awb_number_by_sf;
+
+                    if (!empty($spare_id)) {
+                        $tracking_details = array('spare_id' => $spare_id, 'action' => $status, 'remarks' => $remarks, 'agent_id' => $agent_id, 'entity_id' => $entity_id, 'entity_type' => $entity_type);
+                        $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                    }
+                    $this->notify->insert_state_change($value['booking_id'], $new_state, $old_state, $remarks, $agent_id, $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, $entity_id, "", $spare_id);
+                }
+            }
+            
+            $this->inventory_model->update_courier_company_invoice_details(array('courier_company_invoice_details.awb_number' => $pre_awb_by_sf), array('courier_company_invoice_details.awb_number' => trim($change_awb_number_by_sf)));
+            echo json_encode(array('status' =>'success'));
         }
     }
 }
