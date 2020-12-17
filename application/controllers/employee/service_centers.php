@@ -7156,7 +7156,6 @@ class Service_centers extends CI_Controller {
      * @return Void
      */
     function acknowledge_received_defective_parts($spare_id, $booking_id, $partner_id, $is_cron = "") {
-        exit;
         $sf_id = "";
         if (empty($is_cron)) {
             if (!empty($this->session->userdata('warehouse_id'))) { 
