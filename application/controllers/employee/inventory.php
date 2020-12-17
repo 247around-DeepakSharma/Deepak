@@ -5530,9 +5530,14 @@ class Inventory extends CI_Controller {
 //            $this->table->set_template($template1);
 //
 //            $this->table->set_heading(array('Part Name', 'Part Number', 'Quantity'));
-
+            $is_any_ledger_updated = false;
             foreach ($postData as $value) {
-
+                $get_ledger_detail = $this->inventory_model->get_inventory_ledger_details('id,is_wh_ack,wh_ack_date', array('id' => $value->ledger_id, 'wh_ack_date is not null' => null));
+                if (!empty($get_ledger_detail)) {
+                    //This ledger is already acknowledge by warehouse
+                    continue;
+                }
+                $is_any_ledger_updated = true;
                 //acknowledge spare by setting is_wh_ack flag = 1 in inventory ledger table
                 $update = $this->inventory_model->update_ledger_details(array('is_wh_ack' => 1, 'wh_ack_date' => date('Y-m-d H:i:s')), array('id' => $value->ledger_id));
                 if ($update) {
@@ -5604,8 +5609,13 @@ class Inventory extends CI_Controller {
 //                }
 //            }
 
-            $res['status'] = TRUE;
-            $res['message'] = 'Details updated successfully';
+            if (empty($is_any_ledger_updated)) {
+                $res['status'] = FALSE;
+                $res['message'] = 'No Record found to update.';
+            } else {
+                $res['status'] = TRUE;
+                $res['message'] = 'Details updated successfully';
+            }
         } else {
             $res['status'] = false;
             $res['message'] = 'All fields are required';
