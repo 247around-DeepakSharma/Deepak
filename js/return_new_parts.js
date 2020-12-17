@@ -110,6 +110,7 @@ function crate_table(request_type){
         subtotal =0;
         totalQty = 0;
         $("#return_new_parts_data").find('tbody').html('');
+        $("#sell_mwh_parts_data").find('tbody').html('');
         for(i =0; i< returnItemArray.length; i++){
             tr += '<tr>';
             tr += '<td>'+(i+1)+'</td>';
