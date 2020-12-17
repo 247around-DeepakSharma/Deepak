@@ -9624,8 +9624,8 @@ class Partner extends CI_Controller {
     private function create_detailed_summary_report_file($partnerID,$postArray){
         $where = array();
         if(!empty($postArray['Date_Range'])) {
-            if(!empty($dateArray[0]) && !empty($dateArray[1])){
             $dateArray  = explode(" - ",$postArray['Date_Range']);
+            if(!empty($dateArray[0]) && !empty($dateArray[1])){
             $start = date('Y-m-d',strtotime($dateArray[0]));
             $end = date('Y-m-d',strtotime($dateArray[1]));
             
