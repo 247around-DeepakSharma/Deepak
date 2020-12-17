@@ -1610,9 +1610,17 @@ class Inventory extends CI_Controller {
         $this->form_validation->set_rules('transport_charge', 'Transport Charge', 'trim');
         $this->form_validation->set_rules('courier_charge', 'Courier_charge Charge', 'trim');
         $this->form_validation->set_rules('remarks', 'Remarks', 'trim|required');
-        $this->form_validation->set_rules('around_part_commission', 'around_part_commission', 'trim|required');
+        $this->form_validation->set_rules('around_part_commission', 'around_part_commission', 'trim');
         $this->form_validation->set_rules('part_estimate_given', 'Estimate Part Given', 'callback_check_validation_update_parts_details');
         if ($this->form_validation->run()) {
+//            log_message('info', __METHOD__. " ". json_encode($_POST, true));
+//            $str = '{"part_name":"OEPN CELL","part_estimate_given":"100","booking_id":"SM-17948020111139","partner_id":"247018","assigned_vendor_id":"1",'
+//                    . '"around_part_commission":"30","total_parts_charges":"130.00","service_charge":"120","around_service_commission":"25",'
+//                    . '"total_service_charges":"150.00","transport_charge":"150","around_transport_commission":"20",'
+//                    . '"total_transport_charges":"180.00","courier_charge":"200","around_courier_commission":"15",'
+//                    . '"total_courier_charges":"230.00","remarks":"Testing Remarks","estimate_remarks":"OPEN CELL Parts",'
+//                    . '"total_charges":"814.20","estimate_sent":"1","arrange_part_by":"2"}';
+//            $_POST = json_decode($str, true);
             $data = $this->input->post();
 
             $unit = $this->booking_model->get_unit_details(array("booking_id" => $data['booking_id'], 'price_tags' => REPAIR_IN_WARRANTY_TAG));
@@ -4934,8 +4942,8 @@ class Inventory extends CI_Controller {
         log_message('info', __METHOD__);
         $invoice_date = date('Y-m-d');
         $entity_details = $this->vendor_model->getVendorDetails("gst_no as gst_number, sc_code,"
-                . "state,address as company_address,company_name,district, pincode", array("id" => $wh_id));
-        
+                . "state,address as company_address,company_name,district, pincode, owner_phone_1, primary_contact_phone_1", array("id" => $wh_id));
+                        
         $not_updated_data = array();
 
         if (empty($entity_details[0]['gst_number'])) {
@@ -4971,7 +4979,9 @@ class Inventory extends CI_Controller {
             $a[$key]['inventory_id'] = $value['inventory_id'];
             $a[$key]['rate'] = $value['rate'] * ( 1 + $repair_oow_around_percentage);
             $a[$key]['qty'] = $value['qty'];
-            $a[$key]['company_name'] = $entity_details[0]['company_name'];
+            $a[$key]['company_name'] = $entity_details[0]['company_name']." (Ph No: ".
+                    $entity_details[0]['primary_contact_phone_1'].", ". 
+                    $entity_details[0]['owner_phone_1']. " )";
             $a[$key]['company_address'] = $entity_details[0]['company_address'];
             $a[$key]['district'] = $entity_details[0]['district'];
             $a[$key]['pincode'] = $entity_details[0]['pincode'];
@@ -5091,7 +5101,8 @@ class Inventory extends CI_Controller {
                 
                 if ($insert_id) {
                     log_message("info", "Ledger details added successfully");
-                    $this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, 2, $action_agent_id);
+                    // Don't uncomment below line
+                    //$this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, 2, $action_agent_id);
                     $stock = "stock - '" . $value['qty'] . "'";
                     $this->inventory_model->update_inventory_stock(array('entity_id' => $sender_enity_id, 'inventory_id' => $value['inventory_id']), $stock);
                     
