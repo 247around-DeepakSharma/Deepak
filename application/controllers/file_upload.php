@@ -979,7 +979,14 @@ class File_upload extends CI_Controller {
             $post_data['appliance']['is_wh_micro'] = $this->input->post("is_wh_micro");
             $post_data['appliance']['dated'] = date('Y-m-d H:i:s');
             $post_data['appliance']['invoice_id'] = $this->input->post("invoice_id");
-            $tcs_rate_value = (round(($invoice_price_with_gst), 2) * $this->input->post('tcs_rate') / 100);
+            
+            if(!empty($this->input->post('tcs_rate'))){
+              $tcs_rate = $this->input->post('tcs_rate');  
+            }else{
+             $tcs_rate = 0;    
+            }
+            
+            $tcs_rate_value = (round(($invoice_price_with_gst), 2) * $tcs_rate / 100);
             $invoice_value = (round(($invoice_price_with_gst), 2) + $tcs_rate_value);
             $post_data['appliance']['invoice_amount'] = round(($invoice_value), 2);
             $post_data['appliance']['courier_name'] = $this->input->post("courier_name");
