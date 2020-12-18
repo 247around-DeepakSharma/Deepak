@@ -6516,7 +6516,7 @@ class Service_centers extends CI_Controller {
             $a .= ', "' . $spare_list['id'] . '"';
             $a .= ")'>Receive</a>";
             $a .= "<input type='checkbox' class='checkbox_revieve_class' name='revieve_checkbox'";
-            $a .=" data-docket_number='" . $spare_list['awb_by_sf'] . "'  data-consumption_status='" . $spare_list['consumed_status'] . "' data-url='" . base_url() . "service_center/acknowledge_received_defective_parts/" . $spare_list['id'] . "/" . $spare_list['booking_id'] . "/" . $spare_list['partner_id'] . "'   />";
+            $a .=" data-docket_number='" . $spare_list['awb_by_sf'] . "' data-spare-id='" . $spare_list['id'] . "'  data-consumption_status='" . $spare_list['consumed_status'] . "' data-url='" . base_url() . "service_center/acknowledge_received_defective_parts/" . $spare_list['id'] . "/" . $spare_list['booking_id'] . "/" . $spare_list['partner_id'] . "'   />";
             
 
             $row[] = $a;
@@ -7133,7 +7133,6 @@ class Service_centers extends CI_Controller {
                 $sf_id = $this->session->userdata('service_center_id');
             }
         }
-
         log_message('info', __FUNCTION__ . " SF ID: " . $sf_id . " Booking Id " . $booking_id);        
         
         // We will return this array instead of sending mail from here, we will fetch this data to send mail later at once
@@ -7158,9 +7157,10 @@ class Service_centers extends CI_Controller {
         //Return false is Spare is already defective return acknowledged
         $defective_part_received_date_by_wh = $spare_part_detail['defective_part_received_date_by_wh'];
         if(!empty($defective_part_received_date_by_wh)){
-            echo json_encode(array('This Defective / OK part is already acknowledged.', 'error'));
+            echo json_encode(array('This Defective / OK part is already acknowledged.', ''));
             return false;
         }
+
         //
 
         if (!empty($post_data['spare_consumption_status'][$spare_id]) && ($post_data['spare_consumption_status'][$spare_id] != $spare_part_detail['consumed_part_status_id'])) {
@@ -10356,5 +10356,26 @@ function do_delivered_spare_transfer() {
         $spare_id = $post_data['spare_id'];
         $this->service_centers_model->update_spare_parts(array('id' => $spare_id), ['partner_challan_number' => NULL, 'partner_challan_file' => NULL]);
         return true;
+    }
+    /**
+     * @Desc: This function is used to check if part already acknowledged
+     * @params: void
+     * @return: true
+     *
+     */
+    function check_part_alredy_acknowledge(){
+        $array['status'] = '';
+        $array['message'] = '';
+        if(!empty($this->input->post('spare_ids_to_check'))){
+            $post_data = $this->input->post();
+            $spare_id_array = $post_data['spare_ids_to_check'];
+            $spare_id_list = implode(',',$spare_id_array);
+            $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', 'id,defective_part_received_date_by_wh',array("id in ($spare_id_list)" => null, 'defective_part_received_date_by_wh is not null' => null), NULL, NULL, NULL, NULL, NULL);
+            if(!empty($spare_part_detail)){
+                $array['status'] = 'error';
+                $array['message'] = 'Some parts already acknowledged, Please refresh page to continue.';
+            }
+        }
+        echo json_encode($array);
     }
 }

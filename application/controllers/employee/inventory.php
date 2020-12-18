@@ -5638,11 +5638,18 @@ class Inventory extends CI_Controller {
             $template1 = array(
                 'table_open' => '<table border="1" cellpadding="2" cellspacing="0" class="mytable">'
             );
-
+            $proceed_to_process_all_record = true;
+            foreach ($postData as $value) {
+                $get_ledger_detail = $this->inventory_model->get_inventory_ledger_details('id,is_wh_ack,wh_ack_date', array('id' => $value->ledger_id, 'wh_ack_date is not null' => null));
+                if (!empty($get_ledger_detail)) {
+                    $proceed_to_process_all_record = false;
+                }
+            }
 //            $this->table->set_template($template1);
 //
 //            $this->table->set_heading(array('Part Name', 'Part Number', 'Quantity'));
             $is_any_ledger_updated = false;
+            if(!empty($proceed_to_process_all_record)){
             foreach ($postData as $value) {
                 $get_ledger_detail = $this->inventory_model->get_inventory_ledger_details('id,is_wh_ack,wh_ack_date', array('id' => $value->ledger_id, 'wh_ack_date is not null' => null));
                 if (!empty($get_ledger_detail)) {
@@ -5696,6 +5703,7 @@ class Inventory extends CI_Controller {
                     }
                 }
             }
+        }
             //for now comment this code as per discussion with anuj and abhay. No need to send email when wh/partner acknowledged that they received spare
 //            //send email to partner warehouse incharge that 247around warehouse received spare
 //            $email_template = $this->booking_model->get_booking_email_template("spare_received_by_wh_from_partner");
@@ -5722,8 +5730,13 @@ class Inventory extends CI_Controller {
 //            }
 
             if (empty($is_any_ledger_updated)) {
-                $res['status'] = FALSE;
-                $res['message'] = 'No Record found to update.';
+                if(!empty($proceed_to_process_all_record)){
+                    $res['status'] = FALSE;
+                    $res['message'] = 'No Record found to update.';
+                }else{
+                    $res['status'] = FALSE;
+                    $res['message'] = 'Some Spare already acknowledged, Please refresh page to continue.';
+                }
             } else {
                 $res['status'] = TRUE;
                 $res['message'] = 'Details updated successfully';
