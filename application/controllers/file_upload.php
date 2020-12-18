@@ -965,7 +965,9 @@ function process_upload_msl_file($data) {
             $post_data['appliance']['is_wh_micro'] = $this->input->post("is_wh_micro");
             $post_data['appliance']['dated'] = date('Y-m-d H:i:s');
             $post_data['appliance']['invoice_id'] = $this->input->post("invoice_id");
-            $post_data['appliance']['invoice_amount'] = round(($invoice_price_with_gst), 2);
+            $tcs_rate_value = (round(($invoice_price_with_gst), 2) * $this->input->post('tcs_rate') / 100);
+            $invoice_value = (round(($invoice_price_with_gst), 2) + $tcs_rate_value);
+            $post_data['appliance']['invoice_amount'] = round(($invoice_value), 2);
             $post_data['appliance']['courier_name'] = $this->input->post("courier_name");
             $post_data['appliance']['awb_number'] = $this->input->post("awb_number");
             $post_data['appliance']['courier_shipment_date'] = $this->input->post("courier_shipment_date");

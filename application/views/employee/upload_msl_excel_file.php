@@ -485,7 +485,8 @@
                     //var json_object = JSON.stringify(XL_row_object);
                     //console.log(JSON.parse(json_object));
                     console.log(XL_row_object);
-                   
+                  var tcs_rate = $("#tcs_rate").val();
+                  
                     var html = "";
                     var total_price = 0 ;
                     for(var i in XL_row_object){
@@ -551,16 +552,17 @@
                         html += "</tr>";
                         
                         total_price = (Number(total_price) + Number(total_part_basic)).toFixed(2);   
-                        
-                        
                     }
+                    
+                     var tcs_rate_value = ( total_price * Number(tcs_rate)/100);
+                        with_tcsrate_price = (Number(total_price) + Number(tcs_rate_value)).toFixed(2);  
                         html += "<tr>";
                         html += "<td colspan='4'></td>";
                         html += "<td><b>Total Price:</b></td>";
-                        html += "<td style='flot:right;'><b>"+ total_price +"</b></td>";
+                        html += "<td style='flot:right;'><b>"+ with_tcsrate_price +"</b></td>";
                         html += "</tr>";
-                     if(parseInt(invoice_amount) != parseInt(total_price)){
-                         alert("Amount of invoice does not match with total price "+total_price);
+                     if(parseInt(invoice_amount) != parseInt(with_tcsrate_price)){
+                         alert("Amount of invoice does not match with total price "+with_tcsrate_price);
                          return false;
                      }else{   
                     $("#msl_preview_table tbody").empty().html(html);
