@@ -783,7 +783,13 @@
 
                                         <td><?php echo $sp['remarks_by_sc']; ?></td>
                                         <td><?php echo $sp['status']; ?></td>
-                                        <td><a href="<?php echo S3_WEBSITE_URL; ?><?php echo RTO_POD;?>/<?php echo $sp['rto_file']; ?> " target="_blank"><?php echo $sp['part_cancel_reason'];?></a></td>
+                                        <td>
+                                            <?php if($sp['part_cancel_reason'] == 'RTO Case') { ?>
+                                            <a href="<?php echo S3_WEBSITE_URL; ?><?php echo RTO_POD;?>/<?php echo $sp['rto_file']; ?> " target="_blank"><?php echo $sp['part_cancel_reason'];?></a>
+                                            <?php }else{ ?>
+                                                     <?php echo $sp['part_cancel_reason'];?>
+                                            <?php } ?>
+                                        </td>
                                         <td><?php if(!empty($sp['is_consumed']) && $sp['is_consumed'] == 1) { echo 'Yes';} else { echo 'No';} ?></td>
                                         <td><?php if(!empty($sp['consumed_status'])) { echo $sp['consumed_status']; } ?></td>
                                         <td><?php if(!empty($sp['consumption_remarks'])) { echo $sp['consumption_remarks']; } ?></td>
