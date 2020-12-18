@@ -54,7 +54,8 @@
 </div>    
 <div class="row form-group"> 
     <div class="col-md-12" style="text-align: center; padding: 5px;"> 
-        <input type="submit" name="change-consumption" class="btn btn-primary change-consumption-multiple" id="multiple_received" value="Submit">
+        <input type="submit" name="change-consumption" class="btn btn-primary change-consumption-multiple" id="multiple_received" value="Submit" style='display:none'>
+        <input type="submit"  class="btn btn-primary change-consumption-multiple_precheck"  value="Submit">
     </div>
 </div>
 
