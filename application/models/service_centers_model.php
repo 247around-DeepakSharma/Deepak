@@ -1175,7 +1175,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
             $this->db->order_by($orderBY['column'], $orderBY['sorting']);
         }
         $query = $this->db->get();
-        log_message('info', __METHOD__. "  ".$this->db->last_query());
+        //log_message('info', __METHOD__. "  ".$this->db->last_query());
         return $query->result_array();
     }
     
