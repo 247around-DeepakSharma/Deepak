@@ -1095,10 +1095,10 @@ class Notify {
 
 	//Add Email to Database
 	$insert_id = $this->My_CI->booking_model->add_email_send_details($data);
-	if (!empty($insert_id)) {
-	    log_message('info', __FUNCTION__ . ' Email has been saved to Database "email_sent" with ID ' . print_r($data, TRUE));
-	} else {
-	    log_message('info', __FUNCTION__ . ' Error on saving Email to Database "email_sent" ' . print_r($data, TRUE));
+	if ($insert_id == FALSE) {
+	    log_message('info', __FUNCTION__ . ' Error on saving Email to Database: email_tag: ' 
+                    . $template_tag . ', booking: ' . $booking_id . ', subject: ' . 
+                    $subject);
 	}
     }
     /*
