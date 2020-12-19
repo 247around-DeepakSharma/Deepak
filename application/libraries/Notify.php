@@ -69,7 +69,6 @@ class Notify {
 		break;
             default :
                $this->add_email_send_details($from, $to, $cc, $bcc, $subject, $message, $attachment,$template_tag, $booking_id);
-                log_message('info', __FUNCTION__ . ' Email Failed:  From =>' .$from. " To =>".$to. " CC =>". $cc. " Subject =>".$subject );
                 return true;
                 break;
 	    }
@@ -138,11 +137,7 @@ class Notify {
 
 	//Add SMS to Database
 	$sms_id = $this->My_CI->booking_model->add_sms_sent_details($data);
-	if (!empty($sms_id)) {
-	    //Echoing success message on Log
-	    log_message('info', __FUNCTION__ . ' SMS has been saved to Database "sms_sent_details" with ID ' . $sms_id);
-	} else {
-	    //Echoing Error message in Log
+	if (!$sms_id) {
 	    log_message('info', __FUNCTION__ . ' Error on saving SMS to Database "sms_sent_details" ' . print_r($data, TRUE));
 	}
     }
@@ -183,14 +178,10 @@ class Notify {
      *  @return : if Email send return true else false
      */
     function send_email($email) {
-
 	$template = $this->My_CI->booking_model->get_booking_email_template($email['tag']);
-	log_message('info', " Email Body" . print_r($email, true));
-
 
 	if (!empty($template)) {
 	    $emailBody = vsprintf($template[0], $email);
-	    log_message('info', " Template" . print_r($email, true));
 	    $from = $template[2];
 	    $to = $template[1];
 	    $cc = $template[3];
@@ -198,7 +189,6 @@ class Notify {
 	    $subject = $email['subject'];
 	    $message = $emailBody;
 	    $attachment = "";
-	    log_message('info', " Email Message" . print_r($message, true));
 
 	    $this->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment,$email['tag']);
 	} else {
@@ -292,7 +282,6 @@ class Notify {
 		$error = curl_error($ch);
 		$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-		log_message('info', __FUNCTION__ . "=> " . print_r(array($error, $http_code), TRUE));
 		curl_close($ch);
 
 		break;
@@ -361,7 +350,7 @@ class Notify {
      * @return: true
      */
     function send_sms_email_for_booking($booking_id, $current_status) { 
-	log_message("info",__METHOD__);
+	log_message("info",__METHOD__ . $booking_id . ', ' . $current_status);
         
 	$query1 = $this->My_CI->booking_model->getbooking_filter_service_center($booking_id);
         log_message("info", "query1 ".print_r($query1,true));
@@ -534,7 +523,7 @@ class Notify {
 		    $sms['booking_id'] = $query1[0]['booking_id'];
 		    $sms['type'] = "user";
 		    $sms['type_id'] = $query1[0]['user_id'];
-                    log_message("info", "sdgsdg ".print_r($sms,true));
+                    
 		    $this->send_sms_msg91($sms);
 		    
 
@@ -598,8 +587,7 @@ class Notify {
                         $booking_id=$query1[0]['booking_id'];
                         $jobcard="BookingJobCard-".$booking_id.".pdf";
                         $jobcard_link=S3_WEBSITE_URL."jobcards-pdf/".$jobcard;
-                        log_message('info', __METHOD__. " ". print_r($jobcard,true));
-                        log_message('info', __METHOD__. " ". print_r($jobcard_link,true));
+                        
                         //make tiny url
                         $jobcard_link_new=str_replace(" ", "%20", $jobcard_link);
                         $tinyUrl = $this->My_CI->miscelleneous->getShortUrl($jobcard_link_new);
@@ -631,8 +619,7 @@ class Notify {
                         } else {
                             $sms['tag'] = "add_new_booking";
                         }
-                        
-                        log_message('info', __METHOD__. " ". print_r($sms, true));
+
                         if ($query1[0]['partner_id'] == JEEVES_ID) {
                             $sms['smsData']['public_name'] = "";
                         } 
@@ -653,7 +640,7 @@ class Notify {
 		    $sms['booking_id'] = $query1[0]['booking_id'];
 		    $sms['type'] = "user";
 		    $sms['type_id'] = $query1[0]['user_id'];
-                    log_message('info', __METHOD__. " ". print_r($sms, true));
+                    
 		    $this->send_sms_msg91($sms);
                     
                     //send sms to dealer
@@ -810,7 +797,6 @@ class Notify {
 
             $email_template = $this->My_CI->booking_model->get_booking_email_template("inform_to_sf_for_cancellation");
             if (!empty($email_template)) {
-                log_message('info', __METHOD__ . " Template Found ");
                 $vendor_details = $this->My_CI->vendor_model->getVendorDetails('primary_contact_email,owner_email', array('id' => $query[0]['assigned_vendor_id']));
                 $to = $vendor_details[0]['primary_contact_email'] . "," . $vendor_details[0]['owner_email'];
 
@@ -832,7 +818,6 @@ class Notify {
                     $cc = $email_template[3] . $rm_email;
                 }
                 $this->sendEmail($from, $to, $cc, $bcc, $subject, $message, "", 'inform_to_sf_for_cancellation');
-                log_message('info', __METHOD__ . " Booking ID " . $booking_id . " mail Sent to " . $to);
             } else {
                 log_message('info', __METHOD__ . " Template Not Found ");
             }
@@ -905,7 +890,6 @@ class Notify {
         if(!empty($phone_number) && KARIX_SENDING){
 /*  Making Payload */
 // logging for debug
- log_message('info', __METHOD__. "Karix called  Log: ".$body);
            $payloadName = '{
                            "channel": "'.KARIX_CHANNEL.'",
                            "source": "'.KARIX_SENDER_ID.'",
@@ -941,7 +925,6 @@ class Notify {
          $data['content'] =  $content;
          $data['status'] =  $status;
          $data['error'] =  $error;
-          log_message('info', __METHOD__. "Karix Return Log: ".$data['content']);
         }else{
 
         $message = urlencode($body);
@@ -951,7 +934,6 @@ class Notify {
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $data['content'] = curl_exec($ch);
-                        log_message('info', __METHOD__. "Transactional SMS91 Log: ".$data['content']);
                         curl_close($ch);
         }
         return  $data;
@@ -959,7 +941,6 @@ class Notify {
     function sendTransactionalSmsMsg91($phone_number, $body,$tag) {
         $this->validate_sms_length($phone_number,$body,$tag);
         $data = array();
-        log_message("info",__METHOD__);
         switch (ENVIRONMENT) {
                 case 'production':
                 switch (CURRENT_SMS_SOLUTION) {
@@ -997,8 +978,6 @@ class Notify {
             $smsBody = vsprintf($template, $sms['smsData']);
             if ($smsBody) {
                 $status = $this->sendTransactionalSmsMsg91($sms['phone_no'], $smsBody,$sms['tag']);
-
-                log_message('info', __METHOD__ . print_r($status, 1));
 
                 //sometimes we get a 24 char random value, other times we get 'success'
                 if ((isset($status['content']) && !empty($status['content'])) ||(ctype_alnum($status['content']) && strlen($status['content']) == 24) || (ctype_alnum($status['content']) && strlen($status['content']) == 25) 
@@ -1040,7 +1019,6 @@ class Notify {
         foreach ($engineers_id_with_booking_id as $booking_id => $engineer_id) {
             if (!empty($engineer_id)) {
                 $query1 = $this->My_CI->booking_model->getbooking_filter_service_center($booking_id);
-                log_message('info', __METHOD__ . "Assigned Engineer");
 
                 $date1 = date('d-m-Y', strtotime('now'));
                 $date2 = $query1[0]['booking_date'];

@@ -50,8 +50,6 @@ class BookingSummary extends CI_Controller {
     }
 
     public function get_pending_bookings($mail_flag) {
-        log_message('info', __FUNCTION__ . ' => Entering, Mail flag: ' . $mail_flag);
-
         $template = 'BookingSummary_Template-v7.xls';
         //set absolute path to directory with template files
         $templateDir = FCPATH . "application/controllers/excel-templates/";
@@ -145,7 +143,6 @@ class BookingSummary extends CI_Controller {
                 //Fetching pending bookings
                 $pending_bookings = $this->reporting_utils->get_pending_bookings($sf_list);
                 $count = count($pending_bookings);
-                log_message('info', "Count: " . $count);
 
                 if ($count > 0) {
                     //Get num of pending bookings for each vendor
@@ -186,13 +183,11 @@ class BookingSummary extends CI_Controller {
                     //Get populated XLS with data
                     $output_file = TMP_FOLDER . "BookingSummary-" . date('d-M-Y') . ".xlsx";
                     $R->render('excel', $output_file);
-                    log_message('info', 'Rendered');
 
                     if ($mail_flag) {
                         //Cleaning Email Variables
                         $this->email->clear(TRUE);
-
-                        log_message('info', "Report generated with $count records");
+                        
                         //Send report via email
                         $this->email->from(NOREPLY_EMAIL_ID, '247around Team');
                         $this->email->to($to);
@@ -202,7 +197,7 @@ class BookingSummary extends CI_Controller {
                         $this->email->attach($output_file, 'attachment');
 
                         if ($this->email->send()) {
-                            log_message('info', __METHOD__ . ": Mail sent successfully");
+                            //log_message('info', __METHOD__ . ": Mail sent successfully");
                         } else {
                             log_message('info', __METHOD__ . ": Mail could not be sent :" . $this->email->print_debugger());
                         }
@@ -235,7 +230,6 @@ class BookingSummary extends CI_Controller {
             //Fetching pending bookings
             $pending_bookings = $this->reporting_utils->get_pending_bookings($sf_list);
             $count = count($pending_bookings);
-            log_message('info', "Count: " . $count);
 
             if ($count > 0) {
                 //Get num of pending bookings for each vendor
@@ -289,7 +283,7 @@ class BookingSummary extends CI_Controller {
                     $this->email->attach($output_file, 'attachment');
 
                     if ($this->email->send()) {
-                        log_message('info', __METHOD__ . ": Mail sent successfully to " . $value['full_name'] . ' of Closure Team');
+                        //log_message('info', __METHOD__ . ": Mail sent successfully to " . $value['full_name'] . ' of Closure Team');
                     } else {
                         log_message('info', __METHOD__ . ": Mail could not be sent to " . $value['full_name'] . ' of Closure Team');
                     }
@@ -305,7 +299,7 @@ class BookingSummary extends CI_Controller {
 
                     if (!$return) {
                         //Logging
-                        log_message('info', __FUNCTION__ . ' Executed Sucessfully ' . "BookingSummary-" . date('d-M-Y') . ".xlsx");
+                        //log_message('info', __FUNCTION__ . ' Executed Sucessfully ' . "BookingSummary-" . date('d-M-Y') . ".xlsx");
                     }
                 }
             }
@@ -313,7 +307,7 @@ class BookingSummary extends CI_Controller {
         //Adding Details in Scheduler tasks table
 
         $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
-        log_message('info', __FUNCTION__ . ' => Exiting');
+        //log_message('info', __FUNCTION__ . ' => Exiting');
         exit(0);
     }
 
@@ -500,7 +494,7 @@ EOD;
         
         if(!empty($partner_id))
         {
-            log_message('info', __FUNCTION__ . ' => Summaray Downloaded By Partner_id =' . $partner_id);
+            //log_message('info', __FUNCTION__ . ' => Summaray Downloaded By Partner_id =' . $partner_id);
             $where_get_partner = array('partners.id' => $partner_id, 'partners.is_active' => '1');
             $select = "partners.id, partners.summary_email_to, partners.summary_email_cc, "
                     . " partners.summary_email_bcc, partners.public_name";
@@ -511,7 +505,7 @@ EOD;
                 $delimiter = ",";
                 $newline = "\r\n";
                 $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
-                log_message('info', __FUNCTION__ . ' => Rendered CSV');
+                //log_message('info', __FUNCTION__ . ' => Rendered CSV');
                 write_file($csv, $new_report);
                 
                 //Upload File On AWS and save link in file_upload table
@@ -553,7 +547,7 @@ EOD;
         }
         else
         {
-            log_message('info', __FUNCTION__ . ' => Partner Summary send to partners by Cron');
+            //log_message('info', __FUNCTION__ . ' => Partner Summary send to partners by Cron');
 
             $where_get_partner = array('partners.is_active' => '1','partners.is_reporting_mail'=>'1');
             $select = "partners.id, partners.summary_email_to, partners.summary_email_cc, "
@@ -585,7 +579,7 @@ EOD;
                     // Inserting values in scheduler tasks log
                     $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
                     //Logging
-                    log_message('info', __FUNCTION__ . ' Executed Sucessfully ' . $csv);
+                    //log_message('info', __FUNCTION__ . ' Executed Sucessfully ' . $csv);
                 }
             }
         }  
@@ -749,7 +743,7 @@ EOD;
 
         $to = NITS_ANUJ_EMAIL_ID;
         $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", "Booking Summary", $html, "",BOOKING_REPORT);
-        log_message('info', __FUNCTION__ . 'Booking Report mail sent.');
+        //log_message('info', __FUNCTION__ . 'Booking Report mail sent.');
     }
 
     /**

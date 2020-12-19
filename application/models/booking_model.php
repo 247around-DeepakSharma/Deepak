@@ -855,7 +855,6 @@ class Booking_model extends CI_Model {
     }
 
     function getbooking_filter_service_center($booking_id){
-
         $this->db->select('assigned_vendor_id');
         $this->db->where('assigned_vendor_id is NOT NULL', NULL, true);
         $this->db->where('booking_id', $booking_id);
@@ -865,7 +864,6 @@ class Booking_model extends CI_Model {
             // NOT NUll
             $data = $this->getbooking_history($booking_id, "Join");
                          
-            log_message('info', __METHOD__ . $this->db->last_query());
             return $data;
 
         } else {
@@ -880,7 +878,6 @@ class Booking_model extends CI_Model {
                . "and booking_details.partner_id =  partners.id";
 
         $query = $this->db->query($sql);
-       // log_message('info', __METHOD__ . $this->db->last_query());
 
         return $query->result_array();
         }
