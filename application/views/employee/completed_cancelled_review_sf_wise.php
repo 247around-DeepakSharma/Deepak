@@ -195,47 +195,9 @@
             }                            
         });
     });
-    
-    $('.btn-count').click(function(){
-            var status = "<?php echo $status; ?>";
-            // Partner Filter
-            var partner_id = 0;
-            if($('#partner_id<?php echo '_'.$status; ?>').val() != '') {
-                partner_id = $('#partner_id<?php echo '_'.$status; ?>').val();
-            }
-            // State Filter
-            var state_code = 0;
-            if($('#state_code<?php echo '_'.$status; ?>').val() != ''){
-                state_code = $('#state_code<?php echo '_'.$status; ?>').val();
-            }
-            // Request Type Filter
-            var request_type = 0;
-            if($('#request_type<?php echo '_'.$status; ?>').val() != ''){
-                request_type = $('#request_type<?php echo '_'.$status; ?>').val();
-            }            
-            // Service Filter
-            var service_id = 0;
-            if($('#service_id<?php echo '_'.$status; ?>').val() != ''){
-                service_id = $('#service_id<?php echo '_'.$status; ?>').val();
-            }            
-            // Free Paid Filter
-            var free_paid = 0;
-            if($('#free_paid<?php echo '_'.$status; ?>').val() != ''){
-                free_paid = $('#free_paid<?php echo '_'.$status; ?>').val();
-            }            
-            
-            var min_review_age = $(this).attr('data-review-age-min');
-            var max_review_age = $(this).attr('data-review-age-max');            
-            var sf_id = $(this).attr('data-sf');
-            
-            window.open(
-                '<?php echo base_url();?>employee/booking/review_bookings_by_status/'+status+'/0/0/0/0/'+partner_id+'/'+state_code+'/'+request_type+'/'+min_review_age+'/'+max_review_age+'/0/0/'+service_id+'/'+free_paid+'/'+sf_id+'/1',
-                '_blank' // <- This is what makes it open in a new window.
-            );        
-    });
-    
+        
     $("#tat_sf_table<?php echo '_'.$status; ?>").dataTable({
-        "fnInitComplete": function (oSettings, response) {            
+        "fnDrawCallback": function (oSettings, response) {            
             $('.sf<?php echo '_'.$status; ?>').each(function(){
                 var sf_id = $(this).attr('data-sf');
                 $.ajax({
@@ -265,6 +227,44 @@
                         }
                     });
                 }
+            });
+            // Move to Review Bookings Page on TAT count click
+            $('.btn-count').click(function(){
+                var status = "<?php echo $status; ?>";
+                // Partner Filter
+                var partner_id = 0;
+                if($('#partner_id<?php echo '_'.$status; ?>').val() != '') {
+                    partner_id = $('#partner_id<?php echo '_'.$status; ?>').val();
+                }
+                // State Filter
+                var state_code = 0;
+                if($('#state_code<?php echo '_'.$status; ?>').val() != ''){
+                    state_code = $('#state_code<?php echo '_'.$status; ?>').val();
+                }
+                // Request Type Filter
+                var request_type = 0;
+                if($('#request_type<?php echo '_'.$status; ?>').val() != ''){
+                    request_type = $('#request_type<?php echo '_'.$status; ?>').val();
+                }            
+                // Service Filter
+                var service_id = 0;
+                if($('#service_id<?php echo '_'.$status; ?>').val() != ''){
+                    service_id = $('#service_id<?php echo '_'.$status; ?>').val();
+                }            
+                // Free Paid Filter
+                var free_paid = 0;
+                if($('#free_paid<?php echo '_'.$status; ?>').val() != ''){
+                    free_paid = $('#free_paid<?php echo '_'.$status; ?>').val();
+                }            
+
+                var min_review_age = $(this).attr('data-review-age-min');
+                var max_review_age = $(this).attr('data-review-age-max');            
+                var sf_id = $(this).attr('data-sf');
+
+                window.open(
+                    '<?php echo base_url();?>employee/booking/review_bookings_by_status/'+status+'/0/0/0/0/'+partner_id+'/'+state_code+'/'+request_type+'/'+min_review_age+'/'+max_review_age+'/0/0/'+service_id+'/'+free_paid+'/'+sf_id+'/1',
+                    '_blank' // <- This is what makes it open in a new window.
+                );        
             });
         }
     });
