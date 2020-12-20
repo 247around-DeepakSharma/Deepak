@@ -2832,7 +2832,7 @@ function OpenWindowWithPost(url, windowoption, name, params)
                           $(".loader").addClass('hide');
                           swal("Transferred!", "Your spare has been transferred !.", "success");
                           $("#move_to_vendor").hide();
-                        //  location.reload();
+                          location.reload();
                         }else{
                            $(".loader").addClass('hide');
                            swal("Failed", "Spare  transferred has been failed due to stock not available", "error");  
@@ -2882,7 +2882,7 @@ function OpenWindowWithPost(url, windowoption, name, params)
                           $(".loader").addClass('hide');
                           swal("Transferred!", "Your spare has been transferred to partner!.", "success");
                           $("#move_to_vendor").hide();
-                        //  location.reload();
+                          location.reload();
                         }else if(data='fail_mail'){
                           $(".loader").addClass('hide');
                           swal("Failed", "Your Transferred has been failed. Check your mail for details!", "error"); 
