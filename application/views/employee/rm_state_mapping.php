@@ -247,7 +247,6 @@ h2 a{color:#fff; font-weight:bold;}
             success: function (response) {
                //alert(response);
                $("#accordion").html(response);
-               $('[data-toggle=\"tooltip\"]').tooltip();
                
             }
         });
