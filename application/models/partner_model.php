@@ -312,10 +312,15 @@ function get_data_for_partner_callback($booking_id) {
     /**
      * @desc: This method gets price details for partner
      */
-    function getPrices($service_id, $category, $capacity, $partner_id, $service_category,$brand ="", $not_like = TRUE,$add_booking = NULL) {
+    function getPrices($service_id, $category, $capacity, $partner_id, $service_category,$brand ="", $not_like = TRUE,$add_booking = NULL,$partner_spare_extra=FALSE) {
         $this->db->distinct();
+        if($partner_spare_extra){
+        $this->db->select('id,partner_spare_extra_charge,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry, vendor_basic_percentage,product_or_services, '
+                . 'upcountry_customer_price, upcountry_vendor_price, upcountry_partner_price, flat_upcountry');    
+        }else{
         $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry, vendor_basic_percentage,product_or_services, '
-                . 'upcountry_customer_price, upcountry_vendor_price, upcountry_partner_price, flat_upcountry');
+                . 'upcountry_customer_price, upcountry_vendor_price, upcountry_partner_price, flat_upcountry');    
+        }
         $this->db->where('service_id', $service_id);
         $this->db->where('category', $category);
         $this->db->where('active', 1);
