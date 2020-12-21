@@ -89,7 +89,7 @@
                                             <input type="hidden" class="form-control spare_parts" id="old_invoice_image" name="old_invoice_image" value="<?php echo $spare_parts_details['invoice_pic']; ?>">
                                         </div>
                                         <?php if(!empty($spare_parts_details['serial_number_pic'])){ ?>
-                                        <img src="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $spare_parts_details['invoice_pic']; ?>" id="display_invoice_image" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;">
+                                        <img src="<?php echo S3_WEBSITE_URL; ?>purchase-invoices/<?php echo $spare_parts_details['invoice_pic']; ?>" id="display_invoice_image" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;">
                                       <?php } ?>
                                     </div>
                                 </div>
@@ -209,6 +209,38 @@
                                                 <span id="error_span_0" style="color:red;" class="hide"></span>
                                                 <?php echo form_error('quantity'); ?>
                                             </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="symptom" class="col-md-4">Symptom </label>
+                                            <div class="col-md-6">
+                                                <select class="form-control symptom " id="symptom_0" name="part[0][symptom]" >
+                                                        <option selected disabled>Select Symptom</option>
+                                                        <?php foreach($technical_problem as $problem){ ?>
+                                                            <option <?php if($problem['id']==$spare_parts_details['spare_request_symptom']){ echo 'selected';} ?>  value="<?php echo $problem['id'] ?>" ><?php echo $problem['symptom'] ?></option>
+
+                                                        <?php }  ?>
+
+                                                    </select>  
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="defect_pic" class="col-md-4">Defect Picture * </label>
+                                            <div class="col-md-6">
+                                                <input type="file" class="form-control defect_pic" id="defect_pic_0" name="defect_pic[0]" >
+                                                 </div>
+                                            <?php if(!empty($spare_parts_details['defect_pic'])){ ?>
+                                                <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $spare_parts_details['defect_pic']; ?> " target="_blank" id="<?php echo "defect_pic_".$spare_parts_details['id']; ?>" style='float:left'>
+                                                    <img src="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $spare_parts_details['defect_pic']; ?>"  width="35px" height="35px" style="border:1px solid black;margin-left:-4px;">
+                                                   </a>
+                                            <?php } ?>
+                                           
                                         </div>
                                     </div>
                                 </div>
