@@ -4421,8 +4421,6 @@ class vendor extends CI_Controller {
                 if(!empty($from) && !empty($to))
                 {
                     $this->notify->sendEmail($from, $to, $template[3] . "," . $rm_official_email . $asm_mail, '', $subjectBody, $emailBody, "",'remove_penalty_on_booking', "", $booking_id[$key]);
-                    //Logging
-                    log_message('info', " Remove Penalty Report Mail Send successfully" . $emailBody);
                 }
             } else {
                 //Logging
