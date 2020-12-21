@@ -5769,26 +5769,25 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         if (!empty($change_awb_number_by_sf)) {
             $select = 'spare_parts_details.id,spare_parts_details.quantity,spare_parts_details.status,spare_parts_details.entity_type,spare_parts_details.booking_id, spare_parts_details.awb_by_sf';
             $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.awb_by_sf' => $pre_awb_by_sf), false, false, false);
+            $booking_array = array();
             foreach ($spare_parts_details as $value) {
                 $spare_id = $value['id'];
-                $status = $value['status'];
                 if (!empty($spare_id)) {
                     $this->service_centers_model->update_spare_parts(array('spare_parts_details.id' => $spare_id), array("spare_parts_details.awb_by_sf" => trim($change_awb_number_by_sf)));
                     /* Insert in Spare Tracking Details */
-                    $remarks = "AWB Number Changes From AWB Number" . $pre_awb_by_sf . " To AWB Number " . $change_awb_number_by_sf;
-                    $old_state = "Old AWB Number Is " . $pre_awb_by_sf;
-                    $new_state = "New AWB Number Is " . $change_awb_number_by_sf;
-
-                    if (!empty($spare_id)) {
-                        $tracking_details = array('spare_id' => $spare_id, 'action' => $status, 'remarks' => $remarks, 'agent_id' => $agent_id, 'entity_id' => $entity_id, 'entity_type' => $entity_type);
-                        $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                    $remarks = " Docket replaced from " . $pre_awb_by_sf . " To " . $change_awb_number_by_sf;
+                    $new_state = "New Awb Number updated";
+                    $tracking_details = array('spare_id' => $spare_id, 'action' => 'New Awb Number ' . $change_awb_number_by_sf, 'remarks' => $remarks, 'agent_id' => $agent_id, 'entity_id' => $entity_id, 'entity_type' => $entity_type);
+                    $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                    if (!in_array($value['booking_id'], $booking_array)) {
+                        $this->notify->insert_state_change($value['booking_id'], $new_state, '', $remarks, $agent_id, $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, $entity_id, "", $spare_id);
+                        $booking_array[] = $value['booking_id'];
                     }
-                    $this->notify->insert_state_change($value['booking_id'], $new_state, $old_state, $remarks, $agent_id, $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, $entity_id, "", $spare_id);
                 }
             }
-            
+
             $this->inventory_model->update_courier_company_invoice_details(array('courier_company_invoice_details.awb_number' => $pre_awb_by_sf), array('courier_company_invoice_details.awb_number' => trim($change_awb_number_by_sf)));
-            echo json_encode(array('status' =>'success'));
+            echo json_encode(array('status' => 'success'));
         }
     }
 
