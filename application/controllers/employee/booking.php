@@ -2419,9 +2419,9 @@ class Booking extends CI_Controller {
         $pincode = $this->input->post('booking_pincode');
         $state = $this->vendor_model->get_state_from_pincode($pincode);
         $partner_id = $this->input->post('partner_id');
-        //$sp_required_id = json_decode($this->input->post("sp_required_id"), true);
+        $sp_required_id = json_decode($this->input->post("sp_required_id"), true);
         //$spare_parts_required = $this->input->post('spare_parts_required');
-        //$price_tag_array = $this->input->post('price_tags');
+        $price_tag_array = $this->input->post('price_tags');
         $model_number = $this->input->post('model_number');
 
         $technical_symptom = $this->input->post('closing_symptom');
@@ -2447,23 +2447,26 @@ class Booking extends CI_Controller {
         endif;   
         foreach ($customer_basic_charge as $unit_id => $value) {
             // variable $unit_id  is existing id in booking unit details table of given booking id
-                $data = array();
-                $data['customer_paid_basic_charges'] = $value;
-                $data['customer_paid_extra_charges'] = $additional_charge[$unit_id];
-                $data['customer_paid_parts'] = $parts_cost[$unit_id];
-                $trimSno = "";
-                if (isset($serial_number)) {
-                    $trimSno = str_replace(' ', '', trim($serial_number));
-                    $serial_number_pic = trim($serial_number_pic);
-                }
-            //Model number Data
-            $sf_model_number = "";
-             if (isset($model_number[$unit_id])) {
-                $sf_model_number = $model_number[$unit_id];
+            $data = array();
+            $data['customer_paid_basic_charges'] = $value;
+            $data['customer_paid_extra_charges'] = $additional_charge[$unit_id];
+            $data['customer_paid_parts'] = $parts_cost[$unit_id];
+            if (isset($serial_number[$unit_id])) {
+                $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
+                $data['serial_number'] =  $trimSno;
+                $data['serial_number_pic']  = trim($serial_number_pic[$unit_id]);
+            } else {
+                $data['serial_number'] = "";
+                $data['serial_number_pic'] = "";
             }
-            $sf_purchase_date = NULL;
+            //Model number Data
+            $data['sf_model_number'] = "";
+             if (isset($model_number[$unit_id])) {
+                $data['sf_model_number'] = $model_number[$unit_id];
+            }
+            $data['sf_purchase_date'] = NULL;
             if (!empty($purchase_date[0])) {
-                $sf_purchase_date = $this->miscelleneous->convert_date_to_database_format($purchase_date[0]);
+                $data['sf_purchase_date'] = $this->miscelleneous->convert_date_to_database_format($purchase_date[0]);
             }
             
             if (!empty($purchase_invoice[$unit_id]) || !empty($purchase_invoice_file_name)) {
@@ -2472,11 +2475,11 @@ class Booking extends CI_Controller {
                 }
             }
             
-            if(!empty($serial_number_pic)){
-                $this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id,"serial_number" => $trimSno, "active" =>1, "added_by" => "vendor" ));
+            if(!empty($data['serial_number_pic'])){
+                $this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id,"serial_number" => $data['serial_number'], "active" =>1, "added_by" => "vendor" ));
                 //$serialNumberMandatoryPartners = explode(',',SERIAL_NUMBER_MENDATORY);
 //                if(!empty($insertd)  && in_array($partner_id, $serialNumberMandatoryPartners)){
-//                    //$this->miscelleneous->inform_partner_for_serial_no($booking_id, $service_center_details[0]['service_center_id'$data['serial_number_pic']], $partner_id, $trimSno, $serial_number_pic);
+//                    //$this->miscelleneous->inform_partner_for_serial_no($booking_id, $service_center_details[0]['service_center_id'], $partner_id, $data['serial_number'], $data['serial_number_pic']);
 //                }
             }
 
@@ -2501,13 +2504,12 @@ class Booking extends CI_Controller {
                         if(!empty($b_unit_details)){
                             $closed_date  = $b_unit_details[0]['ud_closed_date'];
                         } 
-                        $data_service_center['current_status'] = SF_BOOKING_INPROCESS_STATUS;
-                        $data_service_center['internal_status'] = _247AROUND_COMPLETED;
-                            //$data['booking_status'] = _247AROUND_COMPLETED;
-                           //$data['ud_closed_date'] = $closed_date;
+                        
+                        $data_service_center['current_status'] = $data_service_center['internal_status'] = _247AROUND_COMPLETED;
+                            $data['booking_status'] = _247AROUND_COMPLETED;
                             $internal_status = _247AROUND_COMPLETED;
 
-                            $data_service_center['closed_date'] = $closed_date;
+                            $data_service_center['closed_date'] = $data['ud_closed_date'] = $closed_date;
 
                             log_message('info', __FUNCTION__ . " New unit selected, previous unit " . print_r($unit_id, true)
                                 . " Service charges id: "
@@ -2522,11 +2524,9 @@ class Booking extends CI_Controller {
                         $data_service_center['service_charge'] = $data['customer_paid_basic_charges'];
                         $data_service_center['additional_service_charge'] = $data['customer_paid_extra_charges'];
                         $data_service_center['parts_cost'] = $data['customer_paid_parts'];
-                        $data_service_center['serial_number'] = $trimSno;
-                        $data_service_center['serial_number_pic'] = $serial_number_pic;
+                        $data_service_center['serial_number'] = $data['serial_number'];
+                        $data_service_center['serial_number_pic'] = $data['serial_number_pic'];
                         $data_service_center['amount_paid'] = $total_amount_paid;
-                        $data_service_center['model_number'] = $sf_model_number;
-                        $data_service_center['sf_purchase_date'] = $sf_purchase_date;
                         if ($k == 0) {
                             $data_service_center['upcountry_charges'] = $upcountry_charges;
                         }
@@ -2537,19 +2537,19 @@ class Booking extends CI_Controller {
                     }
                 }
             } else {
-                $unit_status = $booking_status[$unit_id];
+                $data['booking_status'] = $booking_status[$unit_id];
                 $closed_date = date('Y-m-d H:i:s');
                 if(!empty($b_unit_details)){
                     $closed_date = $b_unit_details[0]['ud_closed_date'];
                 }
             
-                if ($unit_status === _247AROUND_COMPLETED) {
+                if ($data['booking_status'] === _247AROUND_COMPLETED) {
                     $internal_status = _247AROUND_COMPLETED;
                 }
                 
-                $service_center['closed_date'] = $closed_date;
-                $service_center['current_status'] = SF_BOOKING_INPROCESS_STATUS;
-                $service_center['internal_status'] = $unit_status;
+                $service_center['closed_date'] = $data['ud_closed_date'] = $closed_date;
+                $service_center['current_status'] = $data['booking_status'];
+                $service_center['internal_status'] = $data['booking_status'];
                 
                 $data['id'] = $unit_id;
 
@@ -2580,11 +2580,9 @@ class Booking extends CI_Controller {
                 $service_center['service_charge'] = $data['customer_paid_basic_charges'];
                 $service_center['additional_service_charge'] = $data['customer_paid_extra_charges'];
                 $service_center['parts_cost'] = $data['customer_paid_parts'];
-                $service_center['serial_number'] = $trimSno;
-                $service_center['serial_number_pic'] = $serial_number_pic;
+                $service_center['serial_number'] = $data['serial_number'];
+                $service_center['serial_number_pic'] = $data['serial_number_pic'];
                 $service_center['amount_paid'] = $total_amount_paid;
-                $service_center['model_number'] = $sf_model_number;
-                $service_center['sf_purchase_date'] = $sf_purchase_date;
                 if ($k == 0) {
                     $service_center['upcountry_charges'] = $upcountry_charges;
                 }
@@ -2594,8 +2592,8 @@ class Booking extends CI_Controller {
                 $this->vendor_model->update_service_center_action($booking_id, $service_center);
                 // Also Update Status in Engineer Booking Action Table
                 $eng_data = array(
-                    "internal_status" => SF_BOOKING_INPROCESS_STATUS,
-                    "current_status" => $unit_status
+                    "internal_status" => $data['booking_status'],
+                    "current_status" => $data['booking_status']
                 );
                 $this->engineer_model->update_engineer_table($eng_data, array("booking_id"=>$booking_id, "unit_details_id"=>$unit_id));
             }
@@ -2625,6 +2623,7 @@ class Booking extends CI_Controller {
         }
         
         // update spare parts.
+        $booking['current_status'] = $internal_status;
         $is_update_spare_parts = $this->miscelleneous->update_spare_consumption_status($this->input->post(), $booking_id, $service_center_details, $status);
         if($is_update_spare_parts && $is_update_spare_parts != DEFECTIVE_PARTS_SHIPPED) { 
             $booking['internal_status'] = DEFECTIVE_PARTS_PENDING;
@@ -2632,6 +2631,10 @@ class Booking extends CI_Controller {
             $booking['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
         } else {
             $booking['internal_status'] = $internal_status;
+            $booking['closed_date'] = date('Y-m-d H:i:s');
+            if(!empty($b_unit_details)){
+                $booking['closed_date'] = $b_unit_details[0]['ud_closed_date'];
+            }
         }
 
         $booking['booking_id'] = $booking_id;
@@ -2646,7 +2649,7 @@ class Booking extends CI_Controller {
         }
         // check partner status
         $actor = $next_action = 'NULL';
-        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(SF_BOOKING_INPROCESS_STATUS, $booking['internal_status'], $partner_id, $booking_id);
+        $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $partner_id, $booking_id);
         if (!empty($partner_status)) {
             $booking['partner_current_status'] = $partner_status[0];
             $booking['partner_internal_status'] = $partner_status[1];
@@ -2665,6 +2668,10 @@ class Booking extends CI_Controller {
         
         $booking['update_date'] = date('Y-m-d H:i:s');
 
+        $booking['amount_paid'] = $total_amount_paid;
+
+        //update booking_details table
+        log_message('info', ": " . " update booking details data (" . $booking['current_status'] . ")" . print_r($booking, TRUE));
         // this function is used to update booking details table
         if(!$this->input->post('service_center_closed_date')){
             //get engineer close date
@@ -2722,7 +2729,7 @@ class Booking extends CI_Controller {
       if ($status == 0) {
             //Log this state change as well for this booking
             //param:-- booking id, new state, old state, employee id, employee name
-            $this->notify->insert_state_change($booking_id, SF_BOOKING_COMPLETE_STATUS, _247AROUND_PENDING, $booking['closing_remarks'], $this->session->userdata('id'), 
+            $this->notify->insert_state_change($booking_id, _247AROUND_COMPLETED, _247AROUND_PENDING, $booking['closing_remarks'], $this->session->userdata('id'), 
                     $this->session->userdata('employee_id'), $actor,$next_action,_247AROUND);
 
             if($booking['internal_status'] == _247AROUND_COMPLETED){
@@ -2772,10 +2779,10 @@ class Booking extends CI_Controller {
                 $review_questionnaire_data = $this->input->post('review_questionnaire');
                 $this->save_review_questionnaire_data($review_questionnaire_booking_id, $review_questionnaire_data);
             }
-            $this->session->set_userdata('success', 'Booking Successfully Submitted for Review.');
+            $this->session->set_userdata('success', 'Booking Completed Successfully.');
             redirect(base_url() . 'employee/booking/view_bookings_by_status/Pending');
         } else {
-            $this->session->set_userdata('success', 'Booking Successfully Submitted for Review.');
+            $this->session->set_userdata('success', 'Booking Completed Successfully.');
             redirect(base_url() . 'employee/booking/view_bookings_by_status/' . $internal_status);
         }
         }
