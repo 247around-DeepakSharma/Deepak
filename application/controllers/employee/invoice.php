@@ -1948,8 +1948,11 @@ class Invoice extends CI_Controller {
             $this->notify->sendEmail($email_from, $to, '', '', $subject, $message, '',ALL_INVOICE_SUCCESS_MESSAGE);
 
         }
-        
-        return $s;
+        if(!empty($s)){
+            return $s;
+        }else{
+            return '';
+        }
 
         log_message('info', __FUNCTION__ . " Exit......");
     }
