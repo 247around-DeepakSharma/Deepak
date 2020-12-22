@@ -2483,8 +2483,6 @@ class Booking extends CI_Controller {
             if (isset($customer_net_payable[$unit_id])) {
                 $data['customer_net_payable'] = $customer_net_payable[$unit_id];
             }
-            
-            $data['booking_status'] = _247AROUND_PENDING;
 
             // it checks string new in unit_id variable
             if (strpos($unit_id, 'new') !== false) {
@@ -2759,7 +2757,7 @@ class Booking extends CI_Controller {
             }
             
             //Generate Customer payment Invoice
-            if($total_amount_paid > MAKE_CUTOMER_PAYMENT_INVOICE_GREATER_THAN && $internal_status == _247AROUND_COMPLETED){
+            if($total_amount_paid > MAKE_CUTOMER_PAYMENT_INVOICE_GREATER_THAN && $booking['current_status'] == _247AROUND_COMPLETED){
                 $invoice_url = base_url() . "employee/user_invoice/payment_invoice_for_customer/".$booking_id."/".$this->session->userdata('id');
                 $payment = array();
                 $this->asynchronous_lib->do_background_process($invoice_url, $payment);
