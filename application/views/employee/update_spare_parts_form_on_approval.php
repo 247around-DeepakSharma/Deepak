@@ -253,11 +253,15 @@
 
                                       <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="defect_pic" class="col-md-4">Defect Picture </label>
+                                            <label for="defect_pic" class="col-md-4">Defect Picture * </label>
                                             <div class="col-md-6">
                                                 <input type="file" class="form-control defect_pic" id="defect_pic_0" name="defect_pic[0]" >
-                                                <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $spare_parts_details['defect_pic']; ?> " target="_blank" id="<?php echo "defect_pic_".$spare_parts_details['id']; ?>">Click Here</a>
-                                            </div>
+                                               </div> 
+                                            <?php if(!empty($spare_parts_details['defect_pic'])){ ?>
+                                                <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $spare_parts_details['defect_pic']; ?> " target="_blank" id="<?php echo "defect_pic_".$spare_parts_details['id']; ?>">
+                                                    <img src="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $spare_parts_details['defect_pic']; ?>"  width="35px" height="35px" style="border:1px solid black;margin-left:-4px;">
+                                                </a>
+                                             <?php } ?>                                            
                                         </div>
                                     </div>
 

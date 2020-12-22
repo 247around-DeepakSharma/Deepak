@@ -510,7 +510,7 @@
                             <table id="defective_part_pending_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                                 <thead >
                                     <tr>
-                                        <th class="text-center" >No</th>
+                                        <th class="text-center" data-orderable="false">No</th>
                                         <th class="text-center" data-orderable="false">Booking Id</th>
                                         <th class="text-center" data-orderable="false">Spare Pending On</th>
                                         <th class="text-center" data-orderable="false">Service Center</th>
@@ -1009,6 +1009,32 @@
         </div>
     </div>
 </div>
+
+<div id="update_courier_awb_number" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" id="update_courier_awb_number_model">
+        <!-- Modal content-->
+        <div class="modal-content" style="width: 50%;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><strong>Update AWB Number</strong></h4>
+            </div>
+            <div class="modal-body">
+                <span style="padding: 3px;font-size: 1em;" id="remarks_label" class="modal-title">Previous AWB Number</span>
+                <input style="margin-top: 5px; margin-bottom: 5px; display: block;" type="text" name="pre_awb_by_sf" id="pre_awb_by_sf" class="form-control" readonly="">
+                <span style="padding: 3px;font-size: 1em;" id="remarks_label" class="modal-title">Change AWB Number</span>
+                <input style="margin-top: 5px; margin-bottom: 5px; display: block;" type="text" name="change_awb_by_sf" id="change_awb_by_sf" class="form-control" placeholder="Enter AWB Number">
+                <h4 style="padding: 3px;font-size: 1em;" id="remarks_label" class="modal-title">Remarks *</h4>
+                <textarea rows="3" class="form-control" id="textarea" placeholder="Enter Remarks"></textarea>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="re_ject_parts()" id="reject_btn">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="loader hide"></div>
 <style>
     .loader {
@@ -2379,7 +2405,56 @@
                return false;
             }
         });
-    });
+    });  
+    
+  
+$(document).on('click', '.awb_number_by_sf_edit', function(){
+   
+    if ($(this).siblings(".awb_number_by_sf_no_text").is(":hidden")) {
+         
+        var prethis = $(this);
+        var pre_awb_by_sf = $(this).siblings(".awb_number_by_sf_no_text").attr('data-awb-number');
+        var change_awb_number_by_sf = $(this).siblings("input").val();
+         inputRGEX = /^[a-zA-Z0-9]*$/;
+        if(!inputRGEX.test(change_awb_number_by_sf)){
+            alert("AWB Number should special character."); 
+            $(this).siblings("input").val('');
+            return false
+        }
+        
+        if(change_awb_number_by_sf == ''){
+          alert("AWB Number should not be blank."); 
+          return false;  
+        }
+        
+        $.ajax({
+            url: "<?php echo base_url() ?>employee/spare_parts/process_update_awb_number_sf",
+            type: "POST",
+            beforeSend: function(){
+                 prethis.html('<i class="fa fa-circle-o-notch fa-lg" aria-hidden="true"></i>');
+             },
+            data: { change_awb_number_by_sf: change_awb_number_by_sf, pre_awb_by_sf:pre_awb_by_sf},
+            success: function (data) {
+               obj = JSON.parse(data)
+                if(obj['status']=="success"){
+                    alert('Successfully updated.');
+                   defective_part_shipped_by_sf_table.ajax.reload(null, false); 
+                } else {
+                    alert("There is a problem to update");
+                }
+            }
+        });
+        
+    } else {
+        var text = $(this).siblings(".awb_number_by_sf_no_text").text();
+        $(this).before("<input type=\"text\" class=\"form-control\" value=\"" + text + "\">");
+        $(this).html('<i class="fa fa-check fa-lg" aria-hidden="true"></i>');
+        $(this).siblings(".awb_number_by_sf_no_text").hide();
+    }
+});
+    
+ 
+    
 </script>
 <style>
     #partner_wise_parts_requested2 .select2-container{

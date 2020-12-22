@@ -35,58 +35,58 @@ class reports extends CI_Controller {
         $this->load->dbutil();
     }
 
-/**
+    /**
      * This function is used to view the custom report viewpage.
-     */
+    */
     function custom_reports(){
        $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/custom_report'); 
+       $reports = $this->reporting_utils->get_custom_query_data();
+       $this->load->view('employee/custom_report', ['reports' => $reports]); 
     }
 
-/**
+    /**
      * This function is used to return the query for the chosen tag.
      * @param-$tag
      * @return - $query 
      */
-     function custom_reporting($tag="") {
-        $data = $this->reporting_utils->get_custom_query_data();
-        $name = "";
-        foreach ($data as $key => $value) {
-            if($value['tag'] == $tag){
-                $subject= sprintf($value['subject'], $name);
-                $sql = $value['query'];
-            }
+     function custom_reporting($tag = "") {
+        $query = "";
+        $data = $this->reporting_utils->get_custom_query_data($tag);
+        if(!empty($data[0]['query'])){
+            $sql = $data[0]['query'];
+            $query = $this->db->query($sql); 
+            return $query;
         }
-        $query = $this->db->query($sql); 
-        return $query;
     }
 
     /** Desc- This function is used to download Custom Report dynamically.
     */
-    function download_custom_report(){
+    function download_custom_report($tag){
         
-        $custom_report= "Custom Report" . time() . ".csv";
+        $custom_report = $tag.time().".csv";
         $csv = TMP_FOLDER . $custom_report;
         $tag = $this->uri->segment(4);
         $report = $this->custom_reporting($tag);
-        $delimiter = ",";
-        $newline = "\r\n";
-        $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
-        log_message('info', __FUNCTION__ . ' => Rendered CSV');
-        write_file($csv, $new_report);
-        if(!empty($csv)){
-        header('Content-Description: File Transfer');
-        header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
-        header('Expires: 0');
-        header('Cache-Control: must-revalidate');
-        header('Pragma: public');
-        header('Content-Length: ' . filesize($csv));
-        readfile($csv);
-        exec("rm -rf " . escapeshellarg($csv));
+        if(!empty($report))
+        {
+            $delimiter = ",";
+            $newline = "\r\n";
+            $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
+            log_message('info', __FUNCTION__ . ' => Rendered CSV');
+            write_file($csv, $new_report);
+            if(!empty($csv)){
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate');
+            header('Pragma: public');
+            header('Content-Length: ' . filesize($csv));
+            readfile($csv);
+            exec("rm -rf " . escapeshellarg($csv));
+            }
         }
         log_message('info', __FUNCTION__ . ' Function End');
-        //unlink($csv);
     }
 
 

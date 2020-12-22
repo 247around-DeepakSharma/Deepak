@@ -864,7 +864,7 @@ class Booking_model extends CI_Model {
         $post['spare_cancel_reason']=1;
         $post['wrong_part'] = 1;
         $post['symptom'] = 1;
-        $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,symptom.symptom as symptom_text,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number, booking_cancellation_reasons.reason as part_cancel_reason,spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, wrong_part_shipped_details.part_name as wrong_part_name, wrong_part_shipped_details.remarks as wrong_part_remarks, sc.name AS send_defective_to, oow_spare_invoice_details.invoice_id as oow_invoice_id, oow_spare_invoice_details.invoice_date as oow_invoice_date, oow_spare_invoice_details.hsn_code as oow_hsn_code, oow_spare_invoice_details.gst_rate as oow_gst_rate, oow_spare_invoice_details.invoice_amount as oow_incoming_invoice_amount, oow_spare_invoice_details.invoice_pdf as oow_incoming_invoice_pdf, ccid.box_count as sf_box_count,ccid.billable_weight as sf_billable_weight,cc_invoice_details.box_count as wh_box_count,cc_invoice_details.billable_weight as wh_billable_weight, cci_details.box_count as p_box_count, cci_details.billable_weight as p_billable_weight, cci_details.courier_pod_file, booking_details.partner_id as booking_partner_id', array('spare_parts_details.booking_id' => $booking_id),TRUE ,false,false,$post, TRUE, TRUE, TRUE, TRUE, TRUE);
+        $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,symptom.symptom as symptom_text,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number, booking_cancellation_reasons.reason as part_cancel_reason,spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, wrong_part_shipped_details.part_name as wrong_part_name, wrong_part_shipped_details.remarks as wrong_part_remarks, sc.name AS send_defective_to, oow_spare_invoice_details.invoice_id as oow_invoice_id, oow_spare_invoice_details.invoice_date as oow_invoice_date, oow_spare_invoice_details.hsn_code as oow_hsn_code, oow_spare_invoice_details.gst_rate as oow_gst_rate, oow_spare_invoice_details.invoice_amount as oow_incoming_invoice_amount, oow_spare_invoice_details.invoice_pdf as oow_incoming_invoice_pdf, ccid.box_count as sf_box_count,ccid.billable_weight as sf_billable_weight,cc_invoice_details.box_count as wh_box_count,cc_invoice_details.billable_weight as wh_billable_weight, cci_details.box_count as p_box_count, cci_details.billable_weight as p_billable_weight, cci_details.courier_pod_file, cci_details.rto_file, booking_details.partner_id as booking_partner_id', array('spare_parts_details.booking_id' => $booking_id),TRUE ,false,false,$post, TRUE, TRUE, TRUE, TRUE, TRUE);
         if(!empty($query1)){
             $result1 = $query1;
             $result['spare_parts'] = $result1;
@@ -889,7 +889,6 @@ class Booking_model extends CI_Model {
     }
 
     function getbooking_filter_service_center($booking_id){
-
         $this->db->select('assigned_vendor_id');
         $this->db->where('assigned_vendor_id is NOT NULL', NULL, true);
         $this->db->where('booking_id', $booking_id);
@@ -899,7 +898,6 @@ class Booking_model extends CI_Model {
             // NOT NUll
             $data = $this->getbooking_history($booking_id, "Join");
                          
-            log_message('info', __METHOD__ . $this->db->last_query());
             return $data;
 
         } else {
@@ -914,7 +912,6 @@ class Booking_model extends CI_Model {
                . "and booking_details.partner_id =  partners.id";
 
         $query = $this->db->query($sql);
-       // log_message('info', __METHOD__ . $this->db->last_query());
 
         return $query->result_array();
         }
