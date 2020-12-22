@@ -494,9 +494,7 @@
 </div>
 
 
-<div id="myModalCovid" class="modal">
-
-  <!-- Modal content -->
+<!-- <div id="myModalCovid" class="modal"> 
  
   <div class="modal-content">
       <div class="modal-header">
@@ -521,7 +519,7 @@
     
   </div>
 
-</div>
+</div>-->
 
 
 <div id="myModal7" class="modal">
