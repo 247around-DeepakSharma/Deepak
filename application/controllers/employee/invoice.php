@@ -4490,10 +4490,7 @@ exit();
         }
         $req['where'] = array("spare_parts_details.id" => $spare_id);
         $req['length'] = -1;
-
-
-        $req['select'] = "spare_parts_details.requested_inventory_id, spare_parts_details.shipped_inventory_id,spare_parts_details.booking_unit_details_id, spare_parts_details.parts_shipped, spare_parts_details.parts_requested_type,spare_parts_details.shipped_parts_type, spare_parts_details.purchase_price, spare_parts_details.sell_invoice_id, parts_requested,invoice_gst_rate, spare_parts_details.service_center_id, spare_parts_details.booking_id, booking_details.service_id, shipped_quantity";
-
+        $req['select'] = "spare_parts_details.requested_inventory_id, spare_parts_details.shipped_inventory_id,booking_unit_details_id, spare_parts_details.parts_shipped, spare_parts_details.parts_requested_type,spare_parts_details.shipped_parts_type, spare_parts_details.purchase_price, spare_parts_details.sell_invoice_id, parts_requested,invoice_gst_rate, spare_parts_details.service_center_id, spare_parts_details.booking_id, booking_details.service_id, shipped_quantity";
         $sp_data = $this->inventory_model->get_spare_parts_query($req);
 
         if (!empty($sp_data) && empty($sp_data[0]->sell_invoice_id) && ($sp_data[0]->purchase_price > 0)) {
