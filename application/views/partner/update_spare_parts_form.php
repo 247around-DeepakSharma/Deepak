@@ -623,7 +623,18 @@
 
 <script type="text/javascript">
     
-    
+    $("#submit_form").on('click', function(){
+      $(".invoice_id_class").each(function(i) {
+        var invoice_id = $(this).val();
+        var format = /[ `!@#$%^&*()+\=\[\]{};':"\\<>\?~]/;
+        if (format.test(invoice_id)) {
+            $(this).val('');
+            alert("Invoice id should not be special character.");
+            return false;
+        }
+      });
+    });
+      
      $("#awb").on({
         "click": function () {
             var awb_number = $(this).val();
@@ -902,7 +913,7 @@
  
         $(".invoice_id_class").keypress(function (e) {
             var keyCode = e.keyCode || e.which;
-            var regex = /^[A-Za-z0-9-.]+$/;
+            var regex = /^[A-Za-z0-9-,./\|_]+$/;
             //Validate TextBox value against the Regex.
             var isValid = regex.test(String.fromCharCode(keyCode));
             if (!isValid) {
