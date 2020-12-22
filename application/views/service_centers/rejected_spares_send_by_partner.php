@@ -240,7 +240,7 @@
                 success:function(response){
 
                 //console.log(response);
-                    $('#tabs-6 #ack_spare').html("Acknowledge spare received").attr('disabled',true);
+                    $('#tabs-6 #ack_spare').html("Acknowledge spare received").attr('disabled',false);
                     obj = JSON.parse(response);
                     if(obj.status){
                         $('.success_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
