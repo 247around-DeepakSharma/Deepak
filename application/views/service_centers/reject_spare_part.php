@@ -79,6 +79,21 @@
                  alert('Please select reject reason.');
                  return false;
              }
+             
+            var file = $("#rejected_defective_part_pic_by_wh").val();
+            
+            if(file == '' || file == null){
+                alert('Please upload reject image.');
+                return false;
+            }
+                       
+            var allowedFiles = [".gif", ".jpg",".png",".jpeg",".pdf"];
+            var fileUpload = $("#rejected_defective_part_pic_by_wh");
+            var regex = new RegExp("([a-zA-Z0-9\s_\\.\-:()])+(" + allowedFiles.join('|') + ")$");
+            if (!regex.test(fileUpload.val().toLowerCase())) {
+                alert("Please upload files having extensions:(" + allowedFiles.join(', ') + ") only.");
+                return false;
+            }
 
              if($('#reject-remarks').val() == '' || $('#reject-remarks').val() == null) {
                  alert('Please enter remarks.');
