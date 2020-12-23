@@ -28,7 +28,7 @@
                 <img style="padding: 2px;height: 75px;" src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$excel_data['main_company_logo']; ?>">
                 <?php } ?>
             </td>
-            <td colspan="11" style='text-align: center;'><h1>Delivery Challan</h1></td>
+            <td colspan="14" style='text-align: center;'><h1>Delivery Challan</h1></td>
         </tr>
         <tr>
             <td colspan="3" align="left" style="border-bottom: hidden;"><p>To,</p><?php if(!empty($excel_data['sf_name'])){ echo $excel_data['sf_name']; } ?></td>
