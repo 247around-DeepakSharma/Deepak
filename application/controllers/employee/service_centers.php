@@ -2456,9 +2456,11 @@ class Service_centers extends CI_Controller {
                 $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
                 
                 // set Ok part return in case of wrong & damage/broken part.
+                $return_ok_part = 0;
                 if($consumption_status_tag == DAMAGE_BROKEN_PART_RECEIVED_TAG || $consumption_status_tag == WRONG_PART_RECEIVED_TAG) {
                     $update_data['status'] = OK_PART_TO_BE_SHIPPED;
                     $update_data['defective_part_required'] = 1;
+                    $return_ok_part = 1;
                 }
                 // in case of courier lost .
                 if($consumption_status_tag == PART_NOT_RECEIVED_COURIER_LOST_TAG) {
@@ -2481,7 +2483,7 @@ class Service_centers extends CI_Controller {
                 
                 // generate challan.
                 if (!empty($this->session->userdata('service_center_id')) 
-                    && !empty($spare_part_detail['defective_part_required']) && $spare_part_detail['defective_part_required'] == 1 
+                    && !empty($spare_part_detail['defective_part_required']) && ($spare_part_detail['defective_part_required'] == 1 || $return_ok_part==1) 
                     && empty($spare_part_detail['defective_part_shipped']) && empty($spare_part_detail['defective_part_shipped_date'])) {
                     $this->invoice_lib->generate_challan_file($spare_id, $this->session->userdata('service_center_id'),'',true);
                 }
