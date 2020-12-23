@@ -39,22 +39,21 @@ class Warranty_utilities {
             }
             
             
-            // if Service Id is there, get service specific plans also
-            if(!empty($rec_data['service_id']))
-            {
-                if(!empty($rec_data['model_number']))
-                {
-                    //removes the single as well as double quotes from start and end
+            // Get All Valid Plans against Model, lies within Purchase Date of Product
+            // get Product specific plans (for E-commerce Partners)
+            if(!empty($rec_data['service_id'])){
+                // Get Model Specific Plans
+                if(!empty($rec_data['model_number'])){
+                    //removes the single as well as double quotes from model name
                     $model_number = str_replace('"', '', str_replace("'", "", $rec_data['model_number']));
-                    $arrOrWhere["((appliance_model_details.model_number = '".$model_number."' OR (warranty_plans.service_id = '".$rec_data['service_id']."' AND appliance_model_details.id IS NULL)) and date(warranty_plans.period_start) <= '".$purchase_date."' and date(warranty_plans.period_end) >= '".$purchase_date."' and warranty_plans.partner_id = '".$rec_data['partner_id']."')"] = null; 
+                    $arrOrWhere["((appliance_model_details.model_number = '".$model_number."' OR (warranty_plans.service_id = '".$rec_data['service_id']."' AND warranty_plans.plan_depends_on = ". WARRANTY_PLAN_ON_PRODUCT .")) and date(warranty_plans.period_start) <= '".$purchase_date."' and date(warranty_plans.period_end) >= '".$purchase_date."' and warranty_plans.partner_id = '".$rec_data['partner_id']."')"] = null; 
                 }
-                else
-                {
-                    $arrOrWhere["((warranty_plans.service_id = '".$rec_data['service_id']."' AND appliance_model_details.id IS NULL) and date(warranty_plans.period_start) <= '".$purchase_date."' and date(warranty_plans.period_end) >= '".$purchase_date."' and warranty_plans.partner_id = '".$rec_data['partner_id']."')"] = null; 
-                }                
-            }
-            else
-            {
+                else{
+                    $arrOrWhere["((warranty_plans.service_id = '".$rec_data['service_id']."' AND warranty_plans.plan_depends_on = ". WARRANTY_PLAN_ON_PRODUCT .") and date(warranty_plans.period_start) <= '".$purchase_date."' and date(warranty_plans.period_end) >= '".$purchase_date."' AND warranty_plans.partner_id = '".$rec_data['partner_id']."')"] = null;                 
+                }
+            } 
+            else {
+                // for Bulk checker, when we don't have service Id
                 //removes the single as well as double quotes from start and end
                 $model_number = str_replace('"', '', str_replace("'", "", $rec_data['model_number']));
                 $arrOrWhere["(appliance_model_details.model_number = '".$model_number."' and date(warranty_plans.period_start) <= '".$purchase_date."' and date(warranty_plans.period_end) >= '".$purchase_date."' and warranty_plans.partner_id = '".$rec_data['partner_id']."')"] = null; 
@@ -199,13 +198,13 @@ class Warranty_utilities {
             {   
                 $arrBookings[$key] = $this->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData[$model_number]);
             }
-            elseif (!empty($arrBooking['service_id']) && !empty($arrModelWiseWarrantyData['ALL'.$arrBooking['service_id']])) {
+            if (!empty($arrBooking['service_id']) && !empty($arrModelWiseWarrantyData['ALL'.$arrBooking['service_id']])) {
                 $arrBookings[$key] = $this->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData['ALL'.$arrBooking['service_id']]);
             }
             $arrBookings[$arrBooking['booking_id']] = $arrBookings[$key];
             unset($arrBookings[$key]);
         }
-        $arrBookingsWarrantyStatus = $this->get_bookings_warranty_status($arrBookings);   
+        $arrBookingsWarrantyStatus = $this->get_bookings_warranty_status($arrBookings);  
         return $arrBookingsWarrantyStatus;
     }
 
