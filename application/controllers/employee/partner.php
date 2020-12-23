@@ -715,12 +715,6 @@ class Partner extends CI_Controller {
                         $html .= "<li><b>" . $key . '</b> =>';
                         $html .= " " . $value . '</li>';
                     }
-                    /*
-                    foreach ($edit_partner_data['partner'] as $key => $value) {
-                        $html .= "<li><b>" . $key . '</b> =>';
-                        $html .= " " . $value . '</li>';
-                    }
-                    */
                     $html .= "</ul>";
                     // ----------------------------------------------------------------
                     $email_data['to'] = $am_email. ",". $this->session->userdata("official_email");
@@ -777,8 +771,13 @@ class Partner extends CI_Controller {
                     //Echoing inserted ID in Log file
                     log_message('info', __FUNCTION__ . ' New Partner has been added with ID ' . $partner_id . " Done By " . $this->session->userdata('employee_id'));
                     log_message('info', __FUNCTION__ . ' Partner Added Details : ' . print_r($this->input->post(), TRUE));
-                    //Adding details in Booking State Change
-                    // $this->notify->insert_state_change('', NEW_PARTNER_ADDED, NEW_PARTNER_ADDED, 'Partner ID : ' . $partner_id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                    
+                    //Adding Partner code in Bookings_sources table
+                    $bookings_sources['source'] = $this->input->post('public_name');
+                    $bookings_sources['code'] = $code;
+                    $bookings_sources['partner_id'] = $partner_id;
+                    $partner_code = $this->partner_model->add_partner_code($bookings_sources);
+                    
                     //Sending Mail for Updated details
                     /* This is old template for email */
                     $cc="";
@@ -795,7 +794,7 @@ class Partner extends CI_Controller {
                     }
                     $subject = "New Partner Added " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
                     $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $html, "", NEW_PARTNER_ADDED_EMAIL_TAG);
-                     
+                                    
                     // Send new brand onboard notification email to all employee
                     $email_template = $this->booking_model->get_booking_email_template(NEW_PARTNER_ONBOARD_NOTIFICATION);
                     if(!empty($email_template)){
@@ -807,7 +806,13 @@ class Partner extends CI_Controller {
                         $this->table->add_row(array($this->input->post('company_name'),$this->input->post('public_name'), $this->input->post('partner_type')));
                         $html_table = $this->table->generate();
                         
-                        $to = $email_template[1];//ALL_EMP_EMAIL//all-emp@247around.com;
+                        $to = $email_template[1];//ALL_EMP_EMAIL (all-emp@247around.com);
+                        $cc = $email_template[3];
+                        $bcc = '';                        
+                        $subject = vsprintf($email_template[4], array($this->input->post('public_name')));
+                        $message = vsprintf($email_template[0], array($html_table));
+                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
+                        
                         $sf_list = $this->vendor_model->viewvendor('', 1,'','','','','',1);
                         $all_poc = implode(',', array_map(function ($entry) {
                                     return $entry['primary_contact_email'];
@@ -818,36 +823,22 @@ class Partner extends CI_Controller {
                                 }, $sf_list));
                         $all_owner_array = explode(',', $all_owner);
                         $email_list = array_unique(array_filter(array_merge($all_poc_array, $all_owner_array)));
-                        $bcc = '';
-                        $cc = $email_template[3];
-                        $subject = vsprintf($email_template[4], array($this->input->post('public_name')));
-                        $message = vsprintf($email_template[0], array($html_table));
-                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
-                        
-                        
                         if (count($email_list) > 0) {
                             $email_list = array_unique($email_list);
                             $email_list = array_filter($email_list);
-                            $bcc_array = array_values($email_list);
+                            $recipients_array = array_values($email_list);
                         }
                         // Unable to send mails for too many mail ids in bcc , So we process email one by one to each sf appearing in bcc
-                        if(!empty($bcc_array))
-                        {
-                            $cc = '';
-                            $bcc = '';
-                            for($i=0;count($bcc_array)>$i;$i++)
-                            {
-                                $to = $bcc_array[$i];
-                                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
-                            }
+                        if(!empty($recipients_array))
+                        {        
+                            $mail_data['recipients_array'] = $recipients_array;
+                            $mail_data['subject'] = $subject;
+                            $mail_data['html'] = $message;
+                            $sendUrl = base_url().'employee/partner/send_partner_onboarding_mail_to_all';
+                            $this->asynchronous_lib->do_background_process($sendUrl, $mail_data);
                         }
                     }
                     
-                    //Adding Partner code in Bookings_sources table
-                    $bookings_sources['source'] = $this->input->post('public_name');
-                    $bookings_sources['code'] = $code;
-                    $bookings_sources['partner_id'] = $partner_id;
-                    $partner_code = $this->partner_model->add_partner_code($bookings_sources);
                     if ($partner_code) {
                         log_message('info', ' Parnter code has been added in Bookings_sources table ' . print_r($bookings_sources, TRUE));
                     } else {
@@ -10179,5 +10170,22 @@ class Partner extends CI_Controller {
         }
         
         echo $str_body;
+    }
+    
+    /**
+     * @desc : this method send mail to AM after updating partner details
+    */
+    function send_partner_onboarding_mail_to_all() {
+        $cc = '';
+        $bcc = '';
+        $data = $this->input->post();
+        $recipients_array = $data['recipients_array'];
+        $subject = $data['subject'];
+        $html = $data['html'];
+        for($i=0;count($recipients_array)>$i;$i++)
+        {
+            $to = $recipients_array[$i];
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $html, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
+        }
     }
 }
