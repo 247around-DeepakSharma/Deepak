@@ -2964,20 +2964,20 @@ exit();
                 return false;
             }
         } else {
-            if($invoice_type == "final"){
-                $select = 'company_name, minimum_guarantee_charge ';
-                $vendor_details = $this->vendor_model->getVendorDetails($select, array('id' => $vendor_id));
-            
-                if(!empty($vendor_details) && $vendor_details[0]['minimum_guarantee_charge'] > 0){
-                    $basic_min_guarantee_charge =  ($vendor_details[0]['minimum_guarantee_charge'] * SERVICE_TAX_RATE)/(1 + SERVICE_TAX_RATE);
-
-
-                    $this->send_guarantee_exist_mail(array('minimum_guarantee_charge' => $vendor_details[0]['minimum_guarantee_charge'],
-                      'invoice_amount' => 0, "company_name" => $vendor_details[0]['company_name'], 
-                        'from_date' => date('M', strtotime($from_date)), 'vendor_id' => $vendor_id));
-
-                }
-            }
+//            if($invoice_type == "final"){
+//                $select = 'company_name, minimum_guarantee_charge ';
+//                $vendor_details = $this->vendor_model->getVendorDetails($select, array('id' => $vendor_id));
+//            
+//                if(!empty($vendor_details) && $vendor_details[0]['minimum_guarantee_charge'] > 0){
+//                    $basic_min_guarantee_charge =  ($vendor_details[0]['minimum_guarantee_charge'] * SERVICE_TAX_RATE)/(1 + SERVICE_TAX_RATE);
+//
+//
+//                    $this->send_guarantee_exist_mail(array('minimum_guarantee_charge' => $vendor_details[0]['minimum_guarantee_charge'],
+//                      'invoice_amount' => 0, "company_name" => $vendor_details[0]['company_name'], 
+//                        'from_date' => date('M', strtotime($from_date)), 'vendor_id' => $vendor_id));
+//
+//                }
+//            }
         
             echo "Data Not Found - ".$vendor_id.PHP_EOL;
             log_message('info', __FUNCTION__ . " Data Not Found -". $vendor_id);
@@ -4480,12 +4480,12 @@ exit();
      */
     function generate_oow_parts_invoice($spare_id) {
         $remarks_revese_sale = ''; // Initialte variable
-		$return_response = '';
-		$response_message = '';
-		if($this->input->post('return_response')){
-			$return_response = true;
-		}
-        if($this->input->post('remarks_revese_sale')){
+        $return_response = '';
+        $response_message = '';
+        if ($this->input->post('return_response')) {
+            $return_response = true;
+        }
+        if ($this->input->post('remarks_revese_sale')) {
             $remarks_revese_sale = $this->input->post('remarks_revese_sale');
         }
         $req['where'] = array("spare_parts_details.id" => $spare_id);
@@ -4496,164 +4496,170 @@ exit();
         $sp_data = $this->inventory_model->get_spare_parts_query($req);
 
         if (!empty($sp_data) && empty($sp_data[0]->sell_invoice_id) && ($sp_data[0]->purchase_price > 0)) {
-            $vendor_details = $this->vendor_model->getVendorDetails("gst_no, "
-                    . "company_name,address as company_address,district,"
-                    . "state, pincode, owner_email, primary_contact_email", array('id' => $sp_data[0]->service_center_id));
-            
-            $ptype = !(empty($sp_data[0]->shipped_parts_type))?$sp_data[0]->shipped_parts_type:$sp_data[0]->parts_requested_type;
-            $part_shipped = !(empty($sp_data[0]->parts_shipped))?$sp_data[0]->parts_shipped:$sp_data[0]->parts_requested;
-            
-            $inventory_id = "";
-            $where_cond = array('part_type' => $ptype, 'service_id' => $sp_data[0]->service_id);
-            if(!empty($sp_data[0]->shipped_inventory_id)){
-                
-                $inventory_id = $sp_data[0]->shipped_inventory_id;
-                
-            } else if($sp_data[0]->requested_inventory_id){
-                
-                $inventory_id = $sp_data[0]->requested_inventory_id;
-            }
-            
-            if(empty($inventory_id)) {
-                $where_cond = array('part_type' => $ptype, 'inventory_parts_type.service_id' => $sp_data[0]->service_id);
-            }
-            
-            $margin = $this->inventory_model->get_oow_margin($inventory_id, $where_cond);
-               
-            $repair_around_oow_percentage = $margin['oow_around_margin']/100;
 
-            $data = array();
-            $data[0]['description'] = ucwords($part_shipped) . " (" . $sp_data[0]->booking_id . ") ";
-            $amount = $sp_data[0]->purchase_price + $sp_data[0]->purchase_price * $repair_around_oow_percentage;
-            $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, $sp_data[0]->invoice_gst_rate);
-            $shipped_quantity = (!is_null($sp_data[0]->shipped_quantity) ? $sp_data[0]->shipped_quantity : 1);
-            $data[0]['taxable_value'] = sprintf("%.2f", ($amount - $tax_charge));
-            $data[0]['product_or_services'] = "Product";
-            if(!empty($vendor_details[0]['gst_no'])){
-                $data[0]['gst_number'] = $vendor_details[0]['gst_no'];
-            } else {
-                $data[0]['gst_number'] = 1;
-            }
-            
-            $data[0]['company_name'] = $vendor_details[0]['company_name'];
-            $data[0]['company_address'] = $vendor_details[0]['company_address'];
-            $data[0]['district'] = $vendor_details[0]['district'];
-            $data[0]['pincode'] = $vendor_details[0]['pincode'];
-            $data[0]['state'] = $vendor_details[0]['state'];
-            $data[0]['rate'] = sprintf("%.2f", ($data[0]['taxable_value']/$shipped_quantity));//"0";
-            $data[0]['qty'] = $shipped_quantity;
-            $data[0]['hsn_code'] = SPARE_HSN_CODE;
-            $sd = $ed = $invoice_date = date("Y-m-d");
-            $gst_rate = $sp_data[0]->invoice_gst_rate;
-            $data[0]['gst_rate'] = $gst_rate;
-            $data[0]['inventory_id'] = $inventory_id;
-            $data[0]['spare_id'] = $spare_id;
-                
-            $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, "Tax Invoice",$invoice_date);
-            $response['meta']['invoice_id'] = $this->create_invoice_id_to_insert("ARD-9", $invoice_date);
-            $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
+            $unit_data = $this->booking_model->get_unit_details(array('id' => $sp_data[0]->booking_unit_details_id), false, 'vendor_cash_invoice_id');
 
-            if ($status) {
-                log_message("info", __METHOD__ . " Vendor Spare Invoice SF ID" . $sp_data[0]->service_center_id . " Spare Id " . $spare_id);
+            if (!empty($unit_data) && empty($unit_data[0]['vendor_cash_invoice_id'])) {
 
-                $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final");
-                $output_pdf_file_name = $convert['main_pdf_file_name'];
-                $response['meta']['invoice_file_main'] = $output_pdf_file_name;
-                $response['meta']['copy_file'] = $convert['copy_file'];
 
-                $email_template = $this->booking_model->get_booking_email_template(SPARE_INVOICE_EMAIL_TAG);
-                $subject = vsprintf($email_template[4], array($vendor_details[0]['company_name'], $sp_data[0]->booking_id));
-                $message = $email_template[0];
-                $email_from = $email_template[2];
+                $vendor_details = $this->vendor_model->getVendorDetails("gst_no, "
+                        . "company_name,address as company_address,district,"
+                        . "state, pincode, owner_email, primary_contact_email", array('id' => $sp_data[0]->service_center_id));
 
-                $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($sp_data[0]->service_center_id);
-                $rem_email_id = "";
-                $asm_email_id = "";
-                if (!empty($rm_details)) {
-                    $rem_email_id = ", " . $rm_details[0]['official_email'];
-                }
-                if (!empty($rm_details[1]['official_email'])) {
-                    $asm_email_id = ", " . $rm_details[1]['official_email'];
+                $ptype = !(empty($sp_data[0]->shipped_parts_type)) ? $sp_data[0]->shipped_parts_type : $sp_data[0]->parts_requested_type;
+                $part_shipped = !(empty($sp_data[0]->parts_shipped)) ? $sp_data[0]->parts_shipped : $sp_data[0]->parts_requested;
+
+                $inventory_id = "";
+                $where_cond = array('part_type' => $ptype, 'service_id' => $sp_data[0]->service_id);
+                if (!empty($sp_data[0]->shipped_inventory_id)) {
+
+                    $inventory_id = $sp_data[0]->shipped_inventory_id;
+                } else if ($sp_data[0]->requested_inventory_id) {
+
+                    $inventory_id = $sp_data[0]->requested_inventory_id;
                 }
 
-                $invoice_details = array(
-                    'invoice_id' => $response['meta']['invoice_id'],
-                    'type_code' => 'A',
-                    'type' => "Parts",
-                    'vendor_partner' => 'vendor',
-                    'vendor_partner_id' => $sp_data[0]->service_center_id,
-                    'invoice_file_main' => $response['meta']['invoice_file_main'],
-                    'invoice_file_excel' => $response['meta']['invoice_id'] . ".xlsx",
-                    'from_date' => date("Y-m-d", strtotime($sd)), //??? Check this next time, format should be YYYY-MM-DD
-                    'to_date' => date("Y-m-d", strtotime($ed)),
-                    'parts_cost' => $response['meta']['total_taxable_value'],
-                    'parts_count' => 1,
-                    'total_amount_collected' => $response['meta']['sub_total_amount'],
-                    'invoice_date' => $invoice_date,
-                    'around_royalty' => $response['meta']['sub_total_amount'],
-                    'due_date' => date("Y-m-d"),
-                    //Amount needs to be collected from Vendor
-                    'amount_collected_paid' => $response['meta']['sub_total_amount'],
-                    //add agent_id
-                    'agent_id' => _247AROUND_DEFAULT_AGENT,
-                    "cgst_tax_rate" => $response['meta']['cgst_tax_rate'],
-                    "sgst_tax_rate" => $response['meta']['sgst_tax_rate'],
-                    "igst_tax_rate" => $response['meta']['igst_tax_rate'],
-                    "igst_tax_amount" => $response['meta']["igst_total_tax_amount"],
-                    "sgst_tax_amount" => $response['meta']["sgst_total_tax_amount"],
-                    "cgst_tax_amount" => $response['meta']["cgst_total_tax_amount"],
-                    "hsn_code" => SPARE_HSN_CODE,
-                    "invoice_file_pdf" => $response['meta']['copy_file'],
-                    "remarks" => $data[0]['description'],
-                    "vertical" => SERVICE,
-                    "category" => SPARES,
-                    "sub_category" => OUT_OF_WARRANTY,
-                    "accounting" => 1
-                );
-                if(!empty($remarks_revese_sale)){
-                    if(!empty($invoice_details['remarks'])){
-                        $invoice_details['remarks'] = $invoice_details['remarks'].", "."Remark:- ".$remarks_revese_sale;
-                    }else{
-                        $invoice_details['remarks'] = "Remark:- ".$remarks_revese_sale;
+                if (empty($inventory_id)) {
+                    $where_cond = array('part_type' => $ptype, 'inventory_parts_type.service_id' => $sp_data[0]->service_id);
+                }
+
+                $margin = $this->inventory_model->get_oow_margin($inventory_id, $where_cond);
+
+                $repair_around_oow_percentage = $margin['oow_around_margin'] / 100;
+
+                $data = array();
+                $data[0]['description'] = ucwords($part_shipped) . " (" . $sp_data[0]->booking_id . ") ";
+                $amount = $sp_data[0]->purchase_price + $sp_data[0]->purchase_price * $repair_around_oow_percentage;
+                $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, $sp_data[0]->invoice_gst_rate);
+                $shipped_quantity = (!is_null($sp_data[0]->shipped_quantity) ? $sp_data[0]->shipped_quantity : 1);
+                $data[0]['taxable_value'] = sprintf("%.2f", ($amount - $tax_charge));
+                $data[0]['product_or_services'] = "Product";
+                if (!empty($vendor_details[0]['gst_no'])) {
+                    $data[0]['gst_number'] = $vendor_details[0]['gst_no'];
+                } else {
+                    $data[0]['gst_number'] = 1;
+                }
+
+                $data[0]['company_name'] = $vendor_details[0]['company_name'];
+                $data[0]['company_address'] = $vendor_details[0]['company_address'];
+                $data[0]['district'] = $vendor_details[0]['district'];
+                $data[0]['pincode'] = $vendor_details[0]['pincode'];
+                $data[0]['state'] = $vendor_details[0]['state'];
+                $data[0]['rate'] = sprintf("%.2f", ($data[0]['taxable_value'] / $shipped_quantity)); //"0";
+                $data[0]['qty'] = $shipped_quantity;
+                $data[0]['hsn_code'] = SPARE_HSN_CODE;
+                $sd = $ed = $invoice_date = date("Y-m-d");
+                $gst_rate = $sp_data[0]->invoice_gst_rate;
+                $data[0]['gst_rate'] = $gst_rate;
+                $data[0]['inventory_id'] = $inventory_id;
+                $data[0]['spare_id'] = $spare_id;
+
+                $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, "Tax Invoice", $invoice_date);
+                $response['meta']['invoice_id'] = $this->create_invoice_id_to_insert("ARD-9", $invoice_date);
+                $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
+
+                if ($status) {
+                    log_message("info", __METHOD__ . " Vendor Spare Invoice SF ID" . $sp_data[0]->service_center_id . " Spare Id " . $spare_id);
+
+                    $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final");
+                    $output_pdf_file_name = $convert['main_pdf_file_name'];
+                    $response['meta']['invoice_file_main'] = $output_pdf_file_name;
+                    $response['meta']['copy_file'] = $convert['copy_file'];
+
+                    $email_template = $this->booking_model->get_booking_email_template(SPARE_INVOICE_EMAIL_TAG);
+                    $subject = vsprintf($email_template[4], array($vendor_details[0]['company_name'], $sp_data[0]->booking_id));
+                    $message = $email_template[0];
+                    $email_from = $email_template[2];
+
+                    $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($sp_data[0]->service_center_id);
+                    $rem_email_id = "";
+                    $asm_email_id = "";
+                    if (!empty($rm_details)) {
+                        $rem_email_id = ", " . $rm_details[0]['official_email'];
                     }
-                }
+                    if (!empty($rm_details[1]['official_email'])) {
+                        $asm_email_id = ", " . $rm_details[1]['official_email'];
+                    }
 
-                $this->invoices_model->action_partner_invoice($invoice_details);
+                    $invoice_details = array(
+                        'invoice_id' => $response['meta']['invoice_id'],
+                        'type_code' => 'A',
+                        'type' => "Parts",
+                        'vendor_partner' => 'vendor',
+                        'vendor_partner_id' => $sp_data[0]->service_center_id,
+                        'invoice_file_main' => $response['meta']['invoice_file_main'],
+                        'invoice_file_excel' => $response['meta']['invoice_id'] . ".xlsx",
+                        'from_date' => date("Y-m-d", strtotime($sd)), //??? Check this next time, format should be YYYY-MM-DD
+                        'to_date' => date("Y-m-d", strtotime($ed)),
+                        'parts_cost' => $response['meta']['total_taxable_value'],
+                        'parts_count' => 1,
+                        'total_amount_collected' => $response['meta']['sub_total_amount'],
+                        'invoice_date' => $invoice_date,
+                        'around_royalty' => $response['meta']['sub_total_amount'],
+                        'due_date' => date("Y-m-d"),
+                        //Amount needs to be collected from Vendor
+                        'amount_collected_paid' => $response['meta']['sub_total_amount'],
+                        //add agent_id
+                        'agent_id' => _247AROUND_DEFAULT_AGENT,
+                        "cgst_tax_rate" => $response['meta']['cgst_tax_rate'],
+                        "sgst_tax_rate" => $response['meta']['sgst_tax_rate'],
+                        "igst_tax_rate" => $response['meta']['igst_tax_rate'],
+                        "igst_tax_amount" => $response['meta']["igst_total_tax_amount"],
+                        "sgst_tax_amount" => $response['meta']["sgst_total_tax_amount"],
+                        "cgst_tax_amount" => $response['meta']["cgst_total_tax_amount"],
+                        "hsn_code" => SPARE_HSN_CODE,
+                        "invoice_file_pdf" => $response['meta']['copy_file'],
+                        "remarks" => $data[0]['description'],
+                        "vertical" => SERVICE,
+                        "category" => SPARES,
+                        "sub_category" => OUT_OF_WARRANTY,
+                        "accounting" => 1
+                    );
+                    if (!empty($remarks_revese_sale)) {
+                        if (!empty($invoice_details['remarks'])) {
+                            $invoice_details['remarks'] = $invoice_details['remarks'] . ", " . "Remark:- " . $remarks_revese_sale;
+                        } else {
+                            $invoice_details['remarks'] = "Remark:- " . $remarks_revese_sale;
+                        }
+                    }
+
+                    $this->invoices_model->action_partner_invoice($invoice_details);
 //                $this->invoices_model->insert_new_invoice($invoice_details);
-                
-                //Insert invoice Breakup
-                $this->insert_invoice_breakup($response); 
-                
-                $to = $vendor_details[0]['owner_email'] . ", " . $vendor_details[0]['primary_contact_email'];
+                    //Insert invoice Breakup
+                    $this->insert_invoice_breakup($response);
+
+                    $to = $vendor_details[0]['owner_email'] . ", " . $vendor_details[0]['primary_contact_email'];
 //                $to = $email_template[3];
-                $cc = $email_template[3].$asm_email_id.$rem_email_id;
+                    $cc = $email_template[3] . $asm_email_id . $rem_email_id;
 
-                $this->upload_invoice_to_S3($response['meta']['invoice_id'], false);
+                    $this->upload_invoice_to_S3($response['meta']['invoice_id'], false);
 
-                $cmd = "curl https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER . $output_pdf_file_name;
-                exec($cmd);
-                $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, TMP_FOLDER . $output_pdf_file_name, "",SPARE_INVOICE_EMAIL_TAG);
+                    $cmd = "curl https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER . $output_pdf_file_name;
+                    exec($cmd);
+                    $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, TMP_FOLDER . $output_pdf_file_name, "", SPARE_INVOICE_EMAIL_TAG);
 
-                unlink(TMP_FOLDER . $response['meta']['invoice_id'] . ".xlsx");
-                unlink(TMP_FOLDER . $output_pdf_file_name);
-                unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".pdf");
-                unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".xlsx");
+                    unlink(TMP_FOLDER . $response['meta']['invoice_id'] . ".xlsx");
+                    unlink(TMP_FOLDER . $output_pdf_file_name);
+                    unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".pdf");
+                    unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".xlsx");
 
-                log_message('info', __METHOD__ . ": Invoice ID inserted");
+                    log_message('info', __METHOD__ . ": Invoice ID inserted");
 
-                $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array("sell_invoice_id" => $response['meta']['invoice_id']));
-                log_message('info', __METHOD__ . ": Invoice Updated in Spare Parts " . $response['meta']['invoice_id']);
+                    $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array("sell_invoice_id" => $response['meta']['invoice_id']));
+                    log_message('info', __METHOD__ . ": Invoice Updated in Spare Parts " . $response['meta']['invoice_id']);
 
-                $this->booking_model->update_booking_unit_details_by_any(array("booking_id" => $sp_data[0]->booking_id, "price_tags" => "Spare Parts"), 
-                        array("pay_from_sf" => 0, "vendor_cash_invoice_id" => $response['meta']['invoice_id']));
-                log_message('info', __METHOD__ . ": ...Exit" . $response['meta']['invoice_id']);
-				$response_message = 'SUCCESS';
+                    $this->booking_model->update_booking_unit_details_by_any(array("booking_id" => $sp_data[0]->booking_id, "price_tags" => "Spare Parts"),
+                            array("pay_from_sf" => 0, "vendor_cash_invoice_id" => $response['meta']['invoice_id']));
+                    log_message('info', __METHOD__ . ": ...Exit" . $response['meta']['invoice_id']);
+                    $response_message = 'SUCCESS';
+                }
             }
         }
-		if(!empty($return_response)){
-			echo $response_message;
-		}
+        if (!empty($return_response)) {
+            echo $response_message;
+        }
     }
+
     /**
      * @desc This function is used to generate reverse invoice for out of warranty booking
      * It will generate for both party(SF/Partner)

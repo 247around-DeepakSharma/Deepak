@@ -38,14 +38,15 @@
                                     <label  for="state" class="col-md-4" style="text-align: right;">Select State *</label>
                                     <div class="col-md-6">
                                         <select id="state" class="state form-control" name ="state">
-                                            <?php 
-                                            foreach($state as $state_data)
+                                            <option value="09AAFCB1281J1ZM">Noida</option>
+<!--                                            <?php 
+                                          //  foreach($state as $state_data)
                                             {
                                             ?>    
-                                            <option value="<?php echo $state_data["gst_number"]; ?>"><?php echo $state_data['city']; ?></option>
+                                            <option value="<?php //echo $state_data["gst_number"]; ?>"><?php //echo $state_data['city']; ?></option>
                                             <?php
                                             }
-                                            ?>      
+                                            ?>      -->
                                         </select>
                                     </div>
                                 </div>

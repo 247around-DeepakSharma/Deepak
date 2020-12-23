@@ -5384,7 +5384,7 @@ function generate_image($base64, $image_name,$directory){
         ];
         return $this->My_CI->employee_model->query_log($table_name,$data);
     }
-
+    
     /* This function copy all invoice Images from misc-images folder to purchase-invoices folder on s3 server
      * 
     */
