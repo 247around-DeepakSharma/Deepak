@@ -750,7 +750,7 @@
                                         <td><?php echo date_format(date_create($sp['date_of_purchase']),'d-m-Y'); ?></td>
                                         <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressinvoice_pic".$sp['id'] ?>" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['invoice_pic'])) {
                                             if ($sp['invoice_pic'] != '0') {
-                                        ?> <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank" id="<?php echo "a_invoice_pic_".$sp['id']; ?>">Click Here</a> <?php } } ?> &nbsp;&nbsp;<i id="<?php echo "invoice_pic_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','invoice_pic');"></i>
+                                        ?> <a href="<?php echo S3_WEBSITE_URL; ?>purchase-invoices/<?php echo $sp['invoice_pic']; ?> " target="_blank" id="<?php echo "a_invoice_pic_".$sp['id']; ?>">Click Here</a> <?php } } ?> &nbsp;&nbsp;<i id="<?php echo "invoice_pic_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','invoice_pic');"></i>
                                         </td>
                                         <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressserial_number_pic".$sp['id'] ?>"  role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['serial_number_pic'])) {
                                             if ($sp['serial_number_pic'] !== '0') {
@@ -2381,8 +2381,8 @@ function uploadsupportingfile(id, file_id=''){
                     obj = JSON.parse(response);
                     
                     if(obj.code === "success"){
-                        $("#a_order_support_file_"+key).attr("href", "<?php echo S3_WEBSITE_URL;?>misc-images/" + obj.name);
-                        $("#m_order_support_file_"+key).attr("src", "<?php echo S3_WEBSITE_URL;?>misc-images/" + obj.name);
+                        $("#a_order_support_file_"+key).attr("href", "<?php echo S3_WEBSITE_URL;?>purchase-invoices/" + obj.name);
+                        $("#m_order_support_file_"+key).attr("src", "<?php echo S3_WEBSITE_URL;?>purchase-invoices/" + obj.name);
                         if(file_id === '') {
                             location.reload();
                         }
@@ -2428,6 +2428,8 @@ function uploadfile(){
             directory_name = 'vendor-partner-docs';
         }else if(spareFileColumn=='courier_pod_file'){
             directory_name = 'courier-pod';
+        }else if(spareFileColumn=='invoice_pic'){
+            directory_name = 'purchase-invoices';
         }else{
             directory_name = '';
         }
@@ -2489,6 +2491,9 @@ function uploadfile(){
                                     $(this).html('Click Here to view');
                                 }
                             });
+                        }
+                        else if(spareFileColumn=='invoice_pic'){
+                            $("#a_"+ spareFileColumn +"_" + spareID).attr("href", "<?php echo S3_WEBSITE_URL;?>purchase-invoices/" + obj.name);   
                         }
                         }else{
                          $("#a_"+ spareFileColumn +"_" + spareID).attr("href", "<?php echo S3_WEBSITE_URL;?>misc-images/" + obj.name);   
