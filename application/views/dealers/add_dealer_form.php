@@ -52,7 +52,7 @@
                         <div class="col-md-4 ">
                             <div class="form-group col-md-12">
                                 <label for="dealer name">Dealer Mobile No *</label>
-                                <input type="text" placeholder="Eneter Dealer Mobile Number" class="form-control" ng-pattern="/^[6-9]{1}[0-9]{9}$/" ng-minlength="10" ng-maxlength="10" ng-model="tempData.dealer_phone_number_1"
+                                <input type="text" placeholder="Enter Dealer Mobile Number" class="form-control" ng-pattern="/^[6-9]{1}[0-9]{9}$/" ng-minlength="10" ng-maxlength="10" ng-model="tempData.dealer_phone_number_1"
                                        id="dealer_phone_number_1" name="dealer_phone_number_1" value = "" required>
                                  <span class="msg"  ng-show="dealerForm.dealer_phone_number_1.$dirty && dealerForm.dealer_phone_number_1.$error.required">Mobile No is required</span>
                                  <span class="msg"  ng-show="dealerForm.dealer_phone_number_1.$dirty && dealerForm.dealer_phone_number_1.$error.pattern">Please Enter Valid Mobile No</span>
@@ -63,7 +63,7 @@
                          <div class="col-md-4 ">
                             <div class="form-group col-md-12">
                                 <label for="dealer email">Dealer Email </label>
-                                <input type="email" placeholder="Eneter Dealer Email" ng-trim="false" class="form-control" ng-model="tempData.dealer_email"
+                                <input type="email" placeholder="Enter Dealer Email" ng-trim="false" class="form-control" ng-model="tempData.dealer_email"
                                        id="dealer_email" name="dealer_email" value = "" >
                                  <span class="msg" ng-if="dealerForm.dealer_email.$invalid" ng-show="dealerForm.dealer_email.$dirty && dealerForm.dealer_email.$invalid">Email ID is not valid</span>
 <!--                                 <span class="msg"  ng-show="dealerForm.dealer_email.$dirty && dealerForm.dealer_email.$error.required">Email ID is required</span>-->
@@ -87,7 +87,7 @@
                         <div class="col-md-4 ">
                             <div class="form-group col-md-12">
                                 <label for="dealer name">Owner Mobile No </label>
-                                <input type="text" placeholder="Eneter Owner Mobile Number" class="form-control"
+                                <input type="text" placeholder="Enter Owner Mobile Number" class="form-control"
                                        ng-pattern="/^[6-9]{1}[0-9]{9}$/" ng-minlength="10" ng-maxlength="10" ng-model="tempData.owner_phone_number_1"
                                        id="owner_phone_number_1" name="owner_phone_number_1" value = "" >
 <!--                                 <span class="msg"  ng-show="dealerForm.owner_phone_number_1.$dirty && dealerForm.owner_phone_number_1.$error.required">Mobile No is required</span>-->
@@ -99,7 +99,7 @@
                         <div class="col-md-4 ">
                             <div class="form-group col-md-12">
                                 <label for="owner email">Owner Email </label>
-                                <input type="email" placeholder="Eneter Dealer Email" ng-trim="false" class="form-control" ng-model="tempData.owner_email"
+                                <input type="email" placeholder="Enter Dealer Email" ng-trim="false" class="form-control" ng-model="tempData.owner_email"
                                        id="owner_email" name="owner_email" value = "" >
                                  <span class="msg" ng-if="dealerForm.owner_email.$invalid" ng-show="dealerForm.owner_email.$dirty && dealerForm.owner_email.$invalid">Email ID is not valid</span>
 <!--                                 <span class="msg"  ng-show="dealerForm.owner_email.$dirty && dealerForm.owner_email.$error.required">Email ID is required</span>-->
