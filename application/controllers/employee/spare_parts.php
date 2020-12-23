@@ -5257,6 +5257,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             // upload rto document.
 		if(!empty($spare_part_detail['awb_by_partner'])){
             $post_data['rto_file'] = NULL;
+            $post_data['awb_by_partner'] = $spare_part_detail['awb_by_partner'];
             if (!empty($_FILES['rto_file'])) {
                 $rto_pod_file_name = $this->upload_rto_doc($spare_part_detail['booking_id'], $_FILES['rto_file']['tmp_name'], ' ', $_FILES['rto_file']['name']);
                 $post_data['rto_file'] = $rto_pod_file_name;
