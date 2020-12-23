@@ -2851,7 +2851,7 @@ function get_detailed_summary_report_query($partner_id,$whereConditions=NULL){
             $where = $whereConditions;
         }
         
-        if(!empty($partner_id)) {
+        if((!empty($partner_id) )&& ($partner_id != 0)) {
             $where .= " AND ( booking_details.partner_id = $partner_id  OR booking_details.origin_partner_id = '$partner_id' )"; 
          }
         
