@@ -1192,6 +1192,7 @@ class User extends CI_Controller {
     function bring_district_from_state() {
         $state_selected = $this->input->post('state_name');
         $agent_ID = $this->input->post('agent_ID');
+        $rm_ID="";
         if(!empty($state_selected) && !empty($agent_ID))
         {
         $state_selected_string = implode("','", $state_selected);
@@ -1207,7 +1208,9 @@ class User extends CI_Controller {
         } else {
         $asmID = $agent_ID;
         $rm_ID_Array = $this->employee_model->getemployeeManagerfromid(array('employee_id' => $agent_ID));
-        $rm_ID = $rm_ID_Array[0]['manager_id'];
+        if(!empty($rm_ID_Array[0]['manager_id'])){
+            $rm_ID = $rm_ID_Array[0]['manager_id'];
+        }
         $result1 = $this->employee_model->get_district_of_rm_asm($reqDistrict, _247AROUND_RM, $rm_ID);
         $result2 = $this->employee_model->get_district_of_rm_asm($reqDistrict, _247AROUND_ASM, $agent_ID);
         
@@ -1218,6 +1221,10 @@ class User extends CI_Controller {
             } else if (!empty($result2)) {
                 $result = $result2;
             }
+        }
+        $zone_result = $this->employee_model->get_rm_details(array(_247AROUND_RM),$rm_ID);
+        if(!empty($zone_result[0]['zone_id']) ){
+          $zone_id = $zone_result[0]['zone_id'];
         }
         if (!empty($result)) {
             $resultOtherAgentDistrict = array_map(function ($entry) {
