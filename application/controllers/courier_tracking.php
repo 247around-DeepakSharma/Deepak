@@ -1289,13 +1289,11 @@ class Courier_tracking extends CI_Controller {
                 . "courier_details.AWB_no as tracking_number,courier_details.courier_name as couriercode,"
                 . "courier_details.shipment_date as 'shipped_date',courier_details.booking_id,courier_details.sender_entity_id as 'partner_id'";
         $send_spare_msl_list = $this->get_msl_tracking_details($select, COURIER_DETAILS_STATUS);
-
+       
         foreach ($send_spare_msl_list as $val) {
 
             if (!empty($val['tracking_number']) && !empty($val['tracking_number'])) {
-
-                $awb_number_list = $this->trackingmore_api->getRapidApiRealTimeTrackingResults($val->couriercode, $val->tracking_number);
-
+                $awb_number_list = $this->trackingmore_api->getRapidApiRealTimeTrackingResults($val['couriercode'], $val['tracking_number']);
                 if (!empty($awb_number_list) && isset($awb_number_list['meta']['code']) == 200) {
 
                     if (!empty($awb_number_list['data'])) {
@@ -1373,7 +1371,7 @@ class Courier_tracking extends CI_Controller {
             CURLOPT_CUSTOMREQUEST => "GET",
             CURLOPT_HTTPHEADER => [
                 "x-rapidapi-host: trackingmore.p.rapidapi.com",
-                "x-rapidapi-key: ebe9b6b60fmshb43757ccd4fd149p1fb41djsn615a8e4523a9"
+                "x-rapidapi-key: 103d31344cmshbf25b39cb7af987p10097ejsn993133a0fa31"
             ],
         ]);
 
