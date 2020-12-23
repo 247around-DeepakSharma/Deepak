@@ -4,9 +4,6 @@
         color: #4b5561 !important;
         float:right;
     }
-    .x_panel {
-    padding: 10px 10px;
-    }
 </style>
 <script src="<?php echo base_url(); ?>js/base_url.js"></script>
 <script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
