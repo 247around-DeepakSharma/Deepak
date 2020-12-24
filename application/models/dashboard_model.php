@@ -243,7 +243,7 @@ class dashboard_model extends CI_Model {
                     SUM(IF(new_state = 'Completed_Approved',1,0)) AS completed_approved,
                     SUM(IF(new_state = 'Completed' OR new_state = 'Completed_With_Rating', 1, 0)) AS total_completed,
                     (SUM(IF(new_state = 'Completed' OR new_state = 'Completed_With_Rating', 1, 0)) - SUM(IF(new_state = 'Completed_Approved',1,0))) AS edit_completed,
-                    (SUM(IF(new_state = 'Completed_Rejected',1,0)) + SUM(IF(new_state = 'Completed', 1, 0))) AS total_bookings
+                    (SUM(IF(new_state = 'Completed_Rejected',1,0)) + SUM(IF(new_state = 'Completed' OR new_state = 'Completed_With_Rating', 1, 0))) AS total_bookings
                 FROM
                     (SELECT 
                         employee.full_name, employee.id, new_state, employee_id
