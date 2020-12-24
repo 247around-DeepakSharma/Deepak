@@ -966,39 +966,40 @@ class Courier_tracking extends CI_Controller {
         $select = "DISTINCT(spare_parts_details.awb_by_partner) as tracking_number, spare_parts_details.courier_name_by_partner as couriercode";
 
         $spare_shipped_partner_tracking_data = $this->getCourierTrackingCodeTrackingNumber($select, SPARE_SHIPPED_BY_PARTNER);
+        if (!empty($spare_shipped_partner_tracking_data)) {
+            foreach ($spare_shipped_partner_tracking_data as $val) {
 
-        foreach ($spare_shipped_partner_tracking_data as $val) {
+                if (!empty($val->tracking_number) && !empty($val->couriercode)) {
 
-            if (!empty($val->tracking_number) && !empty($val->couriercode)) {
+                    $awb_number_list = $this->trackingmore_api->getRapidApiRealTimeTrackingResults($val->couriercode, $val->tracking_number);
 
-                $awb_number_list = $this->trackingmore_api->getRapidApiRealTimeTrackingResults($val->couriercode, $val->tracking_number);
+                    if (!empty($awb_number_list) && isset($awb_number_list['meta']['code']) == 200) {
+                        //check if data is empty
+                        if (!empty($awb_number_list['data'])) {
 
-                if (!empty($awb_number_list) && isset($awb_number_list['meta']['code']) == 200) {
-                    //check if data is empty
-                    if (!empty($awb_number_list['data'])) {
+                            //do background process on api data to save it into database
+                            $this->insert_courier_tracking_api_data($awb_number_list);
 
-                        //do background process on api data to save it into database
-                        $this->insert_courier_tracking_api_data($awb_number_list);
+                            //make array of all delivered data so that we can update status of that spare
+                            foreach ($awb_number_list['data']['items'] as $key => $value) {
+                                if ($value['status'] == 'delivered') {
 
-                        //make array of all delivered data so that we can update status of that spare
-                        foreach ($awb_number_list['data']['items'] as $key => $value) {
-                            if ($value['status'] == 'delivered') {
+                                    if (isset($value['tracking_number']) && !empty($value['tracking_number'])) {
 
-                                if (isset($value['tracking_number']) && !empty($value['tracking_number'])) {
+                                        $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $value['tracking_number'], 'delivered_date IS NULL' => NULL), array('delivered_date' => date('Y-m-d H:i:s')));
+                                        $this->update_pod_courier($value['tracking_number']);
+                                        //update pod file on Delivered status
+                                    }
+                                    echo " For each update RapidAPI " . $key . PHP_EOL;
 
-                                    $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $value['tracking_number'], 'delivered_date IS NULL' => NULL), array('delivered_date' => date('Y-m-d H:i:s')));
-                                    $this->update_pod_courier($value['tracking_number']);
-                                    //update pod file on Delivered status
+                                    $update_status = $this->process_to_partner_shipped_spare_rapid_auto_acknowledge_data($value);
                                 }
-                                echo " For each update RapidAPI " . $key . PHP_EOL;
-
-                                $update_status = $this->process_to_partner_shipped_spare_rapid_auto_acknowledge_data($value);
                             }
                         }
+                    } else {
+                        //send mail to developer
+                        $this->send_RapidAPI_failed_email(json_encode($awb_number_list), array("Method" => __METHOD__));
                     }
-                } else {
-                    //send mail to developer
-                    $this->send_RapidAPI_failed_email(json_encode($awb_number_list), array("Method" => __METHOD__));
                 }
             }
         }
@@ -1131,40 +1132,41 @@ class Courier_tracking extends CI_Controller {
         $select = "DISTINCT(spare_parts_details.awb_by_sf) as tracking_number, spare_parts_details.courier_name_by_sf as couriercode, spare_parts_details.defective_part_shipped_date as shipped_date, booking_details.partner_id, spare_parts_details.booking_id";
 
         $spare_shipped_partner_tracking_data = $this->getCourierTrackingCodeTrackingNumber($select, DEFECTIVE_PARTS_SHIPPED);
-        
-        foreach ($spare_shipped_partner_tracking_data as $val) {
+        if (!empty($spare_shipped_partner_tracking_data)) {
+            foreach ($spare_shipped_partner_tracking_data as $val) {
 
-            if (!empty($val->tracking_number) && !empty($val->couriercode)) {
+                if (!empty($val->tracking_number) && !empty($val->couriercode)) {
 
-                $awb_number_list = $this->trackingmore_api->getRapidApiRealTimeTrackingResults($val->couriercode, $val->tracking_number);
+                    $awb_number_list = $this->trackingmore_api->getRapidApiRealTimeTrackingResults($val->couriercode, $val->tracking_number);
 
-                if (!empty($awb_number_list) && isset($awb_number_list['meta']['code']) == 200) {
+                    if (!empty($awb_number_list) && isset($awb_number_list['meta']['code']) == 200) {
 
-                    //check if data is empty
-                    if (!empty($awb_number_list['data'])) {
-                        //do background process on api data to save it into database
+                        //check if data is empty
+                        if (!empty($awb_number_list['data'])) {
+                            //do background process on api data to save it into database
 
-                        $this->insert_courier_tracking_api_data($awb_number_list);
+                            $this->insert_courier_tracking_api_data($awb_number_list);
 
-                        //make array of all delivered data so that we can update status of that spare
-                        foreach ($awb_number_list['data']['items'] as $key => $value) {
-                            if ($value['status'] == 'delivered') {
+                            //make array of all delivered data so that we can update status of that spare
+                            foreach ($awb_number_list['data']['items'] as $key => $value) {
+                                if ($value['status'] == 'delivered') {
 
-                                if (isset($value['tracking_number']) && !empty($value['tracking_number'])) {
-                                    $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $value['tracking_number'], 'delivered_date IS NULL' => NULL), array('delivered_date' => date('Y-m-d H:i:s')));
-                                    $this->update_pod_courier($value['tracking_number']);
-                                    //update pod file on Delivered status
+                                    if (isset($value['tracking_number']) && !empty($value['tracking_number'])) {
+                                        $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $value['tracking_number'], 'delivered_date IS NULL' => NULL), array('delivered_date' => date('Y-m-d H:i:s')));
+                                        $this->update_pod_courier($value['tracking_number']);
+                                        //update pod file on Delivered status
+                                    }
+
+                                    $this->update_rapidapi_defactive_part_status($value);
                                 }
-
-                                $this->update_rapidapi_defactive_part_status($value);
                             }
                         }
+                        log_message('info', __METHOD__ . ' Exit...');
+                    } else {
+                        //log_message('info','api did not return success response '. print_r($awb_number_list,true));
+                        //send mail to developer
+                        $this->send_RapidAPI_failed_email(json_encode($awb_number_list), array("Method" => __METHOD__));
                     }
-                    log_message('info', __METHOD__ . ' Exit...');
-                } else {
-                    //log_message('info','api did not return success response '. print_r($awb_number_list,true));
-                    //send mail to developer
-                    $this->send_RapidAPI_failed_email(json_encode($awb_number_list), array("Method" => __METHOD__));
                 }
             }
         }
@@ -1213,37 +1215,38 @@ class Courier_tracking extends CI_Controller {
         $select = "DISTINCT(spare_parts_details.awb_by_wh) as tracking_number, spare_parts_details.courier_name_by_wh as couriercode, spare_parts_details.defective_part_shipped_date as shipped_date, booking_details.partner_id, spare_parts_details.booking_id";
 
         $spare_shipped_partner_tracking_data = $this->getCourierTrackingCodeTrackingNumber($select, DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH);
+        if (!empty($spare_shipped_partner_tracking_data)) {
+            foreach ($spare_shipped_partner_tracking_data as $val) {
 
-        foreach ($spare_shipped_partner_tracking_data as $val) {
+                if (!empty($val->tracking_number) && !empty($val->couriercode)) {
 
-            if (!empty($val->tracking_number) && !empty($val->couriercode)) {
+                    $awb_number_list = $this->trackingmore_api->getRapidApiRealTimeTrackingResults($val->couriercode, $val->tracking_number);
 
-                $awb_number_list = $this->trackingmore_api->getRapidApiRealTimeTrackingResults($val->couriercode, $val->tracking_number);
+                    if (!empty($awb_number_list) && isset($awb_number_list['meta']['code']) == 200) {
 
-                if (!empty($awb_number_list) && isset($awb_number_list['meta']['code']) == 200) {
+                        //check if data is empty
+                        if (!empty($awb_number_list['data'])) {
+                            //do background process on api data to save it into database
 
-                    //check if data is empty
-                    if (!empty($awb_number_list['data'])) {
-                        //do background process on api data to save it into database
+                            $this->insert_courier_tracking_api_data($awb_number_list);
 
-                        $this->insert_courier_tracking_api_data($awb_number_list);
+                            //make array of all delivered data so that we can update status of that spare
+                            foreach ($awb_number_list['data']['items'] as $key => $value) {
+                                if ($value['status'] == 'delivered') {
 
-                        //make array of all delivered data so that we can update status of that spare
-                        foreach ($awb_number_list['data']['items'] as $key => $value) {
-                            if ($value['status'] == 'delivered') {
-
-                                if (isset($value['tracking_number']) && !empty($value['tracking_number'])) {
-                                    $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $value['tracking_number'], 'delivered_date IS NULL' => NULL), array('delivered_date' => date('Y-m-d H:i:s')));
-                                    $this->update_pod_courier($value['tracking_number']);
-                                    //update pod file on Delivered status
+                                    if (isset($value['tracking_number']) && !empty($value['tracking_number'])) {
+                                        $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $value['tracking_number'], 'delivered_date IS NULL' => NULL), array('delivered_date' => date('Y-m-d H:i:s')));
+                                        $this->update_pod_courier($value['tracking_number']);
+                                        //update pod file on Delivered status
+                                    }
+                                    $this->update_rapid_defactive_return_to_partner_from_wh_status($value);
                                 }
-                                $this->update_rapid_defactive_return_to_partner_from_wh_status($value);
                             }
                         }
+                    } else {
+                        //send mail to developer
+                        $this->send_RapidAPI_failed_email(json_encode($awb_number_list), array("Method" => __METHOD__));
                     }
-                } else {
-                    //send mail to developer
-                    $this->send_RapidAPI_failed_email(json_encode($awb_number_list), array("Method" => __METHOD__));
                 }
             }
         }
@@ -1292,40 +1295,41 @@ class Courier_tracking extends CI_Controller {
                 . "courier_details.AWB_no as tracking_number,courier_details.courier_name as couriercode,"
                 . "courier_details.shipment_date as 'shipped_date',courier_details.booking_id,courier_details.sender_entity_id as 'partner_id'";
         $send_spare_msl_list = $this->get_msl_tracking_details($select, COURIER_DETAILS_STATUS);
-       
-        foreach ($send_spare_msl_list as $val) {
+        if (!empty($send_spare_msl_list)) {
+            foreach ($send_spare_msl_list as $val) {
 
-            if (!empty($val['tracking_number']) && !empty($val['tracking_number'])) {
+                if (!empty($val['couriercode']) && !empty($val['tracking_number'])) {
 
-                $awb_number_list = $this->trackingmore_api->getRapidApiRealTimeTrackingResults($val['couriercode'], $val['tracking_number']);
+                    $awb_number_list = $this->trackingmore_api->getRapidApiRealTimeTrackingResults($val['couriercode'], $val['tracking_number']);
 
-                if (!empty($awb_number_list) && isset($awb_number_list['meta']['code']) == 200) {
+                    if (!empty($awb_number_list) && isset($awb_number_list['meta']['code']) == 200) {
 
-                    if (!empty($awb_number_list['data'])) {
+                        if (!empty($awb_number_list['data'])) {
 
-                        $this->insert_courier_tracking_api_data($awb_number_list);
+                            $this->insert_courier_tracking_api_data($awb_number_list);
 
-                        //make array of all delivered data so that we can update status of that spare
-                        foreach ($awb_number_list['data']['items'] as $key => $value) {
+                            //make array of all delivered data so that we can update status of that spare
+                            foreach ($awb_number_list['data']['items'] as $key => $value) {
 
-                            $data = array('status' => $value['status']);
-                            $where = array('id' => $val['courier_id']);
-                            $update_status = $this->inventory_model->update_courier_detail($where, $data);
-                            if ($update_status) {
+                                $data = array('status' => $value['status']);
+                                $where = array('id' => $val['courier_id']);
+                                $update_status = $this->inventory_model->update_courier_detail($where, $data);
+                                if ($update_status) {
 
-                                if ($value['status'] == 'delivered') {
-                                    if (isset($value['tracking_number']) && !empty($value['tracking_number'])) {
-                                        $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $value['tracking_number'], 'delivered_date IS NULL' => NULL), array('delivered_date' => date('Y-m-d H:i:s')));
-                                        $this->update_pod_courier($value['tracking_number']);
-                                        //update pod file on Delivered status
+                                    if ($value['status'] == 'delivered') {
+                                        if (isset($value['tracking_number']) && !empty($value['tracking_number'])) {
+                                            $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $value['tracking_number'], 'delivered_date IS NULL' => NULL), array('delivered_date' => date('Y-m-d H:i:s')));
+                                            $this->update_pod_courier($value['tracking_number']);
+                                            //update pod file on Delivered status
+                                        }
                                     }
                                 }
                             }
                         }
+                    } else {
+                        //send mail to developer
+                        $this->send_RapidAPI_failed_email(json_encode($awb_number_list), array("Method" => __METHOD__));
                     }
-                } else {
-                    //send mail to developer
-                    $this->send_RapidAPI_failed_email(json_encode($awb_number_list), array("Method" => __METHOD__));
                 }
             }
         }
