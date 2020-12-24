@@ -3267,7 +3267,7 @@ class Around_scheduler extends CI_Controller {
      */
     function copy_booking_id_whatsapp_log(){
         $post['where'] = array('booking_id is null' => null, 'direction' => 'outbound');
-        $post['length'] = 30;
+        $post['length'] = -1;
         $post['start'] = 0;
         $select ="id,content";
         $whatsapp_booking_log = $this->whatsapp_model->get_whatsapp_log_list($post, $select);
