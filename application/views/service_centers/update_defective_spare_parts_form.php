@@ -431,47 +431,30 @@
                     console.log(response);
                     var data = jQuery.parseJSON(response);
                     if (data.code === 247) {
-                        
-                    //    $("#same_awb").css({"color": "green", "font-weight": "900"});
-                        //  $("#same_awb").css("font-wight",900);
+                   
                         alert("This AWB already used same price will be added");
                         $("#same_awb").css("display", "block");
                         $('body').loadingModal('destroy');
     
-                        
-    
                         $("#defective_part_shipped_date").val(data.message[0].defective_part_shipped_date);
-                        
-                        $("#courier_name_by_sf").val("");
-                        $("#courier_name_by_sf").attr('readonly',"readonly");
-                        $("#courier_name_by_sf").css("pointer-events","none");
                         var courier = data.message[0]['courier_name_by_sf'].toLowerCase();
-                        // $('#courier_name_by_sf option[value="'+data.message[0].courier_name_by_sf.toLowerCase()+'"]').attr("selected", "selected");
                         $('#courier_name_by_sf').val(courier).trigger('change');
+                        $("#courier_name_by_sf").prop("disabled", true);
+                        
                         if(data.message[0].courier_charge > 0){
                             $("#courier_charges_by_sf").val(data.message[0].courier_charge);
                             $("#courier_charges_by_sf_hidden").val(data.message[0].courier_charge);
-                    //        $("#courier_charges_by_sf").attr('readonly', "readonly");
                         }
-                            
-                        // $("#courier_charges_by_sf").css("display","none");
+                        
                         $('#defective_parts_shipped_boxes_count option[value="' + data.message[0]['box_count'] + '"]').attr("selected", "selected");
                         if (data.message[0]['box_count'] === 0) {
                             $('#defective_parts_shipped_boxes_count').val("");
-                            
                         } else {
                             $('#defective_parts_shipped_boxes_count').val(data.message[0]['box_count']).trigger('change');
-    
                         }
                         
-                         $("#courier_boxes_weight_flag").val(data.message[0]['partcount'] );
-
-                        if (data.message[0].defective_courier_receipt) {
-         
-                            
-                        }
+                        $("#courier_boxes_weight_flag").val(data.message[0]['partcount'] );
                        
-                        //    alert(data.message[0]['partcount'])
                         var wt = Number(data.message[0]['billable_weight']);
                         if(wt > 0){
                             var wieght = data.message[0]['billable_weight'].split(".");
@@ -493,8 +476,7 @@
                         $("#same_awb").css("display", "none");
                         $("#exist_courier_image").removeAttr("readonly");
                         $("#courier_name_by_sf").val("");
-                        $("#courier_name_by_sf").val("");
-                        $("#courier_name_by_sf").removeAttr("readonly");
+                        $("#courier_name_by_sf").prop("disabled", false);
                         $("#courier_name_by_sf").removeAttr("style");
                         
                         $("#courier_charges_by_sf").removeAttr('readonly');
@@ -516,8 +498,7 @@
                         $("#same_awb").css("display", "none");
                         $("#exist_courier_image").removeAttr("readonly");
                         $("#courier_name_by_sf").val("");
-                        $("#courier_name_by_sf").val("");
-                        $("#courier_name_by_sf").removeAttr("readonly");
+                        $("#courier_name_by_sf").prop("disabled", false);
                         $("#courier_name_by_sf").removeAttr("style");
                         
                         $("#courier_charges_by_sf").removeAttr('readonly');

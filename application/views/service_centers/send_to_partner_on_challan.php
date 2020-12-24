@@ -769,12 +769,12 @@
                             $("#defective_parts_shippped_date_id").val(data.message[0].shipped_date);
                             $("#courier_name_by_wh_id").val(data.message[0].courier_name_by_partner).trigger('change');
                             $("#courier_price_id").val(data.message[0].courier_price_by_wh);
-                            //$("#courier_price_id").css("display","none");
+                            $("#courier_name_by_wh_id").prop("disabled", true);
                             if(data.message[0].courier_invoice_file){
                                 $("#exist_courier_image").val(data.message[0].courier_invoice_file);
                                 $("#defective_parts_shippped_courier_pic_by_wh").val(data.message[0].courier_invoice_file);
-                                //$("#defective_parts_shippped_courier_pic_by_wh").css("display","none");
                             }
+                            
                             $('#shipped_spare_parts_boxes_count option[value="' + data.message[0]['box_count'] + '"]').attr("selected", "selected");
                             if (data.message[0]['box_count'] === 0) {
                                 $('#shipped_spare_parts_boxes_count').val("");
@@ -796,6 +796,7 @@
                             $("#same_awb").css("display", "block");
                             $('body').loadingModal('destroy');
                             $("#same_awb").css("display", "none");
+                            $("#courier_name_by_wh_id").prop("disabled", false);
 
                         } else {
                             $('body').loadingModal('destroy');
@@ -805,6 +806,7 @@
                             $("#exist_courier_image").val("");
                             $("#shipped_spare_parts_weight_in_kg").removeAttr("readonly");
                             $("#shipped_spare_parts_weight_in_gram").removeAttr("readonly");
+                             $("#courier_name_by_wh_id").prop("disabled", false);
                         }
 
                     }

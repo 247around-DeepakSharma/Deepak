@@ -177,7 +177,6 @@
                                     <?php  if (form_error('courier_name')) {echo 'has-error';} ?>
                                     <label for="courier_name_by_wh" class="col-md-4">Courier Name *</label>
                                     <div class="col-md-8">
-<!--                                        <input type="text"  class="form-control"  id="courier_name_by_wh" name="courier_name_by_wh" placeholder="Please Enter Courier Name" required>-->
                                         <select class="form-control" id="courier_name_by_wh" name="courier_name_by_wh" required="">
                                             <option selected="" disabled="" value="">Select Courier Name</option>
                                             <?php foreach ($courier_details as $value1) { ?> 
@@ -660,7 +659,9 @@
                             $('body').loadingModal('destroy');
                            
                             $("#defective_parts_shippped_date_by_wh").val(data.message[0].shipment_date);
-                            $("#courier_name_by_wh").val(data.message[0].courier_name);
+                            $("#courier_name_by_wh").val(data.message[0].courier_name.toLowerCase()).attr('selected','selected');
+                            $("#courier_name_by_wh").attr("disabled", true);
+                            
                             $("#courier_price_by_wh").val("0");
                             $("#courier_price_by_wh").css("display","none");
                             if(data.message[0].courier_file){
@@ -692,6 +693,7 @@
                             $("#exist_courier_image").val("");
                             $("#shipped_spare_parts_weight_in_kg").removeAttr("readonly");
                             $("#shipped_spare_parts_weight_in_gram").removeAttr("readonly");
+                            $("#courier_name_by_wh").attr("disabled", false);
                         }
 
                     }
