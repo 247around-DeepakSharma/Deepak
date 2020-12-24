@@ -718,7 +718,7 @@ class Partner extends CI_Controller {
                     $html .= "</ul>";
                     // ----------------------------------------------------------------
                     $email_data['to'] = $am_email. ",". $this->session->userdata("official_email");
-                    $email_data['cc'] = ACCOUNTANT_EMAILID.", ".ANUJ_EMAIL_ID;
+                    $email_data['cc'] = PARTNER_ONBOARDING_EMAIL_ID . ", " . ACCOUNTS_AR_EMAIL_ID;
                     $email_data['subject'] = "Partner Updated :  " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
                     $email_data['html'] = $html;
                     $sendUrl = base_url().'employee/partner/send_email_to_am_on_partner_update';
