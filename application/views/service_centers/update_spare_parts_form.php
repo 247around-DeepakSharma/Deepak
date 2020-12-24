@@ -496,7 +496,6 @@
                                  ?>">
                                 <label for="courier" class="col-md-4">Courier Name *</label>
                                 <div class="col-md-6">
-                                    <!--                                    <input type="text" class="form-control" id="courier_name" name="courier_name" value = "" placeholder="Please Enter courier Name"  required>-->
                                     <select class="form-control" id="courier_name" name="courier_name" required>
                                         <option selected="" disabled="" value="">Select Courier Name</option>
                                         <?php if(!empty($courier_details)){foreach ($courier_details as $value) { ?>
@@ -952,13 +951,13 @@
                     console.log(response);
                     var data = jQuery.parseJSON(response);
                     if (data.code === 247) {
-                        //alert(data);
+                        $("#courier_name_id").prop("disabled", true);
                         alert("This AWB already used same price will be added");
                         $("#same_awb").css("display", "block");
                         $('body').loadingModal('destroy');
                         $("#shipment_date").val(data.message[0].shipped_date);
                         $("#courier_name").val(data.message[0].courier_name_by_partner).trigger('change');
-
+                        $("#courier_name").prop("disabled", true);
                         $("#courier_price_by_partner").css("display", "none");
                         if (data.message[0].courier_pic_by_partner) {
                             $("#exist_courier_image").val(data.message[0].courier_pic_by_partner);
@@ -984,12 +983,13 @@
                             $("#shipped_spare_parts_weight_in_gram").val(wieght[1]).attr('readonly', "readonly");
                         }
 
-                    } if (data.code === 777) { 
+                    } else if (data.code === 777) { 
                         // show message if shipment done more than 7 days ago.
                         alert("<?php echo UPDATE_AWB_NUMBER_DAYS_MESSAGE; ?>");
                         $("#same_awb").css("display", "block");
                         $('body').loadingModal('destroy');
                         $("#same_awb").css("display", "none");
+                        $("#courier_name").prop("disabled", false);
                     }else {
 
                         $('body').loadingModal('destroy');
@@ -998,6 +998,7 @@
                         if($("#courier_price_by_partner").val()!=''){
                             $("#courier_price_by_partner").val(parseInt($("#courier_price_by_partner").val()));
                         }
+                        $("#courier_name").prop("disabled", false);
                         $("#same_awb").css("display", "none");
                         $("#exist_courier_image").val("");
                         $("#shipped_spare_parts_weight_in_kg").val('').removeAttr("readonly");
@@ -1011,7 +1012,7 @@
     }
 
     $('#courier_name').select2();
-
+    
     $(".part_warranty_status").on('change', function () {
         $("#part_warranty_status_0").val($(this).val());
     });
