@@ -1530,7 +1530,9 @@ class Booking_model extends CI_Model {
         $query = $this->db->get('email_template');
         if ($query->num_rows > 0) {
             $template = $query->result_array();
-            return array($template[0]['template'], $template[0]['to'], $template[0]['from'],$template[0]['cc'],$template[0]['subject'], $template[0]['bcc']);
+            return array($template[0]['template'], $template[0]['to'], 
+                $template[0]['from'],$template[0]['cc'],
+                $template[0]['subject'],$template[0]['bcc']);
         } else {
             return "";
         }

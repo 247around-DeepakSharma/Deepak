@@ -585,7 +585,7 @@ class Invoice extends CI_Controller {
             $email_from = $email_template[2];
 
             $to = $invoice_email_to;
-            $cc = $invoice_email_cc.", " .ACCOUNTANT_EMAILID;
+            $cc = $invoice_email_cc . ", " . $email_template[3];
             $this->upload_invoice_to_S3($meta['invoice_id']);
             
             $pdf_attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' . $output_pdf_file_name;
@@ -1191,8 +1191,7 @@ class Invoice extends CI_Controller {
             if (!empty($rm_details[1]['official_email'])) {
                 $asm_email_id = ", " . $rm_details[1]['official_email'];
             }
-            $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id . $asm_email_id;
-
+            $cc = ACCOUNTS_AP_EMAIL_ID . $rem_email_id . $asm_email_id;
             
             $t_s_charge =  ($meta['r_sc'] - $meta['upcountry_charge']) - $this->booking_model->get_calculated_tax_charge( ($meta['r_sc'] - $meta['upcountry_charge']), 18);
             $t_ad_charge = $meta['r_asc'] - $this->booking_model->get_calculated_tax_charge( $meta['r_asc'], 18);
@@ -1647,7 +1646,7 @@ class Invoice extends CI_Controller {
                 $email_from = $email_template[2];
                 $to = $invoice_data['meta']['owner_email'] . ", " . $invoice_data['meta']['primary_contact_email'];
                 
-                $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id . $asm_email_id.", ". $email_template[3];
+                $cc = ACCOUNTS_AP_EMAIL_ID . $rem_email_id . $asm_email_id.", ". $email_template[3];
                 $pdf_attachement = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$output_file_main;
                  //Upload Excel files to AWS
                 $this->upload_invoice_to_S3($invoice_data['meta']['invoice_id']);
@@ -2390,7 +2389,7 @@ exit();
             $asm_email_id = ", " . $rm_details[1]['official_email'];
         }
 
-        $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id . $asm_email_id;
+        $cc = OOW_ACCESSORIES_SALE_EMAIL_ID . $rem_email_id . $asm_email_id;
         //get email template from database
         $email_template = $this->booking_model->get_booking_email_template(BRACKETS_INVOICE_EMAIL_TAG);
         $subject = vsprintf($email_template[4], array($vendor_data[0]['name']));
@@ -2934,7 +2933,9 @@ exit();
                             $subject = vsprintf($email_template[4], array($invoices['meta']['company_name'],$invoices['meta']['sd'],$invoices['meta']['ed']));
                             $message = $email_template[0];
                             $email_from = $email_template[2];
-                            $to = $invoices['meta']['owner_email'] . ", " . $invoices['meta']['primary_contact_email'];
+                            $to = $invoices['meta']['owner_email'] . 
+                                    ", " . $invoices['meta']['primary_contact_email'] 
+                                    . ", " . $email_template[1];
                             $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
                             $rem_email_id = "";
                             $asm_email_id = "";
@@ -2944,7 +2945,7 @@ exit();
                             if (!empty($rm_details[1]['official_email'])) {
                                 $asm_email_id = ", " . $rm_details[1]['official_email'];
                             }
-                            $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id . $asm_email_id. ", ".$email_template[3];
+                            $cc = $rem_email_id . $asm_email_id. ", ".$email_template[3];
                             echo "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount'].PHP_EOL;
                             log_message('info', __FUNCTION__ . "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount']);
 
@@ -3402,7 +3403,7 @@ exit();
     
 
     /**
-     * @desc: Send Emailt to SF with attach invoice file while create a new invoice from Form 
+     * @desc: Send Email to SF with attach invoice file while create a new invoice from Form 
      * @param type $vendor_detail
      * @param type $type
      * @param type $start_date
@@ -3416,7 +3417,7 @@ exit();
         $to = $vendor_detail[0]['owner_email'] . ", " . $vendor_detail[0]['primary_contact_email'];
 
         $subject = "247around - " . $vendor_detail[0]['company_name'] . " - " . $type . "  Invoice for period: " . $start_date . " to " . $end_date;
-        $cc = NITS_ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
+        $cc = ACCOUNTS_AP_EMAIL_ID;
 
         $this->email->from('billing@247around.com', '247around Team');
         $this->email->to($to);
@@ -4443,17 +4444,17 @@ exit();
      * @return boolean 
      */
     function send_brackets_credit_note_mail_sms($vendor_details, $invoice_id, $amount,$attachment) {
-
-
         //send sms
-        $this->send_invoice_sms("Stand", $vendor_details[0]['shipment_date'], $amount, $vendor_details[0]['owner_phone_1'], $vendor_details[0]['order_given_to']);
+        $this->send_invoice_sms("Stand", $vendor_details[0]['shipment_date'], 
+                $amount, $vendor_details[0]['owner_phone_1'], $vendor_details[0]['order_given_to']);
         
         //send email
         $get_rm_email =$this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_details[0]['id']); 
         $to = $vendor_details[0]['owner_email'].",".$this->session->userdata('official_email').",".$get_rm_email[0]['official_email'];
-        $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
+        
         //get email template from database
         $email_template = $this->booking_model->get_booking_email_template(BRACKETS_CREDIT_NOTE_INVOICE_EMAIL_TAG);
+        $cc = $email_template[3];
         $subject = vsprintf($email_template[4], array($vendor_details[0]['company_name']));
         $message = $email_template[0];
         $email_from = $email_template[2];
