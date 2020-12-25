@@ -32,8 +32,7 @@
         </tr>
         <tr>
             <td colspan="5" align="left" style="border-bottom: hidden;"><p>To,</p><?php echo $excel_data['sf_name']; ?></td>
-            <td style="border-bottom: hidden;border-right: hidden;"></td>
-            <td  colspan="7" align="left" style="border-bottom: hidden;"><b>Challan No: </b><?php echo $excel_data['sf_challan_no']; ?></td>
+            <td  colspan="8" align="left" style="border-bottom: hidden;"><b>Challan No: </b><?php echo $excel_data['sf_challan_no']; ?></td>
         </tr>
         <tr>
             <td  colspan="5" rowspan="2" align="left" style="border-bottom: hidden;"><b>Address:</b> <?php if(!empty($excel_data['sf_contact_person_name'])){ echo 'C/o '.$excel_data['sf_contact_person_name'].", ";} echo $excel_data['sf_address']; ?> 
@@ -45,12 +44,10 @@
             ?>
                             
             </td>
-            <td style="border-bottom: hidden;border-right: hidden;"></td>
-            <td colspan="7" align="left" style="border-bottom: hidden;"><b>Ref No: </b><?php echo $excel_data['partner_challan_no']; ?></td>
+            <td colspan="8" align="left" style="border-bottom: hidden;"><b>Ref No: </b><?php echo $excel_data['partner_challan_no']; ?></td>
         </tr>
         <tr>
-            <td style="border-bottom: hidden;border-right: hidden;"></td>
-            <td colspan="7" align="left" style="border-bottom: hidden;"><b>Date: </b>
+            <td colspan="8" align="left" style="border-bottom: hidden;"><b>Date: </b>
                 <?php 
                     if (isset($excel_data['generated_by_wh']) && $excel_data['generated_by_wh'] == 1) {
                         echo date("j M Y");
@@ -62,8 +59,7 @@
         </tr>
         <tr>
             <td  colspan="5" align="left"  style="<?php if(!empty($excel_data['courier_servicable_area'])){ ?>border-bottom: hidden;<?php } ?>"><b>GST: </b><?php echo $excel_data['sf_gst']; ?></td>
-            <td style="border-right: hidden;<?php if(!empty($excel_data['courier_servicable_area'])){ ?>border-bottom: hidden;<?php } ?>"></td>
-            <td colspan="7"  style="<?php if(!empty($excel_data['courier_servicable_area'])){ ?>border-bottom: hidden;<?php } ?>"></td>
+            <td colspan="8"  style="<?php if(!empty($excel_data['courier_servicable_area'])){ ?>border-bottom: hidden;<?php } ?>"></td>
         </tr>
         <?php
         if(!empty($excel_data['courier_servicable_area'])){
