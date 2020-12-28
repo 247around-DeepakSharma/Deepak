@@ -9409,6 +9409,7 @@ class Service_centers extends CI_Controller {
      */
 
    
+
 function do_delivered_spare_transfer() {
 
         if ($this->session->userdata('userType') == 'employee') {
@@ -9444,7 +9445,7 @@ function do_delivered_spare_transfer() {
                 echo 'fail';
             } else {
                 $to_details_array = array(
-                    'status' => $form_details[0]['status'],
+                    'status' => SPARE_DELIVERED_TO_SF,
                     'entity_type' => $form_details[0]['entity_type'],
                     'partner_id' => $form_details[0]['partner_id'],
                     'is_micro_wh' => $form_details[0]['is_micro_wh'],
@@ -9510,8 +9511,7 @@ function do_delivered_spare_transfer() {
                  
                 $to_booking_spare_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", $where);
                 
-                $from_booking_spare_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array("spare_parts_details.part_warranty_status" => SPARE_PART_IN_WARRANTY_STATUS,"spare_parts_details.booking_id" => $frombooking,"spare_parts_details.status IN ('" . SPARE_PARTS_REQUESTED . "')" => NULL,));
-                
+                                
                 $bd_data = array();
                 if (empty($to_booking_spare_details)) {
                     $b = $this->booking_model->get_booking_details('current_status, partner_id', ['booking_id' => $tobooking])[0];
@@ -9543,6 +9543,7 @@ function do_delivered_spare_transfer() {
                 }
                 $this->service_centers_model->update_spare_parts(array('id' => $from_spare_id), $from_details_array);
                 
+                $from_booking_spare_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array("spare_parts_details.part_warranty_status" => SPARE_PART_IN_WARRANTY_STATUS,"spare_parts_details.booking_id" => $frombooking,"spare_parts_details.status IN ('" . SPARE_PARTS_REQUESTED . "')" => NULL,));            
                 $bd = array();
                 if (!empty($from_booking_spare_details)) {
                     $booking = $this->booking_model->get_booking_details('current_status, partner_id', ['booking_id' => $frombooking])[0];
@@ -9555,6 +9556,7 @@ function do_delivered_spare_transfer() {
                     $bd['next_action'] = $partner_status_data[3];
                     $this->booking_model->update_booking($frombooking, $bd);
                 }
+
                 /* Insert Spare Tracking Details */
                 if (!empty($from_spare_id)) {
                     $tracking_details = array('spare_id' => $from_spare_id, 'action' => $to_details[0]['status'], 'remarks' => "Spare Part Transfer from " . $tobooking . " to " . $frombooking, 'agent_id' => $agent_id, 'entity_id' => $entity_id, 'entity_type' => $entity_type);
@@ -9562,6 +9564,7 @@ function do_delivered_spare_transfer() {
                 }
 
                 $this->notify->insert_state_change($tobooking, SPARE_DELIVERED_TO_SF, "", "Spare Part Transfer from " . $tobooking . " to " . $frombooking, $agent_id, $agent_name, "", "", $partner_id, $service_center_id, $from_spare_id);
+
                 $sc_data1['current_status'] = _247AROUND_PENDING;
                 $sc_data1['internal_status'] = SPARE_PARTS_REQUESTED;
                 $sc_data1['update_date'] = date("Y-m-d H:i:s");
