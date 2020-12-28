@@ -1135,7 +1135,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('partners as p1', "p1.id = i.sender_entity_id AND i.sender_entity_type = 'partner'",'left');
         $this->db->join('employee as e1', "e1.id = i.sender_entity_id AND i.sender_entity_type = 'employee'",'left');
         if(!empty($post['is_courier_details_required'])){
-            $this->db->join('courier_details', 'i.courier_id = courier_details.id','left');
+            $this->db->join('courier_company_invoice_details', 'i.courier_id = courier_company_invoice_details.id','left');
         }
 
         if (!empty($post['is_micro_wh'])) {
