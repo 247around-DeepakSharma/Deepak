@@ -265,10 +265,6 @@
                                         <input type="text" class="form-control"  id="booking_date" name="booking_date" value = "<?php
                                             if (!empty($booking_history[0]['booking_date']) && $booking_history[0]['booking_date'] != '0000-00-00') {echo date("d-m-Y", strtotime($booking_history[0]['booking_date']));
                                             }
-                                            else
-                                            {
-                                                echo "";
-                                            }
                                             ?>" readonly="readonly">
                                     </div>
                                 </div>
@@ -647,11 +643,6 @@
                                 <div class="col-md-8">
                                     <Select type="text" class="form-control" name="rating_stars" id="rating_star" value="">
                                         <option value="">Select</option>
-                                        <option <?php
-                                            if ($booking_history[0]['rating_stars'] == '-1') {
-                                                echo "selected";
-                                            }
-                                            ?>>-1</option>
                                         <option <?php
                                             if ($booking_history[0]['rating_stars'] == '1') {
                                                 echo "selected";
