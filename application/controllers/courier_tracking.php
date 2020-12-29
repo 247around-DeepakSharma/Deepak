@@ -848,8 +848,7 @@ class Courier_tracking extends CI_Controller {
     function get_real_time_courier_tracking_using_rapidapi() {
         $carrier_code = $this->input->post('courier_code');
         $awb_number = $this->input->post('awb_number');
-        $spare_status = $this->input->post('status');
-
+        $spare_status = TRUE;
         $data = array();
         if (!empty($carrier_code) && !empty($awb_number)) {
             if ($spare_status) {
@@ -863,8 +862,9 @@ class Courier_tracking extends CI_Controller {
                     $api_data = $this->trackingmore_api->getRapidApiRealTimeTrackingResults($carrier_code, $awb_number);
 //                  $json = '{"meta":{"code":200,"type":"Success","message":"Success"},"data":{"items":[{"id":"fd758b85c349d0d4e8ad454f82389f92","tracking_number":"50691944004","carrier_code":"bluedart","status":"delivered","original_country":"","itemTimeLength":3,"origin_info":{"weblink":"http:\/\/www.bluedart.com\/","phone":null,"carrier_code":"bluedart","trackinfo":[{"Date":"2020-09-28 20:19:00","StatusDescription":"Shipment Delivered","Details":"Kalol Apex\/Sfc Pud","checkpoint_status":"delivered","substatus":"delivered001"},{"Date":"2020-09-28 11:27:00","StatusDescription":"Shipment Out For Delivery","Details":"Kalol Apex\/Sfc Pud","checkpoint_status":"pickup","substatus":"pickup001"},{"Date":"2020-09-28 11:04:00","StatusDescription":"Shipment Arrived","Details":"Kalol Apex\/Sfc Pud","checkpoint_status":"transit","substatus":"transit001"},{"Date":"2020-09-28 07:22:00","StatusDescription":"Shipment Further Connected","Details":"Aslali Warehouse","checkpoint_status":"transit","substatus":"transit001"},{"Date":"2020-09-28 01:42:00","StatusDescription":"Shipment Arrived","Details":"Aslali Warehouse","checkpoint_status":"transit","substatus":"transit001"},{"Date":"2020-09-27 23:55:00","StatusDescription":"Paper Work Inscan","Details":"Aslali Warehouse","checkpoint_status":"transit","substatus":"transit001"},{"Date":"2020-09-27 08:35:00","StatusDescription":"Shipment Further Connected","Details":"Bhiwandi Hub","checkpoint_status":"transit","substatus":"transit001"},{"Date":"2020-09-26 21:33:00","StatusDescription":"Shipment Arrived","Details":"Bhiwandi Hub","checkpoint_status":"transit","substatus":"transit001"},{"Date":"2020-09-26 19:58:00","StatusDescription":"Paper Work Inscan","Details":"Bhiwandi Hub","checkpoint_status":"transit","substatus":"transit001"},{"Date":"2020-09-26 19:55:00","StatusDescription":"Shipment Further Connected","Details":"Ovali Warehouse","checkpoint_status":"transit","substatus":"transit001"},{"Date":"2020-09-26 19:04:00","StatusDescription":"Shipment Arrived","Details":"Ovali Warehouse","checkpoint_status":"transit","substatus":"transit001"},{"Date":"2020-09-26 15:45:00","StatusDescription":"Shipment Picked Up","Details":"Ovali Warehouse","checkpoint_status":"transit","substatus":"transit001","ItemNode":"ItemReceived"}]},"destination_info":null}]}}';
 //                  $api_data = json_decode($json, TRUE);
+                    $this->insert_courier_tracking_api_data($api_data);
                     $data['awb_details_by_api'] = $api_data['data'];
-                    $data['awb_number'] = $awb_number;
+                    $data['awb_number'] = $awb_number;                  
                 }
             } else {
                 if (isset($data['awb_details_by_db']) && empty($data['awb_details_by_db'])) {
@@ -998,7 +998,7 @@ class Courier_tracking extends CI_Controller {
                         }
                     } else {
                         //send mail to developer
-                        $this->send_RapidAPI_failed_email(json_encode($awb_number_list), array("Method" => __METHOD__));
+                        $this->send_RapidAPI_failed_email(json_encode(array("awb_number"=> $val->tracking_number, "courier_code"=> $val->couriercode, "API Response"=>$awb_number_list)), array("Method" => __METHOD__));
                     }
                 }
             }
@@ -1165,7 +1165,7 @@ class Courier_tracking extends CI_Controller {
                     } else {
                         //log_message('info','api did not return success response '. print_r($awb_number_list,true));
                         //send mail to developer
-                        $this->send_RapidAPI_failed_email(json_encode($awb_number_list), array("Method" => __METHOD__));
+                        $this->send_RapidAPI_failed_email(json_encode(array("awb_number"=> $val->tracking_number, "courier_code"=> $val->couriercode, "API Response"=>$awb_number_list)), array("Method" => __METHOD__));
                     }
                 }
             }
@@ -1245,7 +1245,7 @@ class Courier_tracking extends CI_Controller {
                         }
                     } else {
                         //send mail to developer
-                        $this->send_RapidAPI_failed_email(json_encode($awb_number_list), array("Method" => __METHOD__));
+                        $this->send_RapidAPI_failed_email(json_encode(array("awb_number"=> $val->tracking_number, "courier_code"=> $val->couriercode, "API Response"=>$awb_number_list)), array("Method" => __METHOD__));
                     }
                 }
             }
@@ -1328,7 +1328,7 @@ class Courier_tracking extends CI_Controller {
                         }
                     } else {
                         //send mail to developer
-                        $this->send_RapidAPI_failed_email(json_encode($awb_number_list), array("Method" => __METHOD__));
+                        $this->send_RapidAPI_failed_email(json_encode(array("awb_number"=> $val['tracking_number'], "courier_code"=> $val['couriercode'], "API Response"=>$awb_number_list)), array("Method" => __METHOD__));
                     }
                 }
             }
@@ -1358,11 +1358,12 @@ class Courier_tracking extends CI_Controller {
     function send_RapidAPI_failed_email($email_body_data, $error_type) {
 
         $template = $this->booking_model->get_booking_email_template("rapidapi_courier_api_failed_mail");
+        $sendEmail = $template[1].','.$template[3];
         if (!empty($template)) {
             $subject = $template[4];
             $email_body_data .= "<br/> <br/>" . json_encode($error_type, TRUE);
             $emailBody = vsprintf($template[0], $email_body_data);
-            $this->notify->sendEmail($template[2], 'abhaya@247around.com,gorakhn@247around.com', '', '', $subject, $emailBody, "", 'rapidapi_courier_api_failed_mail');
+            $this->notify->sendEmail($template[2], $sendEmail, '', '', $subject, $emailBody, "", 'rapidapi_courier_api_failed_mail');
         }
     }
 
