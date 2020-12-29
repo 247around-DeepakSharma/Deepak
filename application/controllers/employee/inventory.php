@@ -7645,7 +7645,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
                 $select = "spare_parts_details.booking_id,spare_parts_details.partner_challan_number,spare_parts_details.sf_challan_number,"
                         . "spare_parts_details.partner_challan_file,spare_parts_details.sf_challan_file,spare_parts_details.awb_by_partner,spare_parts_details.awb_by_sf,"
                         . "spare_parts_details.courier_pic_by_partner,spare_parts_details.parts_shipped,im.part_number,spare_parts_details.shipped_parts_type,im.price,im.gst_rate,"
-                        . "spare_parts_details.awb_by_wh, spare_parts_details.wh_challan_number, spare_parts_details.wh_challan_file";
+                        . "spare_parts_details.awb_by_wh, spare_parts_details.wh_challan_number, spare_parts_details.wh_challan_file, spare_parts_details.status";
                 $where = array();
 
                 if ($this->input->post('sf_id')) {
