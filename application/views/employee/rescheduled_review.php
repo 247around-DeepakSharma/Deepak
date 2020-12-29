@@ -61,8 +61,8 @@
                                 <input type="hidden" name="reschedule_booking_date[<?php echo $value['booking_id']; ?>]" value="<?php echo $value['reschedule_date_request'] ?>" ></input>
                                 <input type="hidden" name="reschedule_reason[<?php echo $value['booking_id']; ?>]" value="<?php echo $value['reschedule_reason'] ?>" ></input>
                             </td>
-                            <td><?php echo $value['reschedule_reason']; ?></td>
-                           <td><input id="reschedule_checkbox" type="checkbox"
+                            <td><?php if(!empty($value['reschedule_reason'])) { echo $value['reschedule_reason']; } else { echo $value['internal_status']; } ?></td>
+                            <td><input id="reschedule_checkbox" type="checkbox" 
                                 onclick="return check_count()"  class="checkbox_reschedule" name="reschedule[]" value="<?php echo $value['booking_id']; ?>"></input>
                                 <a href="#"><span style="float: right;" class="glyphicon glyphicon-remove" data-toggle="modal" data-target="#review_reject_form" onclick="create_reject_form(<?php echo "'" . $value['booking_primary_contact_no'] . "'"; ?>,<?php echo "'" . $value['booking_id'] . "'"; ?>)"></span> </a>
                             </td>
