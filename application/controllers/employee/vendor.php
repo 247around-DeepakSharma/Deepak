@@ -1066,9 +1066,14 @@ class vendor extends CI_Controller {
             $row[] = '<a id="edit" class="btn btn-small btn-success" href="' . base_url() . 'employee/vendor/temporary_on_off_vendor/' . $vendor_list['id'] . '/1 "  ' . $strm2 . '>On</a>';
         }
 
-
+        /*Only allow admin to activate or deactivte sf*/
         if ($vendor_list['active'] == 1) {
-            $row[] = '<a id="edit" class="btn btn-small btn-danger" onclick="pendingBookings(' . $vendor_list["id"] . ',' . "'P'" . ',' . $vendor_list["is_micro_wh"] . ')" >Deactivate</a>';
+             if ($this->session->userdata['user_group'] == _247AROUND_ADMIN || ($this->session->userdata['user_group'] == _247AROUND_ASM) || ($this->session->userdata['user_group'] == _247AROUND_RM)) {
+                $row[] = '<a id="edit" class="btn btn-small btn-danger" onclick="pendingBookings(' . $vendor_list["id"] . ',' . "'P'" . ',' . $vendor_list["is_micro_wh"] . ')" >Deactivate</a>';
+            }
+             else{
+               $row[] = '<a id="edit" class="btn btn-small btn-danger disabled" href="javascript:;" >Deactivate</a>';
+             }           
         } else {
             if (empty($vendor_list['pan_no']) || empty($vendor_list['pan_file'])) {
                 $row[] = '<a class="btn btn-small btn-primary" onclick="alert("Please Enter PAN Details of Vendor to allow Activation");" title="Save PAN Details of Vendor to allow Activation">Activate</a>';
