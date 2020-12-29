@@ -1,4 +1,12 @@
 <div id="page-wrapper">
+<?php if ($this->session->flashdata('error')) { ?>
+            <div class="alert alert-danger alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <center><strong><?php echo $this->session->flashdata('error') ?></strong></center>                        
+            </div>
+        <?php } ?>       
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
@@ -18,6 +26,8 @@
                         <th class="no-sort">Active</th> 
                         <th class="no-sort">Action</th>
                         <th style="display: none;">Active</th> 
+
+
                     </tr>
                 </thead>
                 <tbody>
@@ -42,6 +52,7 @@
                                 <a class="btn btn-primary btn-xs" href='javascript:void(0)' title="Update Category" id="update_category" category_id="<?= $rec->id ?>"><i class="glyphicon glyphicon-pencil"></i></a>
                             </td>
                               <td style="display: none;">
+
                                 <?php 
                                     echo $rec->active;
                                 ?>
@@ -93,7 +104,7 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <input type="submit" name="Save" id="Save" class="btn btn-primary" onclick="return validate_form()">
+                            <input type="submit" name="Save" id="Save" class="btn btn-primary" onclick="return check()">
                             <p class="pull-left text-danger">* These fields are required</p>                            
                             <!--<br/> <p class="pull-left text-danger">* No Special Characters are allowed in Name except dot(.) and Hyphen(-)</p>-->
                         </div>
@@ -179,7 +190,20 @@
             }
         });
     }
+    function check()
+    {
+        var name = $('#name').val().trim();
+        $("#errorMessage").html('');
+        if(name=="")
+        {
+            $("#errorMessage").html('Name ' + name + ' cannot be empty');
+            return false;
+        }
+        else{
+            validate_form();
+        }        
 
+    }
     function validate_form()
     {
         var flag = 1;
