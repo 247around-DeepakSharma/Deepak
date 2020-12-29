@@ -5322,23 +5322,7 @@ function generate_image($base64, $image_name,$directory){
             'old_status' => $old_status,
             'status' => _247AROUND_CANCELLED,
             'spare_cancelled_date' => date('Y-m-d H:i:s'),
-            'spare_cancellation_reason' => $spare_cancellation_reason_id, 
-            'parts_shipped' => NULL,
-            'shipped_date' => NULL,
-            'model_number_shipped' => NULL,
-            'shipped_parts_type' => NULL,
-            'shipped_quantity' => 0,
-            'shipped_inventory_id' => NULL,
-            'defective_return_to_entity_type' => NULL,
-            'defective_return_to_entity_id' => NULL,
-            'awb_by_partner' => NULL,
-            'courier_price_by_partner' => NULL,
-            'courier_pic_by_partner' => NULL,
-            'courier_name_by_partner' => NULL,
-            'remarks_by_partner' => NULL,
-            'challan_approx_value' => NULL,
-            'partner_challan_file' => NULL,
-            'partner_challan_number' => NULL
+            'spare_cancellation_reason' => $spare_cancellation_reason_id
         );
     }
     
