@@ -5920,11 +5920,7 @@ class Booking extends CI_Controller {
             $ReorderdownloadRecord[$key]['initial_booking_date']=$this->miscelleneous->get_formatted_date($value['initial_booking_date']);
             $ReorderdownloadRecord[$key]['booking_date']=$this->miscelleneous->get_formatted_date($value['booking_date'])." / ".$value['booking_timeslot'];
             $ReorderdownloadRecord[$key]['reschedule_date_request']=$this->miscelleneous->get_formatted_date($value['reschedule_date_request']);
-            $reschedule_reason = $value['reschedule_reason'];
-            if(empty($value['reschedule_reason'])){
-                $reschedule_reason = $value['internal_status'];
-            }
-            $ReorderdownloadRecord[$key]['reschedule_reason'] = $reschedule_reason;       
+            $ReorderdownloadRecord[$key]['reschedule_reason']=$value['reschedule_reason'];       
         }    
         $this->miscelleneous->downloadCSV($ReorderdownloadRecord, ['S.No.','Booking Id','Service Center','User Name','User Contact No.','Original Booking Date','Booking Date','Reschedule Booking Date','Reschedule Reason'], 'data_'.date('Ymd-His'));
      }
