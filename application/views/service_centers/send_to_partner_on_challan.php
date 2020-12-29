@@ -8,7 +8,7 @@
         <?php if(!empty($is_send_to_partner)) { ?>
           <h2>Send To Partner On Delivery Challan</h2>
         <?php } else { ?>
-          <h2>Genarate Defective/Ok Part Challan</h2>
+          <h2>Generate Defective/Ok Part Challan</h2>
         <?php }  ?>
          <div class="panel panel-default">            
             <div class="panel-body">
