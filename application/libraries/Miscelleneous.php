@@ -580,8 +580,20 @@ class Miscelleneous {
         }
         $data_vendor['cancellation_reason'] = $data['cancellation_reason'];
         
+        $data_vendor['current_status'] = SF_BOOKING_INPROCESS_STATUS;
+        if ($this->My_CI->session->userdata['user_group'] == _247AROUND_CLOSURE) {
+            $data['closed_date'] = date("Y-m-d H:i:s");
+            $data['current_status'] = _247AROUND_CANCELLED;
+            $data_vendor['current_status']  =_247AROUND_CANCELLED;
+            $s = $data_vendor['current_status'];
+           
+        } else {
+            
+            $s = SF_BOOKING_CANCELLED_STATUS;
+        }
+        
         if(!empty($data['internal_status'])) {
-            $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data(SF_BOOKING_INPROCESS_STATUS, $data['internal_status'], $partner_id, $booking_id);
+            $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data($data_vendor['current_status'], $data['internal_status'], $partner_id, $booking_id);
             $actor = $next_action = 'not_define';
             if (!empty($partner_status)) {
                 $data['partner_current_status'] = $partner_status[0];
@@ -599,15 +611,16 @@ class Miscelleneous {
 
         //Update this booking in vendor action table
         $data_vendor['update_date'] = date("Y-m-d H:i:s");
-        $data_vendor['current_status'] = SF_BOOKING_INPROCESS_STATUS;
+        
         $data_vendor['internal_status'] = _247AROUND_CANCELLED;
         log_message('info', __FUNCTION__ . " Update Service center action table  " . print_r($data_vendor, true));
         $this->My_CI->vendor_model->update_service_center_action($booking_id, $data_vendor);
-        // Don't Uncomment below line
-        //$this->update_price_while_cancel_booking($booking_id, $agent_id, $cancelled_by);
+        if ($this->My_CI->session->userdata['user_group'] == _247AROUND_CLOSURE) {
+            $this->update_price_while_cancel_booking($booking_id, $agent_id, $cancelled_by);
+        }
         //Update Engineer table while booking cancelled
         $en_where1 = array("engineer_booking_action.booking_id" => $booking_id);
-        $this->My_CI->engineer_model->update_engineer_table(array("current_status" => SF_BOOKING_INPROCESS_STATUS, "internal_status" =>_247AROUND_CANCELLED), $en_where1);
+        $this->My_CI->engineer_model->update_engineer_table(array("current_status" => $data_vendor['current_status'], "internal_status" =>_247AROUND_CANCELLED), $en_where1);
         
         $spare = $this->My_CI->partner_model->get_spare_parts_by_any("spare_parts_details.id,spare_parts_details.partner_id, "
                 . "spare_parts_details.entity_type, spare_parts_details.status, "
@@ -628,7 +641,7 @@ class Miscelleneous {
 
         //Log this state change as well for this booking
         //param:-- booking id, new state, old state, employee id, employee name
-        $this->My_CI->notify->insert_state_change($booking_id, SF_BOOKING_CANCELLED_STATUS, $status, $historyRemarks, $agent_id, $agent_name,$actor,$next_action, $cancelled_by);
+        $this->My_CI->notify->insert_state_change($booking_id, $s, $status, $historyRemarks, $agent_id, $agent_name,$actor,$next_action, $cancelled_by);
         $this->process_booking_tat_on_completion($booking_id);
         // Not send Cancallation sms to customer for Query booking
         // this is used to send email or sms while booking cancelled

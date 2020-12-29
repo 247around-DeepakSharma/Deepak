@@ -1139,7 +1139,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('partners as p1', "p1.id = i.sender_entity_id AND i.sender_entity_type = 'partner'",'left');
         $this->db->join('employee as e1', "e1.id = i.sender_entity_id AND i.sender_entity_type = 'employee'",'left');
         if(!empty($post['is_courier_details_required'])){
-            $this->db->join('courier_details', 'i.courier_id = courier_details.id','left');
+            $this->db->join('courier_company_invoice_details', 'i.courier_id = courier_company_invoice_details.id','left');
         }
 
         if (!empty($post['is_micro_wh'])) {
@@ -3666,7 +3666,7 @@ class Inventory_model extends CI_Model {
      * @author Ankit Rajvanshi
      */
     function handle_rto_case($spare_id, $post_data) {
-       
+        
         /*fetch spare part detail $spare_id*/ 
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
         /*fetch booking detail*/
@@ -3714,12 +3714,12 @@ class Inventory_model extends CI_Model {
             $this->insert_inventory_ledger($ledger_data);
         }
 
-
+        $remarks = "AWB " . $post_data['awb_by_partner'] . " Marked RTO By " . $this->session->userdata('emp_name') . ", " . $post_data['remarks'];
         // entry in spare tracking history.
         $tracking_details = array(
             'spare_id' => $spare_id, 
             'action' => _247AROUND_CANCELLED, 
-            'remarks' => $post_data['remarks'], 
+            'remarks' => $remarks, 
             'agent_id' => $this->session->userdata('id'), 
             'entity_id' => _247AROUND,
             'entity_type' => _247AROUND_EMPLOYEE_STRING
@@ -3727,7 +3727,7 @@ class Inventory_model extends CI_Model {
         $this->service_centers_model->insert_spare_tracking_details($tracking_details);
 
         // entry in booking state change.
-        $this->notify->insert_state_change($spare_part_detail['booking_id'], SPARE_PARTS_CANCELLED, '', $post_data['remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), '', '', _247AROUND, NULL, $spare_id);
+        $this->notify->insert_state_change($spare_part_detail['booking_id'], SPARE_PARTS_CANCELLED, '', $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), '', '', _247AROUND, NULL, $spare_id);
 
         //check other spares state and update booking internal status 
         $check_spare_parts_details = $this->partner_model->get_spare_parts_by_any('*', array('spare_parts_details.booking_id' => $spare_part_detail['booking_id'], 'status IN ("' . SPARE_PARTS_SHIPPED . '", "'
@@ -4045,4 +4045,99 @@ class Inventory_model extends CI_Model {
         return $query;
     }
     
+    
+    /*
+     *  @desc : This function is used to get HSN Code Details
+     *  @param : $post string
+     *  @param : $select string
+     *  @return: Array()
+     */
+    
+    function get_hsncode_list($post, $select = "", $is_object = false) {
+        
+        $this->_get_hsncode_details($post, $select);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+
+        $query = $this->db->get();
+        
+        if ($is_object) {
+            $result = $query->result();
+        } else {
+            $result = $query->result_array();
+        }
+
+        return $result;
+    }
+
+    /*
+     * @Desc: This function is used to get data from the hsn_code_details table
+     * @params: $post array
+     * @params: $select string
+     * @return: void
+     */
+    
+    function _get_hsncode_details($post, $select) {
+
+        $this->db->distinct();
+        $this->db->select($select, FALSE);
+        $this->db->from('hsn_code_details');
+        $this->db->join('services', 'hsn_code_details.service_id =  services.id');
+        if (!empty($post['where'])) {
+            $this->db->where($post['where']);
+        }
+
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+        if (!empty($post['order'])) {
+                $this->db->order_by($post['column_order'], $post['order'][0]['dir']);
+        }
+
+        if (!empty($post['group_by'])) {
+            $this->db->group_by($post['group_by']);
+        }
+
+        if (isset($post['having']) && !empty($post['having'])) {
+            $this->db->having($post['having'], FALSE);
+        }
+    }
+    
+    
+    /**
+     *  @desc : This function is used to get total hsn_code_details
+     *  @param : $post string
+     *  @return: Array()
+     */
+    public function count_all_hsncode_list($post) {
+        $this->_get_hsncode_details($post, 'count( DISTINCT hsn_code_details.id) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+    
+    /*
+     *  @desc : This function is used to get total filtered hsn_code_details
+     *  @param : $post string
+     *  @return: Array()
+     */
+    
+    function count_filtered_hsncode_list($post) {
+        $this->_get_hsncode_details($post, 'count( DISTINCT hsn_code_details.id) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+
 }

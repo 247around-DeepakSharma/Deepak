@@ -459,9 +459,9 @@ class vendor extends CI_Controller {
         $html .= "<li><b>" . 'IS Buyback Invoice on GST' . '</b> =>';
         $html .= " " . $updated_vendor_details['is_buyback_gst_invoice'] . '</li>';
         $html .= "</ul>";
-        $to = ANUJ_EMAIL_ID . ',' . $rm_email;
+        $to = $rm_email;
         // Added Accounts team Mail Id in CC in mail
-        $cc = ACCOUNTANT_EMAILID . ',' . $asm_email_id;
+        $cc = $asm_email_id;
         if(!empty($managerData)) {
             $to .= ",".$managerData[0]['official_email'];
         }
@@ -1065,18 +1065,14 @@ class vendor extends CI_Controller {
             $row[] = '<a id="edit" class="btn btn-small btn-success" href="' . base_url() . 'employee/vendor/temporary_on_off_vendor/' . $vendor_list['id'] . '/1 "  ' . $strm2 . '>On</a>';
         }
 
-           /*Only allow admin to activate or deactivte sf*/
-            
-        
+        /*Only allow admin to activate or deactivte sf*/
         if ($vendor_list['active'] == 1) {
             if ($this->session->userdata['user_group'] == _247AROUND_ADMIN || ($this->session->userdata['user_group'] == _247AROUND_ASM) || ($this->session->userdata['user_group'] == _247AROUND_RM)) {
                 $row[] = '<a id="edit" class="btn btn-small btn-danger" onclick="pendingBookings(' . $vendor_list["id"] . ',' . "'P'" . ',' . $vendor_list["is_micro_wh"] . ')" >Deactivate</a>';
             }
-            
-            // else{
-            //     // $row[] = '<a id="edit" class="btn btn-small btn-danger hidden" href="javascript:;" >Deactivate</a>';
-            // }
-            
+             else{
+               $row[] = '<a id="edit" class="btn btn-small btn-danger disabled" href="javascript:;" >Deactivate</a>';
+             }           
         } else {
             if (empty($vendor_list['pan_no']) || empty($vendor_list['pan_file'])) {
                 $row[] = '<a class="btn btn-small btn-primary" onclick="alert("Please Enter PAN Details of Vendor to allow Activation");" title="Save PAN Details of Vendor to allow Activation">Activate</a>';
@@ -4425,8 +4421,6 @@ class vendor extends CI_Controller {
                 if(!empty($from) && !empty($to))
                 {
                     $this->notify->sendEmail($from, $to, $template[3] . "," . $rm_official_email . $asm_mail, '', $subjectBody, $emailBody, "",'remove_penalty_on_booking', "", $booking_id[$key]);
-                    //Logging
-                    log_message('info', " Remove Penalty Report Mail Send successfully" . $emailBody);
                 }
             } else {
                 //Logging

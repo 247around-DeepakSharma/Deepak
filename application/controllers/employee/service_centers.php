@@ -1938,7 +1938,7 @@ class Service_centers extends CI_Controller {
         $this->checkUserSession();
         $spare_id = base64_decode(urldecode($code));
         $where = array('spare_parts_details.id' => $spare_id);
-        $select = 'spare_parts_details.id,spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.date_of_purchase,spare_parts_details.model_number,'
+        $select = 'spare_parts_details.id,spare_parts_details.defect_pic,spare_parts_details.spare_request_symptom,spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.date_of_purchase,spare_parts_details.model_number,'
                 . 'spare_parts_details.serial_number,spare_parts_details.serial_number_pic,spare_parts_details.invoice_pic,'
                 . 'spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.invoice_pic,spare_parts_details.part_warranty_status,'
                 . 'spare_parts_details.defective_parts_pic,spare_parts_details.defective_back_parts_pic,spare_parts_details.requested_inventory_id,spare_parts_details.serial_number_pic,spare_parts_details.remarks_by_sc,'
@@ -1949,6 +1949,20 @@ class Service_centers extends CI_Controller {
         $where1 = array('entity_id' => $spare_parts_details[0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $spare_parts_details[0]['service_id'], 'inventory_model_mapping.active' => 1, 'appliance_model_details.active' => 1);
         $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where1);
         $this->load->view('service_centers/header');
+        $data['technical_problem'] = array();
+        $price_tags_symptom = array();
+        $data['bookinghistory'] = $this->booking_model->getbooking_history($spare_parts_details[0]['booking_id']);
+        $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $spare_parts_details[0]['booking_id']));
+        foreach ($unit_details as $value) {
+         $price_tags1 = str_replace('(Free)', '', $value['price_tags']);
+         $price_tags2 = str_replace('(Paid)', '', $price_tags1);
+         array_push($price_tags_symptom, $price_tags2);
+        }
+        /*  getting symptom */
+        if (!empty($price_tags_symptom)) {
+        $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom', array('symptom.service_id' => $data['bookinghistory'][0]['service_id'], 'symptom.active' => 1, 'symptom.partner_id' => $data['bookinghistory'][0]['partner_id']), array('request_type.service_category' => $price_tags_symptom));
+        }
+
         $this->load->view('service_centers/get_update_spare_parts_required_form', $data);
     }
 
@@ -2442,9 +2456,11 @@ class Service_centers extends CI_Controller {
                 $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
                 
                 // set Ok part return in case of wrong & damage/broken part.
+                $return_ok_part = 0;
                 if($consumption_status_tag == DAMAGE_BROKEN_PART_RECEIVED_TAG || $consumption_status_tag == WRONG_PART_RECEIVED_TAG) {
                     $update_data['status'] = OK_PART_TO_BE_SHIPPED;
                     $update_data['defective_part_required'] = 1;
+                    $return_ok_part = 1;
                 }
                 // in case of courier lost .
                 if($consumption_status_tag == PART_NOT_RECEIVED_COURIER_LOST_TAG) {
@@ -2467,7 +2483,7 @@ class Service_centers extends CI_Controller {
                 
                 // generate challan.
                 if (!empty($this->session->userdata('service_center_id')) 
-                    && !empty($spare_part_detail['defective_part_required']) && $spare_part_detail['defective_part_required'] == 1 
+                    && !empty($spare_part_detail['defective_part_required']) && ($spare_part_detail['defective_part_required'] == 1 || $return_ok_part==1) 
                     && empty($spare_part_detail['defective_part_shipped']) && empty($spare_part_detail['defective_part_shipped_date'])) {
                     $this->invoice_lib->generate_challan_file($spare_id, $this->session->userdata('service_center_id'),'',true);
                 }
@@ -4390,7 +4406,7 @@ class Service_centers extends CI_Controller {
 
 
 
-                $sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,district, pincode, state,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name, primary_contact_phone_1 as contact_number, service_centres.gst_no as gst_number', array('id' => $service_center_id));
+                $sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,district, pincode, state,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name, primary_contact_phone_1 as contact_number , primary_contact_phone_2 as contact_number_2 , owner_phone_1 as contact_number_3, owner_phone_2 as contact_number_4, service_centres.gst_no as gst_number', array('id' => $service_center_id));
 
 
 
@@ -4433,6 +4449,10 @@ class Service_centers extends CI_Controller {
                 if (!empty($sf_details)) {
                     $data['partner_challan_number'] = $this->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code'], true);
                     $sf_details[0]['address'] = $sf_details[0]['address'] . ", " . $sf_details[0]['district'] . ", " . $sf_details[0]['state'] . ", Pincode -" . $sf_details[0]['pincode'];
+                   
+                    $contact_number_array = array($sf_details[0]['contact_number'],$sf_details[0]['contact_number_2'],$sf_details[0]['contact_number_3'],$sf_details[0]['contact_number_4']);
+                    $contact_number_string = implode(', ',array_unique(array_filter($contact_number_array))); 
+                     $sf_details[0]['contact_number'] = $contact_number_string;
                 }
 
                 if (!empty($spare_details)) {
@@ -6551,7 +6571,7 @@ class Service_centers extends CI_Controller {
             $a .= ', "' . $spare_list['id'] . '"';
             $a .= ")'>Receive</a>";
             $a .= "<input type='checkbox' class='checkbox_revieve_class' name='revieve_checkbox'";
-            $a .=" data-docket_number='" . $spare_list['awb_by_sf'] . "'  data-consumption_status='" . $spare_list['consumed_status'] . "' data-url='" . base_url() . "service_center/acknowledge_received_defective_parts/" . $spare_list['id'] . "/" . $spare_list['booking_id'] . "/" . $spare_list['partner_id'] . "'   />";
+            $a .=" data-docket_number='" . $spare_list['awb_by_sf'] . "' data-spare-id='" . $spare_list['id'] . "'  data-consumption_status='" . $spare_list['consumed_status'] . "' data-url='" . base_url() . "service_center/acknowledge_received_defective_parts/" . $spare_list['id'] . "/" . $spare_list['booking_id'] . "/" . $spare_list['partner_id'] . "'   />";
             
 
             $row[] = $a;
@@ -7156,7 +7176,6 @@ class Service_centers extends CI_Controller {
      * @return Void
      */
     function acknowledge_received_defective_parts($spare_id, $booking_id, $partner_id, $is_cron = "") {
-        
         $sf_id = "";
         if (empty($is_cron)) {
             if (!empty($this->session->userdata('warehouse_id'))) { 
@@ -7167,7 +7186,6 @@ class Service_centers extends CI_Controller {
                 $sf_id = $this->session->userdata('service_center_id');
             }
         }
-
         log_message('info', __FUNCTION__ . " SF ID: " . $sf_id . " Booking Id " . $booking_id);        
         
         // We will return this array instead of sending mail from here, we will fetch this data to send mail later at once
@@ -7188,6 +7206,14 @@ class Service_centers extends CI_Controller {
         // fetch record from booking details of $booking_id.
         $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
+        //Return false is Spare is already defective return acknowledged
+        $defective_part_received_date_by_wh = $spare_part_detail['defective_part_received_date_by_wh'];
+        if(!empty($defective_part_received_date_by_wh)){
+            echo json_encode(array('This Defective / OK part is already acknowledged.', ''));
+            return false;
+        }
+
+        //
         if (!empty($post_data['spare_consumption_status'][$spare_id]) && ($post_data['spare_consumption_status'][$spare_id] != $spare_part_detail['consumed_part_status_id'])) {
             $this->miscelleneous->change_consumption_by_warehouse($post_data, $booking_id);
         }
@@ -10367,5 +10393,26 @@ function do_delivered_spare_transfer() {
         $spare_id = $post_data['spare_id'];
         $this->service_centers_model->update_spare_parts(array('id' => $spare_id), ['partner_challan_number' => NULL, 'partner_challan_file' => NULL]);
         return true;
+    }
+    /**
+     * @Desc: This function is used to check if part already acknowledged
+     * @params: void
+     * @return: true
+     *
+     */
+    function check_part_alredy_acknowledge(){
+        $array['status'] = '';
+        $array['message'] = '';
+        if(!empty($this->input->post('spare_ids_to_check'))){
+            $post_data = $this->input->post();
+            $spare_id_array = $post_data['spare_ids_to_check'];
+            $spare_id_list = implode(',',$spare_id_array);
+            $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', 'id,defective_part_received_date_by_wh',array("id in ($spare_id_list)" => null, 'defective_part_received_date_by_wh is not null' => null), NULL, NULL, NULL, NULL, NULL);
+            if(!empty($spare_part_detail)){
+                $array['status'] = 'error';
+                $array['message'] = 'Some parts already acknowledged, Please refresh page to continue.';
+            }
+        }
+        echo json_encode($array);
     }
 }

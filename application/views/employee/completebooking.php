@@ -644,11 +644,6 @@
                                 <div class="col-md-8">
                                     <Select type="text" class="form-control" name="rating_stars" id="rating_star" value="">
                                         <option value="">Select</option>
-                                       <!--  <option <?php
-                                            if ($booking_history[0]['rating_stars'] == '-1') {
-                                                echo "selected";
-                                            }
-                                            ?>>-1</option> -->
                                         <option <?php
                                             if ($booking_history[0]['rating_stars'] == '1') {
                                                 echo "selected";
@@ -942,7 +937,7 @@
                     
                 var className = completedRadioButton.className;
                 var appdiv = Number(className.split('_')[2]);
-                var serial_number = $("#serial_number" + div_no[2]).val();
+                var serial_number = $("#serial_number").val();
                 if(prediv !== appdiv){
                       
                     prediv = appdiv;
@@ -952,17 +947,17 @@
     
                 if (serial_number === "") {
                     alert("Please Enter Serial Number");
-                    document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
+                    document.getElementById('serial_number').style.borderColor = "red";
                     document.getElementById('error_serial_no' + div_no[2]).innerHTML = "Please Enter Serial Number";                        
                     flag = 1;
                 }
     
                 if (serial_number === "0") {
-                    document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
+                    document.getElementById('serial_number').style.borderColor = "red";
                     document.getElementById('error_serial_no' + div_no[2]).innerHTML = "Enter Valid Serial Number"; 
                     flag = 1;
                 }
-                if($('#sno_required'+ div_no[2]).val() === '1' && !$('#sn_remarks').val()){
+                if($('#sno_required').val() === '1' && !$('#sn_remarks').val()){
                      alert('Please Correct Serial Number or Entered Remarks, Why We Should go With Wrong Serial Number');
                      flag = 1;
                      $('#submitform').css("pointer-events", "auto");
@@ -973,11 +968,11 @@
                 //If Serial Number Invalid then serial number image should be mendatory
 //                var requiredPic = $('#sno_required'+ div_no[2]).val();
 //                    if(requiredPic === '1'){
-                        if( document.getElementById("upload_serial_number_pic"+div_no[2]).files.length === 0 ){
-                            var serialnumberpic_prev=$('#serial_number_pic'+div_no[2]).val();
+                        if( document.getElementById("upload_serial_number_pic").files.length === 0 ){
+                            var serialnumberpic_prev=$('#serial_number_pic').val();
                             if(serialnumberpic_prev == ''){
                                 alert('Please Attach Serial Number image');
-                                document.getElementById('upload_serial_number_pic' + div_no[2]).style.borderColor = "red";
+                                document.getElementById('upload_serial_number_pic').style.borderColor = "red";
                                 flag = 1;
                                 $('#submitform').css("pointer-events", "auto");
                                 $('#submitform').css("opacity", "1");
@@ -986,10 +981,10 @@
                          }
                     //}
                    
-                    var duplicateSerialNo = $('#duplicate_sno_required'+ div_no[2]).val();
+                    var duplicateSerialNo = $('#duplicate_sno_required').val();
                     if(duplicateSerialNo === '1'){
                         alert('<?php echo DUPLICATE_SERIAL_NUMBER_USED;?>');
-                        document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
+                        document.getElementById('serial_number').style.borderColor = "red";
                         $("#error_serial_no" +div_no[2]).html('<?php echo DUPLICATE_SERIAL_NUMBER_USED;?>');
                         flag = 1;
                     }

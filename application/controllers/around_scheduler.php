@@ -2270,7 +2270,7 @@ class Around_scheduler extends CI_Controller {
                 $message = vsprintf($email_template[0], array($vendor_value->company_name, $vendor_value->gst_no, $table)); 
                 $email_from = $email_template[2];
                 $to = $vendor_value->owner_email.",".$vendor_value->primary_contact_email;
-                $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
+                $cc = $email_template[3];
                 $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, '', VENDOR_GST_RETURN_WARNING);
             }
         }
@@ -3266,5 +3266,30 @@ class Around_scheduler extends CI_Controller {
                 }
             }
         }
+    }
+    /**
+     * @desc This is used to Copy booking id from content for old booking 
+     * @return boolean
+     * Ghanshyam
+     */
+    function copy_booking_id_whatsapp_log(){
+        $post['where'] = array('booking_id is null' => null, 'direction' => 'outbound');
+        $post['length'] = -1;
+        $post['start'] = 0;
+        $select ="id,content";
+        $whatsapp_booking_log = $this->whatsapp_model->get_whatsapp_log_list($post, $select);
+        foreach($whatsapp_booking_log as $key => $value){
+          $content = $value['content'];
+          $matches = array();
+          preg_match('/([A-Z][A-Z]-[0-9]+)/', $content, $matches);
+          if(!empty($matches)){
+              $booking_id = $matches[0];              
+              $bookinghistory = $this->booking_model->getbooking_history($booking_id);
+              if(!empty($bookinghistory)){
+                 $this->whatsapp_model->update_whatsapp_log(array('id' => $value['id'],'booking_id is null' => null), array('booking_id' => $booking_id));
+              }
+              
+          }        
+        }        
     }
 }

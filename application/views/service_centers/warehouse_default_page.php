@@ -876,21 +876,21 @@
         postData['receiver_entity_name'] = '<?php echo $this->session->userdata('wh_name')?>';
         
         if(flag){
-            $('#ack_spare').html("<i class='fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
+            $('#tabs-6 #ack_spare').html("<i class='fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
             $.ajax({
                 method:'POST',
                 url:'<?php echo base_url(); ?>employee/inventory/process_acknowledge_spare_send_by_partner_to_wh',
                 data:postData,
                 success:function(response){
-                    $('#ack_spare').html("Acknowledge spare received").attr('disabled',false);
+                    $('#tabs-6 #ack_spare').html("Acknowledge spare received").attr('disabled',false);
                     obj = JSON.parse(response);
                     if(obj.status){
                         $('.success_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
-                        $('#success_msg').html(obj.message);
+                        $('#tabs-6 #success_msg').html(obj.message);
                         inventory_spare_table.ajax.reload();
                     }else{
                         $('.error_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
-                        $('#error_msg').html(obj.message);
+                        $('#tabs-6 #error_msg').html(obj.message);
                     }
                 }
             });
@@ -899,13 +899,13 @@
         }
     }
 
-    function get_msl_awb_details(courier_code,awb_number,status,id){
+    function get_msl_awb_details(courier_code,awb_number){
 
-            if(courier_code && awb_number && status){
+            if(courier_code && awb_number){
                 $('#'+id).show();
                 $.ajax({
                     method:"POST",
-                    data : {courier_code: courier_code, awb_number: awb_number, status: status},
+                    data : {courier_code: courier_code, awb_number: awb_number},
                     url:'<?php echo base_url(); ?>courier_tracking/get_real_time_courier_tracking_using_rapidapi',
                     success: function(res){
                         $('#'+id).hide();

@@ -306,8 +306,7 @@ class Paytm_gateway extends CI_Controller {
             if (!empty($partner_details[0]['account_manager_id'])) {
                 //$am_email = $this->employee_model->getemployeefromid($partner_details[0]['account_manager_id'])[0]['official_email'];
                 $am_email = $this->employee_model->getemployeeMailFromID($partner_details[0]['account_manager_id'])[0]['official_email'];
-            }
-            
+            }            
             
             $partner_email = $partner_details[0]['owner_email']. ", ". $partner_details[0]['invoice_email_to'];
             $payer_name = $partner_details[0]['public_name'];
@@ -356,7 +355,7 @@ class Paytm_gateway extends CI_Controller {
             $subject_text = "Payment Failed";
         }   
         
-        $bcc = $email_template[3].','.$am_email.','.ACCOUNTANT_EMAILID;
+        $cc = $email_template[3].','.$am_email;
         $subject = vsprintf($email_template[4], $subject_text);
         $data['payer_name'] = $payer_name;
         $email_body = $this->load->view('paytm_gateway/transaction_email_template',$data,TRUE);
@@ -369,7 +368,7 @@ class Paytm_gateway extends CI_Controller {
             $to = $email_template[1];
         }
 
-        $sendmail = $this->notify->sendEmail($email_template[2], $to, "", $bcc, $subject, $email_body, "",'payment_transaction_email');
+        $sendmail = $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $email_body, "",'payment_transaction_email');
         
         if ($sendmail) {
             log_message('info', __FUNCTION__ . 'Payment transaction email send successfully');

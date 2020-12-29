@@ -236,10 +236,12 @@ $(".recieve_defective").attr('disabled',true);
 $(".loader").css("display","block !important");
 var flag=false;
 var url = new Array();
+var spare_id_array = [];
 var consumption_status = new Array();
 $('.checkbox_revieve_class').each(function () {
     if (this.checked) { 
         url.push($(this).attr("data-url"));
+        spare_id_array.push($(this).attr("data-spare-id"));
         consumption_status.push($(this).attr("data-consumption_status"));
         flag=true;
     }
@@ -284,7 +286,53 @@ if(flag) {
     /*
      * @js: It's use to received multiple defective send by SF.
      */
-    
+    $(document).on('click',".change-consumption-multiple_precheck", function(e) {
+        
+        var multipleconsumptionremarks = $("#multiple-consumption-remarks").val();
+        multipleconsumptionremarks = multipleconsumptionremarks.trim();
+        var validation = true;
+        if(multipleconsumptionremarks=='' || multipleconsumptionremarks==null){
+            alert('Please enter remarks.');
+            validation = false;
+            return false;
+            
+        }
+        var weight_in_kg = $("#defective_parts_shipped_weight_in_kg").val();
+        var weight_in_gram = $("#defective_parts_shipped_weight_in_gram").val();
+
+        if(parseInt(weight_in_kg) < 0){
+            $("#defective_parts_shipped_weight_in_kg").val('');
+            alert("Please Enter valid Weight in KG.");
+            return false;
+        }
+
+        if(parseInt(weight_in_gram) < 0){
+            $("#defective_parts_shipped_weight_in_gram").val('');
+            alert("Please Enter valid Weight in Gram.");
+            return false;
+        }
+        if(validation){
+        $(".change-consumption-multiple_precheck").attr('disabled',true);
+        $(".change-consumption-multiple_precheck").val('Submitting...');
+        $("#multiple_loader_gif").css('display','block');
+        $.ajax({
+        type: 'POST',
+        url: '<?php echo base_url(); ?>employee/service_centers/check_part_alredy_acknowledge',
+        data: {spare_ids_to_check:spare_id_array},
+        success: function (data) {
+           data = JSON.parse(data);
+           if(data['status']=='error'){
+               alert(data['message']);
+               window.location.href = window.location.href;
+           }else{
+             $('.change-consumption-multiple').trigger('click');
+             $(".change-consumption-multiple_precheck").attr('disabled',false);
+             $(".change-consumption-multiple_precheck").val('Submitting...');
+        }
+        }
+        });
+        }
+    });
     $(document).on('click',".change-consumption-multiple", function(e) {
        
         //Declaring new Form Data Instance  

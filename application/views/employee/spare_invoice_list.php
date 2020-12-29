@@ -230,11 +230,18 @@ else{
     }
 
  function open_create_invoice_form(){
-        $('#btn_create_invoice').attr('disabled',true);
+        
         var spare_id = [];
         var partner_id_array = [];
         var invoice_id_array = [];
         var data_list = [];
+        if(!$('.spare_id').is(':checked')){
+           alert('Please check purchase invoice box'); 
+           return false;
+        }else{
+           
+        $('#btn_create_invoice').attr('disabled',true);
+        
         $('.spare_id:checked').each(function (i) {
             spare_id[i] = $(this).val();
             var partner_id  = $(this).attr('data-partner_id');
@@ -310,7 +317,7 @@ else{
                  }
             });  
         }
-            
+      }     
     }
     
     function ArrayNoDuplicate(a) {
@@ -324,6 +331,15 @@ else{
     }
     
     function genaerate_purchase_invoice(){
+        
+      var invoice_id = $("#invoice_id").val();
+      var format = /[ `!@#$%^&*()+\=\[\]{};':"\\<>\?~]/;
+        if (format.test(invoice_id)) {
+            $("#invoice_id").val('');
+            alert("Invoice id should not be special character.");
+            return false;
+        }
+       
         $('#btn_purchase_invoice,#btn_create_invoice').attr('disabled',true);
             swal({
                      title: "Do You Want To Continue?",
@@ -421,7 +437,7 @@ else{
     
     $("#invoice_id").keypress(function (e) {
         var keyCode = e.keyCode || e.which;
-        var regex = /^[A-Za-z0-9-.]+$/;
+        var regex = /^[A-Za-z0-9-,./|_]+$/;
         //Validate TextBox value against the Regex.
         var isValid = regex.test(String.fromCharCode(keyCode));
         if (!isValid) {

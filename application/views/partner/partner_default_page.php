@@ -45,7 +45,7 @@ table {
                                     </div>';
         }
         ?>
-        <div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="col-md-12 col-sm-12 col-xs-12"style="padding:0px;">
             <div class="x_panel">
                 <div class="x_content">
                     <div class="" role="tabpanel" data-example-id="togglable-tabs">

@@ -72,7 +72,7 @@
                                 <?php } ?>
                             </td>
                            <td>
-                             <?php  if (!empty($row->service_center_closed_date) && $row->service_center_closed_date != '0000-00-00 00:00:00' && $row->current_status != 'Cancelled' && $row->internal_status != 'InProcess_Cancelled') {
+                             <?php if (!empty($row->service_center_closed_date) && $row->service_center_closed_date != '0000-00-00 00:00:00' && $row->current_status != 'Cancelled' && $row->internal_status != 'InProcess_Cancelled' && empty($row->cancellation_reason)) {
                                             $today = strtotime(date("Y-m-d"));
                                             $closed_date = strtotime($row->service_center_closed_date);
                                             $completedDays = round(($today - $closed_date) / (60 * 60 * 24));

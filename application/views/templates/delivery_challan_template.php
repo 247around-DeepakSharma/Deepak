@@ -23,20 +23,20 @@
 <body>
     <table id="table1">
         <tr>
-            <td colspan="2" style="border-right: hidden;">
+            <td colspan="1" style="border-right: hidden;">
                 <?php if($excel_data['main_company_logo']){ ?>
                 <img style="padding: 2px;height: 75px;" src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$excel_data['main_company_logo']; ?>">
                 <?php } ?>
             </td>
-            <td colspan="11"><h1>Delivery Challan</h1></td>
+            <td colspan="14" style='text-align: center;'><h1>Delivery Challan</h1></td>
         </tr>
         <tr>
-            <td colspan="5" align="left" style="border-bottom: hidden;"><p>To,</p><?php if(!empty($excel_data['sf_name'])){ echo $excel_data['sf_name']; } ?></td>
-            <td style="border-bottom: hidden;border-right: hidden;"></td>
-            <td  colspan="7" align="left" style="border-bottom: hidden;"><b>Challan No: </b><?php if(!empty( $excel_data['sf_challan_no'])){ echo $excel_data['sf_challan_no']; } ?></td>
+            <td colspan="3" align="left" style="border-bottom: hidden;"><p>To,</p><?php if(!empty($excel_data['sf_name'])){ echo $excel_data['sf_name']; } ?></td>
+            
+            <td  colspan="12" align="left" style="border-bottom: hidden;"><b>Challan No: </b><?php if(!empty( $excel_data['sf_challan_no'])){ echo $excel_data['sf_challan_no']; } ?></td>
         </tr>
         <tr>
-            <td  colspan="5" rowspan="2" align="left" style="border-bottom: hidden;"><b>Address:</b> <?php if(!empty($excel_data['sf_contact_person_name'])){ echo 'C/o '.$excel_data['sf_contact_person_name'].", "; } if(!empty($excel_data['sf_address'])){ echo $excel_data['sf_address']; } ?> 
+            <td  colspan="3" rowspan="2" align="left" style="border-bottom: hidden;"><b>Address:</b> <?php if(!empty($excel_data['sf_contact_person_name'])){ echo 'C/o '.$excel_data['sf_contact_person_name'].", "; } if(!empty($excel_data['sf_address'])){ echo $excel_data['sf_address']; } ?> 
           
             <?php
                 if (!empty($excel_data['sf_contact_number'])) {
@@ -45,12 +45,12 @@
             ?>
                             
             </td>
-            <td style="border-bottom: hidden;border-right: hidden;"></td>
-            <td colspan="7" align="left" style="border-bottom: hidden;"><b>Ref No: </b><?php  if(!empty($excel_data['partner_challan_no'])){ echo $excel_data['partner_challan_no']; } ?></td>
+           
+            <td colspan="12" align="left" style="border-bottom: hidden;"><b>Ref No: </b><?php  if(!empty($excel_data['partner_challan_no'])){ echo $excel_data['partner_challan_no']; } ?></td>
         </tr>
         <tr>
-            <td style="border-bottom: hidden;border-right: hidden;"></td>
-            <td colspan="7" align="left" style="border-bottom: hidden;"><b>Date: </b>
+            
+            <td colspan="12" align="left" style="border-bottom: hidden;"><b>Date: </b>
                 <?php 
                     if (isset($excel_data['generated_by_wh']) && $excel_data['generated_by_wh'] == 1) {
                         echo date("j M Y");
@@ -61,17 +61,15 @@
             </td>
         </tr>
         <tr>
-            <td  colspan="5" align="left"  style="<?php if(!empty($excel_data['courier_servicable_area'])){ ?>border-bottom: hidden;<?php } ?>"><b>GST: </b><?php if(!empty($excel_data['sf_gst'])){ echo $excel_data['sf_gst']; } ?></td>
-            <td style="border-right: hidden;<?php if(!empty($excel_data['courier_servicable_area'])){ ?>border-bottom: hidden;<?php } ?>"></td>
-            <td colspan="7"  style="<?php if(!empty($excel_data['courier_servicable_area'])){ ?>border-bottom: hidden;<?php } ?>"></td>
+            <td  colspan="3" align="left"  style="<?php if(!empty($excel_data['courier_servicable_area'])){ ?>border-bottom: hidden;<?php } ?>"><b>GST: </b><?php if(!empty($excel_data['sf_gst'])){ echo $excel_data['sf_gst']; } ?></td>
+            <td colspan="12"  style="<?php if(!empty($excel_data['courier_servicable_area'])){ ?>border-bottom: hidden;<?php } ?>"></td>
         </tr>
         <?php
         if(!empty($excel_data['courier_servicable_area'])){
         ?>
         <tr>
-            <td  colspan="5" align="left"><b>Courier Servicable Area: </b><?php echo $excel_data['courier_servicable_area']; ?></td>
-            <td style="border-right: hidden;"></td>
-            <td colspan="7"></td>
+            <td  colspan="3" align="left"><b>Courier Servicable Area: </b><?php echo $excel_data['courier_servicable_area']; ?></td>
+            <td colspan="12"></td>
         </tr>
         <?php
         }
