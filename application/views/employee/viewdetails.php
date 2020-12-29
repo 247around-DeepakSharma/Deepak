@@ -936,6 +936,7 @@
                             <table class="table  table-striped table-bordered" >
                                 <thead>
                                     <tr>
+                                        <td>Spare Id</td>
                                         <th>Estimate Given By Partner/Warehouse</th>
                                         <th>Estimate Cost</th>
                                         <th>Estimate Given Date </th>
@@ -947,6 +948,7 @@
                                 <tbody>
                                     <?php foreach ($booking_history['spare_parts'] as $sp){ if($sp['purchase_price'] > 0) { ?>
                                     <tr>
+                                        <td><a href="javascript:void(0);"  data-spare_id="<?php echo $sp['id']; ?>" class="spare_history_tracking"><?php echo $sp['id']; ?></a></td>
                                         <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else { echo "Warehouse";} ?></td>
                                         <td><?php echo $sp['purchase_price']; ?></td>
                                         <td><?php if(!empty($sp['estimate_cost_given_date'])) { echo date("d-m-Y", strtotime($sp['estimate_cost_given_date'])); } ?></td>
