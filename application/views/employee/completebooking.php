@@ -644,11 +644,6 @@
                                 <div class="col-md-8">
                                     <Select type="text" class="form-control" name="rating_stars" id="rating_star" value="">
                                         <option value="">Select</option>
-                                       <!--  <option <?php
-                                            if ($booking_history[0]['rating_stars'] == '-1') {
-                                                echo "selected";
-                                            }
-                                            ?>>-1</option> -->
                                         <option <?php
                                             if ($booking_history[0]['rating_stars'] == '1') {
                                                 echo "selected";

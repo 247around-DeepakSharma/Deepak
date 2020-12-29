@@ -199,13 +199,13 @@
 
 
 
-    function get_msl_awb_details(courier_code,awb_number,status='pick-up',id){
+    function get_msl_awb_details(courier_code,awb_number){
 
             if(courier_code && awb_number){
                // $('#'+id).show();
                 $.ajax({
                     method:"POST",
-                    data : {courier_code: courier_code, awb_number: awb_number, status: status},
+                    data : {courier_code: courier_code, awb_number: awb_number},
                     url:'<?php echo base_url(); ?>courier_tracking/get_real_time_courier_tracking_using_rapidapi',
                     success: function(res){
                      //   $('#'+id).hide();
