@@ -967,7 +967,7 @@ class Courier_tracking extends CI_Controller {
     function auto_acknowledge_spare_Raipid_shipped_by_partner() {
         log_message('info', __METHOD__ . ' Entering...');
 
-        $select = "DISTINCT(spare_parts_details.awb_by_partner) as tracking_number, spare_parts_details.courier_name_by_partner as couriercode";
+        $select = "spare_parts_details.awb_by_partner as tracking_number, spare_parts_details.courier_name_by_partner as couriercode";
 
         $spare_shipped_partner_tracking_data = $this->getCourierTrackingCodeTrackingNumber($select, SPARE_SHIPPED_BY_PARTNER);
 
@@ -975,7 +975,8 @@ class Courier_tracking extends CI_Controller {
 
             if (!empty($val->tracking_number) && !empty($val->couriercode)) {
 
-                $awb_number_list = $this->trackingmore_api->getRapidApiRealTimeTrackingResults($val->couriercode, $val->tracking_number);
+                    $awb_number_list = $this->trackingmore_api->getRapidApiRealTimeTrackingResults($val->couriercode, $val->tracking_number);
+                    sleep(20);
 
                 if (!empty($awb_number_list) && isset($awb_number_list['meta']['code']) == 200) {
                     //check if data is empty
@@ -1017,19 +1018,23 @@ class Courier_tracking extends CI_Controller {
      */
 
     function getCourierTrackingCodeTrackingNumber($select, $status) {
-        $post['length'] = 1000000;
-        $post['start'] = 0;
-        $post['select'] = $select;
+        //$post['length'] = 1000000;
+        //$post['start'] = 0;
+        //$post['select'] = $select;
 
         if ($status == SPARE_SHIPPED_BY_PARTNER) {
-            $post['where']['spare_parts_details.status IN ("' . SPARE_PARTS_SHIPPED . '", "' . SPARE_PARTS_SHIPPED_BY_WAREHOUSE . '", "' . SPARE_OOW_SHIPPED . '")'] = NULL;
+            $post['where']['spare_parts_details.status IN ("' . SPARE_PARTS_SHIPPED . '", "' . SPARE_PARTS_SHIPPED_BY_WAREHOUSE . '", "' . SPARE_OOW_SHIPPED . '")'
+                    . ' AND spare_parts_details.courier_name_by_partner NOT IN ("Company Transport", "other")'] = NULL;
         } else if ($status == DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH) {
-            $post['where']['spare_parts_details.status IN ("' . DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH . '", "' . OK_PARTS_SEND_TO_PARTNER_BY_WH . '")'] = NULL;
+            $post['where']['spare_parts_details.status IN ("' . DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH . '", "' . OK_PARTS_SEND_TO_PARTNER_BY_WH . '")'
+                    . ' AND spare_parts_details.courier_name_by_wh NOT IN ("Company Transport", "other")'] = NULL;
         } else {
-            $post['where'] ['spare_parts_details.status IN ("' . OK_PARTS_SHIPPED . '", "' . DEFECTIVE_PARTS_SHIPPED . '")'] = NULL;
+            $post['where'] ['spare_parts_details.status IN ("' . OK_PARTS_SHIPPED . '", "' . DEFECTIVE_PARTS_SHIPPED . '")'
+                    . ' AND spare_parts_details.courier_name_by_sf NOT IN ("Company Transport", "other")'] = NULL;
         }
 
-        $spare_data = $this->inventory_model->get_spare_parts_query($post);
+        //$spare_data = $this->inventory_model->get_spare_parts_query($post);
+        $spare_data = $this->inventory_model->get_spare_parts_details($select, $post['where'], false, false, TRUE);
         if (!empty($spare_data)) {
             return $spare_data;
         } else {
@@ -1133,7 +1138,7 @@ class Courier_tracking extends CI_Controller {
     function auto_acknowledge_defactive_part_Raipid_shipped_by_sf() {
         log_message('info', __METHOD__ . ' Entering...');
 
-        $select = "DISTINCT(spare_parts_details.awb_by_sf) as tracking_number, spare_parts_details.courier_name_by_sf as couriercode, spare_parts_details.defective_part_shipped_date as shipped_date, booking_details.partner_id, spare_parts_details.booking_id";
+        $select = " spare_parts_details.awb_by_sf  as tracking_number, spare_parts_details.courier_name_by_sf as couriercode";
 
         $spare_shipped_partner_tracking_data = $this->getCourierTrackingCodeTrackingNumber($select, DEFECTIVE_PARTS_SHIPPED);
 
@@ -1142,6 +1147,7 @@ class Courier_tracking extends CI_Controller {
             if (!empty($val->tracking_number) && !empty($val->couriercode)) {
 
                 $awb_number_list = $this->trackingmore_api->getRapidApiRealTimeTrackingResults($val->couriercode, $val->tracking_number);
+                sleep(20);
 
                 if (!empty($awb_number_list) && isset($awb_number_list['meta']['code']) == 200) {
 
@@ -1215,7 +1221,7 @@ class Courier_tracking extends CI_Controller {
     function auto_acknowledge_defactive_part_Raipid_shipped_by_wh_to_partner() {
         log_message('info', __METHOD__ . ' Entering...');
 
-        $select = "DISTINCT(spare_parts_details.awb_by_wh) as tracking_number, spare_parts_details.courier_name_by_wh as couriercode, spare_parts_details.defective_part_shipped_date as shipped_date, booking_details.partner_id, spare_parts_details.booking_id";
+        $select = "spare_parts_details.awb_by_wh as tracking_number, spare_parts_details.courier_name_by_wh as couriercode";
 
         $spare_shipped_partner_tracking_data = $this->getCourierTrackingCodeTrackingNumber($select, DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH);
 
@@ -1224,7 +1230,7 @@ class Courier_tracking extends CI_Controller {
             if (!empty($val->tracking_number) && !empty($val->couriercode)) {
 
                 $awb_number_list = $this->trackingmore_api->getRapidApiRealTimeTrackingResults($val->couriercode, $val->tracking_number);
-
+                sleep(20);
                 if (!empty($awb_number_list) && isset($awb_number_list['meta']['code']) == 200) {
 
                     //check if data is empty
@@ -1303,6 +1309,7 @@ class Courier_tracking extends CI_Controller {
             if (!empty($val['tracking_number']) && !empty($val['tracking_number'])) {
 
                 $awb_number_list = $this->trackingmore_api->getRapidApiRealTimeTrackingResults($val['couriercode'], $val['tracking_number']);
+                sleep(20);
                 if (!empty($awb_number_list) && isset($awb_number_list['meta']['code']) == 200) {
 
                     if (!empty($awb_number_list['data'])) {
