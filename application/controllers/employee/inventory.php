@@ -5677,7 +5677,7 @@ class Inventory extends CI_Controller {
             'wh_ack_received_part' => 0,
             'requested_inventory_id' => $data->inventory_id
         );
-
+        // 1 Means CWH & 2 Means MWH
         if ($data->is_wh_micro == 1) {
             $where['purchase_invoice_id'] = $data->invoice_id;
             $where['status'] = SPARE_PARTS_REQUESTED;
@@ -9247,6 +9247,8 @@ function get_bom_list_by_inventory_id($inventory_id) {
 
         $post['column_search'] = array('invoice_details.invoice_id', 'invoice_details.description', 'entity_gst_details.gst_number','inventory_master_list.part_number');
         $list = $this->inventory_model->get_inventory_ledger_details_data_view($select, $where,$post);
+
+        
 
         
         $no = $post['start'];
