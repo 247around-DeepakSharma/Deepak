@@ -2443,7 +2443,7 @@ class Service_centers extends CI_Controller {
                 
                 // generate challan.
                 if (!empty($this->session->userdata('service_center_id')) 
-                    && !empty($spare_part_detail['defective_part_required']) && ($spare_part_detail['defective_part_required'] == 1 || $return_ok_part==1) 
+                    && (!empty($spare_part_detail['defective_part_required']) || $return_ok_part==1) && ($spare_part_detail['defective_part_required'] == 1 || $return_ok_part==1) 
                     && empty($spare_part_detail['defective_part_shipped']) && empty($spare_part_detail['defective_part_shipped_date'])) {
                     $this->invoice_lib->generate_challan_file($spare_id, $this->session->userdata('service_center_id'),'',true);
                 }
