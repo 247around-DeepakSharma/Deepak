@@ -5344,23 +5344,7 @@ function generate_image($base64, $image_name,$directory){
             'old_status' => $old_status,
             'status' => _247AROUND_CANCELLED,
             'spare_cancelled_date' => date('Y-m-d H:i:s'),
-            'spare_cancellation_reason' => $spare_cancellation_reason_id, 
-            'parts_shipped' => NULL,
-            'shipped_date' => NULL,
-            'model_number_shipped' => NULL,
-            'shipped_parts_type' => NULL,
-            'shipped_quantity' => 0,
-            'shipped_inventory_id' => NULL,
-            'defective_return_to_entity_type' => NULL,
-            'defective_return_to_entity_id' => NULL,
-            'awb_by_partner' => NULL,
-            'courier_price_by_partner' => NULL,
-            'courier_pic_by_partner' => NULL,
-            'courier_name_by_partner' => NULL,
-            'remarks_by_partner' => NULL,
-            'challan_approx_value' => NULL,
-            'partner_challan_file' => NULL,
-            'partner_challan_number' => NULL
+            'spare_cancellation_reason' => $spare_cancellation_reason_id
         );
     }
     
@@ -5416,17 +5400,18 @@ function generate_image($base64, $image_name,$directory){
      */
     function copy_invoices_from_s3() {
         // Tables & columns in  which invoices are stored
-        $arr_tables = ['service_center_booking_action' => 'sf_purchase_invoice', 'booking_files' => 'file_name', 'engineer_booking_action' => 'purchase_invoice', 'spare_parts_details' => 'invoice_pic'];
-        
-        foreach($arr_tables as $table_name => $column_name){
+        $arr_tables = $this->My_CI->reusable_model->get_search_result_data('cron_config', '*', NULL, NULL, NULL, NULL, NULL, NULL);
+        foreach($arr_tables as $key => $tbl_data){
+            $table_name = $tbl_data['table'];
+            $column_name = $tbl_data['column'];
+            
             // Get Last record updated date
-            $res = $this->My_CI->reusable_model->get_search_result_data('cron_config', '*', ['table' => $table_name, 'column' => $column_name], NULL, NULL, NULL, NULL, NULL);
             $where = [];
-            if(!empty($res)){
+            if(!empty($tbl_data)){
                 $where[$column_name. " IS NOT NULL AND ". $column_name." <> ''"] = NULL;
                 // Get only those files which are not yet uploaded
-                if(!empty($res[0]['date'])){
-                    $where['create_date > "'.$res[0]['date'].'"'] = NULL;
+                if(!empty($tbl_data['date'])){
+                    $where['create_date > "'.$tbl_data['date'].'"'] = NULL;
                 }
                 $data = $this->My_CI->reusable_model->get_search_result_data($table_name, '*', $where, NULL, NULL, ['create_date' => 'asc'], NULL, NULL);
                 foreach ($data as $invoice_data) {

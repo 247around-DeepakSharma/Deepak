@@ -725,7 +725,7 @@ class Partner extends CI_Controller {
                     $html .= "</ul>";
                     // ----------------------------------------------------------------
                     $email_data['to'] = $am_email. ",". $this->session->userdata("official_email");
-                    $email_data['cc'] = ACCOUNTANT_EMAILID.", ".ANUJ_EMAIL_ID;
+                    $email_data['cc'] = PARTNER_ONBOARDING_EMAIL_ID . ", " . ACCOUNTS_AR_EMAIL_ID;
                     $email_data['subject'] = "Partner Updated :  " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
                     $email_data['html'] = $html;
                     $sendUrl = base_url().'employee/partner/send_email_to_am_on_partner_update';
@@ -6147,7 +6147,7 @@ class Partner extends CI_Controller {
         $partner_id = $this->session->userdata('partner_id');
         $where = "spare_parts_details.defective_return_to_entity_id = '" . $partner_id . "' "
                 . " AND defective_return_to_entity_type = '"._247AROUND_PARTNER_STRING."' "
-                . " AND approved_defective_parts_by_partner = '1' ";
+                . " AND approved_defective_parts_by_partner = '1' AND status != 'Cancelled' ";
         $data = $this->partner_model->get_spare_parts_booking_list($where, NULL,NULL, true);
         $headings = array("Name","Booking ID","Received Parts","Part Code","Received Date","AWB","Courier Name","Challan","SF Remarks");
         $CSVData = array();

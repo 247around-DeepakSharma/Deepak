@@ -1139,7 +1139,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('partners as p1', "p1.id = i.sender_entity_id AND i.sender_entity_type = 'partner'",'left');
         $this->db->join('employee as e1', "e1.id = i.sender_entity_id AND i.sender_entity_type = 'employee'",'left');
         if(!empty($post['is_courier_details_required'])){
-            $this->db->join('courier_details', 'i.courier_id = courier_details.id','left');
+            $this->db->join('courier_company_invoice_details', 'i.courier_id = courier_company_invoice_details.id','left');
         }
 
         if (!empty($post['is_micro_wh'])) {
@@ -3666,7 +3666,7 @@ class Inventory_model extends CI_Model {
      * @author Ankit Rajvanshi
      */
     function handle_rto_case($spare_id, $post_data) {
-       
+        
         /*fetch spare part detail $spare_id*/ 
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
         /*fetch booking detail*/
@@ -3714,12 +3714,12 @@ class Inventory_model extends CI_Model {
             $this->insert_inventory_ledger($ledger_data);
         }
 
-
+        $remarks = "AWB " . $post_data['awb_by_partner'] . " Marked RTO By " . $this->session->userdata('emp_name') . ", " . $post_data['remarks'];
         // entry in spare tracking history.
         $tracking_details = array(
             'spare_id' => $spare_id, 
             'action' => _247AROUND_CANCELLED, 
-            'remarks' => $post_data['remarks'], 
+            'remarks' => $remarks, 
             'agent_id' => $this->session->userdata('id'), 
             'entity_id' => _247AROUND,
             'entity_type' => _247AROUND_EMPLOYEE_STRING
@@ -3727,7 +3727,7 @@ class Inventory_model extends CI_Model {
         $this->service_centers_model->insert_spare_tracking_details($tracking_details);
 
         // entry in booking state change.
-        $this->notify->insert_state_change($spare_part_detail['booking_id'], SPARE_PARTS_CANCELLED, '', $post_data['remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), '', '', _247AROUND, NULL, $spare_id);
+        $this->notify->insert_state_change($spare_part_detail['booking_id'], SPARE_PARTS_CANCELLED, '', $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), '', '', _247AROUND, NULL, $spare_id);
 
         //check other spares state and update booking internal status 
         $check_spare_parts_details = $this->partner_model->get_spare_parts_by_any('*', array('spare_parts_details.booking_id' => $spare_part_detail['booking_id'], 'status IN ("' . SPARE_PARTS_SHIPPED . '", "'

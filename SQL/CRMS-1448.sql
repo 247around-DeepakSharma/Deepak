@@ -1,0 +1,1 @@
+update booking_details set rating_unreachable_count = 1 where rating_stars = '-1';

@@ -37,8 +37,23 @@ define("QC_HSN_CODE", 998397);
 define("HSN_CODE", "998715");
 define("STAND_HSN_CODE", "8302");
 define("COMMISION_CHARGE_HSN_CODE", "996111");
+
 //define('ACCOUNTANT_EMAILID',"accounts@247around.com" );
-define('ACCOUNTANT_EMAILID',"billing@247around.com" );
+//Accounts/Business Email IDs
+//Common accounts email id to which all email copies are getting forwarded.
+//This email id is NOT monitored by anyone and is used only to keep all invoice copies.
+define('ACCOUNTANT_EMAILID',"billing@247around.com");
+//Accounts Receivables email
+define('ACCOUNTS_AR_EMAIL_ID',"ar@247around.com");
+//Accounts Payables email
+define('ACCOUNTS_AP_EMAIL_ID',"ap@247around.com");
+//GST Tax email
+define('ACCOUNTS_TAX_EMAIL_ID',"tax@247around.com");
+//OOW/Accessories invoice emails
+define('OOW_ACCESSORIES_SALE_EMAIL_ID',"oow_sale@247around.com");
+//Parter onboarding team email
+define('PARTNER_ONBOARDING_EMAIL_ID',"partneractionlog@247around.com");
+
 //Default Municipal limit for Paytm
 define("DEFAULT_PAYTM_MUNICIPAL_LIMIT", 15);
 // Default PAYTM UPCOUNTRY DISTRICT

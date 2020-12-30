@@ -152,7 +152,7 @@ class File_upload extends CI_Controller {
                 } else {
                     //redirect to upload page
                     //$this->session->set_flashdata('file_error', 'Empty file has been uploaded');
-                    $this->session->set_userdata('fail', '<h5 style="color:red; margin-left:10px;">Empty file has been uploaded</h5>');
+                    $this->session->set_userdata('fail', '<h5 style="color:red; margin-left:10px;">Empty file cannot be uploaded.</h5>');
                     redirect(base_url() . $redirect_to);
                 }
             } else {
@@ -979,7 +979,16 @@ class File_upload extends CI_Controller {
             $post_data['appliance']['is_wh_micro'] = $this->input->post("is_wh_micro");
             $post_data['appliance']['dated'] = date('Y-m-d H:i:s');
             $post_data['appliance']['invoice_id'] = $this->input->post("invoice_id");
-            $post_data['appliance']['invoice_amount'] = round(($invoice_price_with_gst), 2);
+            
+            if(!empty($this->input->post('tcs_rate'))){
+              $tcs_rate = $this->input->post('tcs_rate');  
+            }else{
+             $tcs_rate = 0;    
+            }
+            
+            $tcs_rate_value = (round(($invoice_price_with_gst), 2) * $tcs_rate / 100);
+            $invoice_value = (round(($invoice_price_with_gst), 2) + $tcs_rate_value);
+            $post_data['appliance']['invoice_amount'] = round(($invoice_value), 2);
             $post_data['appliance']['courier_name'] = $this->input->post("courier_name");
             $post_data['appliance']['awb_number'] = $this->input->post("awb_number");
             $post_data['appliance']['courier_shipment_date'] = $this->input->post("courier_shipment_date");
@@ -1136,7 +1145,7 @@ class File_upload extends CI_Controller {
         $header_column_need_to_be_present = array('courier_company_name', 'pincode');
         //check if required column is present in upload file header
         $check_header = $this->check_column_exist($header_column_need_to_be_present, $data['header_data']);
-       
+       $error_type = "";
         if ($check_header['status']) {
             
             $flag = 1;
@@ -1149,7 +1158,6 @@ class File_upload extends CI_Controller {
             $this->table->set_template($template1);
             $this->table->set_heading(array('Courier Name', 'Pincode', 'Error Type'));
             //get file data to process
-            $error_type = "";
             for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                 $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
                 $sanitizes_row_data = array_map('trim', $rowData_array[0]);
@@ -1162,6 +1170,22 @@ class File_upload extends CI_Controller {
                             $error_type = "Already Exists In Our System.";
                             $this->table->add_row($rowData['courier_company_name'], $rowData['pincode'], $error_type);
                         } else {
+                            
+                            if(preg_match("/[^a-zA-Z0-9 ]+/", trim($rowData['courier_company_name']))){
+                                 $error_type = "Courier company name should not be special character.";
+                                 $this->table->add_row($rowData['courier_company_name'], $rowData['pincode'], $error_type);
+                            } 
+                            
+                            if(strlen(trim($rowData['courier_company_name'])) > 20){
+                               $error_type = "Courier company name should not be 20 characters.";
+                                 $this->table->add_row($rowData['courier_company_name'], $rowData['pincode'], $error_type); 
+                            }
+                            
+                            if(!preg_match('/^[0-9]{6}$/', $rowData['pincode']) ){
+                                $error_type = "Pincode must be number in 6 digits.";
+                                $this->table->add_row($rowData['courier_company_name'], $rowData['pincode'], $error_type);
+                            } 
+                            
                             $tmp_data['courier_company_name'] = trim($rowData['courier_company_name']);
                             $tmp_data['pincode'] = trim($rowData['pincode']);
                             array_push($this->dataToInsert, $tmp_data);
@@ -1177,7 +1201,7 @@ class File_upload extends CI_Controller {
         }
         $err_msg = $this->table->generate();
         
-        if (!empty($this->dataToInsert)) {
+        if (empty($error_type)) {
             $this->inventory_model->insert_courier_serviceable_area_details_batch($this->dataToInsert);
             $response['status'] = TRUE;
             $response['message'] = 'Courier serviceable area file uploaded successfully';

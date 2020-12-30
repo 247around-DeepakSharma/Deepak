@@ -784,7 +784,13 @@
 
                                         <td><?php echo $sp['remarks_by_sc']; ?></td>
                                         <td><?php echo $sp['status']; ?></td>
-                                        <td><?php echo $sp['part_cancel_reason'];?></td>
+                                        <td>
+                                            <?php if($sp['part_cancel_reason'] == 'RTO Case') { ?>
+                                            <a href="<?php echo S3_WEBSITE_URL; ?><?php echo RTO_POD;?>/<?php echo $sp['rto_file']; ?> " target="_blank"><?php echo $sp['part_cancel_reason'];?></a>
+                                            <?php }else{ ?>
+                                                     <?php echo $sp['part_cancel_reason'];?>
+                                            <?php } ?>
+                                        </td>
                                         <td><?php if(!empty($sp['is_consumed']) && $sp['is_consumed'] == 1) { echo 'Yes';} else { echo 'No';} ?></td>
                                         <td><?php if(!empty($sp['consumed_status'])) { echo $sp['consumed_status']; } ?></td>
                                         <td><?php if(!empty($sp['consumption_remarks'])) { echo $sp['consumption_remarks']; } ?></td>
@@ -926,6 +932,7 @@
                             <table class="table  table-striped table-bordered" >
                                 <thead>
                                     <tr>
+                                        <td>Spare Id</td>
                                         <th>Estimate Given By Partner/Warehouse</th>
                                         <th>Estimate Cost</th>
                                         <th>Estimate Given Date </th>
@@ -937,6 +944,7 @@
                                 <tbody>
                                     <?php foreach ($booking_history['spare_parts'] as $sp){ if($sp['purchase_price'] > 0) { ?>
                                     <tr>
+                                        <td><a href="javascript:void(0);"  data-spare_id="<?php echo $sp['id']; ?>" class="spare_history_tracking"><?php echo $sp['id']; ?></a></td>
                                         <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else { echo "Warehouse";} ?></td>
                                         <td><?php echo $sp['purchase_price']; ?></td>
                                         <td><?php if(!empty($sp['estimate_cost_given_date'])) { echo date("d-M-Y", strtotime($sp['estimate_cost_given_date'])); } ?></td>
@@ -2826,7 +2834,7 @@ function OpenWindowWithPost(url, windowoption, name, params)
                           $(".loader").addClass('hide');
                           swal("Transferred!", "Your spare has been transferred !.", "success");
                           $("#move_to_vendor").hide();
-                        //  location.reload();
+                          location.reload();
                         }else{
                            $(".loader").addClass('hide');
                            swal("Failed", "Spare  transferred has been failed due to stock not available", "error");  
@@ -2876,7 +2884,7 @@ function OpenWindowWithPost(url, windowoption, name, params)
                           $(".loader").addClass('hide');
                           swal("Transferred!", "Your spare has been transferred to partner!.", "success");
                           $("#move_to_vendor").hide();
-                        //  location.reload();
+                          location.reload();
                         }else if(data='fail_mail'){
                           $(".loader").addClass('hide');
                           swal("Failed", "Your Transferred has been failed. Check your mail for details!", "error"); 
