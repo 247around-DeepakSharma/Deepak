@@ -1605,8 +1605,6 @@ function get_array_settle_data($b, $inventory_details, $restQty, $value){
             $invoice_details = array(
                 "invoice_id" => $invoice['meta']['invoice_id'],
                 "description" => $value['description'],
-                "inventory_id" => (isset($value['inventory_id']) ? $value['inventory_id'] : NULL),
-                "spare_id" => (isset($value['spare_id']) ? $value['spare_id'] : NULL),
                 "qty" => $value['qty'],
                 "product_or_services" => $value['product_or_services'],
                 "rate" => $value['rate'],
@@ -1619,11 +1617,33 @@ function get_array_settle_data($b, $inventory_details, $restQty, $value){
                 "igst_tax_amount" => (isset($value['igst_tax_amount']) ? $value['igst_tax_amount'] : 0),
                 "hsn_code" => $value['hsn_code'],
                 "total_amount" => $value['total_amount'],
-                "from_gst_number" => (isset($value['from_gst_number']) ? $value['from_gst_number'] : NULL),
-                "to_gst_number" => (isset($value['to_gst_number']) ? $value['to_gst_number'] : NULL),
                 "create_date" => date('Y-m-d H:i:s')
                 
             );
+            
+            if(!empty($value['inventory_id'])){
+                $invoice_details['inventory_id'] = $value['inventory_id'];
+            }
+            
+            if(!empty($value['is_settle'])){
+                $invoice_details['is_settle'] = $value['is_settle'];
+            }
+            
+            if(!empty($value['spare_id'])){
+                $invoice_details['spare_id'] = $value['spare_id'];
+            }
+            
+            if(!empty($value['settle_qty'])){
+                $invoice_details['settle_qty'] = $value['settle_qty'];
+            }
+            
+            if(!empty($value['from_gst_number'])){
+                $invoice_details['from_gst_number'] = $value['from_gst_number'];
+            }
+            
+            if(!empty($value['to_gst_number'])){
+                $invoice_details['to_gst_number'] = $value['to_gst_number'];
+            }
             
             array_push($invoice_breakup, $invoice_details);
         }
