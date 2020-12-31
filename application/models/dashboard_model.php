@@ -277,8 +277,8 @@ class dashboard_model extends CI_Model {
                     services.services AS Product,
                     IF(new_state = 'Completed_Rejected',1,0) AS 'Rejected Bookings',
                     IF(new_state = 'Completed_Approved',1,0) AS 'Directly Approved Bookings',
-                    IF((new_state = 'Completed' && old_state != 'Completed_Approved'), 1, 0) AS 'Approved With Edit Bookings',
-                    IF((new_state = 'Completed_Rejected' || new_state = 'Completed_Approved' || (new_state = 'Completed' && old_state != 'Completed_Approved')),1,0) AS 'Total Bookings'";
+                    IF(((new_state = 'Completed' or new_state = 'Completed_With_Rating' or new_state = 'Customer_unreachable_for_rating')  && old_state != 'Completed_Approved'), 1, 0) AS 'Approved With Edit Bookings',
+                    IF((new_state = 'Completed_Rejected' || new_state = 'Completed_Approved' || ((new_state = 'Completed' or new_state = 'Completed_With_Rating' or new_state = 'Customer_unreachable_for_rating')  && old_state != 'Completed_Approved')),1,0) AS 'Total Bookings'";
         
         // set where condition
         $where = "employee.groups = 'closure'
@@ -346,7 +346,8 @@ class dashboard_model extends CI_Model {
         $where = "employee.groups = 'closure'
                     AND bsc.create_date >= '$startDate'
                     AND bsc.create_date <= '$endDate'
-                    AND bsc.partner_id = '"._247AROUND."'";
+                    AND bsc.partner_id = '"._247AROUND."'"
+                . "And new_state in ('Cancelled_Rejected','Cancelled','Cancelled_Approved','Completed')";
         $condition = "`Rejected Bookings` != '0' OR `Directly Approved Bookings` != '0' OR `Cancelled to Completed Bookings` != '0' OR `Edit Cancelled Bookings` != '0' OR `Total Bookings` != '0'";
         // Query here
         $this->db->select($select);
@@ -361,7 +362,9 @@ class dashboard_model extends CI_Model {
         $this->db->group_by('bsc.booking_id');
         $this->db->having($condition);
         // return query object
-        $query = $this->db->get();        
+
+        $query = $this->db->get();
+
         return $query;
     }
         
