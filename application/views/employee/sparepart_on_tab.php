@@ -510,7 +510,7 @@
                             <table id="defective_part_pending_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                                 <thead >
                                     <tr>
-                                        <th class="text-center" >No</th>
+                                        <th class="text-center" data-orderable="false">No</th>
                                         <th class="text-center" data-orderable="false">Booking Id</th>
                                         <th class="text-center" data-orderable="false">Spare Pending On</th>
                                         <th class="text-center" data-orderable="false">Service Center</th>
