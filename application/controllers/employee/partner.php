@@ -1637,12 +1637,13 @@ class Partner extends CI_Controller {
             $escalation['booking_time'] = $bookinghistory[0]['booking_timeslot'];
             $escalation['vendor_id'] = $bookinghistory[0]['assigned_vendor_id'];
             
+            $partner_details = $this->dealer_model->entity_login(array('agent_id' => $this->session->userdata('agent_id')))[0];                
             if(!$this->input->post("call_from_api")){
-                $escalation['agent_id'] = $this->session->userdata('agent_id');
-                $escalation['escalation_source'] = _247AROUND_EMPLOYEE_STRING;
+                $escalation['agent_id'] = $partner_details['entity_id'];
+                $escalation['escalation_source'] = 'partner';
             }
             else{
-                $escalation['agent_id'] = $this->input->post("dealer_agent_id");
+                $escalation['agent_id'] = $this->input->post('dealer_agent_id');
                 $escalation['escalation_source'] = _247AROUND_DEALER_STRING;
             }
             log_message('info', __FUNCTION__ . " escalation_reason  " . print_r($escalation, true));
@@ -1663,7 +1664,6 @@ class Partner extends CI_Controller {
                     $am_email = $accountManagerData[0]['official_email'];
                 }
                 
-                $partner_details = $this->dealer_model->entity_login(array('agent_id' => $this->session->userdata('agent_id')))[0];
                 //Getting template from Database
                 $template = $this->booking_model->get_booking_email_template("escalation_on_booking_from_partner_panel");
                 if (!empty($template)) {  
