@@ -642,7 +642,7 @@ define("CRM_SETUP_PROFORMA_INVOICE_DESCRIPTION", "Annual Setup Charges");
 define("IFSC_CODE_VALIDATION_API_URL", "https://ifsc.razorpay.com/");
 
 define('INVENTORY_USER_GROUP', 'inventory_manager');
-define('INVENTORY_USER_GROUP_HOD', 'inventory_manager_hod');
+define('INVENTORY_USER_GROUP_HOD', 'InventoryManagerHOD');
 
 define('_247AROUND_INVOICE_TEMPLATE_DESCRIPTION', 'Book Appliance Service from Qualified Engineers on "247AROUND" App / On Phone - 9555000247 / On Website - www.247around.com');
 define('_247AROUND_TAX_INVOICE_LOGO_CELL', 'B3');
@@ -792,6 +792,8 @@ define('NOT_SET', 'not_set');
 define('PENALTY_THRESHOLD', 10);
 define('OW_COMPLETED_THRESHOLD', 20);
 define('CANCELLATION_THRESHOLD', 20);
+
+define('VENDOR_RESCHEDULED', "Reschedule");
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
 
