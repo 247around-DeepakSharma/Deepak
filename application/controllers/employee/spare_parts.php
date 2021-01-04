@@ -1064,8 +1064,8 @@ class Spare_parts extends CI_Controller {
         $row[] = date("jS M, Y", strtotime($spare_list->defective_part_shipped_date));
         $row[] = $spare_list->consumed_status;
         $row[] = $spare_list->courier_name_by_sf;
-        $row[] = $spare_list->awb_by_sf;
-        $row[] = "<i class='fa fa-inr'></i>".$spare_list->courier_charges_by_sf;
+        $row[] = '<span class="awb_number_by_sf_no_text"  style="color:blue; pointer:cursor" data-awb-number ="'.$spare_list->awb_by_sf.'">'.$spare_list->awb_by_sf.'</span><span class="awb_number_by_sf_edit"><i class="fa fa-pencil fa-lg"></i></span>';
+        $row[] = "<i class='fa fa-inr'></i>" . $spare_list->courier_charges_by_sf;
         $row[] = $spare_list->remarks_defective_part_by_sf;
         if(!empty($spare_list->defective_courier_receipt)){
             $row[] =  '<a href="'.S3_WEBSITE_URL.'misc-images/'.$spare_list->defective_courier_receipt.' " target="_blank">Click Here</a>';
@@ -4496,7 +4496,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $post = $this->get_post_data();
         $post['is_courier_details_required'] = TRUE;
         $post['column_order'] = array();
-        $post['column_search'] = array('inventory_master_list.part_name', 'inventory_master_list.type', 'courier_details.AWB_no', 'courier_details.courier_name', 'i.booking_id','sc.name','i.invoice_id');
+        $post['column_search'] = array('inventory_master_list.part_name', 'inventory_master_list.type', 'courier_company_invoice_details.awb_number', 'courier_company_invoice_details.company_name', 'i.booking_id', 'sc.name', 'i.invoice_id');
         $post['where'] = array(
             'i.receiver_entity_type' => trim($this->input->post('receiver_entity_type')),
             'i.sender_entity_id' => trim($this->input->post('sender_entity_id')),
@@ -4509,7 +4509,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                     WHEN (e.full_name IS NOT NULL) THEN (e.full_name) END as receiver, 
                     CASE WHEN(sc1.name IS NOT NULL) THEN (sc1.name) 
                     WHEN(p1.public_name IS NOT NULL) THEN (p1.public_name) 
-                    WHEN (e1.full_name IS NOT NULL) THEN (e1.full_name) END as sender,i.*,courier_details.AWB_no,courier_details.courier_name,courier_details.status";
+                    WHEN (e1.full_name IS NOT NULL) THEN (e1.full_name) END as sender,i.*,courier_company_invoice_details.awb_number as AWB_no, courier_company_invoice_details.company_name as courier_name";
         $list = $this->inventory_model->get_spare_need_to_acknowledge($post, $select);
         // print_r($this->db->last_query());
         $data = array();
@@ -4558,7 +4558,6 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $a = "<a href='javascript:void(0);' onclick='";
         $a .= "get_msl_awb_details(" . '"' . $inventory_list->courier_name . '"';
         $a .= ', "' . $inventory_list->AWB_no . '"';
-        $a .= ', "' . $inventory_list->status . '"';
         $a .= ', "msl_awb_loader_' . $no . '"';
         $a .= ")'>" . $inventory_list->AWB_no . "</a>";
         $a .="<span id='msl_awb_loader_$no' style='display:none;'><i class='fa fa-spinner fa-spin'></i></span>";
@@ -5123,7 +5122,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
 
         $row = array();
         $row[] = $no;
-        $row[] = $spare_list->booking_id;
+        $row[] = '<a href="' . base_url() . 'employee/booking/viewdetails/' . $spare_list->booking_id . '" target= "_blank" >' . $spare_list->booking_id . '</a>';
         $row[] = "<span class='line_break'>" . $spare_list->sf_name . "</span>";
         $row[] = $spare_list->sf_status;
         $row[] = $spare_list->partner_name;
@@ -5340,8 +5339,8 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
       function total_parts_shipped_to_sf_table_data($spare_list, $no) {
 
         $row = array();
-        $row[] = $no;
-        $row[] = $spare_list->booking_id;
+        $row[] = $no;        
+        $row[] = '<a href="' . base_url() . 'employee/booking/viewdetails/' . $spare_list->booking_id . '" target= "_blank" >' . $spare_list->booking_id . '</a>';
         $row[] = "<span class='line_break'>" . $spare_list->sf_name . "</span>";
         $row[] = $spare_list->sf_status;
         $row[] = $spare_list->partner_name;
@@ -5420,7 +5419,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
 
         $row = array();
         $row[] = $no;
-        $row[] = $spare_list->booking_id;
+        $row[] = '<a href="' . base_url() . 'employee/booking/viewdetails/' . $spare_list->booking_id . '" target= "_blank" >' . $spare_list->booking_id . '</a>';
         $row[] = "<span class='line_break'>" . $spare_list->sf_name . "</span>";
         $row[] = $spare_list->sf_status;
         $row[] = $spare_list->partner_name;
@@ -5747,6 +5746,47 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
 
                 echo json_encode($res);
             }
+        }
+    }
+    
+    /*
+     * @desc: This Function is used to update the awb number by SF
+     * @param: void
+     * @return : json
+     */
+    
+    function process_update_awb_number_sf() {
+        log_message('info', __METHOD__ . ' Processing...');
+
+        $pre_awb_by_sf = $this->input->post("pre_awb_by_sf");
+        $change_awb_number_by_sf = $this->input->post("change_awb_number_by_sf");
+
+        $agent_id = $this->session->userdata("id");
+        $entity_id = _247AROUND;
+        $entity_type = _247AROUND_EMPLOYEE_STRING;
+
+        if (!empty($change_awb_number_by_sf)) {
+            $select = 'spare_parts_details.id,spare_parts_details.quantity,spare_parts_details.status,spare_parts_details.entity_type,spare_parts_details.booking_id, spare_parts_details.awb_by_sf';
+            $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.awb_by_sf' => $pre_awb_by_sf), false, false, false);
+            $booking_array = array();
+            foreach ($spare_parts_details as $value) {
+                $spare_id = $value['id'];
+                if (!empty($spare_id)) {
+                    $this->service_centers_model->update_spare_parts(array('spare_parts_details.id' => $spare_id), array("spare_parts_details.awb_by_sf" => trim($change_awb_number_by_sf)));
+                    /* Insert in Spare Tracking Details */
+                    $remarks = " Docket replaced from " . $pre_awb_by_sf . " To " . $change_awb_number_by_sf;
+                    $new_state = "New Awb Number updated";
+                    $tracking_details = array('spare_id' => $spare_id, 'action' => 'New Awb Number ' . $change_awb_number_by_sf, 'remarks' => $remarks, 'agent_id' => $agent_id, 'entity_id' => $entity_id, 'entity_type' => $entity_type);
+                    $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                    if (!in_array($value['booking_id'], $booking_array)) {
+                        $this->notify->insert_state_change($value['booking_id'], $new_state, '', $remarks, $agent_id, $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, $entity_id, "", $spare_id);
+                        $booking_array[] = $value['booking_id'];
+                    }
+                }
+            }
+
+            $this->inventory_model->update_courier_company_invoice_details(array('courier_company_invoice_details.awb_number' => $pre_awb_by_sf), array('courier_company_invoice_details.awb_number' => trim($change_awb_number_by_sf)));
+            echo json_encode(array('status' => 'success'));
         }
     }
 

@@ -277,13 +277,21 @@ class Employee_model extends CI_Model{
         foreach($data as $value) {
             $this->db->select('manager_id');
             $this->db->from('employee_hierarchy_mapping');
-            $this->db->where(['employee_id' => $value['id'], 'manager_id' => $value['manager']]);
+            $this->db->where(['employee_id' => $value['id']]);
             $query_select = $this->db->get();
             $result = $query_select->result();
-            if(empty($result)){
-                $query = "Update employee_hierarchy_mapping SET manager_id = '".$value['manager']."' WHERE employee_id = '".$value['id']."'";
+            if(!empty($result) && count($result) == 1){
+                $query = "Update employee_hierarchy_mapping SET manager_id = '".$value['manager']."' WHERE employee_id = '".$value['id']."';";
                 $result = $this->db->query($query);
-            }    
+            } 
+            else{
+                // Delete Previous Mapping 
+                $query_del = "delete from employee_hierarchy_mapping WHERE employee_id = '".$value['id']."';";
+                $result = $this->db->query($query_del);
+                // Insert new Mapping
+                $query_insert = "Insert into employee_hierarchy_mapping(employee_id,manager_id) values (".$value['id'].",".$value['manager'].");";
+                $result = $this->db->query($query_insert);                
+            }
         }        
     }
     

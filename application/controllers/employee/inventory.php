@@ -5333,7 +5333,7 @@ class Inventory extends CI_Controller {
         $post['is_courier_details_required'] = TRUE;
         $post['column_order'] = array();
         $sender = trim($this->input->post('sender_entity_id'));
-        $post['column_search'] = array('inventory_master_list.part_name', 'inventory_master_list.type', 'courier_details.AWB_no', 'courier_details.courier_name', 'i.booking_id');
+        $post['column_search'] = array('inventory_master_list.part_name', 'inventory_master_list.type', 'courier_company_invoice_details.awb_number', 'courier_company_invoice_details.company_name', 'i.booking_id');
 
         $post['where'] = array('i.receiver_entity_id' => trim($this->input->post('receiver_entity_id')),
             'i.receiver_entity_type' => trim($this->input->post('receiver_entity_type')),
@@ -5354,7 +5354,7 @@ class Inventory extends CI_Controller {
                     WHEN (e.full_name IS NOT NULL) THEN (e.full_name) END as receiver, 
                     CASE WHEN(sc1.name IS NOT NULL) THEN (sc1.name) 
                     WHEN(p1.public_name IS NOT NULL) THEN (p1.public_name) 
-                    WHEN (e1.full_name IS NOT NULL) THEN (e1.full_name) END as sender,i.*,courier_details.AWB_no,courier_details.courier_name,courier_details.status";
+                    WHEN (e1.full_name IS NOT NULL) THEN (e1.full_name) END as sender,i.*,courier_company_invoice_details.awb_number as AWB_no, courier_company_invoice_details.company_name as courier_name";
         $list = $this->inventory_model->get_spare_need_to_acknowledge($post, $select);
         $data = array();
         $no = $post['start'];
@@ -5385,7 +5385,7 @@ class Inventory extends CI_Controller {
         $post['is_courier_details_required'] = TRUE;
         $post['column_order'] = array();
         $sender = trim($this->input->post('sender_entity_id'));
-        $post['column_search'] = array('inventory_master_list.part_name', 'inventory_master_list.type', 'courier_details.AWB_no', 'courier_details.courier_name', 'i.booking_id', 'i.invoice_id');
+        $post['column_search'] = array('inventory_master_list.part_name', 'inventory_master_list.type', 'courier_company_invoice_details.awb_number', 'courier_company_invoice_details.company_name', 'i.booking_id', 'i.invoice_id');
 
         $post['where'] = array('i.receiver_entity_id' => trim($this->input->post('receiver_entity_id')),
             'i.receiver_entity_type' => trim($this->input->post('receiver_entity_type')),
@@ -5406,7 +5406,7 @@ class Inventory extends CI_Controller {
                     WHEN (e.full_name IS NOT NULL) THEN (e.full_name) END as receiver, 
                     CASE WHEN(sc1.name IS NOT NULL) THEN (sc1.name) 
                     WHEN(p1.public_name IS NOT NULL) THEN (p1.public_name) 
-                    WHEN (e1.full_name IS NOT NULL) THEN (e1.full_name) END as sender,i.*,courier_details.AWB_no,courier_details.courier_name,courier_details.status";
+                    WHEN (e1.full_name IS NOT NULL) THEN (e1.full_name) END as sender,i.*,courier_company_invoice_details.awb_number as AWB_no, courier_company_invoice_details.company_name as courier_name";
         $list = $this->inventory_model->get_spare_need_to_acknowledge($post, $select);
         $data = array();
         $no = $post['start'];
@@ -5436,7 +5436,7 @@ class Inventory extends CI_Controller {
         $post = $this->get_post_data();
         $post['is_courier_details_required'] = TRUE;
         $post['column_order'] = array();
-        $post['column_search'] = array('inventory_master_list.part_name', 'inventory_master_list.type', 'courier_details.AWB_no', 'courier_details.courier_name', 'i.booking_id');
+        $post['column_search'] = array('inventory_master_list.part_name', 'inventory_master_list.type', 'courier_company_invoice_details.awb_number', 'courier_company_invoice_details.company_name', 'i.booking_id');
         $post['where'] = array('i.receiver_entity_id' => trim($this->input->post('receiver_entity_id')),
             'i.receiver_entity_type' => trim($this->input->post('receiver_entity_type')),
             'i.sender_entity_id' => trim($this->input->post('sender_entity_id')),
@@ -5459,7 +5459,7 @@ class Inventory extends CI_Controller {
                     WHEN (e.full_name IS NOT NULL) THEN (e.full_name) END as receiver, 
                     CASE WHEN(sc1.name IS NOT NULL) THEN (sc1.name) 
                     WHEN(p1.public_name IS NOT NULL) THEN (p1.public_name) 
-                    WHEN (e1.full_name IS NOT NULL) THEN (e1.full_name) END as sender,i.*,courier_details.AWB_no,courier_details.courier_name,courier_details.status";
+                    WHEN (e1.full_name IS NOT NULL) THEN (e1.full_name) END as sender,i.*,courier_company_invoice_details.awb_number as AWB_no, courier_company_invoice_details.company_name as courier_name";
         $list = $this->inventory_model->get_spare_need_to_acknowledge($post, $select);
 
         $data = array();
@@ -5502,7 +5502,6 @@ class Inventory extends CI_Controller {
         $a = "<a href='javascript:void(0);' onclick='";
         $a .= "get_msl_awb_details(" . '"' . $inventory_list->courier_name . '"';
         $a .= ', "' . $inventory_list->AWB_no . '"';
-        $a .= ', "' . $inventory_list->status . '"';
         $a .= ', "msl_awb_loader_' . $no . '"';
         $a .= ")'>" . $inventory_list->AWB_no . "</a>";
         $a .="<span id='msl_awb_loader_$no' style='display:none;'><i class='fa fa-spinner fa-spin'></i></span>";
@@ -5544,7 +5543,6 @@ class Inventory extends CI_Controller {
         $a = "<a href='javascript:void(0);' onclick='";
         $a .= "get_msl_awb_details(" . '"' . $inventory_list->courier_name . '"';
         $a .= ', "' . $inventory_list->AWB_no . '"';
-        $a .= ', "' . $inventory_list->status . '"';
         $a .= ', "msl_awb_loader_' . $no . '"';
         $a .= ")'>" . $inventory_list->AWB_no . "</a>";
         $a .="<span id='msl_awb_loader_$no' style='display:none;'><i class='fa fa-spinner fa-spin'></i></span>";
@@ -5601,7 +5599,6 @@ class Inventory extends CI_Controller {
         $a = "<a href='javascript:void(0);' onclick='";
         $a .= "get_msl_awb_details(" . '"' . $inventory_list->courier_name . '"';
         $a .= ', "' . $inventory_list->AWB_no . '"';
-        $a .= ', "' . $inventory_list->status . '"';
         $a .= ', "msl_awb_loader_' . $no . '"';
         $a .= ")'>" . $inventory_list->AWB_no . "</a>";
         $a .="<span id='msl_awb_loader_$no' style='display:none;'><i class='fa fa-spinner fa-spin'></i></span>";

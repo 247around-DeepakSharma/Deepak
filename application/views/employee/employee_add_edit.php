@@ -425,7 +425,7 @@
     
         var selectValue = $(this).val(); 
         var wh_id = '<?php if(isset($query[0]['warehouse_id'])){ echo $query[0]['warehouse_id']; } ?>';
-        if(selectValue == 'inventory_manager'){
+        if((selectValue == '<?php echo INVENTORY_USER_GROUP;?>') || (selectValue == '<?php echo INVENTORY_USER_GROUP_HOD;?>')){
             $("#wh_list").css('display','block');
             $.ajax({
                 type:'POST',
