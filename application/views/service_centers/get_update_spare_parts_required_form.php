@@ -101,7 +101,7 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="part_warranty" class="col-md-4">Part In Warranty*</label>
+                                            <label for="part_warranty" class="col-md-4">Part Warranty*</label>
                                             <div class="col-md-6">
                                                 <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part_warranty_status"> <!--  onchange="get_symptom(0)" -->
                                                     <option selected="" disabled="">Select warranty status</option>
@@ -231,7 +231,7 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="defect_pic" class="col-md-4">Defect Picture * </label>
+                                            <label for="defect_pic" class="col-md-4">Defect Picture  </label>
                                             <div class="col-md-6">
                                                 <input type="file" class="form-control defect_pic" id="defect_pic_0" name="defect_pic[0]" >
                                                  </div>
