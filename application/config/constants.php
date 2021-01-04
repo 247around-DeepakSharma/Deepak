@@ -789,5 +789,7 @@ define('NOT_SET', 'not_set');
 define('PENALTY_THRESHOLD', 10);
 define('OW_COMPLETED_THRESHOLD', 20);
 define('CANCELLATION_THRESHOLD', 20);
+
+define('VENDOR_RESCHEDULED', "Reschedule");
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
