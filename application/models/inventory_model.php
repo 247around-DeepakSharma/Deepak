@@ -378,6 +378,11 @@ class Inventory_model extends CI_Model {
             $this->db->join('symptom', 'spare_parts_details.spare_request_symptom = symptom.id', 'left');
         } 
         
+        /* Joined to used spare pending on SF and booking pending on SF*/
+        if(!empty($post['pending_on_sf'])){
+            $this->db->join('service_centres as sf','sf.id = booking_details.assigned_vendor_id', "left");
+        }
+        
         $this->db->join('services', 'booking_details.service_id = services.id','left');
         
         if (!empty($post['where'])) {
