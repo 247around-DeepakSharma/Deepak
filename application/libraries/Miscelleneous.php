@@ -2613,7 +2613,7 @@ class Miscelleneous {
         $isEscalationDone = TRUE;
         log_message('info', __METHOD__.' Function Start');
         $already_rescheduled =0;
-        $whereArray['service_center_booking_action.internal_status IN ("Reschedule", "'.ENGINEER_ON_ROUTE.'", "'.CUSTOMER_NOT_REACHABLE.'", "'.CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER.'") '] = NULL; 
+        $whereArray['service_center_booking_action.internal_status IN ("'.VENDOR_RESCHEDULED.'", "'.ENGINEER_ON_ROUTE.'", "'.CUSTOMER_NOT_REACHABLE.'", "'.CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER.'") '] = NULL; 
         $bookingDetails = $this->get_fake_reschedule_booking_details($userPhone,$bookingID,$whereArray);
         if(empty($bookingDetails)){
             $where["service_center_booking_action.internal_status"] = "Pending"; 
