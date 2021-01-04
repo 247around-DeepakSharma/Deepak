@@ -780,5 +780,14 @@ define('WARRANTY_ON_DOI', 2);
 
 //Partner invoice payment file type
 define('INVOICE_GST_PENALTY_FILE_TYPE','invoice_gst_penalty_file_type');
+
+// value not set
+define('NOT_SET', 'not_set');
+
+define('PENALTY_THRESHOLD', 10);
+define('OW_COMPLETED_THRESHOLD', 20);
+define('CANCELLATION_THRESHOLD', 20);
+
+define('VENDOR_RESCHEDULED', "Reschedule");
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
