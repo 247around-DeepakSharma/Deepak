@@ -92,13 +92,28 @@
             <?php
             }
             ?>
-            <td colspan="7" style="text-align: center"><b>Value (Rs.)</b></td>
+            <?php
+		if(!empty($excel_data['show_serial_number'])){
+		$colspan_value_for_rs =3;
+		?>
+                <td colspan="2" style="text-align: center"><b>Model Number</b></td>
+		<td colspan="2" style="text-align: center"><b>Serial Number</b></td>
+		<?php
+		}else{
+		$colspan_value_for_rs =7;
+		}
+		?>
+		<td colspan="<?php echo $colspan_value_for_rs; ?>" style="text-align: center"><b>Value (Rs.)</b></td>
         </tr>
         <?php
         $i = 1;
         $total_qty = 0;
         $total_value = 0;
         foreach ($excel_data_line_item as $info) {
+            $extra_td_for_serial_number = '';
+            if(!empty($excel_data['show_serial_number'])){
+                    $extra_td_for_serial_number = "<td style='font-size:13px;width:6%;padding:0px;padding-left:5px;padding-right:5px;' colspan=2>".$info['model_number_shipped']."</td><td style='font-size:13px;width:6%;padding-left:5px;padding-right:5px;' colspan=2>".$info['serial_number']."</td>";
+            }
             if(!empty($excel_data['show_consumption_reason'])){
                 if ($info['consumption'] == 'Part consumed') {
                     $info['consumption'] = 'Defective Part';
@@ -108,16 +123,16 @@
                                                         <td colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['part_number'] . "
 							<td colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['qty'] . "
 							<td style='font-size:13px;padding-right: -1px !important;padding:0px;width:10%;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['booking_id'] . "
-                                                        <td style='width:0px;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['consumption'] . "
-							<td style='font-size:13px;width:6%;padding:0px;' colspan=" . "7" . " align=" . "\"center\"" . ">" . $info['value'] . "
+                                                        <td style='width:0px;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['consumption'] . $extra_td_for_serial_number ."
+							<td style='font-size:13px;width:6%;padding:0px;' colspan=" . $colspan_value_for_rs . " align=" . "\"center\"" . ">" . $info['value'] . "
 					</tr>";
             }else{
             echo "<tr style='width:100%;text-align:center;'>	<td style='width:4.67%;' align=" . "\"center\"" . ">" . $i++ . "
 							<td style='word-break: break-all;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['spare_desc'] . "
                                                         <td colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['part_number'] . "
 							<td colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['qty'] . "
-							<td style='font-size:13px;padding-right: -1px !important;padding:0px;width:10%;' colspan=" . "2" . " align=" . "\"center\"" . ">" . $info['booking_id'] . "
-							<td style='font-size:13px;width:6%;padding:0px;' colspan=" . "7" . " align=" . "\"center\"" . ">" . $info['value'] . "
+							<td style='font-size:13px;padding-right: -1px !important;padding:0px;width:10%;' colspan=" . "2" . " align=" . "\"center\"" . ">" . $info['booking_id'] . $extra_td_for_serial_number ."
+							<td style='font-size:13px;width:6%;padding:0px;' colspan=" . $colspan_value_for_rs . " align=" . "\"center\"" . ">" . $info['value'] . "
 					</tr>";
             }
             $total_qty +=$info['qty'];
