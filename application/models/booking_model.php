@@ -85,7 +85,7 @@ class Booking_model extends CI_Model {
         // calculate partner paid tax amount
         $data['partner_paid_tax'] =  ($unit_details[0]['partner_paid_basic_charges'] * $data['tax_rate'])/ 100;
        
-        $vendor_total_basic_charges =  ($data['customer_paid_basic_charges'] + $unit_details[0]['partner_paid_basic_charges'] + $data['around_paid_basic_charges']) * ($unit_details[0]['vendor_basic_percentage']/100 );
+        $vendor_total_basic_charges =  ((float) $data['customer_paid_basic_charges'] + (float) $unit_details[0]['partner_paid_basic_charges'] + (float) $data['around_paid_basic_charges']) * (float) ($unit_details[0]['vendor_basic_percentage']/100 );
         // Calculate  total partner paid charges with tax
         $data['partner_paid_basic_charges'] = $unit_details[0]['partner_paid_basic_charges'] + $data['partner_paid_tax'];
         $around_total_basic_charges = ($data['customer_paid_basic_charges'] + $data['partner_paid_basic_charges'] + $data['around_paid_basic_charges'] - $vendor_total_basic_charges);
