@@ -84,21 +84,36 @@
             <td colspan="1" style="text-align: center;"><b>Booking ID</b></td>
             <td colspan="1" style="text-align: center;"><b>Consumption</b></td>
             <td colspan="1" style="text-align: center;"><b>Courier Name</b></td>
-            <td colspan="6" style="text-align: center"><b>Value (Rs.)</b></td>
+            <?php
+		if(!empty($excel_data['show_serial_number'])){
+		$colspan_value_for_rs =2;
+		?>
+                <td colspan="2" style="text-align: center"><b>Model Number</b></td>
+		<td colspan="2" style="text-align: center"><b>Serial Number</b></td>
+		<?php
+		}else{
+		$colspan_value_for_rs =6;
+		}
+		?>
+		<td colspan="<?php echo $colspan_value_for_rs; ?>" style="text-align: center"><b>Value (Rs.)</b></td>
         </tr>
         <?php
         $i = 1;
         $total_qty = 0;
         $total_value = 0;
         foreach ($excel_data_line_item as $info) {
+            $extra_td_for_serial_number = '';
+            if(!empty($excel_data['show_serial_number'])){
+                    $extra_td_for_serial_number = "<td style='font-size:13px;width:6%;padding:0px;padding-left:5px;padding-right:5px;' colspan=2>".$info['model_number_shipped']."</td><td style='font-size:13px;width:6%;padding-left:5px;padding-right:5px;' colspan=2>".$info['serial_number']."</td>";
+            }
             echo "<tr style='width:100%;text-align:center;'>	<td style='width:6.67%;' align=" . "\"center\"" . ">" . $i++ . "
 							<td style='word-break: break-all;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['spare_desc'] . "
                                                         <td colspan=" . "2" . " align=" . "\"center\"" . ">" . $info['part_number'] . "
 							<td colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['qty'] . "
 							<td  style='font-size:13px;padding-right: -1px !important;padding:0px;width:10%;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['booking_id'] . "
                                                         <td style='width:0px;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['consumption'] . "
-                                                        <td style='width:0px;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['courier_name'] . "
-							<td  style='font-size:13px;width:6%;'  colspan=" . "6" . " align=" . "\"center\"" . ">" . $info['value'] . "
+                                                        <td style='width:0px;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['courier_name'].$extra_td_for_serial_number . "
+							<td  style='font-size:13px;width:6%;'  colspan=" . $colspan_value_for_rs . " align=" . "\"center\"" . ">" . $info['value'] . "
 					</tr>";
             $total_qty +=$info['qty'];
             $total_value +=$info['value'];
@@ -154,7 +169,7 @@
     <tr>
         <td>
             Dear Sir / Madam,<br><br>
-            We, <?php echo $excel_data['sf_owner_name']; ?>, <?php echo $excel_data['sf_name']; ?>, <?php echo $excel_data['sf_address']; ?> do hereby state that we are not required to get ourselves registered under the Goods and Services Tax Act, 2017 as we have the turnover below the taxable limit as specified under the Goods and Services Tax Act, 2017.
+            We, <?php if(!empty($excel_data['sf_owner_name'])){echo $excel_data['sf_owner_name'];} ?>, <?php echo $excel_data['sf_name']; ?>, <?php echo $excel_data['sf_address']; ?> do hereby state that we are not required to get ourselves registered under the Goods and Services Tax Act, 2017 as we have the turnover below the taxable limit as specified under the Goods and Services Tax Act, 2017.
         </td>
     <tr>
         <td>
@@ -173,7 +188,7 @@
                 
             </div>
             <br>
-            Name of the Authorized Signatory: <?php echo $excel_data['sf_owner_name']; ?><br>
+            Name of the Authorized Signatory: <?php if(!empty($excel_data['sf_owner_name'])){echo $excel_data['sf_owner_name'];} ?><br>
             Name of Business: <?php echo $excel_data['sf_name']; ?><br>
             Date:  <?php echo date('Y-m-d'); ?>
         </td>
