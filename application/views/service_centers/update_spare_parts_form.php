@@ -951,13 +951,13 @@
                     console.log(response);
                     var data = jQuery.parseJSON(response);
                     if (data.code === 247) {
-                        $("#courier_name_id").prop("disabled", true);
                         alert("This AWB already used same price will be added");
                         $("#same_awb").css("display", "block");
                         $('body').loadingModal('destroy');
                         $("#shipment_date").val(data.message[0].shipped_date);
                         $("#courier_name").val(data.message[0].courier_name_by_partner).trigger('change');
-                        $("#courier_name").prop("disabled", true);
+                        $("#courier_name").select2('destroy').attr("readonly", true);
+                        $('#courier_name').css('pointer-events','none');
                         $("#courier_price_by_partner").css("display", "none");
                         if (data.message[0].courier_pic_by_partner) {
                             $("#exist_courier_image").val(data.message[0].courier_pic_by_partner);
@@ -989,7 +989,8 @@
                         $("#same_awb").css("display", "block");
                         $('body').loadingModal('destroy');
                         $("#same_awb").css("display", "none");
-                        $("#courier_name").prop("disabled", false);
+                        $("#courier_name").select2();
+                        $('#courier_name').css('pointer-events', 'auto');
                     }else {
 
                         $('body').loadingModal('destroy');
@@ -998,7 +999,8 @@
                         if($("#courier_price_by_partner").val()!=''){
                             $("#courier_price_by_partner").val(parseInt($("#courier_price_by_partner").val()));
                         }
-                        $("#courier_name").prop("disabled", false);
+                        $("#courier_name").select2();
+                        $('#courier_name').css('pointer-events', 'auto');
                         $("#same_awb").css("display", "none");
                         $("#exist_courier_image").val("");
                         $("#shipped_spare_parts_weight_in_kg").val('').removeAttr("readonly");
