@@ -466,8 +466,10 @@ function get_data_for_partner_callback($booking_id) {
             LEFT JOIN service_center_booking_action ON service_center_booking_action.booking_id = booking_details.booking_id
             LEFT JOIN service_centres ON service_center_booking_action.service_center_id = service_centres.id
             LEFT JOIN booking_cancellation_reasons b_cr ON (booking_details.cancellation_reason = b_cr.id)
-            LEFT JOIN booking_cancellation_reasons ssba_cr ON (service_center_booking_action.cancellation_reason = ssba_cr.id)";
-        
+            LEFT JOIN booking_cancellation_reasons ssba_cr ON (service_center_booking_action.cancellation_reason = ssba_cr.id)
+            LEFT JOIN entity_login_table ON (booking_details.created_by_agent_id = entity_login_table.agent_id)
+            LEFT JOIN employee ON (booking_details.created_by_agent_id = employee.id)";
+            
         //$is_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         //if($is_saas) {
             $sql .= " LEFT JOIN booking_symptom_defect_details ON booking_details.booking_id = booking_symptom_defect_details.booking_id
