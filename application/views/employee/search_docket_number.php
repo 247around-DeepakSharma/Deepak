@@ -169,7 +169,7 @@
         
         // set header
         var table_head = '<tr><th>Sr No</th>'+'<th>Booking Id</th>'+'<th>SF Name</th>'+'<th>WH Name</th>'+'<th>Partner Challan Number</th>'+'<th>SF Challan Number</th>'+'<th>WH Challan Number</th>'+'<th>Partner AWB</th>'+
-        '<th>SF AWB</th>'+'<th>WH AWB</th>'+'<th>Part Name</th>'+'<th>Part Code</th>'+'<th>Part Type</th>'+'<th>Consumption</th>'+'<th>Consumption Reason</th>'+'<th>Part Status</th>'+'<th>Price</th>'+'<th>GST</th></tr>';
+        '<th>SF AWB</th>'+'<th>WH AWB</th>'+'<th>Part Name</th>'+'<th>Part Code</th>'+'<th>Part Type</th>'+'<th>Consumption</th>'+'<th>Consumption Reason</th>'+'<th>Part Status</th>'+'<th>Spare ID</th>'+'<th>Price</th>'+'<th>GST</th></tr>';
         
         $('#docket_header').empty();
         $('#docket_header').html(table_head);
@@ -292,6 +292,11 @@
             } else {
                 table_body += '<td>' + val['status'] +'</td>';
             }
+            if(val['id'] === null){
+                table_body += '<td></td>';
+            } else {
+                table_body += '<td>' + val['id'] +'</td>';
+            }
 
             if(val['price'] === null){
                 table_body += '<td></td>';
@@ -343,9 +348,9 @@
                     {
                         extend: 'csv',
                         text: 'Export',
-                        title: 'docket_number' + time,
+                        title: 'docket_number_' + time,
                         exportOptions: {
-                            columns: [ 0, 1, 2,3,4, 5,6,7,8,9,10,11,12,15,16]
+                            columns: [ 0, 1, 2,3,4, 5,6,7,8,9,10,11,12,15,16,17,18]
                         },
                     }
                 ]
