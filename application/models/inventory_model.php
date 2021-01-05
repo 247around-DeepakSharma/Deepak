@@ -1692,6 +1692,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('service_centres as wh', 'spare_parts_details.defective_return_to_entity_id = wh.id', 'left');
         $this->db->join('services', 'services.id = booking_details.service_id', 'left');
         $this->db->join('courier_company_invoice_details as cci', 'cci.awb_number = spare_parts_details.awb_by_sf', 'left');
+        $this->db->join('courier_company_invoice_details', 'courier_company_invoice_details.awb_number = spare_parts_details.awb_by_partner', 'left');
         $this->db->join('booking_cancellation_reasons as bcr', 'spare_parts_details.spare_cancellation_reason = bcr.id', 'left');
         $this->db->join('employee as emply', 'service_centres.rm_id = emply.id', 'left');
         $this->db->join('employee as empl', 'service_centres.asm_id = empl.id', 'left');
