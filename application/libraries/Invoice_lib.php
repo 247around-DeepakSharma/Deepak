@@ -727,7 +727,7 @@ class Invoice_lib {
      * @param Array $partner_challan_number
      * @return String $output_pdf_file_name
      */
-    function process_create_sf_challan_file($sf_details, $partner_details, $sf_challan_number, $spare_details, $partner_challan_number = "", $service_center_closed_date = "",$show_consumption_reason=false,$show_courier_servicable_area=false, $challan_generated_by_wh=false) { 
+    function process_create_sf_challan_file($sf_details, $partner_details, $sf_challan_number, $spare_details, $partner_challan_number = "", $service_center_closed_date = "",$show_consumption_reason=false,$show_courier_servicable_area=false, $challan_generated_by_wh=false, $show_serial_number = false) { 
         $excel_data = array();
         $partner_on_saas = $this->ci->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $main_partner = $this->ci->partner_model->get_main_partner_invoice_detail($partner_on_saas);
@@ -746,6 +746,8 @@ class Invoice_lib {
             $excel_data['excel_data']['sf_contact_number'] = isset($sf_details[0]['contact_number']) ? $sf_details[0]['contact_number'] : '-';
             $excel_data['excel_data']['sf_gst_number'] = $sf_details[0]['gst_number'];
         }
+        $excel_data['excel_data']['show_serial_number'] = $show_serial_number;
+
         if ($show_courier_servicable_area) {
             if (!empty($spare_details[0][0]['courier_name'])) {
                 $excel_data['excel_data']['courier_servicable_area'] = $spare_details[0][0]['courier_name'];
@@ -808,6 +810,8 @@ class Invoice_lib {
                 $tmp_arr['spare_desc'] = $value2[0]['parts_shipped'];
                 $tmp_arr['part_number'] =(isset($value2[0]['part_number'])) ? $value2[0]['part_number'] : '-'; 
                 $tmp_arr['qty'] = $value2[0]['shipped_quantity'];
+                $tmp_arr['serial_number'] = $value2[0]['serial_number'];
+                $tmp_arr['model_number_shipped'] = $value2[0]['model_number_shipped'];
                 if(isset($value2[0]['consumed_status']) && !empty($value2[0]['consumed_status'])){
                     $tmp_arr['consumption'] = $value2[0]['consumed_status'];
                 }else{
@@ -992,7 +996,7 @@ class Invoice_lib {
             }
 
             
-            $sf_challan_file = $this->process_create_sf_challan_file($partner_details, $sf_details, $sf_challan_number, $spare_parts_details, $partner_challan_number, $service_center_closed_date,$show_consumption_reason);
+            $sf_challan_file = $this->process_create_sf_challan_file($partner_details, $sf_details, $sf_challan_number, $spare_parts_details, $partner_challan_number, $service_center_closed_date,$show_consumption_reason,false,false,true);
             $data['sf_challan_number'] = $sf_challan_number;
             $data['sf_challan_file'] = $sf_challan_file;
 
@@ -1189,7 +1193,7 @@ class Invoice_lib {
             }
 
 
-            $sf_challan_file = $this->process_create_sf_challan_file($partner_details, $sf_details, $sf_challan_number, $spare_parts_details, $partner_challan_number, $service_center_closed_date);
+            $sf_challan_file = $this->process_create_sf_challan_file($partner_details, $sf_details, $sf_challan_number, $spare_parts_details, $partner_challan_number, $service_center_closed_date,false,false,false,true);
 
             $data['sf_challan_number'] = $sf_challan_number;
             $data['sf_challan_file'] = $sf_challan_file;
