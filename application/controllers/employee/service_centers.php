@@ -9495,17 +9495,18 @@ class Service_centers extends CI_Controller {
         }
         if (isset($from) && isset($to) && !empty($from) && !empty($to)) {
 
-            $where_from = array('booking_id' => $from,
+            $where_from = array('spare_parts_details.booking_id' => $from,
                 'wh_ack_received_part' => 1,
                 "status in ('" . SPARE_DELIVERED_TO_SF . "','" . OK_PART_TO_BE_SHIPPED . "')" => null,
                 'part_warranty_status' => SPARE_PART_IN_WARRANTY_STATUS,
-                "`booking_details.service_center_closed_date` is null"  => null
+                "`booking_details.current_status` !='". _247AROUND_COMPLETED."'"  => null
 
             );
             if (!empty($sf_id)) {
                 $where_from['service_center_id'] = $sf_id;
             }
-            $from_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", $where_from);
+
+            $from_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", $where_from,true);
 
             if (!empty($from_details)) {
                 $frominventory_req_id = $from_details[0]['requested_inventory_id'];
