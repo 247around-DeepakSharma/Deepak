@@ -461,6 +461,10 @@ class dealerApi extends CI_Controller {
             case 'ResendOTP':	
                 $this->ProcessResendOTP();	
                 break;
+            
+            case 'GetBookingHistory':	
+                $this->ProcessGetBookingHistory();	
+                break;
 
             default:
                 break;
@@ -2343,6 +2347,30 @@ function  getPartnerCompareTAT(){
             $this->jsonResponseString['response'] = array();	
             $this->sendJsonResponse(array('0013', 'User does not exist'));	
         }	
+    }
+    /*
+     * @Desc - This function is used to return booking history as CRM
+     * @param -
+     * @response - json
+     * @Author  - Ghanshyam Ji Gupta
+     */
+    function ProcessGetBookingHistory() {
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("mobile"), $requestData);
+        if (!empty($requestData['bookingID'])) {
+            $bookingID = $requestData['bookingID'];
+            $bookingID_state_change = $this->booking_model->get_booking_state_change_by_id($bookingID);
+            if (!empty($bookingID_state_change)) {
+                $this->jsonResponseString['response'] = $bookingID_state_change;
+                $this->sendJsonResponse(array('0000', 'Booking History found successfully'));
+            } else {
+                $this->jsonResponseString['response'] = array();
+                $this->sendJsonResponse(array('0013', 'Please enter booking ID'));
+            }
+        } else {
+            $this->jsonResponseString['response'] = array();
+            $this->sendJsonResponse(array('0013', 'Please enter booking ID'));
+        }
     }
 
 }
