@@ -199,8 +199,8 @@
                         
                     </div>
                    
-                    </div>
                 </div>
+            </div>
             <div  class = "panel panel-info">
                 <div class="panel-heading "><b>POC Details</b></div>
                 <div class="panel-body form-horizontal">
@@ -318,13 +318,14 @@
                             <div class="form-group">
                                 <label  for="id_proof_1_file" class="col-md-3">ID Proof 1</label>
                                 <div class="col-md-6">
-                                    <input type="file" class="form-control"  name="id_proof_1_file" value = "<?php
+                                    <input type="file" class="form-control"  name="id_proof_1_file" style="display: none;" >
+                                    <!-- <?php
                                     if (isset($query[0]['id_proof_1_file'])) {
                                         echo $query[0]['id_proof_1_file'];
                                     }
-                                    ?>" disabled="">
+                                    ?> --> 
                                 </div>
-                                <div class="col-md-1">
+                                <div class="col-md-6">
                                     <?php
                                     if (isset($query[0]['id_proof_1_file']) && !empty($query[0]['id_proof_1_file'])) {
                                         $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['id_proof_1_file'];
@@ -344,13 +345,14 @@
                             <div class="form-group">
                                 <label  for="id_proof_2_file" class="col-md-3">ID Proof 2</label>
                                 <div class="col-md-6">
-                                    <input type="file" class="form-control"  name="id_proof_2_file" value = "<?php
+                                    <input type="file" class="form-control"  name="id_proof_2_file" style="display: none;">
+                                    <!-- <?php
                                     if (isset($query[0]['id_proof_2_file'])) {
                                         echo $query[0]['id_proof_2_file'];
                                     }
-                                    ?>" disabled="">
+                                    ?> -->
                                 </div>
-                                <div class="col-md-1">
+                                <div class="col-md-6">
                                     <?php
                                     if (isset($query[0]['id_proof_2_file']) && !empty($query[0]['id_proof_2_file'])) {
                                         $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['id_proof_2_file'];
@@ -373,7 +375,7 @@
             <div  class = "panel panel-info">
                 <div class="panel-heading"><b>Registration Details</b></div>
                 <div class="panel-body form-horizontal">
-                    <div class="row">
+                 <div class="row">
                     <div class="col-md-12">
                         <div class="col-md-4" style="margin-right:21px;">
                             <div class="form-group">
@@ -394,21 +396,25 @@
                                 if (isset($query[0]['pan_no'])) {
                                     echo $query[0]['pan_no'];
                                 }
-                                ?>" style="width:117%" disabled="">
+                                ?>"  disabled="">
 
                             </div>
                         </div>
-                        <div class="col-md-3" style="margin-left:40px;">
+
+
+                        <div class="col-md-1" style="display:none">
+
                             <div class="form-group">
 
-                                <input type="file" class="form-control"  name="pan_file" value = "<?php
+                                <input type="file" class="form-control"  name="pan_file" style="display: none;">
+                                <!-- <?php
                                 if (isset($query[0]['pan_file'])) {
                                     echo $query[0]['pan_file'];
                                 }
-                                ?>" disabled="">
+                                ?> -->
                             </div>
                         </div>
-                        <div class="col-md-1" style="margin-left: 20px;">
+                        <div class="col-md-1">
                             <?php
                             if (isset($query[0]['pan_file']) && !empty($query[0]['pan_file'])) {
                                 $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['pan_file'];
@@ -423,7 +429,7 @@
                             <?php }
                             ?>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-2" style="display: none;">
                             <div class="checkbox">
                                 <label>
                                     <b style="font-size: 18px;">Not Available</b> 
@@ -440,7 +446,7 @@
                             </div>
                         </div>
                     </div>
-                    </div>
+                </div>
                         <!--<div class="col-md-12">
                             <div class="col-md-4">
                                 <div class="form-group">
@@ -608,9 +614,9 @@
                             </div>
                         </div>-->
                         
-                                    <div class="row">
-                                        <div class="col-md-12">
-                            <div class="col-md-4">
+                     <div class="row">
+                        <div class="col-md-12">
+                            <div class="col-md-4" style='margin-right: 8px;'>
                                 <div class="form-group">
                                     <label  for="service_tax_no" class="col-md-4">GST No.</label>
                                     <div class="col-md-7">
@@ -618,21 +624,23 @@
                                         if (isset($query[0]['gst_no'])) {
                                             echo $query[0]['gst_no'];
                                         }
-                                        ?>" disabled="">
+                                        ?>" disabled="" >
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                           
+                            <div class="col-md-4" >
                                 <div class="form-group">
                                     <label for="service_tax_no" class="col-md-4">GST File</label>
                                     <div class="col-md-7">
-                                        <input type="file" class="form-control"  name="gst_file" value = "<?php
+                                        <input type="file" class="form-control"  name="gst_file" style="display: none;" >
+                                        <!-- <?php
                                         if (isset($query[0]['gst_file'])) {
                                             echo $query[0]['gst_file'];
                                         }
-                                        ?>" disabled="">
+                                        ?> -->
                                     </div>
-                                    <div class="col-md-1">
+                                    <div class="col-md-6">
                                         <?php
                                         if (isset($query[0]['gst_file']) && !empty($query[0]['gst_file'])) {
                                             $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$query[0]['gst_file'];
@@ -649,7 +657,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-3" style="margin-left:60px;">
+                            <div class="col-md-3" style="margin-left:60px;display: none;">
                                 <div class="checkbox">
                                     <label>
                                         <b style="font-size: 18px;">Not Available</b>   
@@ -662,88 +670,94 @@
                                     }
                                     ?> style="    margin-left: 24px;margin-top: 5px;" disabled="">
                                 </div>
-                            </div>
-                                        </div>
-                                        </div>
-                                    <div class="row">
-                                        <div class="col-md-12">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label  for="contract_file" class="col-md-4">Contract File</label>
-                                <div class="col-md-6">
-                                    <input type="file" class="form-control"  name="contract_file" value = "<?php
-                                    if (isset($query[0]['contract_file'])) {
-                                        echo $query[0]['contract_file'];
-                                    }
-                                    ?>" disabled="">
-                                </div>
-                                <div class="col-md-1">
-                                    <?php
-                                    if (isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])) {
-                                        $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['contract_file'];
-                                        ?>
-                                        <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo base_url().'images/view_image.png' ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" title="Click to view" /></a>
-                                        <?php
-                                    } else {
-                                        $src = base_url() . 'images/no_image.png';
-                                        ?>
-                                        <img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" />
-                                    <?php } ?>
-                                </div>
-                            </div>
                         </div>
-                                    <div class="col-md-8">
-                            <div class="form-group">
-                                <label for="address_proof_file" class="col-md-3">Address Proof File</label>
-                                <div class="col-md-5">
-                                    <input type="file" class="form-control"  name="address_proof_file" disabled="">
-                                </div>
-                                <div class="col-md-2">
-                                    <?php
-                                    if (isset($query[0]['address_proof_file']) && !empty($query[0]['address_proof_file'])) {
-                                        $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['address_proof_file'];
-                                        ?>
-                                        <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo base_url().'images/view_image.png'; ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" title="Click to view" /></a>
-                                        <?php
-                                    } else {
-                                        $src = base_url() . 'images/no_image.png';
-                                        ?>
-                                        <img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" />
-                                    <?php } ?>
-                                </div>
-                            </div>
-                        </div>
-                                        </div>
+                    </div>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                        <div class="col-md-6">
-                         <div class="form-group">
-                                       <label for="signature_file" class="col-md-4 vertical-align" style="width: 22%;">Signature File</label>
-                                <div class="col-md-7">
-                                    <input type="file" class="form-control" disabled=""/>
-                                    
-                                 </div> 
+                                <div class="row">
+                                    <div class="col-md-12">
+
+                    <div class="col-md-4" style='margin-right: 8px;'>
+
+                        <div class="form-group">
+                            <label  for="contract_file" class="col-md-4">Contract File</label>
+                            <div class="col-md-6">
+                                <input type="file" class="form-control"  name="contract_file" style="display: none;" >
+                                <!-- <?php
+                                if (isset($query[0]['contract_file'])) {
+                                    echo $query[0]['contract_file'];
+                                }
+                                ?> --> 
+                            </div>
+
+                            <div class="col-md-6" >
 
 
-                                  <div class="col-md-2">
-                            <?php
-                            $src = base_url() . 'images/no_image.png';
-                            $image_src = $src;
-                            if (isset($query[0]['signature_file']) && !empty($query[0]['signature_file'])) {
-                                //Path to be changed
-                                $src = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $query[0]['signature_file'];
-                                $image_src = base_url() . 'images/view_image.png';
-                            }
-                            ?>
-                            <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
-                        </div>  
-                            </div>  
-                            
-                    </div>
-                                        </div>         
+                                <?php
+                                if (isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])) {
+                                    $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['contract_file'];
+                                    ?>
+                                    <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo base_url().'images/view_image.png' ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" title="Click to view" /></a>
+                                    <?php
+                                } else {
+                                    $src = base_url() . 'images/no_image.png';
+                                    ?>
+                                    <img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;" />
+                                <?php } ?>
+                            </div>
                         </div>
                     </div>
+                                <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="address_proof_file" class="col-md-4">Address Proof File</label>
+                            <div class="col-md-5">
+                                <input type="file" class="form-control"  name="address_proof_file" disabled="" style="display: none;">
+                            </div>
+                            <div class="col-md-6">
+                                <?php
+                                if (isset($query[0]['address_proof_file']) && !empty($query[0]['address_proof_file'])) {
+                                    $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['address_proof_file'];
+                                    ?>
+                                    <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo base_url().'images/view_image.png'; ?>" width="35px" height="35px" style="border:1px solid black;" title="Click to view" /></a>
+                                    <?php
+                                } else {
+                                    $src = base_url() . 'images/no_image.png';
+                                    ?>
+                                    <img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;" />
+                                <?php } ?>
+                            </div>
+                            </div>
+                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="signature_file" class="col-md-4 vertical-align" style="width: 22%;">Signature File</label>
+                                                <div class="col-md-7">
+                                                    <input type="file" class="form-control" style="display: none;" disabled=""/>
+
+                                                </div> 
+
+
+                                                <div class="col-md-6">
+                                                    <?php
+                                                    $src = base_url() . 'images/no_image.png';
+                                                    $image_src = $src;
+                                                    if (isset($query[0]['signature_file']) && !empty($query[0]['signature_file'])) {
+                                                        //Path to be changed
+                                                        $src = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $query[0]['signature_file'];
+                                                        $image_src = base_url() . 'images/view_image.png';
+                                                    }
+                                                    ?>
+                                                    <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;    margin-left: 1px;" /></a>
+                                                </div>  
+                                            </div>  
+
+                                        </div>
+                                    </div>         
+                                </div>
+                </div>
                 <div  class = "panel panel-info">
                     <div class="panel-heading"><b>Bank Details</b></div>
                     <div class="panel-body form-horizontal">
@@ -813,13 +827,14 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label  for="cancelled_cheque_file" class="col-md-4">Cancelled Cheque File</label>
-                                    <div class="col-md-5">
-                                        <input type="file" class="form-control"  name="cancelled_cheque_file" value = "<?php
+                                    <div class="col-md-5" style='display:none'>
+                                        <input type="file" class="form-control"  name="cancelled_cheque_file" style="display: none;" >
+                                        <!-- <?php
                                         if (isset($query[0]['cancelled_cheque_file'])) {
                                             echo $query[0]['cancelled_cheque_file'];
                                         }
-                                        ?>" disabled="">
-                                    </div>
+                                        ?>
+ -->                                    </div>
                                     <div class="col-md-1">
                                         <?php
                                         if (isset($query[0]['cancelled_cheque_file']) && !empty($query[0]['cancelled_cheque_file'])) {

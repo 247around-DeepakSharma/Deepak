@@ -143,6 +143,8 @@ define('AMC_PRICE_TAGS', 'AMC (Annual Maintenance Contract)');
 define('MSL_TRANSFERED_BY_PARTNER_BY_EXCEL', 'Msl send by partner by excel upload');
 
 define('UPLOAD_MSL_EXCEL_FILE', 'Upload msl excel file');
+// Upload courier serviceable area excel file
+define('UPLOAD_COURIER_SERVICEABLE_AREA_EXCEL_FILE', 'Upload courier serviceable area excel file');
  
 define('NRN_APPROVED_BY_PARTNER', 'NRN Approved By Partner');
 define('NRN_REVERSE_BY_PARTNER', 'NRN Reverse by Partner');
