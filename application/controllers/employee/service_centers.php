@@ -9517,7 +9517,7 @@ class Service_centers extends CI_Controller {
                 'wh_ack_received_part' => 1,
                 "status in ('" . SPARE_DELIVERED_TO_SF . "','" . OK_PART_TO_BE_SHIPPED . "')" => null,
                 'part_warranty_status' => SPARE_PART_IN_WARRANTY_STATUS,
-                "booking_details.current_status!='" . _247AROUND_COMPLETED . "'"
+                "booking_details.current_status!='" . _247AROUND_COMPLETED . "'" => null
             );
             if (!empty($sf_id)) {
                 $where_from['service_center_id'] = $sf_id;
