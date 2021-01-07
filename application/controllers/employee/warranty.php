@@ -1156,7 +1156,9 @@ class Warranty extends CI_Controller {
         }
         $post['where'] = $where;
 
-        $select = "wp.plan_id, wp.plan_name, wp.plan_description, wp.period_start, wp.period_end, wp.warranty_period, wp.is_active, s.services, p.public_name, s.id as service_id, p.id as partner_id";
+        $select = "wp.plan_id, wp.plan_name, wp.plan_description, wp.period_start, wp.period_end,(CASE WHEN wp.warranty_type = 2 THEN 'Extended Warranty'
+                  ELSE 'In Warranty'
+                  END) AS Warranty_Type, wp.warranty_period, wp.is_active, s.services, p.public_name, s.id as service_id, p.id as partner_id";
         $list = $this->warranty_model->get_warranty_plan_list($post, $select);
         $data = array();
         $no = $post['start'];
@@ -1188,6 +1190,7 @@ class Warranty extends CI_Controller {
         $row[] = $this->miscelleneous->get_formatted_date($model_list->period_end);
         $row[] = $model_list->public_name;
         $row[] = $model_list->services;
+        $row[] = $model_list->Warranty_Type;
         $row[] = $model_list->warranty_period . " months";
         $row_number = $no - 1;
         
