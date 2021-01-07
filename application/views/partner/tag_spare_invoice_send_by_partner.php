@@ -736,8 +736,13 @@ $("#on_invoice_file").change(function(){
             autoUpdateInput: false,
             singleDatePicker: true,
             showDropdowns: true,
-            minDate:new Date(),//date_before_15_days,
-            maxDate: false,//'today',
+           minDate: function(){
+            var today = new Date();
+            var yesterday = new Date();
+            yesterday.setDate(today.getDate() - 3);
+            return yesterday;
+             }(),//date_before_15_days,
+            maxDate: new Date(),//'today',
             locale:{
                 format: 'DD/MM/YYYY'
             }
@@ -747,8 +752,13 @@ $("#on_invoice_file").change(function(){
             autoUpdateInput: false,
             singleDatePicker: true,
             showDropdowns: true,
-            minDate: new Date(),//date_before_15_days,
-            maxDate: false,//'today',
+            minDate: function(){
+            var today = new Date();
+            var yesterday = new Date();
+            yesterday.setDate(today.getDate() - 3);
+            return yesterday;
+             }(),//date_before_15_days,
+            maxDate: new Date(),//'today',
             locale:{
                 format: 'DD/MM/YYYY'
             }
@@ -780,7 +790,7 @@ $("#on_invoice_file").change(function(){
             yesterday.setDate(today.getDate() - 3);
             return yesterday;
              }(), //date_before_15_days,
-            maxDate: false,//'today',
+            maxDate: new Date(),//'today',
             setDate: new Date(),
             locale:{
                 format: 'YYYY-MM-DD'
@@ -805,7 +815,7 @@ $("#on_invoice_file").change(function(){
             yesterday.setDate(today.getDate() - 3);
             return yesterday;
             }(),//date_before_15_days,
-            maxDate: false,//'today',
+            maxDate: new Date(),//'today',
             setDate: new Date(),
             locale:{
                 format: 'YYYY-MM-DD'

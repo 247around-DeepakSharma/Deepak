@@ -688,8 +688,17 @@
         $('[data-toggle="popover"]').popover(); 
         $("#dated").datepicker({
             dateFormat: 'dd/mm/yy',
-            minDate: date_before_15_days,
-            maxDate:'today',
+            minDate: function(){
+            var today = new Date();
+            var yesterday = new Date();
+            yesterday.setDate(today.getDate() - 3);
+            return yesterday;
+             }(),
+            maxDate:new Date(),//'today',
+            setDate: new Date(),
+            locale:{
+                format: 'YYYY-MM-DD'
+            }
         });
                
         $('#courier_shipment_date').daterangepicker({
@@ -702,7 +711,7 @@
             yesterday.setDate(today.getDate() - 3);
             return yesterday;
              }(), //date_before_15_days,
-            maxDate: false,//'today',
+            maxDate:new Date(),//'today',
             setDate: new Date(),
             locale:{
                 format: 'YYYY-MM-DD'
@@ -1250,8 +1259,14 @@
             autoUpdateInput: false,
             singleDatePicker: true,
             showDropdowns: true,
-            minDate: date_before_15_days,
-            maxDate:'today',
+            minDate: function(){
+            var today = new Date();
+            var yesterday = new Date();
+            yesterday.setDate(today.getDate() - 3);
+            return yesterday;
+            }(),
+            maxDate:new Date(),
+            setDate: new Date(),
             locale:{
                 format: 'DD/MM/YYYY'
             }
@@ -1275,7 +1290,7 @@
             yesterday.setDate(today.getDate() - 3);
             return yesterday;
             }(), //date_before_15_days,
-            maxDate: false,//'today',
+            maxDate: new Date(),//'today',
             setDate: new Date(),
             locale:{
                 format: 'YYYY-MM-DD'
