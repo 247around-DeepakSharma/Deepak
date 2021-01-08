@@ -146,6 +146,7 @@
                         <th>End Period</th>
                         <th>Partner</th>
                         <th>Product</th>
+                        <th>Warranty Type</th>
                         <th>Warranty Period</th>
                         <th>Status</th>
                         <th>Action</th>
@@ -217,7 +218,7 @@
                     pageSize: 'LEGAL',
                     title: 'Warranty_plan_List',
                     exportOptions: {
-                       columns: [1,2,3,4,5,6,7,8],
+                       columns: [1,2,3,4,5,6,7,8,9],
                         modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'
