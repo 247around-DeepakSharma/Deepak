@@ -286,21 +286,23 @@ else{
                                data[k]["hsn_code"]='';
                            }
                             html +='<div class="col-md-12" >';
-                            html += '<div class="col-md-4 "> <div class="form-group col-md-12  "><label for="remarks">Booking ID *</label>';
+                            html += '<div class="col-md-6 "> <div class="form-group col-md-12  "><label for="remarks">Booking ID *</label>';
                             html += '<input required type="text" class="form-control" style="font-size: 13px;"  id="bookingid_'+k+'" readonly placeholder="Enter Booking ID" name="part['+data_list[k]["spare_id"]+'][booking_id]" value = "'+data[k]['booking_id']+'" >';
                             html += '</div></div>';
 
-                            html += '<div class="col-md-3 " style="width: 18%"><div class="form-group col-md-12  ">';
+                            html += '<div class="col-md-6 " ><div class="form-group col-md-12  ">';
                             html += ' <label for="remarks">HSN Code *</label>';
                             html += '<input required type="number" min="0" class="form-control" style="font-size: 13px;"  id="hsncode_'+k+'" placeholder="HSN Code" name="part['+data_list[k]["spare_id"]+'][hsn_code]" value = "'+data[k]["hsn_code"]+'" >';
                             html += '</div></div>';
-
-                            html += '<div class="col-md-3 " style="width: 17%"><div class="form-group col-md-12  ">';
+                            html += '</div>';
+                            
+                             html +='<div class="col-md-12" >';
+                            html += '<div class="col-md-6 "><div class="form-group col-md-12  ">';
                             html += ' <label for="remarks">GST Rate *</label>';
                             html += '<input required type="number" min="0" class="form-control" style="font-size: 13px;"  id="gstrate'+k+'" placeholder="GST Rate" name="part['+data_list[k]["spare_id"]+'][gst_rate]" value = "'+data[k]["gst_rate"]+'" onkeyup="validateGST(this.value)">';
                             html += '</div></div>';
 
-                            html += '<div class="col-md-4 " style="width: 30%"><div class="form-group col-md-12">';
+                            html += '<div class="col-md-6 " ><div class="form-group col-md-12">';
                             html += ' <label for="remarks">Basic Amount *</label>';
                             html += '<input required type="number" step=".01" min="0" class="form-control invoice_amount" style="font-size: 13px;"  id="basic_amount'+k+'" placeholder="Enter Amount" name="part['+data_list[k]["spare_id"]+'][basic_amount]" value = "'+data[k]["invoice_amount"]+'">';
                             html += '</div></div>';
