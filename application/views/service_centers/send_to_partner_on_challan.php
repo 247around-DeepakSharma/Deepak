@@ -714,7 +714,11 @@
         }else{
             $("#send_spare_to_partner").attr('disabled',false);
             $('#submit_courier_form_id').html('Submit').attr('disabled',false);
-            alert("Please enter all required field");
+            if(total_boxes >= 0){
+                alert('Minimum box count should be not negative, Please select from Large or small box count.');
+            }else{
+                alert("Please enter all required field");
+            }
         }
         
     });
