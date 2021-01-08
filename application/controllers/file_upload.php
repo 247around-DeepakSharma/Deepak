@@ -136,22 +136,24 @@ class File_upload extends CI_Controller {
 
                      //send email
                     $this->send_email($data, $response);
+                    $redirect_to = $response['redirect_to'];
                     if (isset($response['status']) && ($response['status'])) {
-                        $redirect_to = $response['redirect_to'];
-
+                        
                         if ($this->input->post("transfered_by") == MSL_TRANSFERED_BY_WAREHOUSE) {
                             redirect(base_url() . $redirect_to);
                         } else {
-                            $this->session->set_flashdata('details', $response['message']);
+                            $this->session->set_userdata('details', $response['message']);
                             if(!empty($redirect_to)){
-                            redirect(base_url() . $redirect_to);
+                                redirect(base_url() . $redirect_to);
                             }
                         }
+                    } else {
+                      redirect(base_url() . $redirect_to);  
                     }
                 } else {
                     //redirect to upload page
                     //$this->session->set_flashdata('file_error', 'Empty file has been uploaded');
-                    $this->session->set_userdata('fail', '<h5 style="color:red; margin-left:10px;">Empty file has been uploaded</h5>');
+                    $this->session->set_userdata('fail', '<h5 style="color:red; margin-left:10px;">Empty file cannot be uploaded.</h5>');
                     redirect(base_url() . $redirect_to);
                 }
             } else {
