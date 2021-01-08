@@ -320,9 +320,9 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                             <div class ="col-md-12">
                                 <div class="col-md-6">
                                     <div class="form-group ">
-                                        <label for="state" class="col-md-3 vertical-align">Pincode</label>
+                                        <label for="state" class="col-md-3 vertical-align">Pincode*</label>
                                         <div class="col-md-8">
-                                            <select class="pincode form-control" id="pincode" name ="pincode"  >
+                                            <select class="pincode form-control" id="pincode" name ="pincode" required="true" >
                                                 <option selected disabled>Select Pincode</option>
                                                 <option <?php
                                                     if (isset($query[0]['pincode'])) {
