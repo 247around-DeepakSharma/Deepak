@@ -458,7 +458,7 @@
                                 <div class="col-md-6">
                                     <select class="form-control" id="shipped_spare_parts_boxes_count" name="shipped_spare_parts_boxes_count"  required="">
                                         <option selected="" disabled="" value="">Select Boxes</option>
-                                        <?php for ($i = 1; $i < 31; $i++) { ?>
+                                        <?php for ($i = 0; $i < 31; $i++) { ?>
                                             <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
                                         <?php } ?>
                                     </select>
