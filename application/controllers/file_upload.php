@@ -1178,12 +1178,12 @@ class File_upload extends CI_Controller {
                             } 
                             
                             if(strlen(trim($rowData['courier_company_name'])) > 20){
-                               $error_type = "Courier company name should not be 20 characters.";
+                               $error_type = "Courier company name should not be more than 20 characters.";
                                  $this->table->add_row($rowData['courier_company_name'], $rowData['pincode'], $error_type); 
                             }
                             
                             if(!preg_match('/^[0-9]{6}$/', $rowData['pincode']) ){
-                                $error_type = "Pincode must be number in 6 digits.";
+                                $error_type = " Pincode should be of 6 digit number.";
                                 $this->table->add_row($rowData['courier_company_name'], $rowData['pincode'], $error_type);
                             } 
                             
@@ -1192,18 +1192,21 @@ class File_upload extends CI_Controller {
                             array_push($this->dataToInsert, $tmp_data);
                         }
                     } else {
-                        $error_type = "Error in header Or excel value should not be null.";
+                        $error_type = "Error in header Or excel value should not be blank.";
                         $this->table->add_row($rowData['courier_company_name'], $rowData['pincode'], $error_type);
                     }
                 }
             }
         } else {
-            $this->table->add_row("-", "-", "-", "Excel header is incorrect");
+            $error_type = "Error in header Or excel value should not be blank.";
+            $this->table->add_row(" ", " ", " ", $error_type);
         }
         $err_msg = $this->table->generate();
-        
+                
         if (empty($error_type)) {
+            if (!empty($this->dataToInsert)){
             $this->inventory_model->insert_courier_serviceable_area_details_batch($this->dataToInsert);
+        }
             $response['status'] = TRUE;
             $response['message'] = 'Courier serviceable area file uploaded successfully';
             $response['redirect_to'] = 'employee/inventory/upload_courier_serviceable_area_file';
