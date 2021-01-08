@@ -2354,16 +2354,21 @@ function  getPartnerCompareTAT(){
      */
     function ProcessGetBookingHistory() {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        $validation = $this->validateKeys(array("mobile"), $requestData);
+        $validation = $this->validateKeys(array("bookingID"), $requestData);
         if (!empty($requestData['bookingID'])) {
             $bookingID = $requestData['bookingID'];
             $bookingID_state_change = $this->booking_model->get_booking_state_change_by_id($bookingID);
-            if (!empty($bookingID_state_change)) {
-                $this->jsonResponseString['response'] = $bookingID_state_change;
+            $comment_section = $this->booking_model->get_remarks(array('booking_id' => $bookingID, "isActive" => 1,'comment_type'=> 1));
+
+            if (!empty($bookingID_state_change) || !empty($bookingID)) {
+                $response_array = array();
+                $response_array['history'] = $bookingID_state_change;
+                $response_array['comment'] = $comment_section;
+                $this->jsonResponseString['response'] = $response_array;
                 $this->sendJsonResponse(array('0000', 'Booking History found successfully'));
             } else {
                 $this->jsonResponseString['response'] = array();
-                $this->sendJsonResponse(array('0013', 'Please enter booking ID'));
+                $this->sendJsonResponse(array('0014', 'Booking History Not Found.'));
             }
         } else {
             $this->jsonResponseString['response'] = array();
