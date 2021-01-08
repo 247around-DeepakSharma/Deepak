@@ -1168,42 +1168,24 @@ function process_upload_msl_file($data) {
                         if (!empty($courier_details)) {
                             $error_type = "Already Exists In Our System.";
                             $this->table->add_row($rowData['courier_company_name'], $rowData['pincode'], $error_type);
-                        } else {                            
-                            if(preg_match("/[^a-zA-Z0-9 ]+/", trim($rowData['courier_company_name']))){
-                                 $error_type = "Courier company name should not be special character.";
-                                 $this->table->add_row($rowData['courier_company_name'], $rowData['pincode'], $error_type);
-                            } 
-                            
-                            if(strlen(trim($rowData['courier_company_name'])) > 20){
-                               $error_type = "Courier company name should not be more than 20 characters.";
-                                 $this->table->add_row($rowData['courier_company_name'], $rowData['pincode'], $error_type); 
-                            }
-                            
-                            if(!preg_match('/^[0-9]{6}$/', $rowData['pincode']) ){
-                                $error_type = " Pincode should be of 6 digit number.";
-                                $this->table->add_row($rowData['courier_company_name'], $rowData['pincode'], $error_type);
-                            } 
-                            
+                        } else {
                             $tmp_data['courier_company_name'] = trim($rowData['courier_company_name']);
                             $tmp_data['pincode'] = trim($rowData['pincode']);
                             array_push($this->dataToInsert, $tmp_data);
                         }
                     } else {
-                        $error_type = "Error in header Or excel value should not be blank.";
+                        $error_type = "Error in header Or excel value should not be null.";
                         $this->table->add_row($rowData['courier_company_name'], $rowData['pincode'], $error_type);
                     }
                 }
             }
         } else {
-            $error_type = "Error in header Or excel value should not be blank.";
-            $this->table->add_row(" ", " ", " ", $error_type);
+            $this->table->add_row("-", "-", "-", "Excel header is incorrect");
         }
         $err_msg = $this->table->generate();
-
-        if (empty($error_type)) {
-            if (!empty($this->dataToInsert)){
+        
+        if (!empty($this->dataToInsert)) {
             $this->inventory_model->insert_courier_serviceable_area_details_batch($this->dataToInsert);
-        }
             $response['status'] = TRUE;
             $response['message'] = 'Courier serviceable area file uploaded successfully';
             $response['redirect_to'] = 'employee/inventory/upload_courier_serviceable_area_file';
