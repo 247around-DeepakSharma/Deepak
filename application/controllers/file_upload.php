@@ -98,6 +98,10 @@ class File_upload extends CI_Controller {
                             //process msl excel  
                             $response = $this->process_engg_notification_upload_file($data);
                             break;
+                         case UPLOAD_COURIER_SERVICEABLE_AREA_EXCEL_FILE:
+                            //process upload courier serviceable area excel  
+                            $response = $this->process_upload_courier_serviceable_area_file($data);
+                            break;
                         default :
                             log_message("info", " upload file type not found");
                             $response['status'] = FALSE;
