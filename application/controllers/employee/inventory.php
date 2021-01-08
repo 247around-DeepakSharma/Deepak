@@ -7886,17 +7886,17 @@ function get_bom_list_by_inventory_id($inventory_id) {
                     . "spare_parts_details.booking_id, booking_details.service_id,spare_parts_details.model_number,booking_details.request_type,spare_parts_details.part_warranty_status", $where, true);
             
             if (!empty($data['data'])) {
-                $data['count'] = $count;
-                $data['inventory_master_list'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.inventory_id,inventory_master_list.part_name,inventory_master_list.part_number, '
-                        . 'inventory_master_list.gst_rate, inventory_master_list.hsn_code, inventory_master_list.price, inventory_master_list.type', array('inventory_model_mapping.active' => 1,'appliance_model_details.model_number' => $data['data'][0]['model_number'],'inventory_master_list.service_id' => $data['data'][0]['service_id']));
-                                
-                $html = $this->load->view('employee/tag_spare_line_item', $data, true);
+                    $data['count'] = $count;
+                    $data['inventory_master_list'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.inventory_id,inventory_master_list.part_name,inventory_master_list.part_number, '
+                            . 'inventory_master_list.gst_rate, inventory_master_list.hsn_code, inventory_master_list.price, inventory_master_list.type', array('inventory_model_mapping.active' => 1, 'appliance_model_details.model_number' => $data['data'][0]['model_number'], 'inventory_master_list.service_id' => $data['data'][0]['service_id']));
+                    $split_data = preg_split("/\-/", $data['data'][0]['booking_id']);
+                    $data['numeric_id'] = $split_data[1];
+                    $html = $this->load->view('employee/tag_spare_line_item', $data, true);
 
-                echo json_encode(array('code' => 247, "data" => $html, "count" => count($data)));
-            } else {
-                echo json_encode(array('code' => -247, "data" => "There is no any spare requested for this booking."));
-            }
-
+                    echo json_encode(array('code' => 247, "data" => $html, "count" => count($data)));
+                } else {
+                    echo json_encode(array('code' => -247, "data" => "There is no any spare requested for this booking."));
+                }
             }
 
         } else {
