@@ -533,6 +533,7 @@ class Trackingmore_api {
      * @param string $trackingNumber  Tracking number 
      * @param string $carrierCode Carrier code
      * @return array 
+     * @author: Gorakh
      */
     public function getRapidApiRealTimeTrackingResults($carrierCode, $trackingNumber, $extraInfo = array()) {
         $returnData = array();

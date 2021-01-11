@@ -195,7 +195,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label  for="company_name" class="col-md-3">Company Name*</label>
                                         <div class="col-md-8">
-                                            <input  type="text" class="form-control blockspacialchar" id="company_name" name="company_name" onkeyup="if (/[^|a-z0-9]+/g.test(this.value)) this.value = this.value.replace(/[^|a-z0-9!@#$%^&*().]+/g,'')" value = "<?php
+                                            <input  type="text" class="form-control blockspacialchar" id="company_name" name="company_name" onkeyup="if (/[^|a-zA-Z0-9]+/g.test(this.value)) this.value = this.value.replace(/[^|a-zA-Z0-9 ]+/g,'')" value = "<?php
                                                 if (isset($query[0]['company_name'])) {
                                                     echo $query[0]['company_name'];
                                                 }
@@ -215,7 +215,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label  for="name" class="col-md-3">Display Name*</label>
                                         <div class="col-md-8">
-                                            <input  type="text" class="form-control blockspacialchar" id="name" name="name" onkeyup="if (/[^|a-z0-9]+/g.test(this.value)) this.value = this.value.replace(/[^|a-z0-9!@#$%^&*().]+/g,'')" value = "<?php
+                                            <input  type="text" class="form-control blockspacialchar" id="name" name="name" onkeyup="if (/[^|a-zA-Z0-9]+/g.test(this.value)) this.value = this.value.replace(/[^|a-zA-Z0-9 ]+/g,'')" value = "<?php
                                                 if (isset($query[0]['name'])) {
                                                     echo $query[0]['name'];
                                                 }
@@ -320,9 +320,9 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                             <div class ="col-md-12">
                                 <div class="col-md-6">
                                     <div class="form-group ">
-                                        <label for="state" class="col-md-3 vertical-align">Pincode</label>
+                                        <label for="state" class="col-md-3 vertical-align">Pincode*</label>
                                         <div class="col-md-8">
-                                            <select class="pincode form-control" id="pincode" name ="pincode"  >
+                                            <select class="pincode form-control" id="pincode" name ="pincode" required="true" >
                                                 <option selected disabled>Select Pincode</option>
                                                 <option <?php
                                                     if (isset($query[0]['pincode'])) {

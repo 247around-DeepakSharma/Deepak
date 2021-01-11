@@ -39,7 +39,7 @@
                         <label for="part Name" class="col-md-4">Part Name *</label>
                         <div class="col-md-6">
                             <select onchange="get_part_number_on_booking('<?php echo ($key +$count);?>')" class="form-control part_name" id="<?php echo "onpartName_".($key +$count);?>" 
-                                name="part[<?php echo ($key +$count); ?>][part_name]" required="">
+                                name="part[<?php echo ($key +$count); ?>][part_name]" data-bookinglevel="<?php echo $count;?>" data-numeric_booking_id ="<?php echo $numeric_id; ?>" required="">
                                 <option value="" disabled="" selected="">Select Part Name</option>
                                 <?php $inventory_id =""; $hsn_code = ""; $gst_rate = ""; $part_name =""; $part_number = ""; $basic_price = ""; 
                                     $total_amount = "";
