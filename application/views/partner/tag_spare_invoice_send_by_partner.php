@@ -697,6 +697,7 @@ $("#on_invoice_file").change(function(){
     var onBookingIndex = 0;
     var is_valid_booking = true;
     var partArr = new Array();
+    var BookingArr = new Array();
     $(document).ready(function () {
         
         partIndex = 0;
@@ -736,8 +737,13 @@ $("#on_invoice_file").change(function(){
             autoUpdateInput: false,
             singleDatePicker: true,
             showDropdowns: true,
-            minDate:new Date(),//date_before_15_days,
-            maxDate: false,//'today',
+           minDate: function(){
+            var today = new Date();
+            var yesterday = new Date();
+            yesterday.setDate(today.getDate() - 3);
+            return yesterday;
+             }(),//date_before_15_days,
+            maxDate: new Date(),//'today',
             locale:{
                 format: 'DD/MM/YYYY'
             }
@@ -747,8 +753,13 @@ $("#on_invoice_file").change(function(){
             autoUpdateInput: false,
             singleDatePicker: true,
             showDropdowns: true,
-            minDate: new Date(),//date_before_15_days,
-            maxDate: false,//'today',
+            minDate: function(){
+            var today = new Date();
+            var yesterday = new Date();
+            yesterday.setDate(today.getDate() - 3);
+            return yesterday;
+             }(),//date_before_15_days,
+            maxDate: new Date(),//'today',
             locale:{
                 format: 'DD/MM/YYYY'
             }
@@ -780,7 +791,7 @@ $("#on_invoice_file").change(function(){
             yesterday.setDate(today.getDate() - 3);
             return yesterday;
              }(), //date_before_15_days,
-            maxDate: false,//'today',
+            maxDate: new Date(),//'today',
             setDate: new Date(),
             locale:{
                 format: 'YYYY-MM-DD'
@@ -805,7 +816,7 @@ $("#on_invoice_file").change(function(){
             yesterday.setDate(today.getDate() - 3);
             return yesterday;
             }(),//date_before_15_days,
-            maxDate: false,//'today',
+            maxDate: new Date(),//'today',
             setDate: new Date(),
             locale:{
                 format: 'YYYY-MM-DD'
@@ -1553,19 +1564,30 @@ $("#on_invoice_file").change(function(){
        });
        
         function get_part_number_on_booking(index){
+            var bookinglevel =  $("#onpartName_"+index).attr('data-bookinglevel');
+            var bookingId = $("#onbookingid_"+bookinglevel).val();
             var partner_id = $('#onpartnerId_'+index).val();
             var service_id = $('#onserviceId_'+index).val();
-            var part_name = $('#onpartName_'+index).val();
-            if($.inArray(part_name,partArr[service_id]) > 0) {
+            var part_name = $('#onpartName_'+index).val();  
+            if( bookinglevel < 1){
+                var partNameIdexFirst = $('#onpartName_'+bookinglevel).val();  
+                BookingArr.push(bookingId+"-"+partNameIdexFirst); 
+            }
+            
+            partName = bookingId+"-"+part_name;
+            if(isInArray(partName, BookingArr) > 0) {
+                $('#onpartName_'+index).val('');
                 alert("Please select another part as this is already selected!!");
                 return false;
             }
-            if( partArr[service_id] === undefined ) {
-                partArr[service_id] = new Array();
-            }
+            
+            if(BookingArr === undefined) {
+                BookingArr = new Array();
+            }               
             if(part_name !== undefined) {
-                partArr[service_id].push(part_name);
+                BookingArr.push(bookingId+"-"+part_name); 
             }
+                                   
             if(partner_id){
                 $.ajax({
                     type: 'POST',
@@ -1591,6 +1613,10 @@ $("#on_invoice_file").change(function(){
             }else{
                 showConfirmDialougeBox('Please Select All Field', 'warning');
             }
+        }
+       
+        function isInArray(value, array) {
+            return array.indexOf(value) > -1;
         }
        
        function bookingBlur(count){
@@ -1812,7 +1838,7 @@ $("#on_invoice_file").change(function(){
     
     $('#onBookingspareForm').on('click', '.onspareaddButton', function () {
            onBookingIndex++;
-            var b=  $(this).attr('data-count');
+            var b =  $(this).attr('data-count');
            var $template = $('#spare_line_template_'+b),
                $clone = $template
                        .clone()
@@ -1827,7 +1853,7 @@ $("#on_invoice_file").change(function(){
                .find('[id="shipping_status_2"]').attr('name', 'part[' + onBookingIndex + '][shippingStatus]').attr('id','n_shippingStatus_'+onBookingIndex).attr("required", true).attr('onchange', 'onbooking_invoice_amount("on_b_")').attr('class','shippingStatus').end()
                .find('[id="shipping_status_3"]').attr('name', 'part[' + onBookingIndex + '][shippingStatus]').attr('id','l_shippingStatus_'+onBookingIndex).attr("required", true).attr('onchange', 'onbooking_invoice_amount("on_b_")').attr('class','shippingStatus').end()
                .find('[id="error_shippingStatus"]').attr('id','error_shippingStatus_'+onBookingIndex).end()
-               .find('[id="onpartName"]').attr('name', 'part[' + onBookingIndex + '][part_name]').attr('id','onpartName_'+onBookingIndex).attr('onchange','get_part_number_on_booking("'+ onBookingIndex+'")').addClass('part_name').attr("required", true).end()
+               .find('[id="onpartName"]').attr('name', 'part[' + onBookingIndex + '][part_name]').attr('id','onpartName_'+onBookingIndex).attr('onchange','get_part_number_on_booking("'+ onBookingIndex+'")').addClass('part_name').attr("required", true).attr("data-bookinglevel",b).end()
                .find('[id="error_onpartName"]').attr('id','error_onpartName_'+onBookingIndex).end()
                .find('[id="onpartBasic"]').attr('id','onpartBasic_'+onBookingIndex).end()
                .find('[id="onpartBasicPrice"]').attr('name', 'part[' + onBookingIndex + '][part_total_price]').attr('id','onpartBasicPrice_'+onBookingIndex).attr('onkeyup','validateDecimal(this.id, this.value);booking_calculate_total_price('+onBookingIndex+')').addClass('onpartBasicPrice').end()
@@ -1847,11 +1873,11 @@ $("#on_invoice_file").change(function(){
                .find('[id="onspareType"]').attr('name', 'part[' + onBookingIndex + '][type]').attr('id', 'onspareType_'+onBookingIndex).end()
                
             $('#onpartName_'+onBookingIndex).select2();
-            var service_id = $('#onserviceId_'+onBookingIndex).val();
-            $('#onpartName_'+onBookingIndex+' option').removeAttr('disabled');
-            for(var key in partArr[service_id]) {
-                $('#onpartName_'+onBookingIndex+' option[value="'+partArr[service_id][key]+'"]').attr('disabled','disabled');
-            }
+//            var service_id = $('#onserviceId_'+onBookingIndex).val();
+//            $('#onpartName_'+onBookingIndex+' option').removeAttr('disabled');
+//                for(var key in partArr[service_id]) {
+//                        $('#onpartName_'+onBookingIndex+' option[value="'+partArr[service_id][key]+'"]').attr('disabled','disabled');
+//                    }
             
        })
     

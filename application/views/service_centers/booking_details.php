@@ -573,16 +573,19 @@
                             <table class="table  table-striped table-bordered" >
                                 <thead>
                                     <tr>
-                                    <th >Estimate Given</th>
-                                    <th >Estimate Given Date </th>
-                                    <th >Status </th>
+                                    <th>Spare Id</th> 
+                                    <th>Estimate Given</th>
+                                    <th>Estimate Given Date </th>
+                                    <th>Status </th>
                                 </tr>
                                 </thead>
 
                                 <tbody>
                                      <?php foreach ($booking_history['spare_parts'] as $sp){ if($sp['purchase_price'] > 0) { ?>
                                 <tr>
-                                   
+                                   <td>
+                                   <a href="javascript:void(0);"  data-spare_id="<?php echo $sp['id']; ?>" class="spare_history_tracking"><?php echo $sp['id']; ?></a>
+                                   </td>
                                     <td><?php echo $sp['sell_price']; ?></td>
                                     <td><?php if(!empty($sp['estimate_cost_given_date'])){ echo date("d-M-Y", strtotime($sp['estimate_cost_given_date'])); } ?></td>
                                     <td><?php echo $sp['status']; ?></td>
