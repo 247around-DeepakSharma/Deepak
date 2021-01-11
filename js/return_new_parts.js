@@ -167,7 +167,46 @@ function crate_table(request_type){
         
     } else {
         $("#return_new_parts_data").remove();
+        var HTMLBODy = '';
+        HTMLBODy += '<table id="return_new_parts_data" class="table table-bordered table-responsive">';
+        HTMLBODy += '<thead>';
+        HTMLBODy += '<tr>';
+        HTMLBODy += '<th>S.No</th>';
+        HTMLBODy += '<th>Appliance</th>';
+        HTMLBODy += '<th>Type</th>';
+        HTMLBODy += '<th>Name</th>';
+        HTMLBODy += '<th>Number</th>';
+        HTMLBODy += '<th>Quantity</th>';
+        HTMLBODy += '<th>Remove</th>';
+        HTMLBODy += '</tr>';
+        HTMLBODy += '</thead>';
+        HTMLBODy += '<tbody></tbody>';
+        HTMLBODy += '</table>';
+        $("#return_new_parts_id").html(HTMLBODy);
+
         $("#sell_mwh_parts_data").remove();
+        
+        var HTMLTableBody = '';
+        HTMLTableBody += '<table id="sell_mwh_parts_data" class="table table-bordered table-responsive">';
+        HTMLTableBody += '<thead>';
+        HTMLTableBody += '<tr>';
+        HTMLTableBody += '<th>S.No</th>';
+        HTMLTableBody += '<th>Appliance</th>';
+        HTMLTableBody += '<th>Type</th>';
+        HTMLTableBody += '<th>Name</th>';
+        HTMLTableBody += '<th>Number</th>';
+        HTMLTableBody += '<th>Basic Price</th>';
+        HTMLTableBody += '<th>GST Rate</th>';
+        HTMLTableBody += '<th>Quantity</th>';
+        HTMLTableBody += '<th>Total Price</th>';
+        HTMLTableBody += '<th>Remove</th>';
+        HTMLTableBody += '</tr>';
+        HTMLTableBody += '</thead>';
+        HTMLTableBody += '<tbody></tbody>';
+        HTMLTableBody += '</table>';
+
+        $("#sell_mwh_parts_id").html(HTMLTableBody);
+        
         $("#sellItem").html("Return New Parts (0)");
         $("#settle_item").html("Consumed Parts On OOW Booking (0)");
         $("#soldItem").html("Consumed Parts Without Booking (0)");
