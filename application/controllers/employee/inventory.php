@@ -4015,21 +4015,6 @@ class Inventory extends CI_Controller {
                 $data = date('Y-m-d', strtotime($data));
             }
             $booking_id = $this->input->post('booking_id');
-            //If we are updating awb_number and awb_number preexist then update shipped_date and courier pic , courier name etc
-            if($column=='awb_by_partner'){
-                $allSpares = $this->service_centers_model->get_spare_parts_booking(array('spare_parts_details.awb_by_partner' => $this->input->post('data')), "spare_parts_details.id,spare_parts_details.shipped_date,spare_parts_details.courier_pic_by_partner,spare_parts_details.courier_name_by_partner,spare_parts_details.awb_by_partner");
-                $current_spare = $this->service_centers_model->get_spare_parts_booking(array('spare_parts_details.id' => $this->input->post('id')), "spare_parts_details.awb_by_partner");
-                $other_fields_to_update = array();
-                if(!empty($allSpares) && !empty($current_spare)){
-                    $other_fields_to_update['shipped_date'] = $allSpares[0]['shipped_date'];
-                    $other_fields_to_update['courier_pic_by_partner'] = $allSpares[0]['courier_pic_by_partner'];
-                    $other_fields_to_update['courier_name_by_partner'] = $allSpares[0]['courier_name_by_partner'];
-                    $current_spare_awb = $current_spare[0]['awb_by_partner'];
-                    if($allSpares[0]['awb_by_partner']!=$current_spare_awb){
-                        $this->service_centers_model->update_spare_parts(array('id' => $id), $other_fields_to_update);
-                    }
-                }
-            }
             if($column!='shipped_date'){
                 $this->service_centers_model->update_spare_parts(array('id' => $id), array($column => $data));
             }
