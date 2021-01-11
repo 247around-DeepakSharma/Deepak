@@ -458,7 +458,7 @@
                                 <div class="col-md-6">
                                     <select class="form-control" id="shipped_spare_parts_boxes_count" name="shipped_spare_parts_boxes_count"  required="">
                                         <option selected="" disabled="" value="">Select Boxes</option>
-                                        <?php for ($i = 1; $i < 31; $i++) { ?>
+                                        <?php for ($i = 0; $i < 31; $i++) { ?>
                                             <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
                                         <?php } ?>
                                     </select>
@@ -471,7 +471,7 @@
                             ?>">
                                 <label for="shipment_date" class="col-md-4">Shipment Date *</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control"  id="shipment_date" name="shipment_date"  value = "<?php echo date("Y-m-d", strtotime("+0 day")); ?>"  required>
+                                    <input type="text" class="form-control"  id="shipment_date" name="shipment_date"  value = "<?php echo date("Y-m-d", strtotime("+0 day")); ?>"  required="true" readonly=""/>
                                     <?php echo form_error('shipment_date'); ?>
                                 </div>
                             </div>

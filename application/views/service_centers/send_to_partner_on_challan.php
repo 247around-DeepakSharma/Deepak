@@ -278,7 +278,7 @@
                                 <div class='form-group'>
                                     <label for="defective_parts_shippped_date_by_wh" class="col-md-4">Courier Shipped Date *</label>
                                     <div class="col-md-8">
-                                        <input type="text" class="form-control"  id="defective_parts_shippped_date_id" name="defective_parts_shippped_date_by_wh" placeholder="Please enter Shipped Date" required>
+                                        <input type="text" class="form-control"  id="defective_parts_shippped_date_id" name="defective_parts_shippped_date_by_wh" placeholder="Please enter Shipped Date" required="true" readonly="">
                                     </div>
                                 </div>
                             </div>
@@ -290,7 +290,7 @@
                                     <div class="col-md-8">
                                         <select class="form-control" id="shipped_spare_parts_boxes_count" name="shipped_spare_parts_boxes_count"  required="">
                                             <option selected value="">Select Large Boxes</option>
-                                            <?php for ($i = 1; $i < 31; $i++) { ?>
+                                            <?php for ($i = 0; $i < 31; $i++) { ?>
                                                 <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
                                             <?php } ?>
                                         </select>
@@ -713,8 +713,8 @@
         }else{
             $("#send_spare_to_partner").attr('disabled',false);
             $('#submit_courier_form_id').html('Submit').attr('disabled',false);
-            if(total_boxes == 0){
-                alert('Minimum box count should be 1, Please select from Large or small box count.');
+            if(total_boxes >= 0){
+                alert('Minimum box count should be not negative, Please select from Large or small box count.');
             }else{
                 alert("Please enter all required field");
             }

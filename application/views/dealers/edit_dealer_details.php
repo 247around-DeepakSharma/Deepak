@@ -33,13 +33,13 @@
                         <div class="col-md-4 ">
                             <div class="form-group col-md-12">
                                 <label for="dealer_phone_number_1">Dealer Mobile No *</label>
-                                <input type="text" placeholder="Eneter Dealer Mobile Number" class="form-control" id="dealer_phone_number_1" name="dealer_phone_number_1" value = "<?php if(isset($dealer_details[0]['dealer_phone_number_1'])){ echo $dealer_details[0]['dealer_phone_number_1']; }  ?>" required>
+                                <input type="text" placeholder="Enter Dealer Mobile Number" class="form-control" id="dealer_phone_number_1" name="dealer_phone_number_1" value = "<?php if(isset($dealer_details[0]['dealer_phone_number_1'])){ echo $dealer_details[0]['dealer_phone_number_1']; }  ?>" required>
                             </div>
                         </div>
                          <div class="col-md-4 ">
                             <div class="form-group col-md-12">
                                 <label for="dealer_email">Dealer Email </label>
-                                <input type="email" placeholder="Eneter Dealer Email" class="form-control" id="dealer_email" name="dealer_email" value = "<?php if(isset($dealer_details[0]['dealer_email'])){ echo $dealer_details[0]['dealer_email']; }  ?>" >
+                                <input type="email" placeholder="Enter Dealer Email" class="form-control" id="dealer_email" name="dealer_email" value = "<?php if(isset($dealer_details[0]['dealer_email'])){ echo $dealer_details[0]['dealer_email']; }  ?>" >
                             </div>
                         </div>
                     </div>
@@ -53,13 +53,13 @@
                         <div class="col-md-4 ">
                             <div class="form-group col-md-12">
                                 <label for="owner_phone_number_1">Owner Mobile No </label>
-                                <input type="text" placeholder="Eneter Owner Mobile Number" class="form-control" pattern="/^[6-9]{1}[0-9]{9}$/" id="owner_phone_number_1" name="owner_phone_number_1" value = "<?php if(isset($dealer_details[0]['owner_phone_number_1'])){ echo $dealer_details[0]['owner_phone_number_1']; }  ?>" >
+                                <input type="text" placeholder="Enter Owner Mobile Number" class="form-control" pattern="/^[6-9]{1}[0-9]{9}$/" id="owner_phone_number_1" name="owner_phone_number_1" value = "<?php if(isset($dealer_details[0]['owner_phone_number_1'])){ echo $dealer_details[0]['owner_phone_number_1']; }  ?>" >
                             </div>
                         </div>
                         <div class="col-md-4 ">
                             <div class="form-group col-md-12">
                                 <label for="owner_email">Owner Email </label>
-                                <input type="email" placeholder="Eneter Dealer Email" class="form-control" id="owner_email" name="owner_email" value = "<?php if(isset($dealer_details[0]['owner_email'])){ echo $dealer_details[0]['owner_email']; }  ?>" >
+                                <input type="email" placeholder="Enter Dealer Email" class="form-control" id="owner_email" name="owner_email" value = "<?php if(isset($dealer_details[0]['owner_email'])){ echo $dealer_details[0]['owner_email']; }  ?>" >
                             </div>
                         </div>
                        
