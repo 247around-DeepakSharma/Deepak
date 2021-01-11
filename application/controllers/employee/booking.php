@@ -2676,6 +2676,7 @@ class Booking extends CI_Controller {
             $booking['customer_paid_upcountry_charges'] = $upcountry_charges;
 
             if ($is_closure == 1) {
+                $booking['amount_paid'] = $total_amount_paid;
                 $booking['closed_date'] = date('Y-m-d H:i:s');
                 if (!empty($b_unit_details)) {
                     $booking['closed_date'] = $b_unit_details[0]['ud_closed_date'];
