@@ -381,7 +381,7 @@
             yesterday.setDate(today.getDate() - 3);
             return yesterday;
         }(), //date_before_15_days,
-        maxDate: false,//'today',
+        maxDate: new Date(),//'today',
         setDate: new Date(),
         locale:{
             format: 'YYYY-MM-DD'
