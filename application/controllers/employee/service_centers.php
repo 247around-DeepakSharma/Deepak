@@ -9532,6 +9532,8 @@ function do_delivered_spare_transfer() {
                     'partner_challan_number' => $to_details[0]['partner_challan_number'],
                     'partner_challan_file' => $to_details[0]['partner_challan_file'],
                     'spare_request_symptom' => $to_details[0]['spare_request_symptom'],
+                    'consumed_part_status_id' => null,
+                    'consumption_remarks' => null,
                 );                                                  
                 $this->service_centers_model->update_spare_parts(array('id' => $to_spare_id), $to_details_array);
                 
