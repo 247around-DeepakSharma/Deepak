@@ -278,7 +278,7 @@
                                 <div class='form-group'>
                                     <label for="defective_parts_shippped_date_by_wh" class="col-md-4">Courier Shipped Date *</label>
                                     <div class="col-md-8">
-                                        <input type="text" class="form-control"  id="defective_parts_shippped_date_id" name="defective_parts_shippped_date_by_wh" placeholder="Please enter Shipped Date" required>
+                                        <input type="text" class="form-control"  id="defective_parts_shippped_date_id" name="defective_parts_shippped_date_by_wh" placeholder="Please enter Shipped Date" required="true" readonly="">
                                     </div>
                                 </div>
                             </div>

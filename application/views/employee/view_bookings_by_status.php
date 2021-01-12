@@ -134,6 +134,7 @@
                         <th>Service Name</th>
                         <th>Service Centre</th>
                         <th>Service Centre City</th>
+                        <th>Booking Type</th>
                         <th>Completion Date</th>
                         <?php if($c2c) {?>
                         <th>Call</th>
