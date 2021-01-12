@@ -59,6 +59,7 @@
                                     <th class="text-center">Appliance</th>
                                     <th class="text-center">Customer Name</th>
                                     <th class="text-center">Part Request Age(Days)</th>
+                                    <th class="text-center">Booking Request Type</th>
                                     <th class="text-center">Required Parts</th>
                                     <th class="text-center">Parts Number</th>
                                     <th class="text-center">Quantity</th>

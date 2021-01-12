@@ -7360,7 +7360,7 @@ class Partner extends CI_Controller {
         $select = "spare_parts_details.booking_id,services.services, i.part_number, GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, users.name, "
                 . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.state as booking_state, "
                 . "booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, i.part_number, "
-                . "booking_details.upcountry_paid_by_customer,booking_details.amount_due, booking_details.flat_upcountry,booking_details.state, service_centres.name as vendor_name,booking_details.district, "
+                . "booking_details.upcountry_paid_by_customer,booking_details.amount_due, booking_details.flat_upcountry,booking_details.state,booking_details.request_type,service_centres.name as vendor_name,booking_details.district, "
                 . "service_centres.address, service_centres.state, service_centres.gst_no, service_centres.pincode, "
                 . "service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file, "
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request,"
@@ -7406,6 +7406,7 @@ class Partner extends CI_Controller {
                     $tempArray[] =  $row['services'];
                     $tempArray[] =  $row['name'];
                     $tempArray[] =  $row['age_of_request'];
+                    $tempArray[] =  $row['request_type'];
                     $tempArray[] =  "<span style='word-break: break-all;'>". $row['parts_requested'] ."</span>";
                     $tempArray[] =  "<span style='word-break: break-all;'>". $row['part_number'] ."</span>";
                     $tempArray[] =  $row['quantity'];
