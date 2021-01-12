@@ -1948,7 +1948,7 @@ class Invoice extends CI_Controller {
         if(!empty($s)){
             return $s;
         }else{
-            return '';
+            return false;
         }
 
         log_message('info', __FUNCTION__ . " Exit......");
