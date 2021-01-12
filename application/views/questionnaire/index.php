@@ -143,16 +143,13 @@
                                 <?php echo($rec->is_required==0 ? "No" : "Yes") ;  ?>
                             </td>
                             <td>
-                                <img id="loader_gif_<?= $rec->q_id ?>" src="" style="display: none;">
-                                <div id="status<?= $rec->q_id ?>">
-                                    <?php
+                                <?php
                                     if (!empty($rec->is_required)) {
                                         echo "Yes";
                                     } else {
                                         echo "No";
                                     }
-                                    ?>
-                                </div>
+                                ?>
                             </td>
                             <td style="display: none;">
                                 <?php echo(empty($rec->active) ? "No" : "Yes") ;  ?>
