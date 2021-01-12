@@ -561,8 +561,24 @@
 <script src="<?php echo base_url() ?>js/invoice_tag.js?v=<?=mt_rand()?>"></script>
 <script>
     $("#to_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
-    $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
-    $("#due_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
+    $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: false, changeYear: false,
+
+            minDate:new Date(),
+            maxDate:new Date(),
+            setDate: new Date(),
+            locale:{
+                format: 'yy-mm-dd'
+            }
+    
+    });
+    $("#due_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true,
+            minDate:new Date(),
+            setDate: new Date(),
+            locale:{
+                format: 'yy-mm-dd'
+            }
+    
+    });
     $("#vendor_partner_id").select2();
     $('#gst_number').select2({
         placeholder:'Select 247around GST Number',
