@@ -67,7 +67,8 @@
                             <input type="hidden" name="partner_type" id="partner_type" value="<?php echo $partner_type;?>" />
                             <input type="hidden" name="partner_code" id="partner_code" value="<?php echo $partner_code;?>" />
                             <input type="hidden" name="is_active" id="is_active" value="<?php echo $this->session->userdata('status');?>" />
-                            <input type="text" class="form-control" id="name" name="user_name" value = "<?php if(isset($user[0]['name'])){ echo $user[0]['name']; } else { echo set_value('user_name'); }  ?>" <?php //if(isset($user[0]['name'])){ echo "readonly"; }  ?> placeholder="Please Enter User Name">
+                            <input type="text" class="form-control" id="name" name="user_name"onkeyup="if (/[^|a-zA-Z0-9]+/g.test(this.value)) this.value = this.value.replace(/[^|a-zA-Z0-9 ]+/g,'')"  value = "<?php if(isset($user[0]['name'])){ echo $user[0]['name']; } else { echo set_value('user_name'); }  ?>" <?php //if(isset($user[0]['name'])){ echo "readonly"; }  ?> placeholder="Please Enter User Name">
+
                             <?php echo form_error('user_name'); ?>
                         </div>
                     </div>

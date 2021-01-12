@@ -80,9 +80,9 @@
                             <div class="col-md-4" >
                                 <div class="form-group col-md-12 <?php if( form_error('user_name') ) { echo 'has-error';} ?>">
                                     <label for="user_name">Name * <span id="error_name" style="color: red;"></span></label>
-                                    
-                                    <input type="text" class="form-control" id="name" name="user_name" 
-                                           value = "" placeholder="Please Enter User Name">
+                                    <input type="text" class="form-control" id="name" name="user_name"onkeyup="if (/[^|a-zA-Z0-9]+/g.test(this.value)) this.value = this.value.replace(/[^|a-zA-Z0-9 ]+/g,'')"  
+                                           value = ""  placeholder="Please Enter User Name">
+
                                     
                                 </div>
                                 
