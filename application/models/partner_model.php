@@ -2740,7 +2740,8 @@ function get_data_for_partner_callback($booking_id) {
         $where['TRIM(CHAR(9) FROM TRIM(booking_details.order_id)) = "'.$order_id.'"'] = NULL;
       }
       if(!empty($booking_id)) {
-          $where['booking_details.booking_id'] = $booking_id;
+          $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
+          $where['booking_details.booking_id LIKE "'.$trimed_booking_id.'"'] = NULL;
       }
       
       $this->db->where($where);

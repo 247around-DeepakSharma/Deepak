@@ -585,7 +585,7 @@ class Invoice extends CI_Controller {
             $email_from = $email_template[2];
 
             $to = $invoice_email_to;
-            $cc = $invoice_email_cc.", " .ACCOUNTANT_EMAILID;
+            $cc = $invoice_email_cc . ", " . $email_template[3];
             $this->upload_invoice_to_S3($meta['invoice_id']);
             
             $pdf_attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' . $output_pdf_file_name;
@@ -850,9 +850,9 @@ class Invoice extends CI_Controller {
             if (!empty($misc_data['open_cell'])) {
                 foreach ($misc_data['open_cell'] as $open_cell_booking_details) {
                     $open_cell_data = array(
-                        'spare_id' => $open_cell_booking_details['spare_id'],
+                        'booking_id' => $open_cell_booking_details['b_id'],
                         'invoice_id' => $meta['invoice_id'],
-                        'quantity' => $open_cell_booking_details['shipped_quantity'],
+                        'quantity' => 1,
                         'price' => $open_cell_booking_details['partner_charge']
                     );
                     $this->invoices_model->insert_open_cell_data($open_cell_data);
@@ -1190,8 +1190,7 @@ class Invoice extends CI_Controller {
             if (!empty($rm_details[1]['official_email'])) {
                 $asm_email_id = ", " . $rm_details[1]['official_email'];
             }
-            $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id . $asm_email_id;
-
+            $cc = ACCOUNTS_AP_EMAIL_ID . $rem_email_id . $asm_email_id;
             
             $t_s_charge =  ($meta['r_sc'] - $meta['upcountry_charge']) - $this->booking_model->get_calculated_tax_charge( ($meta['r_sc'] - $meta['upcountry_charge']), 18);
             $t_ad_charge = $meta['r_asc'] - $this->booking_model->get_calculated_tax_charge( $meta['r_asc'], 18);
@@ -1645,7 +1644,7 @@ class Invoice extends CI_Controller {
                 $email_from = $email_template[2];
                 $to = $invoice_data['meta']['owner_email'] . ", " . $invoice_data['meta']['primary_contact_email'];
                 
-                $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id . $asm_email_id.", ". $email_template[3];
+                $cc = ACCOUNTS_AP_EMAIL_ID . $rem_email_id . $asm_email_id.", ". $email_template[3];
                 $pdf_attachement = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$output_file_main;
                  //Upload Excel files to AWS
                 $this->upload_invoice_to_S3($invoice_data['meta']['invoice_id']);
@@ -2385,7 +2384,7 @@ exit();
             $asm_email_id = ", " . $rm_details[1]['official_email'];
         }
 
-        $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id . $asm_email_id;
+        $cc = OOW_ACCESSORIES_SALE_EMAIL_ID . $rem_email_id . $asm_email_id;
         //get email template from database
         $email_template = $this->booking_model->get_booking_email_template(BRACKETS_INVOICE_EMAIL_TAG);
         $subject = vsprintf($email_template[4], array($vendor_data[0]['name']));
@@ -2929,7 +2928,9 @@ exit();
                             $subject = vsprintf($email_template[4], array($invoices['meta']['company_name'],$invoices['meta']['sd'],$invoices['meta']['ed']));
                             $message = $email_template[0];
                             $email_from = $email_template[2];
-                            $to = $invoices['meta']['owner_email'] . ", " . $invoices['meta']['primary_contact_email'];
+                            $to = $invoices['meta']['owner_email'] . 
+                                    ", " . $invoices['meta']['primary_contact_email'] 
+                                    . ", " . $email_template[1];
                             $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
                             $rem_email_id = "";
                             $asm_email_id = "";
@@ -2939,7 +2940,7 @@ exit();
                             if (!empty($rm_details[1]['official_email'])) {
                                 $asm_email_id = ", " . $rm_details[1]['official_email'];
                             }
-                            $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id . $asm_email_id. ", ".$email_template[3];
+                            $cc = $rem_email_id . $asm_email_id. ", ".$email_template[3];
                             echo "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount'].PHP_EOL;
                             log_message('info', __FUNCTION__ . "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount']);
 
@@ -3397,7 +3398,7 @@ exit();
     
 
     /**
-     * @desc: Send Emailt to SF with attach invoice file while create a new invoice from Form 
+     * @desc: Send Email to SF with attach invoice file while create a new invoice from Form 
      * @param type $vendor_detail
      * @param type $type
      * @param type $start_date
@@ -3411,7 +3412,7 @@ exit();
         $to = $vendor_detail[0]['owner_email'] . ", " . $vendor_detail[0]['primary_contact_email'];
 
         $subject = "247around - " . $vendor_detail[0]['company_name'] . " - " . $type . "  Invoice for period: " . $start_date . " to " . $end_date;
-        $cc = NITS_ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
+        $cc = ACCOUNTS_AP_EMAIL_ID;
 
         $this->email->from('billing@247around.com', '247around Team');
         $this->email->to($to);
@@ -3667,29 +3668,61 @@ exit();
     }
     
     function get_msl_summary_amount($service_center_id, $due_date=false){
-        $select_invoice = " CASE WHEN (amount_collected_paid > 0) THEN COALESCE(SUM(`amount_collected_paid` - amount_paid ),0) ELSE COALESCE(SUM(`amount_collected_paid` + amount_paid ),0) END"
-                . " as msl_amount";
-       
-        if($due_date){
-            $where_invoice['where'] = array('vendor_partner_id' => $service_center_id,
-            "vendor_partner" => "vendor", "due_date <= '".$due_date."' " => NULL,
-            "settle_amount" => 0);
-        }
-        else{
-            $where_invoice['where'] = array('vendor_partner_id' => $service_center_id,
-            "vendor_partner" => "vendor", "due_date <= CURRENT_DATE() " => NULL,
-            "settle_amount" => 0); 
-        }
         
-        $where_invoice['where_in']['sub_category'] = array(MSL_DEFECTIVE_RETURN, MSL_Credit_Note , MSL_Debit_Note ,IN_WARRANTY, MSL, MSL_SECURITY_AMOUNT, MSL_NEW_PART_RETURN);
-        $where_invoice['length'] = -1;
-        $data = $this->invoices_model->searchInvoicesdata($select_invoice, $where_invoice);
-        
-        if(!empty($data)){
-            return $data[0]->msl_amount;
+        $oowAmount = 0.00;
+        $msl = array(
+            'security' => sprintf("%01.2f", 0.00),
+            'amount' => sprintf("%01.2f", 0.00),
+            'oow_note' => ''
+        );
+        $mslSecurityData = $this->reusable_model->get_search_result_data(
+                'vendor_partner_invoices', "vendor_partner, vendor_partner_id, sub_category,(total_amount_collected-amount_paid) as 'amount'", array(
+            "vendor_partner" => "vendor",
+            "vendor_partner_id" => $service_center_id
+                ), NULL, NULL, NULL, array(
+            "sub_category" => array(
+                MSL,
+                MSL_SECURITY_AMOUNT,
+                MSL_NEW_PART_RETURN,
+                MSL_DEFECTIVE_RETURN,
+                MSL_Debit_Note,
+                MSL_Credit_Note
+            )
+                ), NULL, array()
+        );
+
+
+        $mslSecurityAmount = 0.0;
+        $mslAmount = 0.0;
+        foreach ($mslSecurityData as $row) {
+            if (!empty($row['sub_category']) && $row['sub_category'] == MSL_SECURITY_AMOUNT) {
+                $mslSecurityAmount += floatval($row['amount']);
+            } else if (!empty($row['sub_category']) && ($row['sub_category'] == MSL_DEFECTIVE_RETURN || $row['sub_category'] == MSL_NEW_PART_RETURN || $row['sub_category'] == MSL_Credit_Note)) {
+                $mslAmount -= floatval($row['amount']);
+            } else if ($row['sub_category'] == MSL || $row['sub_category'] == MSL_Debit_Note) {
+                $mslAmount += floatval($row['amount']);
+            }
+        }
+        $oowData = $this->service_centers_model->get_price_sum_of_oow_parts_used_from_micro($service_center_id);
+        if (isset($oowData['error']) && !$oowData['error']) {
+            $oowAmount = $oowData['payload']['amount'];
         } else {
-            return 0;
+            $msl['oow_note'] = 'Note: Part consumed in OOW call from SF Microwarehouse not included';
         }
+        //removed oow part consumed from inventory from MSL Amount
+        $mslAmount = $mslAmount - $oowAmount;
+
+        //negate this value as it will be returned by SF
+        //$mslAmount = -1 * $mslAmount;
+
+        /*
+         * negetive value -> sf have pending defective or new part to return
+         * positive value -> rare, represent 247 have to pay to sf.
+         * */
+        $msl['security'] = sprintf("%01.2f", $mslSecurityAmount);
+        $msl['amount'] = sprintf("%01.2f", $mslAmount);
+        return (-$mslSecurityAmount + $mslAmount);
+
     }
     
     /**
@@ -4438,17 +4471,17 @@ exit();
      * @return boolean 
      */
     function send_brackets_credit_note_mail_sms($vendor_details, $invoice_id, $amount,$attachment) {
-
-
         //send sms
-        $this->send_invoice_sms("Stand", $vendor_details[0]['shipment_date'], $amount, $vendor_details[0]['owner_phone_1'], $vendor_details[0]['order_given_to']);
+        $this->send_invoice_sms("Stand", $vendor_details[0]['shipment_date'], 
+                $amount, $vendor_details[0]['owner_phone_1'], $vendor_details[0]['order_given_to']);
         
         //send email
         $get_rm_email =$this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_details[0]['id']); 
         $to = $vendor_details[0]['owner_email'].",".$this->session->userdata('official_email').",".$get_rm_email[0]['official_email'];
-        $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
+        
         //get email template from database
         $email_template = $this->booking_model->get_booking_email_template(BRACKETS_CREDIT_NOTE_INVOICE_EMAIL_TAG);
+        $cc = $email_template[3];
         $subject = vsprintf($email_template[4], array($vendor_details[0]['company_name']));
         $message = $email_template[0];
         $email_from = $email_template[2];
@@ -5895,10 +5928,6 @@ exit();
             $invoice_details = array(
                 "invoice_id" => $invoice['meta']['invoice_id'],
                 "description" => $value['description'],
-                "inventory_id" => (isset($value['inventory_id']) ? $value['inventory_id'] : NULL),
-                "spare_id" => (isset($value['spare_id']) ? $value['spare_id'] : NULL),
-                "settle_qty" => (isset($value['settle_qty']) ? $value['settle_qty'] : NULL),
-                "is_settle" => (isset($value['is_settle']) ? $value['is_settle'] : NULL),
                 "qty" => $value['qty'],
                 "product_or_services" => $value['product_or_services'],
                 "rate" => $value['rate'],
@@ -5911,11 +5940,34 @@ exit();
                 "igst_tax_amount" => (isset($value['igst_tax_amount']) ? $value['igst_tax_amount'] : 0),
                 "hsn_code" => $value['hsn_code'],
                 "total_amount" => $value['total_amount'],
-                "from_gst_number" => (!empty($value['from_gst_number_id']) ? $value['from_gst_number_id'] : NULL),
-                "to_gst_number" => (!empty($value['to_gst_number_id']) ? $value['to_gst_number_id'] : NULL),
                 "create_date" => (isset($value['create_date']) ? $value['create_date'] : date('Y-m-d H:i:s')),
                 "update_date" => (isset($value['update_date']) ? $value['update_date'] : date('Y-m-d H:i:s')),
             );
+            
+            if(!empty($value['inventory_id'])){
+                $invoice_details['inventory_id'] = $value['inventory_id'];
+            }
+            
+            if(!empty($value['is_settle'])){
+                $invoice_details['is_settle'] = $value['is_settle'];
+            }
+            
+            if(!empty($value['spare_id'])){
+                $invoice_details['spare_id'] = $value['spare_id'];
+            }
+            
+            if(!empty($value['settle_qty'])){
+                $invoice_details['settle_qty'] = $value['settle_qty'];
+            }
+            
+            if(!empty($value['from_gst_number_id'])){
+                $invoice_details['from_gst_number'] = $value['from_gst_number_id'];
+            }
+            
+            if(!empty($value['to_gst_number_id'])){
+                $invoice_details['to_gst_number'] = $value['to_gst_number_id'];
+            }
+           
             
             array_push($invoice_breakup, $invoice_details);
         }

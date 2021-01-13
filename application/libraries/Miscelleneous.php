@@ -577,7 +577,8 @@ class Miscelleneous {
         $data_vendor['cancellation_reason'] = $data['cancellation_reason'];
         
         $data_vendor['current_status'] = SF_BOOKING_INPROCESS_STATUS;
-        if ($this->My_CI->session->userdata['user_group'] == _247AROUND_CLOSURE) {
+        if (($this->My_CI->session->userdata['user_group'] == _247AROUND_CLOSURE) 
+                || $cancellation_reason == UPCOUNTRY_CHARGES_NOT_APPROVED_CANCELLATION_ID) {
             $data['closed_date'] = date("Y-m-d H:i:s");
             $data['current_status'] = _247AROUND_CANCELLED;
             $data_vendor['current_status']  =_247AROUND_CANCELLED;

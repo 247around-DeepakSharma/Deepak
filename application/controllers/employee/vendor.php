@@ -459,9 +459,9 @@ class vendor extends CI_Controller {
         $html .= "<li><b>" . 'IS Buyback Invoice on GST' . '</b> =>';
         $html .= " " . $updated_vendor_details['is_buyback_gst_invoice'] . '</li>';
         $html .= "</ul>";
-        $to = ANUJ_EMAIL_ID . ',' . $rm_email;
+        $to = $rm_email;
         // Added Accounts team Mail Id in CC in mail
-        $cc = ACCOUNTANT_EMAILID . ',' . $asm_email_id;
+        $cc = $asm_email_id;
         if(!empty($managerData)) {
             $to .= ",".$managerData[0]['official_email'];
         }
