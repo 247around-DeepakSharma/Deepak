@@ -232,9 +232,9 @@
                                 <th>Appliance</th>
                                 <th>Part Code</th>
                                 <th>Quantity</th>
-                                <th>Basic Price</th>
                                 <th>HSN Code</th>
                                 <th>GST Rate</th>
+                                <th>Basic Price</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -516,10 +516,8 @@
                             alert("Excel cell value quantity is wrong."); 
                             return false;
                         }
-                        
-                        if ((XL_row_object[i]['GST Rate'] === '1.5')
-                            || (XL_row_object[i]['GST Rate'] === '2')
-                            || (XL_row_object[i]['GST Rate'] === '5')
+                       
+                        if ((XL_row_object[i]['GST Rate'] === '5')
                             || (XL_row_object[i]['GST Rate'] === '12')
                             || (XL_row_object[i]['GST Rate'] === '18')
                             || (XL_row_object[i]['GST Rate'] === '28')) {
@@ -555,9 +553,9 @@
                         html += "<td>"+ XL_row_object[i]['Appliance'] +"</td>";
                         html += "<td>"+ XL_row_object[i]['Part Code'] +"</td>";
                         html += "<td>"+ XL_row_object[i]['Quantity'] +"</td>";
-                        html += "<td>"+ total_basic +"</td>";
                         html += "<td>"+ XL_row_object[i]['HSN Code'] +"</td>";
                         html += "<td>"+ XL_row_object[i]['GST Rate'] +"</td>";
+                        html += "<td>"+ total_basic +"</td>";
                         html += "</tr>";
                         
                         total_price = (Number(total_price) + Number(total_part_basic)).toFixed(2);   

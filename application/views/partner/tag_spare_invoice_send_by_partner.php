@@ -207,13 +207,13 @@
                                             <p class="text-center"><strong>Quantity</strong></p>
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-1">
-                                            <p class="text-center"><strong>Total Basic Price</strong></p>
-                                        </div>
-                                        <div class="col-xs-12 col-sm-6 col-md-1">
                                             <p class="text-center"><strong>HSN Code</strong></p>
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-1">
                                             <p class="text-center"><strong>GST Rate</strong></p>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-6 col-md-1">
+                                            <p class="text-center"><strong>Total Basic Price</strong></p>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -239,14 +239,20 @@
                                             <span id="error_quantity_0" class="error" style="color: red;"></span>
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-1">
-                                            <input type="number" class="form-control allowNumericWithDecimal" onkeyup="validateDecimal(this.id, this.value);calculate_total_price()" name="part[0][part_total_price]" id="partBasicPrice_0" value="0" />
+                                            <input type="text" class="form-control allowNumericWithOutDecimal" name="part[0][hsn_code]" id="partHsnCode_0" value="" style="width: 115%;" />
+                                        </div>
+                                        <div class="col-xs-12 col-sm-6 col-md-1">
+                                           <!-- <input type="number" class="form-control allowNumericWithOutDecimal" onkeyup="calculate_total_price()" name="part[0][gst_rate]" id="partGstRate_0" min="5" max="28" value=""/>-->
+                                            <select class="form-control" id="partGstRate_0"  name="part[0][gst_rate]" onchange="calculate_total_price()" required="" style="width: 110%;">
+                                                <option disabled="" selected="">GST</option>
+                                                <?php foreach( GST_NUMBERS_LIST as $gstrate => $gstval) { ?>
+                                                    <option value="<?php echo $gstrate; ?>"><?php echo $gstval; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-6 col-md-2">
+                                            <input type="number" class="form-control allowNumericWithDecimal" onkeyup="validateDecimal(this.id, this.value);calculate_total_price()" name="part[0][part_total_price]" id="partBasicPrice_0" value="0" style="width:50%;" readonly="" />
                                             <span id="error_partBasicPrice_0" class="error" style="color: red;"></span>
-                                        </div>
-                                        <div class="col-xs-12 col-sm-6 col-md-1">
-                                            <input type="text" class="form-control allowNumericWithOutDecimal" name="part[0][hsn_code]" id="partHsnCode_0" value="" />
-                                        </div>
-                                        <div class="col-xs-12 col-sm-6 col-md-1">
-                                            <input type="number" class="form-control allowNumericWithOutDecimal" onkeyup="calculate_total_price()" name="part[0][gst_rate]" id="partGstRate_0" min="5" max="28" value=""/>
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-1">
                                             <input type="hidden" class="form-control" name="part[0][inventory_id]" id="inventoryId_0" value=""/>
@@ -277,14 +283,20 @@
                                             <span id="error_quantity" class="error" style="color: red;"></span>
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-1">
-                                            <input type="number" class="form-control allowNumericWithDecimal part-total-price" id="part_total_price"  value="0" />
+                                            <input type="text" class="form-control allowNumericWithOutDecimal" id="partHsnCode" value="" style="width: 115%;"/>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-6 col-md-1">
+                                            <!--<input type="number" class="form-control allowNumericWithOutDecimal" id="partGstRate" value="" min="5" max="28" />-->
+                                            <select class="form-control" id="partGstRate" required="" style="width: 110%;">
+                                                <option disabled="" selected="">GST Rate</option>
+                                                <?php foreach( GST_NUMBERS_LIST as $gstrate => $gstval) { ?>
+                                                    <option value="<?php echo $gstrate; ?>"><?php echo $gstval; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-6 col-md-2">
+                                            <input type="number" class="form-control allowNumericWithDecimal part-total-price" id="part_total_price"  value="0" readonly="" style="width:50%;"/>
                                             <span id="error_part_total_price" class="error" style="color: red;"></span>
-                                        </div>
-                                        <div class="col-xs-12 col-sm-6 col-md-1">
-                                            <input type="text" class="form-control allowNumericWithOutDecimal" id="partHsnCode" value="" />
-                                        </div>
-                                        <div class="col-xs-12 col-sm-6 col-md-1">
-                                            <input type="number" class="form-control allowNumericWithOutDecimal" id="partGstRate" value="" min="5" max="28" />
                                         </div>
                                         
                                         <div class="col-xs-12 col-sm-6 col-md-1">
@@ -970,7 +982,7 @@ $("#on_invoice_file").change(function(){
                 .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').attr('id','quantity_'+partIndex).end()
                 .find('[id="error_quantity"]').attr('id','error_quantity_'+partIndex).end()
                 .find('[id="inventory_id"]').attr('name', 'part[' + partIndex + '][inventory_id]').attr('id','inventoryId_'+partIndex).end()
-                .find('[id="partGstRate"]').attr('name', 'part[' + partIndex + '][gst_rate]').attr('id','partGstRate_'+partIndex).attr('onkeyup','calculate_total_price()').end()
+                .find('[id="partGstRate"]').attr('name', 'part[' + partIndex + '][gst_rate]').attr('id','partGstRate_'+partIndex).attr('onchange','calculate_total_price()').end()
                 .find('[id="partHsnCode"]').attr('name', 'part[' + partIndex + '][hsn_code]').attr('id','partHsnCode_'+partIndex).end()
                 .find('[id="part_total_price"]').attr('name', 'part[' + partIndex + '][part_total_price]').attr('id','partBasicPrice_'+partIndex).attr('onkeyup','validateDecimal(this.id, this.value);calculate_total_price()').end()
                 .find('[id="error_part_total_price"]').attr('id','error_partBasicPrice_'+partIndex).end();
@@ -1859,7 +1871,7 @@ $("#on_invoice_file").change(function(){
                .find('[id="onpartBasicPrice"]').attr('name', 'part[' + onBookingIndex + '][part_total_price]').attr('id','onpartBasicPrice_'+onBookingIndex).attr('onkeyup','validateDecimal(this.id, this.value);booking_calculate_total_price('+onBookingIndex+')').addClass('onpartBasicPrice').end()
                .find('[id="error_onpartBasicPrice"]').attr('id','error_onpartBasicPrice_'+onBookingIndex).end()
                .find('[id="onquantity"]').attr('name', 'part[' + onBookingIndex + '][quantity]').attr('id','onquantity_'+onBookingIndex).attr('onkeyup','booking_calculate_basic_price('+onBookingIndex+');booking_calculate_total_price('+onBookingIndex+')').end()
-               .find('[id="onpartGstRate"]').attr('name', 'part[' + onBookingIndex + '][gst_rate]').attr('id','onpartGstRate_'+onBookingIndex).addClass('onpartGstRate').attr('onkeyup','booking_calculate_total_price('+onBookingIndex+')').end()
+               .find('[id="onpartGstRate"]').attr('name', 'part[' + onBookingIndex + '][gst_rate]').attr('id','onpartGstRate_'+onBookingIndex).addClass('onpartGstRate').attr('onchange','booking_calculate_total_price('+onBookingIndex+')').end()
                .find('[id="onpartNumber"]').attr('name', 'part[' + onBookingIndex + '][part_number]').attr('id','onpartNumber_'+onBookingIndex).attr('onchange', 'onchange_part_number("'+onBookingIndex+'")').end()
                .find('[id="onpartHsnCode"]').attr('name', 'part[' + onBookingIndex + '][hsn_code]').attr('id','onpartHsnCode_'+onBookingIndex).addClass('onpartHsnCode').end()
                .find('[id="onbookingID"]').attr('name', 'part[' + onBookingIndex + '][booking_id]').attr('id','onbookingID'+onBookingIndex).end()
@@ -2050,9 +2062,10 @@ $("#on_invoice_file").change(function(){
        }
        
        function booking_calculate_total_price(id){
-          
+
            var total_spare_invoice_price = Number($('#onpartBasicPrice_'+id).val()) + (Number($('#onpartBasicPrice_'+id).val()) * Number($('#onpartGstRate_'+id).val())/100);
            $('#ontotal_amount_'+id).val(Number(total_spare_invoice_price.toFixed(2)));
+           onbooking_invoice_amount();
        }
        
         function booking_calculate_basic_price(id){
@@ -2103,7 +2116,7 @@ $("#on_invoice_file").change(function(){
         $('#on_submit_btn').attr('disabled',false);
     });
     
-        function change_tcs_rate(prefix = ""){
+    function change_tcs_rate(prefix = ""){
         var total_spare_invoice_price  = $("#"+prefix+"total_spare_invoice_price").val();
         var tcs_rate = $("#"+prefix+"tcs_rate").val();
         var total = Number(total_spare_invoice_price) + ((Number(total_spare_invoice_price) * Number(tcs_rate))/100);
@@ -2118,8 +2131,7 @@ $("#on_invoice_file").change(function(){
                 var sh_id = this.id;
                 var split_id = sh_id.split('_');
                 var c = split_id[2];
-
-                if ($("#s_shippingStatus_" + c+":checked").val()) {
+                if ($("#s_shippingStatus_" + c+":checked").data("shipment") == 'shipping') {
                     var checked_shipped = $("#s_shippingStatus_" + c).val();
                      if(Number(checked_shipped) === 1 ){
                         our_invoice_amt += Number($(this).val());
