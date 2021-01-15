@@ -163,7 +163,7 @@
     
     <!--Modal start-->
     <div id="inventory_master_list_data" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-lg" style="width: 80%;">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title" id="modal_title_action" style="display: inline-block;"> </h4> <span id="error_id" style="display: inline-block; margin-left: 100px;"></span>
@@ -290,7 +290,13 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="gst_rate">GST Rate*</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="gst_rate"  name="gst_rate" <?php if(empty($saas_module)){ echo 'readonly'; } ?> required="">
+                                    <!--<input type="text" class="form-control allowNumericWithOutDecimal" id="gst_rate"  name="gst_rate" <?php if(empty($saas_module)){ echo 'readonly'; } ?> required="">-->
+                                    <select class="form-control onpartGstRate" id="gst_rate"  name="gst_rate" <?php if(empty($saas_module)){ echo 'readonly'; } ?> required="">
+                                            <option disabled="" selected="">Select GST Rate</option>
+                                            <?php foreach (GST_NUMBERS_LIST as $gstrate => $gstval) { ?>
+                                                <option value="<?php echo $gstrate; ?>"><?php echo $gstval; ?></option>
+                                        <?php } ?>
+                                    </select>
                                     </div>
                                 </div>
                             </div>
@@ -786,7 +792,10 @@
             data: { hsn_code_id:hsn_code_id},
             success:function(response){
                 $("#hsn_code").val(response['hsn_code']); 
-                $("#gst_rate").val(response['gst_rate']);            
+                $("#gst_rate").val(response['gst_rate']).change();
+                $("#gst_rate").css("pointer-events","none");
+                $("#gst_rate").attr("readonly", "readonly"); 
+                
             }
         });
     });  

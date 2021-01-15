@@ -6239,6 +6239,97 @@ exit();
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/addnewhsncode', $data);
     }
+
+    /*
+     * @desc : This function add new HSN Code Details 
+     * @param : void 
+     */
+    
+    function process_add_new_hsncode() {
+
+        $this->checkUserSession();
+        $hsn_code = $this->input->post('hsn_code');
+        $service_id = $this->input->post("service_id");
+        if (!empty($hsn_code)) {
+
+            $hsn_details = $this->inventory_model->get_hsn_code_details("hsn_code_details.id, hsn_code_details.hsn_code, hsn_code_details.gst_rate", array("hsn_code_details.hsn_code" => $hsn_code, "hsn_code_details.service_id" => $service_id));
+
+            if (empty($hsn_details)) {
+                $hsn = array('hsn_code' => $hsn_code, 'gst_rate' => $this->input->post('gst_rate'), 'agent_id' => $this->input->post('agent_id'), 'service_id' => $this->input->post('service_id'));
+                $last_inserted_id = $this->inventory_model->insert_query('hsn_code_details', $hsn);
+                if (!empty($last_inserted_id)) {
+                    $this->session->set_userdata(array('success' => 'HSN code successfully added.'));
+                } else {
+                    $this->session->set_userdata(array('error' => 'failed'));
+                }
+            } else {
+                $this->session->set_userdata('error', 'HSN code already exist in our system');
+            }
+        }
+        redirect(base_url() . "employee/invoice/get_add_new_hsn_code");
+    }
+    
+    /*
+     * @desc : This function Updated HSN Code Details 
+     * @param : void 
+     */
+
+    function process_edit_new_hsncode() {
+
+        $this->checkUserSession();
+        $hsn_code = $this->input->post('hsn_code');
+        $gst_rate = $this->input->post('gst_rate');
+        $agent_id = $this->input->post('agent_id');
+        $edit_id = $this->input->post('edit_id');
+        $service_id = $this->input->post("service_id");
+
+        $hsn_details = $this->inventory_model->get_hsn_code_details("hsn_code_details.id, hsn_code_details.hsn_code, hsn_code_details.gst_rate", array("hsn_code_details.hsn_code" => $hsn_code, "hsn_code_details.service_id" => $service_id, "hsn_code_details.gst_rate" => $gst_rate));
+
+        if (empty($hsn_details)) {
+            $hsn = array('hsn_code' => $hsn_code, 'gst_rate' => $this->input->post('gst_rate'), 'agent_id' => $this->input->post('agent_id'), 'service_id' => $this->input->post('service_id'));
+            $affected_id = $this->invoices_model->update_hsn_code_details(array('hsn_code_details.id' => $edit_id), array("hsn_code_details.hsn_code" => $hsn_code, "hsn_code_details.gst_rate" => $gst_rate, "hsn_code_details.agent_id" => $this->session->userdata("id")));
+            if ($affected_id) {
+                $this->session->set_userdata(array('success' => 'Successfully updated.'));
+            } else {
+                $this->session->set_userdata(array('error' => 'failed'));
+            }
+        } else {
+            $this->session->set_userdata('error', 'HSN code already exist in our system');
+        }
+
+        redirect(base_url() . "employee/invoice/get_add_new_hsn_code");
+    }
+    
+    
+    /*
+     * @desc : This function Updated HSN Code Details 
+     * @param : void 
+     */
+    
+    function process_manage_hsncode_status() {
+
+        $hsncode_id = $this->input->post('hsncode_id');
+        
+        if (!empty($hsncode_id)) {
+            $hsn_details = $this->inventory_model->get_hsn_code_details("hsn_code_details.id, hsn_code_details.hsn_code, hsn_code_details.gst_rate, hsn_code_details.status", array("hsn_code_details.id" => $hsncode_id));
+
+            if (!empty($hsn_details)) {
+                $status = $hsn_details[0]['status'];
+                $data = array();
+                if ($status == 1) {
+                    $data["hsn_code_details.status"] = 0;
+                } else {
+                    $data["hsn_code_details.status"] = 1;
+                }
+                $this->invoices_model->update_hsn_code_details(array('hsn_code_details.id' => $hsncode_id), $data);
+                echo json_encode(array('status' => 'success'));
+            } else {
+                echo json_encode(array('status' => 'HSN code not exist in our system'));
+            }
+        } else {
+            echo json_encode(array('status' => 'HSN code Not Found'));
+        }
+    }
     /**
      *  @desc : This is used to add data in hsn_code_details table
      *  @param : void

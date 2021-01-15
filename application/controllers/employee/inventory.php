@@ -10977,5 +10977,81 @@ function get_bom_list_by_inventory_id($inventory_id) {
 
         exit();
     }
+    
+    /*
+     *  @desc : This function is used to get HSN Code Details
+     *  @param : void
+     *  @return : $res array()
+     */ 
+    
+    
+     function get_hsn_code_details() {
+         
+        
+        $post = $this->get_post_data();
+              
+        if (!empty($this->input->post('satus'))) {
+            
+        
+            $post[''] = array();
+            $post['column_order'] = 'hsn_code_details.create_date';
+            $post['column_search'] = array('hsn_code_details.hsn_code', 'hsn_code_details.gst_rate');
+            
+            $select = "hsn_code_details.id, hsn_code_details.hsn_code, hsn_code_details.status, hsn_code_details.gst_rate, hsn_code_details.service_id, hsn_code_details.create_date, services.services";
+            $list = $this->inventory_model->get_hsncode_list($post, $select, true);
+           
+            $data = array();
+            $no = $post['start'];
+            
+            foreach ($list as $hsncode_list) {
+                $no++;
+                $data[] = $this->get_hsn_code_details_table($hsncode_list, $no);
+            }
+            
+            $post['length'] = -1;
+
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => $this->inventory_model->count_all_hsncode_list($post),
+                "recordsFiltered" => $this->inventory_model->count_filtered_hsncode_list($post),
+                "data" => $data,
+            );
+            
+        } else {
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => 0,
+                "recordsFiltered" => 0,
+                'stock' => 0,
+                "data" => array(),
+            );
+        }
+        echo json_encode($output);
+    }
+    
+    /*
+     * @desc: This function is used to create table body to table.
+     * @param: Array
+     * @return: Array
+     */
+    
+    private function get_hsn_code_details_table($hsncode_list, $sn) {
+        $row = array();
+
+        $row[] = $sn;
+
+        $row[] = '<span id="services_' . $hsncode_list->service_id . '">' . $hsncode_list->services . '</span>';
+        $row[] = '<span id="type_' . $hsncode_list->id . '">' . $hsncode_list->hsn_code . '</span>';
+        $row[] = '<span id="part_name_' . $hsncode_list->id . '" style="word-break: break-all;">' . $hsncode_list->gst_rate . '%</span>';
+        $row[] = '<span id="part_number_' . $hsncode_list->id . '" style="word-break: break-all;">' . $hsncode_list->create_date . '</span>';
+        $row[] = '<a class="btn btn-info" href="'.base_url() . 'employee/invoice/get_add_new_hsn_code/' . $hsncode_list->id.'" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i></a>';
+        if($hsncode_list->status == 1){
+        $row[] = '<button type="button" class="btn btn-default" style="background-color: #d9534f; border-color: #fff; width: 90px; color: #fff;" id="' . $hsncode_list->id.'" onclick="process_to_manage_status(this.id)">Deactivate</button>';
+        }else{
+        $row[] = '<button type="button" class="btn btn-danger" style="background-color: #01903a; border-color: #fff; width: 90px; color: #fff;" href="#" id="' . $hsncode_list->id.'" onclick="process_to_manage_status(this.id)">Activate</button>';
+        }
+        return $row;
+    }
+
 }
 

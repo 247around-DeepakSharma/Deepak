@@ -16,19 +16,19 @@
                    <div class="form-group">
                        
                        <label class="radio-inline col-md-6" style="font-weight:bold">
-                           <input type="radio" name="part[<?php echo ($key +$count); ?>][shippingStatus]" required="" class="shippingStatus" onchange="onbooking_invoice_amount('on_b_')" id="<?php echo "s_shippingStatus_".($key +$count);?>" value="1">Shipping
+                           <input type="radio" name="part[<?php echo ($key +$count); ?>][shippingStatus]" required="" class="shippingStatus" data-shipment="shipping" onchange="onbooking_invoice_amount('on_b_')" id="<?php echo "s_shippingStatus_".($key +$count);?>" value="1">Shipping
                           </label>
                     </div>
                     <div class="form-group">
                        
                         <label class="radio-inline col-md-6" style="font-weight:bold">
-                            <input type="radio" name="part[<?php echo ($key +$count); ?>][shippingStatus]" required="" class="shippingStatus"onchange="onbooking_invoice_amount('on_b_')" id="<?php echo "n_shippingStatus_".($key +$count);?>" value="0">Not Shipping
+                            <input type="radio" name="part[<?php echo ($key +$count); ?>][shippingStatus]" required="" class="shippingStatus" data-shipment="not shipping" onchange="onbooking_invoice_amount('on_b_')" id="<?php echo "n_shippingStatus_".($key +$count);?>" value="0">Not Shipping
                           </label>
                     </div>
                     <div class="form-group">
                        
                          <label class="radio-inline col-md-6" style="font-weight:bold">
-                             <input type="radio" name="part[<?php echo ($key +$count); ?>][shippingStatus]" required="" class="shippingStatus" onchange="onbooking_invoice_amount('on_b_')" id="<?php echo "l_shippingStatus_".($key +$count);?>" value="-1">To be Shipped
+                             <input type="radio" name="part[<?php echo ($key +$count); ?>][shippingStatus]" required="" class="shippingStatus" data-shipment="to be shipping" onchange="onbooking_invoice_amount('on_b_')" id="<?php echo "l_shippingStatus_".($key +$count);?>" value="-1">To be Shipped
                       </label>
                     </div>
                     <span id="error_<?php echo "shippingStatus_".($key +$count);?>" class="error" style="color: red;"></span>
@@ -75,8 +75,20 @@
                     <div class="form-group">
                         <label for="GST rate" class="col-md-4">GST Rate</label>
                         <div class="col-md-6">
-                            <input type="number" value="<?php echo $gst_rate;?>" onkeyup="booking_calculate_total_price('<?php echo $key + $count;?>')" class="form-control onpartGstRate" id="<?php echo "onpartGstRate_".($key + $count);?>" 
-                                name="part[<?php echo ($key +$count); ?>][gst_rate]"  placeholder="Please Enter GST rate" min="5" max="28"  required  onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 13" >
+<!--                            <input type="number" value="<?php echo $gst_rate;?>" onkeyup="booking_calculate_total_price('<?php echo $key + $count;?>')" class="form-control onpartGstRate" id="<?php echo "onpartGstRate_".($key + $count);?>" 
+                                name="part[<?php echo ($key +$count); ?>][gst_rate]"  placeholder="Please Enter GST rate" min="5" max="28"  required  onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 13" >-->
+                            
+                            <select class="form-control onpartGstRate" id="<?php echo "onpartGstRate_" . ($key + $count); ?>" 
+                                        name="part[<?php echo ($key + $count); ?>][gst_rate]" required="" onchange="booking_calculate_total_price('<?php echo $key + $count; ?>')">
+                                    <option disabled="" selected="">Select GST Rate</option>
+                                    <?php foreach (GST_NUMBERS_LIST as $gstrate => $gstval) { ?>
+                                        <option value="<?php echo $gstrate; ?>" <?php
+                                        if ($gstrate == $gst_rate) {
+                                            echo 'selected';
+                                        }
+                                        ?>><?php echo $gstval; ?></option>
+                                <?php } ?>
+                            </select>
                         </div>
                     </div>
                      <div class="form-group">
@@ -153,19 +165,19 @@
                             <div class="form-group">
 
                                 <label class="radio-inline col-md-6" style="font-weight:bold">
-                                     <input type="radio"  id="shipping_status_1" value="1">Shipping
+                                     <input type="radio"  id="shipping_status_1" data-shipment="shipping" value="1">Shipping
                                    </label>
                              </div>
                              <div class="form-group">
 
                                  <label class="radio-inline col-md-6" style="font-weight:bold">
-                                     <input type="radio"  id="shipping_status_2" value="0">Not Shipping
+                                     <input type="radio"  id="shipping_status_2" data-shipment="not shipping" value="0">Not Shipping
                                    </label>
                              </div>
                              <div class="form-group">
 
                                   <label class="radio-inline col-md-6" style="font-weight:bold">
-                                      <input type="radio" id="shipping_status_3" value="-1">To be Shipped
+                                      <input type="radio" id="shipping_status_3" data-shipment="to be shipped" value="-1">To be Shipped
                                </label>
                              </div>
                             <span id="error_<?php echo "shippingStatus";?>" class="error" style="color: red;"></span>
@@ -201,7 +213,17 @@
                             <div class="form-group">
                                 <label for="GST rate" class="col-md-4">GST Rate</label>
                                 <div class="col-md-6">
-                                    <input type="number" class="form-control" id="onpartGstRate" placeholder="Please Enter GST rate" min="5" max="28"  required  onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 13">
+<!--                                <input type="number" class="form-control" id="onpartGstRate" placeholder="Please Enter GST rate" min="5" max="28"  required  onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 13"> -->
+                                    <select class="form-control onpartGstRate" id="onpartGstRate" required="">
+                                            <option disabled="" selected="">Select GST Rate</option>
+                                            <?php foreach (GST_NUMBERS_LIST as $gstrate => $gstval) { ?>
+                                                <option value="<?php echo $gstrate; ?>" <?php
+                                                if ($gstrate == $gst_rate) {
+                                                    echo 'selected';
+                                                }
+                                                ?>><?php echo $gstval; ?></option>
+                                        <?php } ?>
+                                    </select>
                                 </div>
                             </div>
 
