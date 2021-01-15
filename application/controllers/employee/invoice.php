@@ -4746,12 +4746,17 @@ exit();
         $data = array();
         $shipped_quantity = (!is_null($spare_data['shipped_quantity']) ? $spare_data['shipped_quantity'] : 1);
         $data[0]['description'] = ucwords($spare_data['parts_requested']) . " (" . $spare_data['booking_id'] . ") ";
-        $data[0]['taxable_value'] = sprintf("%.2f", (($invoice_details[0]['parts_cost']/$invoice_details[0]['parts_count'])*$shipped_quantity));
         $data[0]['product_or_services'] = "Product";
+        
         if(!empty($vendor_details[0]['gst_no'])){
             $data[0]['gst_number'] = $vendor_details[0]['gst_no'];
+            $data[0]['rate'] = sprintf("%.2f", ($invoice_details[0]['parts_cost']/$invoice_details[0]['parts_count']));
+            $data[0]['taxable_value'] = sprintf("%.2f", (($invoice_details[0]['parts_cost']/$invoice_details[0]['parts_count'])*$shipped_quantity));
         } else {
-            $data[0]['gst_number'] = 1;
+            $amount = $invoice_details[0]['parts_cost'] + $invoice_details[0]['cgst_tax_amount'] + $invoice_details[0]['sgst_tax_amount'] + $invoice_details[0]['igst_tax_amount']; 
+            $data[0]['gst_number'] = "";
+            $data[0]['rate'] = sprintf("%.2f", ($amount/$invoice_details[0]['parts_count']));
+            $data[0]['taxable_value'] = sprintf("%.2f", (($amount/$invoice_details[0]['parts_count'])*$shipped_quantity));
         }
         
         $data[0]['company_name'] = $vendor_details[0]['company_name'];
@@ -4760,7 +4765,7 @@ exit();
         $data[0]['pincode'] = $vendor_details[0]['pincode'];
         $data[0]['state'] = $vendor_details[0]['state'];
         $data[0]['owner_phone_1'] = $vendor_details[0]['owner_phone_1'];
-        $data[0]['rate'] = sprintf("%.2f", ($invoice_details[0]['parts_cost']/$invoice_details[0]['parts_count']));
+       
         $data[0]['qty'] = $shipped_quantity;
         $data[0]['hsn_code'] = SPARE_HSN_CODE;
         $data[0]['c_s_gst'] = $this->invoices_model->check_gst_tax_type($vendor_details[0]['state']);
