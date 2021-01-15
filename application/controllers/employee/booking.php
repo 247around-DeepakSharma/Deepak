@@ -1522,6 +1522,7 @@ class Booking extends CI_Controller {
     function getPricesForCategoryCapacity() {
         $add_booking = NULL;
         $is_repeat = 0;
+        $booking_id = "";
         $service_id = $this->input->post('service_id');
         $category = $this->input->post('category');
         $capacity = $this->input->post('capacity');
@@ -1535,6 +1536,11 @@ class Booking extends CI_Controller {
         $phone_number = trim($this->input->post('phone_number'));
         $is_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $is_sf_panel = $this->input->post('is_sf_panel');
+        $unit_details = array();
+        if(!empty($this->input->post('booking_id'))){
+            $booking_id = $this->input->post('booking_id');
+            $unit_details = $this->booking_model->getunit_details($booking_id, NULL);
+        }
         // Array of price tags selected against booking
         $arr_selected_price_tags = [];
         if(!empty($this->input->post('selected_price_tags'))){
@@ -1565,7 +1571,7 @@ class Booking extends CI_Controller {
         $this->initialized_variable->fetch_partner_data($partner_id);
         
         $partner_data = $this->initialized_variable->get_partner_data();
-
+                
         if ($partner_type == OEM) {
             $result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $brand,$add_booking);
         } else {
@@ -1606,41 +1612,53 @@ class Booking extends CI_Controller {
             foreach ($result as $prices) {
                 $checkboxClass = (($prices['service_category'] == REPEAT_BOOKING_TAG) ? "repeat_".$prices['product_or_services'] : $prices['product_or_services']);
                 $html .="<tr><td>" . $prices['service_category'] . "</td>";
+                // Prices should remain same if service category is not changed in case of update booking
+                $ct = $prices['customer_total'];                
+                if(isset($unit_details[0]['quantity'])){
+                    foreach ($unit_details[0]['quantity'] as  $tags) {
+                        if($tags['price_tags'] == $prices['customer_total'] ){
+                            $ct = $tags['customer_total'];
+                        }
+                    }
+                }
+                $partner_net_payable = $prices['partner_net_payable'];                                                                    
+                foreach ($unit_details[0]['quantity'] as  $tags) {
+                    if($tags['price_tags'] == $prices['service_category'] ){
+                       $partner_net_payable = $tags['partner_net_payable'];
+                    }
+                }
+                $customer_net_payable = $prices['customer_net_payable'];
+                foreach ($unit_details[0]['quantity'] as  $tags) {
+                    if($tags['price_tags'] == $prices['service_category'] ){
+                        $customer_net_payable = $tags['customer_net_payable'];
+                    }
+                }
+                $around_net_payable = $prices['around_net_payable'];;
+                foreach ($unit_details[0]['quantity'] as  $tags) {
+                    if($tags['price_tags'] == $prices['service_category'] ){
+                        $around_net_payable = $tags['around_net_payable'];                   
+                    }
+                }
                 if(!$is_sf_panel)
                 {
-                    $html .= "<td>" . $prices['customer_total'] . "</td>";
-                    $html .= "<td><input  type='text' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $prices['partner_net_payable'] . "' placeholder='Enter discount' readonly onblur='chkPrice($(this),". $prices['customer_total'].")'/></td>";
-                    $html .= "<td>" . $prices['customer_net_payable'] . "</td>";
+                    $html .= "<td>" . $ct . "</td>";
+                    $html .= "<td><input  type='text' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $partner_net_payable . "' placeholder='Enter discount' readonly onblur='chkPrice($(this),". $ct.")'/></td>";
+                    $html .= "<td>" . $customer_net_payable . "</td>";
                 }
                 else
                 {
-                    // Subtract Partner Discount and 247around discount from customer net Payable for selected service categories
-                    $partner_discount = $prices['partner_net_payable'];
-                    $around_discount = $prices['around_net_payable'];
-                    if(in_array($prices['service_category'], $arr_selected_price_tags)) {                        
-                        if(!empty($arr_partner_discount[$prices['service_category']])){
-                            $partner_discount = $arr_partner_discount[$prices['service_category']];
-                        }                        
-                        if(!empty($arr_247around_discount[$prices['service_category']])){
-                            $around_discount = $arr_247around_discount[$prices['service_category']];
-                        }
-                        $prices['customer_net_payable'] = $prices['customer_net_payable'] - (+$partner_discount) - (+$around_discount);
-                        // If For some reason prices changed, and customer net payable becomes < 0, make it 0
-                        if($prices['customer_net_payable'] < 0){
-                            $prices['customer_net_payable'] = 0;
-                        }
-                    }
-                    $html .= "<td style='display:none;'>" . $prices['customer_total'] . "</td>";
-                    $html .= "<td>" . $prices['customer_net_payable'] . "<input  type='hidden' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $partner_discount . "' placeholder='Enter discount' readonly onblur='chkPrice($(this),". $prices['customer_total'].")'/><input  type='hidden' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $around_discount."' placeholder='Enter discount' readonly></td>";
+                    // Subtract Partner Discount and 247around discount from customer net Payable for selected service categories                    
+                    $html .= "<td style='display:none;'>" . $ct . "</td>";
+                    $html .= "<td>" . $customer_net_payable . "<input  type='hidden' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $partner_net_payable . "' placeholder='Enter discount' readonly onblur='chkPrice($(this),". $ct.")'/><input  type='hidden' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $around_net_payable."' placeholder='Enter discount' readonly></td>";
                 }
                 
                 if(!$is_sf_panel)
                 {
                     if(!$is_saas){
-                        $html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $prices['around_net_payable']."' placeholder='Enter discount' readonly onblur='chkPrice($(this),". $prices['customer_total'].")'></td>";
+                        $html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $around_net_payable ."' placeholder='Enter discount' readonly onblur='chkPrice($(this),". $ct.")'></td>";
                     }
                     else{
-                        $html .= "<td><input  type='hidden' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $prices['around_net_payable']."' placeholder='Enter discount' readonly></td>";
+                        $html .= "<td><input  type='hidden' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $around_net_payable ."' placeholder='Enter discount' readonly></td>";
                     }
                 }
                 $html .= "<td><input type='hidden'name ='is_up_val'  data-customer_price = '".$prices['upcountry_customer_price']."' data-flat_upcountry = '".$prices['flat_upcountry']."' id='is_up_val_" . $i . "_" . $clone_number . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox $checkboxClass'";
@@ -1662,10 +1680,10 @@ class Booking extends CI_Controller {
                 }
                 
                 if($prices['service_category'] == REPEAT_BOOKING_TAG){
-                    $html .= " onclick='check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry()' value='" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number."' data-toggle='modal' data-target='#repeat_booking_model' data-price_tag='".$prices['service_category']."' readonly></td><tr>";
+                    $html .= " onclick='check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry()' value='" . $prices['id'] . "_" . intval($ct) . "_" . $i . "_" . $clone_number."' data-toggle='modal' data-target='#repeat_booking_model' data-price_tag='".$prices['service_category']."' readonly></td><tr>";
                 }
                 else{
-                    $html .= " onclick='check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry()' value='" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number."' data-price_tag='".$prices['service_category']."' ></td><tr>";
+                    $html .= " onclick='check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry()' value='" . $prices['id'] . "_" . intval($ct) . "_" . $i . "_" . $clone_number."' data-price_tag='".$prices['service_category']."' ></td><tr>";
                 }
                 $i++;
             }
@@ -3849,7 +3867,7 @@ class Booking extends CI_Controller {
             service_centres.primary_contact_phone_1,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
             DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as initial_booking_date_as_dateformat, (CASE WHEN spare_parts_details.booking_id IS NULL THEN 'no_spare' ELSE
             MIN(DATEDIFF(CURRENT_TIMESTAMP , spare_parts_details.acknowledge_date)) END) as spare_age,
-            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as booking_age,service_centres.state";
+            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as booking_age,service_centres.state,booking_details.request_type";
             $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,0,'Spare',0,array(),array(),$group_by);
          }
          else{
@@ -3858,7 +3876,7 @@ class Booking extends CI_Controller {
             service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d'), '%d-%b-%Y') as booking_date,
             service_centres.primary_contact_phone_1,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
             DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as initial_booking_date_as_dateformat,
-            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as booking_age,service_centres.state";
+            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as booking_age,service_centres.state,booking_details.request_type";
             $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,0,'Spare',0,array(),array(),$group_by);
          }
         unset($new_post['order_performed_on_count']);
@@ -4157,6 +4175,7 @@ class Booking extends CI_Controller {
         $row[] = $order_list->services;
         $row[] = "<a href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$order_list->service_centre_name</a>";
         $row[] = $order_list->city;
+        $row[] = $order_list->request_type;
         if(!empty($order_list->closed_date))
         {
             $row[] = $this->miscelleneous->get_formatted_date($order_list->closed_date);

@@ -64,7 +64,13 @@
                                             <div class="form-group ">
                                                 <label for="public_name" class="col-md-4">GST Rate *</label>
                                                 <div class="col-md-8">
-                                                    <input type="text" class="form-control" name="gst_rate" id="gst_rate" placeholder="Enter GST Rate">
+                                                   <!-- <input type="text" class="form-control" name="gst_rate" id="gst_rate" placeholder="Enter GST Rate"> -->
+                                                    <select class="form-control" id="gst_rate" name="gst_rate" required="">
+                                                        <option disabled="" selected="">GST Rate</option>
+                                                        <?php foreach( GST_NUMBERS_LIST as $gstrate => $gstval) { ?>
+                                                            <option value="<?php echo $gstrate; ?>"><?php echo $gstval; ?></option>
+                                                        <?php } ?>
+                                                    </select>
                                                 </div>
                                             </div>
                                         </div>
@@ -109,7 +115,13 @@
                                             <div class="form-group ">
                                                 <label for="public_name" class="col-md-4">GST Rate *</label>
                                                 <div class="col-md-8">
-                                                    <input type="text" class="form-control" name="gst_rate" id="edit_gst_rate" value="<?php if(!empty($hsn_code_list['gst_rate'])){ echo $hsn_code_list['gst_rate']; } ?>" placeholder="Enter GST Rate">
+                                                    <!--<input type="text" class="form-control" name="gst_rate" id="edit_gst_rate" value="<?php if(!empty($hsn_code_list['gst_rate'])){ echo $hsn_code_list['gst_rate']; } ?>" placeholder="Enter GST Rate">-->
+                                                    <select class="form-control" id="gst_rate" name="gst_rate" required="">
+                                                        <option disabled="" selected="">GST Rate</option>
+                                                        <?php foreach( GST_NUMBERS_LIST as $gstrate => $gstval) { ?>
+                                                        <option value="<?php echo $gstrate; ?>" <?php if($hsn_code_list['gst_rate'] == $gstrate){ echo 'selected'; } ?>><?php echo $gstval; ?></option>
+                                                        <?php } ?>
+                                                    </select>
                                                 </div>
                                             </div>
                                         </div>
@@ -196,34 +208,7 @@
         if(!regex.test(hsnTextVal)){
             alert("HSN Code Should Be Numeric.");
             return false;
-         }
-         
-        var regexp = /^\d+(\.\d{1,2})?$/;
-        if(!regexp.test(textVal)){
-            $("#gst_rate").val('');
-            alert('Please enter valid GST.');
-            return false;
-        }else{
-            
-            var regex = /^[0-9\s]*$/;
-            if(regex.test(textVal)){
-                if(textVal.length > 2){
-                  $("#gst_rate").val('');
-                  alert("Please enter valid GST.");  
-                   return false;
-                }
-             }
-             
-            var regex = /^[0-9.\s]*$/;
-            if(regex.test(textVal)){
-                gstArr = textVal.split(".");
-                if((gstArr[0].length > 2) || (gstArr[1].length > 2)){
-                  $("#gst_rate").val('');
-                  alert("Please enter valid GST");  
-                   return false;
-                }
-             }
-        } 
+         } 
     });
     
     
@@ -255,33 +240,7 @@
             alert("HSN Code Should Be Numeric.");
             return false;
          }
-         
-        var regexp = /^\d+(\.\d{1,2})?$/;
-        if(!regexp.test(textVal)){
-            $("#edit_gst_rate").val('');
-            alert('Please enter valid GST.');
-            return false;
-        }else{
-            
-            var regex = /^[0-9\s]*$/;
-            if(regex.test(textVal)){
-                if(textVal.length > 2){
-                  $("#edit_gst_rate").val('');
-                  alert("Please enter valid GST.");  
-                   return false;
-                }
-             }
-             
-            var regex = /^[0-9.\s]*$/;
-            if(regex.test(textVal)){
-                gstArr = textVal.split(".");
-                if((gstArr[0].length > 2) || (gstArr[1].length > 2)){
-                  $("#edit_gst_rate").val('');
-                  alert("Please enter valid GST");  
-                   return false;
-                }
-             }
-        } 
+          
     });
     
     

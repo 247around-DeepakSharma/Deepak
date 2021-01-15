@@ -1631,7 +1631,7 @@ class Do_background_upload_excel extends CI_Controller {
                 redirect(base_url() . "employee/booking_excel/$redirect_to");
             }
         } else {
-            $this->session->set_flashdata('file_error', 'Empty file has been not uploaded');
+            $this->session->set_flashdata('file_error', 'Empty file has been uploaded');
             redirect(base_url() . "employee/booking_excel/$redirect_to");
         }
     }

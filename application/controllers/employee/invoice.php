@@ -1950,7 +1950,7 @@ class Invoice extends CI_Controller {
         if(!empty($s)){
             return $s;
         }else{
-            return '';
+            return false;
         }
 
         log_message('info', __FUNCTION__ . " Exit......");
@@ -6300,7 +6300,7 @@ exit();
         $edit_id = $this->input->post('edit_id');
         $service_id = $this->input->post("service_id");
 
-        $hsn_details = $this->inventory_model->get_hsn_code_details("hsn_code_details.id, hsn_code_details.hsn_code, hsn_code_details.gst_rate", array("hsn_code_details.hsn_code" => $hsn_code, "hsn_code_details.service_id" => $service_id));
+        $hsn_details = $this->inventory_model->get_hsn_code_details("hsn_code_details.id, hsn_code_details.hsn_code, hsn_code_details.gst_rate", array("hsn_code_details.hsn_code" => $hsn_code, "hsn_code_details.service_id" => $service_id, "hsn_code_details.gst_rate" => $gst_rate));
 
         if (empty($hsn_details)) {
             $hsn = array('hsn_code' => $hsn_code, 'gst_rate' => $this->input->post('gst_rate'), 'agent_id' => $this->input->post('agent_id'), 'service_id' => $this->input->post('service_id'));
