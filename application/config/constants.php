@@ -791,5 +791,9 @@ define('OW_COMPLETED_THRESHOLD', 20);
 define('CANCELLATION_THRESHOLD', 20);
 
 define('VENDOR_RESCHEDULED', "Reschedule");
+define('REPAIR_IN_WARRANTY_STRING', 'Repair - In Warranty (Home Visit)');
+define('REQUEST_TYPE_ELS', "LO-ELS");
+// Booking Insertion Failures Messages
+define('BOOKING_ERR_1', "Sorry, Booking Could Not Be Created. Service not available.");
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
