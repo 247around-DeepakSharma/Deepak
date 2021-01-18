@@ -213,6 +213,7 @@ $route['partner/pending_queries'] = 'employee/partner/pending_queries';
 $route['partner/pending_queries/(:any)'] = 'employee/partner/pending_queries/$1';
 $route['partner/booking_form'] = 'employee/partner/get_addbooking_form';
 $route['partner/booking_form/(:any)'] = 'employee/partner/get_addbooking_form/$1';
+$route['partner/insert_booking/(:any)'] = 'employee/partner/get_addbooking_form_api/$1';
 $route['partner/invoices_details'] = 'employee/partner/invoices_details';
 $route['partner/get_user_form'] = 'employee/partner/get_user_form';
 $route['partner/get_nrn_approval'] = 'employee/partner/get_nrn_approval';
