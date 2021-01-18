@@ -295,7 +295,7 @@
                                     <div class="form-group">
                                         <label for="invoice_amount" class="col-md-4">Invoice Date *</label>
                                         <div class="col-md-7">
-                                            <input type="text" class="form-control invoice_date" id="<?php echo "invoice_date_". $key; ?>" name="part[<?php echo $key; ?>][invoice_date]" value = "<?php echo  date("Y-m-d", strtotime("+0 day")); ?>" style="background-color:#FFF; cursor: pointer;">
+                                            <input type="text" class="form-control invoice_date" id="<?php echo "invoice_date_". $key; ?>" name="part[<?php echo $key; ?>][invoice_date]" value = "<?php echo  date("Y-m-d", strtotime("+0 day")); ?>" style="background-color:#FFF; cursor: pointer;" readonly="true">
                                         </div>
                                     </div>
                                     <?php } ?>
@@ -476,7 +476,7 @@
                                     <div class="form-group">
                                         <label for="invoice_amount" class="col-md-4">Invoice Date *</label>
                                         <div class="col-md-7">
-                                            <input type="text" class="form-control invoice_date" onclick="date_picker()" id="invoice_date" value = "<?php echo  date("Y-m-d", strtotime("+0 day")); ?>" style="background-color:#FFF; cursor: pointer;">
+                                            <input type="text" class="form-control invoice_date" readonly="true" onclick="date_picker()" id="invoice_date" value = "<?php echo  date("Y-m-d", strtotime("+0 day")); ?>" style="background-color:#FFF; cursor: pointer;" >
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -697,9 +697,15 @@
     $(".invoice_date").daterangepicker({
         autoUpdateInput: false,
         singleDatePicker: true,
-        maxDate: someDate,
-        minDate:false,
-        locale:{
+        minDate: function(){
+            var today = new Date();
+            var yesterday = new Date();
+            yesterday.setDate(today.getDate() - 3);
+            return yesterday;
+        }(), 
+        maxDate:new Date(),//'today',
+        setDate: new Date(),
+       locale:{
             format: 'YYYY-MM-DD'
         }
     });
