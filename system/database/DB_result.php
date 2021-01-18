@@ -383,8 +383,18 @@ class CI_DB_result {
 		}
 		return $result[$this->current_row];
 	}
+        /**
+     * Read the next result
+     *
+     * @return  null
+     */
+    function next_result() {
+        if (is_object($this->conn_id)) {
+            return mysqli_next_result($this->conn_id);
+        }
+    }
 
-	// --------------------------------------------------------------------
+    // --------------------------------------------------------------------
 
 	/**
 	 * The following functions are normally overloaded by the identically named
