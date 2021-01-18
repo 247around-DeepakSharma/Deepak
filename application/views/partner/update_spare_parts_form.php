@@ -255,7 +255,7 @@
                                     <div class="form-group ">
                                         <label for="parts_name" class="col-md-4">Requested Quantity</label>
                                         <div class="col-md-7">
-                                            <input type="text" class="form-control" id="<?php echo "req_quantity_".$key; ?>" name="part[<?php echo $key; ?>][quantity]"    value="<?php echo $value->quantity; ?>"  required /> 
+                                            <input type="text" class="form-control" id="<?php echo "req_quantity_".$key; ?>" name="part[<?php echo $key; ?>][quantity]"    value="<?php echo $value->quantity; ?>" readonly="" required /> 
                                         </div>
                                     </div>
                                      </div>
@@ -951,9 +951,7 @@
 
 
 
-    $(document).on('keyup', ".quantity", function(e)
-       {
-        //alert();
+    $(document).on('keyup', ".quantity", function(e){
         var id = $(this).attr("id");
         var str_arr =id.split("_");
         var indexId = str_arr[1]; 
