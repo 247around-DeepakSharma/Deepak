@@ -3134,19 +3134,18 @@ exit();
                 $data['parts_count'] = $parts_count;
 
                 if ($data['vendor_partner'] == "vendor") {
-                    $entity_details = $this->vendor_model->viewvendor($data['vendor_partner_id']);                    
+
+                    $entity_details = $this->vendor_model->viewvendor($data['vendor_partner_id']);
                     
-                    if($around_type == "A"){
-                        $gst_number = true;
+                    
+                    if (!empty($entity_details[0]['gst_number']) 
+                    && !empty($entity_details[0]['gst_status']) 
+                    && !($entity_details[0]['gst_status'] == _247AROUND_CANCELLED || $entity_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
+                        $gst_number = $entity_details[0]['gst_no'];
                     } else {
-                        if (!empty($entity_details[0]['gst_number']) 
-                        && !empty($entity_details[0]['gst_status']) 
-                        && !($entity_details[0]['gst_status'] == _247AROUND_CANCELLED || $entity_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
-                            $gst_number = $entity_details[0]['gst_no'];
-                        } else {
-                            $gst_number = "";
-                        }
+                        $gst_number = "";
                     }
+                    
                     
                 } else {
                     $entity_details = $this->partner_model->getpartner_details("gst_number, state", array('partners.id' => $data['vendor_partner_id']));
@@ -4077,7 +4076,7 @@ exit();
             log_message("info", __METHOD__ . "Receipt Inserted ".  "POST ". print_r($this->input->post(), true));
         }
     }
-    
+   
     function _process_advance_payment($agent_id, $flag = null){
         $data['partner_vendor'] = $this->input->post("partner_vendor");
         $data['partner_vendor_id'] = $this->input->post('partner_vendor_id');
@@ -4566,7 +4565,7 @@ exit();
 
                 $vendor_details = $this->vendor_model->getVendorDetails("gst_no, "
                         . "company_name,address as company_address,district,"
-                        . "state, pincode, owner_email, primary_contact_email", array('id' => $sp_data[0]->service_center_id));
+                        . "state, pincode, owner_email, primary_contact_email, gst_status", array('id' => $sp_data[0]->service_center_id));
 
                 $ptype = !(empty($sp_data[0]->shipped_parts_type)) ? $sp_data[0]->shipped_parts_type : $sp_data[0]->parts_requested_type;
                 $part_shipped = !(empty($sp_data[0]->parts_shipped)) ? $sp_data[0]->parts_shipped : $sp_data[0]->parts_requested;
@@ -4600,7 +4599,7 @@ exit();
                 if (!empty($vendor_details[0]['gst_no']) 
                     && !empty($vendor_details[0]['gst_status']) 
                     && !($vendor_details[0]['gst_status'] == _247AROUND_CANCELLED || $vendor_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
-                    
+
                     $data[0]['gst_number'] = $vendor_details[0]['gst_no'];
                 } else {
                     //this is 247around invoice thats why we are assigned true value.
@@ -4777,7 +4776,7 @@ exit();
         log_message('info', __METHOD__);
         $vendor_details = $this->vendor_model->getVendorDetails("gst_no, "
                     . "company_name,address as company_address,district,"
-                    . "state, pincode, owner_email, primary_contact_email, sc_code, owner_phone_1", array('id' => $invoice_details[0]['vendor_partner_id']));
+                    . "state, pincode, owner_email, primary_contact_email, sc_code, owner_phone_1, gst_status", array('id' => $invoice_details[0]['vendor_partner_id']));
         $data = array();
         $shipped_quantity = (!is_null($spare_data['shipped_quantity']) ? $spare_data['shipped_quantity'] : 1);
         $data[0]['description'] = ucwords($spare_data['parts_requested']) . " (" . $spare_data['booking_id'] . ") ";
@@ -4795,6 +4794,7 @@ exit();
             $data[0]['gst_number'] = $vendor_details[0]['gst_no'];
             $invoice_type = "Tax Invoice";
             $invoice_id = $this->create_invoice_id_to_insert($vendor_details[0]['sc_code']);
+
             
         } else {
             //We are generating Credit note thats why we assigned true
@@ -4851,10 +4851,11 @@ exit();
         if (!empty($spare_id)) {
             $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*, booking_details.partner_id as booking_partner_id, service_centres.gst_no as gst_number,service_centres.sc_code,"
                     . "service_centres.state,service_centres.address as company_address,service_centres.company_name,"
-                    . "service_centres.district, service_centres.pincode, service_centres.is_wh, spare_parts_details.is_micro_wh,owner_phone_1, spare_parts_details.shipped_quantity as shipping_quantity, service_centres.owner_email, service_centres.primary_contact_email  ", array('spare_parts_details.id' => $spare_id), TRUE, TRUE);
+                    . "service_centres.district, service_centres.pincode, service_centres.is_wh, spare_parts_details.is_micro_wh,owner_phone_1, spare_parts_details.shipped_quantity as shipping_quantity, service_centres.owner_email, service_centres.primary_contact_email, service_centres.gst_status  ", array('spare_parts_details.id' => $spare_id), TRUE, TRUE);
             if (!empty($spare)) {
                 if ($spare[0]['is_micro_wh'] == 1 && ($spare[0]['partner_id'] == $spare[0]['service_center_id'])) {
                     if (!empty($spare[0]['shipped_inventory_id'])) {
+
                         $spare[0]['spare_id'] = $spare_id;
                         $spare[0]['inventory_id'] = $spare[0]['shipped_inventory_id'];
                         $spare[0]['booking_partner_id'] = $spare[0]['service_center_id'];
@@ -5569,8 +5570,9 @@ exit();
 
                 $entity_details = $this->vendor_model->getVendorDetails("gst_no as gst_number, sc_code,"
                         . "state,address as company_address,company_name,district, pincode, gst_status", array("id" => $data['vendor_partner_id']));
-                
-                if (!empty($entity_details[0]['gst_number']) && !empty($entity_details[0]['gst_status']) && ($entity_details[0]['gst_status'] != _247AROUND_CANCELLED)) {
+                if (!empty($entity_details[0]['gst_number']) 
+                                        && !empty($entity_details[0]['gst_status']) 
+                                        && !($entity_details[0]['gst_status'] == _247AROUND_CANCELLED || $entity_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
                 
                 } else {
                     $entity_details[0]['gst_number'] = true;
