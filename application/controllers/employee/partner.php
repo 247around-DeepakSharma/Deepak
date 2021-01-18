@@ -6,6 +6,8 @@ if (!defined('BASEPATH')) {
 class Partner extends CI_Controller {
 
     Private $OLD_BOOKING_STATE = "";
+    private $jsonRequestData = null;
+    private $jsonResponseString;
 
     /**
      * load list modal and helpers
@@ -517,11 +519,20 @@ class Partner extends CI_Controller {
         }
     }
 
-    function get_booking_form_data() {
+    function get_booking_form_data($is_api = 0) {
         $booking_date = date('Y-m-d', strtotime($this->input->post('booking_date')));
         $post['partnerName'] = $this->session->userdata('partner_name');
+        if(!empty($is_api)){
+            $post['partnerName'] = $this->input->post('partner_name');
+        }
         $post['partner_id'] = $this->session->userdata('partner_id');
+        if(!empty($is_api)){
+            $post['partner_id'] = $this->input->post('partner_id');
+        }
         $post['agent_id'] = $this->session->userdata('agent_id');
+        if(!empty($is_api)){
+            $post['agent_id'] = $this->input->post('agent_id');
+        }
         $post['name'] = trim($this->input->post('user_name'));
         $post['mobile'] = trim($this->input->post('booking_primary_contact_no'));
         $post['email'] = $this->input->post('user_email');
@@ -10260,4 +10271,330 @@ class Partner extends CI_Controller {
         }
     }
 
+    /**
+     * @desc: This method loads add booking form for WalkIns / SFs
+     * It gets user details(if exist), city, source, services
+     * @param $sf_id Vendor Id
+     * @return View of add booking form
+     * @author: Prity Sharma
+     * @created_on 09-01-2021
+     */
+    function get_addbooking_form_walkin($sf_id) {
+        // SF -> 1 -> MQ%3D%3D (urlencode(base64_encode($sf_id)))
+        $sf_id = base64_decode(urldecode($sf_id));
+        // validate if Vendor is active or not
+        $vendor_data = $this->vendor_model->getactive_vendor(['id' => $sf_id]);
+        if(empty($vendor_data)){
+            $data['msg'] = "Service Temporarily Unavailable";
+            $this->load->view('partner/booking_service_unavailable', $data);
+            return;
+        }   
+        // Get brands mapped with the Vendor
+        $selected_brands_list = $this->vendor_model->get_mapped_brands($sf_id);
+        $data['brands'] = array_unique(explode(",", $selected_brands_list));
+        $data['assigned_vendor_id'] = $sf_id;
+        $this->load->view('partner/get_addbooking_walkin', $data);
+    }
+    
+    /**
+     * This function return all appliances of given Brand
+     * @param type $brand (POST) 
+     * @return List of Appliances in HTML Dropdown
+     * @author Prity Sharma
+     * @date 10-01-2021
+    */
+    function get_services_from_brand(){
+        $brand = $this->input->post('brand');
+        $sql = "Select distinct partner_appliance_details.brand, services.services,services.id  "
+                . "From partner_appliance_details, services "
+                . "where partner_appliance_details.service_id = services.id "
+                . "AND partner_appliance_details.brand = ? ";
+        $query = $this->db->query($sql, $brand);
+        $data = $query->result_array();
+        $option = "";
+        foreach ($data as $value) {
+            $option .= "<option ";
+            if (count($data) == 1) {
+                $option .= " selected ";
+            }                       
+            $option .= " value='" . $value['id'] . "'>" . $value['services'] . "</option>";
+        }
+        echo $option;
+    }
+    
+    /**
+     * This function return Partner of given Brand
+     * @param type $brand (POST) 
+     * @return JSON of partner's information
+     * @author Prity Sharma
+     * @date 10-01-2021
+    */
+    function get_partner_from_brand(){
+        $partner_data = array();
+        $brand = $this->input->post('brand');
+        // TODO
+        // Check if this data can be fetched in backend, after form submission (we are not storing major information in form , Function can not be called in backend, need values of partner_type, partner_source)
+        $sql = "SELECT partners.* , bookings_sources.partner_type, bookings_sources.code, bookings_sources.price_mapping_id, entity_login_table.agent_id, entity_login_table.entity_name "
+                . "FROM partner_appliance_details, partners, bookings_sources, entity_login_table "                
+                . "WHERE partner_appliance_details.partner_id = partners.id "
+                . "AND (entity_login_table.entity_id = partners.id AND entity_login_table.entity = 'partner' AND entity_login_table.active = 1 AND entity_login_table.contact_person_id = '".PARTNER_DEFAULT_CONTACT_PERSON_ID."') "
+                . "AND bookings_sources.partner_id = partners.id "
+                . "AND partner_appliance_details.brand = ? limit 1 ";
+        $query = $this->db->query($sql, $brand);
+        $data = $query->result_array();
+        if(!empty($data[0])){
+            $partner_data = $data[0];
+        }
+        echo json_encode($partner_data);  
+    }
+    
+    /**
+     * TODO
+     * Check Low balance case also
+     * @desc: This method is used to add bookings by Walk-In Customers OR APIs
+     * @param $is_api (0 => booking Inserted by walk-in customer , 1 => Booking Insertion by API)
+     * @param type Form data (POST) 
+     * @return JSON of partner's information
+     * @author Prity Sharma
+     * @date 10-01-2021
+    */
+    function process_addbooking_walkin($is_api = 0) {
+        if($this->session->userdata('booking_otp')){
+            $this->session->unset_userdata('booking_otp');            
+        }
+        
+        if($is_api){
+//            $input_d = file_get_contents('php://input');
+            // Videocon JSON
+//            $input_d = '{"partnerName":"Videocon","partner_id":"247130","agent_id":"982218","name":"Vidhi Chikara","mobile":"9457366312","email":"","address":"Qwerty","pincode":"201204","city":"Ghaziabad","requestType":false,"landmark":"","service_id":"50","brand":"Videocon","productType":"","category":"AC-Split","capacity":"1.5 Ton","model":false,"serial_number":"","purchase_date":"2021-01-01","partner_source":"AndroidApp","remarks":"qwerty","orderID":"","assigned_vendor_id":"1","upcountry_data":"","alternate_phone_number":"","booking_date":"2021-01-18","partner_type":"OEM","appliance_unit":"1","partner_code":"LP","amount_due":false,"product_type":"Delivered","appliance_name":"","dealer_name":"qwerty sharma","dealer_phone_number":"9837247322","dealer_id":"","parent_booking":null,"repeat_reason":null,"booking_request_symptom":"0"}';
+            // JVC JSON
+            $input_d = '{"partnerName":"Wybor","partner_id":"247010","agent_id":"982218","name":"Vidhi Chikara","mobile":"9457366312","email":"","address":"Qwerty","pincode":"201204","city":"Ghaziabad","requestType":"Installation & Demo (Free)","landmark":"","service_id":"46","brand":"Wybor","productType":"","category":"TV-LED","capacity":"24 Inch","model":"19WHN-02","serial_number":"1F325SN09A352TC05070","purchase_date":"2021-01-01","partner_source":"AndroidApp","remarks":"qwerty","orderID":"","assigned_vendor_id":"","upcountry_data":"","alternate_phone_number":"","booking_date":"2021-01-18","partner_type":"OEM","appliance_unit":"1","partner_code":"SY","amount_due":false,"product_type":"Delivered","appliance_name":"","dealer_name":"qwerty sharma","dealer_phone_number":"9837247322","dealer_id":"","parent_booking":null,"repeat_reason":null,"booking_request_symptom":"0"}';
+            $post = json_decode($input_d, TRUE);
+        }
+        else
+        {
+        $post = $this->get_booking_form_data(1);
+        }
+        $assigned_vendor_id = $post['assigned_vendor_id'];
+        $partner_id = $post['partner_id'];
+        $city = $post['city'];
+        
+        // For Walk-In Customers, Use Pincode mapped with SF 
+        $pincode = $post['pincode'];
+        if(!empty($assigned_vendor_id))
+        {
+        $vendor_data = $this->vendor_model->getVendorContact($assigned_vendor_id);
+        $pincode = $vendor_data[0]['pincode'];
+        }
+        
+        // If request type is there in JSON, use that for Prices otherwise use ELS
+        $request_type = REQUEST_TYPE_ELS;
+        if(!empty($post['requestType'])){
+            $request_type = $post['requestType'];
+        }
+        $result = $this->getServicePricesforBooking($post, $request_type);
+                
+        // Get Prices for LO-ELS / Requested Service Category
+        $post['requestType'] = [];
+        if(empty($result)){
+            return $this->show_booking_insertion_failure($is_api, ERR_INVALID_SERVICE_CATEGORY_CODE, ERR_INVALID_SERVICE_CATEGORY_MSG);
+        }
+        
+        // Check Partner Balance
+        $p_details = $this->miscelleneous->get_partner_prepaid_amount($partner_id);
+        if(empty($p_details['active'])){
+            return $this->show_booking_insertion_failure($is_api, ERR_LOW_BALANCE_CODE, ERR_LOW_BALANCE_MSG);
+        }
+        
+        // Get Upcountry Data
+        $p_where = array('id' => $partner_id);
+        $partner_details = $this->partner_model->get_all_partner($p_where);
+        $upcountry_data = [];
+        if (empty($assigned_vendor_id)) {
+            $upcountry_data = $this->miscelleneous->check_upcountry_vendor_availability($city, $pincode, $post['service_id'], $partner_details, NULL, $post['brand']);
+        } else {
+            $vendor_data = array();
+            $vendor_data[0]['vendor_id'] = $assigned_vendor_id;
+            $vendor_data[0]['city'] = $city;
+            $vendor_data[0]['min_upcountry_distance'] = $this->vendor_model->getVendorDetails("min_upcountry_distance", array('id' => $assigned_vendor_id))[0]['min_upcountry_distance'];
+            $upcountry_data = $this->upcountry_model->action_upcountry_booking($city, $pincode, $vendor_data, $partner_details);
+        }
+        $post['requestType'] = [$result[0]['id'] . "_" . intval($result[0]['customer_total']) . "_" . intval($result[0]['partner_net_payable']) . "_0"]; 
+        $post['amount_due'] = intval($result[0]['customer_total']) + intval($result[0]['partner_net_payable']);
+        $post['upcountry_data'] = json_encode($upcountry_data, TRUE);
+        $post['session_data']['agent_id'] = 1;
+        $post['session_data']['user_source'] = BOOKING_SOURCE_API;
+        $post['session_data']['userType'] = BOOKING_AGENT_Website;
+        $postData = json_encode($post, true);
+        $authToken = $this->partner_model->get_authentication_code($partner_id);
+        $ch = curl_init(base_url() . 'partner/insertBookingByPartner');
+        curl_setopt_array($ch, array(
+            CURLOPT_POST => TRUE,
+            CURLOPT_RETURNTRANSFER => TRUE,
+            CURLOPT_SSL_VERIFYHOST => FALSE,
+            CURLOPT_SSL_VERIFYPEER => FALSE,
+            CURLOPT_HTTPHEADER => array(
+                'Authorization: ' . $authToken,
+                'Content-Type: application/json'
+            ),
+            CURLOPT_POSTFIELDS => $postData
+        ));
+
+        // Send the request
+        $response = curl_exec($ch);
+
+        // Decode the response
+        $responseData = json_decode($response, TRUE);
+        if (isset($responseData['data']['code'])) {
+            if ($responseData['data']['code'] == -1003) {
+                $output = ERR_ORDER_ID_EXISTS_MSG.", Booking ID: " . $responseData['data']['response']['247aroundBookingID'];
+                log_message('info', $output); 
+                return $this->show_booking_insertion_failure($is_api, ERR_ORDER_ID_EXISTS_CODE, ERR_ORDER_ID_EXISTS_MSG);
+            } else if ($responseData['data']['code'] == 247) {
+                $output = "Booking Inserted Successfully, Booking ID: " . $responseData['data']['response']['247aroundBookingID'];
+                log_message('info', $output);   
+                
+                $userSession = array('success' => $output);
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "employee/partner/load_booking_insertion_success_view/".$responseData['data']['response']['247aroundBookingID']);
+            }
+            else if ($responseData['data']['code'] == -24700) {
+                log_message('info', ERR_SAME_BOOKING_EXISTS_MSG. print_r($postData, true) . " error mgs" . print_r($responseData['data'], true)); 
+                return $this->show_booking_insertion_failure($is_api, ERR_SAME_BOOKING_EXISTS_CODE, ERR_SAME_BOOKING_EXISTS_MSG);
+                }
+            else {
+                log_message('info', "Booking not Inserted, Internal Server Error " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
+                $this->insertion_failure($postData, "Internal Server Error", $responseData['data']);
+                return $this->show_booking_insertion_failure($is_api, FAILURE_CODE, ERR_BOOKING_NOT_INSERTED_MSG);
+                }
+            }
+        }          
+    
+    /**
+     * @desc: This function is used to get Service Prices for Booking
+     * @param $service_category (Service category of Booking)
+     * @param type Form data (POST) 
+     * @return Array of price Information
+     * @author Prity Sharma
+     * @date 10-01-2021
+    */
+    function getServicePricesforBooking($post, $service_category){
+        $add_booking = NULL;
+        $category = $post['category'];
+        $capacity = $post['capacity'];
+        $service_id = $post['service_id'];
+        $brand = $post['brand'];
+        $partner_type = $post['partner_type'];
+        $partner_id = $post['partner_id'];
+        if($this->input->post("add_booking")){
+            $add_booking = $this->input->post("add_booking");
+        }
+        if ($partner_type == OEM) {
+            $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_id, $service_category, $brand,TRUE,$add_booking);
+        } else {
+            $isWbrand = "";
+            $whiteListBrand = $this->partner_model->get_partner_blocklist_brand(array("partner_id" => $partner_id, "brand" => $brand,"service_id" => $service_id, "whitelist" => 1), "*");
+            if(!empty($whiteListBrand)){
+                $isWbrand = $brand;                 
+            }
+            $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_id, $service_category, $isWbrand, TRUE, $add_booking);
+        }
+        return $result;
+    }
+    
+    /**
+     * @desc: Method is used to send otp to customer for booking creation
+     * This function is called from AJAX
+     * @param $booking_primary_contact_no (POST)
+     * @return srting OTP
+     * @author Prity Sharma
+     * @date 10-01-2021
+    */
+    function request_booking_otp() {        
+        $post_data = $this->input->post();
+        $otp = $this->miscelleneous->request_otp_for_booking_creation($post_data);        
+        return trim($otp);
+    }  
+    
+    /**
+     * @desc: Method is used to match customer OTP for booking creation of walkins
+     * This function is called from AJAX
+     * @param $original_otp : Original OTP (POST)
+     * @param $customer_otp : OTP Entered by Customer (POST)
+     * @return boolean
+     * @author Prity Sharma
+     * @date 18-01-2021
+    */
+    function match_booking_otp() {        
+        $post_data = $this->input->post();
+        $original_otp = $post_data['original_otp'];
+        $customer_otp = $post_data['customer_otp'];
+        if(md5(trim($customer_otp)) != trim($original_otp)){
+            echo "fail"; exit;
+        }
+        echo "success"; exit;
+    }
+    
+    /**
+     * This function is used to return JSON/ load view , if Booking Insertion is failed by API/Walk-ins 
+     * @param type $is_api (Request from API / Walkin)
+     * @param $err_code
+     * @param $err_msg
+     * @author : Prity Sharma
+     * @created_on : 18-01-2021
+    */
+    function show_booking_insertion_failure($is_api, $err_code, $err_msg)
+    {
+        // return Response in case of API / for walkins show failure message on UI           
+        if($is_api){
+            //Invalid json
+            $this->jsonResponseString['code'] = $err_code;
+            $this->jsonResponseString['result'] = $err_msg;
+            $responseData = array("data" => $this->jsonResponseString);
+        
+            header('Content-Type: application/json');
+            $response = json_encode($responseData, JSON_UNESCAPED_SLASHES);
+            echo $response;
+            return;
+    }
+        else
+        {
+            redirect(base_url() . "employee/partner/load_booking_insertion_failure_view/".$err_code);
+        }
+    }
+    
+    /**
+     * This function is used to return JSON/ load view , if Booking Insertion is failed by API/Walk-ins 
+     * @param type $msg_code (Shows which message is used to shown, if Booking Inserted successfully)
+     * @return View File
+     * @author : Prity Sharma
+     * @created_on : 18-01-2021
+    */
+    function load_booking_insertion_failure_view($msg_code) {
+        $error_msg = [
+            ERR_INVALID_SERVICE_CATEGORY_CODE => ERR_INVALID_SERVICE_CATEGORY_MSG,
+            ERR_LOW_BALANCE_CODE => ERR_LOW_BALANCE_MSG,
+            ERR_ORDER_ID_EXISTS_CODE => ERR_ORDER_ID_EXISTS_MSG,
+            ERR_SAME_BOOKING_EXISTS_CODE => ERR_SAME_BOOKING_EXISTS_MSG,
+            FAILURE_CODE => ERR_BOOKING_NOT_INSERTED_MSG
+        ];
+        $data['msg'] = $error_msg[$msg_code];
+        $this->load->view('partner/booking_service_unavailable', $data);          
+    }
+    
+    /**
+     * This function is used to load view , if Booking Successfully Inserted by API/Walk-ins 
+     * @param type $msg_code (Shows which message is used to shown, if Booking Inserted successfully)
+     * @return View File
+     * @author : Prity Sharma
+     * @created_on : 18-01-2021
+    */
+    function load_booking_insertion_success_view($booking_id) {
+        // Get Booking Details
+        $data['booking_history'] = $this->booking_model->get_booking_details('services.services, users.*, booking_details.*,service_centres.name as vendor_name,service_centres.address, ', ['booking_id' => $booking_id], true, true, false, false, true);        
+        //Get Booking Unit Details Data
+        $data['booking_unit_details'] = $this->booking_model->get_unit_details(['booking_id' => $booking_id, 'booking_status <> "Cancelled"' => NULL]);
+        $this->load->view('partner/booking_result', $data);
+    }
+    
 }

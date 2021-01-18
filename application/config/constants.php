@@ -306,6 +306,9 @@ define('ERR_BOOKING_NOT_ASSIGNED_CODE', -1022);
 define('ERR_SPD_DATE_MANDATORY_CODE', -1023);
 define('ERR_INVALID_SPD_DATE_CODE', -1024);
 define('ERR_CALL_ALREADY_CANCELLED_CODE', -1024);
+define('ERR_INVALID_SERVICE_CATEGORY_CODE', -1025);
+define('ERR_LOW_BALANCE_CODE', -1026);
+define('ERR_SAME_BOOKING_EXISTS_CODE', -1027);
 
 define('ERR_BOOKING_NOT_INSERTED_MSG', 'Booking Insertion Failed');
 define('ERR_GENERIC_ERROR_MSG', 'Unknown Error');
@@ -331,6 +334,9 @@ define('ERR_BOOKING_NOT_ASSIGNED_MSG', 'Engineer Not Assigned');
 define('ERR_SPD_DATE_MANDATORY_MSG', 'Service Promise Date is Mandatory');
 define('ERR_INVALID_SPD_DATE_MSG', 'Invalid Service Promise Date');
 define('ERR_CALL_ALREADY_CANCELLED_MSG', 'Call is already cancelled');
+define('ERR_INVALID_SERVICE_CATEGORY_MSG', 'Sorry, Booking Could Not Be Created. Service not available.');
+define('ERR_LOW_BALANCE_MSG', 'Low Balance, Booking can not be Inserted');
+define('ERR_SAME_BOOKING_EXISTS_MSG', 'Same booking has already been created. Please try after some time.');
 //ICICI Bank name constant
 define('ICICI_BANK_NAME', 'ICICI Bank Ltd');
 
@@ -783,16 +789,12 @@ define('WARRANTY_ON_DOI', 2);
 //Partner invoice payment file type
 define('INVOICE_GST_PENALTY_FILE_TYPE','invoice_gst_penalty_file_type');
 
-// value not set
-define('NOT_SET', 'not_set');
-
 define('PENALTY_THRESHOLD', 10);
 define('OW_COMPLETED_THRESHOLD', 20);
 define('CANCELLATION_THRESHOLD', 20);
 
 define('VENDOR_RESCHEDULED', "Reschedule");
 define('REQUEST_TYPE_ELS', "LO-ELS");
-// Booking Insertion Failures Messages
-define('BOOKING_ERR_1', "Sorry, Booking Could Not Be Created. Service not available.");
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
+
