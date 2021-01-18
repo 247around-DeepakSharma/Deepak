@@ -1616,6 +1616,7 @@ class vendor extends CI_Controller {
                     
                     $this->booking_model->update_booking($booking_id, $assigned_data2);
                 }
+                  $this->session->set_userdata('success','Booking Reassigned Succesfully');
                 redirect(base_url() . DEFAULT_SEARCH_PAGE);
         } else {
             $booking_id = $this->input->post('booking_id');
