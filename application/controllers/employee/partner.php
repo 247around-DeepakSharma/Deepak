@@ -5202,10 +5202,10 @@ class Partner extends CI_Controller {
        //  $is_wh = $this->input->post('is_wh');
           $is_wh = 0;
 
-        if(!empty($is_wh)){
-            $where = array('(is_wh = 1 OR is_micro_wh = 1)' => NULL);
-        }else{
-            $where = array();
+        if (!empty($is_wh)) {
+            $where = array("partners.is_active" => 1, '(is_wh = 1 OR is_micro_wh = 1)' => NULL);
+        } else {
+            $where = array("partners.is_active" => 1);
         }
         $partner_list = $this->partner_model->get_all_partner($where);
         $option = '<option selected="" disabled="">Select Partner</option>';
