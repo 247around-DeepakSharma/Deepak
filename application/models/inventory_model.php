@@ -4048,4 +4048,112 @@ class Inventory_model extends CI_Model {
         return $query;
     }
     
+
+    
+    /*
+     *  @desc : This function is used to get HSN Code Details
+     *  @param : $post string
+     *  @param : $select string
+     *  @return: Array()
+     */
+    
+    function get_hsncode_list($post, $select = "", $is_object = false) {
+        
+        $this->_get_hsncode_details($post, $select);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+
+        $query = $this->db->get();
+        
+        if ($is_object) {
+            $result = $query->result();
+        } else {
+            $result = $query->result_array();
+        }
+
+        return $result;
+    }
+
+    /*
+     * @Desc: This function is used to get data from the hsn_code_details table
+     * @params: $post array
+     * @params: $select string
+     * @return: void
+     */
+    
+    function _get_hsncode_details($post, $select) {
+
+        $this->db->distinct();
+        $this->db->select($select, FALSE);
+        $this->db->from('hsn_code_details');
+        $this->db->join('services', 'hsn_code_details.service_id =  services.id');
+        if (!empty($post['where'])) {
+            $this->db->where($post['where']);
+        }
+
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+        if (!empty($post['order'])) {
+                $this->db->order_by($post['column_order'], $post['order'][0]['dir']);
+        }
+
+        if (!empty($post['group_by'])) {
+            $this->db->group_by($post['group_by']);
+        }
+
+        if (isset($post['having']) && !empty($post['having'])) {
+            $this->db->having($post['having'], FALSE);
+        }
+    }
+    
+    
+    /**
+     *  @desc : This function is used to get total hsn_code_details
+     *  @param : $post string
+     *  @return: Array()
+     */
+    public function count_all_hsncode_list($post) {
+        $this->_get_hsncode_details($post, 'count( DISTINCT hsn_code_details.id) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+    
+    /*
+     *  @desc : This function is used to get total filtered hsn_code_details
+     *  @param : $post string
+     *  @return: Array()
+     */
+    
+    function count_filtered_hsncode_list($post) {
+        $this->_get_hsncode_details($post, 'count( DISTINCT hsn_code_details.id) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+    function call_procedure($procedure_name,$data){
+        $query = $this->db->query("CALL ".$procedure_name."(".$data.")");
+        $result_array = $query->result_array();
+        $query->next_result(); 
+        $query->free_result(); 
+        return $result_array;
+    }
+    function insert_cwh_stock_mismatch_report($data) {
+      $this->db->insert('cwh_stock_mismatch_report', $data);
+      return $this->db->insert_id();
+    }
+
+
 }
