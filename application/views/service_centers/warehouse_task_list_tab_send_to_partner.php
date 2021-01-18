@@ -487,7 +487,7 @@
         postData['data'] = JSON.stringify(tmp_arr);
         postData['sender_entity_id'] =  '<?php echo $sf_id?>';
         postData['sender_entity_type'] = '<?php echo _247AROUND_SF_STRING; ?>';
-        postData['wh_name'] = '<?php echo $this->session->userdata('wh_name')?>';
+        postData['wh_name'] = '<?php echo $this->session->userdata('wh_name'); ?>';
         postData['receiver_partner_id'] = $("#partner_id_send_to_partner").val();
         
         if(flag){

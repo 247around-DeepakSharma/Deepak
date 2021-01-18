@@ -6726,6 +6726,10 @@ class Inventory extends CI_Controller {
             $defective_parts_shippped_date_by_wh = $this->input->post('defective_parts_shippped_date_by_wh');
             $awb_by_wh = $this->input->post('awb_by_wh');
             $wh_name = $this->input->post('wh_name');
+            //If warehouse name not coming from form
+            if($wh_name){
+                $wh_name = $this->session->userdata('wh_name');
+            }
 
             //get 247around warehouse incharge email
             $wh_where = array('contact_person.role' => $wh_incharge_id[0]['id'],
