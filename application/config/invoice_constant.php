@@ -37,6 +37,7 @@ define("QC_HSN_CODE", 998397);
 define("HSN_CODE", "998715");
 define("STAND_HSN_CODE", "8302");
 define("COMMISION_CHARGE_HSN_CODE", "996111");
+define("GST_STATUS_SUSPENDED", "Suspended");
 
 //define('ACCOUNTANT_EMAILID',"accounts@247around.com" );
 //Accounts/Business Email IDs
@@ -167,4 +168,6 @@ define('MSL_Credit_Note', 'MSL Credit Note');
 define('BULK_DEBIT_NOTE_TAG', 'BULK_DEBIT_NOTE_TAG');
 //TCS Tax rate
 define('TCS_TAX_RATE', 0.075);
+//GST Numbers
+define('GST_NUMBERS_LIST', array("5" => '5%', "12" => '12%', "18" => '18%', "28" => '28%'));
 ?>

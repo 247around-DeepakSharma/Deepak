@@ -4,6 +4,11 @@ if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
+if (!defined('RABBITMQ_SMSQ_ENABLED')) {
+    define('RABBITMQ_SMSQ_ENABLED', true);
+}
+
+
 /**
  * Notify library to send Mails and SMSs
  *
@@ -863,6 +868,7 @@ class Notify {
                 curl_close($ch);
         }
     }
+    
     function send_sms_using_knowlarity($phone_number, $body){
         $params = json_encode(array("client_id"=>KNOWLARITY_CLIENT_ID,"passphrase"=>KNOWLARITY_PASSPHRASE,"sender_id"=>KNOWLARITY_SENDER_ID,"sms_text"=>$body,"sms_number"=>"+91".$phone_number));
         $session = curl_init(KNOWLARITY_SMS_URL);
@@ -880,59 +886,76 @@ class Notify {
         $data['content'] = $responseAarray->status;      
         return $data;
     }
-    function send_sms_using_msg91($phone_number,$body){
-        $data = array();
-/*  check if phone is empty */
-        if(!empty($phone_number) && KARIX_SENDING){
-/*  Making Payload */
-// logging for debug
-           $payloadName = '{
-                           "channel": "'.KARIX_CHANNEL.'",
-                           "source": "'.KARIX_SENDER_ID.'",
-                           "destination": [
-                             "+91'.$phone_number.'"
-                           ],
-                           "content": {
-                           "text": "'.$body.'"
-                          } 
-                          }';
-         $headers = array(
-           'Content-Type:application/json',
-           'Authorization: Basic '. API_KARIX_PASSWORD // <---
-         );
-         $additionalHeaders ="";
-         $ch = curl_init(KARIX_HOST);
-         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', $additionalHeaders));
-//curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-         curl_setopt($ch, CURLOPT_HEADER, 0);
-         curl_setopt($ch, CURLOPT_USERPWD, API_KARIX_USER_ID . ":" . API_KARIX_PASSWORD);
-         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-         curl_setopt($ch, CURLOPT_POST, 1);
-         curl_setopt($ch, CURLOPT_POSTFIELDS, $payloadName);
-         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-         $return = curl_exec($ch);
-         curl_close($ch);
-         $data_r = json_decode($return);
-         $content  = isset($data_r->objects[0]->content->text) ? $data_r->objects[0]->content->text : "";
-         $status = isset($data_r->objects[0]->status) ? $data_r->objects[0]->status : "";
-         $error = isset($data_r->objects[0]->error) ? $data_r->objects[0]->error : "";
+    
+    function send_sms_using_msg91($phone_number, $body){
+        if (RABBITMQ_SMSQ_ENABLED == false) {
+            $data = array();
 
-         $data['content'] =  $content;
-         $data['status'] =  $status;
-         $data['error'] =  $error;
-        }else{
+            /* Check if phone is empty and SMS needs to be sent through Karix platform */
+            if (!empty($phone_number) && KARIX_SENDING) {
+                /*  Making Payload */
+                // logging for debug
+                $payloadName = '{
+                               "channel": "' . KARIX_CHANNEL . '",
+                               "source": "' . KARIX_SENDER_ID . '",
+                               "destination": [
+                                 "+91' . $phone_number . '"
+                               ],
+                               "content": {
+                               "text": "' . $body . '"
+                              } 
+                              }';
 
-        $message = urlencode($body);
-        $url = "https://control.msg91.com/api/sendhttp.php?authkey=".MSG91_AUTH_KEY."&mobiles="
-                . $phone_number . "&message=" . $message
-                . "&sender=".MSG91_SENDER_NAME."&route=4&country=91";
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $data['content'] = curl_exec($ch);
-                        curl_close($ch);
+                $headers = array(
+                    'Content-Type:application/json',
+                    'Authorization: Basic ' . API_KARIX_PASSWORD // <---
+                );
+
+                $additionalHeaders = "";
+
+                $ch = curl_init(KARIX_HOST);
+
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', $additionalHeaders));
+                //curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                curl_setopt($ch, CURLOPT_HEADER, 0);
+                curl_setopt($ch, CURLOPT_USERPWD, API_KARIX_USER_ID . ":" . API_KARIX_PASSWORD);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+                curl_setopt($ch, CURLOPT_POST, 1);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $payloadName);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+
+                $return = curl_exec($ch);
+                curl_close($ch);
+
+                $data_r = json_decode($return);
+                $content = isset($data_r->objects[0]->content->text) ? $data_r->objects[0]->content->text : "";
+                $status = isset($data_r->objects[0]->status) ? $data_r->objects[0]->status : "";
+                $error = isset($data_r->objects[0]->error) ? $data_r->objects[0]->error : "";
+
+                $data['content'] = $content;
+                $data['status'] = $status;
+                $data['error'] = $error;
+            } else {
+                //Send SMS through MSG91 platform
+                $message = urlencode($body);
+                $url = "https://control.msg91.com/api/sendhttp.php?authkey=" . MSG91_AUTH_KEY . "&mobiles="
+                        . $phone_number . "&message=" . $message
+                        . "&sender=" . MSG91_SENDER_NAME . "&route=4&country=91";
+                $ch = curl_init($url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                $data['content'] = curl_exec($ch);
+                curl_close($ch);
+            }
+
+            return $data;
+        } else {
+            //Queue SMS in RabbitMQ
+            $message = urlencode($body);
+            
+            $this->send_sms->send_sms_msg91($phone_number, $message);
         }
-        return  $data;
     }
+    
     function sendTransactionalSmsMsg91($phone_number, $body,$tag) {
         $this->validate_sms_length($phone_number,$body,$tag);
         $data = array();

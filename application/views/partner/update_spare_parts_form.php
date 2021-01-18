@@ -255,7 +255,7 @@
                                     <div class="form-group ">
                                         <label for="parts_name" class="col-md-4">Requested Quantity</label>
                                         <div class="col-md-7">
-                                            <input type="text" class="form-control" id="<?php echo "req_quantity_".$key; ?>" name="part[<?php echo $key; ?>][quantity]"    value="<?php echo $value->quantity; ?>"  required /> 
+                                            <input type="text" class="form-control" id="<?php echo "req_quantity_".$key; ?>" name="part[<?php echo $key; ?>][quantity]"    value="<?php echo $value->quantity; ?>" readonly="" required /> 
                                         </div>
                                     </div>
                                      </div>
@@ -308,8 +308,12 @@
                                     <div class="form-group">
                                         <label for="gst_number" class="col-md-4">GST Rate *</label>
                                         <div class="col-md-7">
-                                            <input type="text" class="form-control validate_gst_rate" id="<?php echo "gst_rate_". $key; ?>" name="part[<?php echo $key; ?>][gst_rate]" value = "" placeholder="Please Enter GST Rate  "  required>
-                                            
+                                            <select class="form-control" id="<?php echo "gst_rate_" . $key; ?>" name="part[<?php echo $key; ?>][gst_rate]" required="">
+                                                <option disabled="" selected="">Select GST Rate</option>
+                                                <?php foreach( GST_NUMBERS_LIST as $gstrate => $gstval) { ?>
+                                                    <option value="<?php echo $gstrate; ?>"><?php echo $gstval; ?></option>
+                                                <?php } ?>
+                                            </select>
                                         </div>
                                     </div>
                                     <?php } ?>
@@ -485,7 +489,12 @@
                                     <div class="form-group">
                                         <label for="gst_number" class="col-md-4">GST Rate *</label>
                                         <div class="col-md-7">
-                                            <input type="text" class="form-control validate_gst_rate" id="gst_rate" value = "" placeholder="Please Enter GST Rate"  required>
+                                            <select class="form-control" id="gst_rate" required="">
+                                                <option disabled="" selected="">Select GST Rate</option>
+                                                <?php foreach( GST_NUMBERS_LIST as $gstrate => $gstval) { ?>
+                                                    <option value="<?php echo $gstrate; ?>"><?php echo $gstval; ?></option>
+                                                <?php } ?>
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -671,7 +680,7 @@
     var array = string_id.split("_");
     var hsn_code = $(this).find('option:selected').attr("data-gst");
         if(hsn_code!='' && hsn_code != 'undefined'){
-            $("#gst_rate_"+array[2]).val(hsn_code);
+            $("#gst_rate_"+array[2]).val(hsn_code).change();
             $('label[for="gst_rate_'+array[2]+'"]').css('display', 'none');
             $("#gst_rate_"+array[2]).attr("readonly", true);
         }
@@ -942,9 +951,7 @@
 
 
 
-    $(document).on('keyup', ".quantity", function(e)
-       {
-        //alert();
+    $(document).on('keyup', ".quantity", function(e){
         var id = $(this).attr("id");
         var str_arr =id.split("_");
         var indexId = str_arr[1]; 
@@ -1492,29 +1499,29 @@
         }
     });
         
-    var validate_gst = function() {
-        this.value = this.value.replace(/[^0-9/./]/g, '');
-        var gst_rate = $(this).val();
-          if(gst_rate.length > 0){
-              if(!existsArray(gst_rate)){
-                  $(this).val('');
-              }
-          }
-    }
-    
-    $('.validate_gst_rate').on('keyup keypress blur change paste mouseover mouseleave mouseout', validate_gst);
-
-    function existsArray(gst_rate){
-        var myArray = ['1','2', '5', '12', '18', '28'];
-        var inArray = false;
-        myArray.map(function(key){
-            if (key === gst_rate){
-                inArray=true;
-            }
-        });
-        return inArray;
-    };
-    
+//    var validate_gst = function() {
+//        this.value = this.value.replace(/[^0-9/./]/g, '');
+//        var gst_rate = $(this).val();
+//          if(gst_rate.length > 0){
+//              if(!existsArray(gst_rate)){
+//                  $(this).val('');
+//              }
+//          }
+//    }
+//    
+//    $('.validate_gst_rate').on('keyup keypress blur change paste mouseover mouseleave mouseout', validate_gst);
+//
+//    function existsArray(gst_rate){
+//        var myArray = ['1','2', '5', '12', '18', '28'];
+//        var inArray = false;
+//        myArray.map(function(key){
+//            if (key === gst_rate){
+//                inArray=true;
+//            }
+//        });
+//        return inArray;
+//    };
+//    
     
     $(document).ready(function(){
         var service_id = "<?php echo ((isset($spare_parts[0]->service_id)) ? $spare_parts[0]->service_id : '') ?>"; 

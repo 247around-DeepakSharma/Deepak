@@ -45,7 +45,7 @@ class User_invoice extends CI_Controller {
                 . "service_centres.pincode as sf_pincode, service_centres.district as sf_district, service_centres.state as sf_state, service_centres.gst_no, service_centres.owner_phone_1, "
                 . "users.name, users.home_address, users.phone_number,users.user_email, users.pincode, users.city, users.state, booking_details.amount_due, "
                 . "booking_details.amount_paid, booking_details.quantity, request_type, services, booking_details.quantity, booking_primary_contact_no,  "
-                . "sc_code, booking_details.user_id, booking_details.closed_date, booking_details.assigned_vendor_id, owner_email, primary_contact_email";
+                . "sc_code, booking_details.user_id, booking_details.closed_date, booking_details.assigned_vendor_id, owner_email, primary_contact_email, service_centres.gst_status";
         $request['where'] = array("booking_details.booking_id" => $booking_id, 'booking_details.amount_paid > ' . MAKE_CUTOMER_PAYMENT_INVOICE_GREATER_THAN => NULL);
         $request['length'] = -1;
         $data = $this->booking_model->get_bookings_by_status($request, $select);
@@ -75,7 +75,15 @@ class User_invoice extends CI_Controller {
                 $invoice[0]['taxable_value'] = sprintf("%.2f", ($data[0]->amount_paid - $tax_charge));
 
                 $invoice[0]['product_or_services'] = "Service";
-                $invoice[0]['gst_number'] = $data[0]->gst_no;
+                
+                if (!empty($invoice[0]['gst_number']) 
+                    && !empty($invoice[0]['gst_status']) 
+                    && !($invoice[0]['gst_status'] == _247AROUND_CANCELLED || $invoice[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
+                    $invoice[0]['gst_number'] = $data[0]->gst_no;
+                } else {
+                    $invoice[0]['gst_number'] = "";
+                }
+
                 $invoice[0]['company_name'] = $data[0]->company_name;
                 $invoice[0]['company_address'] = $data[0]->sf_address;
                 $invoice[0]['district'] = $data[0]->sf_district;
