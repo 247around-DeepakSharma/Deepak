@@ -5871,6 +5871,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
 
 
                    $result = $this->inventory_model->call_procedure('CentralWarehouseStockMistach',"$inventory_id,$warehouse_id,$entity_id");
+                   
                 
                     
 
@@ -5908,11 +5909,9 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                 $array_service_center_msl_array_micro_wh[$incremented_key]['current_stock'] = $current_stock;
                 $array_service_center_msl_array_micro_wh[$incremented_key]['partner_name'] = $partner_name;
 
-                    $query2 = "SELECT sum(qty) as quantity FROM `invoice_details`, vendor_partner_invoices WHERE invoice_details.invoice_id = vendor_partner_invoices.invoice_id AND inventory_id = 17884  and vendor_partner_id = 1 and sub_category IN ('MSL', 'In-Warranty')
-                Union all SELECT sum(qty) as quantity FROM `invoice_details`, vendor_partner_invoices WHERE invoice_details.invoice_id = vendor_partner_invoices.invoice_id AND inventory_id = 17884  and vendor_partner_id = 1 and sub_category IN ('MSL New Part Return')  
-                union all select sum(shipped_quantity) as quantity from spare_parts_details where status!='Cancelled' and `spare_parts_details`.`partner_id` = 1 AND `spare_parts_details`.`shipped_inventory_id` =17884 AND `spare_parts_details`.`shipped_quantity` > 0 ;";
-                    $query3 = $this->db->query($query2);
-                    $result1 = $query3->result_array();
+                    
+                    
+                    $result1 = $this->inventory_model->call_procedure('MicroWarehouseStockMistach',"$inventory_id,$warehouse_id,$entity_id");
 
                     $quantity_purchased_on_msl = (!empty($result[0]['quantity'])) ? $result[0]['quantity'] : 0;
                     $array_service_center_msl_array_micro_wh[$incremented_key]['quantity_purchased_on_msl'] = $quantity_purchased_on_msl;
@@ -5964,7 +5963,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                 $data_to_insert_table['defective_part_on_warehouse'] = $value['defective_part_in_warehouse'];
                 $data_to_insert_table['defective_part_to_be_received_by_wh'] = $value['defective_part_to_be_recived_by_wh'];
                 $data_to_insert_table['total_mismatch'] = $mistatch;
-                //$this->inventory_model->insert_cwh_stock_mismatch_report($data_to_insert_table);
+                $this->inventory_model->insert_cwh_stock_mismatch_report($data_to_insert_table);
             }
         }
         //Micro Warehouse entries
