@@ -1239,6 +1239,7 @@ class Booking extends CI_Controller {
             $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_UPDATED_BY_247AROUND,$receiverArray,$notificationTextArray);
             //End Push Notification
             }
+            $this->session->set_userdata('success','Booking Cancelled');
             redirect(base_url() . DEFAULT_SEARCH_PAGE);
         } else {
             log_message('info', __FUNCTION__ . " Validation Failed Booking ID: " . $booking_id . " Done By " . $this->session->userdata('employee_id'));
@@ -1360,6 +1361,7 @@ class Booking extends CI_Controller {
                     redirect(base_url() . 'partner/dashboard');
                 }
                 else{
+                    $this->session->set_userdata('success','Booking Rescheduled Succesfully');
                    redirect(base_url() . DEFAULT_SEARCH_PAGE);
                 }
             }
@@ -1539,7 +1541,7 @@ class Booking extends CI_Controller {
         $unit_details = array();
         if(!empty($this->input->post('booking_id'))){
             $booking_id = $this->input->post('booking_id');
-            $unit_details = $this->booking_model->getunit_details($booking_id, NULL);
+            $unit_details = $this->booking_model->get_unit_details(['booking_id' => $booking_id, 'booking_status <> "Cancelled"' => NULL]);
         }
         // Array of price tags selected against booking
         $arr_selected_price_tags = [];
@@ -1613,32 +1615,21 @@ class Booking extends CI_Controller {
                 $checkboxClass = (($prices['service_category'] == REPEAT_BOOKING_TAG) ? "repeat_".$prices['product_or_services'] : $prices['product_or_services']);
                 $html .="<tr><td>" . $prices['service_category'] . "</td>";
                 // Prices should remain same if service category is not changed in case of update booking
-                $ct = $prices['customer_total'];                
-                if(isset($unit_details[0]['quantity'])){
-                    foreach ($unit_details[0]['quantity'] as  $tags) {
-                        if($tags['price_tags'] == $prices['customer_total'] ){
+                $ct = $prices['customer_total'];    
+                $partner_net_payable = $prices['partner_net_payable']; 
+                $customer_net_payable = $prices['customer_net_payable'];
+                $around_net_payable = $prices['around_net_payable'];
+                if(isset($unit_details)){
+                    foreach ($unit_details as  $tags) {
+                        if($tags['price_tags'] == $prices['service_category'] ){
                             $ct = $tags['customer_total'];
+                            $partner_net_payable = $tags['partner_net_payable'];
+                            $customer_net_payable = $tags['customer_net_payable'];
+                            $around_net_payable = $tags['around_net_payable'];  
                         }
                     }
                 }
-                $partner_net_payable = $prices['partner_net_payable'];                                                                    
-                foreach ($unit_details[0]['quantity'] as  $tags) {
-                    if($tags['price_tags'] == $prices['service_category'] ){
-                       $partner_net_payable = $tags['partner_net_payable'];
-                    }
-                }
-                $customer_net_payable = $prices['customer_net_payable'];
-                foreach ($unit_details[0]['quantity'] as  $tags) {
-                    if($tags['price_tags'] == $prices['service_category'] ){
-                        $customer_net_payable = $tags['customer_net_payable'];
-                    }
-                }
-                $around_net_payable = $prices['around_net_payable'];;
-                foreach ($unit_details[0]['quantity'] as  $tags) {
-                    if($tags['price_tags'] == $prices['service_category'] ){
-                        $around_net_payable = $tags['around_net_payable'];                   
-                    }
-                }
+                
                 if(!$is_sf_panel)
                 {
                     $html .= "<td>" . $ct . "</td>";

@@ -1446,7 +1446,7 @@ class Partner extends CI_Controller {
         $agent_id = $this->session->userdata('agent_id');
 
         $this->miscelleneous->process_cancel_form($booking_id, $status, $cancellation_reason, $historyRemarks, $agent_id, $this->session->userdata('partner_name'), $partner_id, $partner_id);
-
+         $this->session->set_userdata('success','Booking In Process Cancelled');          
         redirect(base_url() . "partner/get_user_form");
     }
 

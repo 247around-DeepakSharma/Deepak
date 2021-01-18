@@ -4152,5 +4152,16 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
+    function call_procedure($procedure_name,$data){
+        $query = $this->db->query("CALL ".$procedure_name."(".$data.")");
+        $result_array = $query->result_array();
+        $query->next_result(); 
+        $query->free_result(); 
+        return $result_array;
+    }
+    function insert_cwh_stock_mismatch_report($data) {
+      $this->db->insert('cwh_stock_mismatch_report', $data);
+      return $this->db->insert_id();
+    }
 
 }
