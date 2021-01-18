@@ -3114,17 +3114,23 @@ exit();
 
                 if ($data['vendor_partner'] == "vendor") {
                     $entity_details = $this->vendor_model->viewvendor($data['vendor_partner_id']);
-                    $gst_number = $entity_details[0]['gst_no'];
+                    
+                    
+                    if (!empty($entity_details[0]['gst_number']) 
+                    && !empty($entity_details[0]['gst_status']) 
+                    && !($entity_details[0]['gst_status'] == _247AROUND_CANCELLED || $entity_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
+                        $gst_number = $entity_details[0]['gst_no'];
+                    } else {
+                        $gst_number = "";
+                    }
+                    
+                    
                 } else {
                     $entity_details = $this->partner_model->getpartner_details("gst_number, state", array('partners.id' => $data['vendor_partner_id']));
                     $gst_number = $entity_details[0]['gst_number'];
                 }
 
-                if (empty($gst_number)) {
-                    $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = $data['sgst_tax_rate'] = $data['cgst_tax_rate'] = 0;
-                    $data['igst_tax_amount'] = $data['igst_tax_rate'] = 0;
-                }
-
+               
                 $data['total_amount_collected'] = sprintf("%.2f",($this->input->post('total_amount_charge') + $data['tds_amount']));
                 $data['rcm'] = 0;
 
@@ -3139,6 +3145,11 @@ exit();
                     $data['cgst_tax_rate'] = sprintf("%.2f",($this->input->post('total_cgst_amount')*100)/$this->input->post('total_taxablevalue'));
                     $data['sgst_tax_rate'] = sprintf("%.2f",($this->input->post('total_sgst_amount')*100)/$this->input->post('total_taxablevalue'));
                     $data['igst_tax_rate'] = $data['igst_tax_amount'] = 0;
+                }
+                
+                if (empty($gst_number)) {
+                    $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = $data['sgst_tax_rate'] = $data['cgst_tax_rate'] = 0;
+                    $data['igst_tax_amount'] = $data['igst_tax_rate'] = 0;
                 }
                  
                 switch ($data['type_code']) {
@@ -4053,7 +4064,7 @@ exit();
             log_message("info", __METHOD__ . "Receipt Inserted ".  "POST ". print_r($this->input->post(), true));
         }
     }
-    
+   
     function _process_advance_payment($agent_id, $flag = null){
         $data['partner_vendor'] = $this->input->post("partner_vendor");
         $data['partner_vendor_id'] = $this->input->post('partner_vendor_id');
@@ -4540,7 +4551,7 @@ exit();
 
                 $vendor_details = $this->vendor_model->getVendorDetails("gst_no, "
                         . "company_name,address as company_address,district,"
-                        . "state, pincode, owner_email, primary_contact_email", array('id' => $sp_data[0]->service_center_id));
+                        . "state, pincode, owner_email, primary_contact_email, gst_status", array('id' => $sp_data[0]->service_center_id));
 
                 $ptype = !(empty($sp_data[0]->shipped_parts_type)) ? $sp_data[0]->shipped_parts_type : $sp_data[0]->parts_requested_type;
                 $part_shipped = !(empty($sp_data[0]->parts_shipped)) ? $sp_data[0]->parts_shipped : $sp_data[0]->parts_requested;
@@ -4570,7 +4581,10 @@ exit();
                 $shipped_quantity = (!is_null($sp_data[0]->shipped_quantity) ? $sp_data[0]->shipped_quantity : 1);
                 $data[0]['taxable_value'] = sprintf("%.2f", ($amount - $tax_charge));
                 $data[0]['product_or_services'] = "Product";
-                if (!empty($vendor_details[0]['gst_no'])) {
+
+                if (!empty($vendor_details[0]['gst_no']) 
+                    && !empty($vendor_details[0]['gst_status']) 
+                    && !($vendor_details[0]['gst_status'] == _247AROUND_CANCELLED || $vendor_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
                     $data[0]['gst_number'] = $vendor_details[0]['gst_no'];
                 } else {
                     $data[0]['gst_number'] = 1;
@@ -4747,16 +4761,19 @@ exit();
         log_message('info', __METHOD__. " invoice data ". print_r($invoice_details, true). " Spare Data ". print_r($spare_data, TRUE));
         $vendor_details = $this->vendor_model->getVendorDetails("gst_no, "
                     . "company_name,address as company_address,district,"
-                    . "state, pincode, owner_email, primary_contact_email, sc_code, owner_phone_1", array('id' => $invoice_details[0]['vendor_partner_id']));
+                    . "state, pincode, owner_email, primary_contact_email, sc_code, owner_phone_1, gst_status", array('id' => $invoice_details[0]['vendor_partner_id']));
         $data = array();
         $shipped_quantity = (!is_null($spare_data['shipped_quantity']) ? $spare_data['shipped_quantity'] : 1);
         $data[0]['description'] = ucwords($spare_data['parts_requested']) . " (" . $spare_data['booking_id'] . ") ";
         $data[0]['product_or_services'] = "Product";
         
-        if(!empty($vendor_details[0]['gst_no'])){
+        if (!empty($vendor_details[0]['gst_no']) 
+                    && !empty($vendor_details[0]['gst_status']) 
+                    && !($vendor_details[0]['gst_status'] == _247AROUND_CANCELLED || $vendor_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
             $data[0]['gst_number'] = $vendor_details[0]['gst_no'];
             $data[0]['rate'] = sprintf("%.2f", ($invoice_details[0]['parts_cost']/$invoice_details[0]['parts_count']));
             $data[0]['taxable_value'] = sprintf("%.2f", (($invoice_details[0]['parts_cost']/$invoice_details[0]['parts_count'])*$shipped_quantity));
+            
         } else {
             $amount = $invoice_details[0]['parts_cost'] + $invoice_details[0]['cgst_tax_amount'] + $invoice_details[0]['sgst_tax_amount'] + $invoice_details[0]['igst_tax_amount']; 
             $data[0]['gst_number'] = "";
@@ -4810,13 +4827,10 @@ exit();
         if (!empty($spare_id)) {
             $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*, booking_details.partner_id as booking_partner_id, service_centres.gst_no as gst_number,service_centres.sc_code,"
                     . "service_centres.state,service_centres.address as company_address,service_centres.company_name,"
-                    . "service_centres.district, service_centres.pincode, service_centres.is_wh, spare_parts_details.is_micro_wh,owner_phone_1, spare_parts_details.shipped_quantity as shipping_quantity, service_centres.owner_email, service_centres.primary_contact_email  ", array('spare_parts_details.id' => $spare_id), TRUE, TRUE);
+                    . "service_centres.district, service_centres.pincode, service_centres.is_wh, spare_parts_details.is_micro_wh,owner_phone_1, spare_parts_details.shipped_quantity as shipping_quantity, service_centres.owner_email, service_centres.primary_contact_email, service_centres.gst_status  ", array('spare_parts_details.id' => $spare_id), TRUE, TRUE);
             if (!empty($spare)) {
                 if ($spare[0]['is_micro_wh'] == 1 && ($spare[0]['partner_id'] == $spare[0]['service_center_id'])) {
                     if (!empty($spare[0]['shipped_inventory_id'])) {
-                        if (empty($spare[0]['gst_number'])) {
-                           // $spare[0]['gst_number'] = TRUE;
-                        }
                         $invoice_id = $this->invoice_lib->create_invoice_id($spare[0]['sc_code']);
                         $spare[0]['spare_id'] = $spare_id;
                         $spare[0]['inventory_id'] = $spare[0]['shipped_inventory_id'];
@@ -4847,10 +4861,12 @@ exit();
                                     $data[0]['district'] = $spare[0]['district'];
                                     $data[0]['pincode'] = $spare[0]['pincode'];
                                     $data[0]['state'] = $spare[0]['state'];
-                                    if(empty($spare[0]['gst_number'])){
-                                        $data[0]['rate'] =  $value['rate'] + ($value['rate'] * $value['gst_rate']/100);
-                                        $data[0]['taxable_value'] = ( $data[0]['rate'] * $value['qty']);
-                                        
+                                    
+                                    if (!empty($spare[0]['gst_number']) 
+                                        && !empty($spare[0]['gst_status']) 
+                                        && !($spare[0]['gst_status'] == _247AROUND_CANCELLED || $spare[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
+                                            $data[0]['rate'] =  $value['rate'] + ($value['rate'] * $value['gst_rate']/100);
+                                            $data[0]['taxable_value'] = ( $data[0]['rate'] * $value['qty']);
                                     } else {
                                         $data[0]['taxable_value'] = $value['rate'] * $value['qty'];
                                         $data[0]['rate'] = $value['rate'];
@@ -5520,8 +5536,9 @@ exit();
 
                 $entity_details = $this->vendor_model->getVendorDetails("gst_no as gst_number, sc_code,"
                         . "state,address as company_address,company_name,district, pincode, gst_status", array("id" => $data['vendor_partner_id']));
-                
-                if (!empty($entity_details[0]['gst_number']) && !empty($entity_details[0]['gst_status']) && ($entity_details[0]['gst_status'] != _247AROUND_CANCELLED)) {
+                if (!empty($entity_details[0]['gst_number']) 
+                                        && !empty($entity_details[0]['gst_status']) 
+                                        && !($entity_details[0]['gst_status'] == _247AROUND_CANCELLED || $entity_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
                 
                 } else {
                     $entity_details[0]['gst_number'] = "";
