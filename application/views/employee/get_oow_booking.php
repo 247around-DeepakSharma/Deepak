@@ -58,7 +58,7 @@
 </div>
 <script>
     $(document).ready(function () {
-            $("#datatable1_filter").hide();
+          //  $("#datatable1_filter").hide();
             
             <?php $data = array( 'status' => SPARE_OOW_EST_REQUESTED);
         ?>
@@ -70,6 +70,7 @@
              oow_spare = $('#datatable1').DataTable({
                 "processing": true, //Feature control the processing indicator.
                 "serverSide": true, //Feature control DataTables' server-side processing mode.
+                "searchable":true,
                 "order": [], //Initial no order.
                 "pageLength": 50,
                 "lengthMenu": [[10, 25, 50,100, -1], [10, 25, 50, 100,"All"]],
@@ -85,8 +86,7 @@
                            modifier : {
                                 // DataTables core
                                 order : 'index',  // 'current', 'applied', 'index',  'original'
-                               page : 'All',      // 'all',     'current'
-                                search : 'none'     // 'none',    'applied', 'removed'
+                               page : 'All'    // 'none',    'applied', 'removed'
                             }
                        }
 
@@ -109,7 +109,7 @@
                     }
                 ],
                "fnInitComplete": function (oSettings, response) {
-                 $("#datatable1_filter").hide();
+               //  $("#datatable1_filter").hide();
               }
                 
             });
@@ -235,3 +235,9 @@
        
         
 </script>
+<style>
+    .dataTables_filter{
+            float: right;
+
+    }
+    </style>

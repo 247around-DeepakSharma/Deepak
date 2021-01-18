@@ -849,7 +849,7 @@ class File_upload extends CI_Controller {
             $action_entity_id = $this->session->userdata('partner_id');
             $agent_type = _247AROUND_PARTNER_STRING;
         }
-        
+
         $file_data = array();
         $file_data['invoice_file'] = array(
             'name' => $_FILES['invoice_file']['name'],
@@ -867,7 +867,7 @@ class File_upload extends CI_Controller {
             'size' => $_FILES['courier_file']['size']
         );
 
-        
+
         $sheetUniqueRowData = array();
         //$file_appliance_arr = array();
         //column which must be present in the  upload inventory file
@@ -893,46 +893,57 @@ class File_upload extends CI_Controller {
             $invoice_price = 0;
             $invoice_price_with_gst = 0;
             $uniqu_part_number_arr = array();
-            $parts_list = array();  
+            $parts_list = array();
             for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                 $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
                 $sanitizes_row_data = array_map('trim', $rowData_array[0]);
                 if (!empty(array_filter($sanitizes_row_data))) {
                     $rowData = array_combine($data['header_data'], $rowData_array[0]);
-                    
+
                     if (!in_array($rowData['part_code'], $uniqu_part_number_arr)) {
                         array_push($uniqu_part_number_arr, $rowData['part_code']);
 
                         if (!empty($rowData['appliance']) && !empty($rowData['part_code']) && !empty($rowData['quantity']) && !empty($rowData['basic_price']) && !empty($rowData['hsn_code']) && !empty($rowData['gst_rate'])) {
 
-                            $select = 'services.services, inventory_master_list.inventory_id, inventory_master_list.service_id, inventory_master_list.part_number, inventory_master_list.part_name, inventory_master_list.description, inventory_master_list.size, inventory_master_list.price, inventory_master_list.type, inventory_master_list.oow_vendor_margin, inventory_master_list.oow_around_margin, inventory_master_list.entity_id, inventory_master_list.entity_type, inventory_master_list.hsn_code, inventory_master_list.gst_rate';
+                            $appliance_list = $this->inventory_model->get_generic_table_details("services", 'services.id, services.services', array("services.services" => strtolower($rowData['appliance'])), FALSE);
 
-                            $part_details = $this->inventory_model->get_inventory_without_model_mapping_data($select, array('inventory_master_list.part_number' => $rowData['part_code'], 'inventory_master_list.entity_id' => $this->input->post("partner_id"), 'inventory_master_list.entity_type' => _247AROUND_PARTNER_STRING), array());
-                           
+                            if (empty($appliance_list)) {
+                                $error_type = "Appliance not found in our system.";
+                                $error_array[] = $error_type;
+                                $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
+                            }
+
+                            if (!empty($appliance_list)) {
+                                $select = 'services.services, inventory_master_list.inventory_id, inventory_master_list.service_id, inventory_master_list.part_number, inventory_master_list.part_name, inventory_master_list.description, inventory_master_list.size, inventory_master_list.price, inventory_master_list.type, inventory_master_list.oow_vendor_margin, inventory_master_list.oow_around_margin, inventory_master_list.entity_id, inventory_master_list.entity_type, inventory_master_list.hsn_code, inventory_master_list.gst_rate';
+                                $part_details = $this->inventory_model->get_inventory_without_model_mapping_data($select, array('inventory_master_list.part_number' => $rowData['part_code'], 'inventory_master_list.entity_id' => $this->input->post("partner_id"), 'inventory_master_list.entity_type' => _247AROUND_PARTNER_STRING, "inventory_master_list.service_id" => $appliance_list[0]['id']), array());
+                            } else {
+                                $part_details = array();
+                            }
+
                             if (empty($part_details)) {
                                 $error_type = "Part not found in inventory";
                                 $error_array[] = $error_type;
                                 $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
                             }
-                            
+
                             if (!empty($part_details) && strcasecmp($part_details[0]['services'], $rowData['appliance']) != 0) {
                                 $error_type = "Appliance name mismatch as our system";
                                 $error_array[] = $error_type;
                                 $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
                             }
-                                                       
+
                             if (!empty($part_details) && $part_details[0]['price'] != $rowData['basic_price']) {
                                 $error_type = "Basic price details mismatch";
                                 $error_array[] = $error_type;
                                 $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
                             }
-                                                                                    
+
                             if (!in_array($rowData['gst_rate'], GST_NUMBERS_LIST)) {
                                 $error_type = "GST rate mismatch according to slab.";
                                 $error_array[] = $error_type;
                                 $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
                             }
-                           
+
                             if (!empty($part_details) && $part_details[0]['gst_rate'] != $rowData['gst_rate']) {
                                 $error_type = "GST details mismatch";
                                 $error_array[] = $error_type;
@@ -977,34 +988,33 @@ class File_upload extends CI_Controller {
                                     'gst_rate' => $rowData['gst_rate'],
                                     'inventory_id' => $part_details[0]['inventory_id'],
                                 );
-                                
-                               $invoice_price = round(($part_details[0]['price'] * $rowData['quantity']), 2);
-                               $invoice_price_with_gst = ($invoice_price_with_gst + ($invoice_price + (($invoice_price * $rowData['gst_rate']) / 100)));
+
+                                $invoice_price = round(($part_details[0]['price'] * $rowData['quantity']), 2);
+                                $invoice_price_with_gst = ($invoice_price_with_gst + ($invoice_price + (($invoice_price * $rowData['gst_rate']) / 100)));
                             }
                         }
-                        } else {
-                            $error_type = "Error in header Or excel value should not be null.";
-                            $error_array[] = $error_type;
-                            $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
-                        }
                     } else {
-                        $error_type = "Duplicate part number not allowed ".$rowData['part_code'];
+                        $error_type = "Error in header Or excel value should not be null.";
                         $error_array[] = $error_type;
                         $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
-                    }                   
-                    
+                    }
+                } else {
+                    $error_type = "Duplicate part number not allowed " . $rowData['part_code'];
+                    $error_array[] = $error_type;
+                    $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
                 }
-                
+            }
+
             $post_data['appliance']['is_wh_micro'] = $this->input->post("is_wh_micro");
             $post_data['appliance']['dated'] = date('Y-m-d H:i:s');
             $post_data['appliance']['invoice_id'] = $this->input->post("invoice_id");
-            
-            if(!empty($this->input->post('tcs_rate'))){
-              $tcs_rate = $this->input->post('tcs_rate');  
-            }else{
-             $tcs_rate = 0;    
+
+            if (!empty($this->input->post('tcs_rate'))) {
+                $tcs_rate = $this->input->post('tcs_rate');
+            } else {
+                $tcs_rate = 0;
             }
-            
+
             $tcs_rate_value = (round(($invoice_price_with_gst), 2) * $tcs_rate / 100);
             $invoice_value = (round(($invoice_price_with_gst), 2) + $tcs_rate_value);
             $post_data['appliance']['invoice_amount'] = round(($invoice_value), 2);
@@ -1074,17 +1084,16 @@ class File_upload extends CI_Controller {
                 $session['user_source'] = $this->session->userdata("user_source");
                 $session['warehouse_id'] = $this->session->userdata("warehouse_id");
             }
-            
+
             $post_data['appliance']['session'] = $session;
-            
         } else {
             $error_type = "Excel header is Incorrect.";
             $error_array[] = $error_type;
             $this->table->add_row($error_type);
         }
-        
+
         $err_msg = $this->table->generate();
-          
+
         if (empty($error_array)) {
             if (!empty($post_data)) {
                 $post_json = json_encode($post_data['appliance'], true);
@@ -1098,9 +1107,9 @@ class File_upload extends CI_Controller {
                 $response1 = curl_exec($ch);
                 curl_close($ch);
             }
-            
+
             echo $response1;
-           
+
             $response['status'] = TRUE;
             $response['message'] = $err_msg;
             $response['bulk_msl'] = TRUE;
@@ -1110,7 +1119,6 @@ class File_upload extends CI_Controller {
             } else {
                 $response['redirect_to'] = 'employee/inventory/upload_msl_excel_file';
             }
-            
         } else {
             $response['status'] = FALSE;
             $response['message'] = $err_msg;
@@ -1130,10 +1138,8 @@ class File_upload extends CI_Controller {
         }
 
         return $response;
-        
     }
-    
-       
+
     /**
 
      * @desc: This function is used to validate upload file header, courier serviceable area.
