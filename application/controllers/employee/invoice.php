@@ -6655,7 +6655,10 @@ exit();
                     //checking if reverse sale invoice is already created or not and request for valid spare part is made  
                     foreach ($spare_lost_data as $value) {
                         if (!empty($value['sell_invoice_id']) && empty($value['reverse_sale_invoice_id'])) {
-                            $invoice_details = $this->invoices_model->get_unsettle_inventory_invoice("vendor_partner_invoices.vendor_partner_id, invoice_details.qty as parts_count, invoice_details.taxable_value as parts_cost, invoice_details.cgst_tax_rate, invoice_details.sgst_tax_rate, invoice_details.igst_tax_rate, invoice_details.invoice_id", array('invoice_details.invoice_id' => $value['sell_invoice_id'], 'invoice_details.spare_id' => $spare_id));
+                            $invoice_details = $this->invoices_model->get_unsettle_inventory_invoice("vendor_partner_invoices.vendor_partner_id, invoice_details.qty as parts_count, "
+                                    . "invoice_details.taxable_value as parts_cost, invoice_details.cgst_tax_rate, invoice_details.sgst_tax_rate, "
+                                    . "invoice_details.igst_tax_rate, invoice_details.invoice_id, "
+                                    . "invoice_details.cgst_tax_amount,invoice_details.sgst_tax_amount,invoice_details.igst_tax_amount ", array('invoice_details.invoice_id' => $value['sell_invoice_id'], 'invoice_details.spare_id' => $spare_id));
                             if (!empty($invoice_details)) {
                                 //invoice details found
                                 $invoice_details[0]['booking_id'] = $value['booking_id'];
