@@ -5692,5 +5692,316 @@ class Spare_parts extends CI_Controller {
             echo json_encode(array('status' => 'success'));
         }
     }
+   /*
+     * @desc: This Function is used to get inventory stock mismatch form
+     * @param: void
+     * @return : json
+     */
+    function msl_summary_report_form($spare_id=''){
+        $this->checkUserSession();       
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/msl_summary_report_form',array()); 
+    }
+    
+    /*
+     * @desc: This Function is used to generate inventory stock mismatch form
+     * @param: void
+     * @return : json
+     */
+    
+    function msl_summary_report($spare_id = '') {
+        
+        set_time_limit(0);
+        if (!empty($_POST['partner_id'])) {
+            $partner_id = $_POST['partner_id'];
+            $wh_id = $_POST['wh_id'];
+            $this->checkUserSession();
+        }
+        //$wh_id = 15;
+        //Get list of All Central warehouse
+        $select = "service_centres.id,service_centres.name,service_centres.is_wh";
+        $post['where']['(service_centres.is_wh = 1 or service_centres.is_micro_wh = 1)'] = null;
+        $post['where']['service_centres.active'] = 1;
+        if (!empty($wh_id)) {
+            $post['where']['service_centres.id'] = $wh_id;
+        }
+        $post['length'] = -1;
+        $list = $this->vendor_model->viewallvendor($post, $select);
+        $array_service_center_msl_array = array();
+        $array_service_center_msl_array_micro_wh = array();
+        $incremented_key = 0;
+        foreach ($list as $key => $value) {
+
+            $is_wh = $value['is_wh'];
+
+            $service_center_id = $value['id'];
+            $post['where']['inventory_stocks.entity_id'] = $service_center_id;
+            if (!empty($partner_id)) {
+                $post['where']['inventory_master_list.entity_id'] = $partner_id;
+            }
+            if (!empty($spare_id)) {
+                $spare_id = str_replace('-', ',', $spare_id);
+                $post['where']["inventory_master_list.inventory_id in ($spare_id)"] = null;
+            }
+            //$post['length'] = 1;
+            //$post['start'] = 0;
+            $post['order'][0]['column'] = 0;
+            $post['order'][0]['dir'] = 'DESC';
+            $post['column_order'][0] = 'inventory_master_list.entity_id';
+            $select = "inventory_master_list.inventory_id,inventory_master_list.part_name,inventory_master_list.entity_id,inventory_master_list.part_number,inventory_stocks.stock,inventory_stocks.pending_request_count,services.services,inventory_stocks.entity_id as receiver_entity_id,inventory_stocks.entity_type as receiver_entity_type";
+            $get_stock_detail = $this->inventory_model->get_inventory_stock_list($post, $select);
+            //echo count($get_stock_detail);exit;
+
+            foreach ($get_stock_detail as $stock_key => $stock_value) {
+                $inventory_id = $stock_value->inventory_id;
+                $part_name = $stock_value->part_name;
+                $part_number = $stock_value->part_number;
+                $entity_id = $stock_value->entity_id;
+                $current_stock = $stock_value->stock;
+                $incremented_key = $incremented_key + 1;
+
+                $partner_array = $this->partner_model->getpartner($entity_id, false);
+                $partner_name = '';
+                if (!empty($partner_array)) {
+                    $partner_name = $partner_array[0]['public_name'];
+                }
+
+               
+
+                //Condition for purchase quantity               
+                $warehouse_id = $value['id'];
+                
+
+                if (!empty($is_wh)) {
+                    
+                     $array_service_center_msl_array[$incremented_key]['service_center_name'] = $value['name'];
+                $array_service_center_msl_array[$incremented_key]['service_center_id'] = $value['id'];
+                $array_service_center_msl_array[$incremented_key]['inventory_id'] = $inventory_id;
+                $array_service_center_msl_array[$incremented_key]['part_name'] = $part_name;
+                $array_service_center_msl_array[$incremented_key]['part_number'] = $part_number;
+                $array_service_center_msl_array[$incremented_key]['entity_id'] = $entity_id;
+                $array_service_center_msl_array[$incremented_key]['current_stock'] = $current_stock;
+                $array_service_center_msl_array[$incremented_key]['partner_name'] = $partner_name;
+                //$array_service_center_msl_array[$incremented_key]['partner_id'] = $entity_id;
+
+
+                   $result = $this->inventory_model->call_procedure('CentralWarehouseStockMistach',"$inventory_id,$warehouse_id,$entity_id");
+                
+                    
+
+                    $stock_purchase_quantity = (!empty($result[0]['quantity'])) ? $result[0]['quantity'] : 0;
+
+                    $array_service_center_msl_array[$incremented_key]['stock_purchase_quantity'] = $stock_purchase_quantity;
+
+                    $wharehouse_to_service_center_shipped_quantity_with_consumption = (!empty($result[1]['quantity'])) ? $result[1]['quantity'] : 0;
+                    $wharehouse_to_service_center_shipped_quantity_without_consumption = (!empty($result[2]['quantity'])) ? $result[2]['quantity'] : 0;
+                    $wharehouse_to_service_center_shipped_quantity = $wharehouse_to_service_center_shipped_quantity_with_consumption + $wharehouse_to_service_center_shipped_quantity_without_consumption;
+                    $array_service_center_msl_array[$incremented_key]['wharehouse_to_service_center_shipped_quantity'] = $wharehouse_to_service_center_shipped_quantity;
+
+                    $stock_send_to_sf_on_msl = (!empty($result[3]['quantity'])) ? $result[3]['quantity'] : 0;
+                    $array_service_center_msl_array[$incremented_key]['stock_send_to_sf_on_msl'] = $stock_send_to_sf_on_msl;
+
+                    $stock_received_by_wh_on_msl = (!empty($result[4]['quantity'])) ? $result[4]['quantity'] : 0;
+                    $array_service_center_msl_array[$incremented_key]['stock_received_by_wh_on_msl'] = $stock_received_by_wh_on_msl;
+
+                    $stock_wh_to_partner = (!empty($result[5]['quantity'])) ? $result[5]['quantity'] : 0;
+                    $array_service_center_msl_array[$incremented_key]['stock_wh_to_partner'] = $stock_wh_to_partner;
+
+                    $defective_part_to_be_recived_by_wh = (!empty($result[6]['quantity'])) ? $result[6]['quantity'] : 0;
+                    $array_service_center_msl_array[$incremented_key]['defective_part_to_be_recived_by_wh'] = $defective_part_to_be_recived_by_wh;
+
+                    $defective_part_in_warehouse = (!empty($result[7]['quantity'])) ? $result[7]['quantity'] : 0;
+                    $array_service_center_msl_array[$incremented_key]['defective_part_in_warehouse'] = $defective_part_in_warehouse;
+                } else {
+                        
+                    $array_service_center_msl_array_micro_wh[$incremented_key]['service_center_name'] = $value['name'];
+                $array_service_center_msl_array_micro_wh[$incremented_key]['service_center_id'] = $value['id'];
+                $array_service_center_msl_array_micro_wh[$incremented_key]['inventory_id'] = $inventory_id;
+                $array_service_center_msl_array_micro_wh[$incremented_key]['part_name'] = $part_name;
+                $array_service_center_msl_array_micro_wh[$incremented_key]['part_number'] = $part_number;
+                $array_service_center_msl_array_micro_wh[$incremented_key]['entity_id'] = $entity_id;
+                $array_service_center_msl_array_micro_wh[$incremented_key]['current_stock'] = $current_stock;
+                $array_service_center_msl_array_micro_wh[$incremented_key]['partner_name'] = $partner_name;
+
+                    $query2 = "SELECT sum(qty) as quantity FROM `invoice_details`, vendor_partner_invoices WHERE invoice_details.invoice_id = vendor_partner_invoices.invoice_id AND inventory_id = 17884  and vendor_partner_id = 1 and sub_category IN ('MSL', 'In-Warranty')
+                Union all SELECT sum(qty) as quantity FROM `invoice_details`, vendor_partner_invoices WHERE invoice_details.invoice_id = vendor_partner_invoices.invoice_id AND inventory_id = 17884  and vendor_partner_id = 1 and sub_category IN ('MSL New Part Return')  
+                union all select sum(shipped_quantity) as quantity from spare_parts_details where status!='Cancelled' and `spare_parts_details`.`partner_id` = 1 AND `spare_parts_details`.`shipped_inventory_id` =17884 AND `spare_parts_details`.`shipped_quantity` > 0 ;";
+                    $query3 = $this->db->query($query2);
+                    $result1 = $query3->result_array();
+
+                    $quantity_purchased_on_msl = (!empty($result[0]['quantity'])) ? $result[0]['quantity'] : 0;
+                    $array_service_center_msl_array_micro_wh[$incremented_key]['quantity_purchased_on_msl'] = $quantity_purchased_on_msl;
+
+
+                    $quantity_new_part_return_on_msl = (!empty($result[1]['quantity'])) ? $result[1]['quantity'] : 0;
+                    $array_service_center_msl_array_micro_wh[$incremented_key]['quantity_new_part_return_on_msl'] = $quantity_new_part_return_on_msl;
+
+                    $msl_consumed_on_booking = (!empty($result[2]['quantity'])) ? $result[2]['quantity'] : 0;
+                    $array_service_center_msl_array_micro_wh[$incremented_key]['msl_consumed_on_booking'] = $msl_consumed_on_booking;
+                }
+            }
+        }
+        // print_r($array_service_center_msl_array);
+        $data = array();
+        $key_id = 0;
+
+        foreach ($array_service_center_msl_array as $key => $value) {
+            $expected_quantity = ($value['stock_purchase_quantity'] - $value['wharehouse_to_service_center_shipped_quantity'] - $value['stock_send_to_sf_on_msl'] + $value['stock_received_by_wh_on_msl'] - $value['stock_wh_to_partner']);
+            $mistatch = ($value['current_stock'] - $value['stock_purchase_quantity'] + $value['wharehouse_to_service_center_shipped_quantity'] + $value['stock_send_to_sf_on_msl'] - $value['stock_received_by_wh_on_msl'] + $value['stock_wh_to_partner']);
+            $data[$key] = array(
+                'key_id' => ++$key_id,
+                'service_center_name' => $value['service_center_name'],
+                'part_name' => $value['part_name'],
+                'part_number' => $value['part_number'],
+                'partner_name' => $value['partner_name'],
+                'current_stock' => $value['current_stock'],
+                'defective_part_in_warehouse' => $value['defective_part_in_warehouse'],
+                'stock_purchase_quantity' => $value['stock_purchase_quantity'],
+                'wharehouse_to_service_center_shipped_quantity' => $value['wharehouse_to_service_center_shipped_quantity'],
+                'stock_send_to_sf_on_msl' => $value['stock_send_to_sf_on_msl'],
+                'stock_received_by_wh_on_msl' => $value['stock_received_by_wh_on_msl'],
+                'stock_wh_to_partner' => $value['stock_wh_to_partner'],
+                'defective_part_to_be_recived_by_wh' => $value['defective_part_to_be_recived_by_wh'],
+                'expected_quantity' => $expected_quantity,
+                'mistatch' => $mistatch
+            );
+            if (empty($this->session->userdata['user_group'])) {
+                $data_to_insert_table = array();
+                $data_to_insert_table['service_center_id'] = $value['service_center_id'];
+                $data_to_insert_table['entity_id'] = $value['entity_id'];
+                $data_to_insert_table['inventory_id'] = $value['inventory_id'];
+                $data_to_insert_table['current_stock'] = $value['current_stock'];
+                $data_to_insert_table['purchased_quantity'] = $value['stock_purchase_quantity'];
+                $data_to_insert_table['wh_to_sf_on_booking'] = $value['wharehouse_to_service_center_shipped_quantity'];
+                $data_to_insert_table['wh_to_sf_on_msl'] = $value['stock_send_to_sf_on_msl'];
+                $data_to_insert_table['wh_received_on_msl_from_sf'] = $value['stock_received_by_wh_on_msl'];
+                $data_to_insert_table['wh_to_partner'] = $value['stock_wh_to_partner'];
+                $data_to_insert_table['defective_part_on_warehouse'] = $value['defective_part_in_warehouse'];
+                $data_to_insert_table['defective_part_to_be_received_by_wh'] = $value['defective_part_to_be_recived_by_wh'];
+                $data_to_insert_table['total_mismatch'] = $mistatch;
+                //$this->inventory_model->insert_cwh_stock_mismatch_report($data_to_insert_table);
+            }
+        }
+        //Micro Warehouse entries
+        $key_id_micro = 0;
+        $data_micro = array();
+        
+        foreach ($array_service_center_msl_array_micro_wh as $key => $value) {
+            $data_micro[$key] = array(
+                'key_id' => ++$key_id_micro,
+                'service_center_name' => $value['service_center_name'],
+                'part_name' => $value['part_name'],
+                'part_number' => $value['part_number'],
+                'partner_name' => $value['partner_name'],
+                'current_stock' => $value['current_stock'],
+                'quantity_purchased_on_msl' => $value['quantity_purchased_on_msl'],
+                'quantity_new_part_return_on_msl' => $value['quantity_new_part_return_on_msl'],
+                'msl_consumed_on_booking' => $value['msl_consumed_on_booking'],
+            );
+        }
+
+        if (!empty($data)) {
+            $template = 'cwh_stock_mismatch_report.xlsx';
+            $templateDir = __DIR__ . "/../excel-templates/";
+            $config = array(
+                'template' => $template,
+                'templateDir' => $templateDir
+            );
+            //load template
+            if (ob_get_length() > 0) {
+                ob_end_clean();
+            }
+            $R = new PHPReport($config);
+
+            $R->load(array(
+                'id' => 'stock',
+                'repeat' => TRUE,
+                'data' => $data
+            ));
+            $output_file_dir = TMP_FOLDER;
+            $output_file = "cwh_stock_mismatch_report_" . date('y-m-d') . '_' . strtotime(date('Y-m-d H:i:s'));
+            $output_file_name = $output_file . ".xls";
+            $output_file_excel = $output_file_dir . $output_file_name;
+            $R->render('excel2003', $output_file_excel);
+            if (!empty($this->session->userdata['user_group'])) {
+
+                $this->load->helper('download');
+                $data = file_get_contents($output_file_excel);
+                unlink($output_file_excel);
+                force_download($output_file_name, $data);
+            } else {
+
+                $email_template = $this->booking_model->get_booking_email_template('cwh_msl_stock_mismatch_report');
+                if (!empty($email_template)) {
+                    $subject = $email_template[4];
+                    $message = $email_template[0];
+                    $email_from = $email_template[2];
+
+                    $to = $email_template[1];
+                    $cc = $email_template[3];
+                    $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, $output_file_excel, 'cwh_msl_stock_mismatch_report');
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = 'stock/';
+                    $file_upload_to_s3 = $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls . $output_file_name, S3::ACL_PUBLIC_READ);
+                    //unlink($output_file_excel);
+                }
+            }
+        }
+
+
+        if (!empty($data_micro)) {
+            $template = 'mwh_stock_mismatch_report.xlsx';
+            $templateDir = __DIR__ . "/../excel-templates/";
+            $config = array(
+                'template' => $template,
+                'templateDir' => $templateDir
+            );
+            //load template
+            if (ob_get_length() > 0) {
+                ob_end_clean();
+            }
+            $R = new PHPReport($config);
+
+            $R->load(array(
+                'id' => 'stock',
+                'repeat' => TRUE,
+                'data' => $data_micro
+            ));
+            $output_file_dir = TMP_FOLDER;
+            $output_file = "mwh_stock_mismatch_report_" . date('y-m-d') . '_' . strtotime(date('Y-m-d H:i:s'));
+            $output_file_name = $output_file . ".xls";
+            $output_file_excel = $output_file_dir . $output_file_name;
+            $R->render('excel2003', $output_file_excel);
+            if (!empty($this->session->userdata['user_group'])) {
+
+                $this->load->helper('download');
+                $data = file_get_contents($output_file_excel);
+                unlink($output_file_excel);
+                force_download($output_file_name, $data);
+            } else {
+
+                $email_template = $this->booking_model->get_booking_email_template('mwh_msl_stock_mismatch_report');
+                if (!empty($email_template)) {
+                    $subject = $email_template[4];
+                    $message = $email_template[0];
+                    $email_from = $email_template[2];
+
+                    $to = $email_template[1];
+                    $cc = $email_template[3];
+                    $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, $output_file_excel, 'mwh_msl_stock_mismatch_report');
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = 'stock/';
+                    $file_upload_to_s3 = $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls . $output_file_name, S3::ACL_PUBLIC_READ);
+                    //unlink($output_file_excel);
+                }
+            }
+        }
+        if(empty($data) && empty($data_micro)){
+           $this->session->set_flashdata('error',' No data found to download.'); 
+        }
+        if (!empty($this->session->userdata['user_group'])) {
+            redirect(base_url() . 'employee/spare_parts/msl_summary_report_form');
+        }
+    }
 
 }
