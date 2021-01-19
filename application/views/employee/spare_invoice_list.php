@@ -2,10 +2,10 @@
 <div id="page-wrapper" >
     <div class="col-md-12" style="border-bottom: 1px solid #ccc; margin-bottom: 30px;">
         <div class="col-md-6">
-            <h2 class="page-header" style="border: none;">Spare Invoice List</h2>
+            <?php if(empty($dashboard)){ ?><h2 class="page-header" style="border: none;">Spare Invoice List</h2><?php } ?>
         </div>
         <div class="col-md-6">
-            <button onclick="open_create_invoice_form()" style="margin-top: 45px;float: right;" class="btn btn-md btn-primary" id="btn_create_invoice" name="btn_create_invoice">create</button>
+            <button onclick="open_create_invoice_form()" style="<?php if(empty($dashboard)){ ?>margin-top: 45px;<?php } ?>float: right;" class="btn btn-md btn-primary" id="btn_create_invoice" name="btn_create_invoice">create</button>
         </div>
     </div>
     <div class="col-md-12">
@@ -70,7 +70,7 @@
                     <?php } ?>
                     </td>
                     <td><?php if(!empty($value->sell_invoice_id)){ echo $value->sell_invoice_id; } else { ?>
-                        <a href="<?php echo base_url();?>employee/invoice/generate_oow_parts_invoice/<?php echo $value->id; ?>" id="btn_sell_invoice_<?php echo $value->id; ?>" onclick="disable_btn(this.id)" class="btn btn-md btn-success">Generate Sale Invoice</a>
+                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#reverse_sale_invoice_model" onclick="$('#reverse_sale_id').val(<?php echo $value->id; ?>);$('#remarks_revese_sale').val('');$('#remarks_revese_sale').css('border','');">Generate Sale Invoice</button>
                     <?php } ?></td>
                     <td><input type="checkbox" class="form-control spare_id" name="spare_id[]" data-partner_id="<?php echo $value->booking_partner_id; ?>" data-invoice_id ="<?php echo $value->invoice_id?>" data-spare_id="<?php echo $value->id; ?>" value="<?php echo $value->id; ?>" /></td>
                 </tr>
@@ -123,9 +123,111 @@
     </div>
 </div>
 </div>
+<div id="reverse_sale_invoice_model" class="modal fade" role="dialog"  data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog">
 
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close close_button_generate_invoice" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Generate Sale Invoice</h4>
+      </div>
+      <div class="modal-body">
+          <label>Please Enter Remarks</label>
+          <textarea id='remarks_revese_sale' class='form-control' style='height:100px;resize:none' onkeyup="$('#remarks_revese_sale').css('border','');"></textarea>
+        <input id='reverse_sale_id' class='form_control' type='hidden'>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" onclick="generate_sale_invoice()" id='generate_sale_invoice'>Generate Sale Invoice</button>
+        <button type="button" class="btn btn-default close_button_generate_invoice" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+<?php
+if(!empty($dashboard)){
+?>
 <script>
+    $(document).ready(function () {
+        $('#invoice_table').DataTable({
+            "processing": true,
+            "serverSide": false,
+            "dom": 'lBfrtip',
+            "buttons": [
+            ],
+            "order": [],
+            "ordering": true,
+            "deferRender": true,
+            //"searching": false,
+            //"paging":false
+            "aLengthMenu": [[10, 20, 50, 100, -1], [10, 20, 50, 100, 'All']],
+            "pageLength": 20,
+            "language": {
+                "emptyTable": "No Data Found",
+                "searchPlaceholder": "Search by any column."
+            },
+        });
+    });
+    $(function() {
+        $('#invoice_date').daterangepicker({
+        singleDatePicker: true,
+        showDropdowns: true,
+        minYear: 1901,
+        maxYear: parseInt(moment().format('YYYY'),10),
+        locale: {
+          format: 'YYYY-MM-D'
+        }
+        });
+    });
+   </script>
+<?php
+}
+else{
+?>
+   <script>
     $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
+    </script>
+  <?php
+}
+?>
+   <script>
+   
+    function generate_sale_invoice(){
+        var remarks_revese_sale = $("#remarks_revese_sale").val();
+        remarks_revese_sale = remarks_revese_sale.trim();
+        var reverse_sale_id = $("#reverse_sale_id").val();
+        var flag = true;
+        $("#remarks_revese_sale").css('border','');
+        if(flag){
+            var url = "<?php echo base_url(); ?>employee/invoice/generate_oow_parts_invoice/"+reverse_sale_id;
+            var dashboard = "<?php if(!empty($dashboard)){ echo 'dashboard'; }?>";
+            $.ajax({
+                 method:'POST',
+                 dataType: "json",
+                 url:url,
+                 data: { remarks_revese_sale : remarks_revese_sale },
+                 beforeSend: function(){
+                     $("#generate_sale_invoice").html("Generate Sale Invoice... <i class='fa fa-spinner fa-spin' aria-hidden='true'></i>");
+                     $("#generate_sale_invoice").css('pointer-events','none');
+                     $("#generate_sale_invoice").css('opacity','.6');
+                     $(".close_button_generate_invoice").css('pointer-events','none');
+                 },
+                 complete: function(data){
+                     alert('Invoice Generated Successfully');
+                     $("#generate_sale_invoice").html("Generate Sale Invoice");
+                     $("#generate_sale_invoice").css('pointer-events','');
+                     $("#generate_sale_invoice").css('opacity','');
+                     $(".close_button_generate_invoice").css('pointer-events','');
+                     if(dashboard==''){
+                            location.reload();
+                        }else{
+                            bring_generate_sale_invoice_view();
+                        }
+                 }
+            });
+        }
+    }
 
  function open_create_invoice_form(){
         $('#btn_create_invoice').attr('disabled',true);
@@ -248,6 +350,7 @@
                     
     
          var fd = new FormData(document.getElementById("purchase_invoice_form"));
+         var dashboard = "<?php if(!empty($dashboard)){ echo 'dashboard'; }?>";
              fd.append("label", "WEBUPLOAD");
                 $.ajax({
                  type: "POST",
@@ -279,7 +382,11 @@
                         $("#hsn_code").val("");
                         $("#remarks").val("");
                         swal("Thanks!", "Booking updated successfully!", "success");
-                        location.reload();
+                        if(dashboard==''){
+                            location.reload();
+                        }else{
+                            bring_generate_sale_invoice_view();
+                        }
     
                      } else {
                          swal("Oops", data, "error");

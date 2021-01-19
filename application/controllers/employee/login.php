@@ -33,10 +33,10 @@ class Login extends CI_Controller {
      * Index Page for this controller.
      *
      * Maps to the following URL
-     * 		http://example.com/index.php/welcome
-     * 	- or -
-     * 		http://example.com/index.php/welcome/index
-     * 	- or -
+     *      http://example.com/index.php/welcome
+     *  - or -
+     *      http://example.com/index.php/welcome/index
+     *  - or -
      * Since this controller is set as the default controller in
      * config/routes.php, it's displayed at http://example.com/
      *
@@ -553,18 +553,18 @@ class Login extends CI_Controller {
      * @return: void
      */
     function setVendorSession($service_center_id, $service_center_name, $sc_agent_id, $update, $is_upcountry,$sf, $cp,$wh,$wh_name,$is_gst_doc,$engineer, $municipal_limit, $is_micro_wh, $is_login_by_247=1,$poc_email,$agent_name) {
-	$userSession = array(
-	    'session_id' => md5(uniqid(mt_rand(), true)),
-	    'service_center_id' => $service_center_id,
-	    'service_center_name' => $service_center_name,
+    $userSession = array(
+        'session_id' => md5(uniqid(mt_rand(), true)),
+        'service_center_id' => $service_center_id,
+        'service_center_name' => $service_center_name,
             'service_center_agent_id' => $sc_agent_id,
             'is_upcountry' => $is_upcountry,
             'is_update' => $update,
             'is_engineer_app' => $engineer,
             'municipal_limit' => $municipal_limit,
-	    'sess_expiration' => 30000,
-	    'loggedIn' => TRUE,
-	    'userType' => 'service_center',
+        'sess_expiration' => 30000,
+        'loggedIn' => TRUE,
+        'userType' => 'service_center',
             'is_sf' => $sf,
             'is_cp' => $cp,
             'is_wh' => $wh,
@@ -574,7 +574,7 @@ class Login extends CI_Controller {
             'poc_email'=>$poc_email,
             'agent_name'=>$agent_name,
             'covid_popup'=>TRUE 
-	);
+    );
 
         $this->session->set_userdata($userSession);
         

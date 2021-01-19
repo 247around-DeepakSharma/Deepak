@@ -2116,7 +2116,7 @@ $("#on_invoice_file").change(function(){
         $('#on_submit_btn').attr('disabled',false);
     });
     
-    function change_tcs_rate(prefix = ""){
+        function change_tcs_rate(prefix = ""){
         var total_spare_invoice_price  = $("#"+prefix+"total_spare_invoice_price").val();
         var tcs_rate = $("#"+prefix+"tcs_rate").val();
         var total = Number(total_spare_invoice_price) + ((Number(total_spare_invoice_price) * Number(tcs_rate))/100);

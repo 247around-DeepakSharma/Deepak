@@ -2,7 +2,7 @@
 ///  Making new constants for responses
 /* ENV = "test" for test and "production" for prod"  */
 define("ENV","production");
-define("APP_VERSION", "2.28"); /* Engineer App Current Version */
+define("APP_VERSION", "2.29"); /* Engineer App Current Version */
 define("FORCE_UPGRADE", "force_upgrade");
 define("SEND_WHATSAPP", "send_whatsapp");
 define("ACCESS_FROM_SPLASH_SCREEN","This Request Come From Splash Screen Without Permissions");

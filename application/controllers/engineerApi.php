@@ -1387,10 +1387,10 @@ class engineerApi extends CI_Controller {
             /*   Whatsapp sms sending  Abhishek */
             $customer_phone = $bookinghistory[0]['phone_number'];
             if(!isset($data['amount_paid']) || empty($data['amount_paid'])){
-            	$data['amount_paid'] = 0;
+                $data['amount_paid'] = 0;
             }
             if(!isset($partner_data[0]['public_name']) || empty($partner_data[0]['public_name'])){
-            	$partner_data[0]['public_name'] = "Partner";
+                $partner_data[0]['public_name'] = "Partner";
             }
             $whatsapp_array = array(
               'booking_id'=>$booking_id,
@@ -1424,8 +1424,8 @@ class engineerApi extends CI_Controller {
             
             }
             
-			
-			/* Device info at complete booking */
+            
+            /* Device info at complete booking */
                 if(isset($postData["deviceInfo"]) && !empty($postData["deviceInfo"])){
                 $en['device_info']  = $postData["deviceInfo"];
             }
@@ -2656,10 +2656,10 @@ class engineerApi extends CI_Controller {
             
             if(!empty($spare_part_can_requested)){
             if ($check_serial['status']) {
-		/* Check for duplicate Part Request */
+        /* Check for duplicate Part Request */
                 $duplicate_part = $this->is_part_already_requested($requestData['part'],$requestData['booking_id']);
-		if($duplicate_part['status'])
-		{				
+        if($duplicate_part['status'])
+        {               
                 /* Check part warranty status */
                 $bookingDetails = $this->reusable_model->get_search_query("booking_details", "request_type", array("booking_id" => $requestData['booking_id']), false, false, false, false, false)->result_array();
                 foreach ($requestData['part'] as $key => $value) {
@@ -2729,8 +2729,8 @@ class engineerApi extends CI_Controller {
                 curl_setopt($ch, CURLOPT_HEADER, false);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                 curl_setopt($ch, CURLOPT_POST, true);
-				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
                 curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($requestData));
                 $curl_response = curl_exec($ch);
                 curl_close($ch);
@@ -2755,11 +2755,11 @@ class engineerApi extends CI_Controller {
                   $this->sendJsonResponse(array('0035', $response->message));
                   }
                  */ 
-		}else{
-		log_message("info", __METHOD__ . "Duplicate Part Request");
-                $this->sendJsonResponse(array('0077','Not Available'));			
-		}					
-				 		 
+        }else{
+        log_message("info", __METHOD__ . "Duplicate Part Request");
+                $this->sendJsonResponse(array('0077','Not Available'));         
+        }                   
+                         
             } else {
                 log_message("info", __METHOD__ . "Serial number validation failed");
                 $this->sendJsonResponse(array($check_serial['code'], $check_serial['message']));

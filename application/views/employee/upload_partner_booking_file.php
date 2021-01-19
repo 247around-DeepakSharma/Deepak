@@ -154,7 +154,7 @@
             processData: false,
             contentType: false 
         }).done(function (data) {
-            alert(data);
+           // alert(data);
         });
         alert('File validation is in progress, please wait....');
     }

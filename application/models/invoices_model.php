@@ -303,7 +303,7 @@ class invoices_model extends CI_Model {
     function get_summary_invoice_amount($vendor_partner, $vendor_partner_id, $otherWhere =""){
             if($vendor_partner ==  _247AROUND_SF_STRING){
                 $s = " SUM( CASE WHEN (amount_collected_paid > 0) THEN COALESCE((`amount_collected_paid` - amount_paid ),0) ELSE COALESCE((`amount_collected_paid` + amount_paid ),0) END ) as amount_collected_paid ";
-                $w = "AND settle_amount = 0 AND sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL."', '".MSL_SECURITY_AMOUNT."', '".MSL_NEW_PART_RETURN."', '".FNF."' ) ";
+                $w = "AND settle_amount = 0 AND sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_SECURITY_AMOUNT."', '".MSL_NEW_PART_RETURN."', '".FNF."' ) ";
             } else {
                 $s = " COALESCE(SUM(`amount_collected_paid` ),0) as amount_collected_paid ";
                 $w = "";
@@ -1671,7 +1671,7 @@ class invoices_model extends CI_Model {
     }
     
     function get_foc_invoice_data($vendor_id, $from_date_tmp, $to_date, $is_regenerate) {
-        $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
+        $from_date = date('Y-m-d', strtotime('-20 months', strtotime($from_date_tmp)));
         $is_invoice_null = "";
         if ($is_regenerate == 0) {
             $is_invoice_null = " AND vendor_foc_invoice_id IS NULL ";
@@ -2753,7 +2753,7 @@ class invoices_model extends CI_Model {
         return $query->result_array();
     }
     
-    function get_misc_charges_invoice_data($select, $vendor_partner_invoice, 
+   function get_misc_charges_invoice_data($select, $vendor_partner_invoice, 
             $from_date, $to_date, $vendor_partner,$vendor_partner_id, $sf_partner_charge, $current_status = ""){
         $this->db->select($select, false);
         $this->db->from('miscellaneous_charges');
@@ -2787,7 +2787,6 @@ class invoices_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
-
       /**
      * @desc: This function is used to get partner annual charges data from partner table 
      * @params: Array $where

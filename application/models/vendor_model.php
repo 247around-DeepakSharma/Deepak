@@ -2491,5 +2491,25 @@ class vendor_model extends CI_Model {
         }
     }
     
+    
+        /**
+     *  @desc : This function is used update mapping table
+     *  @param : $data,$where string
+     *  @param : Author : Abhishek Awasthi
+     *  @return: Array()
+     */
+
+    function update_vendor_pincode_mapping($data,$where){
+        $this->db->where($where);
+        $this->db->update('vendor_pincode_mapping',$data);
+        if($this->db->affected_rows() > 0){
+            return TRUE;
+        }else{
+            return FALSE;
+        }
+
+    }
+    
+    
 }
 

@@ -331,6 +331,7 @@ class Service_centers_model extends CI_Model {
 
     function getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offest,$perPage,$having_arr=array(),$where_arr=array(), $orderBY = NULL, $join_arr=array()) {
         $booking = $this->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage, $where_arr, 0, $orderBY, Null, 0, $join_arr,$having_arr);
+
         foreach ($booking as $key => $value) {
             // get data from booking unit details table on the basis of appliance id
             $this->db->select('booking_unit_details.partner_id,unit_details_id, service_charge, additional_service_charge,  parts_cost, upcountry_charges,'
@@ -1516,7 +1517,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         $this->db->from('vendor_partner_invoices');
         $this->db->where('vendor_partner', 'vendor');
         $this->db->where('vendor_partner_id', $serviceCenterID);
-        $this->db->where_in('sub_category', array(MSL, MSL_NEW_PART_RETURN, MSL_DEFECTIVE_RETURN));
+        $this->db->where_in('sub_category', array(MSL, MSL_NEW_PART_RETURN, MSL_DEFECTIVE_RETURN, MSL_Credit_Note, MSL_Debit_Note));
         $res['error'] = false;
         if($countOnly){
             $res['payload'] = $this->db->get()->row_array();
@@ -1696,10 +1697,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
             return false;
         }
     }
-    
-    
-        
-     /**
+    /**
      * @desc: this is used to get the sf rating for those bookings which rating was done
      * @param: $limit
      * @return: array()
@@ -1818,4 +1816,5 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         $booking = $query->result_array();        
         return $booking;
     }
+
 }

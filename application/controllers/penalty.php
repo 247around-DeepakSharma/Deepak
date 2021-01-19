@@ -16,20 +16,20 @@ class Penalty extends CI_Controller {
      * load list model and helpers
      */
     function __Construct() {
-	parent::__Construct();
+    parent::__Construct();
 
-	$this->load->model('penalty_model');
+    $this->load->model('penalty_model');
         $this->load->model('booking_model');
-	$this->load->model('reporting_utils');
+    $this->load->model('reporting_utils');
         $this->load->library('miscelleneous');
         $this->load->model('reusable_model');
-	$this->load->helper(array('form', 'url'));
+    $this->load->helper(array('form', 'url'));
     }
 
     function penalty_on_service_center() {
-	//$this->penalty_model->penalty_on_service_center_for_assigned_engineer();
+    //$this->penalty_model->penalty_on_service_center_for_assigned_engineer();
         
-	    $this->penalty_model->penalty_on_service_center_for_update_booking();
+        $this->penalty_model->penalty_on_service_center_for_update_booking();
             // Inserting values in scheduler tasks log
             $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
     }

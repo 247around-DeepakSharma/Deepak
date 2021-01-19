@@ -314,8 +314,6 @@ if ($this->uri->segment(3)) {
                 hide: 100
             }
         });
-
-    });
     
     table = $("#datatable1").dataTable({
             "pageLength": 100,
@@ -343,6 +341,8 @@ if ($this->uri->segment(3)) {
                 ]
 
         });
+
+    });
         
     
     function downloadSpare(){

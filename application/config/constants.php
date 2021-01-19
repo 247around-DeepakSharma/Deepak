@@ -476,7 +476,7 @@ define('PINCODE_FILE_PASSSWORD',"247around" );
 //define('PUSH_NOTIFICATION_API_KEY','3d15cad629128ac894c9a73a0ff5852b');
 //Around
 //define('PUSH_NOTIFICATION_API_KEY','5e80dc70981389335ae38d969ca075be');
-define('PUSH_NOTIFICATION_SUBSCRIBER_LIST_SEND_NOTIFICATION_URL','https://pushcrew.com/api/v1/send/list');
+//define('PUSH_NOTIFICATION_SUBSCRIBER_LIST_SEND_NOTIFICATION_URL','https://pushcrew.com/api/v1/send/list');
 
 define('BUYBACK','buyback');
 //Collateral 
@@ -791,5 +791,6 @@ define('OW_COMPLETED_THRESHOLD', 20);
 define('CANCELLATION_THRESHOLD', 20);
 
 define('VENDOR_RESCHEDULED', "Reschedule");
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

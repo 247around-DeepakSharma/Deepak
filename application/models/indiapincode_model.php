@@ -130,8 +130,8 @@ class Indiapincode_model extends CI_Model {
         return $query->result_array();
 
     }
-    
-        /**
+
+    /**
      *  @desc : This function is to get all states.
      *
      *  All the distinct states of India in Ascending order From Table state_code

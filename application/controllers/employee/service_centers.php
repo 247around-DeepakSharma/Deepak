@@ -4345,7 +4345,8 @@ class Service_centers extends CI_Controller {
                             if (!empty($value['assigned_vendor_id'])) {
                                 $vendor_details = $this->vendor_model->getVendorDetails("service_centres.id, service_centres.pincode", array("service_centres.id" => $value['assigned_vendor_id']), 'name', array(), array(), array());
                                 if (!empty($vendor_details)) {
-                                    $serviceable_area = $this->inventory_model->get_generic_table_details("courier_serviceable_area", "courier_serviceable_area.courier_company_name", array("courier_serviceable_area.pincode" => $vendor_details[0]['pincode'], "courier_serviceable_area.status" => 1), array());
+
+                                    $serviceable_area = $this->inventory_model->get_generic_table_details("courier_serviceable_area", "courier_serviceable_area.courier_company_name", array("courier_serviceable_area.pincode" => $vendor_details[0]['pincode'], "courier_serviceable_area.status"=> 1), array());
                                     if (!empty($serviceable_area)) {
                                         $couriers_name = implode(', ', array_map(function ($entry) {
                                                     return $entry['courier_company_name'];
@@ -4410,14 +4411,14 @@ class Service_centers extends CI_Controller {
                 if (!empty($sf_details)) {
                     $data['partner_challan_number'] = $this->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code'], true);
                     $sf_details[0]['address'] = $sf_details[0]['address'] . ", " . $sf_details[0]['district'] . ", " . $sf_details[0]['state'] . ", Pincode -" . $sf_details[0]['pincode'];
-                   
-                    $contact_number_array = array($sf_details[0]['contact_number'],$sf_details[0]['contact_number_2'],$sf_details[0]['contact_number_3'],$sf_details[0]['contact_number_4']);
+
+					$contact_number_array = array($sf_details[0]['contact_number'],$sf_details[0]['contact_number_2'],$sf_details[0]['contact_number_3'],$sf_details[0]['contact_number_4']);
                     $contact_number_string = implode(', ',array_unique(array_filter($contact_number_array))); 
                      $sf_details[0]['contact_number'] = $contact_number_string;
                 }
 
                 if (!empty($spare_details)) {
-                    $data['partner_challan_file'] = $this->invoice_lib->process_create_sf_challan_file($sf_details, $partner_details, $data['partner_challan_number'], $spare_details, '', '', false, true, false);
+                    $data['partner_challan_file'] = $this->invoice_lib->process_create_sf_challan_file($sf_details, $partner_details, $data['partner_challan_number'], $spare_details,'','',false,true,false);
                     array_push($delivery_challan_file_name_array, $data['partner_challan_file']);
                     if (!empty($data['partner_challan_file'])) {
                         if (!empty($spare_details)) {
@@ -8608,7 +8609,9 @@ class Service_centers extends CI_Controller {
                 MSL,
                 MSL_SECURITY_AMOUNT,
                 MSL_NEW_PART_RETURN,
-                MSL_DEFECTIVE_RETURN
+                MSL_DEFECTIVE_RETURN,
+                MSL_Debit_Note,
+                MSL_Credit_Note
             )
                 ), NULL, array()
         );
@@ -8617,9 +8620,9 @@ class Service_centers extends CI_Controller {
         foreach ($mslSecurityData as $row) {
             if (!empty($row['sub_category']) && $row['sub_category'] == MSL_SECURITY_AMOUNT) {
                 $mslSecurityAmount += floatval($row['amount']);
-            } else if (!empty($row['sub_category']) && ($row['sub_category'] == MSL_DEFECTIVE_RETURN || $row['sub_category'] == MSL_NEW_PART_RETURN)) {
+            } else if (!empty($row['sub_category']) && ($row['sub_category'] == MSL_DEFECTIVE_RETURN || $row['sub_category'] == MSL_NEW_PART_RETURN || $row['sub_category'] == MSL_Credit_Note)) {
                 $mslAmount -= floatval($row['amount']);
-            } else if ($row['sub_category'] == MSL) {
+            } else if ($row['sub_category'] == MSL || $row['sub_category'] == MSL_Debit_Note) {
                 $mslAmount += floatval($row['amount']);
             }
         }
@@ -9551,9 +9554,7 @@ class Service_centers extends CI_Controller {
      * 
      * 
      */
-
-   
-function do_delivered_spare_transfer() {
+      function do_delivered_spare_transfer() {
 
         if ($this->session->userdata('userType') == 'employee') {
             $agent_id = _247AROUND_DEFAULT_AGENT;
@@ -9656,7 +9657,6 @@ function do_delivered_spare_transfer() {
                  
                 $to_booking_spare_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", $where);
                 
-                                
                 $bd_data = array();
                 if (empty($to_booking_spare_details)) {
                     $b = $this->booking_model->get_booking_details('current_status, partner_id', ['booking_id' => $tobooking])[0];
@@ -10253,7 +10253,7 @@ function do_delivered_spare_transfer() {
         $sms = [];
         
         // get booking contact number.
-       $booking_deatils = $this->booking_model->get_booking_details('booking_primary_contact_no, user_id', ['booking_id' => $booking_id])[0];
+        $booking_deatils = $this->booking_model->get_booking_details('booking_primary_contact_no, user_id', ['booking_id' => $booking_id])[0];
         $booking_primary_contact_number = $booking_deatils['booking_primary_contact_no'];
         $user_id = $booking_deatils['user_id'];
         // prepare data for sms template.

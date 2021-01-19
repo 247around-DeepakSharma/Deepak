@@ -4748,7 +4748,7 @@ function generate_image($base64, $image_name,$directory){
             $in['agent_type'] = _247AROUND_SF_STRING;
             $in['is_wh'] = TRUE;
             $in['inventory_id'] = $data['shipped_inventory_id'];
-
+            $in['spare_id'] = $value['spare_id'];
             $this->process_inventory_stocks($in); 
  
             // $url = base_url() . "employee/service_centres/acknowledge_delivered_spare_parts/" . $value['booking_id'] . "/" . $value['service_center_id']."/".$value['spare_id']."/".$partner_id."/"."0"."1";
@@ -5301,7 +5301,7 @@ function generate_image($base64, $image_name,$directory){
             "agent_type" => _247AROUND_SF_STRING,
             "is_wh" => TRUE,
             "is_cancel_part" => TRUE,
-            "spare_id" => $spare_id            
+            "spare_id" => $spare_id
         );
         
         $this->process_inventory_stocks($data);
@@ -5375,7 +5375,7 @@ function generate_image($base64, $image_name,$directory){
     
     /* This function copy all invoice Images from misc-images folder to purchase-invoices folder on s3 server
      * 
-     */
+    */
     function copy_invoices_from_s3() {
         // Tables & columns in  which invoices are stored
         $arr_tables = ['service_center_booking_action' => 'sf_purchase_invoice', 'booking_files' => 'file_name', 'engineer_booking_action' => 'purchase_invoice', 'spare_parts_details' => 'invoice_pic'];

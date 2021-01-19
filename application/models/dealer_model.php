@@ -283,7 +283,8 @@ class Dealer_model extends CI_Model {
     function getDealerStatesCities($entity, $state_code){
         $cities =array();
          ///  Will come when mappping is done //
-         return  $cities;
+        $cities =  $this->db->get_where('dealer_brand_mapping', array('dealer_id =' => '$entity'))->result_array();
+        return  $cities;
 
     }
 
@@ -333,7 +334,19 @@ class Dealer_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
-
-
+    /**
+     * @desc: This is used to update the dealer details
+     * @param $data array
+     * @param $where array
+     * @return boolean
+     * Ghanshyam
+     */
+    function save_booking_escalation_history($data = '') {
+        if (!empty($data)) {
+            $this->db->insert("booking_escalation_history", $data);
+            $insert_id = $this->db->insert_id();
+            return $insert_id;
+        }
+    }
 
 }

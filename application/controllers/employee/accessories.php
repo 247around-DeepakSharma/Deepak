@@ -150,7 +150,7 @@ class Accessories extends CI_Controller {
             $vendor_data = $this->vendor_model->getVendorDetails("service_centres.id, gst_no, "
                                 . "state,address as company_address, owner_phone_1,"
                                 . "company_name, pincode, "
-                                . "district, owner_email as invoice_email_to, email as invoice_email_cc", array('id' => $sfID))[0];
+                                . "district, owner_email as invoice_email_to, owner_phone_1, primary_contact_phone_1 ,email as invoice_email_cc", array('id' => $sfID))[0];
             
             $invoice_id = $this->invoice_lib->create_invoice_id("ARD-9");
             $accessories = $this->input->post('accessories');
@@ -178,7 +178,9 @@ class Accessories extends CI_Controller {
                             $data[$count]['gst_number'] = TRUE;
                         }
 
-                        $data[$count]['company_name'] = $vendor_data['company_name'];
+                        $data[$count]['company_name'] = $vendor_data['company_name']. " ( Ph No: ".
+                                $vendor_data['primary_contact_phone_1'].",". 
+                                $vendor_data['owner_phone_1']. " )";
                         $data[$count]['company_address'] = $vendor_data['company_address'];
                         $data[$count]['district'] = $vendor_data['district'];
                         $data[$count]['pincode'] = $vendor_data['pincode'];

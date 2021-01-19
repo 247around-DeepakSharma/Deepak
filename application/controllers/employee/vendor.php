@@ -184,7 +184,7 @@ class vendor extends CI_Controller {
                    $send_email = $this->send_update_or_add_sf_basic_details_email($sc_id,$rm_official_email,$vendor_data, $rm);
                     // Sending Login details mail to Vendor using Template
                    $this->session->set_userdata('vendor_added', "Vendor Basic Details has been added Successfully , Please Fill other details");
-	redirect(base_url() . 'employee/vendor/editvendor/'.$sc_id);
+    redirect(base_url() . 'employee/vendor/editvendor/'.$sc_id);
             }
         } else {
             $this->add_vendor();
@@ -822,7 +822,7 @@ class vendor extends CI_Controller {
         $stamp_file = $this->vendor_model->fetch_sf_miscellaneous_data($select,$where);
         if(!empty($stamp_file)){
             $query[0]['stamp_file'] = $stamp_file[0]['stamp_file'];
-		}else{
+        }else{
             $query[0]['stamp_file'] ='';
         }
         $appliances = $query[0]['appliances'];
@@ -2617,9 +2617,9 @@ class vendor extends CI_Controller {
      */
      function change_engineer_activation($engineer_id, $active){
         log_message('info', __FUNCTION__ . " Activate/Deactivate Engineer Id:  " . $engineer_id .
-	    "status: " . $active);
+        "status: " . $active);
 
-	$where  = array('id' => $engineer_id );
+    $where  = array('id' => $engineer_id );
         $this->vendor_model->update_engineer($where, array('active'=> $active));
         $log = array(
             "entity" => "engineer",
@@ -2680,15 +2680,15 @@ class vendor extends CI_Controller {
         $this->form_validation->set_rules('identity_id_number', 'ID Number', 'trim');
         $this->form_validation->set_rules('identity_proof', 'Identity Proof', 'trim');
         $this->form_validation->set_rules('bank_account_no', 'Bank Account No', 'numeric');
-//	$this->form_validation->set_rules('service_id', 'Appliance ', 'trim');
+//  $this->form_validation->set_rules('service_id', 'Appliance ', 'trim');
     //    $this->form_validation->set_rules('file', 'Identity Proof Pic ', 'callback_upload_identity_proof_pic');
 //        $this->form_validation->set_rules('bank_name', 'Bank Name', 'trim');
 //        $this->form_validation->set_rules('bank_ifsc_code', 'IFSC Code', 'trim');
 //        $this->form_validation->set_rules('bank_holder_name', 'Account Holder Name', 'trim');
         
-//	$this->form_validation->set_rules('bank_proof_pic', 'Bank Proof Pic', 'callback_upload_bank_proof_pic');
+//  $this->form_validation->set_rules('bank_proof_pic', 'Bank Proof Pic', 'callback_upload_bank_proof_pic');
 
-	if ($this->form_validation->run() == FALSE) {
+    if ($this->form_validation->run() == FALSE) {
             return FALSE;
         }
         else {
@@ -2700,63 +2700,63 @@ class vendor extends CI_Controller {
      * @desc: This is used to upload Bank Proof Image and return true/false depending on result
      */
     public function upload_bank_proof_pic() {
-	$allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
-	$temp = explode(".", $_FILES["bank_proof_pic"]["name"]);
-	$extension = end($temp);
-	//$filename = prev($temp);
+    $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+    $temp = explode(".", $_FILES["bank_proof_pic"]["name"]);
+    $extension = end($temp);
+    //$filename = prev($temp);
 
-	if ($_FILES["bank_proof_pic"]["name"] != null) {
-	    if (($_FILES["bank_proof_pic"]["size"] < 2e+6) && in_array($extension, $allowedExts)) {
-		if ($_FILES["bank_proof_pic"]["error"] > 0) {
-		    $this->form_validation->set_message('upload_bank_proof_pic', $_FILES["bank_proof_pic"]["error"]);
-		} else {
-		    $pic = preg_replace('/\s+/', '', $this->input->post('name')) . "_" . preg_replace('/\s+/', ' ', $this->input->post('bank_name')) . "_" . uniqid(rand());
-		    $picName = $pic . "." . $extension;
-		    $_POST['bank_proof_pic'] = $picName;
+    if ($_FILES["bank_proof_pic"]["name"] != null) {
+        if (($_FILES["bank_proof_pic"]["size"] < 2e+6) && in_array($extension, $allowedExts)) {
+        if ($_FILES["bank_proof_pic"]["error"] > 0) {
+            $this->form_validation->set_message('upload_bank_proof_pic', $_FILES["bank_proof_pic"]["error"]);
+        } else {
+            $pic = preg_replace('/\s+/', '', $this->input->post('name')) . "_" . preg_replace('/\s+/', ' ', $this->input->post('bank_name')) . "_" . uniqid(rand());
+            $picName = $pic . "." . $extension;
+            $_POST['bank_proof_pic'] = $picName;
                     // Uploading to S3
-		    $bucket = BITBUCKET_DIRECTORY;
-		    $directory = "engineer-bank-proofs/" . $picName;
-		    $this->s3->putObjectFile($_FILES["bank_proof_pic"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory = "engineer-bank-proofs/" . $picName;
+            $this->s3->putObjectFile($_FILES["bank_proof_pic"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
 
-		    return TRUE;
-		}
-	    } else {
-		$this->form_validation->set_message('upload_bank_proof_pic', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
-		    . 'Maximum file size is 2 MB.');
-		return FALSE;
-	    }
-	}
+            return TRUE;
+        }
+        } else {
+        $this->form_validation->set_message('upload_bank_proof_pic', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
+            . 'Maximum file size is 2 MB.');
+        return FALSE;
+        }
+    }
     }
 
     /**
      * @desc: This is used to upload ID Proof Image and return true/false depending on result
      */
     public function upload_identity_proof_pic() {
-	$allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
-	$temp = explode(".", $_FILES["file"]["name"]);
-	$extension = end($temp);
-	//$filename = prev($temp);
+    $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+    $temp = explode(".", $_FILES["file"]["name"]);
+    $extension = end($temp);
+    //$filename = prev($temp);
 
-	if ($_FILES["file"]["name"] != null) {
-	    if (($_FILES["file"]["size"] < 2e+6) && in_array($extension, $allowedExts)) {
-		if ($_FILES["file"]["error"] > 0) {
-		    $this->form_validation->set_message('upload_identity_proof_pic', $_FILES["file"]["error"]);
-		} else {
-		    $pic = preg_replace('/\s+/', '', $this->input->post('name')) . "_" . preg_replace('/\s+/', '', $this->input->post('identity_proof')) . "_" . uniqid(rand());
-		    $picName = $pic . "." . $extension;
-		    $_POST['identity_file'] = $picName;
+    if ($_FILES["file"]["name"] != null) {
+        if (($_FILES["file"]["size"] < 2e+6) && in_array($extension, $allowedExts)) {
+        if ($_FILES["file"]["error"] > 0) {
+            $this->form_validation->set_message('upload_identity_proof_pic', $_FILES["file"]["error"]);
+        } else {
+            $pic = preg_replace('/\s+/', '', $this->input->post('name')) . "_" . preg_replace('/\s+/', '', $this->input->post('identity_proof')) . "_" . uniqid(rand());
+            $picName = $pic . "." . $extension;
+            $_POST['identity_file'] = $picName;
                     //Uploading to S3
-		    $bucket = BITBUCKET_DIRECTORY;
-		    $directory = "engineer-id-proofs/" . $picName;
-		    $this->s3->putObjectFile($_FILES["file"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory = "engineer-id-proofs/" . $picName;
+            $this->s3->putObjectFile($_FILES["file"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
 
-		    return TRUE;
-		}
-	    } else {
-		$this->form_validation->set_message('upload_identity_proof_pic', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
-		    . 'Maximum file size is 2 MB.');
-		return FALSE;
-	    }
+            return TRUE;
+        }
+        } else {
+        $this->form_validation->set_message('upload_identity_proof_pic', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
+            . 'Maximum file size is 2 MB.');
+        return FALSE;
+        }
         } else {
             $identity_uploaded = $this->input->post("identity_uploaded");
             if(empty($identity_uploaded)){
@@ -2916,47 +2916,47 @@ class vendor extends CI_Controller {
     */
       function process_vendor_pincode_delete_form() {
 
-	$data = array();
-	//Getting data from database
+    $data = array();
+    //Getting data from database
         $select = "service_centres.name, service_centres.id";
-	$data['vendor_details'] = $this->vendor_model->getVendorDetails($select);
-	$data['appliance'] = $this->booking_model->selectservice();
-	$data['state'] = $this->vendor_model->get_allstates();
+    $data['vendor_details'] = $this->vendor_model->getVendorDetails($select);
+    $data['appliance'] = $this->booking_model->selectservice();
+    $data['state'] = $this->vendor_model->get_allstates();
 
-	//Process Form
-	if ($this->input->post()) {
-	    if (!empty($this->input->post('service_id')[0])) {
-		$service_id = $this->input->post('service_id');
+    //Process Form
+    if ($this->input->post()) {
+        if (!empty($this->input->post('service_id')[0])) {
+        $service_id = $this->input->post('service_id');
 
-		foreach ($service_id as $key => $value) {
-		    if (!empty($value)) {
+        foreach ($service_id as $key => $value) {
+            if (!empty($value)) {
 
-			$data_post = array(
-			    'Appliance_ID' => $value,
-			    'Pincode' => $this->input->post('pincode')[$key],
-			    'Vendor_ID' => $this->input->post('vendor_id')[$key]
-			);
+            $data_post = array(
+                'Appliance_ID' => $value,
+                'Pincode' => $this->input->post('pincode')[$key],
+                'Vendor_ID' => $this->input->post('vendor_id')[$key]
+            );
 
-			//Deleting data
-			if ($this->vendor_model->delete_vendor($data_post) == '1') {
-			    //Echoing ID to log file
-			    log_message('info', __FUNCTION__ . ' Vendor has been deleted in Vendor_Pincode_Mapping table. ' . print_r($data_post, TRUE));
+            //Deleting data
+            if ($this->vendor_model->delete_vendor($data_post) == '1') {
+                //Echoing ID to log file
+                log_message('info', __FUNCTION__ . ' Vendor has been deleted in Vendor_Pincode_Mapping table. ' . print_r($data_post, TRUE));
 
-			    $data['delete'] = TRUE;
-			} else {
-			    log_message('info', __FUNCTION__ . ' Following pincode NOT found in Vendor_Pincode_Mapping table =  ' . $this->input->post('pincode')[$key]);
+                $data['delete'] = TRUE;
+            } else {
+                log_message('info', __FUNCTION__ . ' Following pincode NOT found in Vendor_Pincode_Mapping table =  ' . $this->input->post('pincode')[$key]);
 
-			    $data['not_found'][] = $this->input->post('pincode')[$key];
-			}
-		    }
-		}
-	    } else {
+                $data['not_found'][] = $this->input->post('pincode')[$key];
+            }
+            }
+        }
+        } else {
 
-		$data['no_input'] = '';
-	    }
-	}
-	$this->miscelleneous->load_nav_header();
-	$this->load->view('employee/list_vendor_pincode', $data);
+        $data['no_input'] = '';
+        }
+    }
+    $this->miscelleneous->load_nav_header();
+    $this->load->view('employee/list_vendor_pincode', $data);
     }
     
     /**
@@ -3820,7 +3820,7 @@ class vendor extends CI_Controller {
         
         $engineer[$data['type']] = "";
         $where = array('id' => $data['id'] );
-	$engineer_id = $this->vendor_model->update_engineer($where,$engineer);
+    $engineer_id = $this->vendor_model->update_engineer($where,$engineer);
         
         //Logging 
         log_message('info',__FUNCTION__.' '.$data['type'].' Following Images has been removed sucessfully for engineer ID : '.print_r($engineer_id));
@@ -5847,7 +5847,7 @@ class vendor extends CI_Controller {
                     
                 //     //return FALSE;
                 // }
-			}else{
+            }else{
                $attachment_signature = $this->input->post('signature_file_hd'); 
             }
    
@@ -5945,7 +5945,7 @@ class vendor extends CI_Controller {
             $this->notify->insert_state_change('', NEW_SF_BRANDS, NEW_SF_BRANDS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'),
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
             $this->session->set_userdata('vendor_added', "Vendor Brands Has been updated Successfully , Please Fill other details");
-			$this->session->set_userdata('current_tab', 3);
+            $this->session->set_userdata('current_tab', 3);
             $this->sfauthorization_certificate->create_new_certificate($this->input->post('id'));
             redirect(base_url() . 'employee/vendor/editvendor/'.$this->input->post('id'));
         }
@@ -6027,7 +6027,7 @@ class vendor extends CI_Controller {
         $this->notify->insert_state_change('', NEW_SF_CONTACTS, NEW_SF_CONTACTS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
         $this->session->set_userdata('vendor_added', "Vendor Contacts Has been updated Successfully , Please Fill other details");
         $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
-		$this->session->set_userdata('current_tab', 4);
+        $this->session->set_userdata('current_tab', 4);
         redirect(base_url() . 'employee/vendor/editvendor/'.$data['id']);
     }
     function save_vendor_bank_details(){
@@ -6073,7 +6073,7 @@ class vendor extends CI_Controller {
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
                 $this->session->set_userdata('vendor_added', "Vendor Bank Details Has been updated Successfully");
                 $this->miscelleneous->update_insert_bank_account_details($bank_data,'update');
-				$this->session->set_userdata('current_tab', 5);
+                $this->session->set_userdata('current_tab', 5);
                 redirect(base_url() . 'employee/vendor/editvendor/'.$this->input->post('id'));
     }
     function create_vendor_login($new_vendor_mail,$rm_email){

@@ -851,7 +851,6 @@ class User extends CI_Controller {
      */
     function process_edit_employee(){
         $data = $this->input->post();
-
         $isRM = count($this->employee_model->isRManager($data['id'])) > 0 ? true : false;
         //If agent is not RM and is being promoted to RM then it has to unmap itself from all service centers and states
         if(!$isRM && $data['groups']==_247AROUND_RM){
