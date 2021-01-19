@@ -222,7 +222,7 @@ $selected_price_tags = implode(",", $selected_price_tags);
                                                                     }
                                                                     ?>
                                                                 <input type="hidden" class="form-control partner_discount" name="<?php echo "partner_paid_basic_charges[".$unit_details[0]['brand_id']."][".$clone_number."][". $price['id']."][]"; ?>" id="<?php echo "partner_paid_basic_charges_". $div . "_1"; ?>" value = "<?php  if(isset($unit_details[0]['quantity'])){
-                                                                    $partner_net_payable = NUll;                                                                    
+                                                                    $partner_net_payable = NULL;                                                                    
                                                                        foreach ($unit_details[0]['quantity'] as  $tags) {
                                                                            if($tags['price_tags'] == $price['service_category'] ){
                                                                               $partner_net_payable = $tags['partner_net_payable'];
