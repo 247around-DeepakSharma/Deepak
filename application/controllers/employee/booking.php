@@ -1239,6 +1239,7 @@ class Booking extends CI_Controller {
             $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_UPDATED_BY_247AROUND,$receiverArray,$notificationTextArray);
             //End Push Notification
             }
+            $this->session->set_userdata('success','Booking Cancelled');
             redirect(base_url() . DEFAULT_SEARCH_PAGE);
         } else {
             log_message('info', __FUNCTION__ . " Validation Failed Booking ID: " . $booking_id . " Done By " . $this->session->userdata('employee_id'));
@@ -1360,6 +1361,7 @@ class Booking extends CI_Controller {
                     redirect(base_url() . 'partner/dashboard');
                 }
                 else{
+                    $this->session->set_userdata('success','Booking Rescheduled Succesfully');
                    redirect(base_url() . DEFAULT_SEARCH_PAGE);
                 }
             }

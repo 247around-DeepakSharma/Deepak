@@ -1446,7 +1446,7 @@ class Partner extends CI_Controller {
         $agent_id = $this->session->userdata('agent_id');
 
         $this->miscelleneous->process_cancel_form($booking_id, $status, $cancellation_reason, $historyRemarks, $agent_id, $this->session->userdata('partner_name'), $partner_id, $partner_id);
-
+         $this->session->set_userdata('success','Booking In Process Cancelled');          
         redirect(base_url() . "partner/get_user_form");
     }
 
@@ -5201,10 +5201,10 @@ class Partner extends CI_Controller {
        //  $is_wh = $this->input->post('is_wh');
           $is_wh = 0;
 
-        if(!empty($is_wh)){
-            $where = array('(is_wh = 1 OR is_micro_wh = 1)' => NULL);
-        }else{
-            $where = array();
+        if (!empty($is_wh)) {
+            $where = array("partners.is_active" => 1, '(is_wh = 1 OR is_micro_wh = 1)' => NULL);
+        } else {
+            $where = array("partners.is_active" => 1);
         }
         $partner_list = $this->partner_model->get_all_partner($where);
         $option = '<option selected="" disabled="">Select Partner</option>';
