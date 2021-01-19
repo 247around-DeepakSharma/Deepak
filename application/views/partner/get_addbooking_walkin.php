@@ -210,24 +210,6 @@
     <div class="container body">
         <div class="main_container">
             <div style="padding:20px;" role="main">  
-                <?php
-                    if ($this->session->userdata('success')) {
-                        echo '<div class="alert alert-success alert-dismissible" role="alert" style="margin-top: 55px;">
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                                <strong>' . $this->session->userdata('success') . '</strong>
-                            </div>';
-                    }
-                    if ($this->session->userdata('error')) {
-                        echo '<div class="alert alert-danger alert-dismissible" role="alert" style="margin-top: 55px;">
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    <strong>' . $this->session->userdata('error') . '</strong>
-                                </div>';
-                    }
-                ?>
                 <form name="myForm" class="form-horizontal" onSubmit="document.getElementById('submitform').disabled = true;" id ="booking_form" action="<?php echo base_url() ?>employee/partner/process_addbooking_walkin"  method="POST" enctype="multipart/form-data">
                     <div class="row">                        
                         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -440,7 +422,7 @@
 <!------------------------ HTML Ends Here ------------------>
 
 <script type="text/javascript">
-    var Repair_IW = "<?php echo REPAIR_IN_WARRANTY_STRING; ?>";
+    var Repair_IW = "<?php echo REPAIR_IN_WARRANTY_TAG; ?>";
     var Repair_ELS = "<?php echo REQUEST_TYPE_ELS; ?>";
     var baseUrlLink = "<?php echo base_url(); ?>";
     var booking_create_date = "<?= date('Y-m-d')?>";
@@ -603,7 +585,7 @@
                     'booking_primary_contact_no' : mobile_number
                 },
                 success:function(response){
-                    console.log(response);
+                    response = $.trim(response);
                     $("#request_otp").css('pointer-events','auto');
                     $("#request_otp").html(" Request OTP");
                     $("#response_otp").html("  (OTP Sent Successfully) ");
