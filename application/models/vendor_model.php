@@ -1239,13 +1239,10 @@ class vendor_model extends CI_Model {
     /**
      * @desc: get Active vendor
      */
-    function getactive_vendor($where = array()){
+    function getactive_vendor(){
         $this->db->select('*');
         $this->db->where('active',1);
         $this->db->where('is_wh',0);
-        if(!empty($where)){
-            $this->db->where($where);
-        }
         $this->db->order_by("name");
         $query = $this->db->get('service_centres');
         return $query->result_array();
@@ -2398,7 +2395,6 @@ class vendor_model extends CI_Model {
      * @author - Prity Sharma
      * @date - 26-06-2019
      * @params - $Sf_id (Service Center Id) 
-     * @return - array of Brands mapped to SF
     */
     function get_mapped_brands($sf_id)
     {
