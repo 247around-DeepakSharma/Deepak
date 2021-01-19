@@ -214,7 +214,7 @@
                                                 <label for="partNumber_0" class="error"></label>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-3">
-                                                <select class="form-control" name="part[0][part_name]" id="partName_0" ></select>
+                                                <select class="form-control" name="part[0][part_name]" id="partName_0"  required=""></select>
                                                 <span id="part_loader_0" style="display: none; margin-left: 45%;"><i class='fa fa-spinner fa-spin'></i></span>
                                                 <label for="partName_0" class="error"></label>
                                             </div>
@@ -252,7 +252,7 @@
                                                 <label for="part_number" class="error"></label>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-3">
-                                                <select class="form-control" id="part_name"></select>
+                                                <select class="form-control" id="part_name" required=''></select>
                                                 <span id="part_loader" style="display: none; margin-left: 45%;"><i class='fa fa-spinner fa-spin'></i></span>
                                                 <label for="part_name" class="error"></label>
                                             </div>
