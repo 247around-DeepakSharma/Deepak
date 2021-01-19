@@ -246,20 +246,30 @@ function check_validation(){
     // save in session & match OTP for Booking creation
     var original_otp = $("#customer_code").val(); 
     var customer_otp = $("#booking_otp").val(); 
-    if(original_otp !== customer_otp){
-        alert("OTP Verification Failed");
-        return false;
-    }
-
-    var appliance_name = $("#service_name").find(':selected').attr('data-id');
-    $("#appliance_name").val(appliance_name);
-    $('#submitform').val("Please wait.....");
-    document.getElementById('submitform').disabled = true;
-    document.getElementById('booking_form').submit();
-    // TODO
-    // Redirect to new Page, after Booking Submission
-    // Add Link to create new Booking also
-    return true;
+    $.ajax({
+        method:'POST',
+        url: baseUrlLink+"employee/partner/match_booking_otp",
+        async : false,
+        data:{
+            original_otp : original_otp,
+            customer_otp : customer_otp
+        },
+        success:function(response){
+            if ($.trim(response) == "success"){
+                var appliance_name = $("#service_name").find(':selected').attr('data-id');
+                $("#appliance_name").val(appliance_name);
+                $('#submitform').val("Please wait.....");
+                document.getElementById('submitform').disabled = true;
+                document.getElementById('booking_form').submit();
+                return true;
+            }
+            else
+            {
+                alert("OTP Verification Failed");
+                return false;
+            }
+        }
+    });
 }
 
 function EnableDisableFields(id, status)
