@@ -204,6 +204,10 @@ function getPricesForCategoryCapacity(div_id,add_booking) {
         postData['partner_id'] = $("#partner_id").val();;
         postData['add_booking'] = add_booking;
         postData['is_repeat'] = (($("#is_repeat").val()) ? $("#is_repeat").val(): 0);
+        postData['booking_id'] = "";
+        if($('#booking_id').length){
+            postData['booking_id'] = $("#booking_id").val();
+        }
         // sending all prev. selected prices tags with ajax request, to select them again if price table changes
         postData['selected_price_tags'] = (($("#selected_price_tags").val()) ? $("#selected_price_tags").val(): "");
         postData['arr_partner_discount'] = (($("#arr_partner_discount").val()) ? $("#arr_partner_discount").val(): "");
