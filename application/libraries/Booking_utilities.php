@@ -1042,6 +1042,21 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
     }
     
     /**
+     * This function is used to check whether any spare is requested in IW in the booking 
+     * @param Booking Id
+     * @author Prity Sharma
+     * @created_on 20-01-2021
+     */
+    function is_spare_requested_in_IW($booking_id)
+    {
+        $data = $this->My_CI->partner_model->get_spare_parts_by_any('*', array('spare_parts_details.booking_id' => $booking_id, 'status <> "'._247AROUND_CANCELLED.'"' => NULL, 'part_warranty_status' => SPARE_PART_IN_WARRANTY_STATUS));
+        if(!empty($data)){
+            return true;
+        }
+        return false;
+    }
+    
+    /**
      * Check if any line item against a booking is invoiced to partner
      * @author Prity Sharma
      * @date 20-02-2020
