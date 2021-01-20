@@ -10022,7 +10022,7 @@ class Service_centers extends CI_Controller {
         $where = array (
             "status NOT IN ('" . _247AROUND_CANCELLED . "')  " => NULL,
             "spare_parts_details.parts_shipped is not null and spare_parts_details.shipped_date is not null" => NULL,
-            "spare_parts_details.defective_part_shipped is null and spare_parts_details.defective_part_shipped_date is null" => NULL,
+            "((spare_parts_details.defective_part_shipped is null and spare_parts_details.defective_part_shipped_date is null) or spare_parts_details.status in('".DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE."','".OK_PARTS_REJECTED_BY_WAREHOUSE."'))" => NULL,
             "spare_parts_details.service_center_id" => $service_center_id
         );
 
@@ -10056,7 +10056,6 @@ class Service_centers extends CI_Controller {
      * @author Ankit Rajvanshi
      */
     function change_consumption_by_sf() {
-        
         $post_data = $this->input->post();
         $data['spare_id'] = $post_data['spare_id'];
         
@@ -10068,7 +10067,7 @@ class Service_centers extends CI_Controller {
             $data['spare_consumption_status'][$post_data['spare_id']] = $post_data['spare_consumption_status'][$post_data['spare_id']];
             $data['consumption_remarks'][$post_data['spare_id']] = $post_data['change_consumption_remarks'];
             $this->miscelleneous->update_spare_consumption_status($data, $booking_id);
-            
+
             return true;
         }
         
