@@ -5086,7 +5086,8 @@ function generate_image($base64, $image_name,$directory){
                     $up['auto_acknowledeged'] = 1;
                 }
                 // update spare parts details.
-                if((empty($spare_part_detail['defective_part_shipped']) && empty($spare_part_detail['defective_part_shipped_date'])) || $defective_part_required == 0) {
+
+                if((empty($spare_part_detail['defective_part_shipped']) && empty($spare_part_detail['defective_part_shipped_date'])) || $defective_part_required == 0 || in_array($spare_part_detail['status'],array(DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE,OK_PARTS_REJECTED_BY_WAREHOUSE))) {
                     $this->My_CI->reusable_model->update_table('spare_parts_details', $up, ['id' => $spare_id]);
                 }
                 // update delivery date in courier company invoice details if empty.
@@ -5098,7 +5099,7 @@ function generate_image($base64, $image_name,$directory){
                     $generate_defective_ok_part_challan = true;
                 }
 
-                if (!empty($generate_defective_ok_part_challan) && empty($spare_part_detail['defective_part_shipped']) && empty($spare_part_detail['defective_part_shipped_date'])) {
+                if (!empty($generate_defective_ok_part_challan) && ((empty($spare_part_detail['defective_part_shipped']) && empty($spare_part_detail['defective_part_shipped_date'])) || in_array($spare_part_detail['status'],array(DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE,OK_PARTS_REJECTED_BY_WAREHOUSE)))) {
                     $partner_on_saas = $this->My_CI->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
                     if (!$partner_on_saas) {
                         $select = 'spare_parts_details.id, spare_parts_details.defective_return_to_entity_type, spare_parts_details.defective_return_to_entity_id';
