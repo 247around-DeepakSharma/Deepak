@@ -1429,7 +1429,6 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
     // function to cross check request type of booking with warranty status of booking 
     function check_booking_request()
     {
-//        $(".price_checkbox").attr("disabled", false);
         if($(".input-model").is(":hidden"))
         {
             var model_number = $(".select-model").val();
@@ -1441,7 +1440,7 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
         var dop = $("#purchase_date_1").val();
         var partner_id = $("#source_code").find(':selected').attr('data-id');
         var service_id = $("#service_id").val();
-        var booking_id = 1;
+        var booking_id = "<?= $booking_history[0]['booking_id']?>";
         var booking_create_date = "<?= $booking_history[0]['create_date']?>";
         var booking_request_types = []; 
         $(".price_checkbox:checked").each(function(){
