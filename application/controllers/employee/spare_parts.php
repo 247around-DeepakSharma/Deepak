@@ -2259,6 +2259,7 @@ class Spare_parts extends CI_Controller {
 
                 if ($spare_update_flag) {
                     $data['status'] = SPARE_PARTS_REQUESTED;
+                    $data['spare_cancellation_reason'] = SPARE_PARTS_REQUESTED;
                 }
 
                 if ($data['is_micro_wh'] == 1 || $data['is_micro_wh'] == 2) {
