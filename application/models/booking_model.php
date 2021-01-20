@@ -2977,7 +2977,7 @@ class Booking_model extends CI_Model {
             $this->db->join('partners', 'booking_details.partner_id = partners.id'); 
         }
         if($is_vendor){
-            $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id'); 
+            $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id', 'left'); 
         }
         $query = $this->db->get();
         return $query->result_array();

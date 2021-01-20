@@ -6001,7 +6001,7 @@ class Booking extends CI_Controller {
            $where['REPLACE(UPPER(booking_details.request_type)," ","") LIKE "%'.$request_type_selected.'%"'] = NULL;
         }
         // Added filter for Review Range
-        if(isset($min_review_age) && $min_review_age != NOT_SET && $min_review_age != '' && isset($max_review_age) && $max_review_age != NOT_SET && $max_review_age != '') {
+        if(isset($min_review_age) && $min_review_age != FILTER_NOT_DEFINE && $min_review_age != '' && isset($max_review_age) && $max_review_age != FILTER_NOT_DEFINE && $max_review_age != '') {
            $where['(DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.service_center_closed_date,"%Y-%m-%d")) BETWEEN "'.$min_review_age.'" AND "'.$max_review_age.'") '] = NULL;
         }
         // Added Filter of Service 
@@ -6018,7 +6018,7 @@ class Booking extends CI_Controller {
             }
         }
         // Added Filter of SF
-        if(!empty($sf_id) && $sf_id != NOT_SET ){
+        if(!empty($sf_id) && $sf_id != FILTER_NOT_DEFINE ){
              $whereIN['booking_details.assigned_vendor_id'] = [$sf_id];
         }
         // put all selected values in array to show these filter values above filtered data
@@ -6102,8 +6102,8 @@ class Booking extends CI_Controller {
         $review_status = $post_data['review_status'];
         $is_partner = $post_data['is_partner'];
         $request_type = $post_data['request_type'];
-        $review_age_min = !empty($post_data['review_age_min']) ? (int) $post_data['review_age_min'] : NOT_SET;
-        $review_age_max = !empty($post_data['review_age_max']) ? (int) $post_data['review_age_max'] : NOT_SET;
+        $review_age_min = !empty($post_data['review_age_min']) ? (int) $post_data['review_age_min'] : FILTER_NOT_DEFINE;
+        $review_age_max = !empty($post_data['review_age_max']) ? (int) $post_data['review_age_max'] : FILTER_NOT_DEFINE;
         $service_id = $post_data['service_id'];
         $free_paid = $post_data['free_paid'];
         $sf_id = $post_data['sf_id'];
@@ -6161,7 +6161,7 @@ class Booking extends CI_Controller {
         }
         
         // Added Review Age Filter
-        if(isset($review_age_min) && $review_age_min != NOT_SET && $review_age_min != '' && isset($review_age_max) && $review_age_max != NOT_SET && $review_age_max != '') {
+        if(isset($review_age_min) && $review_age_min != FILTER_NOT_DEFINE && $review_age_min != '' && isset($review_age_max) && $review_age_max != FILTER_NOT_DEFINE && $review_age_max != '') {
            $where['(DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.service_center_closed_date,"%Y-%m-%d")) BETWEEN "'.$review_age_min.'" AND "'.$review_age_max.'") '] = NULL;
         }
         
@@ -6181,7 +6181,7 @@ class Booking extends CI_Controller {
         }
         
         // Added Filter of SF
-        if(!empty($sf_id) && $sf_id != NOT_SET ){
+        if(!empty($sf_id) && $sf_id != FILTER_NOT_DEFINE ){
              $whereIN['booking_details.assigned_vendor_id'] = [$sf_id];
         }
         
@@ -7112,7 +7112,7 @@ class Booking extends CI_Controller {
             $str .= "<td><button data-sf='".$values['sf_id']."' data-review-age-min='5'  data-review-age-max='7' class='btn btn-count ".($values['Day5-Day7'] > 0 ? 'btn-danger' : 'btn-success')."'>".$values['Day5-Day7']."</button></td>";
             $str .= "<td><button data-sf='".$values['sf_id']."' data-review-age-min='8'  data-review-age-max='15' class='btn btn-count ".($values['Day8-Day15'] > 0 ? 'btn-danger' : 'btn-success')."'>".$values['Day8-Day15']."</button></td>";
             $str .= "<td><button data-sf='".$values['sf_id']."' data-review-age-min='16' data-review-age-max='500' class='btn btn-count ".($values['>Day15'] > 0 ? 'btn-danger' : 'btn-success')."'>".$values['>Day15']."</button></td>";
-            $str .= "<td><button data-sf='".$values['sf_id']."' data-review-age-min='".NOT_SET."'  data-review-age-max='".NOT_SET."' class='btn btn-count ".($values['Total'] > 0 ? 'btn-danger' : 'btn-success')."'>".$values['Total']."</button></td>";
+            $str .= "<td><button data-sf='".$values['sf_id']."' data-review-age-min='".FILTER_NOT_DEFINE."'  data-review-age-max='".FILTER_NOT_DEFINE."' class='btn btn-count ".($values['Total'] > 0 ? 'btn-danger' : 'btn-success')."'>".$values['Total']."</button></td>";
             $str .= "</tr>";
         }
         
@@ -7121,15 +7121,15 @@ class Booking extends CI_Controller {
         $str .= "<td>".++$index."</td>";
         $str .= "<td>Total</td>";
         $str .= "<td>All</td>";
-        $str .= "<td><button data-sf='".NOT_SET."' data-review-age-min='0'  data-review-age-max='0' class='btn btn-count btn-success'>". array_sum(array_column($data, 'Day0')) ."</button></td>";
-        $str .= "<td><button data-sf='".NOT_SET."' data-review-age-min='1'  data-review-age-max='1' class='btn btn-count btn-success'>". array_sum(array_column($data, 'Day1')) ."</button></td>";
-        $str .= "<td><button data-sf='".NOT_SET."' data-review-age-min='2'  data-review-age-max='2' class='btn btn-count ".(array_sum(array_column($data, 'Day2')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($data, 'Day2'))."</button></td>";
-        $str .= "<td><button data-sf='".NOT_SET."' data-review-age-min='3'  data-review-age-max='3' class='btn btn-count ".(array_sum(array_column($data, 'Day3')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($data, 'Day3'))."</button></td>";
-        $str .= "<td><button data-sf='".NOT_SET."' data-review-age-min='4'  data-review-age-max='4' class='btn btn-count ".(array_sum(array_column($data, 'Day4')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($data, 'Day4'))."</button></td>";
-        $str .= "<td><button data-sf='".NOT_SET."' data-review-age-min='5'  data-review-age-max='7' class='btn btn-count ".(array_sum(array_column($data, 'Day5-Day7')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($data, 'Day5-Day7'))."</button></td>";
-        $str .= "<td><button data-sf='".NOT_SET."' data-review-age-min='8'  data-review-age-max='15' class='btn btn-count ".(array_sum(array_column($data, 'Day8-Day15')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($data, 'Day8-Day15'))."</button></td>";
-        $str .= "<td><button data-sf='".NOT_SET."' data-review-age-min='16'  data-review-age-max='500' class='btn btn-count ".(array_sum(array_column($data, '>Day15')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($data, '>Day15'))."</button></td>";
-        $str .= "<td><button data-sf='".NOT_SET."' data-review-age-min='".NOT_SET."'  data-review-age-max='".NOT_SET."' class='btn btn-count ".(array_sum(array_column($data, 'Total')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($data, 'Total'))."</button></td>";
+        $str .= "<td><button data-sf='".FILTER_NOT_DEFINE."' data-review-age-min='0'  data-review-age-max='0' class='btn btn-count btn-success'>". array_sum(array_column($data, 'Day0')) ."</button></td>";
+        $str .= "<td><button data-sf='".FILTER_NOT_DEFINE."' data-review-age-min='1'  data-review-age-max='1' class='btn btn-count btn-success'>". array_sum(array_column($data, 'Day1')) ."</button></td>";
+        $str .= "<td><button data-sf='".FILTER_NOT_DEFINE."' data-review-age-min='2'  data-review-age-max='2' class='btn btn-count ".(array_sum(array_column($data, 'Day2')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($data, 'Day2'))."</button></td>";
+        $str .= "<td><button data-sf='".FILTER_NOT_DEFINE."' data-review-age-min='3'  data-review-age-max='3' class='btn btn-count ".(array_sum(array_column($data, 'Day3')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($data, 'Day3'))."</button></td>";
+        $str .= "<td><button data-sf='".FILTER_NOT_DEFINE."' data-review-age-min='4'  data-review-age-max='4' class='btn btn-count ".(array_sum(array_column($data, 'Day4')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($data, 'Day4'))."</button></td>";
+        $str .= "<td><button data-sf='".FILTER_NOT_DEFINE."' data-review-age-min='5'  data-review-age-max='7' class='btn btn-count ".(array_sum(array_column($data, 'Day5-Day7')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($data, 'Day5-Day7'))."</button></td>";
+        $str .= "<td><button data-sf='".FILTER_NOT_DEFINE."' data-review-age-min='8'  data-review-age-max='15' class='btn btn-count ".(array_sum(array_column($data, 'Day8-Day15')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($data, 'Day8-Day15'))."</button></td>";
+        $str .= "<td><button data-sf='".FILTER_NOT_DEFINE."' data-review-age-min='16'  data-review-age-max='500' class='btn btn-count ".(array_sum(array_column($data, '>Day15')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($data, '>Day15'))."</button></td>";
+        $str .= "<td><button data-sf='".FILTER_NOT_DEFINE."' data-review-age-min='".FILTER_NOT_DEFINE."'  data-review-age-max='".FILTER_NOT_DEFINE."' class='btn btn-count ".(array_sum(array_column($data, 'Total')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($data, 'Total'))."</button></td>";
         $str .= "</tr>";
         
         // Return HTML    
