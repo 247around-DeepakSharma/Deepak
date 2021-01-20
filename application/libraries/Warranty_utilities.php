@@ -265,8 +265,16 @@ class Warranty_utilities {
         {
             if((strpos(strtoupper(str_replace(" ","",$booking_request_type)), 'OUTOFWARRANTY') !== false))
             {
-                $warranty_mismatch = 0;
-                $returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type.") of booking, but if needed you may proceed with current request type.";
+                // we can create a Booking in OW even if its status is IW (only if any spare is not requested in IW)
+                $IW_spare = $this->My_CI->booking_utilities->is_spare_requested_in_IW($booking_id);
+                if(!$IW_spare)
+                {
+                    $warranty_mismatch = 0;
+                    $returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type.") of Booking, but if needed you may proceed with current request type.";
+                }
+                else {
+                    $returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type.") of Booking, Spare is also Requested in IW. ";
+                }
             }
             else
             { 
