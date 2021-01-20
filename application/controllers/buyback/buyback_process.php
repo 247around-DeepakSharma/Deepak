@@ -925,7 +925,9 @@ class Buyback_process extends CI_Controller {
             $finalAmount = $cpBasicChargesArray[0]['cp_basic_charge']+$cpBasicChargesArray[0]['cp_tax_charge'];
             $msg = $msg."Order ID : ".$partner_order_id;
             $msg = $msg."<br>Basic Charge : " .$finalAmount;
-            $msg = $msg." <br>Claimed Price  : " .$update_bb_unit_data['cp_claimed_price'];
+            if(isset($update_bb_unit_data['cp_claimed_price'])){
+               $msg = $msg." <br>Claimed Price  : " .$update_bb_unit_data['cp_claimed_price'];
+           }
             $msg = $msg."<br>Remarks : ".$bb_cp_order_details_data['admin_remarks'];
             $subject  = $subject."Order Approved By 247Around";
         }
