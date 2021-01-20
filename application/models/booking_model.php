@@ -1981,7 +1981,7 @@ class Booking_model extends CI_Model {
      * return: Array of data
      *
      */
-    function get_booking_state_change_by_id($booking_id){
+    function get_booking_state_change_by_id($booking_id,$api=false,$internal_employee=false){
         $bookingIDArray[] = $booking_id;
         if (strpos($booking_id, 'Q-') === false) {
             $bookingIDArray[] = "Q-".$booking_id;
@@ -2023,8 +2023,12 @@ class Booking_model extends CI_Model {
                 }
             } else if(!is_null($value['service_center_id'])){
                 // For Service center
-                if ($this->session->userdata('userType') == 'employee') {
-                    $this->db->select("service_centers_login.full_name,service_centres.name as source ");
+                if ($this->session->userdata('userType') == 'employee' || !empty($api)) {
+                    if($this->session->userdata('userType') == 'employee' || !empty($internal_employee)){
+                        $this->db->select("service_centers_login.full_name,service_centres.name as source ");
+                    }else{
+                        $this->db->select("service_centers_login.full_name,concat('247around ',`service_centres`.`district` ,' ServiceCenter')  as source", false);  
+                    }
                  } else {
                      $this->db->select("CONCAT('Agent Id: ',service_centers_login.id ) As full_name , CONCAT('SF Id: ',service_centres.id ) As source");
                  }
