@@ -45,7 +45,7 @@
                                 <div class="form-group <?php if( form_error('name') ) { echo 'has-error';} ?>">
                                     <label for="name" class="col-md-4">Name *</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="name" name="name" value = "<?php echo isset($data[0]['name'])?$data[0]['name']:set_value('name');  ?>" placeholder="Enter Engineer Name" required>
+                                        <input type="text" class="form-control" id="name" name="name" onkeyup="if (/[^|a-zA-Z]+/g.test(this.value)) this.value = this.value.replace(/[^|a-zA-Z _ ]+/g,'')"  value = "<?php echo isset($data[0]['name'])?$data[0]['name']:set_value('name');  ?>" placeholder="Enter Engineer Name" required>
                                     </div>
                                     <?php echo form_error('name'); ?>
                                 </div>
