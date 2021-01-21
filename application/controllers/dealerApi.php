@@ -622,6 +622,7 @@ function check_for_upgrade(){
         $booking_id = "";
         $data = array();
 
+     
         
         $validation = $this->validateKeys(array("search_value"), $requestData);
         if ($validation['status']) {
@@ -713,11 +714,11 @@ function check_for_upgrade(){
                         $data['Bookings'][$key]['spares'] =  $spares_details;
                         $data['Bookings'][$key]['unit_details'] =  $unit_data; // Unit Details Data
                         
-                        $data['Bookings'][$key]['show_red_icon'] = 0;
+                        $data['Bookings'][$key]['show_red_icon'] = '0';
                         if(!empty($spares_details)){
                             foreach($spares_details as $key1 => $value1){
                                 if($spares_details[$key1]['spare_cancellation_reason']==1016){
-                                    $data['Bookings'][$key1]['show_red_icon'] = 1;
+                                    $data['Bookings'][$key]['show_red_icon'] = '1';
                                 }
                             }
                         }
@@ -740,6 +741,7 @@ function check_for_upgrade(){
                        $contact_number = $data_toll_free_array[$partner_name]['contact'];
                        }
                    }
+                   $contact_number = "$contact_number";
 
                     $data['Bookings'][$key]['contact_person'] = $data['Bookings'][$key]['appliance_brand'];
                     $data['Bookings'][$key]['contact_number'] = $contact_number;
