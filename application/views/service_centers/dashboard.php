@@ -2,10 +2,10 @@
     .loader_img{
     width: 22px;
     }
-    #msl_info{margin: 10px 89px;width: 88%;padding: 0px;}
-    #msl_info .x_title{background: #2c9d9c; color: #fff;}
-    #msl_info .x_title>h2{margin: 0px;padding: 5px 0px 5px 16px;font-size: 24px;}
-    #msl_info .x_body{
+    .dashboard-section{margin: 10px 89px;width: 88%;padding: 0px;}
+    .dashboard-section .x_title{background: #2c9d9c; color: #fff;}
+    .dashboard-section .x_title>h2{margin: 0px;padding: 5px 0px 5px 16px;font-size: 24px;}
+    .dashboard-section .x_body{
         margin-top: 0px;
         display: flex;
         font-size: 25px;
@@ -14,18 +14,45 @@
         flex-direction: row;
         justify-content: space-evenly;
     }
-    #msl_info .x_body>div{
+    .dashboard-section .x_body>div{
         display: flex;
         flex-direction: column;
         align-items: center;
     }
-    #msl_info a{font-size:18px;color: #254d5d;}
-    #msl_info .count{text-decoration: underline;font-size: 36px;}
+    .dashboard-section a{font-size:18px;color: #254d5d;}
+    .dashboard-section .count{text-decoration: underline;font-size: 36px;}
 </style>
 
 <div class="row" style="margin: 0px;">
+    <!-- Booking Creation By Walking Customers -->
+    <?php if(!empty($brands)) { ?>
+    <div class="col-md-12 col-md-offset-2 dashboard-section" id="walkin-booking">
+        <div class="x_title">
+            <h2>Create Booking for Walk-In Customers</h2>
+        </div>
+        <div class="x_body">
+            <?php 
+                $vendor_id = $this->session->userdata('service_center_id');
+                $url = base_url()."employee/partner/get_addbooking_form_walkin/".urlencode(base64_encode($vendor_id));
+                $qr_code = '<img src="https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl='.urlencode($url).'&choe=UTF-8" title="Add Booking" />';
+            ?> 
+            
+            <div class="col-md-10" style="display: inline;">
+                <a target="_blank" href="<?php echo base_url();?>service_center/add_booking_walkin/<?php echo $vendor_id; ?>">
+                    <label style="cursor: pointer;text-decoration: underline;">Click Here to Add Booking</label>
+                </a>
+            </div>
+            <div class="col-md-2">
+                <div style="border: 1px solid #ddd;">
+                    <?php echo $qr_code; ?>
+                    <p style="color : #8ba6c1;text-align: center;font-size: 13px;"> Scan Here </p>
+                </div>
+            </div>                
+        </div>
+    </div>
+    <?php } ?>
     <?php if($this->session->userdata("is_micro_wh")==1){ ?>
-    <div class="col-md-10 col-md-offset-2" id="msl_info">
+    <div class="col-md-10 col-md-offset-2 dashboard-section" id="msl_info">
         <div class="x_title">
             <h2>MSL Summary</h2>
         </div>

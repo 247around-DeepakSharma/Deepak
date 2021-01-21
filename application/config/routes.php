@@ -149,7 +149,7 @@ $route['service_center/download_sf_declaration/(:any)'] = 'employee/service_cent
 $route['service_center/acknowledge_spares_send_by_partner'] = 'employee/service_centers/acknowledge_spares_send_by_partner';
 $route['service_center/acknowledge_spares_send_by_vendor'] = 'employee/service_centers/acknowledge_spares_send_by_vendor';
 $route['service_center/dashboard'] = 'employee/service_centers/sf_dashboard';
-
+$route['service_center/add_booking_walkin/(:any)'] = 'employee/service_centers/add_booking_walkin/$1';
     
 
 $route['service_center/inventory/appliance_model_list'] = 'employee/service_centers/appliance_model_list';
