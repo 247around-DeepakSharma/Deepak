@@ -386,7 +386,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                                 if (isset($query[0]['phone_1'])) {
                                                     echo $query[0]['phone_1'];
                                                 }
-                                                ?>">
+                                                ?>"  onkeyup="check_mobile()" required="true">
                                             <?php echo form_error('phone_1'); ?>
                                         </div>
                                     </div>
@@ -1289,7 +1289,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label for="primary_contact_email" class="col-md-2 vertical-align">Email*</label>
                                         <div class="col-md-8">
-                                            <input  type="text" class="form-control"  name="primary_contact_email" value = "<?php
+                                            <input  type="email" class="form-control"  name="primary_contact_email" value = "<?php
                                                 if (isset($query[0]['primary_contact_email'])) {
                                                     echo $query[0]['primary_contact_email'];
                                                 }
@@ -1308,7 +1308,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label for="primary_contact_phone_1" class="col-md-3 vertical-align">Phone 1*</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control" id="primary_contact_phone_1" name="primary_contact_phone_1" value = "<?php
+                                            <input type="text" class="form-control" id="primary_contact_phone_1" onkeyup="validate_mobile()"name="primary_contact_phone_1" value = "<?php
                                                 if (isset($query[0]['primary_contact_phone_1'])) {
                                                     echo $query[0]['primary_contact_phone_1'];
                                                 }
@@ -1366,7 +1366,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label for="owner_email" class="col-md-3 vertical-align">Email*</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control"  name="owner_email" value = "<?php
+                                            <input type="email" class="form-control"  name="owner_email" value = "<?php
                                                 if (isset($query[0]['owner_email'])) {
                                                     echo $query[0]['owner_email'];
                                                 }
@@ -1385,7 +1385,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label  for="owner_phone_1" class="col-md-3 vertical-align">Phone 1*</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control" id="owner_phone_1" name="owner_phone_1" value = "<?php
+                                            <input type="text" class="form-control" id="owner_phone_1"onkeyup="validate_owner_mobile()"name="owner_phone_1" value = "<?php
                                                 if (isset($query[0]['owner_phone_1'])) {
                                                     echo $query[0]['owner_phone_1'];
                                                 }
@@ -1493,7 +1493,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     } else {
                                         echo "Save Contact Person";
                                     }
-                                    ?>" class="btn btn-primary" id="submit_btn">
+                                    ?>" class="btn btn-primary" id="submit_btn2">
                             <?php echo "<a class='btn btn-small btn-primary cancel' href=" . base_url() . "employee/vendor/viewvendor>Cancel</a>"; ?>
                                 </center>
             </div>    
@@ -1809,10 +1809,12 @@ function manageAccountNameField(value){
         phone_1: {
             required: true,
             minlength: 10,
+            maxlength:10,
             number: true
         },
         phone_2: {
             minlength: 10,
+            maxlength:10,
             number: true
         },
         state: "required",
@@ -1831,7 +1833,7 @@ function manageAccountNameField(value){
         district: "Please Select District",
         rm: "Please Select RM",
         state: "Please Select State",
-        phone_1: "Please enter Phone Number",
+        phone_1: "Please enter correct Phone Number",
         phone_2: "Please fill correct phone number",
         
         email: "Please fill correct email",
@@ -1964,17 +1966,23 @@ function manageAccountNameField(value){
         primary_contact_phone_1: {
             required: true,
             minlength: 10,
+            maxlength: 10,
             number: true
         },
         primary_contact_phone_2: {
+            minlength: 10,
+            maxlength: 10,
             number: true
         },
         owner_phone_1: {
             required: true,
             minlength: 10,
+            maxlength: 10,
             number: true
         },
         owner_phone_2: {
+            minlength: 10,
+            maxlength: 10,
             number: true
         },
         primary_contact_name: "required",
@@ -2426,6 +2434,55 @@ function manageAccountNameField(value){
 $(document).ready(function(){
     $('[data-toggle="tooltip"]').tooltip();
 });
+
+function check_mobile()
+{  
+   var badColor = "red";
+   var mobile = document.getElementById('phone_1');
+   //alert(mobile.value.length )
+   if (mobile.value !='1111111111' &&  mobile.value !='2222222222' && mobile.value !='3333333333' && mobile.value !='4444444444' && mobile.value !='5555555555' && mobile.value !='0000000000' && mobile.value !='6666666666' && mobile.value !='7777777777' && mobile.value !='8888888888' && mobile.value !='9999999999'){
+         mobile.style.borderColor = 'white';
+          document.getElementById('submit_btn').disabled = false;
+   }
+   else{
+     
+              mobile.style.borderColor = badColor;
+        document.getElementById('submit_btn').disabled = true;
+    }
+}
+  function validate_mobile(){
+        var badColor = "red";
+   var mobile = document.getElementById('primary_contact_phone_1');
+   //alert(mobile.value.length )
+   if (mobile.value !='1111111111' &&  mobile.value !='2222222222' && mobile.value !='3333333333' && mobile.value !='4444444444' && mobile.value !='5555555555' 
+          && mobile.value !='0000000000' && mobile.value !='6666666666' && mobile.value !='7777777777' && mobile.value !='8888888888' && mobile.value !='9999999999'){
+         mobile.style.borderColor = 'white';
+          document.getElementById('submit_btn2').disabled = false;
+   }
+   else{
+     
+              mobile.style.borderColor = badColor;
+        document.getElementById('submit_btn2').disabled = true;
+    }
+        
+    }
+    function validate_owner_mobile(){
+            var badColor = "red";
+   var mobile = document.getElementById('owner_phone_1');
+   //alert(mobile.value.length )
+   if (mobile.value !='1111111111' &&  mobile.value !='2222222222' && mobile.value !='3333333333' && mobile.value !='4444444444' && mobile.value !='5555555555' 
+          && mobile.value !='0000000000' && mobile.value !='6666666666' && mobile.value !='7777777777' && mobile.value !='8888888888' && mobile.value !='9999999999'){
+         mobile.style.borderColor = 'white';
+          document.getElementById('submit_btn2').disabled = false;
+   }
+   else{
+     
+              mobile.style.borderColor = badColor;
+        document.getElementById('submit_btn2').disabled = true;
+    }
+       
+    }
+        
 </script>
 <!--Validations here-->
 <?php if($this->session->userdata('checkbox')){$this->session->unset_userdata('checkbox');}?>
