@@ -183,7 +183,7 @@ $route['service_center/download_sf_declaration/(:any)'] = 'employee/service_cent
 $route['service_center/acknowledge_spares_send_by_partner'] = 'employee/service_centers/acknowledge_spares_send_by_partner';
 $route['service_center/acknowledge_spares_send_by_vendor'] = 'employee/service_centers/acknowledge_spares_send_by_vendor';
 $route['service_center/dashboard'] = 'employee/service_centers/sf_dashboard';
-
+$route['service_center/add_booking_walkin/(:any)'] = 'employee/service_centers/add_booking_walkin/$1';
     
 
 $route['service_center/inventory/appliance_model_list'] = 'employee/service_centers/appliance_model_list';
@@ -362,6 +362,7 @@ $route['engineer/download_engineer_bookings'] = 'employee/engineer/download_engi
 $route['engineer/configurations'] = 'employee/engineer/configurations';
 $route['employee/courier/add_courier_service'] = 'employee/spare_parts/add_courier_service';
 $route['warranty/warranty_plan_details/(:any)'] = 'employee/warranty/warranty_plan_details/$1';
+$route['service_center/get_challan_item_details/(:any)'] = 'employee/spare_parts/get_challan_item_details/$1';
 
 $route['employee/invoice/reverse_sale_for_part_lost/(:any)'] = 'employee/invoice/reverse_sale_for_part_lost/$1';
 $route['service_center/parts_delivered_to_sf'] = 'employee/service_centers/parts_delivered_to_sf';

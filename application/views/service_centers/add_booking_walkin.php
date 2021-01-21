@@ -1,0 +1,1 @@
+<iframe style="width: 100%;height:600px;border:0px;" src="<?php echo base_url();?>employee/partner/get_addbooking_form_walkin/<?php echo urlencode(base64_encode($vendor_id)); ?>"></iframe>
