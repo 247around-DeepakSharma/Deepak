@@ -4567,12 +4567,16 @@ exit();
                 $shipped_quantity = (!is_null($sp_data[0]->shipped_quantity) ? $sp_data[0]->shipped_quantity : 1);
                 $data[0]['taxable_value'] = sprintf("%.2f", ($amount - $tax_charge));
                 $data[0]['product_or_services'] = "Product";
-                if (!empty($vendor_details[0]['gst_no'])) {
+
+                if (!empty($vendor_details[0]['gst_no']) 
+                    && !empty($vendor_details[0]['gst_status']) 
+                    && !($vendor_details[0]['gst_status'] == _247AROUND_CANCELLED || $vendor_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
+                    
                     $data[0]['gst_number'] = $vendor_details[0]['gst_no'];
                 } else {
                     $data[0]['gst_number'] = 1;
                 }
-
+                
                 $data[0]['company_name'] = $vendor_details[0]['company_name'];
                 $data[0]['company_address'] = $vendor_details[0]['company_address'];
                 $data[0]['district'] = $vendor_details[0]['district'];
