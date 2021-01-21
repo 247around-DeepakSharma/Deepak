@@ -386,7 +386,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                                 if (isset($query[0]['phone_1'])) {
                                                     echo $query[0]['phone_1'];
                                                 }
-                                                ?>"  onkeyup="check_mobile()" required="true">
+                                                ?>"  onkeyup="check_mobile(this.id)" required="true">
                                             <?php echo form_error('phone_1'); ?>
                                         </div>
                                     </div>
@@ -399,7 +399,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label  for="phone_2" class="col-md-3 vertical-align">Phone 2</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control" id="phone_2" name="phone_2" value = "<?php
+                                            <input type="text" class="form-control" id="phone_2" name="phone_2" onkeyup=" check_mobile(this.id)"   value = "<?php
                                                 if (isset($query[0]['phone_2'])) {
                                                     echo $query[0]['phone_2'];
                                                 }
@@ -1310,7 +1310,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label for="primary_contact_phone_1" class="col-md-3 vertical-align">Phone 1*</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control" id="primary_contact_phone_1" onkeyup="validate_mobile()"name="primary_contact_phone_1" value = "<?php
+                                            <input type="text" class="form-control" id="primary_contact_phone_1" onkeyup="check_mobile(this.id)"name="primary_contact_phone_1" value = "<?php
                                                 if (isset($query[0]['primary_contact_phone_1'])) {
                                                     echo $query[0]['primary_contact_phone_1'];
                                                 }
@@ -1327,7 +1327,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label for="primary_contact_phone_2" class="col-md-3 vertical-align">Phone 2</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control" id="primary_contact_phone_2" name="primary_contact_phone_2" value = "<?php
+                                            <input type="text" class="form-control" id="primary_contact_phone_2" name="primary_contact_phone_2" onkeyup="check_mobile(this.id)" value = "<?php
                                                 if (isset($query[0]['primary_contact_phone_2'])) {
                                                     echo $query[0]['primary_contact_phone_2'];
                                                 }
@@ -1387,7 +1387,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label  for="owner_phone_1" class="col-md-3 vertical-align">Phone 1*</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control" id="owner_phone_1"onkeyup="validate_owner_mobile()"name="owner_phone_1" value = "<?php
+                                            <input type="text" class="form-control" id="owner_phone_1"onkeyup="check_mobile(this.id)"name="owner_phone_1" value = "<?php
                                                 if (isset($query[0]['owner_phone_1'])) {
                                                     echo $query[0]['owner_phone_1'];
                                                 }
@@ -1404,7 +1404,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label for="owner_phone_2" class="col-md-3 vertical-align">Phone 2</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control" id="owner_phone_2" name="owner_phone_2" value = "<?php
+                                            <input type="text" class="form-control" id="owner_phone_2" name="owner_phone_2" onkeyup="check_mobile(this.id)" value = "<?php
                                                 if (isset($query[0]['owner_phone_2'])) {
                                                     echo $query[0]['owner_phone_2'];
                                                 }
@@ -1495,7 +1495,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     } else {
                                         echo "Save Contact Person";
                                     }
-                                    ?>" class="btn btn-primary" id="submit_btn2">
+                                    ?>" class="btn btn-primary" id="submit_btn">
                             <?php echo "<a class='btn btn-small btn-primary cancel' href=" . base_url() . "employee/vendor/viewvendor>Cancel</a>"; ?>
                                 </center>
             </div>    
@@ -2439,54 +2439,13 @@ $(document).ready(function(){
     $('[data-toggle="tooltip"]').tooltip();
 });
 
-function check_mobile()
+function check_mobile(id)
 {  
-   var badColor = "red";
-   var mobile = document.getElementById('phone_1');
-   //alert(mobile.value.length )
-   if (mobile.value !='1111111111' &&  mobile.value !='2222222222' && mobile.value !='3333333333' && mobile.value !='4444444444' && mobile.value !='5555555555' && mobile.value !='0000000000' && mobile.value !='6666666666' && mobile.value !='7777777777' && mobile.value !='8888888888' && mobile.value !='9999999999'){
-         mobile.style.borderColor = 'white';
-          document.getElementById('submit_btn').disabled = false;
-   }
-   else{
-     
-              mobile.style.borderColor = badColor;
-        document.getElementById('submit_btn').disabled = true;
-    }
-}
-  function validate_mobile(){
-        var badColor = "red";
-   var mobile = document.getElementById('primary_contact_phone_1');
-   //alert(mobile.value.length )
-   if (mobile.value !='1111111111' &&  mobile.value !='2222222222' && mobile.value !='3333333333' && mobile.value !='4444444444' && mobile.value !='5555555555' 
-          && mobile.value !='0000000000' && mobile.value !='6666666666' && mobile.value !='7777777777' && mobile.value !='8888888888' && mobile.value !='9999999999'){
-         mobile.style.borderColor = 'white';
-          document.getElementById('submit_btn2').disabled = false;
-   }
-   else{
-     
-              mobile.style.borderColor = badColor;
-        document.getElementById('submit_btn2').disabled = true;
-    }
-        
-    }
-    function validate_owner_mobile(){
-            var badColor = "red";
-   var mobile = document.getElementById('owner_phone_1');
-   //alert(mobile.value.length )
-   if (mobile.value !='1111111111' &&  mobile.value !='2222222222' && mobile.value !='3333333333' && mobile.value !='4444444444' && mobile.value !='5555555555' 
-          && mobile.value !='0000000000' && mobile.value !='6666666666' && mobile.value !='7777777777' && mobile.value !='8888888888' && mobile.value !='9999999999'){
-         mobile.style.borderColor = 'white';
-          document.getElementById('submit_btn2').disabled = false;
-   }
-   else{
-     
-              mobile.style.borderColor = badColor;
-        document.getElementById('submit_btn2').disabled = true;
-    }
-       
-    }
-        
+  var mobile = document.getElementById(id).value;
+  if(mobile.charAt(0)==0){
+          alert("Do not enter first digit 0");
+      }
+}       
 </script>
 <!--Validations here-->
 <?php if($this->session->userdata('checkbox')){$this->session->unset_userdata('checkbox');}?>
