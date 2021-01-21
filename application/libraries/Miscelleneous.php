@@ -3242,8 +3242,10 @@ function generate_image($base64, $image_name,$directory){
         $where2['select'] = "wh_challan_number as challan_number";
 
         $challan_no_temp3 = $this->My_CI->partner_model->get_spare_parts_by_any($where2['select'], $where2['where']);
+        
+        $challan_no_temp4 = $this->My_CI->invoices_model->get_challan_deatils("challan_id as challan_number", array("( challan_id LIKE '%" . $challan_id_tmp . "%' )" => NULL));
 
-        $challan_no_temp = array_merge($challan_no_temp1, $challan_no_temp2, $challan_no_temp3);
+        $challan_no_temp = array_merge($challan_no_temp1, $challan_no_temp2, $challan_no_temp3, $challan_no_temp4);
         
         $challan_no = 1;
         $int_challan_no = array();

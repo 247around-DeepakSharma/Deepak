@@ -6328,6 +6328,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                             $courier_id = "";
                         }
                     } else {
+
                         $courier_id = $exist_courier_details[0]['id'];
                         $courier_file['message'] = $courier_file["courier_invoice_file"];
                         $courier_file['status'] = true;
