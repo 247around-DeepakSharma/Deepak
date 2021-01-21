@@ -75,7 +75,7 @@
                                 } ?>">
                                      <label for="booking_pincode" class="col-md-4">Pincode * </label>
                                 <div class="col-md-6">
-                                     <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(!empty($user)){ if(isset($user[0]['pincode'])){echo $user[0]['pincode'];} } ?>" placeholder="Enter Area Pin" > 
+                                     <input type="text" class="form-control" id="booking_pincode" name="booking_pincode"onkeyup="if (/[^|0-9]+/g.test(this.value)) this.value = this.value.replace(/[^|0-9]+/g,'')" value = "<?php if(!empty($user)){ if(isset($user[0]['pincode'])){echo $user[0]['pincode'];} } ?>" placeholder="Enter Area Pin" > 
                                     <span id="error_pincode" style="color:red"></span>
                                         <?php echo form_error('booking_pincode'); ?>
                                 </div>
