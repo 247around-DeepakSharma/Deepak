@@ -1770,7 +1770,11 @@ class Inventory_model extends CI_Model {
         
     }
         
-    function get_courier_details($select, $where){
+    function get_courier_details($select, $where, $distinct_flag = false){
+        
+        if (!empty($distinct_flag)) {
+            $this->db->distinct();
+        }
         $this->db->select($select);
         $this->db->where($where);
         $query = $this->db->get("courier_details");
