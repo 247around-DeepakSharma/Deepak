@@ -2061,7 +2061,7 @@ class Booking_model extends CI_Model {
                     if($this->session->userdata('userType') == 'employee' || !empty($internal_employee)){
                         $this->db->select("service_centers_login.full_name,service_centres.name as source ");
                     }else{
-                        $this->db->select("service_centers_login.full_name,concat('247around ',`service_centres`.`district` ,' ServiceCenter')  as source", false);  
+                        $this->db->select("service_centers_login.full_name,concat('247around ',`service_centres`.`district` ,' Service Center')  as source", false);  
                     }
                  } else {
                      $this->db->select("CONCAT('Agent Id: ',service_centers_login.id ) As full_name , CONCAT('SF Id: ',service_centres.id ) As source");

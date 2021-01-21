@@ -3,9 +3,9 @@
         <!-- Bootstrap -->
         <link href="<?php echo base_url() ?>css/bootstrap.min.css" rel="stylesheet">
     </head>
-    <body style="background: #f2f2f2;"> 
+    <body style="background: #f2f2f2;overflow-x: hidden;"> 
         <div class="page-heading">Booking Successfully Created</div>
-        <div class="row" style="margin-top:60px;">
+        <div class="row" style="margin-top:30px;">
             <div class="col-md-1"></div>
             <div class="col-md-10">
                 <table class="table borderless"  style="padding:10px;">

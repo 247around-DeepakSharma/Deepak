@@ -621,6 +621,8 @@ function check_for_upgrade(){
         $phone_number = "";
         $booking_id = "";
         $data = array();
+
+     
         
         $validation = $this->validateKeys(array("search_value"), $requestData);
         if ($validation['status']) {
@@ -664,6 +666,12 @@ function check_for_upgrade(){
                 $post['where'] = array("booking_details.booking_id like '%$phone_number%'" => null);
                 $data['Bookings'] = $this->booking_model->get_bookings_by_status($post, $select, array(), 2)->result_array();
             }
+            $data_toll_free = $this->partner_model->get_tollfree_and_contact_persons();
+            $data_toll_free_array = array();
+            foreach($data_toll_free as $key2 => $value2){
+                $data_toll_free_array[strtolower($value2['partner'])]['paid_service_centers'] = $value2['paid_service_centers'];
+                $data_toll_free_array[strtolower($value2['partner'])]['contact'] = $value2['contact'];
+            }
 
             if (!empty($data['Bookings'])) {
                 $dealer_pincode = $requestData["dealer_pincode"];
@@ -705,6 +713,16 @@ function check_for_upgrade(){
                         
                         $data['Bookings'][$key]['spares'] =  $spares_details;
                         $data['Bookings'][$key]['unit_details'] =  $unit_data; // Unit Details Data
+                        
+                        $data['Bookings'][$key]['show_red_icon'] = '0';
+                        if(!empty($spares_details)){
+                            foreach($spares_details as $key1 => $value1){
+                                if($spares_details[$key1]['spare_cancellation_reason']==1016){
+                                    $data['Bookings'][$key]['show_red_icon'] = '1';
+                                }
+                            }
+                        }
+                        
                         $query_scba = $this->vendor_model->get_service_center_booking_action_details('*', array('booking_id' => $value['booking_id'], 'current_status' => 'InProcess'));
                         $data['Bookings'][$key]['service_center_booking_action_status'] = "Pending";
                         if (!empty($query_scba)) {
@@ -714,11 +732,19 @@ function check_for_upgrade(){
                     $data['Bookings'][$key]['is_booking_completed'] = $this->is_booking_completed($value['booking_id']);
                     $data['Bookings'][$key]['can_booking_escalated'] = $this->can_booking_escalated($value['booking_id']);
                     
-                    
-                    $data['Bookings'][$key]['contact_person'] = 'ABC';
-                    $data['Bookings'][$key]['contact_number'] = 'ABCD';
-                    
-                    $partner_id = $data['Bookings'][$key]['partner_id'];
+
+                   $partner_name = strtolower($data['Bookings'][$key]['appliance_brand']);
+                   $contact_number = _247AROUND_CALLCENTER_NUMBER;
+
+                   if(!empty($partner_name) && empty($data_toll_free_array[$partner_name]['paid_service_centers'])){
+                       if(!empty($data_toll_free_array[$partner_name]['contact'])){
+                       $contact_number = $data_toll_free_array[$partner_name]['contact'];
+                       }
+                   }
+                   $contact_number = "$contact_number";
+
+                    $data['Bookings'][$key]['contact_person'] = $data['Bookings'][$key]['appliance_brand'];
+                    $data['Bookings'][$key]['contact_number'] = $contact_number;
                     
 
                 }

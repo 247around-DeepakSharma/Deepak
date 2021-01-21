@@ -74,7 +74,7 @@
                                 } ?>">
                                      <label for="booking_pincode" class="col-md-4">Pincode * </label>
                                 <div class="col-md-6">
-                                     <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(!empty($user)){ if(isset($user[0]['pincode'])){echo $user[0]['pincode'];} } ?>" placeholder="Enter Area Pin" > 
+                                     <input type="text" class="form-control" id="booking_pincode" name="booking_pincode"onkeyup="if (/[^|0-9]+/g.test(this.value)) this.value = this.value.replace(/[^|0-9]+/g,'')" value = "<?php if(!empty($user)){ if(isset($user[0]['pincode'])){echo $user[0]['pincode'];} } ?>" placeholder="Enter Area Pin" > 
                                     <span id="error_pincode" style="color:red"></span>
                                         <?php echo form_error('booking_pincode'); ?>
                                 </div>
@@ -304,7 +304,7 @@
                                 <label for="booking_date" class="col-md-4">Purchase Date *</label>
                                 <div class="col-md-6">
                                 <div class="input-group input-append date">
-                                    <input id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" onchange="check_booking_request()" required>
+                                    <input id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" onchange="check_booking_request()" required readonly="true" style="background: #fff;">
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>

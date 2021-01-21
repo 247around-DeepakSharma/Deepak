@@ -10136,7 +10136,7 @@ class Partner extends CI_Controller {
             return;
         }   
         // Get brands mapped with the Vendor
-        $selected_brands_list = $this->vendor_model->get_mapped_brands($sf_id);
+        $selected_brands_list = $this->vendor_model->get_mapped_brands($sf_id, 1);
         $data['brands'] = array_unique(explode(",", $selected_brands_list));
         $data['assigned_vendor_id'] = $sf_id;
         $this->load->view('partner/get_addbooking_walkin', $data);
@@ -10195,6 +10195,19 @@ class Partner extends CI_Controller {
     }
     
     /**
+     * Insert new Booking     *
+     * API to insert new booking in the CRM for walk-ins     *
+     * @access	public
+     * @return	Success / Error code as per the document
+     * @author Prity Sharma
+     * @created_on 21-01-2021
+    */
+    public function submitBooking() {
+        $input_d = file_get_contents('php://input');
+        return $this->process_addbooking_walkin(1, $input_d);
+    }
+    
+    /**
      * TODO
      * Check Low balance case also
      * @desc: This method is used to add bookings by Walk-In Customers OR APIs
@@ -10204,17 +10217,12 @@ class Partner extends CI_Controller {
      * @author Prity Sharma
      * @date 10-01-2021
     */
-    function process_addbooking_walkin($is_api = 0) {
+    function process_addbooking_walkin($is_api = 0, $input_d = NULL) {
         if($this->session->userdata('booking_otp')){
             $this->session->unset_userdata('booking_otp');            
         }
         
         if($is_api){
-//            $input_d = file_get_contents('php://input');
-            // Videocon JSON
-//            $input_d = '{"partnerName":"Videocon","partner_id":"247130","agent_id":"982218","name":"Vidhi Chikara","mobile":"9457366312","email":"","address":"Qwerty","pincode":"201204","city":"Ghaziabad","requestType":false,"landmark":"","service_id":"50","brand":"Videocon","productType":"","category":"AC-Split","capacity":"1.5 Ton","model":false,"serial_number":"","purchase_date":"2021-01-01","partner_source":"AndroidApp","remarks":"qwerty","orderID":"","assigned_vendor_id":"1","upcountry_data":"","alternate_phone_number":"","booking_date":"2021-01-18","partner_type":"OEM","appliance_unit":"1","partner_code":"LP","amount_due":false,"product_type":"Delivered","appliance_name":"","dealer_name":"qwerty sharma","dealer_phone_number":"9837247322","dealer_id":"","parent_booking":null,"repeat_reason":null,"booking_request_symptom":"0"}';
-            // JVC JSON
-            $input_d = '{"partnerName":"Wybor","partner_id":"247010","agent_id":"982218","name":"Vidhi Chikara","mobile":"9457366312","email":"","address":"Qwerty","pincode":"201204","city":"Ghaziabad","requestType":"Installation & Demo (Free)","landmark":"","service_id":"46","brand":"Wybor","productType":"","category":"TV-LED","capacity":"24 Inch","model":"19WHN-02","serial_number":"1F325SN09A352TC05070","purchase_date":"2021-01-01","partner_source":"AndroidApp","remarks":"qwerty","orderID":"","assigned_vendor_id":"","upcountry_data":"","alternate_phone_number":"","booking_date":"2021-01-18","partner_type":"OEM","appliance_unit":"1","partner_code":"SY","amount_due":false,"product_type":"Delivered","appliance_name":"","dealer_name":"qwerty sharma","dealer_phone_number":"9837247322","dealer_id":"","parent_booking":null,"repeat_reason":null,"booking_request_symptom":"0"}';
             $post = json_decode($input_d, TRUE);
         }
         else
@@ -10299,10 +10307,7 @@ class Partner extends CI_Controller {
             } else if ($responseData['data']['code'] == 247) {
                 $output = "Booking Inserted Successfully, Booking ID: " . $responseData['data']['response']['247aroundBookingID'];
                 log_message('info', $output);   
-                
-                $userSession = array('success' => $output);
-                $this->session->set_userdata($userSession);
-                redirect(base_url() . "employee/partner/load_booking_insertion_success_view/".$responseData['data']['response']['247aroundBookingID']);
+                redirect(base_url() . "employee/partner/load_booking_insertion_success_view/".$is_api."/".$responseData['data']['response']['247aroundBookingID']);
             }
             else if ($responseData['data']['code'] == -24700) {
                 log_message('info', ERR_SAME_BOOKING_EXISTS_MSG. print_r($postData, true) . " error mgs" . print_r($responseData['data'], true)); 
@@ -10435,12 +10440,27 @@ class Partner extends CI_Controller {
      * @author : Prity Sharma
      * @created_on : 18-01-2021
     */
-    function load_booking_insertion_success_view($booking_id) {
-        // Get Booking Details
-        $data['booking_history'] = $this->booking_model->get_booking_details('services.services, users.*, booking_details.*,service_centres.name as vendor_name,service_centres.address, ', ['booking_id' => $booking_id], true, true, false, false, true);        
-        //Get Booking Unit Details Data
-        $data['booking_unit_details'] = $this->booking_model->get_unit_details(['booking_id' => $booking_id, 'booking_status <> "Cancelled"' => NULL]);
-        $this->load->view('partner/booking_result', $data);
+    function load_booking_insertion_success_view($is_api,$booking_id) {
+        // return Response in case of API / for walkins show failure message on UI           
+        if($is_api){
+            //Invalid json
+            $this->jsonResponseString['code'] = SUCCESS_CODE;
+            $this->jsonResponseString['result'] = "Booking Successfully Created with Booking Id : ".$booking_id;
+            $responseData = array("data" => $this->jsonResponseString);
+
+            header('Content-Type: application/json');
+            $response = json_encode($responseData, JSON_UNESCAPED_SLASHES);
+            echo $response;
+            return;
+        }
+        else
+        {
+            // Get Booking Details
+            $data['booking_history'] = $this->booking_model->get_booking_details('services.services, users.*, booking_details.*,service_centres.name as vendor_name,service_centres.address, ', ['booking_id' => $booking_id], true, true, false, false, true);        
+            //Get Booking Unit Details Data
+            $data['booking_unit_details'] = $this->booking_model->get_unit_details(['booking_id' => $booking_id, 'booking_status <> "Cancelled"' => NULL]);
+            $this->load->view('partner/booking_result', $data);
+        }        
     }
     
 }

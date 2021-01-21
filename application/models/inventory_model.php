@@ -4167,5 +4167,303 @@ class Inventory_model extends CI_Model {
       $this->db->insert('cwh_stock_mismatch_report', $data);
       return $this->db->insert_id();
     }
+    
+    function get_challan_list($post) {
+        
+        $this->_get_challan_list($post);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+
+        $query = $this->db->get();
+        
+        $result = $query->result_array();
+        return $result;
+    }
+    
+    function _get_challan_list($post) {
+
+        $this->db->distinct();
+        $this->db->select($post['select'], false);
+        $this->db->from('challan_details');
+        $this->db->join('service_centres', 'service_centres.id =  sender_entity_id AND sender_entity_type = "vendor"', 'left');
+        $this->db->join('partners', 'partners.id =  receiver_entity_id AND sender_entity_type = "partner"', 'left');
+        $this->db->join('entity_gst_details as e1', 'e1.id =  from_gst_number_id', 'left');
+        $this->db->join('entity_gst_details as e2', 'e2.id =  to_gst_number_id', 'left');
+        if (!empty($post['where'])) {
+            $this->db->where($post['where']);
+        }
+
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+//        if (!empty($post['order'])) {
+//                $this->db->order_by($post['column_order'], $post['order'][0]['dir']);
+//        }
+
+    }
+    
+    public function count_all_challan_list($post) {
+        $post['select'] = "count( DISTINCT challan_details.id) as numrows";
+        $this->_get_challan_list($post);
+        $query = $this->db->get();
+        $result = $query->result_array();
+        if(!empty($result)){
+            return $result[0]['numrows'];
+        } else {
+            return 0;
+        }
+    }
+    /**
+     * @desc This fuction is used to get challan details data
+     * @param String $select
+     * @param Array $where
+     * @return Array
+     */
+    function get_challan_item_details($select, $where){
+        $this->db->select($select);
+        $this->db->from('challan_items_details');
+        $this->db->join('inventory_master_list', 'inventory_master_list.inventory_id = challan_items_details.inventory_id', 'left');
+        $this->db->where($where);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    /**
+     * @desc This function is used to remove challan items from exiting challan.
+     * @param int $sp_mapping_id
+     * @param int $spare_id
+     * @param int $challan_item_id
+     * @param int $qty
+     * @param String $challan_id
+     * @return boolean
+     */
+    function remove_challan_item($sp_mapping_id, $spare_id, $challan_item_id, $qty, $challan_id){
+        $this->db->trans_begin();
+            // Remove from spare, challan_spare_mapping. Update challan value
+            $this->remove_challan_from_spare($sp_mapping_id, $challan_item_id, $spare_id, $qty, $challan_id);
+            // Remove from challan & invoice mapping
+            $this->remove_challan_mapping_with_invoice($challan_item_id, $sp_mapping_id, $qty, $challan_id);
+  
+        if ($this->db->trans_status() === FALSE) {
+            $this->db->trans_rollback();
+            return false;
+        } else {
+            $this->db->trans_commit();
+            return true;
+        }
+    }
+    /**
+     * @desc this function is used to update challan items data in the challan_items_details.
+     * @param Array $data
+     * @param Array $where
+     */
+    function update_challan_item($data, $where){
+        $this->db->where($where);
+        $this->db->update('challan_items_details', $data);
+    }
+    /**
+     * @desc this function is used to update spare parts details, challan_spare_mapping, spare_tracking, challan_item_details & challan details table.
+     * In this function we remove challan number from spare.
+     * Added rejection status in the spare history table
+     * Recalculate challan value
+     * @param int $sp_mapping_id
+     * @param int $challan_item_id
+     * @param int $spare_id
+     * @param int $qty
+     * @param String $challan_id
+     * @return boolean
+     */
+    function remove_challan_from_spare($sp_mapping_id, $challan_item_id, $spare_id, $qty, $challan_id){
+        $this->db->where_in('id', $spare_id);
+        $this->db->update('spare_parts_details', array('wh_challan_number' => NULL, 'wh_challan_file' => NULL));
+        
+        $this->db->where('id', $sp_mapping_id);
+        $this->db->update('challan_spare_mapping', array('is_deleted' => 1));
+        
+        if (!empty($this->session->userdata('warehouse_id'))) {
+            $tracking_details['agent_id'] = $this->session->userdata('id');
+            $tracking_details['entity_id'] = _247AROUND;
+            $tracking_details['entity_type'] = _247AROUND_EMPLOYEE_STRING;
+        } else {
+            $tracking_details['agent_id'] = $this->session->userdata('service_center_agent_id');
+            $tracking_details['entity_id'] = $this->session->userdata('service_center_id');
+            $tracking_details['entity_type'] = _247AROUND_SF_STRING;
+        }
+               
+        $tracking_details['spare_id'] = $spare_id;
+        $tracking_details['action'] = CHALLAN_REJECTION_STATUS;
+        $tracking_details['remarks'] = $challan_id;
+
+        $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+        
+        $data = $this->get_challan_with_item_details('challan_details.challan_id, inventory_id,(cgst_tax_rate + sgst_tax_rate) as c_tax,'
+                . 'igst_tax_rate as i_tax ,rate, challan_items_details.quantity',
+                array('challan_items_details.id' => $challan_item_id));
+        
+        if (!empty($data)) {
+             if($data[0]['quantity']> $qty){
+                $i['quantity'] = $data[0]['quantity'] - $qty;
+                $i['taxable_value'] = $i['quantity'] * $data[0]['rate'];
+                
+                if($data[0]['c_tax'] > 0){
+                    
+                    $i['cgst_tax_amount'] = $i['sgst_tax_amount'] = ($i['taxable_value'] *$data[0]['c_tax']/100)/2;
+                    $i['total_amount'] = $i['taxable_value'] + $i['cgst_tax_amount'] + $i['sgst_tax_amount'];
+                    
+                } else {
+                    $i['igst_tax_amount'] = ($i['taxable_value'] * $data[0]['i_tax']/100);
+                    $i['total_amount'] = $i['taxable_value'] + $i['igst_tax_amount'];
+                }
+                
+                
+             } else if($data[0]['quantity'] <= $qty){
+                 $i['is_deleted'] = 1;
+             }
+
+             $this->update_challan_item($i, array('id' => $challan_item_id));
+        }
+
+        return true;
+    }
+   
+    
+    function insert_challan_mapping_with_spare_id($data){
+        return $this->db->insert_batch("challan_spare_mapping", $data);
+    }
+    
+    function remove_challan_mapping_with_invoice($challan_item_id, $sp_mapping_id, $qty, $challan_id) {
+        if (!empty($challan_item_id)) {
+            
+            $res = $this->get_outgoing_invoice_mapping("invoice_details.id as in_id, inventory_invoice_mapping.settle_qty, inventory_invoice_mapping.id as mapping_id", 
+                    'challan_items_details.id = "'.$challan_item_id.'" and challan_spare_mapping.id = "'.$sp_mapping_id.'" ');
+            
+            if (!empty($res)) {
+                foreach ($res as $value) {
+                    if ($qty > 0) {
+                        if ($value['settle_qty'] >= $qty) {
+                            $this->invoices_model->update_invoice_breakup(array('id' => $value['in_id']),
+                                    array('settle_qty = settle_qty -"' . $qty . '" ' => NULL, 'is_settle' => 0));
+                            if($qty == $value['settle_qty']){
+                                $this->delete_inventory_invoice_mapping(array('id' => $value['mapping_id']));
+                            } else {
+                                $this->update_inventory_invoice_mapping(array('id' => $value['mapping_id']), array('settle_qty = settle_qty - "'.$qty.'" ' => NULL));
+                            }
+                            
+                            $qty = 0;
+                            
+                            
+                        } else if ($qty > $value['settle_qty']) {
+                            $this->invoices_model->update_invoice_breakup(array('id' => $value['in_id']),
+                                    array('settle_qty = settle_qty -"' . $value['settle_qty'] . '" ' => NULL, 'is_settle' => 0));
+                            $qty = $qty - $value['settle_qty'];
+                            
+                            $this->delete_inventory_invoice_mapping(array('id' => $value['mapping_id']));
+                            
+                        }
+                    }
+                }
+            }
+            $select = 'sum(challan_items_details.quantity) as quantity, sum(challan_items_details.taxable_value) as taxable_value, sum(igst_tax_amount+ cgst_tax_amount +sgst_tax_amount) as gst_amount, sum(challan_items_details.total_amount) as total_amount';
+            $ch = $this->get_challan_with_item_details($select,
+                array('challan_details.challan_id' => $challan_id, 'challan_items_details.is_deleted' => 0));
+            
+            $this->update_challan_details(array('challan_details.challan_id' => $challan_id), array('quantity' => $ch[0]['quantity'], 
+                'taxable_value' =>$ch[0]['taxable_value'], 
+                'gst_amount' => $ch[0]['gst_amount']));
+            
+            return true;
+            
+        }
+        return false;
+    }
+    
+    function update_challan_details($where, $data){
+        $this->db->where($where);
+        $this->db->update("challan_details", $data);
+    }
+
+    function get_challan_with_item_details($select, $where){
+        $this->db->select($select, false);
+        $this->db->from('challan_items_details');
+        $this->db->join('challan_details', 'challan_details.id = challan_items_details.challan_id');
+        $this->db->where($where);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
+    function update_inventory_invoice_mapping($where, $data){
+        $this->db->where($where);
+        $this->db->update('inventory_invoice_mapping', $data);
+    }
+    
+    function delete_inventory_invoice_mapping($where){
+        if(!empty($where)){
+            $this->db->where($where);
+            $this->db->delete('inventory_invoice_mapping');
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    function get_outgoing_invoice_mapping($select, $where){
+       $sql = 'SELECT '.$select.' '
+               . ' FROM `inventory_invoice_mapping`, '
+               . ' challan_items_details, challan_spare_mapping, spare_parts_details, invoice_details '
+               . ' WHERE '.$where.' '
+               . ' and challan_items_details.inventory_id = inventory_invoice_mapping.inventory_id '
+               . ' AND inventory_invoice_mapping.rate = challan_items_details.rate '
+               . ' and challan_spare_mapping.challan_item_id = challan_items_details.id '
+               . ' and inventory_invoice_mapping.spare_id = challan_spare_mapping.spare_id '
+               . ' and spare_parts_details.id = challan_spare_mapping.spare_id '
+               . ' and invoice_details.invoice_id = incoming_invoice_id '
+               . ' and invoice_details.inventory_id =  inventory_invoice_mapping.inventory_id'
+               . ' and inventory_invoice_mapping.rate = invoice_details.rate'
+               . ' and challan_spare_mapping.is_deleted = 1 ';
+       
+       $query = $this->db->query($sql);
+       return $query->result_array();
+    }
+    
+    function get_annx_inventory_invoice_mapping($select, $where){
+        $sql = 'SELECT '.$select.' '
+               . ' FROM `inventory_invoice_mapping`, '
+               . ' challan_items_details, challan_spare_mapping, spare_parts_details, inventory_master_list '
+               . ' WHERE '.$where.' '
+               . ' and challan_items_details.inventory_id = inventory_invoice_mapping.inventory_id '
+               . ' AND inventory_invoice_mapping.rate = challan_items_details.rate '
+               . ' and challan_spare_mapping.challan_item_id = challan_items_details.id '
+               . ' and inventory_invoice_mapping.spare_id = challan_spare_mapping.spare_id '
+               . ' and spare_parts_details.id = challan_spare_mapping.spare_id '
+               . ' and challan_spare_mapping.is_deleted = 0 '
+               . ' and inventory_master_list.inventory_id = challan_items_details.inventory_id';
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    function get_challan_spare_mapping($select, $where){
+        $this->db->select($select, $where);
+        $this->db->from('challan_spare_mapping');
+        $this->db->join('challan_items_details', 'challan_items_details.id = challan_spare_mapping.challan_item_id');
+        $this->db->join('spare_parts_details', 'spare_parts_details.id = challan_spare_mapping.spare_id');
+        $this->db->join('challan_details', 'challan_details.id = challan_items_details.challan_id');
+        $this->db->join('inventory_master_list', 'inventory_master_list.inventory_id = challan_items_details.inventory_id');
+        $this->db->where($where);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+   
 
 }
