@@ -2399,13 +2399,18 @@ class vendor_model extends CI_Model {
      * @params - $Sf_id (Service Center Id) 
      * @return - array of Brands mapped to SF
     */
-    function get_mapped_brands($sf_id)
+    function get_mapped_brands($sf_id, $walk_in = 0)
     {
         $this->db->select('GROUP_CONCAT(service_center_brand_mapping.brand_name) as map_brands');
+        $this->db->join("services", "service_center_brand_mapping.service_id = services.id");
         $this->db->where(['service_center_id' => $sf_id, 'isActive' => 1]);
+        if($walk_in){
+            $this->db->where(['walk_in' => $walk_in]);
+        }
         $query = $this->db->get('service_center_brand_mapping');
         return $query->result_array()[0]['map_brands']; 
     }
+    
     function get_sf_call_load($sfArray){
         $sfString = implode("','",$sfArray);
         $sql = "SELECT assigned_vendor_id,COUNT(booking_id) as booking_count FROM booking_details WHERE assigned_vendor_id IN ('".$sfString."') AND current_status NOT IN ('Completed','Cancelled') "
