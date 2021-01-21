@@ -4071,7 +4071,7 @@ class Booking extends CI_Controller {
     private function get_post_data(){
         $post['length'] = $this->input->post('length');
         $post['start'] = $this->input->post('start');
-        $search = $this->input->post('search');
+        $search = str_replace( array( '\'', '"', ',' , ';', '<', '>' ), '', $this->input->post('search'));
         $post['search_value'] = $search['value'];
         $post['order'] = $this->input->post('order');
         $post['draw'] = $this->input->post('draw');
