@@ -2780,3 +2780,7 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `booking_id`, 
 --Abhay 10 Nov
 INSERT INTO `entity_role` (`id`, `entity_type`, `department`, `role`, `is_filter_applicable`) VALUES (NULL, '247Around', 'Operations', 'inventory_manager_hod', '1');
 ALTER TABLE `bill_to_partner_opencell` ADD `booking_id` INT(11) NULL DEFAULT NULL AFTER `spare_id`;
+
+--Abhay 11 JAN
+ALTER TABLE `inventory_invoice_mapping` ADD `spare_id` INT NULL DEFAULT NULL AFTER `inventory_id`;
+ALTER TABLE `inventory_invoice_mapping` ADD `rate` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `spare_id`;

@@ -1416,6 +1416,10 @@ class invoices_model extends CI_Model {
                 if(isset($value['from_gst_number_id'])){
                     $result[$key]['from_gst_number_id'] = $value['from_gst_number_id'];
                 }
+                
+                if(isset($value['spare_id'])){
+                    $result[$key]['spare_id'] = $value['spare_id'];
+                }
             }
             $meta['parts_count'] = $parts_count;
             $meta['service_count'] = $service_count;
@@ -3793,7 +3797,7 @@ class invoices_model extends CI_Model {
      * @date : 28-02-2020
      */
     function insert_open_cell_data($data){
-        $this->db->insert_ignore_duplicate_batch('bill_to_partner_opencell', $data);
+        $this->db->insert('bill_to_partner_opencell', $data);
     }
     
     
@@ -3983,15 +3987,6 @@ class invoices_model extends CI_Model {
     }
     
     /**
-     *  @desc : This function is used to save challan data
-     *  @param : Array $challan_details
-     *  @author Ankit Bhatt
-     *  @date : 28-04-2020
-     */
-    function insert_challan_breakup($challan_details){
-        return $this->db->insert_batch("challan_item_details", $challan_details);
-    }
-    /**
      * @Desc: This function is to get out of warranty revenue report model
      * @params: none
      * @return: array
@@ -4102,4 +4097,21 @@ class invoices_model extends CI_Model {
         return $query1->result_array();
     }
     
+    function get_challan_deatils($select, $where){
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get('challan_details');
+        return $query->result_array();
+    }
+    
+    function insert_challan_details($data){
+        $this->db->insert('challan_details', $data);
+        return $this->db->insert_id();
+    }
+    
+    function insert_challan_breakup($challan_details){
+        //return $this->db->insert_batch("challan_items_details", $challan_details);
+        $this->db->insert('challan_items_details', $challan_details);
+        return $this->db->insert_id();
+    }
 }
