@@ -70,7 +70,7 @@ function outbound_call(phone_number){
         	<div class="form-group <?php if( form_error('name') ) { echo 'has-error';} ?>">
                 <label for="name" class="col-md-2">User Name<span class="red">*</span></label>
                 <div class="col-md-4">
-                    <input type="text" class="form-control"  name="name" value = "<?php echo $user[0]['name']; ?>">
+                    <input type="text" class="form-control"  name="name" onkeyup="if (/[^|a-zA-Z0-9]+/g.test(this.value)) this.value = this.value.replace(/[^|a-zA-Z0-9 ]+/g,'')" value = "<?php echo $user[0]['name']; ?>">
                     <?php echo form_error('name'); ?>
                 </div>
             </div>
