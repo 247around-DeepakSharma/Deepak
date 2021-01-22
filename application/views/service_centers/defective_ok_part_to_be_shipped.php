@@ -651,7 +651,7 @@ if ($this->uri->segment(3)) {
             $('#selectall_spare_tag').prop('checked', false);
         }
         var total_lineItmes = $('.checkbox_challan:checked').length;
-            $(".checkbox_challan").prop('checked', false); 
+            
          if(total_lineItmes > 30){
                 $("#"+checkBox_id).prop('checked', false);
                 alert('You can not select more than 30.');
