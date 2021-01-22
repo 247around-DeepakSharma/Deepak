@@ -9494,7 +9494,7 @@ class Service_centers extends CI_Controller {
         if(!empty($this->session->userdata('service_center_id'))) {
             $sf_id = $this->session->userdata('service_center_id');
         }
-        if (isset($from) && isset($to) && !empty($from) && !empty($to)) {
+     
 
             if (isset($from) && isset($to) && !empty($from) && !empty($to)) {
             $where_from = array('spare_parts_details.booking_id' => $from,
