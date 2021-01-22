@@ -791,7 +791,7 @@
                                             <?php } else { ?>
                                                 <?php echo $sp['part_cancel_reason']; ?>
                                             <?php }
-                                        } else {
+                                             } else {
                                             ?>
                                             <?php echo $sp['part_cancel_reason']; ?>
                                         <?php } ?>
