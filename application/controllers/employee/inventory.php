@@ -4938,10 +4938,11 @@ class Inventory extends CI_Controller {
             if($ledger['is_wh_micro']==2){
             $newdata['is_micro_wh'] = 1;   
             }
-            if( $ledger['request_type'] == REPAIR_OOW_TAG){
-              $newdata['part_warranty_status'] = 2;
-            }else{
-              $newdata['part_warranty_status'] = 1;  
+
+            if (isset($ledger['request_type'])== REPAIR_OOW_TAG) {
+                $newdata['part_warranty_status'] = 2;
+            } else {
+                $newdata['part_warranty_status'] = 1;
             }
             
             $spare_id = $this->service_centers_model->insert_data_into_spare_parts($newdata);
