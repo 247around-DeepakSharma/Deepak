@@ -934,6 +934,13 @@ $("#on_invoice_file").change(function(){
                     $("#clone_id").empty();
                     $('#appliance_details_id').clone(true).appendTo('#clone_id');
                     $('#clone_id .form-control').each(function(){
+                    var IdsArray =  $(this).attr("id").split("_");
+                    if(IdsArray[0] == 'partGstRate'){
+                    var gst_rate = $("#partGstRate_"+IdsArray[1]).val();
+                        $(this).attr("id","clone_gstRate_"+IdsArray[1]); 
+                        $("#clone_gstRate_"+IdsArray[1]).val(gst_rate).change();
+                        $("#clone_gstRate_"+IdsArray[1]).css('pointer-events','none');
+                    }
                     $(this).attr("readonly","readonly");
                     });
                     $("#clone_id .select2-selection__rendered").css('background','#eee');
@@ -1387,7 +1394,7 @@ $("#on_invoice_file").change(function(){
                             var parts_total_price = Number($('#quantity_'+index).val()) * Number(obj.price);
                             $('#inventoryId_'+index).val(obj.inventory_id);
                             $('#partBasicPrice_'+index).val(parts_total_price.toFixed(2));
-                            $('#partGstRate_'+index).val(obj.gst_rate);
+                            $('#partGstRate_'+index).val(obj.gst_rate).change();
                             $('#partHsnCode_'+index).val(obj.hsn_code);
                             
                             var total_spare_invoice_price = 0;
