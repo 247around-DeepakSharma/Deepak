@@ -1122,6 +1122,7 @@
                                         <th>SF Challan Number</th>
                                         <th>SF Challan File</th>
                                         <th>Courier POD File</th>
+                                        <th>Update Courier Details</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1131,7 +1132,7 @@
                                             <a href="javascript:void(0);"  data-spare_id="<?php echo $sp['id']; ?>" class="spare_history_tracking"><?php echo $sp['id']; ?></a>
                                         </td>
                                         <td><?php if(!empty($sp['send_defective_to'])) { echo $sp['send_defective_to']; } else { echo ucfirst(_247AROUND_PARTNER_STRING); }?></td>   
-                                        <td><?php echo $sp['defective_part_shipped']; ?></td>
+                                        <td><span style="word-break: break-all;"><?php echo $sp['defective_part_shipped']; ?></span></td>
                                         <td><?php if(!empty($sp['shipped_part_number'])){ echo $sp['shipped_part_number'];}else{echo 'Not Available';} ?></td>
                                         <td><?php echo $sp['shipped_quantity']; ?></td>
                                         <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_sf'])); ?></td>
@@ -1188,6 +1189,9 @@
                                             <?php if (!empty($sp['awb_by_sf_pod'])) { ?>
                                                 <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY ?>/courier-pod/<?php echo $sp['awb_by_sf_pod']; ?>" target="_blank">Click Here to view</a>
                                             <?php } ?>
+                                        </td>
+                                        <td>
+                                            <a class="btn btn-primary" href="<?php echo base_url();?>employee/service_centers/update_spare_courier_details/<?php echo $sp['id'];?>" target="_blank">Update</a>
                                         </td>
                                     </tr>
                                     <?php
