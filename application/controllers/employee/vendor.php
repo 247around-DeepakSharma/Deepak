@@ -6154,52 +6154,56 @@ class vendor extends CI_Controller {
     }
     
      /**
-    * @desc This is used to load search GSTIN form.
-    * This form helps to search GSTIN for vendor and partner if not found then by using api.
+    * @desc Find GST number details on real time basis. No existing tables are searched
+      * for to find GST and only API is used to find latest details about the GST.
     */
-    function seach_gst_number(){
+    function seach_gst_number() {
         $api_response = "";
         $gstin = strtoupper(trim($this->input->post("gst_number")));
-        if(!empty($gstin)){
-            while(substr($gstin, -1) == ','){
-                $gstin = rtrim($gstin,","); 
+        
+        if (!empty($gstin)) {
+            while (substr($gstin, -1) == ',') {
+                $gstin = rtrim($gstin, ",");
             }
-            $gst =  explode(",",$gstin);
+            
+            $gst = explode(",", $gstin);
+            
             $i = 0;
             foreach ($gst as $value) {
-                $dbData = $this->vendor_model->search_gstn_number(trim($value));
-                if(!empty($dbData)){
-                    $data['data'][] = $dbData[0];
-                }
-                else{
-                    $api_response = json_decode($this->invoice_lib->taxpro_gstin_checking_curl_call(trim($value)),true);
-                    //$api_response = '{"stjCd":"UP530","lgnm":"NEERAJ RASTOGI","dty":"Regular","stj":"Ghaziabad Sector-4 , AC","adadr":[],"cxdt":"","gstin":"09ABJPR2848D1ZF","nba":["Service Provision","Office / Sale Office","Retail Business"],"lstupdt":"03/08/2018","ctb":"Proprietorship","rgdt":"01/07/2017","pradr":{"addr":{"bnm":"R.D.C","loc":"GHAZIABAD","st":"RAJ NAGAR","bno":"R-7/6","dst":"Ghaziabad","stcd":"Uttar Pradesh","city":"","flno":"","lt":"","pncd":"201002","lg":""},"ntr":"Service Provision, Office / Sale Office, Retail Business"},"tradeNam":"M/S SHIVAY ELECTRONICS","ctjCd":"YE0103","sts":"Active","ctj":"RANGE - 3"}';
-                    //$api_response = '{"status_cd":"0","error":{"error_cd":"GSP050D","message":"Error while decrypting or decoding received data. Upstream Response: {\"url\":\"/\",\"message\":null,\"errorCode\":\"SWEB_9035\"}"}}';
-                    //$api_response = json_decode($api_response, true);
-                    if(!(isset($api_response['error']))){
-                        $data['data'][$i]['lager_name'] = $api_response['lgnm'];
-                        $data['data'][$i]['gst_number'] = $api_response['gstin'];
-                        $data['data'][$i]['status'] = $api_response['sts'];
-                        $data['data'][$i]['type'] = $api_response['dty'];
-                        $data['data'][$i]['address'] = json_encode($api_response['pradr']);
-                        $data['data'][$i]['company_name'] = $api_response['tradeNam'];
-                        $data['data'][$i]['cancellation_date'] = $api_response['cxdt'];
-                        $data['data'][$i]['nature_of_business'] = $api_response['ctb'];
-                        $data['data'][$i]['create_date'] = date('Y-m-d H:i:s');
-                        
-                        $checkGSTDetail = $this->reusable_model->get_search_query("gstin_detail", 'id', array('gst_number'=>$api_response['gstin']), null, null, null, null, null, null)->result_array();
-                        if(empty($checkGSTDetail)){ 
-                            $this->reusable_model->insert_into_table("gstin_detail", $data['data'][$i]);
-                        }
-                        else{ 
-                            $this->reusable_model->update_table("gstin_detail", $data['data'][$i], array('gst_number'=>$api_response['gstin']));
-                        }
-                        $data['data'][$i]['entity'] = "By API";
+                $api_response = json_decode($this->invoice_lib->taxpro_gstin_checking_curl_call(trim($value)), true);
+                //$api_response = '{"stjCd":"UP530","lgnm":"NEERAJ RASTOGI","dty":"Regular","stj":"Ghaziabad Sector-4 , AC","adadr":[],"cxdt":"","gstin":"09ABJPR2848D1ZF","nba":["Service Provision","Office / Sale Office","Retail Business"],"lstupdt":"03/08/2018","ctb":"Proprietorship","rgdt":"01/07/2017","pradr":{"addr":{"bnm":"R.D.C","loc":"GHAZIABAD","st":"RAJ NAGAR","bno":"R-7/6","dst":"Ghaziabad","stcd":"Uttar Pradesh","city":"","flno":"","lt":"","pncd":"201002","lg":""},"ntr":"Service Provision, Office / Sale Office, Retail Business"},"tradeNam":"M/S SHIVAY ELECTRONICS","ctjCd":"YE0103","sts":"Active","ctj":"RANGE - 3"}';
+                //$api_response = '{"status_cd":"0","error":{"error_cd":"GSP050D","message":"Error while decrypting or decoding received data. Upstream Response: {\"url\":\"/\",\"message\":null,\"errorCode\":\"SWEB_9035\"}"}}';
+                //$api_response = json_decode($api_response, true);
+                if (!(isset($api_response['error']))) {
+                    $data['data'][$i]['lager_name'] = $api_response['lgnm'];
+                    $data['data'][$i]['gst_number'] = $api_response['gstin'];
+                    $data['data'][$i]['status'] = $api_response['sts'];
+                    $data['data'][$i]['type'] = $api_response['dty'];
+                    $data['data'][$i]['address'] = json_encode($api_response['pradr']);
+                    $data['data'][$i]['company_name'] = $api_response['tradeNam'];
+                    $data['data'][$i]['cancellation_date'] = $api_response['cxdt'];
+                    $data['data'][$i]['nature_of_business'] = $api_response['ctb'];
+                    $data['data'][$i]['create_date'] = date('Y-m-d H:i:s');
+
+                    //Search existing table and save data only for book-keeping purpose
+                    //but not for future searches.
+                    $checkGSTDetail = $this->reusable_model->get_search_query("gstin_detail",
+                                    'id', array('gst_number' => $api_response['gstin']),
+                                    null, null, null, null, null, null)->result_array();
+
+                    if (empty($checkGSTDetail)) {
+                        $this->reusable_model->insert_into_table("gstin_detail",
+                                $data['data'][$i]);
+                    } else {
+                        $this->reusable_model->update_table("gstin_detail",
+                                $data['data'][$i], array('gst_number' => $api_response['gstin']));
                     }
-                    else{
-                        $data['gst_not_found'] = $value;
-                    }
+
+                    $data['data'][$i]['entity'] = "By API";
+                } else {
+                    $data['gst_not_found'] = $value;
                 }
+
                 $i++;
             }
             $this->miscelleneous->load_nav_header();
@@ -6209,7 +6213,7 @@ class vendor extends CI_Controller {
             $this->load->view("employee/search_gst_number");
         }
     }
-    
+
     function send_broadcast_sms_to_vendors(){
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/send_broadcast_sms_to_vendors_form');

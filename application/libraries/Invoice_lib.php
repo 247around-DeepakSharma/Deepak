@@ -345,46 +345,47 @@ class Invoice_lib {
         }
     }
     
-    function taxpro_api_curl_call($url){
+    function taxpro_api_curl_call($url) {
         $curl = curl_init();
         curl_setopt_array($curl, array(
-          CURLOPT_URL => $url,
-          CURLOPT_RETURNTRANSFER => true,
-          CURLOPT_ENCODING => "",
-          CURLOPT_MAXREDIRS => 10,
-          CURLOPT_TIMEOUT => 30,
-          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-          CURLOPT_CUSTOMREQUEST => "GET",
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "GET",
         ));
         $api_response = curl_exec($curl);
         $err = curl_error($curl);
         curl_close($curl);
-        if($err){
+        if ($err) {
             $activity['json_response_string'] = $err;
             return false;
-        }
-        else{
+        } else {
             $activity['json_response_string'] = $api_response;
             $response = json_decode($api_response, true);
-            if(isset($response['error'])){ 
-                if($response['error']['error_cd'] != INVALID_LENGHT_GSTIN && $response['error']['error_cd'] != INVALID_GSTIN){  /**** mail not send on invalid gst number or invalid length of gst number *****/
+
+            if (isset($response['error'])) {
+                if ($response['error']['error_cd'] != INVALID_LENGHT_GSTIN &&
+                        $response['error']['error_cd'] != INVALID_GSTIN) {
+                    /*                     * ** mail not send on invalid gst number or invalid length of gst number **** */
                     $email_template = $this->ci->booking_model->get_booking_email_template(TAXPRO_API_FAIL);
-                    if(!empty($email_template)){
-                        $message = vsprintf($email_template[0], array("Called by - ".$this->ci->session->userdata('emp_name'), $api_response));  
+
+                    if (!empty($email_template)) {
+                        $message = vsprintf($email_template[0], array("Called by - " . $this->ci->session->userdata('emp_name'), $api_response));
                         $to = $email_template[1];
-                        $this->ci->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $email_template[3] , $email_template[5], $email_template[4], $message, '', TAXPRO_API_FAIL);
+                        $this->ci->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $email_template[3], $email_template[5], $email_template[4], $message, '', TAXPRO_API_FAIL);
                     }
                 }
+
                 return $api_response;
-            }
-            else{ 
-               return $api_response;
+            } else {
+                return $api_response;
             }
         }
     }
-    
-    
-    
+
     /**
      * @desc This function is used to call taxpro gst api 
      * @param String $vendor_id
