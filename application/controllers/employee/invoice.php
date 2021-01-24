@@ -3070,9 +3070,11 @@ exit();
         $this->form_validation->set_rules('from_date', 'Invoice Period', 'required|trim');
         $this->form_validation->set_rules('type', 'Type', 'required|trim');
         $this->form_validation->set_rules('tds_rate', 'TDS Rate', 'trim');
-        $this->form_validation->set_rules('tds_amount', 'Tds Amount', 'trim');
+        $this->form_validation->set_rules('tds_amount', 'TDS Amount', 'trim');
         $this->form_validation->set_rules('tcs_rate', 'TCS Rate', 'trim');
         $this->form_validation->set_rules('tcs_amount', 'TCS Amount', 'trim');
+        $this->form_validation->set_rules('num_bookings', 'Bookings', 'required|trim');
+        $this->form_validation->set_rules('parts_count', 'Parts', 'required|trim');
         
         if ($this->form_validation->run()) {
             $flag = true;
@@ -3085,6 +3087,9 @@ exit();
             $tds_rate = $this->input->post('tds_rate');
             $tcs_amount = $this->input->post('tcs_amount');
             $tcs_rate = $this->input->post('tcs_rate');
+            
+            $num_bookings = $this->input->post('num_bookings');
+            $parts_count = $this->input->post('parts_count');
 
             $data['hsn_code'] = $invoice['booking'][array_keys($invoice['booking'])[0]]['hsn_code'];
             
@@ -3111,9 +3116,12 @@ exit();
                 $data['tds_amount'] = $tds_amount;
                 $data['tcs_rate'] = $tcs_rate;
                 $data['tcs_amount'] = $tcs_amount;
+                
+                $data['num_bookings'] = $num_bookings;
+                $data['parts_count'] = $parts_count;
 
                 if ($data['vendor_partner'] == "vendor") {
-                    $entity_details = $this->vendor_model->viewvendor($data['vendor_partner_id']);
+                    $entity_details = $this->vendor_model->viewvendor($data['vendor_partner_id']);                    
                     
                     
                     if (!empty($entity_details[0]['gst_number']) 
@@ -3123,13 +3131,10 @@ exit();
                     } else {
                         $gst_number = "";
                     }
-                    
-                    
                 } else {
                     $entity_details = $this->partner_model->getpartner_details("gst_number, state", array('partners.id' => $data['vendor_partner_id']));
                     $gst_number = $entity_details[0]['gst_number'];
                 }
-
                
                 $data['total_amount_collected'] = sprintf("%.2f",($this->input->post('total_amount_charge') + $data['tds_amount']));
                 $data['rcm'] = 0;
