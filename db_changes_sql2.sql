@@ -2837,3 +2837,15 @@ ALTER TABLE `bill_to_partner_opencell` ADD `booking_id` INT(11) NULL DEFAULT NUL
 --Abhay 10 Nov
 INSERT INTO `entity_role` (`id`, `entity_type`, `department`, `role`, `is_filter_applicable`) VALUES (NULL, '247Around', 'Operations', 'inventory_manager_hod', '1');
 ALTER TABLE `bill_to_partner_opencell` ADD `booking_id` INT(11) NULL DEFAULT NULL AFTER `spare_id`;
+
+--Abhay 11 JAN
+ALTER TABLE `inventory_invoice_mapping` ADD `spare_id` INT NULL DEFAULT NULL AFTER `inventory_id`;
+ALTER TABLE `inventory_invoice_mapping` ADD `rate` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `spare_id`;
+
+--Anuj 23 Jan - Commit '#CRMS-2120 Correcting database column name as returned by GST API'
+ALTER TABLE `gstin_detail` CHANGE `address` `address` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
+ALTER TABLE `gstin_detail` CHANGE `lager_name` `lager_name` VARCHAR(55) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'Legal Name of Business';
+ALTER TABLE `gstin_detail` CHANGE `cancellation_date` `cancellation_date` DATETIME NULL;
+ALTER TABLE `gstin_detail` CHANGE `lager_name` `legal_name` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'Legal Name of Business';
+ALTER TABLE `gstin_detail` CHANGE `company_name` `company_name` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'Trade Name returned by API';
+

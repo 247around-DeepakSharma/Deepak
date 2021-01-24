@@ -1990,7 +1990,7 @@ class Around_scheduler extends CI_Controller {
                 } else {
                     $api_response = json_decode($api_response, TRUE);
                     if(isset($api_response['error'])){
-                       // $gstin_insert = array("gst_number"=> $vendor['gst_no'], "lager_name"=>$vendor['id']);
+                       // $gstin_insert = array("gst_number"=> $vendor['gst_no'], "legal_name"=>$vendor['id']);
                        // $this->reusable_model->insert_into_table("gstin_detail", $gstin_insert);
                     }
                     else{
