@@ -48,7 +48,7 @@
                     <tr>
                         <td><?php echo $value['gst_number']; ?></td>
                         <td><?php echo $value['entity']; ?></td>
-                        <td><?php echo $value['lager_name']; ?></td>
+                        <td><?php echo $value['legal_name']; ?></td>
                         <td><?php echo $value['status']; ?></td>
                         <td><?php echo $value['type']; ?></td>
                     </tr>
