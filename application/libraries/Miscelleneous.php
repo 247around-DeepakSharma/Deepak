@@ -1557,8 +1557,9 @@ class Miscelleneous {
      * @return int
      */
     function get_partner_prepaid_amount($partner_id, $getAll = FALSE) {
-        //Get Partner details
         log_message("info",__METHOD__."  Prepaid Amount Request for Partner ". $partner_id);
+        
+        //Get Partner details
         $partner_details = $this->My_CI->partner_model->getpartner_details("is_active, is_prepaid,prepaid_amount_limit,"
                 . "grace_period_date,prepaid_notification_amount, partner_type ", array('partners.id' => $partner_id));
         
@@ -1566,9 +1567,15 @@ class Miscelleneous {
         
         if(!empty($partner_details) && ($partner_details[0]['is_prepaid'] == 1 || !empty($getAll))){
             log_message("info",__METHOD__."  Prepaid Partner Found id ". $partner_id);
+            
             //Get Partner invoice amout
-            $invoice_amount = $this->My_CI->invoices_model->get_invoices_details(array('vendor_partner' => 'partner', 'vendor_partner_id' => $partner_id), ' COALESCE(SUM(`amount_collected_paid` ),0)  AS amount');
-            log_message("info",__METHOD__."  Prepaid Partner id ".$partner_id." Invoice Amount " . print_r($invoice_amount, true));
+            $invoice_amount = $this->My_CI->invoices_model->get_invoices_details
+                    (array('vendor_partner' => 'partner', 'vendor_partner_id' => $partner_id), 
+                    ' COALESCE(SUM(`amount_collected_paid` ),0)  AS amount');
+            
+            log_message("info",__METHOD__."  Prepaid Partner id " . $partner_id .
+                    " Invoice Amount " . print_r($invoice_amount, true));
+            
             $where = array(
                 'partner_id' => $partner_id,
                 'partner_invoice_id is null' => NULL,
@@ -1578,46 +1585,63 @@ class Miscelleneous {
             );
            
             // sum of partner payable amount whose booking is in followup, pending and completed(Invoice not generated) state.
-            $service_amount = $this->My_CI->booking_model->get_unit_details($where, false, 'SUM(partner_net_payable) as amount');
-            log_message("info",__METHOD__."  Prepaid Partner id ".$partner_id." Service Amount " . print_r($service_amount, true));
+            $service_amount = $this->My_CI->booking_model->get_unit_details($where, 
+                    false, 'SUM(partner_net_payable) as amount');
+            
+            log_message("info",__METHOD__."  Prepaid Partner id " . 
+                    $partner_id . " Service Amount " . print_r($service_amount, true));
             
             //Get unpaid upcountry charges
             $upcountry = $this->My_CI->upcountry_model->getupcountry_for_partner_prepaid($partner_id);
             $upcountry_basic = 0;
+            
             if(!empty($upcountry)){
                 $upcountry_basic = $upcountry[0]['total_upcountry_price'];
             }
             
             $misc_select = 'SUM(miscellaneous_charges.partner_charge) as misc_charge';
 
-            $misc = $this->My_CI->invoices_model->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.partner_invoice_id IS NULL", false, FALSE, "booking_details.partner_id", $partner_id, "partner_charge");
-            $msic_charge = 0;
+            $misc = $this->My_CI->invoices_model->get_misc_charges_invoice_data($misc_select, 
+                    "miscellaneous_charges.partner_invoice_id IS NULL", false, FALSE, 
+                    "booking_details.partner_id", $partner_id, "partner_charge");
+            $misc_charge = 0;
+            
             if(!empty($misc)){
-                $msic_charge = $misc[0]['misc_charge'];
+                $misc_charge = $misc[0]['misc_charge'];
             }
             
             $bank_transactions = $this->My_CI->invoices_model->getbank_transaction_summary("partner", $partner_id);
             log_message("info",__METHOD__."  Prepaid Partner id ".$partner_id." Bank Transaction Array " . print_r($bank_transactions, true));
+            
             // calculate final amount of partner
-            $final_amount = -($invoice_amount[0]['amount'] - $bank_transactions[0]['credit_amount'] + $bank_transactions[0]['debit_amount'] + ($service_amount[0]['amount'] * (1 + SERVICE_TAX_RATE)) + ($upcountry_basic * (1 + SERVICE_TAX_RATE)) + $msic_charge * (1 + SERVICE_TAX_RATE));
+            $final_amount = -($invoice_amount[0]['amount'] - $bank_transactions[0]['credit_amount'] 
+                    + $bank_transactions[0]['debit_amount'] + 
+                    ($service_amount[0]['amount'] * (1 + SERVICE_TAX_RATE)) + 
+                    ($upcountry_basic * (1 + SERVICE_TAX_RATE)) + 
+                    $misc_charge * (1 + SERVICE_TAX_RATE));
 
             log_message("info", __METHOD__ . " Partner Id " . $partner_id . " Prepaid account" . $final_amount);
+            
             $d['prepaid_amount'] = round($final_amount,0);
+            
             // If final amount is greater than notification amount then we will display notification in the Partner CRM
             if (($partner_details[0]['is_prepaid'] == 1) & $final_amount < $partner_details[0]['prepaid_notification_amount']) {
-
                 $d['is_notification'] = TRUE;
             } else {
                 $d['is_notification'] = FALSE;
             }
+            
             $d['prepaid_msg'] = "";
             $d['active'] = $partner_details[0]['is_active'];
+            
             // partner is_prepaid falg shoud be 1 and prepaid_amount_limit is should be greater than partner final amount
             if (($partner_details[0]['is_prepaid'] == 1) & $partner_details[0]['prepaid_amount_limit'] > $final_amount) {
                 // Display low amount msg on Partner CRM
                 $d['prepaid_msg'] = PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER;
+                
                 //If grace preiod is not and less than current date then partner is not able to insert new booking
-                if (!empty($partner_details[0]['grace_period_date']) && (date("Y-m-d") > date("Y-m-d", strtotime($partner_details[0]['grace_period_date'])))) {
+                if (!empty($partner_details[0]['grace_period_date']) 
+                        && (date("Y-m-d") > date("Y-m-d", strtotime($partner_details[0]['grace_period_date'])))) {
                     $d['active'] = 0;
                 } else if (empty($partner_details[0]['grace_period_date'])) {
                 // If grace period is empty and they have low balance then partner is not able to inert new booking
@@ -1629,21 +1653,29 @@ class Miscelleneous {
                     $d['is_notification'] = TRUE;
                     $d['prepaid_msg'] = PREPAID_DEACTIVATED_MSG_FOR_PARTNER;
                 }
-
+                
                 //$d['active'] = 1;
             }
+            
             $d['partner_type'] = $partner_details[0]['partner_type'];
-            log_message("info",__METHOD__."  Prepaid Partner id ".$partner_id." Return Prepaid data " . print_r($d, true));
+            
+            log_message("info",__METHOD__."  Prepaid Partner id ".
+                    $partner_id." Return Prepaid data " . print_r($d, true));
+            
             return $d;
         } else {
             $d['is_notification'] = false;
             $d['active'] = 1;
             $d['prepaid_msg'] = "";
             $d["prepaid_amount"] = "";
+            
             if(!empty($partner_details)){
                  $d['partner_type'] = $partner_details[0]['partner_type'];
             }
-            log_message("info",__METHOD__."  Prepaid Partner id ".$partner_id." Return false Prepaid data " . print_r($d, true));
+            
+            log_message("info",__METHOD__."  Prepaid Partner id ".$partner_id . 
+                    " Return false Prepaid data " . print_r($d, true));
+            
             return $d;
         }
     }
