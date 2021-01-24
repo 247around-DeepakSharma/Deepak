@@ -657,8 +657,8 @@ class invoices_model extends CI_Model {
      * @return Array
      */
     function get_invoices_details($where, $select = "*", $group_by = false) {
-
         $this->db->select($select, false);
+        
         if(!empty($where)){
             $this->db->where($where);
         }
@@ -666,7 +666,11 @@ class invoices_model extends CI_Model {
         if($group_by){
             $this->db->group_by($group_by);
         }
+        
         $query = $this->db->get("vendor_partner_invoices");
+        
+        //log_message("info", __METHOD__ . $this->db->last_query());
+        
         if ($query->num_rows > 0) {
             return $query->result_array();
         } else {
