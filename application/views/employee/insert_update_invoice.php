@@ -1095,7 +1095,7 @@
             var deduct_amount = 0;
             //Invoice category type that is selected
             var category_type = $("#productorservices_"+ index).val();
-            if(category_type === 'Product') {
+            if(category_type === 'Product' || category_type === 'Parts') {
                 parts_count += Number($("#qty_"+ index).val());
                 parts_cost += Number($("#taxablevalue_"+ index).val());
             }else if(category_type === 'Service' || category_type === 'Annual Charges'){
