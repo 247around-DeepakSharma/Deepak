@@ -6183,10 +6183,53 @@ class vendor extends CI_Controller {
                     $data['data'][$i]['gst_number'] = $api_response['gstin'];
                     $data['data'][$i]['status'] = $api_response['sts'];
                     $data['data'][$i]['type'] = $api_response['dty'];
+                                        
                     $data['data'][$i]['address'] = json_encode($api_response['pradr']);
+                    
+                    //save address in human readable format as well
+                    $address = $api_response['pradr']['addr'];
+                    $address_readable = '';
+                    
+                    if($address['flno'] != '')
+                        $address_readable .= ($address['flno'] . ", ");
+                    if($address['bno'] != '')
+                        $address_readable .= ($address['bno'] . ", ");
+                    if($address['bnm'] != '')
+                        $address_readable .= ($address['bnm'] . ", ");
+                    if($address['st'] != '')
+                        $address_readable .= ($address['st'] . ", ");
+                    if($address['loc'] != '')
+                        $address_readable .= ($address['loc'] . ", ");
+                    if($address['city'] != '')
+                        $address_readable .= ($address['city'] . ", ");
+                    if($address['dst'] != '')
+                        $address_readable .= ($address['dst'] . ", ");
+                    if($address['stcd'] != '')
+                        $address_readable .= ($address['stcd'] . ", ");
+                    if($address['pncd'] != '')
+                        $address_readable .= $address['pncd'];
+                    
+                    $data['data'][$i]['address_readable'] = $address_readable;
+                    
+                    //nature of business
+                    $nature_business = $api_response['pradr']['ntr'];
+                    $data['data'][$i]['nature_business'] = $nature_business;
+                    
+                    //company_name is actually trade name
                     $data['data'][$i]['company_name'] = $api_response['tradeNam'];
-                    $data['data'][$i]['cancellation_date'] = $api_response['cxdt'];
-                    $data['data'][$i]['nature_of_business'] = $api_response['ctb'];
+                    
+                    //$data['gst_cancelled_date'] = 
+                    //convert dates
+                    $data['data'][$i]['registration_date'] = 
+                            date("Y-m-d", strtotime(str_replace('/','-', $api_response['rgdt'])));
+                    
+                    //this field is populated only if GST is cancelled
+                    if (isset($api_response['cxdt']) && $api_response['cxdt'] != '') {
+                        $data['data'][$i]['cancellation_date'] = 
+                                date("Y-m-d", strtotime(str_replace('/','-', $api_response['cxdt'])));
+                    }
+                    
+                    $data['data'][$i]['constitution_of_business'] = $api_response['ctb'];
                     $data['data'][$i]['create_date'] = date('Y-m-d H:i:s');
 
                     //Search existing table and save data only for book-keeping purpose
@@ -6202,8 +6245,6 @@ class vendor extends CI_Controller {
                         $this->reusable_model->update_table("gstin_detail",
                                 $data['data'][$i], array('gst_number' => $api_response['gstin']));
                     }
-
-                    $data['data'][$i]['entity'] = "By API";
                 } else {
                     $data['gst_not_found'] = $value;
                 }
