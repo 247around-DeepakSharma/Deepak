@@ -2191,13 +2191,13 @@ class vendor_model extends CI_Model {
     **/
     function search_gstn_number($gst_no){
        $last_month = date('Y-m-d H:i:s', strtotime(date('Y-m-d H:i:s'). ' - 30 days'));
-       $sql =  "SELECT 'vendor' as 'entity', company_name as 'lager_name', gst_no as 'gst_number',"
+       $sql =  "SELECT 'vendor' as 'entity', company_name as 'legal_name', gst_no as 'gst_number',"
                . "gst_status as 'status', gst_taxpayer_type as 'type' FROM service_centres where gst_no = '".$gst_no."'
                 UNION
-                SELECT 'partner' as 'entity', public_name as 'lager_name', gst_number as 'gst_number',
+                SELECT 'partner' as 'entity', public_name as 'legal_name', gst_number as 'gst_number',
                 'status', 'type' FROM partners where gst_number = '".$gst_no."'
                 UNION
-                SELECT 'Previously Searched Data' as 'entity', lager_name as 'lager_name', gst_number as 'gst_number',
+                SELECT 'Previously Searched Data' as 'entity', legal_name as 'legal_name', gst_number as 'gst_number',
                 status as 'status', type as 'type' FROM gstin_detail 
                 where gst_number = '".$gst_no."' and create_date >= '".$last_month."'";
         

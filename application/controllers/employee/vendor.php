@@ -6177,7 +6177,9 @@ class vendor extends CI_Controller {
                 //$api_response = '{"status_cd":"0","error":{"error_cd":"GSP050D","message":"Error while decrypting or decoding received data. Upstream Response: {\"url\":\"/\",\"message\":null,\"errorCode\":\"SWEB_9035\"}"}}';
                 //$api_response = json_decode($api_response, true);
                 if (!(isset($api_response['error']))) {
-                    $data['data'][$i]['lager_name'] = $api_response['lgnm'];
+                    //log_message('info', __METHOD__ . print_r($api_response, true));
+                    
+                    $data['data'][$i]['legal_name'] = $api_response['lgnm'];
                     $data['data'][$i]['gst_number'] = $api_response['gstin'];
                     $data['data'][$i]['status'] = $api_response['sts'];
                     $data['data'][$i]['type'] = $api_response['dty'];
