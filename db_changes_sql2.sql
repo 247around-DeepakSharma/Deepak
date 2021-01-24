@@ -2854,3 +2854,11 @@ ALTER TABLE `gstin_detail` CHANGE `company_name` `company_name` VARCHAR(255) CHA
 ALTER TABLE `gstin_detail` ADD `registration_date` DATE NULL DEFAULT NULL COMMENT 'Effective Date of registration' AFTER `nature_of_business`;
 ALTER TABLE `gstin_detail` CHANGE `nature_of_business` `constitution_of_business` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'Constitution of Business';
 ALTER TABLE `gstin_detail` ADD `address_readable` VARCHAR(1024) NOT NULL COMMENT 'Address in readable format' AFTER `address`, ADD `nature_business` VARCHAR(1024) NOT NULL COMMENT 'Nature of Business Activities' AFTER `address_readable`;
+
+--Anuj 24 Jan - Commit ''
+ALTER TABLE `gstin_detail` CHANGE `address` `address` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+ALTER TABLE `gstin_detail` CHANGE `address_readable` `address_readable` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+ALTER TABLE `gstin_detail` CHANGE `nature_business` `nature_business` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+ALTER TABLE `gstin_detail` CHANGE `constitution_of_business` `constitution_of_business` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT 'Constitution of Business';
+ALTER TABLE `gstin_detail` CHANGE `type` `type` VARCHAR(55) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+
