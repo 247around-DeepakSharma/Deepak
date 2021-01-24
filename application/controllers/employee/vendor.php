@@ -6164,7 +6164,6 @@ class vendor extends CI_Controller {
                 //$api_response = json_decode($api_response, true);
                 if (!(isset($api_response['error']))) {
                     //log_message('info', __METHOD__ . print_r($api_response, true));
-
                     $data['data'][$i]['legal_name'] = $api_response['lgnm'];
                     $data['data'][$i]['gst_number'] = $api_response['gstin'];
                     $data['data'][$i]['status'] = $api_response['sts'];
