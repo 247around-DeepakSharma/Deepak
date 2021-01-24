@@ -1569,11 +1569,21 @@ class Miscelleneous {
             log_message("info",__METHOD__."  Prepaid Partner Found id ". $partner_id);
             
             //Get Partner invoice amout
-            $invoice_amount = $this->My_CI->invoices_model->get_invoices_details
-                    (array('vendor_partner' => 'partner', 'vendor_partner_id' => $partner_id), 
-                    ' COALESCE(SUM(`amount_collected_paid` ),0)  AS amount');
+            $invoice_where = "vendor_partner = 'partner' AND vendor_partner_id = " . $partner_id . 
+                    " AND sub_category NOT IN ('MSL', 'MSL New Part Return')";
             
-            log_message("info",__METHOD__."  Prepaid Partner id " . $partner_id .
+//            $invoice_amount = $this->My_CI->invoices_model->get_invoices_details
+//                    (array(
+//                        'vendor_partner' => 'partner',
+//                        'vendor_partner_id' => $partner_id,
+//                        'type' => 'Parts',
+//                        'sub_category IN' => 'MSL, MSL New Part Return'),
+//                    ' COALESCE(SUM(`amount_collected_paid` ), 0)  AS amount');
+
+            $invoice_amount = $this->My_CI->invoices_model->get_invoices_details
+                    ($invoice_where, ' COALESCE(SUM(`amount_collected_paid` ), 0)  AS amount');
+            
+            log_message("info",__METHOD__ . "  Prepaid Partner id " . $partner_id .
                     " Invoice Amount " . print_r($invoice_amount, true));
             
             $where = array(
@@ -1613,14 +1623,19 @@ class Miscelleneous {
             $bank_transactions = $this->My_CI->invoices_model->getbank_transaction_summary("partner", $partner_id);
             log_message("info",__METHOD__."  Prepaid Partner id ".$partner_id." Bank Transaction Array " . print_r($bank_transactions, true));
             
-            // calculate final amount of partner
+            /* Calculate final amount of partner by adding all invoices (except MSL), bank credit/debit transactions
+             * and service amount for pending bookings.
+             * 
+             * If final amount is coming as +ve, that means that partner has to pay us this much
+             * amount. Make this -ve so that partner balance is shown in -ve.
+             */            
             $final_amount = -($invoice_amount[0]['amount'] - $bank_transactions[0]['credit_amount'] 
                     + $bank_transactions[0]['debit_amount'] + 
                     ($service_amount[0]['amount'] * (1 + SERVICE_TAX_RATE)) + 
                     ($upcountry_basic * (1 + SERVICE_TAX_RATE)) + 
                     $misc_charge * (1 + SERVICE_TAX_RATE));
 
-            log_message("info", __METHOD__ . " Partner Id " . $partner_id . " Prepaid account" . $final_amount);
+            log_message("info", __METHOD__ . " Partner Id " . $partner_id . ", Prepaid account final amount: " . $final_amount);
             
             $d['prepaid_amount'] = round($final_amount,0);
             
@@ -1634,8 +1649,9 @@ class Miscelleneous {
             $d['prepaid_msg'] = "";
             $d['active'] = $partner_details[0]['is_active'];
             
-            // partner is_prepaid falg shoud be 1 and prepaid_amount_limit is should be greater than partner final amount
-            if (($partner_details[0]['is_prepaid'] == 1) & $partner_details[0]['prepaid_amount_limit'] > $final_amount) {
+            // partner is_prepaid flag shoud be 1 and prepaid_amount_limit should be greater than partner final amount
+            // this is not the best way to check this. discuss with abhay/anuj if in doubt
+            if (($partner_details[0]['is_prepaid'] == 1) && $partner_details[0]['prepaid_amount_limit'] > $final_amount) {
                 // Display low amount msg on Partner CRM
                 $d['prepaid_msg'] = PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER;
                 
@@ -1649,7 +1665,7 @@ class Miscelleneous {
                 }
             } else {
                 // permanent Deactivated Partner then display De-Activate MSG
-                if($d['active'] == 0){
+                if($d['active'] == 0) {
                     $d['is_notification'] = TRUE;
                     $d['prepaid_msg'] = PREPAID_DEACTIVATED_MSG_FOR_PARTNER;
                 }
