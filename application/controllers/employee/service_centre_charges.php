@@ -2001,7 +2001,8 @@ class service_centre_charges extends CI_Controller {
         if ($this->form_validation->run() == TRUE) {
             $data = array(
                 'services' => trim($this->input->post('appliance')),
-                'isBookingActive' => 1
+                 'walk_in' => $this->input->post('walk_in'),
+                 'isBookingActive' => 1
             );
 
             $status = $this->service_centre_charges_model->insert_appliance_name($data);

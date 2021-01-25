@@ -548,7 +548,7 @@ class Booking_model extends CI_Model {
         {
             $strWhere = 'isBookingActive = 1';
         }
-        $query = $this->db->query("Select id,services,isBookingActive from services where ".$strWhere." order by services");
+        $query = $this->db->query("Select id,services,walk_in,isBookingActive from services where ".$strWhere." order by services");
         if(empty($format)){
             return $query->result();
         }else{
