@@ -368,7 +368,7 @@ class Warranty extends CI_Controller {
         $row[]=date('jS M, Y', strtotime($warranty_plan_list->period_start));
         $row[]=date('jS M, Y', strtotime($warranty_plan_list->period_end));
         $row[]=$warranty_plan_list->warranty_type == 1 ? "IW" : "EW";
-        $row[]=$warranty_plan_list->plan_depends_on == 1 ? "Model" : "Product";
+        //$row[]=$warranty_plan_list->plan_depends_on == 1 ? "Model" : "Product";
         $row[]=$warranty_plan_list->warranty_period." Months";
         $row[]=$warranty_plan_list->public_name;
         $row[]=$warranty_plan_list->services;
