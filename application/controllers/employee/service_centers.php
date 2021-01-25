@@ -6417,18 +6417,7 @@ class Service_centers extends CI_Controller {
         $post = $this->get_post_view_data();
         log_message('info', __FUNCTION__ . " SF ID: " . $sf_id);
 
-        if (!empty($post['search_value'])) {
-
-            $where = array(
-                "spare_parts_details.defective_part_required" => 1,
-                "approved_defective_parts_by_admin" => 1,
-                "(spare_lost is null or spare_lost = 0)" => NULL,
-                "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
-                "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "','" . OK_PARTS_SHIPPED . "','" . DAMAGE_PARTS_SHIPPED . "')" => NULL,
-            );
-        } else {
-
-            $where = array(
+        $where = array(
                 "spare_parts_details.defective_part_required" => 1,
                 "approved_defective_parts_by_admin" => 1,
                 "(spare_lost is null or spare_lost = 0)" => NULL,
@@ -6436,9 +6425,7 @@ class Service_centers extends CI_Controller {
                 "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
                 "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "','" . OK_PARTS_SHIPPED . "','" . DAMAGE_PARTS_SHIPPED . "')" => NULL,
             );
-        }
-
-
+        
         $select = "defective_part_shipped,spare_parts_details.defective_part_rejected_by_partner, spare_parts_details.shipped_quantity,spare_parts_details.id, spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, spare_consumption_status.reason_text, "
                 . " spare_parts_details.booking_id, users.name as 'user_name', courier_name_by_sf, awb_by_sf,defective_part_shipped_date,"
                 . "remarks_defective_part_by_sf,booking_details.partner_id,service_centres.name as 'sf_name',service_centres.district as 'sf_city',s.part_number, spare_parts_details.defactive_part_received_date_by_courier_api, spare_parts_details.defective_part_rejected_by_wh, spare_parts_details.status";
