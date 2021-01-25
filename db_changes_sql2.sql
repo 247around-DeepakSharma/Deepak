@@ -2784,3 +2784,23 @@ ALTER TABLE `bill_to_partner_opencell` ADD `booking_id` INT(11) NULL DEFAULT NUL
 --Abhay 11 JAN
 ALTER TABLE `inventory_invoice_mapping` ADD `spare_id` INT NULL DEFAULT NULL AFTER `inventory_id`;
 ALTER TABLE `inventory_invoice_mapping` ADD `rate` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `spare_id`;
+
+--Anuj 23 Jan - Commit '#CRMS-2120 Correcting database column name as returned by GST API'
+ALTER TABLE `gstin_detail` CHANGE `address` `address` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
+ALTER TABLE `gstin_detail` CHANGE `lager_name` `lager_name` VARCHAR(55) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'Legal Name of Business';
+ALTER TABLE `gstin_detail` CHANGE `cancellation_date` `cancellation_date` DATETIME NULL;
+ALTER TABLE `gstin_detail` CHANGE `lager_name` `legal_name` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'Legal Name of Business';
+ALTER TABLE `gstin_detail` CHANGE `company_name` `company_name` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'Trade Name returned by API';
+
+--Anuj 24 Jan - Commit '#CRMS-2120 Adding registration date, address, nature of business'
+ALTER TABLE `gstin_detail` ADD `registration_date` DATE NULL DEFAULT NULL COMMENT 'Effective Date of registration' AFTER `nature_of_business`;
+ALTER TABLE `gstin_detail` CHANGE `nature_of_business` `constitution_of_business` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'Constitution of Business';
+ALTER TABLE `gstin_detail` ADD `address_readable` VARCHAR(1024) NOT NULL COMMENT 'Address in readable format' AFTER `address`, ADD `nature_business` VARCHAR(1024) NOT NULL COMMENT 'Nature of Business Activities' AFTER `address_readable`;
+
+--Anuj 24 Jan - Commit ''
+ALTER TABLE `gstin_detail` CHANGE `address` `address` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+ALTER TABLE `gstin_detail` CHANGE `address_readable` `address_readable` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+ALTER TABLE `gstin_detail` CHANGE `nature_business` `nature_business` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+ALTER TABLE `gstin_detail` CHANGE `constitution_of_business` `constitution_of_business` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT 'Constitution of Business';
+ALTER TABLE `gstin_detail` CHANGE `type` `type` VARCHAR(55) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+

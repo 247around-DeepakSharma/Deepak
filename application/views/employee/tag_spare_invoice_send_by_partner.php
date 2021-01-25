@@ -181,10 +181,10 @@
                                             <div class="col-xs-12 col-sm-6 col-md-2">
                                                 <p class="text-center"><strong>Appliance</strong></p>
                                             </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-3">
+                                            <div class="col-xs-12 col-sm-6 col-md-2">
                                                 <p class="text-center"><strong>Part Number</strong></p>
                                             </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-3">
+                                            <div class="col-xs-12 col-sm-6 col-md-2">
                                                 <p class="text-center"><strong>Part Name</strong></p>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-2" style="display:none">
@@ -209,7 +209,7 @@
                                                 <select class="form-control" name="part[0][service_id]" id="serviceId_0" required=""></select>
                                                 <label for="serviceId_0" class="error"></label>
                                             </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-3">
+                                            <div class="col-xs-12 col-sm-6 col-md-2">
                                                 <input type="text" class="form-control part_number" name="part[0][part_number]" id="partNumber_0" required="" onblur="get_part_details(this.id)" placeholder="Enter Part Number">
                                                 <label for="partNumber_0" class="error"></label>
                                             </div>
@@ -254,11 +254,11 @@
                                                 <select class="form-control" id="service_id"  required=""></select>
                                                 <label for="service_id" class="error"></label>
                                             </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-3">
+                                            <div class="col-xs-12 col-sm-6 col-md-2">
                                                 <input type="text" class="form-control part_number" id="part_number"  required="" onblur="get_part_details(this.id)" placeholder="Enter Part Number">
                                                 <label for="part_number" class="error"></label>
                                             </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-3">
+                                            <div class="col-xs-12 col-sm-6 col-md-2">
                                                 <select class="form-control" id="part_name" required=''></select>
                                                 <span id="part_loader" style="display: none; margin-left: 45%;"><i class='fa fa-spinner fa-spin'></i></span>
                                                 <label for="part_name" class="error"></label>
@@ -837,6 +837,13 @@
                     $("#clone_id").empty();
                     $('#appliance_details_id').clone(true).appendTo('#clone_id');
                     $('#clone_id .form-control').each(function(){
+                    var IdsArray =  $(this).attr("id").split("_");
+                        if(IdsArray[0] == 'partGstRate'){
+                           var gst_rate = $("#partGstRate_"+IdsArray[1]).val();
+                          $(this).attr("id","clone_gstRate_"+IdsArray[1]); 
+                          $("#clone_gstRate_"+IdsArray[1]).val(gst_rate).change();
+                          $("#clone_gstRate_"+IdsArray[1]).css('pointer-events','none');
+                        }
                     $(this).attr("readonly","readonly");
                     });
                     $("#clone_id .select2-selection__rendered").css('background','#eee');

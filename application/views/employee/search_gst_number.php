@@ -37,20 +37,28 @@
                         <thead>
                             <tr>
                                 <th>GST Number</th>
-                                <th>Entity</th>
-                                <th>Name</th>
-                                <th>Status</th>
-                                <th>Type</th>
+                                <th>Legal Name of Business</th>
+                                <th>Trade Name</th>
+                                <th>Effective Date of Registration</th>
+                                <th>Constitution of Business</th>
+                                <th>GSTIN / UIN Status</th>
+                                <th>Taxpayer Type</th>
+                                <th>Principal Place of Business</th>
+                                <th>Effective Date of Cancellation</th>
                             </tr>
                         </thead>
                         <tbody>
              <?php   foreach ($data as $value){ ?>
                     <tr>
                         <td><?php echo $value['gst_number']; ?></td>
-                        <td><?php echo $value['entity']; ?></td>
-                        <td><?php echo $value['lager_name']; ?></td>
+                        <td><?php echo $value['legal_name']; ?></td>
+                        <td><?php echo $value['company_name']; ?></td>
+                        <td><?php echo $value['registration_date']; ?></td>
+                        <td><?php echo $value['constitution_of_business']; ?></td>
                         <td><?php echo $value['status']; ?></td>
                         <td><?php echo $value['type']; ?></td>
+                        <td><?php echo $value['address_readable']; ?></td>
+                        <td><?php echo isset($value['cancellation_date']) ? $value['cancellation_date'] : ''; ?></td>                        
                     </tr>
                <?php } ?>
                    </tbody>
