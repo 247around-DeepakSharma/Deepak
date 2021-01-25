@@ -1282,11 +1282,11 @@ class User extends CI_Controller {
                              $title ='You can not map this district as this is already mapped with other agent.';
                          }
                          if(!empty($zone_id) && $zone_id!=$value_d['zone_id']){
-                             $checked = '';
+                             /*$checked = '';
                              $disabled ='disabled';
                              $class = '';
                              $style=";color:#ccc";
-                             $title ='You can not map this district as this is district does not belong to zone of selected user.';
+                             $title ='You can not map this district as this is district does not belong to zone of selected user.';*/
                          }
 
                         $html .="<div class='col-md-3' style='padding:5px 0px$style' title='$title'><span data-toggle='tooltip' title='$title' data-placement='right'><input type='checkbox' $checked class='$class ' $disabled name='district[]' value='$key_d'>&nbsp;&nbsp;".$value_d['district']."</span></div>"; 
