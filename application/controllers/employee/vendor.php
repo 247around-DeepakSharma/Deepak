@@ -231,8 +231,8 @@ class vendor extends CI_Controller {
     }
     
     function get_vendor_basic_form_data(){
-        $vendor_data['company_name'] = trim($this->input->post('company_name'));
-        $vendor_data['name'] = trim($this->input->post('name'));
+        $vendor_data['company_name'] = strtoupper(trim($this->input->post('company_name')));
+        $vendor_data['name'] = strtoupper(trim($this->input->post('name')));
         $vendor_data['address'] = trim($this->input->post('address'));
         $vendor_data['landmark'] = trim($this->input->post('landmark'));
         $vendor_data['district'] = trim($this->input->post('district'));
@@ -242,9 +242,11 @@ class vendor extends CI_Controller {
         $vendor_data['phone_2'] = trim($this->input->post('phone_2'));
         $vendor_data['email'] = trim($this->input->post('email'));
         $vendor_data['company_type'] = $this->input->post('company_type');
+        
         if(!empty($this->input->post('day'))){
             $vendor_data['non_working_days'] = implode(",",$this->input->post('day'));
-         } 
+        }
+        
         $vendor_data['is_sf'] = $this->input->post('is_sf');
         $vendor_data['is_cp'] = $this->input->post('is_cp');
         $vendor_data['is_wh'] = $this->input->post('is_wh');
@@ -254,149 +256,10 @@ class vendor extends CI_Controller {
         $vendor_data['minimum_guarantee_charge'] = $this->input->post('minimum_guarantee_charge');
         $vendor_data['rm_id'] = $this->input->post('rm');
         $vendor_data['asm_id'] = $this->input->post('asm');
+        
         return $vendor_data;
     }
 
-    /**
-     * @desc : This function is used to get the form data of vendor
-     *
-     * @param : void
-     * @return : array()
-     */
-    
-    function get_vendor_form_data(){
-                $vendor_data['company_name'] = trim($this->input->post('company_name'));
-                $vendor_data['name'] = trim($this->input->post('name'));
-                $vendor_data['address'] = trim($this->input->post('address'));
-                $vendor_data['landmark'] = trim($this->input->post('landmark'));
-                $vendor_data['district'] = trim($this->input->post('district'));
-                $vendor_data['state'] = trim($this->input->post('state'));
-                $vendor_data['pincode'] = trim($this->input->post('pincode'));
-                $vendor_data['phone_1'] = trim($this->input->post('phone_1'));
-                $vendor_data['phone_2'] = trim($this->input->post('phone_2'));
-                $vendor_data['email'] = trim($this->input->post('email'));
-                $vendor_data['company_type'] = $this->input->post('company_type');
-                $vendor_data['primary_contact_name'] = trim($this->input->post('primary_contact_name'));
-                $vendor_data['primary_contact_email'] = trim($this->input->post('primary_contact_email'));
-                $vendor_data['primary_contact_phone_1'] = trim($this->input->post('primary_contact_phone_1'));
-                $vendor_data['primary_contact_phone_2'] = trim($this->input->post('primary_contact_phone_2'));
-                $vendor_data['owner_name'] = trim($this->input->post('owner_name'));
-                $vendor_data['owner_email'] = trim($this->input->post('owner_email'));
-                $vendor_data['owner_phone_1'] = trim($this->input->post('owner_phone_1'));
-                $vendor_data['owner_phone_2'] = trim($this->input->post('owner_phone_2'));
-                
-                $vendor_data['is_pan_doc'] = $this->input->post('is_pan_doc');
-//                $vendor_data['is_cst_doc'] = $this->input->post('is_cst_doc');
-//                $vendor_data['is_tin_doc'] = $this->input->post('is_tin_doc');
-//                $vendor_data['is_st_doc'] = $this->input->post('is_st_doc');
-                $vendor_data['is_gst_doc'] = $this->input->post('is_gst_doc');
-                if(empty( $vendor_data['is_cp'])){
-                     $vendor_data['is_cp'] = 0;
-                }
-                
-                if(empty( $vendor_data['is_sf'])){
-                     $vendor_data['is_sf'] = 0;
-                }
-                
-                if(empty( $vendor_data['is_wh'])){
-                     $vendor_data['is_wh'] = 0;
-                }
-                
-                if(!empty($vendor_data['is_pan_doc']) && !empty($this->input->post('pan_no')) ){
-                   $vendor_data['pan_no'] = $this->input->post('pan_no');
-                   $vendor_data['name_on_pan'] = $this->input->post('name_on_pan');
-                }else{
-                    $vendor_data['pan_no'] = "";
-                    $vendor_data['name_on_pan']= "";
-                }
-//                if(!empty($vendor_data['is_cst_doc']) && !empty($this->input->post('cst_no'))){
-//                    $vendor_data['cst_no'] = $this->input->post('cst_no');
-//                }else{
-//                     $vendor_data['cst_no'] = "";
-//                }
-//                if(!empty($vendor_data['is_tin_doc']) &&  !empty($this->input->post('tin_no'))){
-//                    $vendor_data['tin_no'] = $this->input->post('tin_no');
-//                }else{
-//                    $vendor_data['tin_no'] = "";
-//                }
-//                if(!empty($vendor_data['is_st_doc']) && !empty($this->input->post('service_tax_no'))){
-//                    $vendor_data['service_tax_no'] = $this->input->post('service_tax_no');
-//                }else{
-//                    $vendor_data['service_tax_no'] = "";
-//                }
-                if(!empty($vendor_data['is_gst_doc']) && !empty($this->input->post('gst_no'))){ 
-                    $vendor_data['gst_no'] = $this->input->post('gst_no');
-                    $vendor_data['gst_taxpayer_type'] = $this->input->post('gst_type');
-                    $vendor_data['gst_status'] = $this->input->post('gst_status');
-                    $vendor_data['gst_cancelled_date'] = date("Y-m-d", strtotime($this->input->post('gst_cancelled_date')));
-                    $vendor_data['min_upcountry_distance'] = $this->input->post('min_upcountry_distance');
-                    //print_r($vendor_data); die;
-                }else{
-                    $vendor_data['gst_no'] = NULL;
-                    $vendor_data['gst_taxpayer_type'] = NULL;
-                    $vendor_data['gst_status'] = NULL;
-                    $vendor_data['gst_cancelled_date'] = NULL;
-                }
-             
-                $vendor_data['bank_name'] = trim($this->input->post('bank_name'));
-                $vendor_data['account_type'] = trim($this->input->post('account_type'));
-                $vendor_data['bank_account'] = trim($this->input->post('bank_account'));
-                $vendor_data['ifsc_code'] = trim($this->input->post('ifsc_code'));
-                $vendor_data['beneficiary_name'] = trim($this->input->post('beneficiary_name'));
-                $vendor_data['is_verified'] = $this->input->post('is_verified');
-                if(!empty($this->input->post('contract_file'))){
-                    $vendor_data['contract_file'] = $this->input->post('contract_file');
-                } 
-                if(!empty($this->input->post('id_proof_2_file'))){
-                    $vendor_data['id_proof_2_file'] = $this->input->post('id_proof_2_file');
-                }  
-                if(!empty($this->input->post('id_proof_1_file'))){
-                    $vendor_data['id_proof_1_file'] = $this->input->post('id_proof_1_file');
-                } 
-                if(!empty($this->input->post('cancelled_cheque_file'))){
-                     $vendor_data['cancelled_cheque_file'] = $this->input->post('cancelled_cheque_file');
-                } 
-                if(!empty($this->input->post('address_proof_file'))){
-                    $vendor_data['address_proof_file'] = $this->input->post('address_proof_file');
-                } 
-//                if(!empty($this->input->post('service_tax_file'))){
-//                    $vendor_data['service_tax_file'] = $this->input->post('service_tax_file');
-//                } 
-//                if(!empty($this->input->post('tin_file'))){
-//                    $vendor_data['tin_file'] = $this->input->post('tin_file');
-//                }
-//                if(!empty($this->input->post('cst_file'))){
-//                    $vendor_data['cst_file'] = $this->input->post('cst_file');
-//                }
-                if(!empty($this->input->post('pan_file'))){
-                    $vendor_data['pan_file'] = $this->input->post('pan_file');
-                }  
-                if(!empty($this->input->post('signature_file'))){
-                    $vendor_data['signature_file'] = $this->input->post('signature_file');
-                }  
-                if(!empty($this->input->post('stamp_file'))){
-                    $vendor_data['stamp_file'] = $this->input->post('stamp_file');
-                }  
-                if(!empty($this->input->post('non_working_days'))){
-                    $vendor_data['non_working_days'] = $this->input->post('non_working_days');
-                } 
-                if(!empty($this->input->post('appliances'))){
-                    $vendor_data['appliances'] = $this->input->post('appliances');
-                }
-                if(!empty($this->input->post('brands'))){
-                    $vendor_data['brands'] = $this->input->post('brands');  
-                }   
-                if(!empty($this->input->post('gst_file'))){
-                     $vendor_data['gst_file'] = $this->input->post('gst_file');
-                }
-                                $vendor_data['is_sf'] = $this->input->post('is_sf');
-                $vendor_data['is_cp'] = $this->input->post('is_cp');
-                $vendor_data['is_wh'] = $this->input->post('is_wh');
-                $vendor_data['cp_credit_limit'] = $this->input->post('cp_credit_limit');
-                   
-            
-            return $vendor_data;
-    }
     function send_update_or_add_sf_basic_details_email($sf_id,$rm_email,$updated_vendor_details, $rm_id=''){
         $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
         
@@ -5864,14 +5727,14 @@ class vendor extends CI_Controller {
                 $vendor_data['is_pan_doc'] = $this->input->post('is_pan_doc');
                 $vendor_data['is_gst_doc'] = $this->input->post('is_gst_doc');
                 if(!empty($vendor_data['is_pan_doc']) && !empty($this->input->post('pan_no')) ){
-                   $vendor_data['pan_no'] = $this->input->post('pan_no');
-                   $vendor_data['name_on_pan'] = $this->input->post('name_on_pan');
+                   $vendor_data['pan_no'] = strtoupper($this->input->post('pan_no'));
+                   $vendor_data['name_on_pan'] = strtoupper($this->input->post('name_on_pan'));
                 }else{
                     $vendor_data['pan_no'] = "";
                     $vendor_data['name_on_pan']= "";
                 }
                  if(!empty($vendor_data['is_gst_doc']) && !empty($this->input->post('gst_no'))){
-                    $vendor_data['gst_no'] = $this->input->post('gst_no');
+                    $vendor_data['gst_no'] = strtoupper($this->input->post('gst_no'));
                     $vendor_data['gst_taxpayer_type'] = $this->input->post('gst_type');
                     $vendor_data['gst_status'] = $this->input->post('gst_status');
                     $vendor_data['gst_cancelled_date'] = date("Y-m-d", strtotime($this->input->post('gst_cancelled_date')));
