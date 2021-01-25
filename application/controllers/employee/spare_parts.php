@@ -5821,12 +5821,13 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         //$wh_id = 15;
         //Get list of All Central warehouse
         $select = "service_centres.id,service_centres.name,service_centres.is_wh";
-        $post['where']['(service_centres.is_wh = 1 or service_centres.is_micro_wh = 1)'] = null;
+        $post['where']['(service_centres.is_wh = 1)'] = null;
         $post['where']['service_centres.active'] = 1;
         if (!empty($wh_id)) {
             $post['where']['service_centres.id'] = $wh_id;
         }
         $post['length'] = -1;
+        $post['start'] = 0;
         $list = $this->vendor_model->viewallvendor($post, $select);
         $array_service_center_msl_array = array();
         $array_service_center_msl_array_micro_wh = array();
@@ -5834,7 +5835,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         foreach ($list as $key => $value) {
 
             $is_wh = $value['is_wh'];
-
+            $post = array();
             $service_center_id = $value['id'];
             $post['where']['inventory_stocks.entity_id'] = $service_center_id;
             if (!empty($partner_id)) {
@@ -5844,8 +5845,8 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                 $spare_id = str_replace('-', ',', $spare_id);
                 $post['where']["inventory_master_list.inventory_id in ($spare_id)"] = null;
             }
-            //$post['length'] = 1;
-            //$post['start'] = 0;
+            $post['length'] = -1;
+            $post['start'] = 0;
             $post['order'][0]['column'] = 0;
             $post['order'][0]['dir'] = 'DESC';
             $post['column_order'][0] = 'inventory_master_list.entity_id';
