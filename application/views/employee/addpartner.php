@@ -1322,7 +1322,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                                 $aggrement_date = date("Y-m-d");
                                             }
                                             ?>
-                                        <input type="date" class="form-control agreement_start_date" required name="agreement_start_date[]"  id="agreement_start_date" >
+                                        <input type="date" class="form-control agreement_start_date" required name="agreement_start_date[]"  id="agreement_start_date" onchange="date_validation()" >
                                         <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                     </div>
                                     <?php echo form_error('agreement_start_date'); ?>
@@ -1334,11 +1334,12 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                 <label for="agreement_end_date" class="col-md-4">Partnership End Date<span class="text-danger">*</span></label>
                                 <div class="col-md-6">
                                     <div class="input-group input-append date" >
-                                        <input type="date" class="form-control" required name="agreement_end_date[]" id="agreement_end_date">
+                                        <input type="date" class="form-control" required name="agreement_end_date[]" onchange="date_validation()" id="agreement_end_date">
                                         <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                     </div>
                                     <?php echo form_error('agreement_end_date'); ?>
                                 </div>
+                             <a class="hide-section form-control" title="Remove Contract" style="float:right;width:7%;display:none;"><span class="glyphicon glyphicon-minus"></span></a>
                             </div>
                             <div class="col-md-6 form-group <?php if (form_error('contract_type')) {
                                 echo 'has-error';
@@ -1363,7 +1364,8 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                 } ?>">
                                 <label for="contract_file" class="col-md-4">Contract File<span class="text-danger">*</span></label>
                                 <div class="col-md-5">
-                                    <input type="file" class="form-control"  name="contract_file[]" required="">
+                                    <input type="file" class="form-control" onchange="Filevalidation()" name="contract_file[]" id="file" required="">
+                                    <span id="size" class="text-primary"></span>
                                     <?php echo form_error('contract_file'); ?>
                                 </div>
                                 <div class="col-md-1">
@@ -1388,9 +1390,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                 </div>
 <!--                                <hr style="border: 1px solid #a1e8a1;">-->
                             </div>
-                            <div class="col-md-6">
-                                <a class="hide-section form-control" title="Remove Contract" style="float:right;width:5%;display:none;"><span class="glyphicon glyphicon-minus"></span></a>
-                            </div>
+                            
                         </div>
                         <div id="cloned"></div>
                     </div>
@@ -6169,4 +6169,58 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
            // $("#"+lastUrl).trigger('click');
         }
     })
+    function date_validation(){
+      var start_date = $('#agreement_start_date').val();
+      var end_date = $('#agreement_end_date').val();
+      if(start_date != '' && end_date != ''){
+      if(start_date > end_date){
+        alert("Start Date Can't Be Greater Than End Date");
+        $("#submit_contract_btn").prop('disabled', true); 
+       }
+      else{
+        
+        $("#submit_contract_btn").prop('disabled', false); }
+     }
+ }
+    Filevalidation = () => { 
+       
+        const fi = document.getElementById('file');
+        // Check if any file is selected.
+        if(fi.files.length != 0 ){
+        if (fi.files.length > 0) { 
+            for (const i = 0; i <= fi.files.length - 1; i++) { 
+  
+                const fsize = fi.files.item(i).size; 
+                const file = Math.round((fsize / 1024)); 
+                // The size of the file. 
+                if (file >= 5120) { 
+                    
+                     document.getElementById('size').innerHTML = "File size too Big, please select a file less than 5mb";
+                      $("#submit_contract_btn").prop('disabled', true); 
+                } else if (file < 1) { 
+               
+                       document.getElementById('size').innerHTML = "File size too small, please select a file greater than 1kb";
+                       $("#submit_contract_btn").prop('disabled', true);
+                } else { 
+                   
+                     $("#submit_contract_btn").prop('disabled', false);
+                } 
+            } 
+        } 
+    }
+    else{
+         $("#submit_contract_btn").prop('disabled', false);
+         document.getElementById('size').innerHTML = "Please select file";
+       }  
+   } 
+var hasClicked = false;
+$('#submit_contract_btn').on('click',function(e) {
+    if (hasClicked === true) {
+       $("#submit_contract_btn").prop('disabled', true); 
+        
+    }
+});
+ 
+ 
+
 </script>
