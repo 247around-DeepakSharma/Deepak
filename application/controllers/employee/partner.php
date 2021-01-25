@@ -4561,7 +4561,6 @@ class Partner extends CI_Controller {
      * 
      */
     function get_partner_booking_summary_data($partner_id) {
-
         //get bookings count by month 
         $select = "DATE_FORMAT(service_center_closed_date, '%b') AS month, "
                 . "SUM(IF(!(current_status = 'Cancelled' OR internal_status ='InProcess_Cancelled') , 1, 0)) AS completed, "
@@ -4571,7 +4570,9 @@ class Partner extends CI_Controller {
         $where = array('partner_id' => $partner_id, "booking_details.service_center_closed_date >= (DATE_FORMAT(CURDATE(), '%Y-%m-01') - INTERVAL 1 MONTH)" => NULL);
         $order_by = "YEAR(booking_details.service_center_closed_date),MONTH(booking_details.service_center_closed_date)";
         $group_by = "month";
+        
         $data['bookings_count'] = $this->booking_model->get_bookings_count_by_any($select, $where, $order_by, $group_by);
+        
         if(!empty($data['bookings_count']) && count($data['bookings_count']) == 2){
             $data['completed_booking'] = $data['bookings_count'][1]['completed'];
             $data['last_month_completed_booking'] = $data['bookings_count'][0]['completed'];
@@ -4595,9 +4596,12 @@ class Partner extends CI_Controller {
              //$data['cancelled_booking_percentage_change'] = 0;
              
         }
+        
         //get escalation percentage
         $data['escalation_percentage'] = $this->partner_model->get_booking_escalation_percantage($partner_id);
+        
         $data['pincode_covered'] = $this->reusable_model->get_search_query('vendor_pincode_mapping','count(distinct pincode) as pincode',NULL,NULL,NULL,NULL,NULL,NULL)->result_array()[0]['pincode'];
+        
         $data['avg_rating'] = $this->reusable_model->get_search_query('booking_details','ROUND( AVG( rating_stars ) , 2 ) AS rating_avg',
                 array("current_status"=>"Completed","rating_stars IS NOT NULL"=>NULL,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL)->result_array()[0]['rating_avg'];
        
@@ -4605,7 +4609,6 @@ class Partner extends CI_Controller {
         if(!empty($p)){
             $data['prepaid_amount'] = $p;
         }
-        
 
         $this->load->view('partner/show_partner_booking_summary', $data);
     }
@@ -4684,11 +4687,11 @@ class Partner extends CI_Controller {
      */
     function get_prepaid_amount($partner_id) {
         log_message("info", __METHOD__ . " Partner Id " . $partner_id);
+        
         if ($this->session->userdata('is_prepaid') == 1) {
             $p_details = $this->miscelleneous->get_partner_prepaid_amount($partner_id);
 
             if ($p_details['is_notification']) {
-
                 $d['prepaid_amount'] = '<strong class="blink" style="color:red;">' . $p_details['prepaid_amount'] . '</strong> ';
             } else {
                 $d['prepaid_amount'] = '<strong style="color:green;">' . $p_details['prepaid_amount'] . '</strong>';
@@ -4698,13 +4701,16 @@ class Partner extends CI_Controller {
 
             $userSession = array('status' => $p_details['active'], "message" => $p_details['prepaid_msg']);
             $this->session->set_userdata($userSession);
+            
             return $d;
         } else if ($this->session->userdata('is_prepaid') == 0) {
             $this->check_postpaid_partner_active($partner_id);
+            
             return array();
         } else {
             $userSession = array('status' => true);
             $this->session->set_userdata($userSession);
+            
             return array();
         }
         
