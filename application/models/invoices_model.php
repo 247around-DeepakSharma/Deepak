@@ -108,6 +108,9 @@ class invoices_model extends CI_Model {
         $this->db->where($data);
         $this->db->order_by('invoice_date', "desc");
         $query = $this->db->get('vendor_partner_invoices');
+        
+        //log_message('info', __METHOD__ . "\n" . $this->db->last_query());
+        
         $return_data = $query->result_array();
         
         if($join && !empty($return_data)){
