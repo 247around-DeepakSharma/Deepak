@@ -6043,9 +6043,10 @@ class Partner extends CI_Controller {
             "SF Challan Number",
             "SF AWB Number (Defective Shipped)",
             "AWB Number Warehouse Dispatch Defective To Partner",
-            "spatch Defective To Partner Courier Name",
+            "Warehouse Dispatch Defective To Partner Courier Name",
             "Warehouse Dispatch Defective To Partner Challan Number",
             "Warehouse Dispatch Defective Shipped Date To Partner",
+            "Dealer Name",
             "Is Spare Auto Acknowledge By SF",
             "Consumption"
             );
@@ -6095,10 +6096,11 @@ class Partner extends CI_Controller {
             $tempArray[] = $sparePartBookings['remarks_defective_part_by_sf'];
             $tempArray[] = $sparePartBookings['sf_challan_number'];
             $tempArray[] = $sparePartBookings['awb_by_sf'];
-             $tempArray[] = $sparePartBookings['awb_by_wh'];
+            $tempArray[] = $sparePartBookings['awb_by_wh'];
             $tempArray[] = $sparePartBookings['courier_name_by_wh'];
             $tempArray[] = $sparePartBookings['wh_challan_number'];
             $tempArray[] = $sparePartBookings['wh_to_partner_defective_shipped_date'];
+            $tempArray[] = $sparePartBookings['dealer_name'];
             if($sparePartBookings['auto_acknowledeged']==1){
             $tempArray[] = "Yes";   
              }else{
