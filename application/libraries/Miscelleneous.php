@@ -5495,8 +5495,10 @@ function generate_image($base64, $image_name,$directory){
         $sms['tag'] = $tag;
         $sms['phone_no'] = $booking_primary_contact_number;
         $sms['type'] = "user";
-        $sms['smsData']['otp'] = $otp;
-
+        $sms['booking_id'] = "";
+        $sms['type_id'] = "";
+        $sms['smsData']['otp'] = $otp;        
+        
         // Send SMS to Customer Mobile
         $this->My_CI->notify->send_sms_msg91($sms);   
         log_message('info', "Walkin Booking OTP => ".$otp);
