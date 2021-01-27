@@ -14,8 +14,11 @@ function get_appliance(){
             success: function (data) {
                 //First Resetting Options values present if any
                 $("#service_name option[value !='option1']").remove();
-                $('#service_name').append(data).change();
+                $('#service_name').append(data);
                 $('#appliance_loading').css("display", "none");
+                get_city();
+                get_category();
+                get_capacity();
             }
         });
     }
@@ -67,17 +70,20 @@ function check_validation(){
     var alternate_contact_no = $("#booking_alternate_contact_no").val();
     var user_regex = /^([a-zA-Z\s]*)$/;        
 
+    $("#submitform").prop( "disabled", true);
     // Appliance Details Validation
     // Check Brand 
     if (brand === null){
         display_message("appliance_brand_1", "error_brand", "red", "Please Select Brand");
+        $("#submitform").prop( "disabled", false);
         return false;
-    } else {
+    } else {        
         display_message("appliance_brand_1", "error_brand", "green", "");
     }
     // Check Product
     if (appliance === null){
         display_message("service_name", "error_appliance", "red", "Please Select Appliance");
+        $("#submitform").prop( "disabled", false);
         return false;
     } else {
         display_message("service_name", "error_appliance", "green", "");
@@ -85,6 +91,7 @@ function check_validation(){
     // Check Partner Source
     if (partner_source === "" || partner_source === null){
         display_message("partner_source", "error_seller", "red", "Please Seller Channel");
+        $("#submitform").prop( "disabled", false);
         return false;
     } else {
         display_message("partner_source", "error_seller", "green", "");
@@ -92,6 +99,7 @@ function check_validation(){
     // Check Category 
     if (category === null){
         display_message("appliance_category_1", "error_category", "red", "Please Select Category");
+        $("#submitform").prop( "disabled", false);
         return false;
     } else {
         display_message("appliance_category_1", "error_category", "green", "");
@@ -103,6 +111,7 @@ function check_validation(){
             var capacity_value = document.getElementById(this.id).innerHTML;
             if (($.trim(capacity_value) !== '<option selected="" value=""></option>') && ($("#" + this.id).val() === '')) {
                 display_message("appliance_capacity_1", "error_capacity", "red", "Please Select Capacity");
+                $("#submitform").prop( "disabled", false);
                 $("#" + this.id).focus();
                 ++count1;
                 return false;
@@ -118,6 +127,7 @@ function check_validation(){
     // Check Purchase Date
     if (purchase_date === ""){
         display_message("purchase_date", "error_purchase_date", "red", "Please Enter Purchase Date");
+        $("#submitform").prop( "disabled", false);
         return false;
     } else {
         display_message("purchase_date", "error_purchase_date", "green", "");
@@ -126,6 +136,7 @@ function check_validation(){
     if (remarks === ""){
         document.getElementById('remarks').style.borderColor = "red";
         document.getElementById('error_remarks').innerHTML = "Please Enter Problem Description";
+        $("#submitform").prop( "disabled", false);
         return false;
     } else {
         document.getElementById('remarks').style.borderColor = "green";
@@ -134,15 +145,18 @@ function check_validation(){
     // Check Dealer Phone Number 
     if (dealer_phone_number !== "" && dealer_name === ""){
         alert("Please Enter Dealer Name");
+        $("#submitform").prop( "disabled", false);
         return false;
     }
     if (dealer_phone_number !== "" && !dealer_phone_number.match(exp1)){
         alert('Please Enter Valid Dealer Phone Number');
+        $("#submitform").prop( "disabled", false);
         return false;
     }
     // Check Symptom
     if (symptom === "" || symptom === "Please Select Any Symptom"){
         alert("Please Enter Symptom");
+        $("#submitform").prop( "disabled", false);
         return false;
     }
     // Personal Details Validation
@@ -150,10 +164,12 @@ function check_validation(){
     if (!mobile_number.match(exp1)){
         alert('Please Enter Valid User Phone Number');
         display_message("booking_primary_contact_no", "error_mobile_number", "red", "Please Enter Valid User Phone Number");
+        $("#submitform").prop( "disabled", false);
         return false;
     }
     if (mobile_number === ""){
         display_message("booking_primary_contact_no", "error_mobile_number", "red", "Please Enter Mobile");
+        $("#submitform").prop( "disabled", false);
         return false;
     } else {
         display_message("booking_primary_contact_no", "error_mobile_number", "green", "");
@@ -161,12 +177,14 @@ function check_validation(){
     // Check User Name
     if (user_name === "" || user_name.trim().length == '0'){
         display_message("name", "error_username", "red", "Please Enter User Name");
+        $("#submitform").prop( "disabled", false);
         return false;
     } else {
         display_message("name", "error_username", "green", "");
     }
     if (!user_name.match(user_regex)){
         display_message("name", "error_username", "red", "Please Enter Valid User Name");
+        $("#submitform").prop( "disabled", false);
         return false;
     } else {
         display_message("name", "error_username", "green", "");
@@ -174,6 +192,7 @@ function check_validation(){
     // Check Pincode
     if (pincode === ""){
         display_message("booking_pincode", "error_pincode", "red", "Please Enter Pincode");
+        $("#submitform").prop( "disabled", false);
         return false;
     } else {
         display_message("booking_pincode", "error_pincode", "green", "");
@@ -181,6 +200,7 @@ function check_validation(){
     // Check City
     if ((city === null) || ($.trim(city) === '')){
         display_message("booking_city", "error_city", "red", "Please Enter City");
+        $("#submitform").prop( "disabled", false);
         return false;
     } else {
         display_message("booking_city", "error_city", "green", "");
@@ -189,11 +209,13 @@ function check_validation(){
     if (alternate_contact_no !== "" && !alternate_contact_no.match(exp1)){
         alert('Please Enter Valid Alternate Phone Number');
         display_message("booking_alternate_contact_no", "error_alternate_contact_no", "red", "Please Enter Valid Alternate Mobile");
+        $("#submitform").prop( "disabled", false);
         return false;
     }
     // Check Booking Address
     if (booking_address.trim().length < 1){
         display_message("booking_address", "error_address", "red", "Please Enter Booking Address");
+        $("#submitform").prop( "disabled", false);
         return false;
     } else {
         display_message("booking_address", "error_address", "green", "");
@@ -201,6 +223,7 @@ function check_validation(){
     // Check if Service available in given Area or not        
     if (not_visible === 0){
         display_message("not_visible", "error_not_visible", "red", "Service Temporarily Un-available In This Pincode, Please Contact backoffice Team.");
+        $("#submitform").prop( "disabled", false);
         return false;
     }
 
@@ -219,24 +242,28 @@ function check_validation(){
     var appliance = $("#booking_appliance").val();
     if ((appliance === null) || ($.trim(appliance) === '')){
         display_message("booking_appliance", "error_appliance", "red", "Please Enter Appliance");
+        $("#submitform").prop( "disabled", false);
         return false;
     } else {
         display_message("booking_appliance", "error_appliance", "green", "");
     }
     if ($.trim(pincode) === ""){
         display_message("booking_pincode", "error_pincode", "red", "Please Enter Pincode");
+        $("#submitform").prop( "disabled", false);
         return false;
     } else {
         display_message("booking_pincode", "error_pincode", "green", "");
     }
     if ((city === null) || ($.trim(city) === '')){
         display_message("city", "error_city", "red", "Please Select City");
+        $("#submitform").prop( "disabled", false);
         return false;
     } else {
         display_message("city", "error_city", "green", "");
     }
     if ($.trim(booking_address).length < 1){
         display_message("booking_address", "error_address", "red", "Please Enter Booking Address");
+        $("#submitform").prop( "disabled", false);
         return false;
     } else {
         display_message("booking_address", "error_address", "green", "");
@@ -266,6 +293,7 @@ function check_validation(){
             else
             {
                 alert("OTP Verification Failed");
+                $("#submitform").prop( "disabled", false);
                 return false;
             }
         }
