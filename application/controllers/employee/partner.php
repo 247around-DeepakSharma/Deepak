@@ -6043,7 +6043,12 @@ class Partner extends CI_Controller {
             "SF Challan Number",
             "SF AWB Number (Defective Shipped)",
             "Is Spare Auto Acknowledge By SF",
-            "Consumption"
+            "Consumption",
+            "AWB Number Warehouse Dispatch Defective To Partner Warehouse Di",
+            "spatch Defective To Partner Courier Nam",
+            "Warehouse Dispatch Defective To Partner Challan Number",
+            "Warehouse Dispatch Defective Shipped Date To Partner"
+            
             );
         
         foreach($data as $sparePartBookings){
