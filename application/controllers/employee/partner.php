@@ -6043,7 +6043,12 @@ class Partner extends CI_Controller {
             "SF Challan Number",
             "SF AWB Number (Defective Shipped)",
             "Is Spare Auto Acknowledge By SF",
-            "Consumption"
+            "Consumption",
+            "AWB Number Warehouse Dispatch Defective To Partner Warehouse Di",
+            "spatch Defective To Partner Courier Nam",
+            "Warehouse Dispatch Defective To Partner Challan Number",
+            "Warehouse Dispatch Defective Shipped Date To Partner"
+            
             );
         
         foreach($data as $sparePartBookings){
@@ -10160,6 +10165,7 @@ class Partner extends CI_Controller {
         $sql = "Select distinct partner_appliance_details.brand, services.services,services.id  "
                 . "From partner_appliance_details, services "
                 . "where partner_appliance_details.service_id = services.id "
+                . "AND services.walk_in = 1 "
                 . "AND partner_appliance_details.brand = ? ";
         $query = $this->db->query($sql, $brand);
         $data = $query->result_array();
@@ -10324,7 +10330,12 @@ class Partner extends CI_Controller {
                 $this->insertion_failure($postData, "Internal Server Error", $responseData['data']);                
                 return $this->show_booking_insertion_failure($is_api, FAILURE_CODE, ERR_BOOKING_NOT_INSERTED_MSG);
             }
-        }          
+        }
+        else {
+            log_message('info', "Booking not Inserted, Internal Server Error, Please Try Again. " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
+            $this->insertion_failure($postData, "Internal Server Error", $responseData['data']);                
+            return $this->show_booking_insertion_failure($is_api, FAILURE_CODE, ERR_BOOKING_NOT_INSERTED_MSG);
+        }
     }
     
     /**

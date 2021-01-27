@@ -55,6 +55,13 @@
                                     </div>
                                    
                                 </div>
+                                  <div class="form-group">
+                                    <label class="col-md-4">Is Walk In</label>
+                                    <div class="col-md-6">
+                                        <input type="checkbox" class=" form-check-input" id="" name="walk_in" value="1">
+                                    </div>
+                                   
+                                </div>
                            
                             </div>
                         </div>

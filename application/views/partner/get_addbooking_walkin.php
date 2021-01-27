@@ -204,13 +204,24 @@
             background : #f1fbfa;
             color : #2c9d8c;
         }
+        
+        #submitform{
+            background-color: #2c9d9c;
+            border: 1px solid #2c9d8c;
+            width:300px;
+            border-radius: 20px;
+        }
+        
+        #submitform:disabled{
+            opacity: 0.25;
+        }
     </style>
 </head>
 <body class="nav-sm">
     <div class="container body">
         <div class="main_container">
             <div style="padding:20px;" role="main">  
-                <form name="myForm" class="form-horizontal" onSubmit="document.getElementById('submitform').disabled = true;" id ="booking_form" action="<?php echo base_url() ?>employee/partner/process_addbooking_walkin"  method="POST" enctype="multipart/form-data">
+                <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo base_url() ?>employee/partner/process_addbooking_walkin"  method="POST" enctype="multipart/form-data">
                     <div class="row">                        
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <div class="x_panel">
@@ -407,7 +418,7 @@
                             <center>
                                <input type="hidden" id="not_visible" name="not_visible" value="0"/>
                                <input type="hidden" name="product_type" value="Delivered"/>
-                               <input type="button" id="submitform" class="btn btn-primary " onclick="return check_validation()" value="Submit Booking" style="background-color: #2c9d9c;border: 1px solid #2c9d8c;width:300px;border-radius: 20px;">
+                               <input type="button" id="submitform" class="btn btn-primary " onclick="return check_validation()" value="Submit Booking">
                                <p id="error_not_visible" style="color: red"></p>
                            </center>  
                         </div>                        
@@ -428,7 +439,7 @@
     var booking_create_date = "<?= date('Y-m-d')?>";
     
     // DO not call function, in case of multiple brands
-    if($("#appliance_brand_1 option").length < 2){
+    if($("#appliance_brand_1 option").length < 3){
         get_appliance();
         get_partner();
     }
@@ -495,7 +506,6 @@
             btn_submit = 'submitform';
         }
 
-        $('#' + btn_submit).prop('disabled', true);
         if (pincode.length === 6 && service_id != null){
             $.ajax({
                 type: 'POST',

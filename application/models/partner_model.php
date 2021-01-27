@@ -956,7 +956,11 @@ function get_data_for_partner_callback($booking_id) {
                     . "booking_details.amount_due,booking_details.state, booking_details.service_center_closed_date, booking_details.closed_date, booking_details.request_type, booking_details.current_status, booking_details.partner_current_status, booking_details.partner_internal_status,"
                 . " service_centres.name as vendor_name, service_centres.address, service_centres.district as sf_city,service_centres.state as sf_state, service_centres.gst_no, "
                 . " service_centres.pincode, service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file, service_centres.primary_contact_phone_1,"
-                . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request, sc.name as warehouse_name,(CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Yes' ELSE 'NO' END) as nrn_status, spare_consumption_status.is_consumed,booking_details.request_type";
+                . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request, sc.name as warehouse_name,(CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Yes' ELSE 'NO' END) as nrn_status, spare_consumption_status.is_consumed,booking_details.request_type,"
+                . "spare_parts_details.awb_by_wh as 'AWB Number Warehouse Dispatch Defective To Partner',"
+                . "spare_parts_details.courier_name_by_wh as 'Warehouse Dispatch Defective To Partner Courier Name',"
+                . "spare_parts_details.wh_challan_number AS 'Warehouse Dispatch Defective To Partner Challan Number',"
+                . "DATE_FORMAT(spare_parts_details.wh_to_partner_defective_shipped_date, '%d-%b-%Y') as 'Warehouse Dispatch Defective Shipped Date To Partner'";
             if($end){
                 $limit = "LIMIT $start, $end";
             }

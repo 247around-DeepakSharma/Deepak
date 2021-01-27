@@ -195,11 +195,14 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label  for="company_name" class="col-md-3">Company Name*</label>
                                         <div class="col-md-8">
-                                            <input  type="text" class="form-control blockspacialchar" id="company_name" name="company_name" onkeyup="if (/[^|a-zA-Z0-9]+/g.test(this.value)) this.value = this.value.replace(/[^|a-zA-Z0-9 -. ]+/g,'')" value = "<?php
-                                                if (isset($query[0]['company_name'])) {
-                                                    echo $query[0]['company_name'];
-                                                }
-                                                ?>" placeholder="Company Name">
+                                            <input  type="text" class="form-control blockspacialchar" id="company_name" name="company_name" 
+                                                    style="text-transform:uppercase" 
+                                                    onkeyup="if (/[^|a-zA-Z0-9]+/g.test(this.value)) this.value = this.value.replace(/[^|a-zA-Z0-9 -. ]+/g,'')" 
+                                                    value = "<?php
+                                                        if (isset($query[0]['company_name'])) {
+                                                            echo $query[0]['company_name'];
+                                                        }
+                                                        ?>" placeholder="Company Name">
                                             <?php echo form_error('company_name'); ?>
                                         </div>
                                         <div class="col-sm-2" >
@@ -215,11 +218,14 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label  for="name" class="col-md-3">Display Name*</label>
                                         <div class="col-md-8">
-                                            <input  type="text" class="form-control blockspacialchar" id="name" name="name" onkeyup="if (/[^|a-zA-Z0-9]+/g.test(this.value)) this.value = this.value.replace(/[^|a-zA-Z0-9 -. ]+/g,'')" value = "<?php
-                                                if (isset($query[0]['name'])) {
-                                                    echo $query[0]['name'];
-                                                }
-                                                ?>" placeholder="Public Name" onchange="remove_white_space(this.value)">
+                                            <input  type="text" class="form-control blockspacialchar" id="name" name="name" 
+                                                    style="text-transform:uppercase" 
+                                                    onkeyup="if (/[^|a-zA-Z0-9]+/g.test(this.value)) this.value = this.value.replace(/[^|a-zA-Z0-9 -. ]+/g,'')" 
+                                                    value = "<?php
+                                                    if (isset($query[0]['name'])) {
+                                                        echo $query[0]['name'];
+                                                    }
+                                                    ?>" placeholder="Public Name" onchange="remove_white_space(this.value)">
                                             <?php echo form_error('name'); ?>
                                         </div>
                                         <div class="col-sm-2" >
@@ -621,7 +627,9 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label  for="name_on_pan"  class="col-md-4 vertical-align">PAN <?php if($saas_module) { echo '<span style="color:red;">*</span>';} ?></label>
                                         <div class="col-md-7">
-                                            <input placeholder="Name on PAN CARD" type="text" class="form-control blockspacialchar"  id="name_on_pan" name="name_on_pan" value = "<?php
+                                            <input placeholder="Name on PAN CARD" type="text" class="form-control blockspacialchar" 
+                                                   style="text-transform:uppercase" 
+                                                   id="name_on_pan" name="name_on_pan" value = "<?php
                                                 if (isset($query[0]['name_on_pan'])) {
                                                     echo $query[0]['name_on_pan'];
                                                 }
@@ -638,7 +646,9 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         }
                                         ?>">
 <!--                                        <label  for="pan_no" class="col-md-4">PAN No.</label>-->
-                                        <input type="text" class="form-control blockspacialchar"  id="pan_no" name="pan_no" placeholder="PAN Number" value = "<?php
+                                        <input type="text" class="form-control blockspacialchar" 
+                                               style="text-transform:uppercase" 
+                                               id="pan_no" name="pan_no" placeholder="PAN Number" value = "<?php
                                             if (isset($query[0]['pan_no'])) {
                                                 echo $query[0]['pan_no'];
                                             }
