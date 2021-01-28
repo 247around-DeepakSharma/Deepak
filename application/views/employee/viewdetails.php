@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <?php if(!empty($booking_history)) {  $spare_request_type = ''; ?> 
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=<?php echo GOOGLE_MAPS_API_KEY;?>"></script>
 <script src="<?php echo base_url();?>js/googleScript.js"></script> 
@@ -62,7 +63,7 @@
 </div>
 <div class="btn-group" role="group">
     <button type="button" class="btn btn-default" onclick="sf_tab_active()" href="#upcountry" data-toggle="tab">
-        <div class="hidden-xs">SF / Upcountry</div>
+        <div class="hidden-xs"><i class="fa fa-map-marker" aria-hidden="true"></i> SF / Upcountry</div>
     </button>
 </div>
 <div class="btn-group" role="group">
@@ -82,7 +83,7 @@
 </div>
 <div class="btn-group" role="group">
     <button type="button" class="btn btn-default" href="#tab8" data-toggle="tab">
-        <div class="hidden-xs">Sms / Email</div>
+        <div class="hidden-xs"><i class="fa fa-whatsapp" aria-hidden="true" style="color:green;"></i> Sms / Email</div>
     </button>
 </div>
 <div class="btn-group" role="group">
@@ -99,7 +100,7 @@
     <?php }  if($booking_history[0]['current_status'] != 'Cancelled' && isset($saas_module) && !$saas_module){?>
 <div class="btn-group" role="group">
     <button type="button" class="btn btn-default" href="#tab7" data-toggle="tab">
-        <div class="hidden-xs">Transactions</div>
+        <div class="hidden-xs"><span style="color:#1f004d;font-weight: bold;">pay</span><span style="color:#008ae6;font-weight: bold;">tm</span> Transactions</div>
     </button>
 </div>
     <?php }?>
