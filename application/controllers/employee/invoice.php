@@ -132,13 +132,25 @@ class Invoice extends CI_Controller {
         }
         
         if($msl_invoice == 1){
-            //add condition in query to select MSL invoices
+            //add condition in query to select MSL invoices ONLY
             $where["sub_category like '%MSL%'"] = null;
         }else{
             //add condition in query to exclude MSL invoices
             $where["sub_category not like '%MSL%'"] = null;
         }
         
+        //by default, do not show fnf security invoices
+        $fnf_invoice = 0;
+        //check if user has checked checkbox to include FNF invoices as well
+        if (!empty($this->input->post('fnf_invoice'))) {
+            if ($this->input->post('fnf_invoice') == 1) {
+                $fnf_invoice = 1;
+            }
+        }
+        if ($fnf_invoice == 0) {
+            //add condition in query to hide FNF invoices by default
+            $where["sub_category not in ('".FNF."','".SECURITY."')"] = null;
+        }
         if($invoice_period === 'all'){
             $where['vendor_partner'] = $this->input->post('source');
             $where['vendor_partner_id'] = $this->input->post('vendor_partner_id');
@@ -189,7 +201,8 @@ class Invoice extends CI_Controller {
 
 
         $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($where, false);
-        $invoice['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice($data['vendor_partner'],array('id' => $data['vendor_partner_id']))[0];
+        $invoice['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice($data['vendor_partner'], 
+                array('id' => $data['vendor_partner_id']))[0];
             
         //TODO: Fix the reversed names here & everywhere else as well
         $data2['partner_vendor'] = $this->input->post('source');
@@ -229,8 +242,7 @@ class Invoice extends CI_Controller {
                 $email_template_name = "resend_dn_cn_invoice";
                 $subject = vsprintf($email_template[4], array($data[0]['sub_category']));
                 $message = vsprintf($email_template[0], array($data[0]['sub_category'], $data[0]['total_amount_collected'], $data[0]['reference_invoice_id']));
-            }
-            else{
+            } else {
                 $email_template = $this->booking_model->get_booking_email_template("resend_invoice"); 
                 $email_template_name = "resend_invoice";
                 $subject = vsprintf($email_template[4], array(date("d-M-Y", strtotime($start_date)), date("d-M-Y", strtotime($end_date))));

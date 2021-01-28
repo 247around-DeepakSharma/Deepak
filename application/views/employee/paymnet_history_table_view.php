@@ -88,7 +88,7 @@
                                 <td><?php echo round($value['sgst_tax_amount'],0); $sgst += $value['sgst_tax_amount']; ?></td>
                                 <td><?php echo round($value['igst_tax_amount'],0); $igst += $value['igst_tax_amount']; ?></td>
                                 <td><?php echo round($value['cgst_tax_rate'] + $value['sgst_tax_rate'] + $value['igst_tax_rate'],0); ?></td>
-                                <td><?php echo round($value['tds_rate'],0);  ?></td>
+                                <td><?php echo sprintf("%.2f", $value['tds_rate']);  ?></td>
                                 <td><?php echo sprintf("%.2f", $value['tds_amount']); $total_tds_amount += $value['tds_amount']; ?></td>
                                 <td><?php echo round($value['tcs_rate'],0);  ?></td>
                                 <td><?php echo sprintf("%.2f", $value['tcs_amount']); $total_tcs_amount += $value['tcs_amount']; ?></td>

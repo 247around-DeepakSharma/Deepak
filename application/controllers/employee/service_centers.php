@@ -7519,7 +7519,7 @@ class Service_centers extends CI_Controller {
             //DEFECTIVE/OK_PARTS_REJECTED_BY_WAREHOUSE
             $this->insert_details_in_state_change($booking_id, $rejection_reason, $post_data['remarks'], $actor, $next_action, "", $spare_id);
             
-            echo 'Defective Parts Rejected To SF';
+            echo 'Part Rejected By Warehouse';
             exit;
 //            $userSession = array('success' => 'Defective Parts Rejected To SF');
 //            $this->session->set_userdata($userSession);
