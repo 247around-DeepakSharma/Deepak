@@ -6042,6 +6042,15 @@ class Partner extends CI_Controller {
             "Defective Part Remarks by SF",
             "SF Challan Number",
             "SF AWB Number (Defective Shipped)",
+            "AWB Number Warehouse Dispatch Defective To Partner",
+            "Warehouse Dispatch Defective To Partner Courier Name",
+            "Warehouse Dispatch Defective To Partner Challan Number",
+            "Warehouse Dispatch Defective Shipped Date To Partner",
+            "Dealer Name",
+            "Reverse Purchase Invoice Id",
+            "Invoice Date",
+            "Serial Number",
+            "Customer Contact Number",
             "Is Spare Auto Acknowledge By SF",
             "Consumption"
             );
@@ -6091,6 +6100,15 @@ class Partner extends CI_Controller {
             $tempArray[] = $sparePartBookings['remarks_defective_part_by_sf'];
             $tempArray[] = $sparePartBookings['sf_challan_number'];
             $tempArray[] = $sparePartBookings['awb_by_sf'];
+            $tempArray[] = $sparePartBookings['awb_by_wh'];
+            $tempArray[] = $sparePartBookings['courier_name_by_wh'];
+            $tempArray[] = $sparePartBookings['wh_challan_number'];
+            $tempArray[] = $sparePartBookings['wh_to_partner_defective_shipped_date'];
+            $tempArray[] = $sparePartBookings['dealer_name'];
+            $tempArray[] = $sparePartBookings['reverse_purchase_invoice_id'];
+            $tempArray[] = $sparePartBookings['invoice_date'];
+            $tempArray[] = $sparePartBookings['serial_number'];
+            $tempArray[] = $sparePartBookings['booking_primary_contact_no'];
             if($sparePartBookings['auto_acknowledeged']==1){
             $tempArray[] = "Yes";   
              }else{
@@ -10160,6 +10178,7 @@ class Partner extends CI_Controller {
         $sql = "Select distinct partner_appliance_details.brand, services.services,services.id  "
                 . "From partner_appliance_details, services "
                 . "where partner_appliance_details.service_id = services.id "
+                . "AND services.walk_in = 1 "
                 . "AND partner_appliance_details.brand = ? ";
         $query = $this->db->query($sql, $brand);
         $data = $query->result_array();
@@ -10324,7 +10343,12 @@ class Partner extends CI_Controller {
                 $this->insertion_failure($postData, "Internal Server Error", $responseData['data']);                
                 return $this->show_booking_insertion_failure($is_api, FAILURE_CODE, ERR_BOOKING_NOT_INSERTED_MSG);
             }
-        }          
+        }
+        else {
+            log_message('info', "Booking not Inserted, Internal Server Error, Please Try Again. " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
+            $this->insertion_failure($postData, "Internal Server Error", $responseData['data']);                
+            return $this->show_booking_insertion_failure($is_api, FAILURE_CODE, ERR_BOOKING_NOT_INSERTED_MSG);
+        }
     }
     
     /**

@@ -77,7 +77,7 @@
                          
                             
                             <td>
-                                <button id='<?php echo "updatebtn".$key;?>' class="btn btn-primary" onclick="loadupdatemodel('<?php echo $key;?>')" 
+                                <button id='<?php echo "updatebtn".$key;?>' class="btn btn-primary" onclick="loadupdatemodel('<?php echo $key;?>','<?php echo $row->walk_in;?>')" 
                                         
                                         value="update" data-services="<?php echo $row->services; ?>" 
                                         data-id="<?php echo $row->id; ?>">Update</button>
@@ -117,6 +117,13 @@
                                     </div>
                                    
                                 </div>
+                                    <div class="form-group">
+                                    <label class="col-md-4">Is Walk In</label>
+                                    <div class="col-md-6">
+                                        <input type="checkbox" class=" form-check-input" id="walk_in" name="walk_in" value="1">
+                                    </div>
+                                   
+                                </div>
   
                                     <input type="hidden" name="rowid" id="rowid" value="">
                                 </div>
@@ -138,18 +145,23 @@
 </div>
     
     <script>
-       function loadupdatemodel(key){
+       function loadupdatemodel(key,walk_in){
            
            var appliance = $("#updatebtn"+key).attr('data-services');
            var id = $("#updatebtn"+key).attr('data-id');
            
           
-          
-           
+         
            //$("#service").val(service).change();
            $("#rowid").val(id);
            $("#appliance").val(appliance);
            $("#updatemyModal").modal('toggle');
+           if(walk_in == 1){
+           $("#walk_in").prop('checked', true);;
+           }
+           else{
+             $("#walk_in").prop('checked', false);
+           }
            
        }
        
