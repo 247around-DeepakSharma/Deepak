@@ -1537,7 +1537,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
             $res['errorMessage'] = "No/Invalid Service center.";
             return $res;
         }
-        $this->db->select("sum(sell_price) as 'amount'");
+        $this->db->select("sum(challan_approx_value) as 'amount'");
         $this->db->from("spare_parts_details");
         $this->db->where("is_micro_wh", 1);
         $this->db->where("part_warranty_status", 2);
