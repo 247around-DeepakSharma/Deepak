@@ -961,7 +961,11 @@ function get_data_for_partner_callback($booking_id) {
                 . "spare_parts_details.courier_name_by_wh as 'Warehouse Dispatch Defective To Partner Courier Name',"
                 . "spare_parts_details.wh_challan_number as 'Warehouse Dispatch Defective To Partner Challan Number',"
                 . "spare_parts_details.wh_to_partner_defective_shipped_date as 'Warehouse Dispatch Defective Shipped Date To Partner',"
-                . "dealer_details.dealer_name" ;
+                . "dealer_details.dealer_name,"
+                . "spare_parts_details.reverse_purchase_invoice_id," 
+                . "vendor_partner_invoices.invoice_date,"
+                . "booking_unit_details.serial_number,"   
+                . "booking_details.booking_primary_contact_no" ;
 
             if($end){
                 $limit = "LIMIT $start, $end";
@@ -1020,7 +1024,9 @@ function get_data_for_partner_callback($booking_id) {
                     . ' LEFT JOIN inventory_master_list as shipped_inventory on shipped_inventory.inventory_id = spare_parts_details.shipped_inventory_id '
                     . ' LEFT JOIN services ON booking_details.service_id=services.id '
                     . ' LEFT JOIN spare_consumption_status ON spare_parts_details.consumed_part_status_id = spare_consumption_status.id '
-                    . ' LEFT JOIN dealer_details ON booking_details.dealer_id=dealer_details.dealer_id'    
+                    . ' LEFT JOIN dealer_details ON booking_details.dealer_id=dealer_details.dealer_id'
+                    . ' LEFT JOIN  vendor_partner_invoices ON  vendor_partner_invoices.invoice_id = spare_parts_details.reverse_purchase_invoice_id '    
+                    . ' LEFT JOIN booking_unit_details ON booking_unit_details.booking_id=spare_parts_details.booking_id'    
                     . " WHERE booking_details.booking_id = spare_parts_details.booking_id"
                     . " AND users.user_id = booking_details.user_id AND service_centres.id = spare_parts_details.service_center_id "
                     . " AND ".$where . $orderBy.", spare_parts_details.create_date ASC $limit";
