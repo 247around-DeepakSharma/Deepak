@@ -145,24 +145,20 @@
 </div>
     
     <script>
-       function loadupdatemodel(key,walk_in){
+       function loadupdatemodel(key,walk_in=0){
            
            var appliance = $("#updatebtn"+key).attr('data-services');
            var id = $("#updatebtn"+key).attr('data-id');
            
           
-         
+           $("#walk_in").prop('checked', false);
            //$("#service").val(service).change();
            $("#rowid").val(id);
            $("#appliance").val(appliance);
            $("#updatemyModal").modal('toggle');
            if(walk_in == 1){
-           $("#walk_in").prop('checked', true);;
+             $("#walk_in").prop('checked', true);
            }
-           else{
-             $("#walk_in").prop('checked', false);
-           }
-           
        }
        
        function changeStatus(btnId, status)
