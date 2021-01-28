@@ -1548,7 +1548,7 @@ class Miscelleneous {
             log_message("info",__METHOD__."  Prepaid Partner Found id ". $partner_id);
             //Get Partner invoice amout
             $invoice_where = "vendor_partner = 'partner' AND vendor_partner_id = " . $partner_id . 
-                    " AND sub_category NOT IN ('MSL', 'MSL New Part Return')";
+                    " AND settle_amount = 0 AND sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_NEW_PART_RETURN."' ) ";
             
 //            $invoice_amount = $this->My_CI->invoices_model->get_invoices_details
 //                    (array(
