@@ -5,6 +5,7 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Bookings <?php echo $status; ?> By SF</h2>
+                    <span style='color: #337ab7 !important;float:right;background: #e5f7f5;'><i class="fa fa-info-circle"></i> By Clicking on Count of 'Total' Row, You can see all Total bookings in Review (TAT Wise).</span>
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
@@ -112,14 +113,14 @@
                                 <div class="col-md-3" style="margin-top: 21px;padding: 0px 1px;width: 100px;">
                                     <div class="item form-group">
                                         <div class="col-md-12 col-sm-12 col-xs-12">
-                                            <input class="btn btn-success" name="sf_review_data" id="sf_review_data<?php echo '_'.$status; ?>" type="button" value="Apply Filters" style="background: #405467;padding: 8px;">
+                                            <input class="btn btn-success" name="sf_review_data" id="sf_review_data<?php echo '_'.$status; ?>" type="button" value="Apply Filters" style="background: #405467;padding: 8px;" onclick="return filter_changes()">
                                         </div>
                                     </div>
                                 </div>
                             </div> 
                         </div>
                     </form>
-                    <div class="tab-content" style="margin-top: 10px;">
+                    <div class="tab-content" style="margin-top: 10px;">                        
                         <div class="tab-pane fade in active" id="tab1">                            
                             <table class="table table-striped table-bordered jambo_table bulk_action" id="tat_sf_table<?php echo '_'.$status; ?>">
                                 <thead>
@@ -138,8 +139,7 @@
                                         <th>Total</th>
                                     </tr>
                                 </thead>
-                                <tbody id="review_data<?php echo '_'.$status; ?>">
-                                    <?php echo $list_data; ?>
+                                <tbody>                                    
                                 </tbody>
                             </table>
                         </div>
@@ -153,6 +153,118 @@
 <!-- END -->
 
 <script>
+    var sf_datatable;
+    function load_datatable(){    
+        sf_datatable = $("#tat_sf_table<?php echo '_'.$status; ?>").DataTable({
+            processing: true,        
+            serverSide: true, 
+            paging: true,
+            pageLength : 25,
+            ajax: {
+                "url": '<?php echo base_url()."employee/booking/review_bookings_sf_wise/".$status ?>',
+                "type": "POST",
+                "data": function(d){
+                    // Partner Filter Value
+                    d.partners  = "";
+                    if ($('#partner_id<?php echo '_'.$status; ?>').length){ 
+                        d.partners = $('#partner_id<?php echo '_'.$status; ?>').val(); 
+                    }                
+                    // Service Filter
+                    d.services = "";
+                    if($('#service_id<?php echo '_'.$status; ?>').length){ 
+                        d.services = $('#service_id<?php echo '_'.$status; ?>').val();
+                    }
+                    // Request Type Filter
+                    d.request_type = "";
+                    if($('#request_type<?php echo '_'.$status; ?>').length){ 
+                        d.request_type = $('#request_type<?php echo '_'.$status; ?>').val();
+                    }
+                    // Free Paid Filter
+                    d.free_paid = "";
+                    if($('#free_paid<?php echo '_'.$status; ?>').length){ 
+                        d.free_paid = $('#free_paid<?php echo '_'.$status; ?>').val();
+                    }                
+                    // State Filter
+                    d.states = "";
+                    if($('#state_code<?php echo '_'.$status; ?>').length){ 
+                        d.states = $('#state_code<?php echo '_'.$status; ?>').val();
+                    }                
+                }
+            },
+            fnDrawCallback: function (oSettings, response) {            
+                $('.sf<?php echo '_'.$status; ?>').each(function(){
+                    var sf_id = $(this).attr('data-sf');
+                    $.ajax({
+                        type: 'post',
+                        url: '<?php echo base_url()  ?>penalty/get_sf_penalty_percentage/'+sf_id+'/<?php echo $status;  ?>/60/1',
+                        success: function (response) {
+                            $("#penalty<?php echo '_'.$status; ?>"+"_"+sf_id).html(response);
+                        }
+                    });
+
+                    if('<?php echo $status;  ?>' == 'Completed'){                
+                        $.ajax({
+                            type: 'post',
+                            url: '<?php echo base_url()  ?>employee/booking/get_ow_completed_percentage/'+sf_id+'/60/1',
+                            success: function (response) {
+                                $("#status<?php echo '_'.$status; ?>"+"_"+sf_id).html(response);
+                            }
+                        });
+                    }
+
+                    if('<?php echo $status;  ?>' == 'Cancelled'){                
+                        $.ajax({
+                            type: 'post',
+                            url: '<?php echo base_url()  ?>employee/booking/get_cancelled_percentage/'+sf_id+'/60/1',
+                            success: function (response) {
+                                $("#status<?php echo '_'.$status; ?>"+"_"+sf_id).html(response);
+                            }
+                        });
+                    }
+                });
+                // Move to Review Bookings Page on TAT count click
+                $('.btn-count').click(function(){
+                    var status = "<?php echo $status; ?>";
+                    // Partner Filter
+                    var partner_id = 0;
+                    if($('#partner_id<?php echo '_'.$status; ?>').val() != '') {
+                        partner_id = $('#partner_id<?php echo '_'.$status; ?>').val();
+                    }
+                    // State Filter
+                    var state_code = 0;
+                    if($('#state_code<?php echo '_'.$status; ?>').val() != ''){
+                        state_code = $('#state_code<?php echo '_'.$status; ?>').val();
+                    }
+                    // Request Type Filter
+                    var request_type = 0;
+                    if($('#request_type<?php echo '_'.$status; ?>').val() != ''){
+                        request_type = $('#request_type<?php echo '_'.$status; ?>').val();
+                    }            
+                    // Service Filter
+                    var service_id = 0;
+                    if($('#service_id<?php echo '_'.$status; ?>').val() != ''){
+                        service_id = $('#service_id<?php echo '_'.$status; ?>').val();
+                    }            
+                    // Free Paid Filter
+                    var free_paid = 0;
+                    if($('#free_paid<?php echo '_'.$status; ?>').val() != ''){
+                        free_paid = $('#free_paid<?php echo '_'.$status; ?>').val();
+                    }            
+
+                    var min_review_age = $(this).attr('data-review-age-min');
+                    var max_review_age = $(this).attr('data-review-age-max');            
+                    var sf_id = $(this).attr('data-sf');
+
+                    window.open(
+                        '<?php echo base_url();?>employee/booking/review_bookings_by_status/'+status+'/0/0/0/0/'+partner_id+'/'+state_code+'/'+request_type+'/'+min_review_age+'/'+max_review_age+'/0/0/'+service_id+'/'+free_paid+'/'+sf_id+'/1',
+                        '_blank' // <- This is what makes it open in a new window.
+                    );        
+                });
+            },
+            deferRender: true,
+        });
+    }
+    
     $('#request_type<?php echo '_'.$status; ?>').select2({
         allowClear: false
     });
@@ -169,106 +281,11 @@
         allowClear: false
     });
     
-    $("#sf_review_data<?php echo '_'.$status; ?>").click(function(){
-        var data = {
-            partners : $('#partner_id<?php echo '_'.$status; ?>').val(),
-            services : $('#service_id<?php echo '_'.$status; ?>').val(),
-            request_type : $('#request_type<?php echo '_'.$status; ?>').val(),
-            free_paid : $('#free_paid<?php echo '_'.$status; ?>').val(),
-            states : $('#state_code<?php echo '_'.$status; ?>').val(),
-            is_ajax_request : 1
-        };
-        $.ajax({
-            method:'POST',
-            url:'<?php echo base_url()."employee/booking/review_bookings_by_status_sf_wise/".$status ?>',
-            data: data,
-            beforeSend: function () {
-                $("#review_data<?php echo '_'.$status; ?>").html("<tr><td colspan=12><center><img src='<?php echo base_url(); ?>images/loadring.gif' style=></center></td></tr>");
-            },
-            success:function(response){
-                if(response.indexOf('No Booking Found') != -1){
-                    $("#review_data<?php echo '_'.$status; ?>").html("<tr><td colspan='12'>"+response+"</td></tr>");
-                }
-                else{
-                    $("#review_data<?php echo '_'.$status; ?>").html(response);
-                }
-            }                            
-        });
-    });
-        
-    $("#tat_sf_table<?php echo '_'.$status; ?>").dataTable({
-        "fnDrawCallback": function (oSettings, response) {            
-            $('.sf<?php echo '_'.$status; ?>').each(function(){
-                var sf_id = $(this).attr('data-sf');
-                $.ajax({
-                    type: 'post',
-                    url: '<?php echo base_url()  ?>penalty/get_sf_penalty_percentage/'+sf_id+'/<?php echo $status;  ?>/60/1',
-                    success: function (response) {
-                        $("#penalty<?php echo '_'.$status; ?>"+"_"+sf_id).html(response);
-                    }
-                });
-                
-                if('<?php echo $status;  ?>' == 'Completed'){                
-                    $.ajax({
-                        type: 'post',
-                        url: '<?php echo base_url()  ?>employee/booking/get_ow_completed_percentage/'+sf_id+'/60/1',
-                        success: function (response) {
-                            $("#status<?php echo '_'.$status; ?>"+"_"+sf_id).html(response);
-                        }
-                    });
-                }
-                
-                if('<?php echo $status;  ?>' == 'Cancelled'){                
-                    $.ajax({
-                        type: 'post',
-                        url: '<?php echo base_url()  ?>employee/booking/get_cancelled_percentage/'+sf_id+'/60/1',
-                        success: function (response) {
-                            $("#status<?php echo '_'.$status; ?>"+"_"+sf_id).html(response);
-                        }
-                    });
-                }
-            });
-            // Move to Review Bookings Page on TAT count click
-            $('.btn-count').click(function(){
-                var status = "<?php echo $status; ?>";
-                // Partner Filter
-                var partner_id = 0;
-                if($('#partner_id<?php echo '_'.$status; ?>').val() != '') {
-                    partner_id = $('#partner_id<?php echo '_'.$status; ?>').val();
-                }
-                // State Filter
-                var state_code = 0;
-                if($('#state_code<?php echo '_'.$status; ?>').val() != ''){
-                    state_code = $('#state_code<?php echo '_'.$status; ?>').val();
-                }
-                // Request Type Filter
-                var request_type = 0;
-                if($('#request_type<?php echo '_'.$status; ?>').val() != ''){
-                    request_type = $('#request_type<?php echo '_'.$status; ?>').val();
-                }            
-                // Service Filter
-                var service_id = 0;
-                if($('#service_id<?php echo '_'.$status; ?>').val() != ''){
-                    service_id = $('#service_id<?php echo '_'.$status; ?>').val();
-                }            
-                // Free Paid Filter
-                var free_paid = 0;
-                if($('#free_paid<?php echo '_'.$status; ?>').val() != ''){
-                    free_paid = $('#free_paid<?php echo '_'.$status; ?>').val();
-                }            
-
-                var min_review_age = $(this).attr('data-review-age-min');
-                var max_review_age = $(this).attr('data-review-age-max');            
-                var sf_id = $(this).attr('data-sf');
-
-                window.open(
-                    '<?php echo base_url();?>employee/booking/review_bookings_by_status/'+status+'/0/0/0/0/'+partner_id+'/'+state_code+'/'+request_type+'/'+min_review_age+'/'+max_review_age+'/0/0/'+service_id+'/'+free_paid+'/'+sf_id+'/1',
-                    '_blank' // <- This is what makes it open in a new window.
-                );        
-            });
-        }
-    });
-   
+    load_datatable();
+    
+    function filter_changes(){
+        sf_datatable.ajax.reload();
+    } 
 </script>
 
 <style>

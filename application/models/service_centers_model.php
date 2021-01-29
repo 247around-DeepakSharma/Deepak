@@ -1724,8 +1724,8 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
      * @author : Prity Sharma
      * @Date : 29-10-2020
     */
-    function get_admin_review_bookings_sf_wise($status,$whereIN,$is_partner,$where=array(),$join_arr=array(),$having_arr=array()){
-        $where_in = $join = $having = "";
+    function get_admin_review_bookings_sf_wise($status,$whereIN,$is_partner,$where=array(),$join_arr=array(),$having_arr=array(), $length='-1', $start=0){
+        $where_in = $join = $having = $limit = "";
         $where_sc = "AND (partners.booking_review_for NOT LIKE '%".$status."%' OR partners.booking_review_for IS NULL OR booking_details.amount_due != 0)";
         if($is_partner){
             $where_sc = " AND (partners.booking_review_for IS NOT NULL)";
@@ -1764,25 +1764,24 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
             }
             $having = " having ".trim($having," AND ");
         }
+        
+        // Select Statement
+        $select = " count(*) as total_count";
+        if ($length != '-1') {
+            $select = " sf_id,sf_name,state,group_concat(qry.booking_id) as booking_id,
+                        SUM(D0) as 'Day0',SUM(D1) as 'Day1',SUM(D2) as 'Day2',
+                        SUM(D3) as 'Day3',SUM(D4) as 'Day4',SUM(D5) as 'Day5-Day7',
+                        SUM(D8) as 'Day8-Day15',SUM(D15) as '>Day15',SUM(Total) as 'Total'";
+            $limit = " LIMIT $length OFFSET $start ";
+        }
+        
         // Query
         $sql = "SELECT
-                    sf_id,
-                    sf_name,
-                    state,
-                    group_concat(qry.booking_id) as booking_id,
-                    SUM(D0) as 'Day0',
-                    SUM(D1) as 'Day1',
-                    SUM(D2) as 'Day2',
-                    SUM(D3) as 'Day3',
-                    SUM(D4) as 'Day4',
-                    SUM(D5) as 'Day5-Day7',
-                    SUM(D8) as 'Day8-Day15',
-                    SUM(D15) as '>Day15',
-                    SUM(Total) as 'Total'
+                   $select 
                 FROM
                     (SELECT 
 			service_centres.id as sf_id,
-			service_centres.company_name as sf_name,
+			service_centres.name as sf_name,
 			service_centres.state,
 			GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,
 			COUNT(DISTINCT booking_details.booking_id) as booking_count,
@@ -1812,9 +1811,9 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
                     $having
                     ) as qry
                 GROUP BY sf_id
-                ORDER BY Total DESC";        
+                ORDER BY Total DESC 
+                $limit ";        
         $query = $this->db->query($sql);
-//        echo '<pre>';print_R($this->db->last_query());exit;
         $booking = $query->result_array();        
         return $booking;
     }

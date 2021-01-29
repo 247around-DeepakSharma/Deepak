@@ -6980,32 +6980,17 @@ class Booking extends CI_Controller {
         $this->checkUserSession();
         $post_data = $this->input->post();
     
-        // Get all Data
-        $data['sf_data'] = $this->get_review_bookings_data_sf_wise($review_status, $post_data);                     
-        if(!empty($data['sf_data'])){ 
-            $list_data = $this->get_review_bookings_data_sf_wise_list($data['sf_data'], $review_status);
-            if(!empty($post_data['is_ajax_request'])){                
-                echo $list_data; exit;
-            }
-            else
-            {
-                // Put all selected values in array to show these filter values above filtered data
-                $data['list_data'] = $list_data;
-                $data['status'] = $review_status;
-                $data['partners'] = $this->reusable_model->get_search_result_data("partners", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
-                $data['states'] = $this->reusable_model->get_search_result_data("state_code", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
-                $data['services'] = $this->reusable_model->get_search_result_data("services", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
-                $data['request_types'] = [1 => 'Installation & Demo (Paid)',2 => 'Installation & Demo (Free)', 3 => 'Repair - In Warranty', 4 => 'Repair - Out Of Warranty', 5 => 'Extended Warranty', 6 => 'Gas Recharge', 7 => 'PDI', 8 => 'Repeat Booking', 9 => 'Presale Repair'];   
-                // load View
-                $this->load->view('employee/completed_cancelled_review_sf_wise', $data);
-            }
-        }
-        else{
-            echo "<center style='margin-top:30px;'>No Booking Found</center>";
-        }
+        // Put all selected values in array to show these filter values above filtered data
+        $data['status'] = $review_status;
+        $data['partners'] = $this->reusable_model->get_search_result_data("partners", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
+        $data['states'] = $this->reusable_model->get_search_result_data("state_code", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
+        $data['services'] = $this->reusable_model->get_search_result_data("services", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
+        $data['request_types'] = [1 => 'Installation & Demo (Paid)',2 => 'Installation & Demo (Free)', 3 => 'Repair - In Warranty', 4 => 'Repair - Out Of Warranty', 5 => 'Extended Warranty', 6 => 'Gas Recharge', 7 => 'PDI', 8 => 'Repeat Booking', 9 => 'Presale Repair'];   
+        // load View
+        $this->load->view('employee/completed_cancelled_review_sf_wise', $data);
     }
     
-    function get_review_bookings_data_sf_wise($review_status, $post_data)
+    function get_review_bookings_data_sf_wise($review_status, $post_data, $all_records = 0)
     {
         $whereIN = $where = $join = $having = array();
         
@@ -7070,56 +7055,87 @@ class Booking extends CI_Controller {
            $data['filters']['states'] = $post_data['states'];
         }
         
-        $data = $this->service_centers_model->get_admin_review_bookings_sf_wise($review_status,$whereIN,0,$where,$join,$having);
+        // Set Current Page Data
+        $length = $post_data['length'];
+        $start = $post_data['start'];
+        if($all_records){
+            $length = "-1";
+        }
+        $data = $this->service_centers_model->get_admin_review_bookings_sf_wise($review_status,$whereIN,0,$where,$join,$having,$length,$start);
         return $data;
     }
     
-    function get_review_bookings_data_sf_wise_list($data, $review_status)
-    {
-        $index = 0;
-        $str = "";
-        
-        // Get Penalty Status against each SF            
-        foreach($data as $key => $values){ 
-            $index++;
-            $str .= "<tr>";
-            $str .= "<td>$index</td>";
-            $str .= "<td class='sf_".$review_status."' data-sf='".$values['sf_id']."'>"
-                    . $values['sf_name']
-                    . "<span id='penalty_".$review_status."_".$values['sf_id']."'></span>"
-                    . "<span id='status_".$review_status."_".$values['sf_id']."'></span>"
-                    . "</td>";
-            $str .= "<td>".$values['state']."</td>";
-            $str .= "<td><button data-sf='".$values['sf_id']."' data-review-age-min='0'  data-review-age-max='0' class='btn btn-count btn-success'>". $values['Day0'] ."</button></td>";
-            $str .= "<td><button data-sf='".$values['sf_id']."' data-review-age-min='1'  data-review-age-max='1' class='btn btn-count btn-success'>". $values['Day1'] ."</button></td>";
-            $str .= "<td><button data-sf='".$values['sf_id']."' data-review-age-min='2'  data-review-age-max='2' class='btn btn-count ".($values['Day2'] > 0 ? 'btn-danger' : 'btn-success')."'>".$values['Day2']."</button></td>";
-            $str .= "<td><button data-sf='".$values['sf_id']."' data-review-age-min='3'  data-review-age-max='3' class='btn btn-count ".($values['Day3'] > 0 ? 'btn-danger' : 'btn-success')."'>".$values['Day3']."</button></td>";
-            $str .= "<td><button data-sf='".$values['sf_id']."' data-review-age-min='4'  data-review-age-max='4' class='btn btn-count ".($values['Day4'] > 0 ? 'btn-danger' : 'btn-success')."'>".$values['Day4']."</button></td>";
-            $str .= "<td><button data-sf='".$values['sf_id']."' data-review-age-min='5'  data-review-age-max='7' class='btn btn-count ".($values['Day5-Day7'] > 0 ? 'btn-danger' : 'btn-success')."'>".$values['Day5-Day7']."</button></td>";
-            $str .= "<td><button data-sf='".$values['sf_id']."' data-review-age-min='8'  data-review-age-max='15' class='btn btn-count ".($values['Day8-Day15'] > 0 ? 'btn-danger' : 'btn-success')."'>".$values['Day8-Day15']."</button></td>";
-            $str .= "<td><button data-sf='".$values['sf_id']."' data-review-age-min='16' data-review-age-max='500' class='btn btn-count ".($values['>Day15'] > 0 ? 'btn-danger' : 'btn-success')."'>".$values['>Day15']."</button></td>";
-            $str .= "<td><button data-sf='".$values['sf_id']."' data-review-age-min='".FILTER_NOT_DEFINE."'  data-review-age-max='".FILTER_NOT_DEFINE."' class='btn btn-count ".($values['Total'] > 0 ? 'btn-danger' : 'btn-success')."'>".$values['Total']."</button></td>";
-            $str .= "</tr>";
+    /**
+     *  @desc : This function is used to get count of review bookings (SF wise)    
+     *  @author : Prity Sharma
+     *  @created_by : 22-01-2021   
+    */
+    public function review_bookings_sf_wise($review_status){
+        $post = $this->input->post();
+        // Get all Data
+        $list = $this->get_review_bookings_data_sf_wise($review_status, $post);
+        $no = $post['start'];
+        $data = array();
+        foreach ($list as $sf_list) {
+            $no++;
+            $row = $this->review_bookings_sf_wise_table_data($review_status, $sf_list, $no);
+            $data[] = $row;
+        }
+        // Add Total Column
+        if(!empty($list)){
+            $data[] = $this->review_bookings_sf_wise_table_data($review_status, $list, $no, 1);
         }
         
-        // Get Total Row
-        $str .= "<tr>";
-        $str .= "<td>".++$index."</td>";
-        $str .= "<td>Total</td>";
-        $str .= "<td>All</td>";
-        $str .= "<td><button data-sf='".FILTER_NOT_DEFINE."' data-review-age-min='0'  data-review-age-max='0' class='btn btn-count btn-success'>". array_sum(array_column($data, 'Day0')) ."</button></td>";
-        $str .= "<td><button data-sf='".FILTER_NOT_DEFINE."' data-review-age-min='1'  data-review-age-max='1' class='btn btn-count btn-success'>". array_sum(array_column($data, 'Day1')) ."</button></td>";
-        $str .= "<td><button data-sf='".FILTER_NOT_DEFINE."' data-review-age-min='2'  data-review-age-max='2' class='btn btn-count ".(array_sum(array_column($data, 'Day2')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($data, 'Day2'))."</button></td>";
-        $str .= "<td><button data-sf='".FILTER_NOT_DEFINE."' data-review-age-min='3'  data-review-age-max='3' class='btn btn-count ".(array_sum(array_column($data, 'Day3')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($data, 'Day3'))."</button></td>";
-        $str .= "<td><button data-sf='".FILTER_NOT_DEFINE."' data-review-age-min='4'  data-review-age-max='4' class='btn btn-count ".(array_sum(array_column($data, 'Day4')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($data, 'Day4'))."</button></td>";
-        $str .= "<td><button data-sf='".FILTER_NOT_DEFINE."' data-review-age-min='5'  data-review-age-max='7' class='btn btn-count ".(array_sum(array_column($data, 'Day5-Day7')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($data, 'Day5-Day7'))."</button></td>";
-        $str .= "<td><button data-sf='".FILTER_NOT_DEFINE."' data-review-age-min='8'  data-review-age-max='15' class='btn btn-count ".(array_sum(array_column($data, 'Day8-Day15')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($data, 'Day8-Day15'))."</button></td>";
-        $str .= "<td><button data-sf='".FILTER_NOT_DEFINE."' data-review-age-min='16'  data-review-age-max='500' class='btn btn-count ".(array_sum(array_column($data, '>Day15')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($data, '>Day15'))."</button></td>";
-        $str .= "<td><button data-sf='".FILTER_NOT_DEFINE."' data-review-age-min='".FILTER_NOT_DEFINE."'  data-review-age-max='".FILTER_NOT_DEFINE."' class='btn btn-count ".(array_sum(array_column($data, 'Total')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($data, 'Total'))."</button></td>";
-        $str .= "</tr>";
-        
-        // Return HTML    
-        return $str;                                                                                    
+        $arr_count = $this->get_review_bookings_data_sf_wise($review_status, $post, 1);
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => count($arr_count),
+            "recordsFiltered" => count($arr_count),
+            "data" => $data,
+        );
+
+        echo json_encode($output);
+    }
+    
+    function review_bookings_sf_wise_table_data($review_status, $values, $no, $total_row = 0) {
+        $row = array();
+        // For SF wise count
+        if(!($total_row))
+        {
+            $row[] = $no;
+            $row[] = "<p class='sf_".$review_status."' data-sf='".$values['sf_id']."'>"
+                        . $values['sf_name']
+                        . "<span id='penalty_".$review_status."_".$values['sf_id']."'></span>"
+                        . "<span id='status_".$review_status."_".$values['sf_id']."'></span>"
+                        . "</p>";
+            $row[] = "<p>".$values['state']."</p>";
+            $row[] = "<p><button data-sf='".$values['sf_id']."' data-review-age-min='0'  data-review-age-max='0' class='btn btn-count btn-success'>". $values['Day0'] ."</button></p>";
+            $row[] = "<p><button data-sf='".$values['sf_id']."' data-review-age-min='1'  data-review-age-max='1' class='btn btn-count btn-success'>". $values['Day1'] ."</button></p>";
+            $row[] = "<p><button data-sf='".$values['sf_id']."' data-review-age-min='2'  data-review-age-max='2' class='btn btn-count ".($values['Day2'] > 0 ? 'btn-danger' : 'btn-success')."'>".$values['Day2']."</button></p>";
+            $row[] = "<p><button data-sf='".$values['sf_id']."' data-review-age-min='3'  data-review-age-max='3' class='btn btn-count ".($values['Day3'] > 0 ? 'btn-danger' : 'btn-success')."'>".$values['Day3']."</button></p>";
+            $row[] = "<p><button data-sf='".$values['sf_id']."' data-review-age-min='4'  data-review-age-max='4' class='btn btn-count ".($values['Day4'] > 0 ? 'btn-danger' : 'btn-success')."'>".$values['Day4']."</button></p>";
+            $row[] = "<p><button data-sf='".$values['sf_id']."' data-review-age-min='5'  data-review-age-max='7' class='btn btn-count ".($values['Day5-Day7'] > 0 ? 'btn-danger' : 'btn-success')."'>".$values['Day5-Day7']."</button></p>";
+            $row[] = "<p><button data-sf='".$values['sf_id']."' data-review-age-min='8'  data-review-age-max='15' class='btn btn-count ".($values['Day8-Day15'] > 0 ? 'btn-danger' : 'btn-success')."'>".$values['Day8-Day15']."</button></p>";
+            $row[] = "<p><button data-sf='".$values['sf_id']."' data-review-age-min='16' data-review-age-max='2000' class='btn btn-count ".($values['>Day15'] > 0 ? 'btn-danger' : 'btn-success')."'>".$values['>Day15']."</button></p>";
+            $row[] = "<p><button data-sf='".$values['sf_id']."' data-review-age-min='".FILTER_NOT_DEFINE."'  data-review-age-max='".FILTER_NOT_DEFINE."' class='btn btn-count ".($values['Total'] > 0 ? 'btn-danger' : 'btn-success')."'>".$values['Total']."</button></p>";
+        }
+        // For Total Row
+        else
+        {
+            $row[] = "<p>".++$no."</p>";
+            $row[] = "<p>Total</p>";
+            $row[] = "<p>All</p>";
+            $row[] = "<p><button data-sf='".FILTER_NOT_DEFINE."' data-review-age-min='0'  data-review-age-max='0' class='btn btn-count btn-success'>". array_sum(array_column($values, 'Day0')) ."</button></p>";
+            $row[] = "<p><button data-sf='".FILTER_NOT_DEFINE."' data-review-age-min='1'  data-review-age-max='1' class='btn btn-count btn-success'>". array_sum(array_column($values, 'Day1')) ."</button></p>";
+            $row[] = "<p><button data-sf='".FILTER_NOT_DEFINE."' data-review-age-min='2'  data-review-age-max='2' class='btn btn-count ".(array_sum(array_column($values, 'Day2')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($values, 'Day2'))."</button></p>";
+            $row[] = "<p><button data-sf='".FILTER_NOT_DEFINE."' data-review-age-min='3'  data-review-age-max='3' class='btn btn-count ".(array_sum(array_column($values, 'Day3')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($values, 'Day3'))."</button></p>";
+            $row[] = "<p><button data-sf='".FILTER_NOT_DEFINE."' data-review-age-min='4'  data-review-age-max='4' class='btn btn-count ".(array_sum(array_column($values, 'Day4')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($values, 'Day4'))."</button></p>";
+            $row[] = "<p><button data-sf='".FILTER_NOT_DEFINE."' data-review-age-min='5'  data-review-age-max='7' class='btn btn-count ".(array_sum(array_column($values, 'Day5-Day7')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($values, 'Day5-Day7'))."</button></p>";
+            $row[] = "<p><button data-sf='".FILTER_NOT_DEFINE."' data-review-age-min='8'  data-review-age-max='15' class='btn btn-count ".(array_sum(array_column($values, 'Day8-Day15')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($values, 'Day8-Day15'))."</button></p>";
+            $row[] = "<p><button data-sf='".FILTER_NOT_DEFINE."' data-review-age-min='16'  data-review-age-max='2000' class='btn btn-count ".(array_sum(array_column($values, '>Day15')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($values, '>Day15'))."</button></p>";
+            $row[] = "<p><button data-sf='".FILTER_NOT_DEFINE."' data-review-age-min='".FILTER_NOT_DEFINE."'  data-review-age-max='".FILTER_NOT_DEFINE."' class='btn btn-count ".(array_sum(array_column($values, 'Total')) > 0 ? 'btn-danger' : 'btn-success')."'>".array_sum(array_column($values, 'Total'))."</button></p>";
+        }
+        return $row;
     }
     
     /**
@@ -7173,5 +7189,5 @@ class Booking extends CI_Controller {
             echo $cancelled_percentage;
         }
     }
-    
+        
 }

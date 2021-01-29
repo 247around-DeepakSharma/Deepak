@@ -1,35 +1,33 @@
 -- Function To calculate Penalty Percentage --
 -- **************************************** --
 DELIMITER $$
-
-CREATE FUNCTION sfPenaltyStatus(sf_id INT(11), review_status VARCHAR(20), penalty_period INT(11))
-RETURNS DECIMAL(10,2)
-DETERMINISTIC
+CREATE FUNCTION `sfPenaltyStatus`(sf_id INT(11), review_status VARCHAR(20), penalty_period INT(11)) RETURNS decimal(10,2)
+    DETERMINISTIC
 BEGIN
-    DECLARE penalty_status DECIMAL(10,2);
-    DECLARE  total_bookings INT(11);
-    DECLARE total_penalty_imposed INT(11);
-    SET total_bookings = 0;
-    SET total_penalty_imposed = 0;
-	
-	IF review_status = 'Completed' THEN
-	
-	select count(*) INTO total_bookings from booking_details where assigned_vendor_id = sf_id AND DATEDIFF(CURDATE(), service_center_closed_date) <= penalty_period AND ((internal_status = 'InProcess_Completed' AND service_center_closed_date IS NOT NULL) OR  current_status = 'Completed');
-	
-	select count(*) INTO total_penalty_imposed from penalty_on_booking JOIN penalty_details ON (penalty_on_booking.criteria_id = penalty_details.id) WHERE penalty_on_booking.penalty_point <> 0 AND penalty_details.reason_of = 1 AND DATEDIFF(CURDATE(), penalty_on_booking.create_date) <= penalty_period AND service_center_id = sf_id;
-	
-	ELSE
-	
-	select count(*) INTO total_bookings from booking_details where assigned_vendor_id = sf_id AND DATEDIFF(CURDATE(), service_center_closed_date) <= penalty_period AND ((internal_status = 'InProcess_Cancelled' AND service_center_closed_date IS NOT NULL) OR  current_status = 'Cancelled');
-	
-	select count(*) INTO total_penalty_imposed from penalty_on_booking JOIN penalty_details ON (penalty_on_booking.criteria_id = penalty_details.id) WHERE penalty_on_booking.penalty_point <> 0 AND penalty_details.reason_of = 2  AND DATEDIFF(CURDATE(), penalty_on_booking.create_date) <= penalty_period AND service_center_id = sf_id;
-	
-	END IF;
-	
-	SET penalty_status = (total_penalty_imposed / (total_penalty_imposed + total_bookings)) * 100;
-	
-	-- return the penalty status
-	RETURN (penalty_status);
+DECLARE penalty_status DECIMAL(10,2);
+DECLARE  total_bookings INT(11);
+DECLARE total_penalty_imposed INT(11);
+SET total_bookings = 0;
+SET total_penalty_imposed = 0;
+
+IF review_status = 'Completed' THEN
+
+select count(*) INTO total_bookings from booking_details where assigned_vendor_id = sf_id AND DATEDIFF(CURDATE(), service_center_closed_date) <= penalty_period AND ((internal_status = 'InProcess_Completed' AND service_center_closed_date IS NOT NULL) OR  current_status = 'Completed');
+
+select SUM(penalty_on_booking.penalty_point) INTO total_penalty_imposed from penalty_on_booking JOIN penalty_details ON (penalty_on_booking.criteria_id = penalty_details.id) WHERE penalty_on_booking.penalty_point <> 0 AND penalty_details.reason_of = 1 AND DATEDIFF(CURDATE(), penalty_on_booking.create_date) <= penalty_period AND service_center_id = sf_id;
+
+ELSE
+
+select count(*) INTO total_bookings from booking_details where assigned_vendor_id = sf_id AND DATEDIFF(CURDATE(), service_center_closed_date) <= penalty_period AND ((internal_status = 'InProcess_Cancelled' AND service_center_closed_date IS NOT NULL) OR  current_status = 'Cancelled');
+
+select SUM(penalty_on_booking.penalty_point) INTO total_penalty_imposed from penalty_on_booking JOIN penalty_details ON (penalty_on_booking.criteria_id = penalty_details.id) WHERE penalty_on_booking.penalty_point <> 0 AND penalty_details.reason_of = 2  AND DATEDIFF(CURDATE(), penalty_on_booking.create_date) <= penalty_period AND service_center_id = sf_id;
+
+END IF;
+
+SET penalty_status = (total_penalty_imposed / (total_penalty_imposed + total_bookings)) * 100;
+
+-- return the penalty status
+RETURN (penalty_status);
 END$$
 DELIMITER ;
 
