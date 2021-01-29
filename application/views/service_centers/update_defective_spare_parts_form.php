@@ -141,7 +141,7 @@
                                             <?php foreach ($courier_details as $value1) { ?> 
                                             <option <?php if ((set_value("courier_name_by_sf") == $value1['courier_name'])) {
                                                 echo "selected";
-                                                } ?> value="<?php echo $value1['courier_code']; ?>"><?php echo $value1['courier_name']; ?></option>
+                                                } ?> value="<?php echo strtolower($value1['courier_code']); ?>"><?php echo $value1['courier_name']; ?></option>
                                             <?php } ?>
                                         </select>
                                     </div>
@@ -438,6 +438,7 @@
     
                         $("#defective_part_shipped_date").val(data.message[0].defective_part_shipped_date);
                         var courier = data.message[0]['courier_name_by_sf'].toLowerCase();
+                        alert(courier);
                         $('#courier_name_by_sf').val(courier).trigger('change');
                         $("#courier_name_by_sf").select2('destroy').attr("readonly", true);
                         $('#courier_name_by_sf').css('pointer-events','none');
