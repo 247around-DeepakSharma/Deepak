@@ -961,7 +961,11 @@ function get_data_for_partner_callback($booking_id) {
                 . "spare_parts_details.courier_name_by_wh as 'Warehouse Dispatch Defective To Partner Courier Name',"
                 . "spare_parts_details.wh_challan_number as 'Warehouse Dispatch Defective To Partner Challan Number',"
                 . "spare_parts_details.wh_to_partner_defective_shipped_date as 'Warehouse Dispatch Defective Shipped Date To Partner',"
-                . "dealer_details.dealer_name" ;
+                . "dealer_details.dealer_name,"
+                . "spare_parts_details.reverse_purchase_invoice_id," 
+                . "vendor_partner_invoices.invoice_date,"
+                . "spare_parts_details.serial_number,"   
+                . "booking_details.booking_primary_contact_no" ;
 
             if($end){
                 $limit = "LIMIT $start, $end";
@@ -1020,7 +1024,8 @@ function get_data_for_partner_callback($booking_id) {
                     . ' LEFT JOIN inventory_master_list as shipped_inventory on shipped_inventory.inventory_id = spare_parts_details.shipped_inventory_id '
                     . ' LEFT JOIN services ON booking_details.service_id=services.id '
                     . ' LEFT JOIN spare_consumption_status ON spare_parts_details.consumed_part_status_id = spare_consumption_status.id '
-                    . ' LEFT JOIN dealer_details ON booking_details.dealer_id=dealer_details.dealer_id'    
+                    . ' LEFT JOIN dealer_details ON booking_details.dealer_id=dealer_details.dealer_id'
+                    . ' LEFT JOIN  vendor_partner_invoices ON  vendor_partner_invoices.invoice_id = spare_parts_details.reverse_purchase_invoice_id '    
                     . " WHERE booking_details.booking_id = spare_parts_details.booking_id"
                     . " AND users.user_id = booking_details.user_id AND service_centres.id = spare_parts_details.service_center_id "
                     . " AND ".$where . $orderBy.", spare_parts_details.create_date ASC $limit";
@@ -2975,7 +2980,8 @@ function get_data_for_partner_callback($booking_id) {
                     `Reverse Purchase Invoice Id`,
                     `Purchase Invoice Id`,
                     `Sale Invoice Id`,
-                    `Dealer Name`	                    
+                    `Dealer Name`,
+                    `Reverse purchase invoice date`
             FROM (SELECT
                     booking_details.booking_id as '247around Booking ID',
                     (CASE WHEN booking_details.created_by_agent_type IN ('"._247AROUND_PARTNER_STRING."', '".BOOKING_AGENT_Dealer."') then entity_login_table.agent_name WHEN booking_details.created_by_agent_type = '".BOOKING_AGENT_Website."' THEN '".BOOKING_AGENT_Website."' ELSE employee.full_name END) as 'Agent Name',
@@ -3131,7 +3137,8 @@ function get_data_for_partner_callback($booking_id) {
                     '' AS 'Reverse Purchase Invoice Id',
                     '' AS 'Purchase Invoice Id',
                     '' AS 'Sale Invoice Id',
-                    dealer_details.dealer_name AS 'Dealer Name'              
+                    dealer_details.dealer_name AS 'Dealer Name',
+                    vendor_partner_invoices.invoice_date AS 'Reverse purchase invoice date'
             FROM
                     booking_details
                     LEFT JOIN booking_unit_details ud ON (booking_details.booking_id = ud.booking_id)
@@ -3149,6 +3156,7 @@ function get_data_for_partner_callback($booking_id) {
                     LEFT JOIN entity_login_table ON (booking_details.created_by_agent_id = entity_login_table.agent_id)
                     LEFT JOIN employee ON (booking_details.created_by_agent_id = employee.id)
                     LEFT JOIN dealer_details ON (booking_details.dealer_id = dealer_details.dealer_id)
+                    LEFT JOIN vendor_partner_invoices ON (vendor_partner_invoices.invoice_id = spare_parts_details.reverse_purchase_invoice_id)
             WHERE {$where} AND product_or_services != 'Product'
             GROUP BY
                     ud.id
@@ -3316,7 +3324,8 @@ function get_data_for_partner_callback($booking_id) {
                     IFNULL(spare_parts_details.reverse_purchase_invoice_id, ' ') AS 'Reverse Purchase Invoice Id',
                     IFNULL(spare_parts_details.purchase_invoice_id, ' ') AS 'Purchase Invoice Id',
                     IFNULL(spare_parts_details.sell_invoice_id, ' ') AS 'Sale Invoice Id',
-                    dealer_details.dealer_name AS 'Dealer Name'
+                    dealer_details.dealer_name AS 'Dealer Name',
+                    vendor_partner_invoices.invoice_date AS 'Reverse purchase invoice date'
 
             FROM
                 booking_details
@@ -3340,6 +3349,7 @@ function get_data_for_partner_callback($booking_id) {
                 LEFT JOIN entity_login_table ON (booking_details.created_by_agent_id = entity_login_table.agent_id)
                 LEFT JOIN employee ON (booking_details.created_by_agent_id = employee.id)
                 LEFT JOIN dealer_details ON (booking_details.dealer_id = dealer_details.dealer_id)
+                LEFT JOIN vendor_partner_invoices ON (vendor_partner_invoices.invoice_id = spare_parts_details.reverse_purchase_invoice_id)
             WHERE {$where}
                 AND product_or_services != 'Product' AND spare_parts_details.booking_id is not null 
             GROUP BY
