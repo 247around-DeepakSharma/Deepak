@@ -11120,7 +11120,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
         $row[] = '<span id="type_' . $hsncode_list->id . '">' . $hsncode_list->hsn_code . '</span>';
         $row[] = '<span id="part_name_' . $hsncode_list->id . '" style="word-break: break-all;">' . $hsncode_list->gst_rate . '%</span>';
         $row[] = '<span id="part_number_' . $hsncode_list->id . '" style="word-break: break-all;">' . $hsncode_list->create_date . '</span>';
-        $row[] = '<a class="btn btn-info" href="'.base_url() . 'employee/invoice/get_add_new_hsn_code/' . $hsncode_list->id.'" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i></a>';
+        $row[] = '<a class="btn btn-info" href="'.base_url() . 'employee/invoice/get_add_new_hsn_code/' . $hsncode_list->id.'"><i class="fa fa-edit" aria-hidden="true"></i></a>';
         if($hsncode_list->status == 1){
         $row[] = '<button type="button" class="btn btn-default" style="background-color: #d9534f; border-color: #fff; width: 90px; color: #fff;" id="' . $hsncode_list->id.'" onclick="process_to_manage_status(this.id)">Deactivate</button>';
         }else{
