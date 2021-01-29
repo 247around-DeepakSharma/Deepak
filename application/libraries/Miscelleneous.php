@@ -3546,7 +3546,11 @@ function generate_image($base64, $image_name,$directory){
     }
     function get_booking_contacts($bookingID,$state_check=1){
         $join['service_centres'] = 'booking_details.assigned_vendor_id = service_centres.id';
-        $JoinTypeTableArray['service_centres'] = 'left';
+        $JoinTypeTableArray = [
+            'service_centres' => 'left',
+            'employee emp' => 'left',
+            'employee' => 'left'
+        ];
         $booking_state = $this->My_CI->reusable_model->get_search_query('booking_details','service_centres.state',array('booking_details.booking_id' => $bookingID),$join,NULL,NULL,NULL,$JoinTypeTableArray)->result_array();
 
         $select = "e.phone as am_caontact,e.official_email as am_email, e.full_name as am,partners.primary_contact_name as partner_poc,"
@@ -3573,7 +3577,7 @@ function generate_image($base64, $image_name,$directory){
             $limitArray['length'] = 1;
             $limitArray['start'] = "";
         }
-        $data = $this->My_CI->reusable_model->get_search_result_data("booking_details",$select,$where,$join,$limitArray,NULL,NULL,NULL,"agent_filters.agent_id");
+        $data = $this->My_CI->reusable_model->get_search_result_data("booking_details",$select,$where,$join,$limitArray,NULL,NULL,$JoinTypeTableArray,"agent_filters.agent_id");
         return $data;
     }
     
