@@ -318,7 +318,8 @@ class Warranty extends CI_Controller {
         if(!empty($this->input->post('search')))
         {
            $like .= "( warranty_plans.plan_name LIKE '%" . $this->input->post('search')['value'] . "%' ";
-           $like .= "or warranty_plans.plan_description LIKE '%" . $this->input->post('search')['value'] . "%' )";
+           $like .= "or warranty_plans.plan_description LIKE '%" . $this->input->post('search')['value'] . "%' ";
+           $like .= "or appliance_model_details.model_number LIKE '%" . $this->input->post('search')['value'] . "%' )";
         }
 
         $where = "(warranty_plans.partner_id = '".$partner_id."' AND warranty_plans.service_id = '".$service_id."' ) OR warranty_plans.plan_id = '".$plan_id."'";

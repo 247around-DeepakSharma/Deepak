@@ -6270,8 +6270,9 @@ exit();
         echo $html;
     }
     /**
-     *  @desc : This function add new HSN Code view page.
+     * @desc : This function add new HSN Code view page.
      * @param : void 
+     * @author:Gorakh
      */
     function get_add_new_hsn_code($id = '') {
         $this->checkUserSession();
@@ -6294,7 +6295,8 @@ exit();
 
     /*
      * @desc : This function add new HSN Code Details 
-     * @param : void 
+     * @param : void
+     * @author:Gorakh
      */
     
     function process_add_new_hsncode() {
@@ -6302,28 +6304,34 @@ exit();
         $this->checkUserSession();
         $hsn_code = $this->input->post('hsn_code');
         $service_id = $this->input->post("service_id");
-        if (!empty($hsn_code)) {
+        if (in_array(trim($this->input->post('gst_rate')), GST_NUMBERS_LIST)) {
+            if (!empty($hsn_code)) {
 
-            $hsn_details = $this->inventory_model->get_hsn_code_details("hsn_code_details.id, hsn_code_details.hsn_code, hsn_code_details.gst_rate", array("hsn_code_details.hsn_code" => $hsn_code, "hsn_code_details.service_id" => $service_id));
+                $hsn_details = $this->inventory_model->get_hsn_code_details("hsn_code_details.id, hsn_code_details.hsn_code, hsn_code_details.gst_rate", array("hsn_code_details.hsn_code" => $hsn_code, "hsn_code_details.service_id" => $service_id));
 
-            if (empty($hsn_details)) {
-                $hsn = array('hsn_code' => $hsn_code, 'gst_rate' => $this->input->post('gst_rate'), 'agent_id' => $this->input->post('agent_id'), 'service_id' => $this->input->post('service_id'));
-                $last_inserted_id = $this->inventory_model->insert_query('hsn_code_details', $hsn);
-                if (!empty($last_inserted_id)) {
-                    $this->session->set_userdata(array('success' => 'HSN code successfully added.'));
+                if (empty($hsn_details)) {
+                    $hsn = array('hsn_code' => $hsn_code, 'gst_rate' => $this->input->post('gst_rate'), 'agent_id' => $this->input->post('agent_id'), 'service_id' => $this->input->post('service_id'));
+                    $last_inserted_id = $this->inventory_model->insert_query('hsn_code_details', $hsn);
+                    if (!empty($last_inserted_id)) {
+                        $this->session->set_userdata(array('success' => 'HSN code successfully added.'));
+                    } else {
+                        $this->session->set_userdata(array('error' => 'failed'));
+                    }
                 } else {
-                    $this->session->set_userdata(array('error' => 'failed'));
+                    $this->session->set_userdata('error', 'HSN code already exist in our system');
                 }
-            } else {
-                $this->session->set_userdata('error', 'HSN code already exist in our system');
             }
+        } else {
+            $this->session->set_userdata('error', 'GST rate not found in slab.');
         }
+
         redirect(base_url() . "employee/invoice/get_add_new_hsn_code");
     }
-    
+
     /*
      * @desc : This function Updated HSN Code Details 
      * @param : void 
+     * @author:Gorakh
      */
 
     function process_edit_new_hsncode() {
@@ -6355,7 +6363,8 @@ exit();
     
     /*
      * @desc : This function Updated HSN Code Details 
-     * @param : void 
+     * @param : void
+     * @author:Gorakh
      */
     
     function process_manage_hsncode_status() {
@@ -6380,6 +6389,21 @@ exit();
             }
         } else {
             echo json_encode(array('status' => 'HSN code Not Found'));
+        }
+    }
+    
+    /*
+     * @desc : This function Updated HSN Code Details 
+     * @param : void 
+     * @author:Gorakh
+     */
+    
+    function check_hsncode_service_id_exist_system(){
+        $hsn_code = $this->input->post('hsn_code');
+        $service_id = $this->input->post("service_id");
+        $hsn_details = $this->inventory_model->get_hsn_code_details("hsn_code_details.id, hsn_code_details.hsn_code, hsn_code_details.gst_rate", array("hsn_code_details.hsn_code" => $hsn_code, "hsn_code_details.service_id" => $service_id));
+        if(!empty($hsn_details)){
+            echo json_encode(array('status'=>'success'));   
         }
     }
 
