@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=<?php echo GOOGLE_MAPS_API_KEY;?>"></script>
 <script src="<?php echo base_url();?>js/googleScript.js"></script> 
 <div class="right_col" role="main">
@@ -14,9 +15,9 @@
                             </li>
                             <li role="presentation" class=""><a href="#tab_content3" role="tab" data-toggle="tab" aria-expanded="false">Spare Parts Details</a>
                             </li>
-                            <li role="presentation" class=""><a href="#tab_content4" role="tab" data-toggle="tab" aria-expanded="false">Booking History / SMS</a>
+                            <li role="presentation" class=""><a href="#tab_content4" role="tab" data-toggle="tab" aria-expanded="false"><i class="fa fa-whatsapp" aria-hidden="true" style="color:green;"></i> Booking History / SMS</a>
                             </li>
-                            <li role="presentation" onclick="sf_tab_active()" class=""><a href="#tab_content5" role="tab" data-toggle="tab" aria-expanded="false">SF Details</a>
+                            <li role="presentation" onclick="sf_tab_active()" class=""><a href="#tab_content5" role="tab" data-toggle="tab" aria-expanded="false"><i class="fa fa-map-marker" aria-hidden="true"></i> SF Details</a>
                             </li>
                         </ul>
                         <div id="myTabContent2" class="tab-content">

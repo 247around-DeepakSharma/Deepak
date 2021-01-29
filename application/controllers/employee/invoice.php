@@ -149,7 +149,7 @@ class Invoice extends CI_Controller {
         }
         if ($fnf_invoice == 0) {
             //add condition in query to hide FNF invoices by default
-            $where["sub_category not in ('FNF','Security')"] = null;
+            $where["sub_category not in ('".FNF."','".SECURITY."')"] = null;
         }
         if($invoice_period === 'all'){
             $where['vendor_partner'] = $this->input->post('source');
