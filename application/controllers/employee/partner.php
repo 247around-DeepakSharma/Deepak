@@ -5489,7 +5489,7 @@ class Partner extends CI_Controller {
                 . "upcountry_rate, CASE WHEN is_upcountry = 1 THEN 'Yes' ELSE 'No' END as upcountry, upcountry_max_distance_threshold, CASE WHEN upcountry_approval = 1 THEN 'Yes' ELSE 'No' END as upcountry_approval,"
                 . "upcountry_approval_email, invoice_email_to, invoice_email_cc, invoice_email_bcc,"
                 . "CASE WHEN is_prepaid = 0 THEN 'PostPaid' WHEN is_prepaid = 1 THEN 'PrePaid' ELSE ' ' END as is_prepaid, prepaid_amount_limit, prepaid_notification_amount,"
-                ." CASE WHEN  partners.is_active = '1' THEN 'ACTIVE' ELSE 'DEACTIVE'END AS Partner_Staus,"
+                ." CASE WHEN  partners.is_active = '1' THEN 'ACTIVE' ELSE 'DEACTIVE'END AS Partner_Staus,partner_type,"
                 . "postpaid_credit_period, postpaid_notification_limit, postpaid_grace_period, summary_email_to,summary_email_cc,summary_email_bcc,spare_notification_email";
        if( $active == 'All' &&  $ac != 'All'){
            $where = array('agent_filters.agent_id'=>$ac);
