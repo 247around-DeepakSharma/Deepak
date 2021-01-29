@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=<?php echo GOOGLE_MAPS_API_KEY;?>"></script>
 <script src="<?php echo base_url();?>js/googleScript.js"></script> 
 <style type="text/css">
@@ -31,7 +32,7 @@
     </div>
     <div class="btn-group" role="group">
         <button type="button" id="following" class="btn btn-default" href="#tab5" data-toggle="tab">
-            <div class="hidden-xs">SMS History</div>
+            <div class="hidden-xs"><i class="fa fa-whatsapp" aria-hidden="true" style="color:green;"></i> SMS History</div>
         </button>
     </div>
     <div class="btn-group" role="group">
@@ -42,7 +43,7 @@
     <?php if(isset($saas_module) && !$saas_module) { ?>
     <div class="btn-group" role="group">
         <button type="button" id="following" class="btn btn-default" href="#tab8" data-toggle="tab">
-            <div class="hidden-xs">Transactions</div>
+            <div class="hidden-xs"><span style="color:#1f004d;font-weight: bold;">pay</span><span style="color:#008ae6;font-weight: bold;">tm</span> Transactions</div>
         </button>
     </div>
     <?php } if($this->session->userdata('is_engineer_app') == 1){ ?>
@@ -472,7 +473,19 @@
                                 
                                 <td><?php echo $sp['remarks_by_sc']; ?></td>
                                 <td><?php echo $sp['status'];?></td>
-                                <td><?php echo $sp['part_cancel_reason'];?></td>
+                                <td>
+                                    <?php if ($sp['part_cancel_reason'] == 'RTO Case') { ?>
+                                        <?php if (!empty($sp['rto_file'])) { ?>
+                                            <a href="<?php echo S3_WEBSITE_URL; ?><?php echo RTO_POD; ?>/<?php echo $sp['rto_file']; ?> " target="_blank"><?php echo $sp['part_cancel_reason']; ?></a>
+                                        <?php } else { ?>
+                                            <?php echo $sp['part_cancel_reason']; ?>
+                                        <?php
+                                        }
+                                    } else {
+                                        ?>
+                                        <?php echo $sp['part_cancel_reason']; ?>
+                                    <?php } ?>
+                                </td>
                                 <td><?php if($sp['is_consumed'] == 1) { echo 'Yes';} else { echo 'No';} ?></td>
                                 <td><?php echo $sp['consumed_status']; ?></td>
                                 <td><?php echo $sp['consumption_remarks']; ?></td>
