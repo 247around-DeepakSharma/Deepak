@@ -105,6 +105,8 @@ $arr_partner_discount = array();
                     <input type="hidden" value="<?php echo $allow_skip_validations ?>" name="is_sf_panel" id="is_sf_panel">                                       
                     <input checked="checked" style ='visibility: hidden;' id="booking" type="radio" class="form-control booking_type" onclick="check_prepaid_balance('Booking')" name="type" value="Booking" <?php if($is_repeat){ echo "checked"; } ?> required <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>>
                     <input type="hidden" value="<?php echo $selected_price_tags ?>" name="selected_price_tags" id="selected_price_tags">                                       
+                    <input type="hidden" value="<?php echo $booking_history[0]['user_id']?>" name="user_id" id="user_id">
+                    <span style="display:none;" id="price_tags"><?php echo $booking_history[0]['request_type']?></span>
                     
                     <p id="parent_id_temp" style="display:none;"><?php echo $parentBkng; ?></p>
                     <p id="booking_old_type_holder" style="display:none;"><?php echo $booking_history[0]['type'] ?></p>
