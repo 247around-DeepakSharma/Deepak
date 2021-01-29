@@ -457,7 +457,19 @@
                                                                 <!-- Removed duplicate date -->
                                                                 <td><?php echo $sp['remarks_by_sc']; ?></td>
                                                                 <td><?php echo $sp['status']; ?></td>
-                                                                <td><?php echo $sp['part_cancel_reason'];?></td>
+                                                                <td>
+                                                                <?php if ($sp['part_cancel_reason'] == 'RTO Case') { ?>
+                                                                    <?php if (!empty($sp['rto_file'])) { ?>
+                                                                        <a href="<?php echo S3_WEBSITE_URL; ?><?php echo RTO_POD; ?>/<?php echo $sp['rto_file']; ?> " target="_blank"><?php echo $sp['part_cancel_reason']; ?></a>
+                                                                    <?php } else { ?>
+                                                                        <?php echo $sp['part_cancel_reason']; ?>
+                                                                        <?php
+                                                                    }
+                                                                } else {
+                                                                    ?>
+                                                                    <?php echo $sp['part_cancel_reason']; ?>
+                                                                <?php } ?>
+                                                                </td>
                                                                 <td><?php if($sp['is_consumed'] == 1) { echo 'Yes';} else { echo 'No';} ?></td>
                                                             </tr>
                                                             <?php
