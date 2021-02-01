@@ -962,8 +962,8 @@ class Notify {
         }
     }
     
-    function sendTransactionalSmsMsg91($phone_number, $body,$tag) {
-        $this->validate_sms_length($phone_number,$body,$tag,$template_id = '');
+    function sendTransactionalSmsMsg91($phone_number, $body,$tag,$template_id = '') {
+        $this->validate_sms_length($phone_number,$body,$tag);
         $data = array();
         switch (ENVIRONMENT) {
                 case 'production':
