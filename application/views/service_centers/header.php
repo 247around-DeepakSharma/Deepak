@@ -208,8 +208,8 @@
 
                                 <li><a href="<?php echo base_url(); ?>service_center/delivered_spare_transfer">Delivered Spare Transfer</a></li>
                                 <li role="separator" class="divider"></li>
-                                <li style="display:none;"><a href="<?php echo base_url(); ?>service_center/parts_delivered_to_sf">Spare Parts Delivered To SF</a></li>
-                                <li class="divider" style="display:none;"></li>
+                                <li><a href="<?php echo base_url(); ?>service_center/parts_delivered_to_sf">Spare Parts Delivered To SF</a></li>
+                                <li class="divider"></li>
 
                             </ul>
                         </li>
