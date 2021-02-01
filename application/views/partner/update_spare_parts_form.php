@@ -1298,9 +1298,9 @@
             
             var numb = $(this)[0].files[0].size/1024/1024;
             numb = numb.toFixed(2);
-            if(numb > 5){
+            if(numb > 2){
                 $(this).val(''); 
-                alert('Not allow file size greater than 5MB');
+                alert('Not allow file size greater than 2MB');
             } 
            
             file_name_with_extesion = $(this).val().replace(/.*(\/|\\)/, '');
