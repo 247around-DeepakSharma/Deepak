@@ -884,8 +884,13 @@ class Notify {
         $data['content'] = $responseAarray->status;      
         return $data;
     }
-    function send_sms_using_msg91($phone_number,$body){
+
+    function send_sms_using_msg91($phone_number,$body,$template_id = ''){
         $data = array();
+		$extra_parameter_temp_id = '';
+		if (!empty($template_id)) {
+			$extra_parameter_temp_id = "&template_id=" . $template_id;
+		}
 /*  check if phone is empty */
         if(!empty($phone_number) && KARIX_SENDING){
 /*  Making Payload */
@@ -930,7 +935,7 @@ class Notify {
         $message = urlencode($body);
         $url = "https://control.msg91.com/api/sendhttp.php?authkey=".MSG91_AUTH_KEY."&mobiles="
                 . $phone_number . "&message=" . $message
-                . "&sender=".MSG91_SENDER_NAME."&route=4&country=91";
+                . "&sender=".MSG91_SENDER_NAME."&route=4&country=91".$extra_parameter_temp_id;
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $data['content'] = curl_exec($ch);
@@ -973,11 +978,15 @@ class Notify {
     }
     
     function send_sms_msg91($sms) {
-        $template = $this->My_CI->vendor_model->getVendorSmsTemplate($sms['tag']);
+        $template = $this->My_CI->vendor_model->getVendorSmsTemplate($sms['tag'],false,true);	
+
         if (!empty($template)) {
+			$template_id = $template['template_id'];
+			$template = $template['template'];
+
             $smsBody = vsprintf($template, $sms['smsData']);
             if ($smsBody) {
-                $status = $this->sendTransactionalSmsMsg91($sms['phone_no'], $smsBody,$sms['tag']);
+                $status = $this->sendTransactionalSmsMsg91($sms['phone_no'], $smsBody,$sms['tag'],$template_id);
 
                 //sometimes we get a 24 char random value, other times we get 'success'
                 if ((isset($status['content']) && !empty($status['content'])) ||(ctype_alnum($status['content']) && strlen($status['content']) == 24) || (ctype_alnum($status['content']) && strlen($status['content']) == 25) 
