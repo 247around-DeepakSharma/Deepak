@@ -218,7 +218,7 @@ if(empty($booking_history[0]['booking_id'])){
                                     </div>
                                 </div>
                                 <div class="form-group ">
-                                    <label for="partner_source" class="col-md-4">Seller Platform</label>
+                                    <label for="partner_source" class="col-md-4">Seller Platform *</label>
                                     <div class="col-md-6">
                                         <select class="form-control"  id="partner_source" name="partner_source" <?php if(!empty($booking_history[0]['partner_source'])){ echo "readonly";} ?>>
                                             <option value="">Please Select Seller Platform</option>
@@ -1037,8 +1037,9 @@ if(empty($booking_history[0]['booking_id'])){
 </div>
 
 <script>
-
-   
+    <?php if(!empty($str_disabled)) { ?> 
+        $('.appliance_brand, .appliance_category, .appliance_capacity, .purchase_date, .select-model, .input-model, #source_code, #partner_source, #service_id, .booking_type').attr('tabindex', '-1'); 
+    <?php } ?>    
 </script>
 <script>
     check_pincode();

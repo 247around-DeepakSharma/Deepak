@@ -1851,6 +1851,7 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
     function get_custom_query_data($tag = ""){
         $this->db->select('*');
         $this->db->from('custom_report_queries');
+        $this->db->where(['active' => 1]);
         if(!empty($tag)){
             $this->db->where(['tag' => $tag]);
         }
