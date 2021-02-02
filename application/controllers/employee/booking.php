@@ -1858,11 +1858,19 @@ class Booking extends CI_Controller {
                                 $required_parts = 'NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING';
                                 $cl = "btn-danger";
                             }
-                            
-                            if($sp['is_consumed'] != 1 && $required_parts == 'NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING') {  
-                                $query1[$key1]['btn'] = '<button type="button" disabled data-booking_id="' . $sp["booking_id"] . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $sp["id"] . '/' . $sp["booking_id"] . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';
+
+                            if ($sp['is_consumed'] != 1 && $required_parts == 'NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING') {
+                                if (empty($sp['reverse_purchase_invoice_id'])) {
+                                    $query1[$key1]['btn'] = '<button type="button" disabled data-booking_id="' . $sp["booking_id"] . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $sp["id"] . '/' . $sp["booking_id"] . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';
+                                } else {
+                                    $query1[$key1]['btn'] = '<button type="button" disabled data-booking_id="' . $sp["booking_id"] . '" class="btn btn-sm ' . $cl . ' open-adminremarks">' . $text . '</button>';
+                                }
                             } else {
-                                $query1[$key1]['btn'] = '<button type="button" data-booking_id="' . $sp["booking_id"] . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $sp["id"] . '/' . $sp["booking_id"] . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';
+                                if (empty($sp['reverse_purchase_invoice_id'])) {
+                                    $query1[$key1]['btn'] = '<button type="button" data-booking_id="' . $sp["booking_id"] . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $sp["id"] . '/' . $sp["booking_id"] . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';
+                                } else {
+                                    $query1[$key1]['btn'] = '<button type="button" disabled data-booking_id="' . $sp["booking_id"] . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal">' . $text . '</button>';
+                                }
                             }
                         }
                     }
@@ -7057,7 +7065,7 @@ class Booking extends CI_Controller {
         // For Free/Paid Filter
         if(!empty($post_data['free_paid'])) {
             if($post_data['free_paid'] == "Yes"){
-               $where['booking_details.amount_due'] = '0';
+               $where['booking_details.amount_due = 0'] = NULL;
             }
             else{
                $where['booking_details.amount_due != 0'] = NULL;
@@ -7070,6 +7078,24 @@ class Booking extends CI_Controller {
            $state =  $this->reusable_model->get_search_result_data("state_code", "*", array('state_code' => $post_data['states']), NULL, NULL, NULL, NULL, NULL, array())[0]['state'];
            $whereIN['booking_details.state'] = [$state];
            $data['filters']['states'] = $post_data['states'];
+        }
+        
+        // Datatable Search
+        if (!empty($post_data['search']['value'])) {
+            $like = "";
+            if(array_key_exists("column_search", $post_data)){
+                foreach ($post_data['column_search'] as $key => $item) { 
+                    // if datatable send POST for search
+                    if ($key === 0) { // first loop
+                        $like .= "( " . $item . " LIKE '%" . $post_data['search']['value'] . "%' ";
+
+                    } else {
+                        $like .= " OR " . $item . " LIKE '%" . $post_data['search']['value'] . "%' ";
+                    }
+                }
+                $like .= ") ";
+            }
+            $where[$like] = NULL;
         }
         
         // Set Current Page Data
@@ -7089,6 +7115,9 @@ class Booking extends CI_Controller {
     */
     public function review_bookings_sf_wise($review_status){
         $post = $this->input->post();
+        // Set Search
+        $post['column_search'] = array('service_centres.state', 'service_centres.name');
+        
         // Get all Data
         $list = $this->get_review_bookings_data_sf_wise($review_status, $post);
         $no = $post['start'];
