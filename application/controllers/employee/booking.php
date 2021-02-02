@@ -6106,7 +6106,7 @@ class Booking extends CI_Controller {
         if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
             $serviceCenters = $sf_list[0]['service_centres_id'];
-            $whereIN =array("service_center_id"=>explode(",",$serviceCenters));
+            $whereIN =array("sc.service_center_id"=>explode(",",$serviceCenters));
         }
         if($this->session->userdata('is_am') == '1'){
             $am_id = $this->session->userdata('id');
