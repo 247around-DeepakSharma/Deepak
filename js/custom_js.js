@@ -1099,7 +1099,9 @@ function set_upcountry() {
                     $("#upcountry_charges").val(upcountry_charges);
                     $("#grand_total_price").val(Number(total_price) + Number(upcountry_charges));
                     alert("This is upcountry call. Please inform to customer that booking will be completed in 3 Days");
-                    $('#submitform').attr('disabled', false);
+                    if(!($("#is_sn_correct").length) || ($("#is_sn_correct").val() != '1')){
+                        $('#submitform').attr('disabled', false);
+                    }
                     
                 } else if(Number(is_upcountry) == 1 && Number(data1.partner_provide_upcountry) == 1 ){
                     var total_price = $("#grand_total_price").val();
@@ -1171,9 +1173,10 @@ function set_upcountry() {
                 
             default:
                     $("#upcountry_charges").val("0");
-                    $('#submitform').attr('disabled', false);
                     final_price();
-                    $('#submitform').attr('disabled', false);
+                    if(!($("#is_sn_correct").length) || ($("#is_sn_correct").val() != '1')){
+                        $('#submitform').attr('disabled', false);
+                    }
                     break;
             
         }
@@ -1440,17 +1443,20 @@ function validateSerialNo(count = ""){
                         console.log("Correct Serial Number");
                         $('body').loadingModal('destroy');
                         $("#error_serial_no" +count).text("");
+                        $("#is_sn_correct" +count).val('0');
                         $("#sno_required"+count).val('0');
                         $("#duplicate_sno_required"+count).val('0');
                     } else if(data.code === Number(DUPLICATE_SERIAL_NO_CODE)){
                         console.log("Duplicate Serial Number");
                         $("#duplicate_sno_required"+count).val('1');
+                        $("#is_sn_correct" +count).val('1');
                         $("#error_serial_no" +count).html(data.message);
                         $('body').loadingModal('destroy');
                         $("#submitform").attr("disabled",true);
                     } else {
                         console.log("Incorrect Serial Number");
                         $("#sno_required"+count).val('1');
+                        $("#is_sn_correct" +count).val('1');
                         $("#error_serial_no" +count).html(data.message);
                         $("#duplicate_sno_required"+count).val('0');
                         $('body').loadingModal('destroy');
