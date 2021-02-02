@@ -964,7 +964,7 @@ function get_data_for_partner_callback($booking_id) {
                 . "dealer_details.dealer_name,"
                 . "spare_parts_details.reverse_purchase_invoice_id," 
                 . "vendor_partner_invoices.invoice_date,"
-                . "spare_parts_details.serial_number,"   
+                . "concat('`',spare_parts_details.`serial_number`) as serial_number,"   
                 . "booking_details.booking_primary_contact_no" ;
 
             if($end){
