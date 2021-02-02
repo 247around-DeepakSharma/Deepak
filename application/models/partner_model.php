@@ -454,8 +454,8 @@ function get_data_for_partner_callback($booking_id) {
              $subQueryArray['Ageing']  = '(CASE WHEN booking_details.service_center_closed_date IS NULL THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,"%Y-%m-%d")) ELSE "" END) as Ageing';
         }
         
-        if(!empty($partner_id)) {
-            $where .= " AND ( booking_details.partner_id = $partner_id  OR booking_details.origin_partner_id = '$partner_id' )"; 
+        if(!empty($partner_id) && (strtolower($partner_id) != 'all')) {
+            $where .= " AND ( booking_details.partner_id = '$partner_id'  OR booking_details.origin_partner_id = '$partner_id' )"; 
          }
         
         $subQueryString = implode(",", array_values($subQueryArray));
@@ -964,7 +964,7 @@ function get_data_for_partner_callback($booking_id) {
                 . "dealer_details.dealer_name,"
                 . "spare_parts_details.reverse_purchase_invoice_id," 
                 . "vendor_partner_invoices.invoice_date,"
-                . "spare_parts_details.serial_number,"   
+                . "concat('`',spare_parts_details.`serial_number`) as serial_number,"   
                 . "booking_details.booking_primary_contact_no" ;
 
             if($end){

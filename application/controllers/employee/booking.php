@@ -469,7 +469,10 @@ class Booking extends CI_Controller {
             }
 
             $this->booking_model->update_request_type($booking['booking_id'], $price_tag,$oldPriceTags);
-            
+            // save serial number and serial number pic in service_center_booking_action       
+            $ssba_details['serial_number'] = $serial_number;
+            $ssba_details['serial_number_pic'] = $serial_number_pic;
+            $this->service_centers_model->update_service_centers_action_table($booking['booking_id'], $ssba_details);
             if($booking_id == INSERT_NEW_BOOKING){
                 $this->send_sms_email($booking['booking_id'], "SendWhatsAppNo");
             }
