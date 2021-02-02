@@ -69,7 +69,7 @@ class ApiDataRequest extends CI_Controller {
             $this->requestData['where'] = json_decode($this->requestData['where'], true);
             $this->requestData['is_inventory'] = 1;
         }
-        
+       $this->requestData['column_search'] = array('booking_details.booking_id','spare_parts_details.model_number','spare_parts_details.parts_requested','spare_parts_details.serial_number');
         $data = $this->inventory_model->get_spare_parts_query($this->requestData);
         $sp_list = array();
         switch ($this->requestData['crmType']){
