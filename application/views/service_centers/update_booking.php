@@ -205,13 +205,13 @@ $arr_partner_discount = array();
                                                     $serial_number_pic = !empty($unit_details[0]['quantity'][0]['serial_number_pic']) ? $unit_details[0]['quantity'][0]['serial_number_pic'] : ""; 
                                                     $pod = !empty($unit_details[0]['quantity'][0]['pod']) ? $unit_details[0]['quantity'][0]['pod'] : ""; 
                                                 ?>
-                                                <input type="text" style="text-transform: uppercase;<?= $str_disabled?>" onblur="validateSerialNo()" class="form-control" id="serial_number" name="serial_number"  value="<?php echo $serial_number; ?>"  placeholder = "Enter Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" onblur="check_booking_request()"  tabindex=-1/>
+                                                <input type="text" style="text-transform: uppercase;<?= $str_disabled?>" onblur="validateSerialNo();check_booking_request();" class="form-control" id="serial_number" name="serial_number"  value="<?php echo $serial_number; ?>"  placeholder = "Enter Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" tabindex=-1/>
                                                 <input type="hidden" class="form-control" id="serial_number_pic" name="serial_number_pic"  value="<?php echo $serial_number_pic; ?>"  />
                                                 <input type="hidden" id="pod" class="form-control" name="pod" value="<?php echo $pod; ?>"   />
                                                 <input type="hidden" id="sno_required" class="form-control" name="is_sn_file" value="0"   />
                                                 <input type="hidden" id="duplicate_sno_required" class="form-control" name="is_dupliacte" value="0"   />
                                                 <input type="hidden" id="is_sn_correct" class="form-control" name="is_sn_correct"/>                                                                    
-                                                <input type="file" id="upload_serial_number_pic" class="form-control serialNumberPic" name="upload_serial_number_pic" value="<?php echo $serial_number_pic; ?>" style="margin-top:5px;<?= $str_disabled?>"  tabindex=-1/>
+                                                <input type="file" id="upload_serial_number_pic" class="form-control serialNumberPic" name="upload_serial_number_pic" value="<?php echo $serial_number_pic; ?>" style="margin-top:5px;<?= $str_disabled?>"  tabindex=-1 accept="image/*"/>
                                                 <?php
                                                 if(!empty($serial_number_pic)) {
                                                     $url="https://s3.amazonaws.com/". BITBUCKET_DIRECTORY.'/'.SERIAL_NUMBER_PIC_DIR.'/'.$serial_number_pic; ?>
@@ -630,7 +630,11 @@ $arr_partner_discount = array();
             var price_tag = $(this).attr('data-price_tag');
             booking_request_types.push(price_tag);
         });
-        $("#submitform").attr("disabled", false);
+        // Enable Submit button , only if Serial Number Validation Passed
+        if($("#is_sn_correct").val() != '1')
+        {
+            $("#submitform").attr("disabled", false);
+        }
         $('.errorMsg').html("");
         // To check warranty => Model Number, DOP/Serial Number & Request Types should be filled
         if((model_number !== "" && model_number !== null && model_number !== undefined) && (dop !== "" || serial_number != "") && (booking_request_types.length > 0)){                               
@@ -798,7 +802,10 @@ $arr_partner_discount = array();
         
         $("#upcountry_data").val(data1.upcountry_data);
         final_price();
-        $('#submitform').attr('disabled',false);
+        if($("#is_sn_correct").val() != '1')
+        {
+            $('#submitform').attr('disabled',false);
+        }
         set_upcountry();
        
     });
@@ -950,7 +957,10 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
         $("#parent_id").val(id);
         $("#is_repeat").val("1");
         $('#repeat_booking_model').modal('hide');
-        $("#submitform").attr("disabled", false);
+        if($("#is_sn_correct").val() != '1')
+        {
+            $("#submitform").attr("disabled", false);
+        }
     }
     
     $("#purchase_date_1").datepicker({dateFormat: 'YYYY-MM-DD', maxDate: 0});
