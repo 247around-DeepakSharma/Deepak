@@ -452,8 +452,8 @@ function get_data_for_partner_callback($booking_id) {
              $subQueryArray['Ageing']  = '(CASE WHEN booking_details.service_center_closed_date IS NULL THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,"%Y-%m-%d")) ELSE "" END) as Ageing';
         }
         
-        if(!empty($partner_id)) {
-            $where .= " AND ( booking_details.partner_id = $partner_id  OR booking_details.origin_partner_id = '$partner_id' )"; 
+        if(!empty($partner_id) && (strtolower($partner_id) != 'all')) {
+            $where .= " AND ( booking_details.partner_id = '$partner_id'  OR booking_details.origin_partner_id = '$partner_id' )"; 
          }
         
         $subQueryString = implode(",", array_values($subQueryArray));
