@@ -895,7 +895,7 @@ class Notify {
             $data = array();
 			$extra_parameter_temp_id = '';
 			if (!empty($template_id)) {
-				$extra_parameter_temp_id = "&template_id=" . $template_id;
+				$extra_parameter_temp_id = "&DLT_TE_ID=" . $template_id;
 			}
             /* Check if phone is empty and SMS needs to be sent through Karix platform */
             if (!empty($phone_number) && KARIX_SENDING) {
