@@ -7047,7 +7047,7 @@ class Booking extends CI_Controller {
         // For Free/Paid Filter
         if(!empty($post_data['free_paid'])) {
             if($post_data['free_paid'] == "Yes"){
-               $where['booking_details.amount_due'] = '0';
+               $where['booking_details.amount_due = 0'] = NULL;
             }
             else{
                $where['booking_details.amount_due != 0'] = NULL;
@@ -7060,6 +7060,24 @@ class Booking extends CI_Controller {
            $state =  $this->reusable_model->get_search_result_data("state_code", "*", array('state_code' => $post_data['states']), NULL, NULL, NULL, NULL, NULL, array())[0]['state'];
            $whereIN['booking_details.state'] = [$state];
            $data['filters']['states'] = $post_data['states'];
+        }
+        
+        // Datatable Search
+        if (!empty($post_data['search']['value'])) {
+            $like = "";
+            if(array_key_exists("column_search", $post_data)){
+                foreach ($post_data['column_search'] as $key => $item) { 
+                    // if datatable send POST for search
+                    if ($key === 0) { // first loop
+                        $like .= "( " . $item . " LIKE '%" . $post_data['search']['value'] . "%' ";
+
+                    } else {
+                        $like .= " OR " . $item . " LIKE '%" . $post_data['search']['value'] . "%' ";
+                    }
+                }
+                $like .= ") ";
+            }
+            $where[$like] = NULL;
         }
         
         // Set Current Page Data
@@ -7079,6 +7097,9 @@ class Booking extends CI_Controller {
     */
     public function review_bookings_sf_wise($review_status){
         $post = $this->input->post();
+        // Set Search
+        $post['column_search'] = array('service_centres.state', 'service_centres.name');
+        
         // Get all Data
         $list = $this->get_review_bookings_data_sf_wise($review_status, $post);
         $no = $post['start'];
