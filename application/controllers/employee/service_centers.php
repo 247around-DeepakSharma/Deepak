@@ -8809,7 +8809,6 @@ class Service_centers extends CI_Controller {
                 $part_shipped_date = date_diff(date_create(date('Y-m-d')), date_create($data[0]['shipped_date']));
                 $part_shipped_days = (int) $part_shipped_date->format("%a");
 
-
                 /**
                  * check shippment date in courier_company_invoice_details.
                  */
@@ -8871,9 +8870,8 @@ class Service_centers extends CI_Controller {
                 if(!empty($courier_boxes_weight_details)) {
                     $courier_shipped_date = date_diff(date_create(date('Y-m-d')), date_create($courier_boxes_weight_details[0]['shippment_date']));
                     $courier_shipped_days = (int) $courier_shipped_date->format("%a");
-
                 }                
-
+                
                 if($part_shipped_days <= UPDATE_AWB_NUMBER_DAYS && $courier_shipped_days <= UPDATE_AWB_NUMBER_DAYS) {
                     $data[0]['partcount'] = count($data);
                     if (!empty($courier_boxes_weight_details)) {
@@ -8927,7 +8925,6 @@ class Service_centers extends CI_Controller {
                     $courier_shipped_date = date_diff(date_create(date('Y-m-d')), date_create($courier_boxes_weight_details[0]['shippment_date']));
                     $courier_shipped_days = (int) $courier_shipped_date->format("%a");
                 }                
-
                 
                 if($defective_part_shipped_days <= UPDATE_AWB_NUMBER_DAYS && $courier_shipped_days <= UPDATE_AWB_NUMBER_DAYS) {
                     $data[0]['partcount'] = count($data);
