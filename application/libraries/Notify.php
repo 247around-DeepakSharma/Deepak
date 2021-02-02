@@ -943,7 +943,7 @@ class Notify {
         }
         return  $data;
     }
-    function sendTransactionalSmsMsg91($phone_number, $body,$tag) {
+    function sendTransactionalSmsMsg91($phone_number, $body,$tag,$template_id = '') {
         $this->validate_sms_length($phone_number,$body,$tag);
         $data = array();
         switch (ENVIRONMENT) {
@@ -953,12 +953,12 @@ class Notify {
                         $data = $this->send_sms_using_knowlarity($phone_number, $body);
                         break;
                         default:
-                        $data  = $this->send_sms_using_msg91($phone_number, $body);
+                        $data  = $this->send_sms_using_msg91($phone_number, $body,$template_id);
                         break;
                 }
                 break;
                 default:
-                $data  = $this->send_sms_using_msg91($phone_number, $body);
+                $data  = $this->send_sms_using_msg91($phone_number, $body,$template_id);
 
         break;
         }
