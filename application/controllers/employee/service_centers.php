@@ -6235,6 +6235,23 @@ class Service_centers extends CI_Controller {
             redirect(base_url() . "service_center/login");
         }
     }
+    
+    
+    /**
+     * @desc: This function is used to check warehouse or inventory manager session.
+     * @param: void
+     * @return: true if details matches else session is destroyed.
+     */
+    function check_WH_InventoryMN_UserSession() {
+
+        if (($this->session->userdata('loggedIn') == TRUE) && (($this->session->userdata('userType') == 'service_center') || ($this->session->userdata('userType') == 'employee')) && (!empty($this->session->userdata('service_center_id')) || !empty($this->session->userdata('id'))) && (!empty($this->session->userdata('is_wh')) || !empty($this->session->userdata('is_micro_wh')) || $this->session->userdata('user_group') == 'inventory_manager')) {
+            return TRUE;
+        } else {
+            log_message('info', __FUNCTION__ . " Session Expire for Service Center");
+            $this->session->sess_destroy();
+            redirect(base_url() . "service_center/login");
+        }
+    }
 
     function warehouse_default_page() {
         
@@ -8078,7 +8095,7 @@ class Service_centers extends CI_Controller {
      */
     function download_sf_declaration($sf_id) {
         log_message("info", __METHOD__ . " SF Id " . $sf_id);
-        $this->check_WH_UserSession();
+        $this->check_WH_InventoryMN_UserSession();
         ob_start();
         $pdf_details = $this->miscelleneous->generate_sf_declaration($sf_id);
         ob_end_clean(); 
