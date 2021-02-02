@@ -347,7 +347,10 @@
                                 <div class="col-md-12">
                                     <table class="table priceList table-striped table-bordered" name="priceList" width="100%">
                                         <tr>
-                                            <th width="20%">Serial Number</th>
+                                            <th width="20%">
+                                                Serial Number
+                                                <p style="font-weight: normal;font-size:11px;"> (Serial Number can be changed from Step 1)</p>
+                                            </th>
                                             <th width="14%">Service Category</th>
                                             <th width="12%">Amount Due</th>
                                             <th width="12%">Customer Basic Charge</th>
@@ -376,7 +379,7 @@
                                                             ?>
                                                     <div class="form-group">
                                                         <div class="col-md-12 ">
-                                                            <input type="text" style="text-transform: uppercase;pointer-events: none;background: #eee;margin-bottom: 5px;" onblur="validateSerialNo()" class="form-control" id="serial_number" name="serial_number"  value="<?php if(!empty($booking_history['spare_parts'])){ echo $booking_history['spare_parts'][0]['serial_number'];} else {echo $price["serial_number"];}  ?>"  placeholder = "Enter Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" />
+                                                            <input type="text" style="text-transform: uppercase;pointer-events: none;background: #eee;margin-bottom: 5px;" tabindex="-1" onblur="validateSerialNo()" class="form-control" id="serial_number" name="serial_number"  value="<?php if(!empty($booking_history['spare_parts'])){ echo $booking_history['spare_parts'][0]['serial_number'];} else {echo $price["serial_number"];}  ?>"  placeholder = "Enter Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" />
                                                             <input type="hidden" class="form-control" id="serial_number_pic" name="serial_number_pic"  value="<?php if(!empty($booking_history['spare_parts'])){ echo $booking_history['spare_parts'][0]['serial_number_pic'];} else {echo $price["serial_number_pic"];} ?>"  />
                                                             <input type="hidden" id="pod" class="form-control" name="pod" value="<?php echo $price['pod']; ?>"   />
                                                             <input type="hidden" id="sno_required" class="form-control" name="is_sn_file" <?php if(isset($price['is_sn_correct']) && ($price['is_sn_correct'] == IS_SN_CORRECT)){ echo 'value="1"';} else { echo 'value="0"'; }?>   />
