@@ -322,7 +322,8 @@ class Warranty extends CI_Controller {
         if(!empty($this->input->post('search')))
         {
            $like .= "( warranty_plans.plan_name LIKE '%" . $this->input->post('search')['value'] . "%' ";
-           $like .= "or warranty_plans.plan_description LIKE '%" . $this->input->post('search')['value'] . "%' )";
+           $like .= "or warranty_plans.plan_description LIKE '%" . $this->input->post('search')['value'] . "%' ";
+           $like .= "or appliance_model_details.model_number LIKE '%" . $this->input->post('search')['value'] . "%' )";
         }
 
         $where = "(warranty_plans.partner_id = '".$partner_id."' AND warranty_plans.service_id = '".$service_id."' ) OR warranty_plans.plan_id = '".$plan_id."'";
@@ -368,7 +369,7 @@ class Warranty extends CI_Controller {
         $row[]=date('jS M, Y', strtotime($warranty_plan_list->period_start));
         $row[]=date('jS M, Y', strtotime($warranty_plan_list->period_end));
         $row[]=$warranty_plan_list->warranty_type == 1 ? "IW" : "EW";
-        $row[]=$warranty_plan_list->plan_depends_on == 1 ? "Model" : "Product";
+        //$row[]=$warranty_plan_list->plan_depends_on == 1 ? "Model" : "Product";
         $row[]=$warranty_plan_list->warranty_period." Months";
         $row[]=$warranty_plan_list->public_name;
         $row[]=$warranty_plan_list->services;
