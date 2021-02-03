@@ -17,7 +17,7 @@
                             </li>
                             <li role="presentation" class=""><a href="#tab_content4" role="tab" data-toggle="tab" aria-expanded="false"><i class="fa fa-whatsapp" aria-hidden="true" style="color:green;"></i> Booking History / SMS</a>
                             </li>
-                            <li role="presentation" onclick="sf_tab_active()" class=""><a href="#tab_content5" role="tab" data-toggle="tab" aria-expanded="false"><i class="fa fa-map-marker" aria-hidden="true"></i> SF Details</a>
+                            <li role="presentation" onclick="sf_tab_active()" class=""><a href="#tab_content5" role="tab" data-toggle="tab" aria-expanded="false"><i class="fa fa-map-marker" aria-hidden="true"></i> SF Details</a></li>
                             <li role="presentation"  class=""><a href="#tab_content6" role="tab" data-toggle="tab" aria-expanded="true"> Call Recordings</a>
                             </li>
                         </ul>
