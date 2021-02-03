@@ -346,6 +346,16 @@
                                         <td class="amount_1">
                                             <input id="<?php echo "hsncode_".$key; ?>" type="text" name="invoice[<?php echo $value['id']; ?>][hsn_code]"  value="<?php echo $value['hsn_code'];?>" class="form-control col-md-1 allowNumericWithOutDecimal" required="" >
                                             <label for="<?php echo "hsncode_".$key; ?>" class="error"></label>
+                                            <input type="hidden" id="<?php echo "settle_qty_".$key; ?>" name="invoice[<?php echo $value['id']; ?>][settle_qty]" value="<?php echo (isset($value['settle_qty']) ? $value['settle_qty'] : '');?>" >
+                                            <input type="hidden" id="<?php echo "is_settle_".$key; ?>" name="invoice[<?php echo $value['id']; ?>][is_settle]" value="<?php echo (isset($value['is_settle']) ? $value['is_settle'] : '');?>" >
+                                            <input type="hidden" id="<?php echo "from_gst_number_".$key; ?>" name="invoice[<?php echo $value['id']; ?>][from_gst_number_id]" value="<?php echo (isset($value['from_gst_number']) ? $value['from_gst_number'] : NULL);?>" >
+                                            
+                                            <input type="hidden" id="<?php echo "create_date_".$key; ?>" name="invoice[<?php echo $value['id']; ?>][create_date]" value="<?php if(isset($value['create_date'])){ echo $value['create_date'];  } ?>" >
+                                            <input type="hidden" id="<?php echo "inventory_id_".$key; ?>" name="invoice[<?php echo $value['id']; ?>][inventory_id]" value="<?php echo (isset($value['inventory_id']) ? $value['inventory_id'] : NULL);?>" >
+                                            
+                                            <input type="hidden" id="<?php echo "togst_number_".$key; ?>" name="invoice[<?php echo $value['id']; ?>][to_gst_number_id]" value="<?php echo (isset($value['to_gst_number']) ? $value['to_gst_number'] : NULL);?>" >
+                                            <input type="hidden" id="<?php echo "spareid_".$key; ?>" name="invoice[<?php echo $value['id']; ?>][spare_id]" value="<?php echo (isset($value['spare_id']) ? $value['spare_id'] : NULL);?>" >
+                                            
                                         </td>
                                         <td class="amount_1">
                                             <input onkeyup="change_prices('<?php echo $key; ?>')" id="<?php echo "qty_".$key; ?>" type="number" name="invoice[<?php echo $value['id']; ?>][qty]" value="<?php echo $value['qty'];?>" class="form-control quantity allowNumericWithOutDecimal" required="" >
@@ -364,14 +374,12 @@
                                         <td class="amount_1"><input id="<?php echo "igsttaxamount_".$key; ?>" type="number" name="invoice[<?php echo $value['id']; ?>][igst_tax_amount]" value="<?php echo $value['igst_tax_amount'];?>" class="form-control igst_tax_amount allowNumericWithDecimal padding_space" readonly></td>
                                         <td class="amount_1"><input id="<?php echo "totalamount_".$key; ?>" type="number" name="invoice[<?php echo $value['id']; ?>][total_amount]" value="<?php echo $value['total_amount'];?>" class="form-control total_amount allowNumericWithDecimal padding_space" readonly></td>
                                         <td style="text-align:center;"class="amount_1">
-                                            <input type="hidden" id="<?php echo "settle_qty_".$key; ?>" name="invoice[<?php echo $value['id']; ?>][settle_qty]" value="<?php echo (isset($value['settle_qty']) ? $value['settle_qty'] : '');?>" >
-                                            <input type="hidden" id="<?php echo "is_settle_".$key; ?>" name="invoice[<?php echo $value['id']; ?>][is_settle]" value="<?php echo (isset($value['is_settle']) ? $value['is_settle'] : '');?>" >
-                                            <input type="hidden" id="<?php echo "from_gst_number_".$key; ?>" name="invoice[<?php echo $value['id']; ?>][from_gst_number_id]" value="<?php echo (isset($value['from_gst_number']) ? $value['from_gst_number'] : '');?>" >
-                                            <input type="hidden" id="<?php echo "to_gst_number_".$key; ?>" name="invoice[<?php echo $value['id']; ?>][to_gst_number_id]" value="<?php echo (isset($value['to_gst_number']) ? $value['to_gst_number'] : '');?>" >
-                                            <input type="hidden" id="<?php echo "create_date_".$key; ?>" name="invoice[<?php echo $value['id']; ?>][create_date]" value="<?php if(isset($value['create_date'])){ echo $value['create_date'];  } ?>" >
+                                            
                                             <button type="button" id="<?php echo "addButton_".$key; ?>" class="btn btn-default addButton" style="display:inline;"><i class="fa fa-plus"></i></button>&nbsp;
                                             <button type="button" id="<?php echo "removeButton_".$key; ?>" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
-                                        </td>
+                                            
+
+                                             </td>
                                     </tr>
                                     <?php } }
                                     else { ?>
@@ -412,8 +420,6 @@
                                         <td class="amount_1"><input id="igsttaxamount_0" type="number" name="invoice[0][igst_tax_amount]" value="0.00" class="form-control igst_tax_amount allowNumericWithDecimal padding_space taxable_value" readonly ></td>
                                         <td class="amount_1"><input id="totalamount_0" type="number" name="invoice[0][total_amount]" value="0.00" class="form-control total_amount allowNumericWithDecimal padding_space taxable_value" readonly></td>
                                         <td class="amount_1" style="text-align:center;">
-                                            <input type="hidden" id="from_gst_number_0" name="invoice[0][from_gst_number_id]" >
-                                            <input type="hidden" id="to_gst_number_0" name="invoice[0][to_gst_number_id]" >
 <!--                                            <input type="hidden" id="create_date_0" name="invoice[0][create_date]" value="<?php //if(isset($value['create_date'])){ echo $value['create_date'];  } ?>" >
                                             <input type="hidden" id="update_date_0" name="invoice[0][update_date]" value="<?php //if(isset($value['update_date'])){ echo $value['update_date'];  } ?>" >-->
                                             <button type="button" id="addButton_0" class="btn btn-default addButton" style="display:inline;"><i class="fa fa-plus"></i></button>&nbsp;
@@ -754,7 +760,6 @@
                 .find('[id="igsttaxamount"]').attr('name', 'invoice[' + partIndex + '][igst_tax_amount]').attr('id','igsttaxamount_'+partIndex).end()
                 .find('[id="totalamount"]').attr('name', 'invoice[' + partIndex + '][total_amount]').attr('id','totalamount_'+partIndex).end()
                 .find('[id="from_gst_number"]').attr('name', 'invoice[' + partIndex + '][from_gst_number_id]').attr('id','from_gst_number_'+partIndex).end()
-                .find('[id="to_gst_number"]').attr('name', 'invoice[' + partIndex + '][to_gst_number_id]').attr('id','to_gst_number_'+partIndex).end()
                 .find('[id="addButton"]').attr('id','addButton_'+partIndex).attr('class', 'btn btn-default addButton').end()
                 .find('[id="removeButton"]').attr('id','removeButton_'+partIndex).attr('class', 'btn btn-default removeButton').end();
                 rearrange_sno();
