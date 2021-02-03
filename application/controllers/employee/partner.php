@@ -2699,7 +2699,12 @@ class Partner extends CI_Controller {
      * @desc: This is used to show Booking Life Cycle of particular Booking
      * params: String Booking_ID
      * return: Array of Data for View
-     */
+     */ 
+    function get_booking_recordings($booking_primary_id) { 
+        $select = "agent_outbound_call_log.create_date, agent_outbound_call_log.recording_url, employee.full_name, employee.groups";
+        $data['data'] = $this->booking_model->get_booking_recordings_by_id($booking_primary_id, $select);
+        $this->load->view('employee/show_booking_recordings', $data);
+    } 
     function get_booking_life_cycle($booking_id) { 
         $this->checkUserSession();
         log_message('info', __FUNCTION__ . " Booking_id" . $booking_id);
