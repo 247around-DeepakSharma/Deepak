@@ -3082,10 +3082,12 @@ exit();
         $this->form_validation->set_rules('from_date', 'Invoice Period', 'required|trim');
         $this->form_validation->set_rules('type', 'Type', 'required|trim');
         $this->form_validation->set_rules('tds_rate', 'TDS Rate', 'trim');
-        $this->form_validation->set_rules('tds_amount', 'Tds Amount', 'trim');
+        $this->form_validation->set_rules('tds_amount', 'TDS Amount', 'trim');
         $this->form_validation->set_rules('tcs_rate', 'TCS Rate', 'trim');
         $this->form_validation->set_rules('tcs_amount', 'TCS Amount', 'trim');
-        
+        $this->form_validation->set_rules('num_bookings', 'Bookings', 'required|trim');
+        $this->form_validation->set_rules('parts_count', 'Parts', 'required|trim');
+      
         if ($this->form_validation->run()) {
             $flag = true;
             $text = (($insert_flag)?"inserted":"updated");
@@ -3097,6 +3099,10 @@ exit();
             $tds_rate = $this->input->post('tds_rate');
             $tcs_amount = $this->input->post('tcs_amount');
             $tcs_rate = $this->input->post('tcs_rate');
+            
+            $num_bookings = $this->input->post('num_bookings');
+            $parts_count = $this->input->post('parts_count');
+            $around_type = $this->input->post('around_type');
 
             $data['hsn_code'] = $invoice['booking'][array_keys($invoice['booking'])[0]]['hsn_code'];
             
@@ -3123,20 +3129,30 @@ exit();
                 $data['tds_amount'] = $tds_amount;
                 $data['tcs_rate'] = $tcs_rate;
                 $data['tcs_amount'] = $tcs_amount;
+                
+                $data['num_bookings'] = $num_bookings;
+                $data['parts_count'] = $parts_count;
 
                 if ($data['vendor_partner'] == "vendor") {
-                    $entity_details = $this->vendor_model->viewvendor($data['vendor_partner_id']);
-                    $gst_number = $entity_details[0]['gst_no'];
+                    $entity_details = $this->vendor_model->viewvendor($data['vendor_partner_id']);                    
+                    
+                    if($around_type == "A"){
+                        $gst_number = true;
+                    } else {
+                        if (!empty($entity_details[0]['gst_number']) 
+                        && !empty($entity_details[0]['gst_status']) 
+                        && !($entity_details[0]['gst_status'] == _247AROUND_CANCELLED || $entity_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
+                            $gst_number = $entity_details[0]['gst_no'];
+                        } else {
+                            $gst_number = "";
+                        }
+                    }
+                    
                 } else {
                     $entity_details = $this->partner_model->getpartner_details("gst_number, state", array('partners.id' => $data['vendor_partner_id']));
                     $gst_number = $entity_details[0]['gst_number'];
                 }
-
-                if (empty($gst_number)) {
-                    $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = $data['sgst_tax_rate'] = $data['cgst_tax_rate'] = 0;
-                    $data['igst_tax_amount'] = $data['igst_tax_rate'] = 0;
-                }
-
+               
                 $data['total_amount_collected'] = sprintf("%.2f",($this->input->post('total_amount_charge') + $data['tds_amount']));
                 $data['rcm'] = 0;
 
@@ -3151,6 +3167,11 @@ exit();
                     $data['cgst_tax_rate'] = sprintf("%.2f",($this->input->post('total_cgst_amount')*100)/$this->input->post('total_taxablevalue'));
                     $data['sgst_tax_rate'] = sprintf("%.2f",($this->input->post('total_sgst_amount')*100)/$this->input->post('total_taxablevalue'));
                     $data['igst_tax_rate'] = $data['igst_tax_amount'] = 0;
+                }
+                
+                if (empty($gst_number)) {
+                    $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = $data['sgst_tax_rate'] = $data['cgst_tax_rate'] = 0;
+                    $data['igst_tax_amount'] = $data['igst_tax_rate'] = 0;
                 }
                  
                 switch ($data['type_code']) {
@@ -4579,7 +4600,8 @@ exit();
                     
                     $data[0]['gst_number'] = $vendor_details[0]['gst_no'];
                 } else {
-                    $data[0]['gst_number'] = 1;
+                    //this is 247around invoice thats why we are assigned true value.
+                    $data[0]['gst_number'] = true;
                 }
                 
                 $data[0]['company_name'] = $vendor_details[0]['company_name'];
