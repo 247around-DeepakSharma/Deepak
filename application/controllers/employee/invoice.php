@@ -6239,9 +6239,21 @@ exit();
      * @param : void 
      * @author:Gorakh
      */
-    function get_add_new_hsn_code() {
+    function get_add_new_hsn_code($id = '') {
         $this->checkUserSession();
-        $data['hsn_code_list'] = $this->invoices_model->get_hsncode_details('*', array());
+        $data = array();
+        $data['services_list'] = $this->inventory_model->get_generic_table_details('services', 'services.id, services.services', '', '');
+        if (!empty($id)) {
+            $select = "hsn_code_details.id, hsn_code_details.hsn_code, hsn_code_details.status, hsn_code_details.gst_rate, hsn_code_details.service_id";
+            $hsn_code_details = $this->invoices_model->get_hsncode_details($select, array("hsn_code_details.id" => $id));
+            $data['action_flag'] = true;
+            if (!empty($hsn_code_details)) {
+                $data['hsn_code_list'] = $hsn_code_details[0];
+            }
+        } else {
+            $data['action_flag'] = false;
+        }
+
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/addnewhsncode', $data);
     }
