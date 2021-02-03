@@ -677,8 +677,9 @@ class Accounting extends CI_Controller {
         //$courier_details = $this->accounting_model->get_courier_documents();
         $partner_id = $this->reusable_model->get_search_result_data("partners","*",array("is_active"=>1),NULL,NULL,NULL,NULL,NULL,array());
         $sf_id = $this->reusable_model->get_search_result_data("service_centres","*",array("active"=>1),NULL,NULL,NULL,NULL,NULL,array());
+        $courier_services = $this->inventory_model->get_courier_services('courier_services.id, courier_services.courier_name, courier_services.courier_code', array("courier_services.status" => 1));
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/shipped_documents',array('partner_id'=>$partner_id,'sf_id'=>$sf_id, 'courier_details'=>null));
+        $this->load->view('employee/shipped_documents',array('partner_id'=>$partner_id,'sf_id'=>$sf_id, 'courier_details'=>null, 'courier_services' => $courier_services));
     }
     
     //for displaying contact in view->shipped_documents.php on the basis of partner id
@@ -723,7 +724,7 @@ class Accounting extends CI_Controller {
         $shipped_documents['courier_name'] = $this->input->post('courier_name');
         $shipped_documents['receiver_entity_type'] = $this->input->post('entity_type');
         $shipped_documents['document_type']= $this->input->post('doc_type');
-        $shipped_documents['notification_email']= $this->input->post('email_input');
+        $shipped_documents['notification_email1']= $this->input->post('email_input');
         if($this->input->post('contact')){
             $shipped_documents['contact_person_id'] = $this->input->post('contact');
         }
