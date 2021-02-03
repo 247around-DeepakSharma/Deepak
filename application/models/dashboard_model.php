@@ -1041,7 +1041,7 @@ class dashboard_model extends CI_Model {
 
         if (isset($post['length']) && $post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
-        }else if(isset($post['length']) && $post['length'] == -1){
+        }else if((isset($post['length']) && $post['length'] == -1) || ($limit == -1)){
             
         }else{
             $this->db->limit($limit, 0); 
