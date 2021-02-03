@@ -801,7 +801,7 @@
                                      <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
                                         <?php  if($sp['entity_type']==_247AROUND_PARTNER_STRING && $sp['status'] == SPARE_PARTS_REQUESTED){?>
                                             <td>
-                                                <form id="move_to_update_spare_parts">
+                                                <form id="move_to_update_spare_parts_<?php echo $sp['id']; ?>">
                                                     <input type="hidden" name="spare_parts_id" id="spare_parts_id" value="<?php echo $sp['id']; ?>">
                                                     <input type="hidden" name="booking_partner_id" id="booking_partner_id" value="<?php echo $booking_history[0]['partner_id']; ?>">
                                                     <input type="hidden" name="entity_type" id="entity_type" value="<?php echo _247AROUND_SF_STRING; ?>">
@@ -811,7 +811,7 @@
                                                     <input type="hidden" name="parts_requested" id="booking_state" value="<?php echo $sp['parts_requested']; ?>"> 
                                                     <input type="hidden" name="service_center_id" id="booking_state" value="<?php echo $sp['service_center_id']; ?>">   
                                                     <input type="hidden" name="transfer_from_view" id="transfer_from_view" value="1"> 
-                                               <a class="move_to_update btn btn-md btn-primary" id="move_to_vendor" href="javascript:void(0);">Move To Vendor</a>
+                                               <a class="move_to_update btn btn-md btn-primary" id="move_to_vendor" href="javascript:void(0);" data_id="<?php echo $sp['id']; ?>">Move To Vendor</a>
                                                  </form>
                                             </td>
                                         <?php } else {?> 
@@ -821,7 +821,7 @@
                                         <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
                                         <?php  if($sp['entity_type']==_247AROUND_SF_STRING && $sp['status'] == SPARE_PARTS_REQUESTED){?>
                                             <td>
-                                                <form id="move_to_update_spare_parts_partner">
+                                                <form id="move_to_update_spare_parts_partner_<?php echo $sp['id']; ?>">
                                                     <input type="hidden" name="spare_parts_id" id="spare_parts_id" value="<?php echo $sp['id']; ?>">
                                                     <input type="hidden" name="booking_partner_id" id="booking_partner_id" value="<?php echo $booking_history[0]['partner_id']; ?>">
                                                     <input type="hidden" name="entity_type" id="entity_type" value="<?php echo _247AROUND_PARTNER_STRING; ?>">
@@ -832,7 +832,7 @@
                                                     <input type="hidden" name="warehouse_id" id="booking_state" value="<?php echo $sp['partner_id']; ?>"> 
                                                     <!-- Quantity -->
                                                     <input type="hidden" name="quantity" id="qty" value="<?php echo $sp['quantity']; ?>"> 
-                                                    <a class="move_to_update_partner btn btn-md btn-primary" id="move_to_vendor" href="javascript:void(0);">Move To Partner</a>
+                                                    <a class="move_to_update_partner btn btn-md btn-primary" id="move_to_vendor" href="javascript:void(0);" data_id="<?php echo $sp['id']; ?>">Move To Partner</a>
 
                                                  </form>
                                             </td>
@@ -2811,7 +2811,7 @@ function OpenWindowWithPost(url, windowoption, name, params)
         });
        
        $(".move_to_update").on('click', function () { 
-                
+                var data_id = $(this).attr('data_id');
                 swal({
                 title: "Are you sure?",
                 text: "You are going to transfer the spare part!",
@@ -2829,7 +2829,7 @@ function OpenWindowWithPost(url, windowoption, name, params)
                         $.ajax({
                         type: "POST",
                         url: "<?php echo base_url(); ?>employee/spare_parts/bulkConversion_process",
-                        data: $("#move_to_update_spare_parts").serialize(),
+                        data: $("#move_to_update_spare_parts_"+data_id).serialize(),
                         success: function (data) {
                         console.log(data);
                        if (data != '') {
@@ -2863,6 +2863,7 @@ function OpenWindowWithPost(url, windowoption, name, params)
         });
         
                $(".move_to_update_partner").on('click', function () { 
+               var data_id = $(this).attr('data_id');
                 swal({
                 title: "Are you sure?",
                 text: "You are going to transfer the spare part!",
@@ -2880,7 +2881,7 @@ function OpenWindowWithPost(url, windowoption, name, params)
                         $.ajax({
                         type: "POST",
                         url: "<?php echo base_url(); ?>employee/spare_parts/move_to_update_spare_parts_details",
-                        data: $("#move_to_update_spare_parts_partner").serialize(),
+                        data: $("#move_to_update_spare_parts_partner_"+data_id).serialize(),
                         success: function (data) {
                         console.log(data);
                        if (data != '') {               
