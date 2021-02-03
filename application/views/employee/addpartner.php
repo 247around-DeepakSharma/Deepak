@@ -1288,7 +1288,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
         </div>
         <div class="clear"></div>
         <div id="container_4" style="<?php if($current_tab!=4){ ?>display:none;<?php } else { ?>display:block<?php } ?>" class="form_container">
-            <form name="document_form" class="form-horizontal" id ="document_form" action="<?php echo base_url() ?>employee/partner/process_partner_contracts" method="POST" enctype="multipart/form-data">
+            <form   onsubmit="hide_submit_button()" name="document_form" class="form-horizontal" id ="document_form" action="<?php echo base_url() ?>employee/partner/process_partner_contracts" method="POST" enctype="multipart/form-data">
                 <?php
                     if(isset($query[0]['id'])){
                         if($query[0]['id']){
@@ -1364,8 +1364,8 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                 } ?>">
                                 <label for="contract_file" class="col-md-4">Contract File<span class="text-danger">*</span></label>
                                 <div class="col-md-5">
-                                    <input type="file" class="form-control" onchange="Filevalidation()" name="contract_file[]" id="file" required="">
-                                    <span id="size" class="text-primary"></span>
+                                    <input type="file" class="form-control" name="contract_file[]" id="file" required="" accept="application/pdf" onchange="date_validation()">
+                                    <span id="size" class="text-primary">Only pdf file allow</span>
                                     <?php echo form_error('contract_file'); ?>
                                 </div>
                                 <div class="col-md-1">
@@ -6182,45 +6182,8 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
         $("#submit_contract_btn").prop('disabled', false); }
      }
  }
-    Filevalidation = () => { 
-       
-        const fi = document.getElementById('file');
-        // Check if any file is selected.
-        if(fi.files.length != 0 ){
-        if (fi.files.length > 0) { 
-            for (const i = 0; i <= fi.files.length - 1; i++) { 
-  
-                const fsize = fi.files.item(i).size; 
-                const file = Math.round((fsize / 1024)); 
-                // The size of the file. 
-                if (file >= 5120) { 
-                    
-                     document.getElementById('size').innerHTML = "File size too Big, please select a file less than 5mb";
-                      $("#submit_contract_btn").prop('disabled', true); 
-                } else if (file < 1) { 
-               
-                       document.getElementById('size').innerHTML = "File size too small, please select a file greater than 1kb";
-                       $("#submit_contract_btn").prop('disabled', true);
-                } else { 
-                   
-                     $("#submit_contract_btn").prop('disabled', false);
-                } 
-            } 
-        } 
-    }
-    else{
-         $("#submit_contract_btn").prop('disabled', false);
-         document.getElementById('size').innerHTML = "Please select file";
-       }  
-   } 
-var hasClicked = false;
-$('#submit_contract_btn').on('click',function(e) {
-    if (hasClicked === true) {
-       $("#submit_contract_btn").prop('disabled', true); 
-        
-    }
-});
- 
- 
-
+   function hide_submit_button(){
+    $("#submit_contract_btn").css("pointer-events",'none');
+    $("#submit_contract_btn").css("opacity",'.5');
+   }
 </script>

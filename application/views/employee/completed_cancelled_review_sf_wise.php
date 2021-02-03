@@ -125,7 +125,7 @@
                             <table class="table table-striped table-bordered jambo_table bulk_action" id="tat_sf_table<?php echo '_'.$status; ?>">
                                 <thead>
                                     <tr style="background: #405467;color: #fff;margin-top: 5px;">
-                                        <th>S.no</th>
+                                        <th>S.No</th>
                                         <th>Service Centers</th>
                                         <th>State</th>                            
                                         <th>Day0</th>
@@ -159,6 +159,7 @@
             processing: true,        
             serverSide: true, 
             paging: true,
+            ordering: false,
             pageLength : 25,
             ajax: {
                 "url": '<?php echo base_url()."employee/booking/review_bookings_sf_wise/".$status ?>',

@@ -2699,7 +2699,12 @@ class Partner extends CI_Controller {
      * @desc: This is used to show Booking Life Cycle of particular Booking
      * params: String Booking_ID
      * return: Array of Data for View
-     */
+     */ 
+    function get_booking_recordings($booking_primary_id) { 
+        $select = "agent_outbound_call_log.create_date, agent_outbound_call_log.recording_url, employee.full_name, employee.groups";
+        $data['data'] = $this->booking_model->get_booking_recordings_by_id($booking_primary_id, $select);
+        $this->load->view('employee/show_booking_recordings', $data);
+    } 
     function get_booking_life_cycle($booking_id) { 
         $this->checkUserSession();
         log_message('info', __FUNCTION__ . " Booking_id" . $booking_id);
@@ -5035,6 +5040,9 @@ class Partner extends CI_Controller {
             
             if (!empty($_FILES['contract_file']['tmp_name'][$index]) && ($_FILES['contract_file']['error'][$index] != 4)) {
                 $tmpFile = $_FILES['contract_file']['tmp_name'][$index];
+                $target_file = TMP_FOLDER. basename($_FILES["contract_file"]["name"][$index]);
+                $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+                if($imageFileType=='pdf'){
                 $contract_file = "Partner-" . str_replace(' ', '_', $partnerName) . '-Contract_' . $contract_type . "_" . date('Y-m-d') . "." . explode(".", $_FILES['contract_file']['name'][$index])[1];
                 move_uploaded_file($tmpFile, TMP_FOLDER . $contract_file);
                 //Upload files to AWS
@@ -5050,6 +5058,7 @@ class Partner extends CI_Controller {
                 $finalInsertArray[] = $insertArray;
                 $contract_type_tag = $this->reusable_model->execute_custom_select_query("SELECT `collateral_tag`, collateral_type FROM `collateral_type` WHERE `id`='".$contract_type."'");
                 $emailArray = array("Contract_Type"=>$contract_type_tag[0]['collateral_type'], "Partnership_Start_Date"=>$start_date_array[$index], "Partnership_End_Date"=>$end_date_array[$index], "Contract_Description" => $contract_description_array[$index]);
+                }
             }
         }
         if ($finalInsertArray) {

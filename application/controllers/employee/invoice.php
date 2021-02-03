@@ -3102,6 +3102,7 @@ exit();
             
             $num_bookings = $this->input->post('num_bookings');
             $parts_count = $this->input->post('parts_count');
+            $around_type = $this->input->post('around_type');
 
             $data['hsn_code'] = $invoice['booking'][array_keys($invoice['booking'])[0]]['hsn_code'];
             
@@ -3135,14 +3136,18 @@ exit();
                 if ($data['vendor_partner'] == "vendor") {
                     $entity_details = $this->vendor_model->viewvendor($data['vendor_partner_id']);                    
                     
-                    
-                    if (!empty($entity_details[0]['gst_number']) 
-                    && !empty($entity_details[0]['gst_status']) 
-                    && !($entity_details[0]['gst_status'] == _247AROUND_CANCELLED || $entity_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
-                        $gst_number = $entity_details[0]['gst_no'];
+                    if($around_type == "A"){
+                        $gst_number = true;
                     } else {
-                        $gst_number = "";
+                        if (!empty($entity_details[0]['gst_number']) 
+                        && !empty($entity_details[0]['gst_status']) 
+                        && !($entity_details[0]['gst_status'] == _247AROUND_CANCELLED || $entity_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
+                            $gst_number = $entity_details[0]['gst_no'];
+                        } else {
+                            $gst_number = "";
+                        }
                     }
+                    
                 } else {
                     $entity_details = $this->partner_model->getpartner_details("gst_number, state", array('partners.id' => $data['vendor_partner_id']));
                     $gst_number = $entity_details[0]['gst_number'];
@@ -4605,7 +4610,8 @@ exit();
                     
                     $data[0]['gst_number'] = $vendor_details[0]['gst_no'];
                 } else {
-                    $data[0]['gst_number'] = 1;
+                    //this is 247around invoice thats why we are assigned true value.
+                    $data[0]['gst_number'] = true;
                 }
                 
                 $data[0]['company_name'] = $vendor_details[0]['company_name'];
