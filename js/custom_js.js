@@ -235,7 +235,9 @@ function getPricesForCategoryCapacity(div_id,add_booking) {
                 $("#upcountry_data").val(data1.upcountry_data);
                 final_price();
                 if((postData['is_repeat'] == 1) || ($("input[type=checkbox]:checked").length > 0)) {
-                    $('#submitform').attr('disabled', false);
+                    if(!($("#is_sn_correct").length) || ($("#is_sn_correct").val() != '1')){
+                        $('#submitform').attr('disabled', false);
+                    }
                 }
             });
         }
@@ -1110,7 +1112,9 @@ function set_upcountry() {
 
                     if (data1.message === "UPCOUNTRY BOOKING") {
                         $("#upcountry_charges").val("0");
-                        $('#submitform').attr('disabled', false);
+                        if(!($("#is_sn_correct").length) || ($("#is_sn_correct").val() != '1')){
+                            $('#submitform').attr('disabled', false);
+                        }
                         final_price();
                         if(!is_sf_panel)
                         {
@@ -1125,14 +1129,16 @@ function set_upcountry() {
                         }
                     } else if (data1.message === "UPCOUNTRY LIMIT EXCEED" && partner_approval === 1) {
                         $("#upcountry_charges").val("0");
-                        if(!is_sf_panel)
+                        if(!is_sf_panel && (!($("#is_sn_correct").length) || ($("#is_sn_correct").val() != '1')))
                         {
                             alert("This is out station boking, Waiting for Partner Approval. Upcountry Distance " + data1.upcountry_distance + " KM");
                             $('#submitform').attr('disabled', false);
                         }
                     } else {
                         // $("#upcountry_charges").val("0");
-                        $('#submitform').attr('disabled', false);
+                        if(!($("#is_sn_correct").length) || ($("#is_sn_correct").val() != '1')){
+                            $('#submitform').attr('disabled', false);
+                        }
                     }
                 } else {
                     if(Number(is_upcountry) == 0 && Number(non_upcountry) == 0){
@@ -1151,7 +1157,9 @@ function set_upcountry() {
                     } else if(Number(is_upcountry) == 0 && Number(non_upcountry) == -1 && n == 0){
                         
                         $("#upcountry_charges").val("0");
-                        $('#submitform').attr('disabled', false);
+                        if(!($("#is_sn_correct").length) || ($("#is_sn_correct").val() != '1')){
+                            $('#submitform').attr('disabled', false);
+                        }
                         final_price();
                     } else if(Number(is_upcountry) == 0 && Number(non_upcountry) == -1 && n == 1){
                         
@@ -1166,8 +1174,9 @@ function set_upcountry() {
                         $("#upcountry_charges").val(upcountry_charges);
                         $("#grand_total_price").val(Number(total_price) + Number(upcountry_charges));
                     }
-                    
-                    $('#submitform').attr('disabled', false);
+                    if(!($("#is_sn_correct").length) || ($("#is_sn_correct").val() != '1')){
+                        $('#submitform').attr('disabled', false);
+                    }
                 }
                 break;
                 
@@ -1208,7 +1217,9 @@ function set_upcountry() {
                          document.getElementById("error_pincode").innerHTML = "Check Pincode.. Pincode Not Exist";
                         return false;
                     }  else {
-                        $('#submitform').attr('disabled', false); 
+                        if(!($("#is_sn_correct").length) || ($("#is_sn_correct").val() != '1')){
+                            $('#submitform').attr('disabled', false);   
+                        }
                         document.getElementById("error_pincode").style.borderColor = "red";
                          document.getElementById("error_pincode").innerHTML = "";
                     } 
