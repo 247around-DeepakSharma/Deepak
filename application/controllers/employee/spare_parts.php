@@ -4367,7 +4367,14 @@ class Spare_parts extends CI_Controller {
                 $row[] = $value['services'];
                 $row[] = $value['part_name'];
                 $row[] = $value['part_number'];
-                $row[] = $value['part_warranty_status'];
+                
+                if ($value['part_warranty_status'] == 1) {
+                    $part_warranty_status = REPAIR_IN_WARRANTY_TAG;
+                } else {
+                    $part_warranty_status = REPAIR_OOW_TAG;
+                }
+
+                $row[] = $part_warranty_status;
                 $row[] = $value['shipped_quantity'];
                 $row[] = "<form ><input type='checkbox' onchange='createPostArray()' class='non_consumable' id='spare_id_.".$value['spare_id'].".' ' data-spare_id ='".$value['spare_id']."' data-vendor_id ='".$value['service_center_id']."' "
                         . " data-inventory_id='".$value['shipped_inventory_id']."' data-booking_id = '".$value['booking_id']."' data-shipped_quantity = '".$value['shipped_quantity']."' data-booking_partner_id = '".$value['partner_id']."' "

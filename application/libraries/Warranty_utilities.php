@@ -125,7 +125,7 @@ class Warranty_utilities {
                 $in_warranty_period = !empty($recWarrantyData['in_warranty_period']) ? $recWarrantyData['in_warranty_period'] : 12;
                 $extended_warranty_period = !empty($recWarrantyData['extended_warranty_period']) ? $recWarrantyData['extended_warranty_period'] : 0;
                 $warrantyStatus = $this->get_warranty_status($in_warranty_period, $extended_warranty_period, $recWarrantyData['purchase_date'], $recWarrantyData['booking_create_date'], $warranty_found);
-                if($recWarrantyData['purchase_date'] == '1970-01-01'):
+                if($recWarrantyData['purchase_date'] == '1970-01-01' || empty($recWarrantyData['purchase_date'])):
                     return "DOP Not Valid";
                 elseif($recWarrantyData['booking_create_date'] == '1970-01-01'):
                     return "Booking Create Date Not Valid";
@@ -191,7 +191,9 @@ class Warranty_utilities {
     public function get_warranty_status_of_bookings($arrBookings, $checkInstallationDate = 0){  
         // Check if warranty is to be calculated on the basis of DOI od DOP
         // If warranty is to calculated on the basis of DOI, replace DOP with DOI
-        if(!empty($checkInstallationDate)){
+        $partner_id = $arrBookings[0]['partner_id'];
+        $checkInstallationDate = $this->My_CI->partner_model->getpartner($partner_id)[0]['check_warranty_from'];
+        if($checkInstallationDate == WARRANTY_ON_DOI){
             $arrInstallationData = $this->My_CI->booking_utilities->get_installation_date_of_booking($arrBookings);
             if(!empty($arrInstallationData['installation_date'])){
                 $arrBookings[0]['purchase_date'] = date("d-m-Y", strtotime($arrInstallationData['installation_date']));

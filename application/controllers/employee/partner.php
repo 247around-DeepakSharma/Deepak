@@ -2699,7 +2699,12 @@ class Partner extends CI_Controller {
      * @desc: This is used to show Booking Life Cycle of particular Booking
      * params: String Booking_ID
      * return: Array of Data for View
-     */
+     */ 
+    function get_booking_recordings($booking_primary_id) { 
+        $select = "agent_outbound_call_log.create_date, agent_outbound_call_log.recording_url, employee.full_name, employee.groups";
+        $data['data'] = $this->booking_model->get_booking_recordings_by_id($booking_primary_id, $select);
+        $this->load->view('employee/show_booking_recordings', $data);
+    } 
     function get_booking_life_cycle($booking_id) { 
         $this->checkUserSession();
         log_message('info', __FUNCTION__ . " Booking_id" . $booking_id);
@@ -5035,6 +5040,9 @@ class Partner extends CI_Controller {
             
             if (!empty($_FILES['contract_file']['tmp_name'][$index]) && ($_FILES['contract_file']['error'][$index] != 4)) {
                 $tmpFile = $_FILES['contract_file']['tmp_name'][$index];
+                $target_file = TMP_FOLDER. basename($_FILES["contract_file"]["name"][$index]);
+                $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+                if($imageFileType=='pdf'){
                 $contract_file = "Partner-" . str_replace(' ', '_', $partnerName) . '-Contract_' . $contract_type . "_" . date('Y-m-d') . "." . explode(".", $_FILES['contract_file']['name'][$index])[1];
                 move_uploaded_file($tmpFile, TMP_FOLDER . $contract_file);
                 //Upload files to AWS
@@ -5050,6 +5058,7 @@ class Partner extends CI_Controller {
                 $finalInsertArray[] = $insertArray;
                 $contract_type_tag = $this->reusable_model->execute_custom_select_query("SELECT `collateral_tag`, collateral_type FROM `collateral_type` WHERE `id`='".$contract_type."'");
                 $emailArray = array("Contract_Type"=>$contract_type_tag[0]['collateral_type'], "Partnership_Start_Date"=>$start_date_array[$index], "Partnership_End_Date"=>$end_date_array[$index], "Contract_Description" => $contract_description_array[$index]);
+                }
             }
         }
         if ($finalInsertArray) {
@@ -5478,8 +5487,9 @@ class Partner extends CI_Controller {
      * @return: string
      */
     function download_partner_summary_details(){
-       
-       
+        $active = $this->input->get('active');
+        $partnerType = $this->input->get('partner_type');
+        $ac = $this->input->get('accountManager');
         $partner_details = array();
         $select = "partners.id,public_name,company_type,primary_contact_name,"
                 . "primary_contact_email,primary_contact_phone_1,"
@@ -5488,12 +5498,27 @@ class Partner extends CI_Controller {
                 . "upcountry_rate, CASE WHEN is_upcountry = 1 THEN 'Yes' ELSE 'No' END as upcountry, upcountry_max_distance_threshold, CASE WHEN upcountry_approval = 1 THEN 'Yes' ELSE 'No' END as upcountry_approval,"
                 . "upcountry_approval_email, invoice_email_to, invoice_email_cc, invoice_email_bcc,"
                 . "CASE WHEN is_prepaid = 0 THEN 'PostPaid' WHEN is_prepaid = 1 THEN 'PrePaid' ELSE ' ' END as is_prepaid, prepaid_amount_limit, prepaid_notification_amount,"
+                ." CASE WHEN  partners.is_active = '1' THEN 'ACTIVE' ELSE 'DEACTIVE'END AS Partner_Staus,partner_type,"
                 . "postpaid_credit_period, postpaid_notification_limit, postpaid_grace_period, summary_email_to,summary_email_cc,summary_email_bcc,spare_notification_email";
-        $where = array('partners.is_active' => 1);
+       if( $active == 'All' &&  $ac != 'All'){
+           $where = array('agent_filters.agent_id'=>$ac);
+       }
+       else if( $active != 'All' && $ac == 'All'){
+           $where = array('partners.is_active' =>$active);
+       }else if($active == 'All'&&  $ac == 'All'){
+           $where = array();
+       } else {
+          $where = array('partners.is_active' =>$active,'agent_filters.agent_id'=>$ac);
+       }
         $group_by = "partners.id";
+        if(!empty($partnerType)){
+            $partnerTypeArray = explode(',',$partnerType);
+              $partnerWhereIn['bookings_sources.partner_type'] = $partnerTypeArray;
+        }
+       
 
         //$partner_details['excel_data_line_item'] = $this->partner_model->getpartner_details($select,$where,"",TRUE);//,TRUE
-        $partner_details['excel_data_line_item'] = $this->partner_model->getpartner_data($select, $where, "",1,1,1,$group_by);
+        $partner_details['excel_data_line_item'] = $this->partner_model->getpartner_data($select, $where, "",1,1,1,$group_by, $partnerWhereIn);
         $service_brands=array();
         //add appliance of partner
         foreach ($partner_details['excel_data_line_item'] as $key => $value) {
@@ -5784,7 +5809,10 @@ class Partner extends CI_Controller {
             $where[] = "(date(booking_details.service_center_closed_date)>='".$completion_start_date."' AND date(booking_details.service_center_closed_date)<='".$completion_end_date."')";
         }
         
-        $newCSVFileName = "Booking_summary_" . date('Y-m-d').($partnerID+211).rand(10,100000000). ".csv";
+        $newCSVFileName = "Booking_summary_" . date('Y-m-d')."ALL".rand(10,100000000). ".csv";
+        if((strtolower($partnerID) != 'all')){
+            $newCSVFileName = "Booking_summary_" . date('Y-m-d').($partnerID+211).rand(10,100000000). ".csv";
+        }
         $csv = TMP_FOLDER . $newCSVFileName;
         
         if($status != 'All'){
@@ -6000,6 +6028,8 @@ class Partner extends CI_Controller {
                 
         $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true);
         $headings = array("Booking ID",
+            "Customer Contact Number",
+            "Dealer Name",
             "Booking Create Date",
             "Initial Booking Date",
             "Current Booking Date",
@@ -6015,26 +6045,27 @@ class Partner extends CI_Controller {
             "SF City",
             "SF State",
             "SF Remarks",
-            "Requested Part Code",
-            "Requested Part Name",
+            "Serial Number",
             "Requested Model Number",
-            "Requested Quantity",
+            "Requested Part Name",
             "Requested Part Type",
+            "Requested Part Code",
+            "Requested Quantity",
             "Requested Part Date",
             "Date Of Purchase",
             "Parts Charge",
-            "Dispatched Part Code (To SF)",
-            "Dispatched Part Name (To SF)",
             "Dispatched Model Number (To SF)",
-            "Dispatched Quantity (To SF)",
+            "Dispatched Part Name (To SF)",
             "Dispatched Part Type (To SF)",
+            "Dispatched Part Code (To SF)",
+            "Dispatched Quantity (To SF)",
             "Dispatched Part Date (To SF)",
+            "Part Acknowledge Date By SF",
             "Dispatched Invoice Number (To SF)",
             "Dispatched Challan Number",
             "Dispatched AWB Number (To SF)",
             "Courier Name (Dispatched To SF)",
             "Courier Price (Dispatched To SF)",
-            "Part Acknowledge Date By SF",
             "Remarks by Partner/Warehouse",
             "Defective Part Shipped By SF",
             "Defective Received Date By Partner/Warehouse",
@@ -6043,14 +6074,11 @@ class Partner extends CI_Controller {
             "SF Challan Number",
             "SF AWB Number (Defective Shipped)",
             "AWB Number Warehouse Dispatch Defective To Partner",
-            "Warehouse Dispatch Defective To Partner Courier Name",
-            "Warehouse Dispatch Defective To Partner Challan Number",
+            "Courier Name Warehouse Dispatch Defective To Partner",
+            "Challan Number Warehouse Dispatch Defective To Partner",
             "Warehouse Dispatch Defective Shipped Date To Partner",
-            "Dealer Name",
-            "Reverse Purchase Invoice Id",
-            "Invoice Date",
-            "Serial Number",
-            "Customer Contact Number",
+            "WH to Partner Reverse Purchase Invoice Id",
+            "WH to Parnter Reverse Purchase Invoice Date",
             "Is Spare Auto Acknowledge By SF",
             "Consumption"
             );
@@ -6058,6 +6086,8 @@ class Partner extends CI_Controller {
         foreach($data as $sparePartBookings){
             $tempArray = array();            
             $tempArray[] = $sparePartBookings['booking_id'];
+            $tempArray[] = $sparePartBookings['booking_primary_contact_no'];
+            $tempArray[] = $sparePartBookings['dealer_name'];
             $tempArray[] = ((!empty($sparePartBookings['create_date']))?date("d-M-Y",strtotime($sparePartBookings['create_date'])):'');
             $tempArray[] = ((!empty($sparePartBookings['initial_booking_date']))?date("d-M-Y",strtotime($sparePartBookings['initial_booking_date'])):'');
             $tempArray[] = ((!empty($sparePartBookings['booking_date']))?date("d-M-Y",strtotime($sparePartBookings['booking_date'])):'');
@@ -6073,26 +6103,27 @@ class Partner extends CI_Controller {
             $tempArray[] = $sparePartBookings['sf_city'];              
             $tempArray[] = $sparePartBookings['sf_state'];
             $tempArray[] = $sparePartBookings['remarks_by_sc'];
-            $tempArray[] = $sparePartBookings['part_number'];
-            $tempArray[] = $sparePartBookings['part_name'];
+            $tempArray[] = $sparePartBookings['serial_number'];
             $tempArray[] = $sparePartBookings['model_number'];
-            $tempArray[] = $sparePartBookings['quantity'];
+            $tempArray[] = $sparePartBookings['part_name'];
             $tempArray[] = $sparePartBookings['type'];
+            $tempArray[] = $sparePartBookings['part_number'];
+            $tempArray[] = $sparePartBookings['quantity'];
             $tempArray[] = ((!empty($sparePartBookings['date_of_request']))?date("d-M-Y",strtotime($sparePartBookings['date_of_request'])):'');
             $tempArray[] = ((!empty($sparePartBookings['date_of_purchase']))?date("d-M-Y", strtotime($sparePartBookings['date_of_purchase'])):'');
             $tempArray[] = $sparePartBookings['challan_approx_value'];
-            $tempArray[] = $sparePartBookings['shipped_part_number'];
-            $tempArray[] = $sparePartBookings['shipped_part_name'];
             $tempArray[] = $sparePartBookings['model_number_shipped'];
-            $tempArray[] = $sparePartBookings['shipped_quantity'];
+            $tempArray[] = $sparePartBookings['shipped_part_name'];
             $tempArray[] = $sparePartBookings['shipped_part_type'];
+            $tempArray[] = $sparePartBookings['shipped_part_number'];
+            $tempArray[] = $sparePartBookings['shipped_quantity'];
             $tempArray[] = ((!empty($sparePartBookings['shipped_date']))?date("d-M-Y",strtotime($sparePartBookings['shipped_date'])):'');
+            $tempArray[] = ((!empty($sparePartBookings['acknowledge_date']))?date("d-M-Y",strtotime($sparePartBookings['acknowledge_date'])):'');            
             $tempArray[] = $sparePartBookings['purchase_invoice_id'];
             $tempArray[] = $sparePartBookings['partner_challan_number'];
             $tempArray[] = $sparePartBookings['awb_by_partner'];
             $tempArray[] = $sparePartBookings['courier_name_by_partner'];
             $tempArray[] = $sparePartBookings['courier_price_by_partner'];            
-            $tempArray[] = ((!empty($sparePartBookings['acknowledge_date']))?date("d-M-Y",strtotime($sparePartBookings['acknowledge_date'])):'');            
             $tempArray[] = $sparePartBookings['remarks_by_partner'];
             $tempArray[] = $sparePartBookings['defective_part_shipped'];
             $tempArray[] = ((!empty($sparePartBookings['received_defective_part_date']))?date("d-M-Y",strtotime($sparePartBookings['received_defective_part_date'])):'');
@@ -6104,11 +6135,8 @@ class Partner extends CI_Controller {
             $tempArray[] = $sparePartBookings['courier_name_by_wh'];
             $tempArray[] = $sparePartBookings['wh_challan_number'];
             $tempArray[] = $sparePartBookings['wh_to_partner_defective_shipped_date'];
-            $tempArray[] = $sparePartBookings['dealer_name'];
             $tempArray[] = $sparePartBookings['reverse_purchase_invoice_id'];
             $tempArray[] = $sparePartBookings['invoice_date'];
-            $tempArray[] = $sparePartBookings['serial_number'];
-            $tempArray[] = $sparePartBookings['booking_primary_contact_no'];
             if($sparePartBookings['auto_acknowledeged']==1){
             $tempArray[] = "Yes";   
              }else{

@@ -762,15 +762,23 @@ class vendor_model extends CI_Model {
      *  @param : $sms_tag
      *  @return : template if exists else returns blank
      */
-    function getVendorSmsTemplate($sms_tag,$otherData = FALSE) {
-        $this->db->select("template,is_exception_for_length");
+    function getVendorSmsTemplate($sms_tag,$otherData = FALSE,$get_all_column = false) {
+		if(!empty($get_all_column)){
+			$this->db->select('*');
+		}else{
+			$this->db->select("template,is_exception_for_length");
+		}
         $this->db->where('tag', $sms_tag);
         $this->db->where('active', 1);
         $query = $this->db->get('sms_template');
         if ($query->num_rows > 0) {
             $template = $query->result_array();
             if(!$otherData){
-                return $template[0]['template'];
+				if(!empty($get_all_column)){
+					return $template[0];
+				}else{
+					return $template[0]['template'];
+				}
             }
             else{
                 return $template[0]['is_exception_for_length'];
@@ -1149,22 +1157,19 @@ class vendor_model extends CI_Model {
         // If data already exists in Table, do not insert data.
         if(!empty($data['booking_id']) && !empty($data['unit_details_id']) && !empty($data['service_center_id']))
         {
-            $message = "function vendor_model::insert_service_center_action(). Data already exists, REFERRER : '".(!empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : "")."', PATH : ".(!empty($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : "");
             $res = $this->get_service_center_booking_action_details('*', ['booking_id' => $data['booking_id'], 'unit_details_id' => $data['unit_details_id'], 'service_center_id' => $data['service_center_id']]);
             if(!empty($res[0]['id'])){
-                /*Commented by Prity Sharma*/
-                //$this->notify->sendEmail(NOREPLY_EMAIL_ID, DEV_BOOKINGS_MAIL, NULL, NULL, 'ERROR', $message, "","INSERT_SERVICE_CENTER_BOOKING_ACTION");                        
                 return $res[0]['id'];
+                
+            }
+            else
+            {
+                $this->db->insert('service_center_booking_action', $data);        
+                log_message('info', __METHOD__ . "=> Insert Service center Action table SQL: " . $this->db->last_query());        
+                $assign_sc_id = $this->db->insert_id();         
+                return $assign_sc_id;
             }
         }
-        $this->db->insert('service_center_booking_action', $data);
-        
-        log_message('info', __METHOD__ . "=> Insert Service center Action table SQL: " . $this->db->last_query() );
-        
-        $assign_sc_id = $this->db->insert_id();
-         
-        return $assign_sc_id;
-
     }
         
     /**
