@@ -457,7 +457,19 @@
                                                                 <!-- Removed duplicate date -->
                                                                 <td><?php echo $sp['remarks_by_sc']; ?></td>
                                                                 <td><?php echo $sp['status']; ?></td>
-                                                                <td><?php echo $sp['part_cancel_reason'];?></td>
+                                                                <td>
+                                                                <?php if ($sp['part_cancel_reason'] == 'RTO Case') { ?>
+                                                                    <?php if (!empty($sp['rto_file'])) { ?>
+                                                                        <a href="<?php echo S3_WEBSITE_URL; ?><?php echo RTO_POD; ?>/<?php echo $sp['rto_file']; ?> " target="_blank"><?php echo $sp['part_cancel_reason']; ?></a>
+                                                                    <?php } else { ?>
+                                                                        <?php echo $sp['part_cancel_reason']; ?>
+                                                                        <?php
+                                                                    }
+                                                                } else {
+                                                                    ?>
+                                                                    <?php echo $sp['part_cancel_reason']; ?>
+                                                                <?php } ?>
+                                                                </td>
                                                                 <td><?php if($sp['is_consumed'] == 1) { echo 'Yes';} else { echo 'No';} ?></td>
                                                             </tr>
                                                             <?php
@@ -537,10 +549,11 @@
                                                     <table class="table table-striped table-bordered" >
                                                         <thead>
                                                             <tr>
-                                                                <th >Estimate Given</th>
-                                                                <th >Estimate Given Date </th>
-                                                                <th >Estimate Invoice</th>
-                                                                <th >Status </th>
+                                                                <th>Spare Id</th>
+                                                                <th>Estimate Given</th>
+                                                                <th>Estimate Given Date </th>
+                                                                <th>Estimate Invoice</th>
+                                                                <th>Status </th>
                                                             </tr>
                                                         </thead>
 
@@ -548,6 +561,10 @@
                                                             <?php foreach ($booking_history['spare_parts'] as $sp) {
                                                                 if ($sp['purchase_price'] > 0) { ?>
                                                                     <tr>
+                                                                        
+                                                                    <td>
+                                                                        <a href="javascript:void(0);"  data-spare_id="<?php echo $sp['id']; ?>" class="spare_history_tracking"><?php echo $sp['id']; ?></a>
+                                                                    </td>
 
                                                                         <td><?php 
                                                                         if($sp['status'] == SPARE_OOW_EST_GIVEN){

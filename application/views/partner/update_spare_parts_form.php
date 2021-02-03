@@ -89,6 +89,9 @@
                 <div class="x_panel">
                     <div class="x_title">
                         <h2 class="col-md-12">Update Spare Part <?php if(isset($spare_parts[0]->request_type) && $spare_parts[0]->request_type == REPAIR_OOW_TAG){ ?> <button type="button" class="btn btn-primary pull-right" disabled="">Ship More Parts</button> <?php }else{ ?><button type="button" class="btn btn-primary pull-right addButton">Ship More Parts</button><?php } ?></h2>
+                        <?php if(isset($spare_parts[0]->request_type) && $spare_parts[0]->request_type == REPAIR_OOW_TAG){ ?>
+                        <span style="float: right; color: red;">(Add More) option could not allowed for OOW booking.</span>
+                        <?php } ?>
                         <div class="clearfix"></div>
                     </div>
                     <input type="hidden" name="request_type" value="<?php echo ((isset($spare_parts[0]->request_type)) ? $spare_parts[0]->request_type : '')?>"/>
@@ -252,7 +255,7 @@
                                     <div class="form-group ">
                                         <label for="parts_name" class="col-md-4">Requested Quantity</label>
                                         <div class="col-md-7">
-                                            <input type="text" class="form-control" id="<?php echo "req_quantity_".$key; ?>" name="part[<?php echo $key; ?>][quantity]"    value="<?php echo $value->quantity; ?>"  required /> 
+                                            <input type="text" class="form-control" id="<?php echo "req_quantity_".$key; ?>" name="part[<?php echo $key; ?>][quantity]"    value="<?php echo $value->quantity; ?>" readonly="" required /> 
                                         </div>
                                     </div>
                                      </div>
@@ -870,9 +873,7 @@
 
 
 
-    $(document).on('keyup', ".quantity", function(e)
-       {
-        //alert();
+    $(document).on('keyup', ".quantity", function(e){
         var id = $(this).attr("id");
         var str_arr =id.split("_");
         var indexId = str_arr[1]; 

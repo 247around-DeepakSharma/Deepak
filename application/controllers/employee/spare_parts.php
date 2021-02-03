@@ -550,12 +550,12 @@ class Spare_parts extends CI_Controller {
         $post['select'] = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.quantity,spare_parts_details.shipped_quantity, users.name, booking_primary_contact_no, service_centres.name as sc_name, service_centres.on_off, service_centres.active,"
                 . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id, spare_parts_details.shipped_parts_type,"
                 . "defective_part_required, spare_parts_details.shipped_date, parts_shipped, spare_parts_details.around_pickup_from_service_center,"
-                . "spare_parts_details.acknowledge_date, spare_parts_details.around_pickup_courier, spare_parts_details.is_micro_wh, spare_parts_details.service_center_id, challan_approx_value, status, inventory_master_list.part_number,im.part_number as shipped_part_number, spare_consumption_status.consumed_status, spare_consumption_status.is_consumed";
+                . "spare_parts_details.acknowledge_date, spare_parts_details.around_pickup_courier, spare_parts_details.is_micro_wh, spare_parts_details.service_center_id, challan_approx_value, status, inventory_master_list.part_number,im.part_number as shipped_part_number, "
+                . "spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, service_centres.company_name as spare_pending_on_sf, sf.company_name as booking_pending_on_sf";
         if ($this->input->post("status") == SPARE_DELIVERED_TO_SF) {
-            $post['column_order'] = array(NULL, 'spare_parts_details.booking_id', NULL, 'service_centres.name', NULL, NULL, NULL, NULL, NULL, 'spare_parts_details.shipped_parts_type', NULL, NULL, NULL, NULL, NULL, NULL, 'age_of_delivered_to_sf', NULL, NULL, NULL, NULL);
-
+            $post['column_order'] = array(NULL, 'spare_parts_details.booking_id', NULL, 'service_centres.name', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'spare_parts_details.shipped_parts_type', NULL, NULL, NULL, NULL, NULL, NULL, 'age_of_delivered_to_sf', NULL, NULL, NULL, NULL);
         } else {
-            $post['column_order'] = array(NULL, 'spare_parts_details.booking_id', NULL, 'service_centres.name', NULL, NULL, NULL, NULL, NULL, 'spare_parts_details.shipped_parts_type', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'age_part_pending_to_sf', NULL, NULL, NULL, NULL);
+            $post['column_order'] = array(NULL, 'spare_parts_details.booking_id', NULL, 'service_centres.name', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'spare_parts_details.shipped_parts_type', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'age_part_pending_to_sf', NULL, NULL, NULL, NULL);
         }
         
         $post['column_search'] = array('spare_parts_details.booking_id','partners.public_name', 'service_centres.name', 'parts_shipped', 
@@ -567,6 +567,7 @@ class Spare_parts extends CI_Controller {
             $where_clause = $this->check_where_condition($post);
             $post['where'] = $where_clause['where'];
         }
+        $post['pending_on_sf'] = true; 
         $list = $this->inventory_model->get_spare_parts_query($post);
         $no = $post['start'];
         $data = array();
@@ -1267,8 +1268,10 @@ class Spare_parts extends CI_Controller {
         }
 
 
-        $row[] = $spare_pending_on; 
-        $row[] = "<i class='fa fa-circle' aria-hidden='true' style='margin-right:5px;".$sc_icon_style."'></i>".$spare_list->sc_name."<p style='font-weight: bold;".$sc_icon_style."'> - ".$sf_status."</p>";
+        $row[] = $spare_pending_on;
+        $row[] = "<i class='fa fa-circle' aria-hidden='true' style='margin-right:5px;" . $sc_icon_style . "'></i>" . $spare_list->sc_name . "<p style='font-weight: bold;" . $sc_icon_style . "'> - " . $sf_status . "</p>";
+        $row[] = '<span style="word-break: break-all;">' . $spare_list->booking_pending_on_sf . '<spre/>';
+        $row[] = '<span style="word-break: break-all;">' . $spare_list->spare_pending_on_sf . '<spre/>';
         $row[] = $spare_list->source;
         $row[] = $spare_list->parts_requested;
         $row[] = $spare_list->quantity;

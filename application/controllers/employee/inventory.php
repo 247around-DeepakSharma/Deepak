@@ -4938,10 +4938,11 @@ class Inventory extends CI_Controller {
             if($ledger['is_wh_micro']==2){
             $newdata['is_micro_wh'] = 1;   
             }
-            if( $ledger['request_type'] == REPAIR_OOW_TAG){
-              $newdata['part_warranty_status'] = 2;
-            }else{
-              $newdata['part_warranty_status'] = 1;  
+
+            if (isset($ledger['request_type'])== REPAIR_OOW_TAG) {
+                $newdata['part_warranty_status'] = 2;
+            } else {
+                $newdata['part_warranty_status'] = 1;
             }
             
             $spare_id = $this->service_centers_model->insert_data_into_spare_parts($newdata);
@@ -7795,7 +7796,8 @@ function get_bom_list_by_inventory_id($inventory_id) {
                 . "if(spare_parts_details.partner_warehouse_courier_invoice_id is null,'',spare_parts_details.partner_warehouse_courier_invoice_id) as 'Partner Warehouse Courier Invoice', "
                 . "if(spare_parts_details.partner_courier_invoice_id is null,'',spare_parts_details.partner_courier_invoice_id) as 'Partner Courier Invoice', "
                 . "if(spare_parts_details.vendor_courier_invoice_id is null,'',spare_parts_details.vendor_courier_invoice_id) as 'SF Courier Invoice', "
-                . "if(spare_parts_details.partner_warehouse_packaging_invoice_id is null,'',spare_parts_details.partner_warehouse_packaging_invoice_id) as 'Partner Warehouse Packaging Courier Invoice', (CASE WHEN spare_parts_details.spare_lost = 1 THEN 'Yes' ELSE 'NO' END) AS 'Spare Lost', spare_parts_details.quantity as 'Requested Spare Quantity', spare_parts_details.shipped_quantity as 'Shipped Spare Quantity',dealer_details.dealer_name as 'Dealer Name'";
+                . "if(spare_parts_details.partner_warehouse_packaging_invoice_id is null,'',spare_parts_details.partner_warehouse_packaging_invoice_id) as 'Partner Warehouse Packaging Courier Invoice', (CASE WHEN spare_parts_details.spare_lost = 1 THEN 'Yes' ELSE 'NO' END) AS 'Spare Lost', spare_parts_details.quantity as 'Requested Spare Quantity', spare_parts_details.shipped_quantity as 'Shipped Spare Quantity',dealer_details.dealer_name as 'Dealer Name',"
+                . "(CASE WHEN courier_company_invoice_details.is_rto = 1 THEN 'Yes' ELSE 'No' END) as 'RTO'";
         //$where = array("spare_parts_details.status NOT IN('" . SPARE_PARTS_REQUESTED . "')" => NULL);
         $where = array();
         $group_by = "spare_parts_details.id";
@@ -7885,17 +7887,17 @@ function get_bom_list_by_inventory_id($inventory_id) {
                     . "spare_parts_details.booking_id, booking_details.service_id,spare_parts_details.model_number,booking_details.request_type,spare_parts_details.part_warranty_status", $where, true);
             
             if (!empty($data['data'])) {
-                $data['count'] = $count;
-                $data['inventory_master_list'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.inventory_id,inventory_master_list.part_name,inventory_master_list.part_number, '
-                        . 'inventory_master_list.gst_rate, inventory_master_list.hsn_code, inventory_master_list.price, inventory_master_list.type', array('inventory_model_mapping.active' => 1,'appliance_model_details.model_number' => $data['data'][0]['model_number'],'inventory_master_list.service_id' => $data['data'][0]['service_id']));
-                                
-                $html = $this->load->view('employee/tag_spare_line_item', $data, true);
+                    $data['count'] = $count;
+                    $data['inventory_master_list'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.inventory_id,inventory_master_list.part_name,inventory_master_list.part_number, '
+                            . 'inventory_master_list.gst_rate, inventory_master_list.hsn_code, inventory_master_list.price, inventory_master_list.type', array('inventory_model_mapping.active' => 1, 'appliance_model_details.model_number' => $data['data'][0]['model_number'], 'inventory_master_list.service_id' => $data['data'][0]['service_id']));
+                    $split_data = preg_split("/\-/", $data['data'][0]['booking_id']);
+                    $data['numeric_id'] = $split_data[1];
+                    $html = $this->load->view('employee/tag_spare_line_item', $data, true);
 
-                echo json_encode(array('code' => 247, "data" => $html, "count" => count($data)));
-            } else {
-                echo json_encode(array('code' => -247, "data" => "There is no any spare requested for this booking."));
-            }
-
+                    echo json_encode(array('code' => 247, "data" => $html, "count" => count($data)));
+                } else {
+                    echo json_encode(array('code' => -247, "data" => "There is no any spare requested for this booking."));
+                }
             }
 
         } else {
@@ -11044,7 +11046,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
         $row[] = '<span id="type_' . $hsncode_list->id . '">' . $hsncode_list->hsn_code . '</span>';
         $row[] = '<span id="part_name_' . $hsncode_list->id . '" style="word-break: break-all;">' . $hsncode_list->gst_rate . '%</span>';
         $row[] = '<span id="part_number_' . $hsncode_list->id . '" style="word-break: break-all;">' . $hsncode_list->create_date . '</span>';
-        $row[] = '<a class="btn btn-info" href="'.base_url() . 'employee/invoice/get_add_new_hsn_code/' . $hsncode_list->id.'" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i></a>';
+        $row[] = '<a class="btn btn-info" href="'.base_url() . 'employee/invoice/get_add_new_hsn_code/' . $hsncode_list->id.'"><i class="fa fa-edit" aria-hidden="true"></i></a>';
         if($hsncode_list->status == 1){
         $row[] = '<button type="button" class="btn btn-default" style="background-color: #d9534f; border-color: #fff; width: 90px; color: #fff;" id="' . $hsncode_list->id.'" onclick="process_to_manage_status(this.id)">Deactivate</button>';
         }else{
