@@ -982,6 +982,7 @@ function get_data_for_partner_callback($booking_id) {
                     . ' LEFT JOIN inventory_stocks ON spare_parts_details.requested_inventory_id = inventory_stocks.inventory_id'
                     . ' LEFT JOIN services ON booking_details.service_id=services.id '
                     . ' LEFT JOIN spare_consumption_status ON spare_parts_details.consumed_part_status_id = spare_consumption_status.id '
+                    . ' LEFT JOIN dealer_details ON booking_details.dealer_id=dealer_details.dealer_id '
                     . " WHERE $where $group_by "
                     . " ORDER BY spare_parts_details.purchase_invoice_id DESC,spare_parts_details.create_date $limit";
         }else{
@@ -997,6 +998,7 @@ function get_data_for_partner_callback($booking_id) {
                 . ' LEFT JOIN inventory_master_list as shipped_inventory on shipped_inventory.inventory_id = spare_parts_details.shipped_inventory_id '
                 . ' LEFT JOIN services ON booking_details.service_id=services.id '
                 . ' LEFT JOIN spare_consumption_status ON spare_parts_details.consumed_part_status_id = spare_consumption_status.id '
+                . ' LEFT JOIN dealer_details ON booking_details.dealer_id=dealer_details.dealer_id '
                 . "  WHERE users.user_id = booking_details.user_id "
                 . " AND ".$where . $group_by."  ORDER BY status = '". DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE."', spare_parts_details.create_date ASC $limit";
             }
