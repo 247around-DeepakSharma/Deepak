@@ -396,7 +396,7 @@ class Courier_tracking extends CI_Controller {
      */
     function get_courier_services_details(){
         $select = '*';
-        $data = $this->inventory_model->get_get_courier_services($select);
+        $data = $this->inventory_model->get_courier_services($select);
         
         if(!empty($data)){
             $res['status'] = TRUE;
