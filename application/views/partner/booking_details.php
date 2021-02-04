@@ -18,6 +18,8 @@
                             </li>
                             <li role="presentation" onclick="sf_tab_active()" class=""><a href="#tab_content5" role="tab" data-toggle="tab" aria-expanded="false">SF Details</a>
                             </li>
+                            <li role="presentation"  class=""><a href="#tab_content6" role="tab" data-toggle="tab" aria-expanded="true"> Call Recordings</a>
+                            </li>    
                         </ul>
                         <div id="myTabContent2" class="tab-content">
                             <div role="tabpanel" class="tab-pane fade active in" id="tab_content1">
@@ -934,7 +936,7 @@
                                     </table>
                                 </div>
                                 <?php  }?>
-                   <div class="table-responsive">
+                    <div class="table-responsive">
                     <table class="table table-striped table-bordered">
                         <thead>
                             <th>One Way Distance </th>
@@ -987,8 +989,12 @@
                         </tbody>
                     </table>
                     </div>   
-                            </div>
                         </div>
+                        <!--Call Recordings Tab-->
+                        <div role="tabpanel" class="tab-pane fade" id="tab_content6">  
+                            <div id="callDetails"></div>
+                        </div>
+                        </div>                         
                     </div>
 
                 </div>
@@ -1164,6 +1170,15 @@
                     $("#show_stocks_modal").modal();
                 }
             });
+        });
+        
+        var recordings_url =  '<?php echo base_url() ?>employee/partner/get_booking_recordings/<?php echo $booking_history[0]['booking_primary_id'] ?>'; 
+        $.ajax({
+            type: 'POST',
+            url: recordings_url,
+            success: function (response) {
+                $('#callDetails').html(response);
+            }
         });
     });
     $.ajax({
