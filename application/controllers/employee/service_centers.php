@@ -8523,16 +8523,18 @@ class Service_centers extends CI_Controller {
                 $courier_company_data = array(
                     'awb_number' => trim($this->input->post('awb')),
                     'company_name' => strtolower(trim($this->input->post('courier_name'))),
-                    'courier_charge' => trim($this->input->post('courier_charge'))
+                    'courier_charge' => trim($this->input->post('courier_charge')),
+                    'courier_invoice_file' => $this->input->post('sp_parts')
                 );
                 $courier_company_detail[0]['id'] = $this->inventory_model->insert_courier_company_invoice_details($courier_company_data);
                 $updateCharge = TRUE;
             } else {
 
-                if (empty($courier_company_detail[0]['courier_invoice_id'])) {
+                if (!empty($courier_company_detail)) {
                     $courier_company_data_update = array(
                         'company_name' => strtolower(trim($this->input->post('courier_name'))),
-                        'courier_charge' => trim($this->input->post('courier_charge'))
+                        'courier_charge' => trim($this->input->post('courier_charge')),
+                        'courier_invoice_file' => $this->input->post('sp_parts')
                     );
 
                     $this->inventory_model->update_courier_company_invoice_details(array('id' => $courier_company_detail[0]['id']), $courier_company_data_update);
@@ -8541,6 +8543,9 @@ class Service_centers extends CI_Controller {
             }
 
             if ($updateCharge === TRUE) {
+                
+                $this->inventory_model->update_spare_courier_details($id, array('spare_parts_details.awb_by_sf' => $awb_number));
+                
                 $data_spare_part_detail = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id, spare_parts_details.awb_by_sf, spare_parts_details.courier_name_by_sf', array('spare_parts_details.awb_by_sf = "' . $awb_number . '"  AND status != "' . _247AROUND_CANCELLED . '"' => null), false);
 
                 if (!empty($data_spare_part_detail)) {
@@ -8548,7 +8553,7 @@ class Service_centers extends CI_Controller {
                     $data['spare_parts_details.awb_by_sf'] = $awb_number;
                     $data['spare_parts_details.courier_name_by_sf'] = $courier_name_by_sf;
                     $data['spare_parts_details.courier_charges_by_sf'] = $courier_amount;
-
+                    
                     foreach ($data_spare_part_detail as $value) {
 
                         $this->inventory_model->update_spare_courier_details($value['id'], array('courier_charges_by_sf' => $courier_amount));
