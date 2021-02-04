@@ -6104,5 +6104,570 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             redirect(base_url() . 'employee/spare_parts/msl_summary_report_form');
         }
     }
+    
+    function get_msl_defective_challan(){
+        if (!empty($this->session->userdata('warehouse_id'))) {
+            //$this->checkEmployeeUserSession();
+            $data['warehouse_id'] = $this->session->userdata('warehouse_id');
+        } else if (!empty($this->session->userdata('service_center_id'))) {
+            //$this->check_WH_UserSession();
+            $data['warehouse_id'] = $this->session->userdata('service_center_id');
+        }
+        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
+        $this->load->view('service_centers/msl_def_challan', $data);
+    }
+    
+    function get_challan_msl_summary(){
+//        log_message('info', __METHOD__. " ". json_encode($_POST, true));
+//        $str= '{"draw":"2","columns":[{"data":"0","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"1","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"2","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"3","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"4","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"5","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"6","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}}],"order":[{"column":"0","dir":"asc"}],"start":"0","length":"50","search":{"value":"","regex":"false"},"partner_id":"247130","warehouse_id":"15"}';
+//        $_POST = json_decode($str, true);
+        
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search']['value'] = $search['value'];
+        $post['column_order'] = array(NULL, 'challan_id', NULL, NULL, NULL, NULL, NULL);
+
+        $post['draw'] = $this->input->post('draw');
+        $post['type'] = $this->input->post('type');
+        $post['order'] = $this->input->post('order');
+        $post['where'] = array('invoice_id IS NULL' => NULL, 'type' => MSL_DEFECTIVE_CHALLAN_TYPE, 'sender_entity_id' => $this->input->post('warehouse_id'), 
+            'receiver_entity_id' => $this->input->post('partner_id'));
+        
+        $post['select'] = "challan_details.id,challan_id, quantity, taxable_value, gst_amount, main_file, annx_file,to_gst_number_id, from_gst_number_id, "
+                . "e1.gst_number as from_gst_number, e2.gst_number as to_gst_number, challan_details.main_file, challan_details.annx_file";
+        
+        $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+        
+        $post['column_search'] = array('challan_id', 'e1.gst_number', 'e2.gst_number'); 
+        $list = $this->inventory_model->get_challan_list($post);
+        
+
+        $no = $post['start'];
+        $data = array();
+        foreach ($list as $spare_list) {
+            $no++;
+            $row = $this->_get_challan_msl_summary($spare_list, $no);
+            $data[] = $row;
+        }
+
+        $num = $this->inventory_model->count_all_challan_list($post);
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => $num,
+            "recordsFiltered" => $num,
+            "data" => $data,
+        );
+
+        echo trim(json_encode($output));
+
+    }
+    
+    function _get_challan_msl_summary($spare_list, $no){
+        $row = array();
+
+        $row[] = $no;
+        $row[] = '<a href="' . base_url() . 'service_center/get_challan_item_details/' . $spare_list['id']."/".$spare_list['challan_id'] . '" target= "_blank" >' . $spare_list['challan_id'] . '</a>'
+                . '<br/><br/> <a target="_blank" href="'.S3_WEBSITE_URL . 'vendor-partner-docs/'.$spare_list['main_file'].'">Main File</a> '
+                . '<br/><br/> <a target="_blank" href="'.S3_WEBSITE_URL . 'vendor-partner-docs/'.$spare_list['annx_file'].'">Detail File</a>';
+        $row[] = $spare_list['quantity'];
+        $row[] = $spare_list['taxable_value'];
+        $row[] = $spare_list['gst_amount'];
+        $row[] = $spare_list['from_gst_number'];
+        $row[] = $spare_list['to_gst_number'];
+        
+        $a = "<a class='btn btn-primary btn-md' href='javascript:void(0);' onclick='";
+        $a .= "convert_challan_into_invoice(" . '"' . $spare_list['challan_id'] . '"';
+        $a .= ")'>Convert into Invoice</a>";
+        
+        $row[] = $a;
+
+        return $row;
+    }
+    /**
+     * @desc This function is used to load challan breakup details.
+     * @param Int $challan_id
+     * @param String $challan_number
+     */
+    function get_challan_item_details($challan_id, $challan_number){ 
+        if(!empty($challan_number)){
+            $data['data'] = $this->inventory_model->get_challan_spare_mapping('spare_parts_details.booking_id, inventory_master_list.part_number, '
+                    . 'spare_id, challan_spare_mapping.id as spare_mapping_id, challan_items_details.description, spare_parts_details.shipped_quantity as quantity, challan_items_details.rate,'
+                    . '(challan_items_details.cgst_tax_rate + challan_items_details.sgst_tax_rate + challan_items_details.igst_tax_rate) as gst_rate', 
+                array('challan_items_details.challan_id' => $challan_id, 'challan_items_details.is_deleted' => 0, 'challan_spare_mapping.is_deleted' => 0));
+            
+            if (!empty($this->session->userdata('warehouse_id'))) {
+                $this->miscelleneous->load_nav_header();
+                //$data['warehouse_id'] = $this->session->userdata('warehouse_id');
+            } else if (!empty($this->session->userdata('service_center_id'))) {
+                $this->load->view('service_centers/header');
+                //$data['warehouse_id'] = $this->session->userdata('service_center_id');
+            }
+            $data['challan_number'] =$challan_number;
+            $this->load->view('service_centers/msl_challan_item', $data);
+        } else {
+            echo 'Wrong Url';
+        }
+        
+    }
+    
+    /**
+     * @desc This function is used to remove spare item from existing challan. It will recreate challan with same challan id after removal of items 
+     * @param int $spare_mapping_id
+     * @param int $spare_id
+     */
+    
+    function remove_challan_items($spare_mapping_id, $spare_id) {
+        if (!empty($spare_mapping_id)) {
+            $select = 'challan_spare_mapping.id, challan_spare_mapping.challan_item_id, challan_details.challan_id, '
+                    . 'spare_parts_details.shipped_quantity as quantity, challan_items_details.inventory_id';
+            $ch = $this->inventory_model->get_challan_spare_mapping($select,
+                    array('challan_spare_mapping.id' => $spare_mapping_id, 'challan_spare_mapping.is_deleted' => 0));
+            if (!empty($ch)) {
+                
+                $s = $this->inventory_model->remove_challan_item($spare_mapping_id,$spare_id, 
+                        $ch[0]['challan_item_id'], $ch[0]['quantity'], 
+                        $ch[0]['challan_id']);
+                if($s){
+                    $select = "challan_items_details.*, challan_details.sender_entity_id, challan_details.sender_entity_type, challan_details.receiver_entity_id, "
+                    . "receiver_entity_type, from_gst_number_id, to_gst_number_id, 'Product' as product_or_services,"
+                    . "challan_details.challan_id as invoice_id, challan_items_details.quantity as qty, (sgst_tax_rate + cgst_tax_rate + igst_tax_rate) as gst_rate";
+
+                    $ch1 = $this->inventory_model->get_challan_with_item_details($select,
+                    array('challan_details.challan_id' => $ch[0]['challan_id'], 'challan_items_details.is_deleted' => 0, 'challan_details.invoice_id IS NULL' => NULL));
+                    
+                    $res = $this->_get_recreate_challan_data($ch1, true);
+                
+                    if($res['status']){
+                        $result['message'] = "Successfully! Challan Item removed";
+                        $result['status'] = true;
+                    } else {
+                        $result['message'] = $res['message'];
+                        $result['status'] = false;
+                    }
+            
+                } else {
+                    $result['message'] = "Challan item did update. Please contact to backend team";
+                    $result['status'] = false;
+                }
+           
+
+            } else {
+                $result['message'] = "Challan Item already removed";
+                $result['status'] = false;
+            }
+        }
+        ob_get_clean();
+        echo json_encode($result, true);
+    }
+    
+    function convert_challan_into_invoice($challan_id) {
+        log_message("info", __METHOD__);
+        if (!empty($challan_id)) {
+            $select = "challan_items_details.*, challan_details.sender_entity_id, challan_details.sender_entity_type, challan_details.receiver_entity_id, "
+                    . "receiver_entity_type, from_gst_number_id, to_gst_number_id, 'Product' as product_or_services,"
+                    . "challan_details.challan_id as invoice_id, challan_items_details.quantity as qty, (sgst_tax_rate + cgst_tax_rate + igst_tax_rate) as gst_rate";
+
+            $ch = $this->inventory_model->get_challan_with_item_details($select,
+                    array('challan_details.challan_id' => $challan_id, 'challan_items_details.is_deleted' => 0, 'challan_details.invoice_id IS NULL' => NULL));
+
+            if (!empty($ch)) {
+                $awb_by_wh = $this->input->post('awb_by_wh');
+                $courier_name_by_wh = $this->input->post('courier_name_by_wh');
+                $courier_price_by_wh = $this->input->post('courier_price_by_wh');
+                $kilo_gram = (!empty($this->input->post('shipped_spare_parts_weight_in_kg')) ? $this->input->post('shipped_spare_parts_weight_in_kg') : '0');
+                $gram = (!empty($this->input->post('shipped_spare_parts_weight_in_gram')) ? $this->input->post('shipped_spare_parts_weight_in_gram') : '00');
+                $billable_weight = $kilo_gram . "." . $gram;
+                $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES['file']);
+
+                if ($courier_file['status']) {
+                    $from_gst_number = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $ch[0]['from_gst_number_id']));
+                    $from_state = $this->invoices_model->get_state_code(array('state_code' => $from_gst_number[0]['state']))[0]['state'];
+                    $to_gst_number = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $ch[0]['to_gst_number_id']));
+                    $to_state = $this->invoices_model->get_state_code(array('state_code' => $to_gst_number[0]['state']))[0]['state'];
+
+                    $exist_courier_details = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', '*', array('awb_number' => $awb_by_wh), array());
+                    if (empty($exist_courier_details)) {
+                        $awb_data = array(
+                            'awb_number' => trim($awb_by_wh),
+                            'company_name' => trim($courier_name_by_wh),
+                            'partner_id' => $to_gst_number[0]['entity_id'],
+                            'courier_charge' => trim($courier_price_by_wh),
+                            'box_count' => trim($this->input->post('shipped_spare_parts_boxes_count')),
+                            'small_box_count' => trim($this->input->post('shipped_spare_parts_small_boxes_count')),
+                            'billable_weight' => trim($billable_weight),
+                            'actual_weight' => trim($billable_weight),
+                            'basic_billed_charge_to_partner' => trim($courier_price_by_wh),
+                            'courier_invoice_file' => $courier_file['message'],
+                            'shippment_date' => date('Y-m-d'), //defective_part_shipped_date
+                            'created_by' => 3,
+                            'is_exist' => 1,
+                            'sender_city' => $from_gst_number[0]['city'],
+                            'receiver_city' => $to_gst_number[0]['city'],
+                            'sender_state' => $from_state,
+                            'receiver_state' => $to_state
+                        );
+
+                        $courier_id = $this->service_centers_model->insert_into_awb_details($awb_data);
+                        if ($courier_id) {
+                            log_message('info', 'Courier Invoice Details added successfully.');
+                            $eway = $this->input->post("eway_bill_by_wh");
+                            $eway_details = array();
+                            if(!empty($eway)){
+                                
+                                $eway_file = $this->upload_defective_parts_shipped_eway_file($_FILES);
+                                if ($eway_file['status']) {
+                                    $eway_details['ewaybill_file'] = $eway_file['message'];
+                                }
+                                $eway_details['courier_details_id'] = $courier_id;
+                                $eway_details['ewaybill_no'] = $this->input->post("eway_bill_by_wh");
+                                $eway_details['vehicle_number'] = $this->input->post("eway_vehicle_number");
+                            }
+                            
+                        } else {
+                            $courier_id = "";
+                        }
+                    } else {
+                        $courier_id = $exist_courier_details[0]['id'];
+                        $courier_file['message'] = $courier_file["courier_invoice_file"];
+                        $courier_file['status'] = true;
+                    }
+
+                    if ($courier_id) {
+                        $res = $this->_get_recreate_challan_data($ch, false);
+                        if ($res['status']) {
+                            $response = $res['data'];
+                            $invoice_details = array(
+                                'invoice_id' => $response['meta']['invoice_id'],
+                                'type_code' => 'A',
+                                'type' => 'Parts',
+                                'vendor_partner' => 'partner',
+                                "third_party_entity" => $response['meta']['sender_entity_type'],
+                                "third_party_entity_id" => $response['meta']['sender_entity_id'],
+                                'vendor_partner_id' => $response['meta']['receiver_entity_id'],
+                                'invoice_file_main' => $response['meta']['main_pdf_file_name'],
+                                'invoice_file_excel' => $response['meta']['invoice_id'] . ".xlsx",
+                                'invoice_detailed_excel' => $response['meta']['details_file'],
+                                'from_date' => date("Y-m-d"),
+                                'to_date' => date("Y-m-d"),
+                                'parts_cost' => $response['meta']['total_taxable_value'],
+                                'total_amount_collected' => $response['meta']['sub_total_amount'],
+                                'invoice_date' => date('Y-m-d'),
+                                'due_date' => date("Y-m-d"),
+                                //Amount needs to be collected from Vendor
+                                'amount_collected_paid' => $response['meta']['sub_total_amount'],
+                                //add agent_id
+                                'agent_id' => _247AROUND_DEFAULT_AGENT,
+                                "cgst_tax_rate" => 0,
+                                "sgst_tax_rate" => 0,
+                                "igst_tax_rate" => 0,
+                                "igst_tax_amount" => $response['meta']["igst_total_tax_amount"],
+                                "sgst_tax_amount" => $response['meta']["sgst_total_tax_amount"],
+                                "cgst_tax_amount" => $response['meta']["cgst_total_tax_amount"],
+                                "parts_count" => $response['meta']['parts_count'],
+                                "invoice_file_pdf" => $response['meta']['copy_file'],
+                                "hsn_code" => '',
+                                "vertical" => SERVICE,
+                                "category" => SPARES,
+                                "sub_category" => MSL_DEFECTIVE_RETURN,
+                                "accounting" => 1,
+                                "tcs_rate" => $response['meta']["tcs_rate"],
+                                "tcs_amount" => $response['meta']["tcs_amount"],
+                            );
+
+                            $in_id = $this->invoices_model->insert_new_invoice($invoice_details);
+                            $this->invoice_lib->insert_def_invoice_breakup($response);
+
+                            if(!empty($eway_details)){
+                                $eway_details['invoice_id'] = $response['meta']['invoice_id'];
+
+                                $this->inventory_model->insert_ewaybill_details($eway_details);
+                            }
+                            
+                            $this->inventory_model->update_challan_details(array('challan_id' => $challan_id), array('invoice_id' => $in_id, 'courier_id' => $courier_id));
+
+                            $spare_data = $this->inventory_model->get_challan_spare_mapping('challan_items_details.inventory_id, shipped_quantity as qty, spare_id, booking_id', array('challan_details.challan_id' => $challan_id,
+                                'challan_items_details.is_deleted' => 0));
+                            $ledger_data = array();
+                            foreach ($spare_data as $val) {
+                                $this->service_centers_model->update_spare_parts(array('id' => $val['spare_id']), array('status' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH,
+                                    'wh_to_partner_defective_shipped_date' => date('Y-m-d H:i:s'),
+                                    'defective_parts_shippped_date_by_wh' => date('Y-m-d'),
+                                    'courier_name_by_wh' => $courier_name_by_wh,
+                                    'courier_price_by_wh' => $courier_price_by_wh,
+                                    'awb_by_wh' => $awb_by_wh, 'defective_parts_shippped_courier_pic_by_wh' => $courier_file['message'],
+                                    'reverse_purchase_invoice_id' => $response['meta']['invoice_id']));
+
+                                $tracking_details = array('spare_id' => $val['spare_id'], 'action' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, 'remarks' => '');
+                                if (!empty($this->session->userdata('warehouse_id'))) {
+                                    $tracking_details['agent_id'] = $this->session->userdata('id');
+                                    $tracking_details['entity_id'] = _247AROUND;
+                                    $tracking_details['entity_type'] = _247AROUND_EMPLOYEE_STRING;
+                                } else {
+                                    $tracking_details['agent_id'] = $this->session->userdata('service_center_agent_id');
+                                    $tracking_details['entity_id'] = $this->session->userdata('service_center_id');
+                                    $tracking_details['entity_type'] = _247AROUND_SF_STRING;
+                                }
+
+                                $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+
+                                $l = $this->get_ledger_data($val, $response['meta']['receiver_entity_id'], $response['meta']['sender_entity_id'], 
+                                        $response['meta']['sender_entity_type'], $tracking_details['agent_id'], $tracking_details['entity_type'],
+                                        $response['meta']['invoice_id'], $courier_id);
+                                
+                                array_push($ledger_data, $l);
+                            }
+                            if(!empty($ledger_data)){
+                                $this->inventory_model->insert_inventory_ledger_batch($ledger_data);
+                                $ledger_data = array();
+                            }
+                            
+                            $main_file = S3_WEBSITE_URL . "invoices-excel/" . $response['meta']['main_pdf_file_name'];
+
+                            if (!empty($response['meta']['details_file'])) {
+                                $detailed_file = TMP_FOLDER . $response['meta']['details_file'];
+                            } else {
+                                $detailed_file = "";
+                            }
+
+                            $this->send_defective_return_mail($response['meta']['receiver_entity_id'], $main_file, $detailed_file, $response['meta']['invoice_id'], $response['meta']['sender_entity_id']);
+
+                            $result['message'] = "Invoice Generated Successfully";
+                            $result['status'] = true;
+                        } else {
+                            $result['message'] = $response['message'];
+                            $result['status'] = false;
+                        }
+                    } else {
+                        $result['message'] = "Courier Detais is not inserted. Please try again";
+                        $result['status'] = false;
+                    }
+                } else {
+                    $result['message'] = $courier_file['message'];
+                    $result['status'] = false;
+                }
+            } else {
+                $result['message'] = "Invoice already converted";
+                $result['status'] = false;
+            }
+        } else {
+            $result = array('status' => false, 'message' => 'Challan Number not found');
+        }
+        
+        ob_get_clean();
+        echo json_encode($result, true);
+    }
+    
+    function send_defective_return_mail($booking_partner_id, $main_file, $detailed_file, $invoice_id, $wh_id) {
+
+        //send email to partner warehouse incharge
+        $email_template = $this->booking_model->get_booking_email_template(DEFECTIVE_SPARE_SEND_BY_WH_TO_PARTNER);
+        $wh_incharge_id = $this->reusable_model->get_search_result_data("entity_role", "id", array("entity_type" => _247AROUND_PARTNER_STRING, 'role' => WAREHOUSE_INCHARCGE_CONSTANT), NULL, NULL, NULL, NULL, NULL, array());
+
+        if (!empty($wh_incharge_id)) {
+            $courier_name_by_wh = $this->input->post('courier_name_by_wh');
+
+            $defective_parts_shippped_date_by_wh = date('Y-m-d');
+            $awb_by_wh = $this->input->post('awb_by_wh');
+            $wh_name = $this->input->post('wh_name');
+            //If warehouse name not coming from form
+            if(empty($wh_name)){
+                $vendor_details = $this->vendor_model->getVendorDetails('service_centres.name', array('service_centres.id' => $wh_id), 'name', array());
+                $wh_name = $vendor_details[0]['name'];
+            }
+
+            //get 247around warehouse incharge email
+            $wh_where = array('contact_person.role' => $wh_incharge_id[0]['id'],
+                'contact_person.entity_id' => $booking_partner_id,
+                'contact_person.entity_type' => _247AROUND_PARTNER_STRING
+            );
+
+            $email_details = $this->inventory_model->get_warehouse_details('contact_person.official_email', $wh_where, FALSE, TRUE);
+            if (!empty($email_details) && !empty($email_template)) {
+                $this->table->set_heading(array('Courier Name', 'AWB Number', 'Shipment Date'));
+                $this->table->add_row(array($courier_name_by_wh, $awb_by_wh, date('d-M-Y', strtotime($defective_parts_shippped_date_by_wh))));
+                $courier_details_table = $this->table->generate();
+                $partner_details = $this->partner_model->getpartner_details('public_name', array('partners.id' => $booking_partner_id));
+                $partner_name = '';
+                if (!empty($partner_details)) {
+                    $partner_name = $partner_details[0]['public_name'];
+                }
+                $to = $email_details[0]['official_email'];
+                $cc = $email_template[3];
+                $subject = vsprintf($email_template[4], array($wh_name, $partner_name));
+                $message = vsprintf($email_template[0], array($wh_name, "", $courier_details_table));
+                $bcc = $email_template[5];
+                $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $message, $main_file, DEFECTIVE_SPARE_SEND_BY_WH_TO_PARTNER, $detailed_file);
+
+                unlink(TMP_FOLDER . $invoice_id . "-detailed.xlsx");
+                unlink(TMP_FOLDER . $invoice_id . ".pdf");
+                unlink(TMP_FOLDER . $invoice_id . ".xlsx");
+                unlink(TMP_FOLDER . "copy_" . $invoice_id . ".xlsx");
+                unlink(TMP_FOLDER . "copy_" . $invoice_id . ".pdf");
+            }
+        }
+    }
+
+    function get_ledger_data($value, $receiver_entity_id, $sender_entity_id, $sender_entity_type, $agent_id, $agent_type, $invoice_id, $courier_id) {
+
+            $ledger_data['receiver_entity_id'] = $receiver_entity_id;
+            $ledger_data['receiver_entity_type'] = _247AROUND_PARTNER_STRING;
+            $ledger_data['sender_entity_id'] = $sender_entity_id;
+            $ledger_data['sender_entity_type'] = $sender_entity_type;
+            $ledger_data['inventory_id'] = $value['inventory_id'];
+            $ledger_data['quantity'] = $value['qty'];
+            $ledger_data['agent_id'] = $agent_id;
+            $ledger_data['agent_type'] = $agent_type;
+            $ledger_data['booking_id'] = $value['booking_id'];
+            $ledger_data['is_defective'] = 1;
+            $ledger_data['invoice_id'] = $invoice_id;
+            $ledger_data['courier_id'] = $courier_id;
+
+            if(!empty($value['spare_id'])) {
+                $ledger_data['spare_id'] = $value['spare_id'];
+            }
+
+            return $ledger_data;
+    }
+    /**
+     * 
+     * @param Array $ch
+     * @param boolean $is_challan
+     * @return Array
+     */
+    function _get_recreate_challan_data($ch, $is_challan) {
+           
+            if (!empty($ch)) {
+                $from_gst_number = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $ch[0]['from_gst_number_id']));
+                $to_gst_number = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $ch[0]['to_gst_number_id']));
+
+                $entity_details = $this->partner_model->getpartner_details("primary_contact_email, company_name, address,,", array('partners.id' => $to_gst_number[0]['entity_id']));
+                $ch[0]['primary_contact_email'] = $entity_details[0]['primary_contact_email'];
+                $ch[0]['gst_number'] = $to_gst_number[0]['gst_number'];
+                $ch[0]['company_name'] = $entity_details[0]['company_name'];
+                $ch[0]['company_address'] = $to_gst_number[0]['address'];
+                $ch[0]['district'] = $to_gst_number[0]['city'];
+                $ch[0]['pincode'] = $to_gst_number[0]['pincode'];
+                $state = $this->invoices_model->get_state_code(array('state_code' => $to_gst_number[0]['state']))[0]['state'];
+                $ch[0]['state'] = $state;
+
+                if ($from_gst_number[0]['state'] == $to_gst_number[0]['state']) {
+                    $ch[0]['c_s_gst'] = true;
+                    $in_template = "247around_Challan_Intra_State.xlsx";
+                } else {
+                    $ch[0]['c_s_gst'] = FALSE;
+                    $in_template = "247around_Challan_Inter_State.xlsx";
+                }
+
+                $sd = $ed = $invoice_date = date('Y-m-d');
+                
+                if (empty($is_challan)) {
+                    $tmp_invoice = "ARD-" . $from_gst_number[0]['state'];
+                    $ch[0]['invoice_id'] = $invoice_id = $this->invoice_lib->create_invoice_id($tmp_invoice);
+                } else {
+                    $invoice_id = $ch[0]['invoice_id'];
+                }
+                
+                $response = $this->invoices_model->_set_partner_excel_invoice_data($ch, $sd, $ed, "Tax Invoice", $invoice_date);
+                $response['meta']['invoice_id'] = $invoice_id;
+                $dir = "invoices-excel";
+                if ($is_challan) {
+                    $response['meta']['invoice_template'] = $in_template;
+                    $response['meta']['invoice_type'] = "Delivery Challan";
+                    $response['meta']['meta_id'] = "Challan Number: " . $response['meta']['invoice_id'];
+                    $response['meta']['meta_date'] = "Date: " . $response['meta']['invoice_date'];
+                    $dir = 'vendor-partner-docs';
+                } else {
+                    $response['meta']['meta_id'] = "Invoice Number: " . $response['meta']['invoice_id'];
+                    $response['meta']['meta_date'] = "Date: " . $response['meta']['invoice_date'];
+                }
+                $response['booking'][0]['invoice_id'] = $response['meta']['invoice_id'];
+                $response['meta']['main_company_gst_number'] = $from_gst_number[0]['gst_number'];
+                $response['meta']['main_company_state'] = $this->invoices_model->get_state_code(array('state_code' => $from_gst_number[0]['state']))[0]['state'];
+                $response['meta']['main_company_state_code'] = $from_gst_number[0]['state'];
+                $response['meta']['main_company_address'] = $from_gst_number[0]['address'] . "," . $from_gst_number[0]['city'];
+
+                $response['meta']['main_company_pincode'] = $from_gst_number[0]['pincode'];
+                $response['meta']['main_company_seal'] = $from_gst_number[0]['state_stamp_picture'];
+                $response['meta']['sender_entity_type'] = $ch[0]['sender_entity_type'];
+                $response['meta']['sender_entity_id'] = $ch[0]['sender_entity_id'];
+                $response['meta']['receiver_entity_type'] = $ch[0]['receiver_entity_type'];
+                $response['meta']['receiver_entity_id'] = $ch[0]['receiver_entity_id'];
+                
+                if($ch[0]['receiver_entity_id'] == VIDEOCON_ID){
+                    $response['meta']['tcs_rate'] = TCS_TAX_RATE;
+                    $response['meta']['tcs_rate_text'] = "Add: TCS ".TCS_TAX_RATE." %";
+                    $response['meta']['tcs_amount'] =  sprintf("%.2f",($response['meta']['sub_total_amount'] * TCS_TAX_RATE)/100);
+                    $response['meta']['sub_total_amount'] =  $response['meta']['sub_total_amount'] + $response['meta']['tcs_amount'];
+                    $response['meta']['price_inword'] = convert_number_to_words(round($response['meta']['sub_total_amount'],0));
+                
+                }
+
+
+                $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
+                if ($status) {
+
+                    log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $response['meta']['invoice_id']);
+                    $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final",false, false, $dir);
+                    $response['meta']['main_pdf_file_name'] = $convert['main_pdf_file_name'];
+                    $response['meta']['copy_file'] = $convert['copy_file'];
+                    $template = "partner_inventory_invoice_annexure-v1.xlsx";
+                    $response['meta']['details_file'] = $response['meta']['invoice_id'] . "-detailed.xlsx";
+
+                    unset($response['meta']['main_company_logo_cell']);
+                    unset($response['meta']['main_company_seal_cell']);
+                    unset($response['meta']['main_company_sign_cell']);
+
+                    $anx = $this->inventory_model->get_annx_inventory_invoice_mapping("inventory_invoice_mapping.incoming_invoice_id, spare_parts_details.booking_id, "
+                            . "inventory_master_list.part_number, settle_qty as qty, inventory_invoice_mapping.rate",
+                            "inventory_invoice_mapping.outgoing_invoice_id ='" . $ch[0]['invoice_id'] . "' ");
+
+                    $this->invoice_lib->generate_invoice_excel($template, $response['meta'], $anx, TMP_FOLDER . $response['meta']['details_file']);
+                    $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], true, false, $dir);
+                }
+
+                $result = array('status' => true, 'data' => $response);
+            } else {
+                $result = array('status' => false, 'message' => 'Invoice already Generated. You cannot update');
+            }
+
+        return $result;
+    }
+
+    function upload_defective_parts_shipped_eway_file($file_details) {
+        log_message("info", __METHOD__);
+        $MB = 1048576;
+        //check if upload file is empty or not
+        if (!empty($file_details['eway_file']['name'])) {
+            //check upload file size. it should not be greater than 2mb in size
+            if ($file_details['eway_file']['size'] <= 5 * $MB) {
+                $allowed = array('pdf', 'jpg', 'png', 'jpeg', 'JPG', 'JPEG', 'PNG', 'PDF');
+                $ext = pathinfo($file_details['eway_file']['name'], PATHINFO_EXTENSION);
+                //check upload file type. it should be pdf.
+                if (in_array($ext, $allowed)) {
+                    $upload_file_name = str_replace(' ', '_', trim($file_details['eway_file']['name']));
+
+                    $file_name = 'defective_spare_eway_pic_by_wh_' . rand(10, 100) . '_' . $upload_file_name;
+                    //Upload files to AWS
+                    $directory_xls = "ewaybill/" . $file_name;
+                    $this->s3->putObjectFile($file_details['eway_file']['tmp_name'], BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
+
+                    $res['status'] = true;
+                    $res['message'] = $file_name;
+                } else {
+                    $res['status'] = false;
+                    $res['message'] = 'Uploaded file type not valid.';
+                }
+            } else {
+                $res['status'] = false;
+                $res['message'] = 'Uploaded file size can not be greater than 5 mb';
+            }
+        } else {
+            $res['status'] = false;
+            $res['message'] = 'Please Upload File';
+        }
+
+        return $res;
+    }
 
 }
