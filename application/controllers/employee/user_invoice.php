@@ -2107,6 +2107,17 @@ class User_invoice extends CI_Controller {
         $partner_id = $return_data['partner_id'];
         $to_gst_id = $return_data['to_gst_id'];
         $from_gst_id = $return_data['from_gst_id'];
+        if (!empty($this->session->userdata('warehouse_id'))) {
+
+            $warehouse_id = $this->session->userdata('warehouse_id');
+            $agent_id = $this->session->userdata('id');
+            $agent_type =_247AROUND_EMPLOYEE_STRING;
+        } else if (!empty($this->session->userdata('service_center_id'))) {
+            
+            $warehouse_id = $this->session->userdata('service_center_id');
+            $agent_id = $this->session->userdata("service_center_agent_id");
+            $agent_type = _247AROUND_SF_STRING;
+        }
 
         $postData = json_decode($return_data['inventory_data'], TRUE);
         $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData, $from_gst_id, $to_gst_id);
@@ -2173,7 +2184,30 @@ class User_invoice extends CI_Controller {
                 $p = $this->table->generate();
                 list($response, $output_file, $output_file_main) = $this->generate_new_return_inventory($invoices, "", $sd, $ed, $invoice_date, $key, $invoiceValue, $partner_id);
                 //print_r($response);
-                //$pdf_attachement = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_file_main;
+                $pdf_attachement = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_file_main;
+                $email_template = $this->booking_model->get_booking_email_template(MSL_SEND_BY_WH_TO_PARTNER);
+                $wh_incharge_id = $this->reusable_model->get_search_result_data("entity_role", "id", array("entity_type" => _247AROUND_PARTNER_STRING, 'role' => WAREHOUSE_INCHARCGE_CONSTANT), NULL, NULL, NULL, NULL, NULL, array());
+                if (!empty($wh_incharge_id)) {
+                    $wh_where = array('contact_person.role' => $wh_incharge_id[0]['id'],
+                        'contact_person.entity_id' => $partner_id,
+                        'contact_person.entity_type' => _247AROUND_PARTNER_STRING
+                    );
+
+                    $email_details = $this->inventory_model->get_warehouse_details('contact_person.official_email', $wh_where, FALSE, TRUE);
+
+                    if (!empty($email_details) && !empty($email_template)) {
+                        $vendor_details = $this->vendor_model->getVendorDetails('service_centres.name', array('service_centres.id' => $warehouse_id), 'name', array());
+                        $wh_name = $vendor_details[0]['name'];
+
+                        $to = $email_details[0]['official_email'];
+                        $cc = $email_template[3];
+                        $subject = vsprintf($email_template[4], array($wh_name, $entity_details[0]['public_name']));
+                        $message = vsprintf($email_template[0], array($wh_name, $p, ""));
+                        $bcc = $email_template[5];
+
+                        $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $message, $pdf_attachement, MSL_SEND_BY_WH_TO_PARTNER, TMP_FOLDER . $output_file);
+                    }
+                }
                 unlink(TMP_FOLDER . $output_file);
                 unlink(TMP_FOLDER . $output_file_main);
                 unlink(TMP_FOLDER . $response['meta']['invoice_id'] . ".xlsx");
@@ -2182,6 +2216,28 @@ class User_invoice extends CI_Controller {
                 
                 foreach ($invoiceValue['data'] as $value) {
                     $this->service_centers_model->update_spare_parts(array('id' => $value['spare_id']), array("reverse_purchase_invoice_id" => $response['meta']['invoice_id']));
+                    
+                    $ledger_data = array();
+
+                    $ledger_data['receiver_entity_id'] = $partner_id;
+                    $ledger_data['receiver_entity_type'] = _247AROUND_PARTNER_STRING;
+                    $ledger_data['sender_entity_id'] = $warehouse_id;
+                    $ledger_data['sender_entity_type'] = _247AROUND_SF_STRING;
+                    $ledger_data['inventory_id'] = $value['inventory_id'];
+                    $ledger_data['quantity'] = $value['qty'];
+                    $ledger_data['agent_id'] = $agent_id;
+                    $ledger_data['agent_type'] = $agent_type;
+                    $ledger_data['booking_id'] = '';
+                    $ledger_data['invoice_id'] =  $response['meta']['invoice_id'];
+                    $ledger_data['micro_invoice_id'] = NULL;
+                    $ledger_data['is_partner_ack'] = 3;
+                    $ledger_data['courier_id'] = NULL;
+                    $ledger_data['is_wh_micro'] = 0;
+                    $ledger_data['is_wh_ack'] = 0;
+                    $ledger_data['spare_id'] = $value['spare_id'];
+                    
+
+                    $this->inventory_model->insert_inventory_ledger($ledger_data);
                 }
             }
             
