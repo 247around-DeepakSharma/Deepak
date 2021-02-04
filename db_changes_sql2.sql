@@ -2846,3 +2846,8 @@ ALTER TABLE `gstin_detail` CHANGE `cancellation_date` `cancellation_date` DATETI
 ALTER TABLE `gstin_detail` CHANGE `lager_name` `legal_name` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'Legal Name of Business';
 ALTER TABLE `gstin_detail` CHANGE `company_name` `company_name` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'Trade Name returned by API';
 
+--Anuj 24 Jan - Commit '#CRMS-2120 Adding registration date, address, nature of business'
+ALTER TABLE `gstin_detail` ADD `registration_date` DATE NULL DEFAULT NULL COMMENT 'Effective Date of registration' AFTER `nature_of_business`;
+ALTER TABLE `gstin_detail` CHANGE `nature_of_business` `constitution_of_business` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'Constitution of Business';
+ALTER TABLE `gstin_detail` ADD `address_readable` VARCHAR(1024) NOT NULL COMMENT 'Address in readable format' AFTER `address`, ADD `nature_business` VARCHAR(1024) NOT NULL COMMENT 'Nature of Business Activities' AFTER `address_readable`;
+
