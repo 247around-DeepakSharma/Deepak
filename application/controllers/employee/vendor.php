@@ -1068,7 +1068,7 @@ class vendor extends CI_Controller {
 
         /*Only allow admin to activate or deactivte sf*/
         if ($vendor_list['active'] == 1) {
-             if ($this->session->userdata['user_group'] == _247AROUND_ADMIN || ($this->session->userdata['user_group'] == _247AROUND_ASM) || ($this->session->userdata['user_group'] == _247AROUND_RM)) {
+            if ($this->session->userdata('user_group') == _247AROUND_ADMIN || ($this->session->userdata('user_group') == _247AROUND_ASM) || ($this->session->userdata('user_group') == _247AROUND_RM)) {
                 $row[] = '<a id="edit" class="btn btn-small btn-danger" onclick="pendingBookings(' . $vendor_list["id"] . ',' . "'P'" . ',' . $vendor_list["is_micro_wh"] . ')" >Deactivate</a>';
             }
              else{
