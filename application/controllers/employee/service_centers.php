@@ -6945,6 +6945,7 @@ class Service_centers extends CI_Controller {
                                 $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                             }
                         }
+                        $data['quantity'] = $part_details['quantity'];
 
                        //$this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $sf_id, $part_details['requested_inventory_id'], -$data['quantity']);
                     } else if ($part_details['shippingStatus'] == -1) {
