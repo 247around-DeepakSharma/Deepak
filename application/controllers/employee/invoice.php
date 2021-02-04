@@ -4817,6 +4817,8 @@ exit();
         $data[0]['pincode'] = $vendor_details[0]['pincode'];
         $data[0]['state'] = $vendor_details[0]['state'];
         $data[0]['owner_phone_1'] = $vendor_details[0]['owner_phone_1'];
+        $data[0]['inventory_id'] = $invoice_details[0]['inventory_id'];
+        $data[0]['inventory_id'] = $invoice_details[0]['spare_id'];
        
         $data[0]['qty'] = $shipped_quantity;
         $data[0]['hsn_code'] = SPARE_HSN_CODE;
