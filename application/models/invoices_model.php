@@ -774,7 +774,7 @@ class invoices_model extends CI_Model {
                         . "spd.parts_requested_type as description, ".$led_bar_charges[0]['fixed_charges']." as partner_charge "
                         ."FROM spare_parts_details as spd inner join booking_details as bd "
                         ."on (bd.booking_id = spd.booking_id) left join bill_to_partner_opencell as btpo on(bd.id = btpo.booking_id) "
-                        ."WHERE spd.parts_requested_type = '".LED_BAR."' and spd.part_warranty_status = 1  and spd.status != 'Cancelled' "
+                        ."WHERE spd.parts_requested_type = '".LED_BAR."' and spd.part_warranty_status = 1 and spd.status != 'Cancelled' "
                         . "AND bd.current_status = '"._247AROUND_COMPLETED."' and spd.shipped_date is not null and bd.partner_id = '".$partner_id."' "
                         . "and bd.closed_date >= '".$from_date."' and bd.closed_date < '".$to_date."' and btpo.invoice_id is null Group by spd.booking_id ;";
                 $led_data = $this->db->query($spare_parts_select);
@@ -1126,7 +1126,7 @@ class invoices_model extends CI_Model {
                     . "spd.parts_requested_type as description, " . $open_cell_charges[0]['fixed_charges'] . " as partner_charge "
                     . "FROM spare_parts_details as spd inner join booking_details as bd "
                     . "on (bd.booking_id = spd.booking_id) left join bill_to_partner_opencell as btpo on(bd.id = btpo.booking_id) "
-                    . "WHERE spd.parts_requested_type = '" . OPEN_CELL_PART_TYPE . "' and spd.part_warranty_status = 1  and spd.status != 'Cancelled' "
+                    . "WHERE spd.parts_requested_type = '" . OPEN_CELL_PART_TYPE . "' and spd.part_warranty_status = 1 and spd.status != 'Cancelled' "
                     . "AND bd.current_status = '" . _247AROUND_COMPLETED . "' and spd.shipped_date is not null and bd.partner_id = '" . $partner_id . "' "
                     . "and bd.closed_date >= '" . $from_date . "' and bd.closed_date < '" . $to_date . "' and btpo.invoice_id is null Group by spd.booking_id ;";
             $query = $this->db->query($spare_parts_select);
