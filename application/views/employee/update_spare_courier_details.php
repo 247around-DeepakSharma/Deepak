@@ -3,20 +3,20 @@
         <h1 class="page-header">
             Update Courier Details
         </h1>
-        <?php if ($this->session->flashdata('failed')) { ?>
-            <div class="alert alert-danger alert-dismissible" role="alert">
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <strong><?php echo $this->session->flashdata('failed') ?></strong>
-            </div>
-        <?php } ?>
-        <?php if ($this->session->flashdata('success')) { ?>
+        <?php if ($this->session->userdata('failed')) { ?>
             <div class="alert alert-success alert-dismissible" role="alert">
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <strong><?php echo $this->session->flashdata('success') ?></strong>
+                <strong><?php echo $this->session->userdata('failed') ?></strong>
+            </div>
+        <?php } ?>
+        <?php if ($this->session->userdata('success')) { ?>
+            <div class="alert alert-success alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <strong><?php echo $this->session->userdata('success') ?></strong>
             </div>
         <?php } ?>
         <form name="myForm" class="form-horizontal" id ="spare_details_update_form" action="<?php echo base_url(); ?>employee/service_centers/process_update_spare_courier_details/<?php echo $data[0]['id']; ?>"  method="POST" enctype="multipart/form-data">
