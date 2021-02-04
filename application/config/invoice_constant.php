@@ -42,17 +42,17 @@ define("GST_STATUS_SUSPENDED", "Suspended");
 //Accounts/Business Email IDs
 //Common accounts email id to which all email copies are getting forwarded.
 //This email id is NOT monitored by anyone and is used only to keep all invoice copies.
-define('ACCOUNTANT_EMAILID',"billing@247around.com");
+define('ACCOUNTANT_EMAILID',"dharmeshl@247around.com");
 //Accounts Receivables email
-define('ACCOUNTS_AR_EMAIL_ID',"ar@247around.com");
+define('ACCOUNTS_AR_EMAIL_ID',"adityat@247around.com");
 //Accounts Payables email
-define('ACCOUNTS_AP_EMAIL_ID',"ap@247around.com");
+define('ACCOUNTS_AP_EMAIL_ID',"adityat@247around.com");
 //GST Tax email
-define('ACCOUNTS_TAX_EMAIL_ID',"tax@247around.com");
+define('ACCOUNTS_TAX_EMAIL_ID',"adityat@247around.com");
 //OOW/Accessories invoice emails
-define('OOW_ACCESSORIES_SALE_EMAIL_ID',"oow_sale@247around.com");
+define('OOW_ACCESSORIES_SALE_EMAIL_ID',"prateekc@247around.com");
 //Parter onboarding team email
-define('PARTNER_ONBOARDING_EMAIL_ID',"partneractionlog@247around.com");
+define('PARTNER_ONBOARDING_EMAIL_ID',"adityat@247around.com");
 
 //Default Municipal limit for Paytm
 define("DEFAULT_PAYTM_MUNICIPAL_LIMIT", 15);
@@ -168,5 +168,5 @@ define('BULK_DEBIT_NOTE_TAG', 'BULK_DEBIT_NOTE_TAG');
 //TCS Tax rate
 define('TCS_TAX_RATE', 0.075);
 //GST Numbers
-define('GST_NUMBERS_LIST', array("5" => '5%', "12" => '12%', "18" => '18%', "28" => '28%'));
+define('GST_NUMBERS_LIST', array("5" => '5', "12" => '12', "18" => '18', "28" => '28'));
 ?>

@@ -1540,7 +1540,7 @@ class Booking_model extends CI_Model {
         $this->db->select('distinct(service_center_booking_action.booking_id),booking_details.id as booking_primary_id,assigned_vendor_id, amount_due, count_reschedule, initial_booking_date, booking_details.is_upcountry,'
                 . 'users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.booking_timeslot, '
                 . 'service_center_booking_action.booking_date as reschedule_date_request,  service_center_booking_action.booking_timeslot as reschedule_timeslot_request, '
-                . 'service_centres.name as service_center_name, booking_details.quantity, service_center_booking_action.reschedule_reason,service_center_booking_action.reschedule_request_date,'
+                . 'service_centres.name as service_center_name, booking_details.quantity, service_center_booking_action.reschedule_reason,service_center_booking_action.reschedule_request_date,service_center_booking_action.internal_status, '
                 . 'booking_details.partner_id, booking_details.flat_upcountry');
         $this->db->from('service_center_booking_action');
         $this->db->join('booking_details','booking_details.booking_id = service_center_booking_action.booking_id');
@@ -2881,9 +2881,11 @@ class Booking_model extends CI_Model {
     // check for duplicate serial number bookings which are not cancelled 
     
     function get_data_for_duplicate_serial_number_check($serialNumber,$booking_id,$getDOI = false){
-        $strWhere = "";
+        $strWhere = " AND booking_unit_details.booking_status != '"._247AROUND_CANCELLED."' 
+                    AND (service_center_booking_action.current_status != '"._247AROUND_CANCELLED."' || service_center_booking_action.internal_status != '"._247AROUND_CANCELLED."') ";
+        
         if($getDOI){
-           $strWhere = " AND booking_details.request_type LIKE '%Installation%'"; 
+           $strWhere = " AND booking_details.request_type LIKE '%".FILTER_INSTALLATION."%' AND booking_details.current_status = '"._247AROUND_COMPLETED."' "; 
         }
         $sql = "SELECT 
                         *
@@ -2893,8 +2895,6 @@ class Booking_model extends CI_Model {
                         JOIN booking_details ON (booking_unit_details.booking_id = booking_details.booking_id)
                 WHERE
                         (booking_unit_details.serial_number = '".$serialNumber."' || service_center_booking_action.serial_number = '".$serialNumber."')
-                        AND booking_unit_details.booking_status != '"._247AROUND_CANCELLED."' 
-                        AND (service_center_booking_action.current_status != '"._247AROUND_CANCELLED."' || service_center_booking_action.internal_status != '"._247AROUND_CANCELLED."')
                         AND booking_unit_details.price_tags NOT IN ('Repeat Booking' , 'Presale Repair')
                         AND booking_unit_details.booking_id != '".$booking_id."'
                         $strWhere

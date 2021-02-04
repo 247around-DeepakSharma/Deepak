@@ -6423,18 +6423,7 @@ class Service_centers extends CI_Controller {
         $post = $this->get_post_view_data();
         log_message('info', __FUNCTION__ . " SF ID: " . $sf_id);
 
-        if (!empty($post['search_value'])) {
-
-            $where = array(
-                "spare_parts_details.defective_part_required" => 1,
-                "approved_defective_parts_by_admin" => 1,
-                "(spare_lost is null or spare_lost = 0)" => NULL,
-                "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
-                "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "','" . OK_PARTS_SHIPPED . "','" . DAMAGE_PARTS_SHIPPED . "')" => NULL,
-            );
-        } else {
-
-            $where = array(
+        $where = array(
                 "spare_parts_details.defective_part_required" => 1,
                 "approved_defective_parts_by_admin" => 1,
                 "(spare_lost is null or spare_lost = 0)" => NULL,
@@ -6442,9 +6431,7 @@ class Service_centers extends CI_Controller {
                 "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
                 "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "','" . OK_PARTS_SHIPPED . "','" . DAMAGE_PARTS_SHIPPED . "')" => NULL,
             );
-        }
-
-
+        
         $select = "defective_part_shipped,spare_parts_details.defective_part_rejected_by_partner, spare_parts_details.shipped_quantity,spare_parts_details.id, spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, spare_consumption_status.reason_text, "
                 . " spare_parts_details.booking_id, users.name as 'user_name', courier_name_by_sf, awb_by_sf,defective_part_shipped_date,"
                 . "remarks_defective_part_by_sf,booking_details.partner_id,service_centres.name as 'sf_name',service_centres.district as 'sf_city',s.part_number, spare_parts_details.defactive_part_received_date_by_courier_api, spare_parts_details.defective_part_rejected_by_wh, spare_parts_details.status";
@@ -7520,7 +7507,7 @@ class Service_centers extends CI_Controller {
             //DEFECTIVE/OK_PARTS_REJECTED_BY_WAREHOUSE
             $this->insert_details_in_state_change($booking_id, $rejection_reason, $post_data['remarks'], $actor, $next_action, "", $spare_id);
             
-            echo 'Defective Parts Rejected To SF';
+            echo 'Part Rejected By Warehouse';
             exit;
 //            $userSession = array('success' => 'Defective Parts Rejected To SF');
 //            $this->session->set_userdata($userSession);
@@ -8822,7 +8809,6 @@ class Service_centers extends CI_Controller {
                 $part_shipped_date = date_diff(date_create(date('Y-m-d')), date_create($data[0]['shipped_date']));
                 $part_shipped_days = (int) $part_shipped_date->format("%a");
 
-
                 /**
                  * check shippment date in courier_company_invoice_details.
                  */
@@ -8884,9 +8870,8 @@ class Service_centers extends CI_Controller {
                 if(!empty($courier_boxes_weight_details)) {
                     $courier_shipped_date = date_diff(date_create(date('Y-m-d')), date_create($courier_boxes_weight_details[0]['shippment_date']));
                     $courier_shipped_days = (int) $courier_shipped_date->format("%a");
-
                 }                
-
+                
                 if($part_shipped_days <= UPDATE_AWB_NUMBER_DAYS && $courier_shipped_days <= UPDATE_AWB_NUMBER_DAYS) {
                     $data[0]['partcount'] = count($data);
                     if (!empty($courier_boxes_weight_details)) {
@@ -8940,7 +8925,6 @@ class Service_centers extends CI_Controller {
                     $courier_shipped_date = date_diff(date_create(date('Y-m-d')), date_create($courier_boxes_weight_details[0]['shippment_date']));
                     $courier_shipped_days = (int) $courier_shipped_date->format("%a");
                 }                
-
                 
                 if($defective_part_shipped_days <= UPDATE_AWB_NUMBER_DAYS && $courier_shipped_days <= UPDATE_AWB_NUMBER_DAYS) {
                     $data[0]['partcount'] = count($data);
@@ -10035,7 +10019,7 @@ class Service_centers extends CI_Controller {
         $where = array (
             "status NOT IN ('" . _247AROUND_CANCELLED . "')  " => NULL,
             "spare_parts_details.parts_shipped is not null and spare_parts_details.shipped_date is not null" => NULL,
-            "spare_parts_details.defective_part_shipped is null and spare_parts_details.defective_part_shipped_date is null" => NULL,
+            "((spare_parts_details.defective_part_shipped is null and spare_parts_details.defective_part_shipped_date is null) or spare_parts_details.status in('".DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE."','".OK_PARTS_REJECTED_BY_WAREHOUSE."'))" => NULL,
             "spare_parts_details.service_center_id" => $service_center_id
         );
 
@@ -10069,7 +10053,6 @@ class Service_centers extends CI_Controller {
      * @author Ankit Rajvanshi
      */
     function change_consumption_by_sf() {
-        
         $post_data = $this->input->post();
         $data['spare_id'] = $post_data['spare_id'];
         
@@ -10081,7 +10064,7 @@ class Service_centers extends CI_Controller {
             $data['spare_consumption_status'][$post_data['spare_id']] = $post_data['spare_consumption_status'][$post_data['spare_id']];
             $data['consumption_remarks'][$post_data['spare_id']] = $post_data['change_consumption_remarks'];
             $this->miscelleneous->update_spare_consumption_status($data, $booking_id);
-            
+
             return true;
         }
         

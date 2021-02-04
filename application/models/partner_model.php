@@ -452,8 +452,8 @@ function get_data_for_partner_callback($booking_id) {
              $subQueryArray['Ageing']  = '(CASE WHEN booking_details.service_center_closed_date IS NULL THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,"%Y-%m-%d")) ELSE "" END) as Ageing';
         }
         
-        if(!empty($partner_id)) {
-            $where .= " AND ( booking_details.partner_id = $partner_id  OR booking_details.origin_partner_id = '$partner_id' )"; 
+        if(!empty($partner_id) && (strtolower($partner_id) != 'all')) {
+            $where .= " AND ( booking_details.partner_id = '$partner_id'  OR booking_details.origin_partner_id = '$partner_id' )"; 
          }
         
         $subQueryString = implode(",", array_values($subQueryArray));
@@ -950,7 +950,16 @@ function get_data_for_partner_callback($booking_id) {
                     . "booking_details.amount_due,booking_details.state, booking_details.service_center_closed_date, booking_details.closed_date, booking_details.request_type, booking_details.current_status, booking_details.partner_current_status, booking_details.partner_internal_status,"
                 . " service_centres.name as vendor_name, service_centres.address, service_centres.district as sf_city,service_centres.state as sf_state, service_centres.gst_no, "
                 . " service_centres.pincode, service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file, service_centres.primary_contact_phone_1,"
-                . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request, sc.name as warehouse_name,(CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Yes' ELSE 'NO' END) as nrn_status, spare_consumption_status.is_consumed,booking_details.request_type";
+                . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request, sc.name as warehouse_name,(CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Yes' ELSE 'NO' END) as nrn_status, spare_consumption_status.is_consumed,booking_details.request_type,"
+                . "spare_parts_details.awb_by_wh as 'AWB Number Warehouse Dispatch Defective To Partner',"
+                . "spare_parts_details.courier_name_by_wh as 'Warehouse Dispatch Defective To Partner Courier Name',"
+                . "spare_parts_details.wh_challan_number as 'Warehouse Dispatch Defective To Partner Challan Number',"
+                . "spare_parts_details.wh_to_partner_defective_shipped_date as 'Warehouse Dispatch Defective Shipped Date To Partner',"
+                . "dealer_details.dealer_name,"
+                . "spare_parts_details.reverse_purchase_invoice_id," 
+                . "vendor_partner_invoices.invoice_date,"
+                . "concat('`',spare_parts_details.serial_number) as serial_number,"   
+                . "booking_details.booking_primary_contact_no" ;
             if($end){
                 $limit = "LIMIT $start, $end";
             }
@@ -978,6 +987,8 @@ function get_data_for_partner_callback($booking_id) {
                     . ' LEFT JOIN inventory_stocks ON spare_parts_details.requested_inventory_id = inventory_stocks.inventory_id'
                     . ' LEFT JOIN services ON booking_details.service_id=services.id '
                     . ' LEFT JOIN spare_consumption_status ON spare_parts_details.consumed_part_status_id = spare_consumption_status.id '
+                    . ' LEFT JOIN dealer_details ON booking_details.dealer_id=dealer_details.dealer_id'
+                    . ' LEFT JOIN  vendor_partner_invoices ON  vendor_partner_invoices.invoice_id = spare_parts_details.reverse_purchase_invoice_id ' 
                     . " WHERE $where $group_by "
                     . " ORDER BY spare_parts_details.purchase_invoice_id DESC,spare_parts_details.create_date $limit";
         }else{
@@ -993,6 +1004,8 @@ function get_data_for_partner_callback($booking_id) {
                 . ' LEFT JOIN inventory_master_list as shipped_inventory on shipped_inventory.inventory_id = spare_parts_details.shipped_inventory_id '
                 . ' LEFT JOIN services ON booking_details.service_id=services.id '
                 . ' LEFT JOIN spare_consumption_status ON spare_parts_details.consumed_part_status_id = spare_consumption_status.id '
+                . ' LEFT JOIN dealer_details ON booking_details.dealer_id=dealer_details.dealer_id'
+                . ' LEFT JOIN  vendor_partner_invoices ON  vendor_partner_invoices.invoice_id = spare_parts_details.reverse_purchase_invoice_id ' 
                 . "  WHERE users.user_id = booking_details.user_id "
                 . " AND ".$where . $group_by."  ORDER BY status = '". DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE."', spare_parts_details.create_date ASC $limit";
             }
@@ -1008,6 +1021,8 @@ function get_data_for_partner_callback($booking_id) {
                     . ' LEFT JOIN inventory_master_list as shipped_inventory on shipped_inventory.inventory_id = spare_parts_details.shipped_inventory_id '
                     . ' LEFT JOIN services ON booking_details.service_id=services.id '
                     . ' LEFT JOIN spare_consumption_status ON spare_parts_details.consumed_part_status_id = spare_consumption_status.id '
+                    . ' LEFT JOIN dealer_details ON booking_details.dealer_id=dealer_details.dealer_id'
+                    . ' LEFT JOIN  vendor_partner_invoices ON  vendor_partner_invoices.invoice_id = spare_parts_details.reverse_purchase_invoice_id '    
                     . " WHERE booking_details.booking_id = spare_parts_details.booking_id"
                     . " AND users.user_id = booking_details.user_id AND service_centres.id = spare_parts_details.service_center_id "
                     . " AND ".$where . $orderBy.", spare_parts_details.create_date ASC $limit";

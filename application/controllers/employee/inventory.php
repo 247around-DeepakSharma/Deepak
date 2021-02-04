@@ -4111,13 +4111,21 @@ class Inventory extends CI_Controller {
                 $current_spare = $this->service_centers_model->get_spare_parts_booking(array('spare_parts_details.id' => $this->input->post('id')), "spare_parts_details.awb_by_partner");
                 $other_fields_to_update = array();
                 if(!empty($allSpares) && !empty($current_spare)){
-                    $other_fields_to_update['shipped_date'] = $allSpares[0]['shipped_date'];
+                    //$other_fields_to_update['shipped_date'] = $allSpares[0]['shipped_date'];
                     $other_fields_to_update['courier_pic_by_partner'] = $allSpares[0]['courier_pic_by_partner'];
                     $other_fields_to_update['courier_name_by_partner'] = $allSpares[0]['courier_name_by_partner'];
                     $current_spare_awb = $current_spare[0]['awb_by_partner'];
                     if($allSpares[0]['awb_by_partner']!=$current_spare_awb){
                         $this->service_centers_model->update_spare_parts(array('id' => $id), $other_fields_to_update);
                     }
+                }
+                $agent_id = $this->session->userdata('id');
+                $agent_name = $this->session->userdata('employee_id');
+                $entity_id = _247AROUND;
+                $track_entity_type = _247AROUND_EMPLOYEE_STRING;
+                if (!empty($current_spare[0]['awb_by_partner']) && !empty($this->input->post('data')) && $current_spare[0]['awb_by_partner'] != $this->input->post('data')) {
+                    $tracking_details = array('spare_id' => $id, 'action' => "AWB number changed from " . $current_spare[0]['awb_by_partner'] . " to " . $this->input->post('data'), 'remarks' => 'Partner AWB changed.', 'agent_id' => $agent_id, 'entity_id' => $entity_id, 'entity_type' => $track_entity_type);
+                    $this->service_centers_model->insert_spare_tracking_details($tracking_details); // Insert into spare part tracking History
                 }
             }
             if($column!='shipped_date'){
@@ -11119,7 +11127,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
         $row[] = '<span id="type_' . $hsncode_list->id . '">' . $hsncode_list->hsn_code . '</span>';
         $row[] = '<span id="part_name_' . $hsncode_list->id . '" style="word-break: break-all;">' . $hsncode_list->gst_rate . '%</span>';
         $row[] = '<span id="part_number_' . $hsncode_list->id . '" style="word-break: break-all;">' . $hsncode_list->create_date . '</span>';
-        $row[] = '<a class="btn btn-info" href="'.base_url() . 'employee/invoice/get_add_new_hsn_code/' . $hsncode_list->id.'" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i></a>';
+        $row[] = '<a class="btn btn-info" href="'.base_url() . 'employee/invoice/get_add_new_hsn_code/' . $hsncode_list->id.'"><i class="fa fa-edit" aria-hidden="true"></i></a>';
         if($hsncode_list->status == 1){
         $row[] = '<button type="button" class="btn btn-default" style="background-color: #d9534f; border-color: #fff; width: 90px; color: #fff;" id="' . $hsncode_list->id.'" onclick="process_to_manage_status(this.id)">Deactivate</button>';
         }else{

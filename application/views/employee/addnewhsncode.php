@@ -38,8 +38,14 @@
         <?php }  ?>
         <span id="add_details_status" style="margin-left: 550px; font-size: 15px;font-weight: bold;"></span>
         <div class="panel panel-info" style="margin-top:20px;">            
-            <div class="panel-heading">
-                <h4>HSN Code Details</h4>
+            <div class="panel-heading" style="height: auto; overflow: hidden;">
+                
+                <h4 class="col-md-6">HSN Code Details</h4>
+                <?php if(!empty($action_flag)){ ?>
+                <div style="float: right;"> 
+                    <a class="btn btn-primary btn-lg" href="<?php echo base_url() ?>employee/invoice/get_add_new_hsn_code" target="_blank">Add HSN Code</a>
+                </div>
+                <?php } ?>
             </div>
                 <div class="panel-body">   
                     <div class="row"> 
@@ -337,5 +343,26 @@
             });
         });
     };
+    
+    $("#edit_hsn_code").on('blur',function(){
+        var hsnTextVal = $("#edit_hsn_code").val();
+        var service_id = $("#edit_service_id").val();
+        if(hsnTextVal != '' && service_id !=''){
+        $.ajax({
+                url: '<?php echo base_url() ?>employee/invoice/check_hsncode_service_id_exist_system',
+                type: 'post',
+                dataType: 'json',
+                data: {service_id : service_id, hsn_code:hsnTextVal},
+                processData:true,
+                success: function (data) {
+                    if(data['status']=='success'){
+                        $("#edit_hsn_code").val('');
+                      alert('HSN code already exist in our system.');
+                      return false;
+                    }
+                }
+        });
+        }
+    });
     
 </script>
