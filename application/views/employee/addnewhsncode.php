@@ -358,6 +358,7 @@
                     if(data['status']=='success'){
                         $("#edit_hsn_code").val('');
                       alert('HSN code already exist in our system.');
+                      return false;
                     }
                 }
         });
