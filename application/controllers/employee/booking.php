@@ -1255,7 +1255,7 @@ class Booking extends CI_Controller {
         log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
         $getbooking = $this->booking_model->getbooking_history($booking_id);
 
-        if ($getbooking) {
+        if (!empty($getbooking[0]['booking_id'])) {
              $spare_shipped_flag = FALSE;
                if (isset($getbooking['spare_parts'])) {
 
@@ -2781,7 +2781,7 @@ class Booking extends CI_Controller {
             foreach ($spare as $sp) {
                 //Update Spare parts details table
 
-                if ($sp['status'] == SPARE_PARTS_REQUESTED && !empty($sp['requested_inventory_id']) && $sp['entity'] == _247AROUND_SF_STRING) {
+                if ($sp['status'] == SPARE_PARTS_REQUESTED && !empty($sp['requested_inventory_id']) && !empty($sp['entity']) && ($sp['entity'] == _247AROUND_SF_STRING)) {
                     $this->inventory_model->update_pending_inventory_stock_request($sp['entity_type'], $sp['partner_id'], $sp['requested_inventory_id'], -1);
                     if (!$sp['spare_lost']) {
                         $this->service_centers_model->update_spare_parts(array('id' => $sp['id']), array('old_status' => $sp['status'], 'status' => _247AROUND_CANCELLED));

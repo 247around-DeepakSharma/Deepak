@@ -1679,8 +1679,14 @@ class Do_background_upload_excel extends CI_Controller {
     private function read_upload_file_header($file) {
 
         try {
-            $objReader = PHPExcel_IOFactory::createReader($file['file_ext']);
-            $objPHPExcel = $objReader->load($file['file_tmp_name']);
+            if(!empty($file['file_ext']) && !empty($file['file_tmp_name'])){
+                $objReader = PHPExcel_IOFactory::createReader($file['file_ext']);
+                $objPHPExcel = $objReader->load($file['file_tmp_name']);
+            }
+            else
+            {
+                 die('Error loading file, Empty File Uploaded');
+            }
         } catch (Exception $e) {
             die('Error loading file "' . pathinfo($file['file_tmp_name'], PATHINFO_BASENAME) . '": ' . $e->getMessage());
         }
