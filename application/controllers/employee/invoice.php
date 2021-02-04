@@ -132,13 +132,25 @@ class Invoice extends CI_Controller {
         }
         
         if($msl_invoice == 1){
-            //add condition in query to select MSL invoices
+            //add condition in query to select MSL invoices ONLY
             $where["sub_category like '%MSL%'"] = null;
         }else{
             //add condition in query to exclude MSL invoices
             $where["sub_category not like '%MSL%'"] = null;
         }
         
+        //by default, do not show fnf security invoices
+        $fnf_invoice = 0;
+        //check if user has checked checkbox to include FNF invoices as well
+        if (!empty($this->input->post('fnf_invoice'))) {
+            if ($this->input->post('fnf_invoice') == 1) {
+                $fnf_invoice = 1;
+            }
+        }
+        if ($fnf_invoice == 0) {
+            //add condition in query to hide FNF invoices by default
+            $where["sub_category not in ('".FNF."','".SECURITY."')"] = null;
+        }
         if($invoice_period === 'all'){
             $where['vendor_partner'] = $this->input->post('source');
             $where['vendor_partner_id'] = $this->input->post('vendor_partner_id');
@@ -189,7 +201,8 @@ class Invoice extends CI_Controller {
 
 
         $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($where, false);
-        $invoice['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice($data['vendor_partner'],array('id' => $data['vendor_partner_id']))[0];
+        $invoice['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice($data['vendor_partner'], 
+                array('id' => $data['vendor_partner_id']))[0];
             
         //TODO: Fix the reversed names here & everywhere else as well
         $data2['partner_vendor'] = $this->input->post('source');
@@ -229,8 +242,7 @@ class Invoice extends CI_Controller {
                 $email_template_name = "resend_dn_cn_invoice";
                 $subject = vsprintf($email_template[4], array($data[0]['sub_category']));
                 $message = vsprintf($email_template[0], array($data[0]['sub_category'], $data[0]['total_amount_collected'], $data[0]['reference_invoice_id']));
-            }
-            else{
+            } else {
                 $email_template = $this->booking_model->get_booking_email_template("resend_invoice"); 
                 $email_template_name = "resend_invoice";
                 $subject = vsprintf($email_template[4], array(date("d-M-Y", strtotime($start_date)), date("d-M-Y", strtotime($end_date))));
@@ -803,11 +815,12 @@ class Invoice extends CI_Controller {
             $email_from = $email_template[2];
 
             $to = $invoice_email_to;
-            $cc = $invoice_email_cc.", " .ACCOUNTANT_EMAILID;
+            $cc = $invoice_email_cc;
+            $bcc= $email_template[5];
             $this->upload_invoice_to_S3($meta['invoice_id']);
             $pdf_attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' . $output_pdf_file_name;
 
-            $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement_url,PARTNER_INVOICE_DETAILED_EMAIL_TAG);
+            $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement_url,PARTNER_INVOICE_DETAILED_EMAIL_TAG, $bcc);
 
             foreach ($data as $value1) {
 
@@ -1313,11 +1326,12 @@ class Invoice extends CI_Controller {
         return true;
     }
     
-    function send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement,$invoiceTag, $multipleResponse = array()) {
+    function send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement,$invoiceTag, $multipleResponse = array(), $bcc = "") {
         $this->email->clear(TRUE);
         $this->email->from($email_from, '247around Team');
         $this->email->to($to);
         $this->email->cc($cc);
+        $this->email->bcc($bcc);
         
         if(!empty($multipleResponse)){
             foreach ($multipleResponse as $value) {
@@ -4570,12 +4584,16 @@ exit();
                 $shipped_quantity = (!is_null($sp_data[0]->shipped_quantity) ? $sp_data[0]->shipped_quantity : 1);
                 $data[0]['taxable_value'] = sprintf("%.2f", ($amount - $tax_charge));
                 $data[0]['product_or_services'] = "Product";
-                if (!empty($vendor_details[0]['gst_no'])) {
+
+                if (!empty($vendor_details[0]['gst_no']) 
+                    && !empty($vendor_details[0]['gst_status']) 
+                    && !($vendor_details[0]['gst_status'] == _247AROUND_CANCELLED || $vendor_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
+                    
                     $data[0]['gst_number'] = $vendor_details[0]['gst_no'];
                 } else {
                     $data[0]['gst_number'] = 1;
                 }
-
+                
                 $data[0]['company_name'] = $vendor_details[0]['company_name'];
                 $data[0]['company_address'] = $vendor_details[0]['company_address'];
                 $data[0]['district'] = $vendor_details[0]['district'];
@@ -4770,6 +4788,8 @@ exit();
         $data[0]['pincode'] = $vendor_details[0]['pincode'];
         $data[0]['state'] = $vendor_details[0]['state'];
         $data[0]['owner_phone_1'] = $vendor_details[0]['owner_phone_1'];
+        $data[0]['inventory_id'] = $invoice_details[0]['inventory_id'];
+        $data[0]['inventory_id'] = $invoice_details[0]['spare_id'];
        
         $data[0]['qty'] = $shipped_quantity;
         $data[0]['hsn_code'] = SPARE_HSN_CODE;

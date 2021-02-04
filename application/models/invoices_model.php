@@ -108,6 +108,9 @@ class invoices_model extends CI_Model {
         $this->db->where($data);
         $this->db->order_by('invoice_date', "desc");
         $query = $this->db->get('vendor_partner_invoices');
+        
+        //log_message('info', __METHOD__ . "\n" . $this->db->last_query());
+        
         $return_data = $query->result_array();
         
         if($join && !empty($return_data)){
@@ -654,8 +657,8 @@ class invoices_model extends CI_Model {
      * @return Array
      */
     function get_invoices_details($where, $select = "*", $group_by = false) {
-
         $this->db->select($select, false);
+        
         if(!empty($where)){
             $this->db->where($where);
         }
@@ -663,7 +666,11 @@ class invoices_model extends CI_Model {
         if($group_by){
             $this->db->group_by($group_by);
         }
+        
         $query = $this->db->get("vendor_partner_invoices");
+        
+        //log_message("info", __METHOD__ . $this->db->last_query());
+        
         if ($query->num_rows > 0) {
             return $query->result_array();
         } else {
@@ -1405,6 +1412,10 @@ class invoices_model extends CI_Model {
                 
                 if(isset($value['from_gst_number_id'])){
                     $result[$key]['from_gst_number_id'] = $value['from_gst_number_id'];
+                }
+                
+                if(isset($value['spare_id'])){
+                    $result[$key]['spare_id'] = $value['spare_id'];
                 }
             }
             $meta['parts_count'] = $parts_count;
@@ -3751,7 +3762,7 @@ class invoices_model extends CI_Model {
      * @date : 28-02-2020
      */
     function insert_open_cell_data($data){
-        $this->db->insert_ignore_duplicate_batch('bill_to_partner_opencell', $data);
+        $this->db->insert('bill_to_partner_opencell', $data);
     }
     
     
@@ -3940,15 +3951,6 @@ class invoices_model extends CI_Model {
     }
     
     /**
-     *  @desc : This function is used to save challan data
-     *  @param : Array $challan_details
-     *  @author Ankit Bhatt
-     *  @date : 28-04-2020
-     */
-    function insert_challan_breakup($challan_details){
-        return $this->db->insert_batch("challan_item_details", $challan_details);
-    }
-    /**
      * @Desc: This function is to get out of warranty revenue report model
      * @params: none
      * @return: array
@@ -4059,4 +4061,21 @@ class invoices_model extends CI_Model {
         return $query1->result_array();
     }
     
+    function get_challan_deatils($select, $where){
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get('challan_details');
+        return $query->result_array();
+    }
+    
+    function insert_challan_details($data){
+        $this->db->insert('challan_details', $data);
+        return $this->db->insert_id();
+    }
+    
+    function insert_challan_breakup($challan_details){
+        //return $this->db->insert_batch("challan_items_details", $challan_details);
+        $this->db->insert('challan_items_details', $challan_details);
+        return $this->db->insert_id();
+    }
 }

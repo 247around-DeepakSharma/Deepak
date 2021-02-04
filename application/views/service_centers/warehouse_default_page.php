@@ -50,6 +50,12 @@
                             </li>
                             <li role="presentation">
                                 <a href="#tabs-5" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_center/send_to_partner_list">
+                                    Generate Challan Send To Partner (Invoice)
+                                </a>
+                            </li>
+                            
+                            <li role="presentation">
+                                <a href="#tabs-13" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>employee/spare_parts/get_msl_defective_challan">
                                     Send To Partner On Invoice
                                 </a>
                             </li>
@@ -89,6 +95,7 @@
                             <div class="tab-pane" id="tabs-10"></div>
                             <div class="tab-pane" id="tabs-11"></div>
                             <div class="tab-pane" id="tabs-12"></div>
+                            <div class="tab-pane" id="tabs-13"></div>
                             <div class="tab-pane active" id="tabs-6">
                                 <div class="right_col" role="main">
                                     <div class="row">
@@ -260,13 +267,13 @@
                             <div class="col-md-6">
                                 <select class=" form-control" name ="escalation_reason_id" id="escalation_reason_id">
                                     <option selected="" disabled="">----------- Select Reason ------------</option>
-                                    //<?php
+                                    <?php
 //                                    foreach ($escalation_reason as $reason) {
 //                                        ?>
-                                        //<option value = "//<?php //echo $reason['id'] ?>">
-                                        //<?php //echo $reason['escalation_reason']; ?>
-                                        //</option>
-                                //<?php //} ?>
+<!--                                        <option value = "//<?php //echo $reason['id'] ?>">-->
+                                        <?php //echo $reason['escalation_reason']; ?>
+<!--                                        </option>-->
+                                <?php //} ?>
                                 </select>
                                 <?php echo form_error('escalation_reason_id'); ?>
                             </div>
@@ -394,7 +401,7 @@
             url: url,
             data: {is_ajax:true},
             success: function (data) {
-                $(tab).html(data);                
+                $(tab).html(data);  
                 if(tab === '#tabs-2'){
                     //Adding Validation   
                     $("#selectall_address").change(function(){
