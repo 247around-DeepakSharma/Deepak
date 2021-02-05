@@ -7878,7 +7878,8 @@ function get_bom_list_by_inventory_id($inventory_id) {
                 . "if(spare_parts_details.partner_courier_invoice_id is null,'',spare_parts_details.partner_courier_invoice_id) as 'Partner Courier Invoice', "
                 . "if(spare_parts_details.vendor_courier_invoice_id is null,'',spare_parts_details.vendor_courier_invoice_id) as 'SF Courier Invoice', "
                 . "if(spare_parts_details.partner_warehouse_packaging_invoice_id is null,'',spare_parts_details.partner_warehouse_packaging_invoice_id) as 'Partner Warehouse Packaging Courier Invoice', (CASE WHEN spare_parts_details.spare_lost = 1 THEN 'Yes' ELSE 'NO' END) AS 'Spare Lost', spare_parts_details.quantity as 'Requested Spare Quantity', spare_parts_details.shipped_quantity as 'Shipped Spare Quantity',dealer_details.dealer_name as 'Dealer Name',"
-                . "(CASE WHEN courier_company_invoice_details.is_rto = 1 THEN 'Yes' ELSE 'No' END) as 'RTO'";
+                . "(CASE WHEN courier_company_invoice_details.is_rto = 1 THEN 'Yes' ELSE 'No' END) as 'RTO',"
+                . "CASE WHEN booking_details.part_brought_at=1 THEN 'Customer Location'  WHEN booking_details.part_brought_at=2 THEN 'Service Center location' ELSE '' END AS 'Part brought at'";
         //$where = array("spare_parts_details.status NOT IN('" . SPARE_PARTS_REQUESTED . "')" => NULL);
         $where = array();
         $group_by = "spare_parts_details.id";
