@@ -113,7 +113,7 @@
                                 <label class="control-label col-md-3 col-sm-3 col-xs-12 allownumericwithdecimal" for="gst_number">GST Number <span class="required">*</span>
                                 </label>
                                 <div class="col-md-6 col-sm-6 col-xs-12">
-                                    <input type="text" id="gst_number" step=".02" required="required" class="form-control col-md-7 col-xs-12" name="gst_number" placeholder="Enter GST Number">
+                                    <input type="text" id="gst_number" required="required" class="form-control col-md-7 col-xs-12" name="gst_number" placeholder="Enter GST Number">
                                     <span class="text-danger"><?php echo form_error('gst_number'); ?></span>
                                 </div>
                             </div>
@@ -126,7 +126,7 @@
                             </div>
                             
                             <div class="form-group" id="contactDiv">
-                                <label class="control-label col-md-3 col-sm-3 col-xs-12 allownumericwithdecimal" for="gst_number">Contact No   <span class="required">*</span>
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12 allownumericwithdecimal" for="mobile_no">Contact No   <span class="required">*</span>
                                 </label> 
                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                     <input type="text" class="form-control" id="mobile_no" name="mobile_no" value="" autocomplete="off" onpaste="return false;" onkeypress="return isNumber(event)" placeholder="Enter Contact No without palcing 0 or +91 " maxlength="10" required>
@@ -134,7 +134,7 @@
                             </div>
                             
                             <div class="form-group" id="EmailDiv">
-                                <label class="control-label col-md-3 col-sm-3 col-xs-12 " for="gst_number">Email Id   <span class="required">*</span>
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12 " for="email_id">Email Id   <span class="required">*</span>
                                 </label> 
                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                     <input type="email" class="form-control" id="email_id" name="email_id" value=""  placeholder="Enter Email Id" required>
@@ -142,7 +142,7 @@
                             </div>
                             
                             <div class="form-group" id="AddressDiv">
-                                <label class="control-label col-md-3 col-sm-3 col-xs-12 " for="gst_number">Address   <span class="required">*</span>
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12 " for="address">Address   <span class="required">*</span>
                                 </label> 
                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                     <textarea type="text" class="form-control" id="address" name="address" value="" placeholder="Enter address" required rows="6" cols="6"></textarea>
@@ -167,96 +167,103 @@
 </div>
 <script>
 
-   $(document).ready(function(){
+    $(document).ready(function(){
+        
+        $("#submitform").click(function(){            
+            // Address Validation
+            var address = $.trim($("#address").val());
+            if(address == ""){
+                alert("Please fill Address Details");
+                return false;
+            }
+            
+            // Email Validation
+            var email = document.getElementById('email_id');
+            var filter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+            if ((email.value == "") || (!filter.test(email.value))) {
+                alert('Please provide a valid email address');
+                return false;
+            }
+            
+            // Phone Number Validation
+            var phone = $('#mobile_no').val(),
+            phoneRegex = /[0-9]+$/;
+            if((phone.length != 10) || (!phoneRegex.test(phone)))
+            {
+                 alert('Please enter a valid phone number.');
+                 return false;
+            }
+            
+            // GST Validation
+            var gst = $('#gst_number').val(),
+            gstRegex = /^\d{2}[A-Z]{5}\d{4}[A-Z]{1}[A-Z\d]{1}[Z]{1}[A-Z\d]{1}$/;
+            if((gst == "") || (!gstRegex.test(gst)))
+            {
+                 alert('Please enter a valid GSTIN');
+                 return false;
+            }                    
+        });
 
-    //get_partner_list_warehouse();
-    get_partners();
-    $("#partnersdiv").addClass('show');
-    $("#statediv").addClass('show');
-    $("#warehousepartner").addClass('hide');
-    $("#states").select2();
+        //get_partner_list_warehouse();
+        get_partners();
+        $("#partnersdiv").addClass('show');
+        $("#statediv").addClass('show');
+        $("#warehousepartner").addClass('hide');
+        $("#states").select2();
 
-
-//    $(".radiobutton").click(function(){
-//
-//        if($(this).is(":checked")){
-//            var val = $(this).val();
-//            if(val=='partner'){
-//                $("#partnersdiv").removeClass('hide');
-//                $("#statediv").removeClass('hide');
-//                $("#warehousepartner").addClass('hide');
-//            }else{
-//                $("#partnersdiv").addClass('hide');
-//                $("#statediv").addClass('hide');
-//                $("#warehousepartner").removeClass('hide');
-//            }
-//        }else{
-//            if(val=='partner'){
-//                $("#partnersdiv").addClass('hide');
-//                $("#statediv").addClass('hide');
-//                $("#warehousepartner").removeClass('hide');
-//            }else{
-//                $("#warehousepartner").removeClass('hide');
-//                $("#statediv").addClass('hide');
-//                $("#partnersdiv").addClass('hide');
-//            }
-//        }
-//
-//    });
-
-        $("#booking_pincode_for_gst").keyup(function(event) {
-       
+        $("#booking_pincode_for_gst").keyup(function(event) {       
             check_pincode();
             get_city_based_on_pincode();
             get_state_based_on_pincode();
         });
-        
-        function check_pincode(){
-        var pincode = $("#booking_pincode_for_gst").val();
-        if(pincode.length === 6){
-            
-            $.ajax({
-                type: 'POST',
-                beforeSend: function(){
-                    $('#submitform').attr('disabled', true); 
-                },
-                url: '<?php echo base_url(); ?>employee/vendor/check_pincode_exist_in_india_pincode/'+ pincode,          
-                success: function (data) {
-                  
-                    if(data === "Not Exist"){
-                        $('#submitform').attr('disabled', true); 
-                        alert("Check Pincode.. Pincode Not Exist");
-                         document.getElementById("error_pincode").style.Color = "red";
-                         document.getElementById("error_pincode").innerHTML = "Check Pincode.. Pincode Not Exist";
-                        return false;
-                    }  else {
-                        $('#submitform').attr('disabled', false); 
-                        document.getElementById("error_pincode").style.Color = "none";
-                         document.getElementById("error_pincode").innerHTML = "";
-                    } 
-                }
-                 
-            }); 
-        }
-        else
-        {
-            $('#submitform').attr('disabled', true); 
-            document.getElementById("error_pincode").style.borderColor = "blue";
-            document.getElementById("error_pincode").style.color = "red";
-            document.getElementById("error_pincode").innerHTML = "Enter 6 Digit Valid Pincode";
-        }
-    }
 
-   });
+        function check_pincode(){
+            var pincode = $("#booking_pincode_for_gst").val();
+            if(pincode.length === 6){
+
+                $.ajax({
+                    type: 'POST',
+                    beforeSend: function(){
+                        $('#submitform').attr('disabled', true); 
+                    },
+                    url: '<?php echo base_url(); ?>employee/vendor/check_pincode_exist_in_india_pincode/'+ pincode,          
+                    success: function (data) {
+
+                        if(data === "Not Exist"){
+                            $('#submitform').attr('disabled', true); 
+                            alert("Check Pincode.. Pincode Not Exist");
+                             document.getElementById("error_pincode").style.Color = "red";
+                             document.getElementById("error_pincode").innerHTML = "Check Pincode.. Pincode Not Exist";
+                            return false;
+                        }  else {
+                            $('#submitform').attr('disabled', false); 
+                            document.getElementById("error_pincode").style.Color = "none";
+                             document.getElementById("error_pincode").innerHTML = "";
+                        } 
+                    }
+
+                }); 
+            }
+            else
+            {
+                $('#submitform').attr('disabled', true); 
+                document.getElementById("error_pincode").style.borderColor = "blue";
+                document.getElementById("error_pincode").style.color = "red";
+                document.getElementById("error_pincode").innerHTML = "Enter 6 Digit Valid Pincode";
+            }
+        }
+    });
+    
     var URLGETCITYFROMPINCODE ='<?php echo base_url(); ?>employee/booking/get_city_from_pincode/';
     
     function sendAjaxRequest(postData, url) {
-    return $.ajax({
-        data: postData,
-        url: url,
-        type: 'post'
-    });
-}
+        return $.ajax({
+            data: postData,
+            url: url,
+            type: 'post'
+        });
+    }
+    
     /*get city from user entered pin code and generate city list*/
     function get_city_based_on_pincode() {
     var postData = {};
