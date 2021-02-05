@@ -166,7 +166,7 @@ if ($this->session->userdata('error')) {
                            
                         <!--Only Allow Admin to activate/deactivate partners -->
                         <?php
-                            if ($this->session->userdata['user_group'] == _247AROUND_ADMIN)
+                            if ($this->session->userdata('user_group') == _247AROUND_ADMIN)
                             {
                                 $activeClass = "activate_partner";
                                 $deactiveClass = "deactivate_partner";
