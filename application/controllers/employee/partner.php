@@ -5847,7 +5847,7 @@ class Partner extends CI_Controller {
            if(!empty($this->session->userdata('service_center_id'))) {
               $where[] = "booking_details.assigned_vendor_id = ". $this->session->userdata('service_center_id');
            }
-        $report =  $this->partner_model->get_partner_leads_csv_for_summary_email($partnerID,0,implode(' AND ',$where),true);
+        $report =  $this->partner_model->get_partner_leads_csv_for_summary_email($partnerID,0,implode(' AND ',$where));
         $delimiter = ",";
         $newline = "\r\n";
         $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);

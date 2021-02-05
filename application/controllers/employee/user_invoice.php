@@ -1394,7 +1394,7 @@ class User_invoice extends CI_Controller {
      */
     function generate_new_return_inventory_purchase_invoice($wh_id, $ed, $partner_id, $return_data, $receiver_entity_type, $receiver_entity_id, $receiver_details, $courier_details_table, $from_gst_id) {
         $entity_details = $this->vendor_model->getVendorDetails("gst_no as gst_number, sc_code,"
-                . "state,address as company_address,company_name,district, pincode, owner_phone_1, primary_contact_email, owner_email", array("id" => $wh_id));
+                . "state,address as company_address,company_name,district, pincode, owner_phone_1, gst_status, primary_contact_email, owner_email", array("id" => $wh_id));
 
         $postData = json_decode($return_data['inventory_data'], TRUE);
         
@@ -1468,26 +1468,38 @@ class User_invoice extends CI_Controller {
             $p = $this->table->generate();
 
             $around_gst = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $invoices[0]['to_gst_number_id']));
-            $invoice_id = $this->invoice_lib->create_invoice_id($entity_details[0]['sc_code']);
-            foreach ($invoiceValue['mapping'] as $m) {
-                $m['outgoing_invoice_id'] = $invoice_id;
-                $this->invoices_model->insert_inventory_invoice($m);
-            }
+            
+            
+            if (!empty($entity_details[0]['gst_number']) 
+                    && !empty($entity_details[0]['gst_status']) 
+                    && !($entity_details[0]['gst_status'] == _247AROUND_CANCELLED || $entity_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
+                
+                        $gst_number = $entity_details[0]['gst_no'];
+                        $invoice_id = $this->invoice_lib->create_invoice_id($entity_details[0]['sc_code']);
+                        $in_type = "Tax Invoice";
+                        $type = "Parts";
+                        
+                } else {
+                    $gst_number = TRUE;
+                    $invoice_id = $this->invoice_lib->create_invoice_id("ARD-CN");
+                    $in_type = $type = CREDIT_NOTE;
+                    
+                }
+            
 
             foreach ($invoices as $key => $value) {
                  // Already added in Micro-Warehouse Invoice
                 $invoices[$key]['invoice_id'] = $invoice_id;
-                if(empty($entity_details[0]['gst_number'])){
-                    $invoices[$key]['rate'] =  sprintf("%.2f", $value['rate'] * (1 + ($value['gst_rate']/100)) ); //  * ( 1 + $repair_oow_around_percentage)
-
-                } else {
-                    $invoices[$key]['rate'] = sprintf("%.2f", $value['rate']); //  * ( 1 + $repair_oow_around_percentage)
-                }
-                $invoices[$key]['taxable_value'] = sprintf("%.2f", ( $invoices[$key]['rate'] * $value['qty']));
+                $invoices[$key]['gst_number'] = $gst_number;
                 
                 if($receiver_entity_type != _247AROUND_PARTNER_STRING) {
                     $invoices[$key]['to_gst_number_id'] = $from_gst_id;
                 } 
+            }
+            
+            foreach ($invoiceValue['mapping'] as $m) {
+                $m['outgoing_invoice_id'] = $invoice_id;
+                $this->invoices_model->insert_inventory_invoice($m);
             }
 
             $receiver_state = (($receiver_entity_type == _247AROUND_PARTNER_STRING) ? $this->invoices_model->get_state_code(array('state_code' => $around_gst[0]['state']))[0]['state'] : $receiver_details[0]['state']);
@@ -1502,19 +1514,17 @@ class User_invoice extends CI_Controller {
             $sd = $ed;
             $invoice_date = date('Y-m-d');
 
-            $response = $this->invoices_model->_set_partner_excel_invoice_data($invoices, $sd, $ed, "Tax Invoice", $invoice_date);
+            $response = $this->invoices_model->_set_partner_excel_invoice_data($invoices, $sd, $ed, $in_type, $invoice_date);
             $response['meta']['invoice_id'] = $invoice_id;
 
-            if(empty($response['meta']['gst_number'])){
-                $response['meta']['invoice_template'] = "SF_FOC_Bill_of_Supply-v1.xlsx";
-
-            } else {
+            if(!empty($response['meta']['gst_number'])){
                 if ($invoices[0]['c_s_gst']) {
                     $response['meta']['invoice_template'] = "SF_FOC_Tax_Invoice-Intra_State-v1.xlsx";
                 } else {
                     $response['meta']['invoice_template'] = "SF_FOC_Tax_Invoice_Inter_State_v1.xlsx";
                 }
-            }
+
+            } 
 
             $response['meta']['accounting'] = 1;
             $response['meta']["vertical"] = SERVICE;
@@ -1566,7 +1576,7 @@ class User_invoice extends CI_Controller {
 
                 $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], true, false);
 
-                $invoice_details = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "B", "Parts", "vendor", $wh_id, $convert, $this->session->userdata('id'));
+                $invoice_details = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "B", $type, "vendor", $wh_id, $convert, $this->session->userdata('id'));
 
                 $this->invoices_model->insert_new_invoice($invoice_details);
 
@@ -2097,6 +2107,17 @@ class User_invoice extends CI_Controller {
         $partner_id = $return_data['partner_id'];
         $to_gst_id = $return_data['to_gst_id'];
         $from_gst_id = $return_data['from_gst_id'];
+        if (!empty($this->session->userdata('warehouse_id'))) {
+
+            $warehouse_id = $this->session->userdata('warehouse_id');
+            $agent_id = $this->session->userdata('id');
+            $agent_type =_247AROUND_EMPLOYEE_STRING;
+        } else if (!empty($this->session->userdata('service_center_id'))) {
+            
+            $warehouse_id = $this->session->userdata('service_center_id');
+            $agent_id = $this->session->userdata("service_center_agent_id");
+            $agent_type = _247AROUND_SF_STRING;
+        }
 
         $postData = json_decode($return_data['inventory_data'], TRUE);
         $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData, $from_gst_id, $to_gst_id);
@@ -2163,7 +2184,30 @@ class User_invoice extends CI_Controller {
                 $p = $this->table->generate();
                 list($response, $output_file, $output_file_main) = $this->generate_new_return_inventory($invoices, "", $sd, $ed, $invoice_date, $key, $invoiceValue, $partner_id);
                 //print_r($response);
-                //$pdf_attachement = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_file_main;
+                $pdf_attachement = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_file_main;
+                $email_template = $this->booking_model->get_booking_email_template(MSL_SEND_BY_WH_TO_PARTNER);
+                $wh_incharge_id = $this->reusable_model->get_search_result_data("entity_role", "id", array("entity_type" => _247AROUND_PARTNER_STRING, 'role' => WAREHOUSE_INCHARCGE_CONSTANT), NULL, NULL, NULL, NULL, NULL, array());
+                if (!empty($wh_incharge_id)) {
+                    $wh_where = array('contact_person.role' => $wh_incharge_id[0]['id'],
+                        'contact_person.entity_id' => $partner_id,
+                        'contact_person.entity_type' => _247AROUND_PARTNER_STRING
+                    );
+
+                    $email_details = $this->inventory_model->get_warehouse_details('contact_person.official_email', $wh_where, FALSE, TRUE);
+
+                    if (!empty($email_details) && !empty($email_template)) {
+                        $vendor_details = $this->vendor_model->getVendorDetails('service_centres.name', array('service_centres.id' => $warehouse_id), 'name', array());
+                        $wh_name = $vendor_details[0]['name'];
+
+                        $to = $email_details[0]['official_email'];
+                        $cc = $email_template[3];
+                        $subject = vsprintf($email_template[4], array($wh_name, $entity_details[0]['public_name']));
+                        $message = vsprintf($email_template[0], array($wh_name, $p, ""));
+                        $bcc = $email_template[5];
+
+                        $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $message, $pdf_attachement, MSL_SEND_BY_WH_TO_PARTNER, TMP_FOLDER . $output_file);
+                    }
+                }
                 unlink(TMP_FOLDER . $output_file);
                 unlink(TMP_FOLDER . $output_file_main);
                 unlink(TMP_FOLDER . $response['meta']['invoice_id'] . ".xlsx");
@@ -2172,6 +2216,28 @@ class User_invoice extends CI_Controller {
                 
                 foreach ($invoiceValue['data'] as $value) {
                     $this->service_centers_model->update_spare_parts(array('id' => $value['spare_id']), array("reverse_purchase_invoice_id" => $response['meta']['invoice_id']));
+                    
+                    $ledger_data = array();
+
+                    $ledger_data['receiver_entity_id'] = $partner_id;
+                    $ledger_data['receiver_entity_type'] = _247AROUND_PARTNER_STRING;
+                    $ledger_data['sender_entity_id'] = $warehouse_id;
+                    $ledger_data['sender_entity_type'] = _247AROUND_SF_STRING;
+                    $ledger_data['inventory_id'] = $value['inventory_id'];
+                    $ledger_data['quantity'] = $value['qty'];
+                    $ledger_data['agent_id'] = $agent_id;
+                    $ledger_data['agent_type'] = $agent_type;
+                    $ledger_data['booking_id'] = '';
+                    $ledger_data['invoice_id'] =  $response['meta']['invoice_id'];
+                    $ledger_data['micro_invoice_id'] = NULL;
+                    $ledger_data['is_partner_ack'] = 3;
+                    $ledger_data['courier_id'] = NULL;
+                    $ledger_data['is_wh_micro'] = 0;
+                    $ledger_data['is_wh_ack'] = 0;
+                    $ledger_data['spare_id'] = $value['spare_id'];
+                    
+
+                    $this->inventory_model->insert_inventory_ledger($ledger_data);
                 }
             }
             

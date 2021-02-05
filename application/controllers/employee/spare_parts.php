@@ -6235,7 +6235,7 @@ class Spare_parts extends CI_Controller {
                             $courier_id = "";
                         }
                     } else {
-                        $courier_id = $exist_courier_details[0]['courier_id'];
+                        $courier_id = $exist_courier_details[0]['id'];
                         $courier_file['message'] = $courier_file["courier_invoice_file"];
                         $courier_file['status'] = true;
                     }
@@ -6436,7 +6436,12 @@ class Spare_parts extends CI_Controller {
 
             return $ledger_data;
     }
-    
+    /**
+     * 
+     * @param Array $ch
+     * @param boolean $is_challan
+     * @return Array
+     */
     function _get_recreate_challan_data($ch, $is_challan) {
            
             if (!empty($ch)) {
@@ -6522,7 +6527,7 @@ class Spare_parts extends CI_Controller {
 
                     $anx = $this->inventory_model->get_annx_inventory_invoice_mapping("inventory_invoice_mapping.incoming_invoice_id, spare_parts_details.booking_id, "
                             . "inventory_master_list.part_number, settle_qty as qty, inventory_invoice_mapping.rate",
-                            "inventory_invoice_mapping.outgoing_invoice_id ='" . $response['meta']['invoice_id'] . "' ");
+                            "inventory_invoice_mapping.outgoing_invoice_id ='" . $ch[0]['invoice_id'] . "' ");
 
                     $this->invoice_lib->generate_invoice_excel($template, $response['meta'], $anx, TMP_FOLDER . $response['meta']['details_file']);
                     $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], true, false, $dir);

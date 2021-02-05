@@ -1541,16 +1541,7 @@ class Service_centers extends CI_Controller {
             if ($this->input->post("part_brought_at") && $this->input->post("booking_id")) {
                 $part_brought_at = $this->input->post("part_brought_at");
                 $booking_id_part = $this->input->post("booking_id");
-                $booking_details_part = $this->booking_model->getbooking_history($booking_id_part);
-                if (!empty($booking_details_part)) {
-                    $booking_primary_id = $booking_details_part[0]['booking_primary_id'];
-                    $booking_id_booking_set = $this->booking_model->get_booking_set_location(array('booking_primary_id' => $booking_primary_id), 'id,booking_primary_id,part_brought_at');
-                    if (!empty($booking_id_booking_set)) {
-                        $this->booking_model->update_booking_set_location(array('booking_primary_id' => $booking_primary_id), array('part_brought_at' => $part_brought_at));
-                    } else {
-                        $this->booking_model->insert_booking_set_location(array('booking_primary_id' => $booking_primary_id, 'part_brought_at' => $part_brought_at, 'agent_id' => $sc_agent_id));
-                    }
-                }
+                $this->booking_model->update_booking($booking_id_part,array('part_brought_at' => $part_brought_at));
             }
             //Update Booking Set location 
             if (!$this->input->post("call_from_api")) {
@@ -1767,9 +1758,7 @@ class Service_centers extends CI_Controller {
                 }
             }
              if (!empty($data['bookinghistory'])) {
-                 $booking_primary_id = $data['bookinghistory'][0]['booking_primary_id'];
-                 $booking_id_booking_set = $this->booking_model->get_booking_set_location(array('booking_primary_id' => $booking_primary_id), 'id,booking_primary_id,part_brought_at');
-                 $data['booking_set_location'] = $booking_id_booking_set;
+                    $data['booking_set_location'][0]['part_brought_at'] = $data['bookinghistory'][0]['part_brought_at'];
              }
 
             if (!empty($data['bookinghistory'][0])) {
@@ -1938,13 +1927,22 @@ class Service_centers extends CI_Controller {
         $this->checkUserSession();
         $spare_id = base64_decode(urldecode($code));
         $where = array('spare_parts_details.id' => $spare_id);
-        $select = 'spare_parts_details.id,spare_parts_details.defect_pic,spare_parts_details.spare_request_symptom,spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.date_of_purchase,spare_parts_details.model_number,'
+        $select = 'spare_parts_details.id,spare_parts_details.booking_id,spare_parts_details.defect_pic,spare_parts_details.spare_request_symptom,spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.date_of_purchase,spare_parts_details.model_number,'
                 . 'spare_parts_details.serial_number,spare_parts_details.serial_number_pic,spare_parts_details.invoice_pic,'
                 . 'spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.invoice_pic,spare_parts_details.part_warranty_status,'
                 . 'spare_parts_details.defective_parts_pic,spare_parts_details.defective_back_parts_pic,spare_parts_details.requested_inventory_id,spare_parts_details.serial_number_pic,spare_parts_details.remarks_by_sc,'
                 . 'booking_details.service_id,booking_details.partner_id as booking_partner_id, spare_parts_details.quantity, booking_details.assigned_vendor_id';
 
         $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, TRUE, false);
+
+        $spare_on_approval = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id,spare_parts_details.booking_id,spare_parts_details.status", array('spare_parts_details.booking_id' => $spare_parts_details[0]['booking_id'], 'spare_parts_details.status NOT IN("' . SPARE_PART_ON_APPROVAL . '","' . SPARE_PARTS_CANCELLED . '")' => null));
+        
+        if (!empty($spare_on_approval)) {
+            $data['approval_flag'] = TRUE;
+        } else {
+            $data['approval_flag'] = false;
+        }
+
         $data['spare_parts_details'] = $spare_parts_details[0];
         $where1 = array('entity_id' => $spare_parts_details[0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $spare_parts_details[0]['service_id'], 'inventory_model_mapping.active' => 1, 'appliance_model_details.active' => 1);
         $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where1);
@@ -2821,16 +2819,7 @@ class Service_centers extends CI_Controller {
                     if ($this->input->post("part_brought_at") && $this->input->post("booking_id")) {
                         $part_brought_at = $this->input->post("part_brought_at");
                         $booking_id_part = $this->input->post("booking_id");
-                        $booking_details_part = $this->booking_model->getbooking_history($booking_id_part);
-                        if (!empty($booking_details_part)) {
-                            $booking_primary_id = $booking_details_part[0]['booking_primary_id'];
-                            $booking_id_booking_set = $this->booking_model->get_booking_set_location(array('booking_primary_id' => $booking_primary_id), 'id,booking_primary_id,part_brought_at');
-                            if (!empty($booking_id_booking_set)) {
-                                $this->booking_model->update_booking_set_location(array('booking_primary_id' => $booking_primary_id), array('part_brought_at' => $part_brought_at));
-                            } else {
-                                $this->booking_model->insert_booking_set_location(array('booking_primary_id' => $booking_primary_id, 'part_brought_at' => $part_brought_at, 'agent_id' => $agent_id));
-                            }
-                        }
+                        $this->booking_model->update_booking($booking_id_part,array('part_brought_at' => $part_brought_at));
                     }
                     //Update Booking Set location
                     /* End auto deliver  */
@@ -6945,6 +6934,7 @@ class Service_centers extends CI_Controller {
                                 $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                             }
                         }
+                        $data['quantity'] = $part_details['quantity'];
 
                        //$this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $sf_id, $part_details['requested_inventory_id'], -$data['quantity']);
                     } else if ($part_details['shippingStatus'] == -1) {
@@ -8517,58 +8507,76 @@ class Service_centers extends CI_Controller {
                 }
             }
 
-            $courier_company_detail = $this->inventory_model->get_courier_company_invoice_details('courier_company_invoice_details.id, courier_company_invoice_details.awb_number', array('awb_number' => $awb_number));
-
-            if (empty($courier_company_detail)) {
-                $courier_company_data = array(
-                    'awb_number' => trim($this->input->post('awb')),
-                    'company_name' => strtolower(trim($this->input->post('courier_name'))),
-                    'courier_charge' => trim($this->input->post('courier_charge'))
-                );
-                $courier_company_detail[0]['id'] = $this->inventory_model->insert_courier_company_invoice_details($courier_company_data);
-                $updateCharge = TRUE;
+            if ($pre_awb_by_sf != $awb_number && empty($this->input->post('sp_parts'))) {
+                $this->session->set_flashdata('failed', "Courier file should not empty.");
+                redirect(base_url() . 'employee/service_centers/process_update_spare_courier_details/' . $id);
             } else {
 
-                if (empty($courier_company_detail[0]['courier_invoice_id'])) {
-                    $courier_company_data_update = array(
+                $courier_company_detail = $this->inventory_model->get_courier_company_invoice_details('courier_company_invoice_details.id, courier_company_invoice_details.awb_number', array('awb_number' => $awb_number));
+
+                if (empty($courier_company_detail)) {
+                    $courier_company_data = array(
+                        'awb_number' => trim($this->input->post('awb')),
                         'company_name' => strtolower(trim($this->input->post('courier_name'))),
-                        'courier_charge' => trim($this->input->post('courier_charge'))
+                        'courier_charge' => trim($this->input->post('courier_charge')),
                     );
 
-                    $this->inventory_model->update_courier_company_invoice_details(array('id' => $courier_company_detail[0]['id']), $courier_company_data_update);
+                    if (!empty($this->input->post('sp_parts'))) {
+                        $courier_company_data['courier_invoice_file'] = $this->input->post('sp_parts');
+                    }
+
+                    $courier_company_detail[0]['id'] = $this->inventory_model->insert_courier_company_invoice_details($courier_company_data);
                     $updateCharge = TRUE;
-                }
-            }
+                } else {
 
-            if ($updateCharge === TRUE) {
-                $data_spare_part_detail = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id, spare_parts_details.awb_by_sf, spare_parts_details.courier_name_by_sf', array('spare_parts_details.awb_by_sf = "' . $awb_number . '"  AND status != "' . _247AROUND_CANCELLED . '"' => null), false);
+                    if (!empty($courier_company_detail)) {
+                        $courier_company_data_update = array(
+                            'company_name' => strtolower(trim($this->input->post('courier_name'))),
+                            'courier_charge' => trim($this->input->post('courier_charge'))
+                        );
 
-                if (!empty($data_spare_part_detail)) {
-                    $courier_amount = ($courier_charges / count($data_spare_part_detail));
-                    $data['spare_parts_details.awb_by_sf'] = $awb_number;
-                    $data['spare_parts_details.courier_name_by_sf'] = $courier_name_by_sf;
-                    $data['spare_parts_details.courier_charges_by_sf'] = $courier_amount;
-
-                    foreach ($data_spare_part_detail as $value) {
-
-                        $this->inventory_model->update_spare_courier_details($value['id'], array('courier_charges_by_sf' => $courier_amount));
-                        /* Insert in Spare Tracking Details */
-                        if ($pre_awb_by_sf != $awb_number) {
-                            $remarks = " Docket replaced from " . $pre_awb_by_sf . " To " . $awb_number . "," . $remarks_defective_part_by_sf;
-                            $new_state = "New Awb Number updated";
-                            $action = 'New Awb Number ' . $awb_number;
-                        } else {
-                            $remarks = $remarks_defective_part_by_sf;
-                            $new_state = "Courier Charges Or Courier name Updated";
-                            $action = 'Courier Charges Or Courier name Of Awb Number ' . $awb_number;
+                        if (!empty($this->input->post('sp_parts'))) {
+                            $courier_company_data_update['courier_invoice_file'] = $this->input->post('sp_parts');
                         }
-                        $tracking_details = array('spare_id' => $value['id'], 'action' => $action, 'remarks' => $remarks, 'agent_id' => $agent_id, 'entity_id' => $entity_id, 'entity_type' => $entity_type);
-                        $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+
+                        $this->inventory_model->update_courier_company_invoice_details(array('id' => $courier_company_detail[0]['id']), $courier_company_data_update);
+                        $updateCharge = TRUE;
                     }
                 }
-            }
 
-            redirect(base_url() . 'employee/booking/viewdetails/' . $booking_id);
+                if ($updateCharge === TRUE) {
+
+                    $this->inventory_model->update_spare_courier_details($id, array('spare_parts_details.awb_by_sf' => $awb_number));
+
+                    $data_spare_part_detail = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id, spare_parts_details.awb_by_sf, spare_parts_details.courier_name_by_sf', array('spare_parts_details.awb_by_sf = "' . $awb_number . '"  AND status != "' . _247AROUND_CANCELLED . '"' => null), false);
+
+                    if (!empty($data_spare_part_detail)) {
+                        $courier_amount = ($courier_charges / count($data_spare_part_detail));
+                        $data['spare_parts_details.awb_by_sf'] = $awb_number;
+                        $data['spare_parts_details.courier_name_by_sf'] = $courier_name_by_sf;
+                        $data['spare_parts_details.courier_charges_by_sf'] = $courier_amount;
+
+                        foreach ($data_spare_part_detail as $value) {
+
+                            $this->inventory_model->update_spare_courier_details($value['id'], $data);
+                            /* Insert in Spare Tracking Details */
+                            if ($pre_awb_by_sf != $awb_number) {
+                                $remarks = " Docket replaced from " . $pre_awb_by_sf . " To " . $awb_number . "," . $remarks_defective_part_by_sf;
+                                $new_state = "New Awb Number updated";
+                                $action = 'New Awb Number ' . $awb_number;
+                            } else {
+                                $remarks = $remarks_defective_part_by_sf;
+                                $new_state = "Courier Charges Or Courier name Updated";
+                                $action = 'Courier Charges Or Courier name Of Awb Number ' . $awb_number;
+                            }
+                            $tracking_details = array('spare_id' => $value['id'], 'action' => $action, 'remarks' => $remarks, 'agent_id' => $agent_id, 'entity_id' => $entity_id, 'entity_type' => $entity_type);
+                            $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                        }
+                    }
+                }
+
+                redirect(base_url() . 'employee/booking/viewdetails/' . $booking_id);
+            }
         } else {
             log_message('info', __METHOD__ . ' validation failed');
             $this->update_spare_courier_details($id);
