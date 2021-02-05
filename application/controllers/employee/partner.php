@@ -5496,7 +5496,7 @@ class Partner extends CI_Controller {
     function download_partner_summary_details(){
         $active = $this->input->get('active');
         $partnerType = $this->input->get('partner_type');
-        $ac = $this->input->get('accountManager');
+        $account_manager = $this->input->get('accountManager');
         $partner_details = array();
         $select = "partners.id,public_name,company_type,primary_contact_name,"
                 . "primary_contact_email,primary_contact_phone_1,"
@@ -5507,25 +5507,21 @@ class Partner extends CI_Controller {
                 . "CASE WHEN is_prepaid = 0 THEN 'PostPaid' WHEN is_prepaid = 1 THEN 'PrePaid' ELSE ' ' END as is_prepaid, prepaid_amount_limit, prepaid_notification_amount,"
                 ." CASE WHEN  partners.is_active = '1' THEN 'ACTIVE' ELSE 'DEACTIVE'END AS Partner_Staus,partner_type,"
                 . "postpaid_credit_period, postpaid_notification_limit, postpaid_grace_period, summary_email_to,summary_email_cc,summary_email_bcc,spare_notification_email";
-       if( $active == 'All' &&  $ac != 'All'){
-           $where = array('agent_filters.agent_id'=>$ac);
+         $where = array();
+       if(strtolower($active) != 'all'){
+           $where['partners.is_active']=$active;
        }
-       else if( $active != 'All' && $ac == 'All'){
-           $where = array('partners.is_active' =>$active);
-       }else if($active == 'All'&&  $ac == 'All'){
-           $where = array();
-       } else {
-          $where = array('partners.is_active' =>$active,'agent_filters.agent_id'=>$ac);
+       if(!empty($account_manager) && strtolower($account_manager) != 'all'){
+           $where['agent_filters.agent_id']=$account_manager;
        }
         $group_by = "partners.id";
         if(!empty($partnerType)){
             $partnerTypeArray = explode(',',$partnerType);
-              $partnerWhereIn['bookings_sources.partner_type'] = $partnerTypeArray;
+              $Where_in['bookings_sources.partner_type'] = $partnerTypeArray;
         }
-       
 
-        //$partner_details['excel_data_line_item'] = $this->partner_model->getpartner_details($select,$where,"",TRUE);//,TRUE
-        $partner_details['excel_data_line_item'] = $this->partner_model->getpartner_data($select, $where, "",1,1,1,$group_by, $partnerWhereIn);
+       //$partner_details['excel_data_line_item'] = $this->partner_model->getpartner_details($select,$where,"",TRUE);//,TRUE
+        $partner_details['excel_data_line_item'] = $this->partner_model->getpartner_data($select, $where, "",1,1,1,$group_by, $Where_in);
         $service_brands=array();
         //add appliance of partner
         foreach ($partner_details['excel_data_line_item'] as $key => $value) {
