@@ -5997,7 +5997,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                 'mistatch' => $mistatch,
 		'defective_return_on_invoice' => $value['defective_ok_part_return_on_invoice']
             );
-            if (empty($this->session->userdata['user_group'])) {
+            if (empty($this->session->userdata('user_group'))) {
                 $data_to_insert_table = array();
                 $data_to_insert_table['service_center_id'] = $value['service_center_id'];
                 $data_to_insert_table['entity_id'] = $value['entity_id'];
@@ -6055,7 +6055,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             $output_file_name = $output_file . ".xls";
             $output_file_excel = $output_file_dir . $output_file_name;
             $R->render('excel2003', $output_file_excel);
-            if (!empty($this->session->userdata['user_group'])) {
+            if (!empty($this->session->userdata('user_group'))) {
 
                 $this->load->helper('download');
                 $data = file_get_contents($output_file_excel);
@@ -6104,7 +6104,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             $output_file_name = $output_file . ".xls";
             $output_file_excel = $output_file_dir . $output_file_name;
             $R->render('excel2003', $output_file_excel);
-            if (!empty($this->session->userdata['user_group'])) {
+            if (!empty($this->session->userdata('user_group'))) {
 
                 $this->load->helper('download');
                 $data = file_get_contents($output_file_excel);
@@ -6131,7 +6131,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         if(empty($data) && empty($data_micro)){
            $this->session->set_flashdata('error',' No data found to download.'); 
         }
-        if (!empty($this->session->userdata['user_group'])) {
+        if (!empty($this->session->userdata('user_group'))) {
             redirect(base_url() . 'employee/spare_parts/msl_summary_report_form');
         }
     }

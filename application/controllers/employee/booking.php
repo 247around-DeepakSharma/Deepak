@@ -1094,7 +1094,7 @@ class Booking extends CI_Controller {
                     $upcountry_price = $service_center_data[0]['upcountry_charges'];
                 }
                 
-                if(!in_array($this->session->userdata['user_group'], [_247AROUND_CLOSURE, _247AROUND_ADMIN, _247AROUND_DEVELOPER]) && !empty($price_tag['partner_invoice_id']) && empty($data['is_invoice_generated']) && in_array($data['booking_history'][0]['current_status'], [_247AROUND_COMPLETED, _247AROUND_CANCELLED])) {
+                if(!in_array($this->session->userdata('user_group'), [_247AROUND_CLOSURE, _247AROUND_ADMIN, _247AROUND_DEVELOPER]) && !empty($price_tag['partner_invoice_id']) && empty($data['is_invoice_generated']) && in_array($data['booking_history'][0]['current_status'], [_247AROUND_COMPLETED, _247AROUND_CANCELLED])) {
                     $data['is_invoice_generated'] = TRUE;
                 }
             }
@@ -1191,7 +1191,7 @@ class Booking extends CI_Controller {
         }
         
         $check_invoice_generated = array_column($this->reusable_model->get_search_result_data('booking_unit_details', 'partner_invoice_id', ['booking_id' => $booking_id], NULL, NULL, NULL, NULL, NULL), 'partner_invoice_id');
-        if(!empty(array_filter($check_invoice_generated)) && $this->session->userdata['user_group'] != _247AROUND_ADMIN) {
+        if(!empty(array_filter($check_invoice_generated)) && $this->session->userdata('user_group') != _247AROUND_ADMIN) {
             $data['is_invoice_generated'] = TRUE;
         } else {
             $data['is_invoice_generated'] = FALSE;
@@ -2463,7 +2463,7 @@ class Booking extends CI_Controller {
                 $this->update_completed_unit_applinace_details($booking_id);
             }
             $is_closure = 0;
-            if ($this->session->userdata['user_group'] == _247AROUND_CLOSURE) {
+            if ($this->session->userdata('user_group') == _247AROUND_CLOSURE) {
                 $is_closure = 1;
             }
             // customer paid basic charge is comming in array
