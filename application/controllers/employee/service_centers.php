@@ -4311,7 +4311,7 @@ class Service_centers extends CI_Controller {
      * @desc: It's used to generate SF Challan
      * @param String $generate_challan
      */
-    function generate_sf_challan($generate_challan) {
+    function generate_sf_challan($generate_challan, $flag) {
 
         $delivery_challan_file_name_array = array();
         
