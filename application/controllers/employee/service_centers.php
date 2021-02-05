@@ -4319,7 +4319,7 @@ class Service_centers extends CI_Controller {
             if (!empty($generate_challan)) {
                 $post = array();
                 if (!empty($flag)) {
-                    $post['where_in'] = array('spare_parts_details.booking_id' => $value, 'spare_parts_details.status' => SPARE_PARTS_REQUESTED);
+                    $post['where_in'] = array('spare_parts_details.booking_id' => $value, 'spare_parts_details.entity_type' => _247AROUND_PARTNER_STRING, 'spare_parts_details.status' => SPARE_PARTS_REQUESTED);
                 } else {
                     $post['where_in'] = array('spare_parts_details.booking_id' => $value, 'spare_parts_details.entity_type' => _247AROUND_SF_STRING, 'spare_parts_details.status' => SPARE_PARTS_REQUESTED);
                 }
