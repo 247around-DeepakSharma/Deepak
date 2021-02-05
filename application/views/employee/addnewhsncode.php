@@ -143,6 +143,7 @@
                                     </div>
                                     <div style="text-align: center;">
                                         <input type="hidden" name="agent_id" value="<?php echo $this->session->userdata('id'); ?>" />
+                                        <input type="hidden" id="edit_flag" value="1"/>
                                         <input type="hidden" name="edit_id" value="<?php echo $hsn_code_list['id']; ?>" />
                                         <input  id="edit_form_submit" type= "submit"  class="btn btn-primary btn-lg"  value ="Submit" >
                                     </div>
@@ -349,6 +350,7 @@
         var hsnTextVal = $("#edit_hsn_code").val();
         var service_id = $("#edit_service_id").val();
         if(hsnTextVal != '' && service_id !=''){
+            $("#edit_flag").val('1'); 
         $.ajax({
                 url: '<?php echo base_url() ?>employee/invoice/check_hsncode_service_id_exist_system',
                 type: 'post',
@@ -357,12 +359,20 @@
                 processData:true,
                 success: function (data) {
                     if(data['status']=='success'){
-                        $("#edit_hsn_code").val('');
-                      alert('HSN code already exist in our system.');
+                       $("#edit_flag").val('');
                     }
                 }
         });
         }
+    });
+    
+    $("#edit_form_submit").on("click",function(){
+          var edit_flag = $("#edit_flag").val();
+          if(edit_flag == ''){
+              $("#edit_hsn_code").val('');
+             alert('HSN code already exist in our system.'); 
+             return false;
+          }
     });
     
 </script>

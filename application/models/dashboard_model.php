@@ -1038,7 +1038,7 @@ class dashboard_model extends CI_Model {
 
         if (isset($post['length']) && $post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
-        }else if(isset($post['length']) && $post['length'] == -1){
+        }else if((isset($post['length']) && $post['length'] == -1) || ($limit == -1)){
             
         }else{
             $this->db->limit($limit, 0); 
@@ -1165,7 +1165,9 @@ class dashboard_model extends CI_Model {
                     employee_rm.full_name as 'RM Name',    
                     vendor_escalation_log.create_date as 'Escalation Date',
                     vendor_escalation_policy.entity as 'Escalation Entity',
-                    vendor_escalation_policy.escalation_reason as 'Escalation Reason'";
+                    vendor_escalation_policy.escalation_reason as 'Escalation Reason',
+                    (CASE WHEN vendor_escalation_log.escalation_source = '"._247AROUND_EMPLOYEE_STRING."' THEN employee_agent.full_name ELSE entity_login_table.agent_name END) as 'Agent Name',
+                    vendor_escalation_log.escalation_source as Source ";
         
         // set where condition
         $where =    "booking_details.partner_id =  '$partner_id'
@@ -1183,6 +1185,8 @@ class dashboard_model extends CI_Model {
         $this->db->join('employee as employee_asm', 'employee_asm.id = service_centres.asm_id', 'left');
         $this->db->join('agent_filters', 'booking_details.partner_id = agent_filters.entity_id AND agent_filters.state = booking_details.state AND agent_filters.entity_type = "247around"', 'left');
         $this->db->join('employee as employee_am', 'employee_am.id = agent_filters.agent_id', 'left');
+        $this->db->join('employee as employee_agent', 'employee_agent.id = vendor_escalation_log.agent_id', 'left');
+        $this->db->join('entity_login_table', 'entity_login_table.agent_id = vendor_escalation_log.agent_id', 'left');
         $this->db->where($where);
         $this->db->order_by('vendor_escalation_log.create_date');
         $this->db->group_by('booking_details.booking_id');
