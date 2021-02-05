@@ -1541,16 +1541,7 @@ class Service_centers extends CI_Controller {
             if ($this->input->post("part_brought_at") && $this->input->post("booking_id")) {
                 $part_brought_at = $this->input->post("part_brought_at");
                 $booking_id_part = $this->input->post("booking_id");
-                $booking_details_part = $this->booking_model->getbooking_history($booking_id_part);
-                if (!empty($booking_details_part)) {
-                    $booking_primary_id = $booking_details_part[0]['booking_primary_id'];
-                    $booking_id_booking_set = $this->booking_model->get_booking_set_location(array('booking_primary_id' => $booking_primary_id), 'id,booking_primary_id,part_brought_at');
-                    if (!empty($booking_id_booking_set)) {
-                        $this->booking_model->update_booking_set_location(array('booking_primary_id' => $booking_primary_id), array('part_brought_at' => $part_brought_at));
-                    } else {
-                        $this->booking_model->insert_booking_set_location(array('booking_primary_id' => $booking_primary_id, 'part_brought_at' => $part_brought_at, 'agent_id' => $sc_agent_id));
-                    }
-                }
+                $this->booking_model->update_booking($booking_id_part,array('part_brought_at' => $part_brought_at));
             }
             //Update Booking Set location 
             if (!$this->input->post("call_from_api")) {
@@ -1767,9 +1758,7 @@ class Service_centers extends CI_Controller {
                 }
             }
              if (!empty($data['bookinghistory'])) {
-                 $booking_primary_id = $data['bookinghistory'][0]['booking_primary_id'];
-                 $booking_id_booking_set = $this->booking_model->get_booking_set_location(array('booking_primary_id' => $booking_primary_id), 'id,booking_primary_id,part_brought_at');
-                 $data['booking_set_location'] = $booking_id_booking_set;
+                    $data['booking_set_location'][0]['part_brought_at'] = $data['bookinghistory'][0]['part_brought_at'];
              }
 
             if (!empty($data['bookinghistory'][0])) {
@@ -2821,16 +2810,7 @@ class Service_centers extends CI_Controller {
                     if ($this->input->post("part_brought_at") && $this->input->post("booking_id")) {
                         $part_brought_at = $this->input->post("part_brought_at");
                         $booking_id_part = $this->input->post("booking_id");
-                        $booking_details_part = $this->booking_model->getbooking_history($booking_id_part);
-                        if (!empty($booking_details_part)) {
-                            $booking_primary_id = $booking_details_part[0]['booking_primary_id'];
-                            $booking_id_booking_set = $this->booking_model->get_booking_set_location(array('booking_primary_id' => $booking_primary_id), 'id,booking_primary_id,part_brought_at');
-                            if (!empty($booking_id_booking_set)) {
-                                $this->booking_model->update_booking_set_location(array('booking_primary_id' => $booking_primary_id), array('part_brought_at' => $part_brought_at));
-                            } else {
-                                $this->booking_model->insert_booking_set_location(array('booking_primary_id' => $booking_primary_id, 'part_brought_at' => $part_brought_at, 'agent_id' => $agent_id));
-                            }
-                        }
+                        $this->booking_model->update_booking($booking_id_part,array('part_brought_at' => $part_brought_at));
                     }
                     //Update Booking Set location
                     /* End auto deliver  */
