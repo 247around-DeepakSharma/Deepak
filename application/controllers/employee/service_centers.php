@@ -7569,7 +7569,7 @@ class Service_centers extends CI_Controller {
         $declaration_detail = $this->input->post('coueriers_declaration');
         $generate_challan = $this->input->post('generate_challan');
         $assign_to_partner = $this->input->post('generate_challan_assign_to_partner');
-
+       
         if (!empty($booking_address)) {
 
             $this->download_shippment_address($booking_address);
