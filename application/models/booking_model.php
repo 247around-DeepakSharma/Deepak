@@ -3300,34 +3300,5 @@ class Booking_model extends CI_Model {
         $result = $this->db->query($query)->result_array();
         return $result;   
     }
-    /**
-     *  @desc : function to get booking set location based on booking primary id
-     *  @param : where
-     *  @return : array
-     */
-    function get_booking_set_location($where,$select) {
-        $this->db->where($where);
-        $this->db->select($select);
-	$query = $this->db->get('booking_set_location');
-        return $query->result_array();
-    }
-     /**
-     *  @desc : function to get booking update location based on booking primary id
-     *  @param : where,data
-     *  @return : boolean
-     */
-     function update_booking_set_location($where,$data) {
-        $this->db->where($where);
-        $result = $this->db->update('booking_set_location', $data);
-        return $result;
-    }
-     /**
-     *  @desc : function to get booking insert location based on booking primary id
-     *  @param : $data
-     *  @return : boolean
-     */
-     function insert_booking_set_location($data) {
-        $result = $this->db->insert('booking_set_location', $data);
-        return $result;
-    }
+    
 }

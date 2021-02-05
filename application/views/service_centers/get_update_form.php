@@ -623,7 +623,7 @@
                     </div>
                     
                     <div class='row' style='padding-bottom: 10px;display:none' id='part_brought_at'>
-                        <label for="prob_desc" class="col-md-2">Part brought at*</label>
+                        <label for="prob_desc" class="col-md-2">Part brought at</label>
                         <div class='col-md-6'>
                             <input type='radio' name='part_brought_at' value=1 <?php if (!empty($booking_set_location[0]['part_brought_at']) && $booking_set_location[0]['part_brought_at'] == 1) { ?>checked <?php } ?> <?php if (!empty($booking_set_location[0]['part_brought_at']) && $booking_set_location[0]['part_brought_at'] == 2) { ?> onclick='return false'<?php } ?>>&nbsp;&nbsp;Customer Location&nbsp;&nbsp;
                             <input type='radio' name='part_brought_at' value=2 <?php if (!empty($booking_set_location[0]['part_brought_at']) && $booking_set_location[0]['part_brought_at'] == 2) { ?> checked onclick='return false'<?php } ?>>&nbsp;&nbsp;SF Workshop                                                                      
