@@ -632,7 +632,28 @@
 
 <script type="text/javascript">
     
+    $("body").on("change", "#challan_file", function () {
+        var allowedFiles = [".gif", ".jpg",".png",".jpeg",".pdf",".zip"];
+        var fileUpload = $("#challan_file");
+        var regex = new RegExp("([a-zA-Z0-9\s_\\.\-:()])+(" + allowedFiles.join('|') + ")$");
+        if (!regex.test(fileUpload.val().toLowerCase())) {
+            $("#challan_file").val('');
+            alert("Please upload files having extensions:(" + allowedFiles.join(', ') + ") only.");
+            return false;
+        }
+    });     
     
+    $("#submit_form").on('click', function(){
+      $(".invoice_id_class").each(function(i) {
+        var invoice_id = $(this).val();
+        var format = /[ `!@#$%^&*()+\=\[\]{};':"\\<>\?~]/;
+        if (format.test(invoice_id)) {
+            $(this).val('');
+            alert("Invoice id should not be special character.");
+            return false;
+        }
+      });
+    });
      $("#awb").on({
         "click": function () {
             var awb_number = $(this).val();
@@ -745,7 +766,9 @@
                 rules: {
                 courier_name:"required",
                 awb: "required",
+                partner_challan_number:"required",
                 shipment_date:"required",
+                challan_file:"required",
                 defective_parts_shipped_boxes_count:'required',
                 courier_price_by_partner:{
                     digits:true,
@@ -755,7 +778,9 @@
                 messages: {
                 courier_name: "Please Select Courier Name",
                 awb: "Please Enter Valid AWB",
+                partner_challan_number: "Please Enter Challan Number",
                 shipment_date:"Please Enter Shipped date",
+                challan_file: "Please Select File",
                 defective_parts_shipped_boxes_count : "Please Select Boxes Count",
                 courier_price_by_partner:{
                     digits: "Courier Price can only be Numeric.",
