@@ -6438,7 +6438,17 @@ class Service_centers extends CI_Controller {
         
         $post = $this->get_post_view_data();
         log_message('info', __FUNCTION__ . " SF ID: " . $sf_id);
+        if (!empty($post['search_value'])) {
 
+            $where = array(
+                "spare_parts_details.defective_part_required" => 1,
+                "approved_defective_parts_by_admin" => 1,
+                "(defective_return_to_entity_id = $sf_id or consumed_part_status_id = 1)" =>null,
+                "(spare_lost is null or spare_lost = 0)" => NULL,
+                "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
+                "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "','" . OK_PARTS_SHIPPED . "','" . DAMAGE_PARTS_SHIPPED . "')" => NULL,
+            );
+        } else {
         $where = array(
                 "spare_parts_details.defective_part_required" => 1,
                 "approved_defective_parts_by_admin" => 1,
@@ -6447,8 +6457,9 @@ class Service_centers extends CI_Controller {
                 "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
                 "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "','" . OK_PARTS_SHIPPED . "','" . DAMAGE_PARTS_SHIPPED . "')" => NULL,
             );
+        }
         
-        $select = "defective_part_shipped,spare_parts_details.defective_part_rejected_by_partner, spare_parts_details.shipped_quantity,spare_parts_details.id, spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, spare_consumption_status.reason_text, "
+        $select = "defective_part_shipped,spare_parts_details.defective_part_rejected_by_partner, spare_parts_details.shipped_quantity,spare_parts_details.id, spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, spare_consumption_status.reason_text,spare_parts_details.defective_return_to_entity_id, "
                 . " spare_parts_details.booking_id, users.name as 'user_name', courier_name_by_sf, awb_by_sf,defective_part_shipped_date,"
                 . "remarks_defective_part_by_sf,booking_details.partner_id,service_centres.name as 'sf_name',service_centres.district as 'sf_city',s.part_number, spare_parts_details.defactive_part_received_date_by_courier_api, spare_parts_details.defective_part_rejected_by_wh, spare_parts_details.status";
 
@@ -6462,9 +6473,26 @@ class Service_centers extends CI_Controller {
         $no = $post['start'];
         $data=array();
         //$no =0;
+        $ware_house_name_array = array();
         foreach ($list as $spare_list) {
             $no++;
-            $row = $this->defective_parts_shipped_by_sf_table_data($spare_list, $no);
+            $warehouse_name = '';
+            $wh_id = $spare_list['defective_return_to_entity_id'];
+            if(!empty($whare_house_name_array[$wh_id])){
+                $warehouse_name = $whare_house_name_array[$wh_id];
+            }else{
+                $select_wh = "service_centres.id,service_centres.name,service_centres.is_wh";
+                $post_where['where']['(service_centres.is_wh = 1)'] = null;
+                $post_where['where']['service_centres.id'] = $wh_id;
+                $post_where['length'] = -1;
+                $post_where['start'] = 0;
+                $list_wh = $this->vendor_model->viewallvendor($post_where, $select_wh);
+                if(!empty($list_wh)){
+                   $warehouse_name = $list_wh[0]['name']; 
+                   $whare_house_name_array[$wh_id] = $warehouse_name;
+                }
+            }
+            $row = $this->defective_parts_shipped_by_sf_table_data($spare_list, $no, $warehouse_name);
             $data[] = $row;
         }
 
@@ -6482,7 +6510,7 @@ class Service_centers extends CI_Controller {
         // $this->load->view('employee/get_spare_parts', $data);
     }
 
-    function defective_parts_shipped_by_sf_table_data($spare_list, $no) {
+    function defective_parts_shipped_by_sf_table_data($spare_list, $no, $warehouse_name = '') {
 
         $row = array();
 
@@ -6508,7 +6536,11 @@ class Service_centers extends CI_Controller {
         $row[] = "<span class='".$color_class."'>". $spare_list['user_name'] ."</span>";
         $row[] = "<span class='".$color_class."'>". $spare_list['sf_name'] ."</span>";
         $row[] = "<span class='".$color_class."'>". $spare_list['sf_city'] ."</span>";
+        if(empty($warehouse_name)){
         $row[] = "<span class='".$color_class."'>". $spare_list['defective_part_shipped'] ."</span>";
+        }else{
+        $row[] = "<span class='".$color_class."'>". $spare_list['defective_part_shipped'] ." ($warehouse_name)</span>";   
+        }
         $row[] = "<span class='".$color_class."'>". $spare_list['shipped_quantity'] ."</span>";
         $row[] = "<span class='".$color_class."'>". $spare_list['part_number'] ."</span>";
         $row[] = "<span class='".$color_class."'>". $spare_list['courier_name_by_sf'] ."</span>";
@@ -7184,7 +7216,12 @@ class Service_centers extends CI_Controller {
             echo json_encode(array('This Defective / OK part is already acknowledged.', ''));
             return false;
         }
-
+        if(!empty($post_data['spare_consumption_status'][$spare_id]) && $post_data['spare_consumption_status'][$spare_id]!=1 && $spare_part_detail['defective_return_to_entity_id']!=$sf_id){
+            echo json_encode(array('You can not acknowledge this part as ok, as original spare was not shipped from this warehouse.', ''));
+            return false;
+        }
+      
+       
         //
 
         if (!empty($post_data['spare_consumption_status'][$spare_id]) && ($post_data['spare_consumption_status'][$spare_id] != $spare_part_detail['consumed_part_status_id'])) {
