@@ -6502,7 +6502,7 @@ class Service_centers extends CI_Controller {
             );
         }
         
-        $select = "defective_part_shipped,spare_parts_details.defective_part_rejected_by_partner, spare_parts_details.shipped_quantity,spare_parts_details.id, spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, spare_consumption_status.reason_text,spare_parts_details.defective_return_to_entity_id, "
+        $select = "spare_parts_details.id,defective_part_shipped,spare_parts_details.defective_part_rejected_by_partner, spare_parts_details.shipped_quantity,spare_parts_details.id, spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, spare_consumption_status.reason_text,spare_parts_details.defective_return_to_entity_id, "
                 . " spare_parts_details.booking_id, users.name as 'user_name', courier_name_by_sf, awb_by_sf,defective_part_shipped_date,"
                 . "remarks_defective_part_by_sf,booking_details.partner_id,service_centres.name as 'sf_name',service_centres.district as 'sf_city',s.part_number, spare_parts_details.defactive_part_received_date_by_courier_api, spare_parts_details.defective_part_rejected_by_wh, spare_parts_details.status";
 
@@ -6572,7 +6572,8 @@ class Service_centers extends CI_Controller {
             $row[] = "<a href='" . base_url() . "service_center/booking_details/" . urlencode(base64_encode($spare_list['booking_id'])) . "'target='_blank'>" . $spare_list['booking_id'] . "</a>";
         } else if ($this->session->userdata('id')) {
             $row[] = "<a href='" . base_url() . "employee/booking/viewdetails/" . $spare_list['booking_id'] . "'target='_blank'>" . $spare_list['booking_id'] . "</a>";
-        }        
+        } 
+        $row[] = "<span class='".$color_class."'>". $spare_list['id'] ."</span>";
 
         
         
