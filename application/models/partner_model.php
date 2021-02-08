@@ -433,7 +433,7 @@ function get_data_for_partner_callback($booking_id) {
         return $data;
     }
     //Return all leads shared by Partner in the last 30 days in CSV
-    function get_partner_leads_csv_for_summary_email($partner_id,$percentageLogic,$whereConditions=NULL,$booing_location = false){
+    function get_partner_leads_csv_for_summary_email($partner_id,$percentageLogic,$whereConditions=NULL){
         $mappingData = $this->get_partner_summary_report_fields($partner_id);
         foreach($mappingData as $values){
             $subQueryArray[$values['Title']] = $values['sub_query'];
@@ -486,10 +486,7 @@ function get_data_for_partner_callback($booking_id) {
                     LEFT JOIN symptom_completion_solution ON booking_symptom_defect_details.solution_id = symptom_completion_solution.id
                      LEFT JOIN engineer_details ON engineer_details.id = booking_details.`assigned_engineer_id`";
                     
-        //}
-            if(!empty($booing_location)){
-              $sql .= "LEFT JOIN booking_set_location b_sl ON booking_details.id = b_sl.booking_primary_id";  
-            }
+        //}        
            
         
         $sql .= " WHERE product_or_services != 'Product' AND $where GROUP BY ud.booking_id";
@@ -2985,7 +2982,8 @@ function get_data_for_partner_callback($booking_id) {
                     `Purchase Invoice Id`,
                     `Sale Invoice Id`,
                     `Dealer Name`,
-                    `Reverse purchase invoice date`
+                    `Reverse purchase invoice date`,
+                    `Part brought at`
             FROM (SELECT
                     booking_details.booking_id as '247around Booking ID',
                     (CASE WHEN booking_details.created_by_agent_type IN ('"._247AROUND_PARTNER_STRING."', '".BOOKING_AGENT_Dealer."') then entity_login_table.agent_name WHEN booking_details.created_by_agent_type = '".BOOKING_AGENT_Website."' THEN '".BOOKING_AGENT_Website."' ELSE employee.full_name END) as 'Agent Name',
@@ -3142,7 +3140,8 @@ function get_data_for_partner_callback($booking_id) {
                     '' AS 'Purchase Invoice Id',
                     '' AS 'Sale Invoice Id',
                     dealer_details.dealer_name AS 'Dealer Name',
-                    vendor_partner_invoices.invoice_date AS 'Reverse purchase invoice date'
+                    vendor_partner_invoices.invoice_date AS 'Reverse purchase invoice date',
+                    CASE WHEN booking_details.part_brought_at=1 THEN 'Customer Location'  WHEN booking_details.part_brought_at=2 THEN 'Service Center location' ELSE '' END AS 'Part brought at'
             FROM
                     booking_details
                     LEFT JOIN booking_unit_details ud ON (booking_details.booking_id = ud.booking_id)
@@ -3329,8 +3328,8 @@ function get_data_for_partner_callback($booking_id) {
                     IFNULL(spare_parts_details.purchase_invoice_id, ' ') AS 'Purchase Invoice Id',
                     IFNULL(spare_parts_details.sell_invoice_id, ' ') AS 'Sale Invoice Id',
                     dealer_details.dealer_name AS 'Dealer Name',
-                    vendor_partner_invoices.invoice_date AS 'Reverse purchase invoice date'
-
+                    vendor_partner_invoices.invoice_date AS 'Reverse purchase invoice date',
+                    CASE WHEN booking_details.part_brought_at=1 THEN 'Customer Location'  WHEN booking_details.part_brought_at=2 THEN 'Service Center location' ELSE '' END AS 'Part brought at'
             FROM
                 booking_details
                 LEFT JOIN booking_unit_details ud ON (booking_details.booking_id = ud.booking_id)

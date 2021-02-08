@@ -2696,16 +2696,23 @@ class Partner extends CI_Controller {
     }
 
     /**
-     * @desc: This is used to show Booking Life Cycle of particular Booking
-     * params: String Booking_ID
-     * return: Array of Data for View
-     */ 
-    function get_booking_recordings($booking_primary_id) { 
-        $select = "agent_outbound_call_log.create_date, agent_outbound_call_log.recording_url, employee.full_name, employee.groups";
+     * This function is used to get call recordings made by agents against the Booking
+     * @param type $booking_primary_id
+     * @date : 04-02-2020
+     * @author : Deepak Sharma
+     */
+    function get_booking_recordings($booking_primary_id) {
+        $select = "agent_outbound_call_log.create_date, agent_outbound_call_log.recording_url, employee.full_name, entity_role.display_name";
         $data['data'] = $this->booking_model->get_booking_recordings_by_id($booking_primary_id, $select);
         $this->load->view('employee/show_booking_recordings', $data);
-    } 
-    function get_booking_life_cycle($booking_id) { 
+    }
+
+    /**
+    * @desc: This is used to show Booking Life Cycle of particular Booking
+    * params: String Booking_ID
+    * return: Array of Data for View
+    */
+    function get_booking_life_cycle($booking_id) {
         $this->checkUserSession();
         log_message('info', __FUNCTION__ . " Booking_id" . $booking_id);
         $data['data'] = $this->booking_model->get_booking_state_change_by_id($booking_id);
@@ -5489,7 +5496,7 @@ class Partner extends CI_Controller {
     function download_partner_summary_details(){
         $active = $this->input->get('active');
         $partnerType = $this->input->get('partner_type');
-        $ac = $this->input->get('accountManager');
+        $account_manager = $this->input->get('accountManager');
         $partner_details = array();
         $select = "partners.id,public_name,company_type,primary_contact_name,"
                 . "primary_contact_email,primary_contact_phone_1,"
@@ -5500,25 +5507,21 @@ class Partner extends CI_Controller {
                 . "CASE WHEN is_prepaid = 0 THEN 'PostPaid' WHEN is_prepaid = 1 THEN 'PrePaid' ELSE ' ' END as is_prepaid, prepaid_amount_limit, prepaid_notification_amount,"
                 ." CASE WHEN  partners.is_active = '1' THEN 'ACTIVE' ELSE 'DEACTIVE'END AS Partner_Staus,partner_type,"
                 . "postpaid_credit_period, postpaid_notification_limit, postpaid_grace_period, summary_email_to,summary_email_cc,summary_email_bcc,spare_notification_email";
-       if( $active == 'All' &&  $ac != 'All'){
-           $where = array('agent_filters.agent_id'=>$ac);
+         $where = array();
+       if(strtolower($active) != 'all'){
+           $where['partners.is_active']=$active;
        }
-       else if( $active != 'All' && $ac == 'All'){
-           $where = array('partners.is_active' =>$active);
-       }else if($active == 'All'&&  $ac == 'All'){
-           $where = array();
-       } else {
-          $where = array('partners.is_active' =>$active,'agent_filters.agent_id'=>$ac);
+       if(!empty($account_manager) && strtolower($account_manager) != 'all'){
+           $where['agent_filters.agent_id']=$account_manager;
        }
         $group_by = "partners.id";
         if(!empty($partnerType)){
             $partnerTypeArray = explode(',',$partnerType);
-              $partnerWhereIn['bookings_sources.partner_type'] = $partnerTypeArray;
+              $Where_in['bookings_sources.partner_type'] = $partnerTypeArray;
         }
-       
 
-        //$partner_details['excel_data_line_item'] = $this->partner_model->getpartner_details($select,$where,"",TRUE);//,TRUE
-        $partner_details['excel_data_line_item'] = $this->partner_model->getpartner_data($select, $where, "",1,1,1,$group_by, $partnerWhereIn);
+       //$partner_details['excel_data_line_item'] = $this->partner_model->getpartner_details($select,$where,"",TRUE);//,TRUE
+        $partner_details['excel_data_line_item'] = $this->partner_model->getpartner_data($select, $where, "",1,1,1,$group_by, $Where_in);
         $service_brands=array();
         //add appliance of partner
         foreach ($partner_details['excel_data_line_item'] as $key => $value) {
@@ -5840,7 +5843,7 @@ class Partner extends CI_Controller {
            if(!empty($this->session->userdata('service_center_id'))) {
               $where[] = "booking_details.assigned_vendor_id = ". $this->session->userdata('service_center_id');
            }
-        $report =  $this->partner_model->get_partner_leads_csv_for_summary_email($partnerID,0,implode(' AND ',$where),true);
+        $report =  $this->partner_model->get_partner_leads_csv_for_summary_email($partnerID,0,implode(' AND ',$where));
         $delimiter = ",";
         $newline = "\r\n";
         $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);

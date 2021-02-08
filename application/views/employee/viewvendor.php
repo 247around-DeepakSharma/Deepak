@@ -122,7 +122,7 @@
                     <!--                </div>-->
                     <div class="row">
                         <div class="pull-right" style="margin-bottom: 20px;padding-top:8px">
-    <?php if ($this->session->userdata['user_group'] == _247AROUND_ADMIN || $this->session->userdata['user_group'] == _247AROUND_RM || $this->session->userdata['user_group'] == _247AROUND_ASM) { ?>
+    <?php if ($this->session->userdata('user_group') == _247AROUND_ADMIN || $this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM) { ?>
                                 <a href="<?php echo base_url(); ?>employee/vendor/add_vendor"><input class="btn btn-primary" type="Button" value="Add Service Centre"></a>
                             <?php } ?>
                         </div>
@@ -150,7 +150,7 @@
                                 <th class="jumbotron">Sub District Office</th>
                                 <th class='jumbotron'>Go To Invoice Page</th>
                                 <th class="jumbotron">Temporary</th>
-                                <?php if ($this->session->userdata['user_group'] == _247AROUND_ADMIN || ($this->session->userdata['user_group'] == _247AROUND_ASM) || ($this->session->userdata['user_group'] == _247AROUND_RM)) { ?>
+                                <?php if ($this->session->userdata('user_group') == _247AROUND_ADMIN || ($this->session->userdata('user_group') == _247AROUND_ASM) || ($this->session->userdata('user_group') == _247AROUND_RM)) { ?>
                                 <th class="jumbotron">Permanent</th>
     
                                 <?php }  
