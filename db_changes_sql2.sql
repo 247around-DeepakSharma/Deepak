@@ -2799,6 +2799,7 @@ UPDATE `partner_summary_report_mapping` SET `sub_query` = 'if(booking_details.bo
 UPDATE `partner_summary_report_mapping` SET `sub_query` = 'if(booking_details.initial_booking_date != \'0000-00-00\', DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date, \"%Y-%m-%d\"), \"%d/%c/%Y\"),null) As \"First Booking Date\"\n' WHERE `partner_summary_report_mapping`.`id` = 20;
 --Gorakh 10-06-2020
 ALTER TABLE `courier_tracking_details` CHANGE `checkpoint_status` `checkpoint_status` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+
 --Gorakh Nath 06-05-2020
 CREATE TABLE `personal_used_spare_parts` (
   `id` int(11) NOT NULL,
@@ -2810,14 +2811,17 @@ CREATE TABLE `personal_used_spare_parts` (
 ALTER TABLE `personal_used_spare_parts` ADD PRIMARY KEY (`id`);
 ALTER TABLE `personal_used_spare_parts`
  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
 ALTER TABLE `personal_used_spare_parts` ADD `inventory_id` INT NOT NULL AFTER `warehouse_id`;
 --Gorakh 21-07-2020
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
 ('247Around', 'Add Courier Serviceable area', NULL, 'employee/courier/add_courier_serviceable_area', 2, '172', 'accountant,accountmanager,admin,developer,inventory_manager', 'main_nav', 1, '2018-12-13 05:13:48');
+
 --Sarvendra 24-07-2020 CRMS-862
 CREATE TABLE `boloaaka`.`sf_agreement_template` ( `id` INT NOT NULL AUTO_INCREMENT ,  `template` LONGTEXT NOT NULL ,  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,  `updated_at` TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
 CREATE TABLE `boloaaka`.`sf_agreement_status` ( `id` INT NOT NULL AUTO_INCREMENT ,  `sf_id` INT(11) NOT NULL ,  `is_accepted` TINYINT(1) NOT NULL DEFAULT '0' ,  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,  `updated_at` TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,    PRIMARY KEY  (`id`),    UNIQUE  (`sf_id`)) ENGINE = InnoDB;
 ALTER TABLE `sf_agreement_status` ADD `allow_days` INT(11) NOT NULL DEFAULT '7' AFTER `sf_id`;
+
 --Gorakh 24-07-2020
 ALTER TABLE `zopper_estimate_details` ADD `around_service_commission` DECIMAL(10,2) NOT NULL AFTER `service_charge`;
 ALTER TABLE `zopper_estimate_details` ADD `around_transport_commission` DECIMAL(10,2) NOT NULL AFTER `transport_charge`;
@@ -2830,3 +2834,31 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `booking_id`, 
 --Abhay 10 Nov
 INSERT INTO `entity_role` (`id`, `entity_type`, `department`, `role`, `is_filter_applicable`) VALUES (NULL, '247Around', 'Operations', 'inventory_manager_hod', '1');
 ALTER TABLE `bill_to_partner_opencell` ADD `booking_id` INT(11) NULL DEFAULT NULL AFTER `spare_id`;
+--Abhay 10 Nov
+INSERT INTO `entity_role` (`id`, `entity_type`, `department`, `role`, `is_filter_applicable`) VALUES (NULL, '247Around', 'Operations', 'inventory_manager_hod', '1');
+ALTER TABLE `bill_to_partner_opencell` ADD `booking_id` INT(11) NULL DEFAULT NULL AFTER `spare_id`;
+
+--Abhay 11 JAN
+ALTER TABLE `inventory_invoice_mapping` ADD `spare_id` INT NULL DEFAULT NULL AFTER `inventory_id`;
+ALTER TABLE `inventory_invoice_mapping` ADD `rate` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `spare_id`;
+
+--Anuj 23 Jan - Commit '#CRMS-2120 Correcting database column name as returned by GST API'
+ALTER TABLE `gstin_detail` CHANGE `address` `address` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
+ALTER TABLE `gstin_detail` CHANGE `lager_name` `lager_name` VARCHAR(55) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'Legal Name of Business';
+ALTER TABLE `gstin_detail` CHANGE `cancellation_date` `cancellation_date` DATETIME NULL;
+ALTER TABLE `gstin_detail` CHANGE `lager_name` `legal_name` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'Legal Name of Business';
+ALTER TABLE `gstin_detail` CHANGE `company_name` `company_name` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'Trade Name returned by API';
+
+
+--Anuj 24 Jan - Commit '#CRMS-2120 Adding registration date, address, nature of business'
+ALTER TABLE `gstin_detail` ADD `registration_date` DATE NULL DEFAULT NULL COMMENT 'Effective Date of registration' AFTER `nature_of_business`;
+ALTER TABLE `gstin_detail` CHANGE `nature_of_business` `constitution_of_business` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'Constitution of Business';
+ALTER TABLE `gstin_detail` ADD `address_readable` VARCHAR(1024) NOT NULL COMMENT 'Address in readable format' AFTER `address`, ADD `nature_business` VARCHAR(1024) NOT NULL COMMENT 'Nature of Business Activities' AFTER `address_readable`;
+
+--Anuj 24 Jan - Commit ''
+ALTER TABLE `gstin_detail` CHANGE `address` `address` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+ALTER TABLE `gstin_detail` CHANGE `address_readable` `address_readable` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+ALTER TABLE `gstin_detail` CHANGE `nature_business` `nature_business` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+ALTER TABLE `gstin_detail` CHANGE `constitution_of_business` `constitution_of_business` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT 'Constitution of Business';
+ALTER TABLE `gstin_detail` CHANGE `type` `type` VARCHAR(55) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+

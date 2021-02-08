@@ -1805,7 +1805,7 @@ class Booking extends CI_Controller {
     /**
      *  @desc : This function is to view details of any particular booking.
      *
-     * 	We get all the details like User's details, booking details, and also the appliance's unit details.
+     *  We get all the details like User's details, booking details, and also the appliance's unit details.
      *
      *  @param : booking id
      *  @return : booking details and load view
@@ -2082,7 +2082,7 @@ class Booking extends CI_Controller {
     /**
      *  @desc : This function is to get add new brand page
      *
-     * 	Through this we add a new brand for selected service.
+     *  Through this we add a new brand for selected service.
      *
      *  @param : void
      *  @return : list of active services present
@@ -2096,7 +2096,7 @@ class Booking extends CI_Controller {
     /**
      *  @desc : This function is to add new brand.
      *
-     * 	Enters the new brand to our existing brand list for a particular service
+     *  Enters the new brand to our existing brand list for a particular service
      *
      *  @param : void
      *  @return : add new brand and load view
@@ -2281,8 +2281,8 @@ class Booking extends CI_Controller {
         $callDetails['date_updated'] = (isset($_GET['DateUpdated'])) ? $_GET['DateUpdated'] : null;
 
         log_message('info', print_r($callDetails, true));
-//	//insert in database
-//	$this->apis->insertPassthruCall($callDetails);
+//  //insert in database
+//  $this->apis->insertPassthruCall($callDetails);
     }
 
     /**
@@ -5747,7 +5747,7 @@ class Booking extends CI_Controller {
             
             // $post['join']['employee as emp_asm'] = "service_centres.asm_id = emp_asm.id";    
             $post['joinTypeArray'] = ['spare_parts_details' => "left",'partners' => "left",'agent_filters' => 'left', 'employee as employee_am' => "left",  'inventory_master_list as in_req' => 'left', 'inventory_master_list as in_sh' => 'left'];
-			$post['unit_not_required'] = true;
+            $post['unit_not_required'] = true;
             // Select Statement
             
 

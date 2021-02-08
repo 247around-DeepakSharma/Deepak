@@ -885,7 +885,7 @@ class vendor_model extends CI_Model {
      * @return : Array
      */
     function getVendorDetails($select, $where =array() , $order_by='name',$whereIN=array(),$join=array(),$JoinTypeTableArray=array()) {
-        $this->db->select($select,FALSE);
+        $this->db->select($select, FALSE);
         if(!empty($where)){
            $this->db->where($where);
         }
@@ -2185,16 +2185,21 @@ class vendor_model extends CI_Model {
     }
     
     /**
-     * @desc: This function is used to get searched gstin detail
+     * @desc: This function is used to get searched GST number detail in existing tables
+     * This is not being used as of now and should not be used to search GST
+     * on real time basis for e.g. in function seach_gst_number() in vendor controller.
     **/
     function search_gstn_number($gst_no){
        $last_month = date('Y-m-d H:i:s', strtotime(date('Y-m-d H:i:s'). ' - 30 days'));
-       $sql =  "SELECT 'vendor' as 'entity', company_name as 'lager_name', gst_no as 'gst_number', gst_status as 'status', gst_taxpayer_type as 'type' FROM service_centres where gst_no = '".$gst_no."'
+       $sql =  "SELECT 'vendor' as 'entity', company_name as 'legal_name', gst_no as 'gst_number',"
+               . "gst_status as 'status', gst_taxpayer_type as 'type' FROM service_centres where gst_no = '".$gst_no."'
                 UNION
-                SELECT 'partner' as 'entity', public_name as 'lager_name', gst_number as 'gst_number', 'status', 'type' FROM partners where gst_number = '".$gst_no."'
+                SELECT 'partner' as 'entity', public_name as 'legal_name', gst_number as 'gst_number',
+                'status', 'type' FROM partners where gst_number = '".$gst_no."'
                 UNION
-                SELECT 'Previously Searched Data' as 'entity', lager_name as 'lager_name', gst_number as 'gst_number', status as 'status', type as 'type' FROM gstin_detail where gst_number = '".$gst_no."' and create_date >= '".$last_month."'
-                ";
+                SELECT 'Previously Searched Data' as 'entity', legal_name as 'legal_name', gst_number as 'gst_number',
+                status as 'status', type as 'type' FROM gstin_detail 
+                where gst_number = '".$gst_no."' and create_date >= '".$last_month."'";
         
         $query = $this->db->query($sql);
         return $query->result_array();
@@ -2504,6 +2509,26 @@ class vendor_model extends CI_Model {
             return '';
         }
     }
+    
+    
+        /**
+     *  @desc : This function is used update mapping table
+     *  @param : $data,$where string
+     *  @param : Author : Abhishek Awasthi
+     *  @return: Array()
+     */
+
+    function update_vendor_pincode_mapping($data,$where){
+        $this->db->where($where);
+        $this->db->update('vendor_pincode_mapping',$data);
+        if($this->db->affected_rows() > 0){
+            return TRUE;
+        }else{
+            return FALSE;
+        }
+
+    }
+    
     
 }
 

@@ -30,10 +30,10 @@ class Courier_tracking extends CI_Controller {
      */
     function checkUserSession(){
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
-	    return TRUE;
-	} else {
-	    redirect(base_url() . "employee/login");
-	}
+        return TRUE;
+    } else {
+        redirect(base_url() . "employee/login");
+    }
     }
     
     /**
@@ -148,8 +148,6 @@ class Courier_tracking extends CI_Controller {
                 if(!empty($api_data['data'])){
                     $data['awb_details_by_api'] = $api_data['data'];
                     $data['awb_number'] = $awb_number;
-                    /* temporary flag to hand checkpoint status because checkpoint status not coming in response currently */
-                    $data['checkpoint_status'] = true;
                     
                 }else{
                     //log_message('info',  'no data found from API for awb number '.print_r($api_data,true));
@@ -162,8 +160,6 @@ class Courier_tracking extends CI_Controller {
                     
                     $data['awb_details_by_db'] = $this->get_awb_details($carrier_code,$awb_number);
                     $data['awb_number'] = $awb_number;
-                    /* temporary flag to hand checkpoint status because checkpoint status not coming in response currently */
-                    $data['checkpoint_status'] = false;
                     
                 }
             }else{
@@ -672,6 +668,70 @@ class Courier_tracking extends CI_Controller {
         }
     }
     
+    /**
+     * @Desc: This function is to fetch POD from awb_number // working for Gati, spoton & DTDC
+     * @params: $awb_number
+     * @return: NULL
+     * @author Ghanshyam
+     * @date : 15-04-2020
+     */
+    public function update_pod_courier($awb_number = '') {
+        if (!empty($awb_number)) {
+            $file = 0;
+
+            $courier_detail = $this->inventory_model->get_courier_company_invoice_details('id,awb_number,company_name', array('awb_number' => $awb_number));
+            if (!empty($courier_detail)) {
+                $company_name = strtoupper($courier_detail[0]['company_name']);
+                if (strpos($company_name, 'GATI') !== false) {
+                    $image_name = $awb_number . '_' . date('jMYHis') . '.tiff';
+                    file_put_contents(TMP_FOLDER . $image_name, file_get_contents("https://www.gati.com/showPOD.jsp?dktNo=" . $awb_number));
+                    $file = 1;
+                }
+                else if (strpos($company_name, 'SPOTON') !== false) {
+                    $image_name = $awb_number . '_' . date('jMYHis') . '.jpg';
+                    file_put_contents(TMP_FOLDER . $image_name, file_get_contents("http://spoton.co.in/SPOTTRACK/Advance/getpod.aspx?id=" . $awb_number));
+                    $file = 1;
+                }
+                else if (strpos($company_name, 'DTDC') !== false) {
+                    $image_name = $awb_number . '_' . date('jMYHis') . '.jpg';
+                    $str = file_get_contents("https://tracking.dtdc.com/ctbs-tracking/customerInterface.tr?submitName=showCITrackingDetails&cType=Consignment&cnNo=" . $awb_number);
+                    $html = strip_tags($str);
+                    preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $html, $match);
+                    if (!empty($match)) {
+                        $searchword = 'amazonaws.com';
+                        $matches = array_filter($match[0], function($var) use ($searchword) {
+                            return preg_match("/\b$searchword\b/i", $var);
+                        });
+                        if (!empty($matches)) {
+                            $matches = array_values($matches);
+                            $image_to_copy = $matches[0];
+                            file_put_contents(TMP_FOLDER . $image_name, file_get_contents($image_to_copy));
+                            $file = 1;
+                        }
+                    }
+                }
+                if ($file) {
+                    $s3directory = 'courier-pod/' . $image_name;
+                    $image_info = @getimagesize(TMP_FOLDER . $image_name); // Validate if image created is actual Image or not.
+
+                    if (!empty($image_info)) {
+                        $this->s3->putObjectFile(realpath(TMP_FOLDER . $image_name), BITBUCKET_DIRECTORY, $s3directory, S3::ACL_PUBLIC_READ);
+                        // File exist upload in s3 S3::ACL_PRIVATE
+                        $data['courier_pod_file'] = $image_name;
+                        $where['id'] = $courier_detail[0]['id'];
+                        $return = $this->inventory_model->update_courier_company_invoice_details($where, $data);
+                    } else {
+                        //echo "Corrupted Image"; // Corrupted File
+                    }
+                    //
+                    if (file_exists(TMP_FOLDER . $image_name)) {
+                        unlink(TMP_FOLDER . $image_name);
+                    }
+                }
+            }
+        }
+    }
+
     
     /** @desc:List details of the courier awb number that defective shipped from partner to warehouse
      *  @param int $numbers Tracking numbers,eg:$awb_numbers = LY044217709CN,UG561422482CN (optional)
@@ -768,70 +828,6 @@ class Courier_tracking extends CI_Controller {
         return $res;
     }
     
-    /**
-     * @Desc: This function is to fetch POD from awb_number // working for Gati, spoton & DTDC
-     * @params: $awb_number
-     * @return: NULL
-     * @author Ghanshyam
-     * @date : 15-04-2020
-     */
-        
-        public function update_pod_courier($awb_number = '') {
-        if (!empty($awb_number)) {
-            $file = 0;
-
-            $courier_detail = $this->inventory_model->get_courier_company_invoice_details('id,awb_number,company_name', array('awb_number' => $awb_number));
-            if (!empty($courier_detail)) {
-                $company_name = strtoupper($courier_detail[0]['company_name']);
-                if (strpos($company_name, 'GATI') !== false) {
-                    $image_name = $awb_number . '_' . date('jMYHis') . '.tiff';
-                    file_put_contents(TMP_FOLDER . $image_name, file_get_contents("https://www.gati.com/showPOD.jsp?dktNo=" . $awb_number));
-                    $file = 1;
-                }
-                else if (strpos($company_name, 'SPOTON') !== false) {
-                    $image_name = $awb_number . '_' . date('jMYHis') . '.jpg';
-                    file_put_contents(TMP_FOLDER . $image_name, file_get_contents("http://spoton.co.in/SPOTTRACK/Advance/getpod.aspx?id=" . $awb_number));
-                    $file = 1;
-                }
-                else if (strpos($company_name, 'DTDC') !== false) {
-                    $image_name = $awb_number . '_' . date('jMYHis') . '.jpg';
-                    $str = file_get_contents("https://tracking.dtdc.com/ctbs-tracking/customerInterface.tr?submitName=showCITrackingDetails&cType=Consignment&cnNo=" . $awb_number);
-                    $html = strip_tags($str);
-                    preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $html, $match);
-                    if (!empty($match)) {
-                        $searchword = 'amazonaws.com';
-                        $matches = array_filter($match[0], function($var) use ($searchword) {
-                            return preg_match("/\b$searchword\b/i", $var);
-                        });
-                        if (!empty($matches)) {
-                            $matches = array_values($matches);
-                            $image_to_copy = $matches[0];
-                            file_put_contents(TMP_FOLDER . $image_name, file_get_contents($image_to_copy));
-                            $file = 1;
-                        }
-                    }
-                }
-                if ($file) {
-                    $s3directory = 'courier-pod/' . $image_name;
-                    $image_info = @getimagesize(TMP_FOLDER . $image_name); // Validate if image created is actual Image or not.
-
-                    if (!empty($image_info)) {
-                        $this->s3->putObjectFile(realpath(TMP_FOLDER . $image_name), BITBUCKET_DIRECTORY, $s3directory, S3::ACL_PUBLIC_READ);
-                        // File exist upload in s3 S3::ACL_PRIVATE
-                        $data['courier_pod_file'] = $image_name;
-                        $where['id'] = $courier_detail[0]['id'];
-                        $return = $this->inventory_model->update_courier_company_invoice_details($where, $data);
-                    } else {
-                        //echo "Corrupted Image"; // Corrupted File
-                    }
-                    //
-                    if (file_exists(TMP_FOLDER . $image_name)) {
-                        unlink(TMP_FOLDER . $image_name);
-                    }
-                }
-            }
-        }
-    }
     
     
        

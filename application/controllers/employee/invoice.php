@@ -597,7 +597,7 @@ class Invoice extends CI_Controller {
             $email_from = $email_template[2];
 
             $to = $invoice_email_to;
-            $cc = $invoice_email_cc.", " .ACCOUNTANT_EMAILID;
+            $cc = $invoice_email_cc . ", " . $email_template[3];
             $this->upload_invoice_to_S3($meta['invoice_id']);
             
             $pdf_attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' . $output_pdf_file_name;
@@ -1203,8 +1203,8 @@ class Invoice extends CI_Controller {
             if (!empty($rm_details[1]['official_email'])) {
                 $asm_email_id = ", " . $rm_details[1]['official_email'];
             }
-            $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id . $asm_email_id;
 
+            $cc = ACCOUNTS_AP_EMAIL_ID . $rem_email_id . $asm_email_id;
             
             $t_s_charge =  ($meta['r_sc'] - $meta['upcountry_charge']) - $this->booking_model->get_calculated_tax_charge( ($meta['r_sc'] - $meta['upcountry_charge']), 18);
             $t_ad_charge = $meta['r_asc'] - $this->booking_model->get_calculated_tax_charge( $meta['r_asc'], 18);
@@ -1659,7 +1659,7 @@ class Invoice extends CI_Controller {
                 $email_from = $email_template[2];
                 $to = $invoice_data['meta']['owner_email'] . ", " . $invoice_data['meta']['primary_contact_email'];
                 
-                $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id . $asm_email_id.", ". $email_template[3];
+                $cc = ACCOUNTS_AP_EMAIL_ID . $rem_email_id . $asm_email_id.", ". $email_template[3];
                 $pdf_attachement = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$output_file_main;
                  //Upload Excel files to AWS
                 $this->upload_invoice_to_S3($invoice_data['meta']['invoice_id']);
@@ -2402,7 +2402,7 @@ exit();
             $asm_email_id = ", " . $rm_details[1]['official_email'];
         }
 
-        $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id . $asm_email_id;
+        $cc = OOW_ACCESSORIES_SALE_EMAIL_ID . $rem_email_id . $asm_email_id;
         //get email template from database
         $email_template = $this->booking_model->get_booking_email_template(BRACKETS_INVOICE_EMAIL_TAG);
         $subject = vsprintf($email_template[4], array($vendor_data[0]['name']));
@@ -2946,7 +2946,9 @@ exit();
                             $subject = vsprintf($email_template[4], array($invoices['meta']['company_name'],$invoices['meta']['sd'],$invoices['meta']['ed']));
                             $message = $email_template[0];
                             $email_from = $email_template[2];
-                            $to = $invoices['meta']['owner_email'] . ", " . $invoices['meta']['primary_contact_email'];
+                            $to = $invoices['meta']['owner_email'] . 
+                                    ", " . $invoices['meta']['primary_contact_email'] 
+                                    . ", " . $email_template[1];
                             $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
                             $rem_email_id = "";
                             $asm_email_id = "";
@@ -2956,7 +2958,8 @@ exit();
                             if (!empty($rm_details[1]['official_email'])) {
                                 $asm_email_id = ", " . $rm_details[1]['official_email'];
                             }
-                            $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id . $asm_email_id. ", ".$email_template[3];
+
+                            $cc = $rem_email_id . $asm_email_id. ", ".$email_template[3];
                             echo "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount'].PHP_EOL;
                             log_message('info', __FUNCTION__ . "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount']);
 
@@ -3081,10 +3084,12 @@ exit();
         $this->form_validation->set_rules('from_date', 'Invoice Period', 'required|trim');
         $this->form_validation->set_rules('type', 'Type', 'required|trim');
         $this->form_validation->set_rules('tds_rate', 'TDS Rate', 'trim');
-        $this->form_validation->set_rules('tds_amount', 'Tds Amount', 'trim');
+        $this->form_validation->set_rules('tds_amount', 'TDS Amount', 'trim');
         $this->form_validation->set_rules('tcs_rate', 'TCS Rate', 'trim');
         $this->form_validation->set_rules('tcs_amount', 'TCS Amount', 'trim');
-        
+        $this->form_validation->set_rules('num_bookings', 'Bookings', 'required|trim');
+        $this->form_validation->set_rules('parts_count', 'Parts', 'required|trim');
+      
         if ($this->form_validation->run()) {
             $flag = true;
             $text = (($insert_flag)?"inserted":"updated");
@@ -3100,6 +3105,7 @@ exit();
             $num_bookings = $this->input->post('num_bookings');
             $parts_count = $this->input->post('parts_count');
             $around_type = $this->input->post('around_type');
+
             $data['hsn_code'] = $invoice['booking'][array_keys($invoice['booking'])[0]]['hsn_code'];
             
             $in_data = $this->invoices_model->get_invoices_details(array('invoice_id' => $data['invoice_id']),'*');
@@ -3125,9 +3131,12 @@ exit();
                 $data['tds_amount'] = $tds_amount;
                 $data['tcs_rate'] = $tcs_rate;
                 $data['tcs_amount'] = $tcs_amount;
+                
+                $data['num_bookings'] = $num_bookings;
+                $data['parts_count'] = $parts_count;
 
                 if ($data['vendor_partner'] == "vendor") {
-                    $entity_details = $this->vendor_model->viewvendor($data['vendor_partner_id']);
+                    $entity_details = $this->vendor_model->viewvendor($data['vendor_partner_id']);                    
                     
                     if($around_type == "A"){
                         $gst_number = true;
@@ -3145,7 +3154,6 @@ exit();
                     $entity_details = $this->partner_model->getpartner_details("gst_number, state", array('partners.id' => $data['vendor_partner_id']));
                     $gst_number = $entity_details[0]['gst_number'];
                 }
-
                
                 $data['total_amount_collected'] = sprintf("%.2f",($this->input->post('total_amount_charge') + $data['tds_amount']));
                 $data['rcm'] = 0;
@@ -3430,7 +3438,7 @@ exit();
     
 
     /**
-     * @desc: Send Emailt to SF with attach invoice file while create a new invoice from Form 
+     * @desc: Send Email to SF with attach invoice file while create a new invoice from Form 
      * @param type $vendor_detail
      * @param type $type
      * @param type $start_date
@@ -3444,7 +3452,7 @@ exit();
         $to = $vendor_detail[0]['owner_email'] . ", " . $vendor_detail[0]['primary_contact_email'];
 
         $subject = "247around - " . $vendor_detail[0]['company_name'] . " - " . $type . "  Invoice for period: " . $start_date . " to " . $end_date;
-        $cc = NITS_ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
+        $cc = ACCOUNTS_AP_EMAIL_ID;
 
         $this->email->from('billing@247around.com', '247around Team');
         $this->email->to($to);
@@ -3694,12 +3702,13 @@ exit();
             "settle_amount" => 0); 
         }
         
-        $where_invoice['where']['sub_category NOT IN ("'.MSL_DEFECTIVE_RETURN.'", "'.IN_WARRANTY.'", "'.MSL.'", "'.MSL_SECURITY_AMOUNT.'", "'.MSL_NEW_PART_RETURN.'", "'.FNF.'") '] = NULL;
+        $where_invoice['where']['sub_category NOT IN ("'.MSL_DEFECTIVE_RETURN.'", "'.MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  .IN_WARRANTY.'", "'.MSL.'", "'.MSL_SECURITY_AMOUNT.'", "'.MSL_NEW_PART_RETURN.'", "'.FNF.'") '] = NULL;
         $where_invoice['length'] = -1;
         return $this->invoices_model->searchInvoicesdata($select_invoice, $where_invoice);
     }
     
     function get_msl_summary_amount($service_center_id, $due_date=false){
+
         $oowAmount = 0.00;
         $msl = array(
             'security' => sprintf("%01.2f", 0.00),
@@ -4502,17 +4511,17 @@ exit();
      * @return boolean 
      */
     function send_brackets_credit_note_mail_sms($vendor_details, $invoice_id, $amount,$attachment) {
-
-
         //send sms
-        $this->send_invoice_sms("Stand", $vendor_details[0]['shipment_date'], $amount, $vendor_details[0]['owner_phone_1'], $vendor_details[0]['order_given_to']);
+        $this->send_invoice_sms("Stand", $vendor_details[0]['shipment_date'], 
+                $amount, $vendor_details[0]['owner_phone_1'], $vendor_details[0]['order_given_to']);
         
         //send email
         $get_rm_email =$this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_details[0]['id']); 
         $to = $vendor_details[0]['owner_email'].",".$this->session->userdata('official_email').",".$get_rm_email[0]['official_email'];
-        $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
+        
         //get email template from database
         $email_template = $this->booking_model->get_booking_email_template(BRACKETS_CREDIT_NOTE_INVOICE_EMAIL_TAG);
+        $cc = $email_template[3];
         $subject = vsprintf($email_template[4], array($vendor_details[0]['company_name']));
         $message = $email_template[0];
         $email_from = $email_template[2];
@@ -4554,7 +4563,9 @@ exit();
         }
         $req['where'] = array("spare_parts_details.id" => $spare_id, 'spare_parts_details.is_micro_wh != 1' => NULL);
         $req['length'] = -1;
+
         $req['select'] = "spare_parts_details.requested_inventory_id, spare_parts_details.shipped_inventory_id,spare_parts_details.booking_unit_details_id, spare_parts_details.parts_shipped, spare_parts_details.parts_requested_type,spare_parts_details.shipped_parts_type, spare_parts_details.purchase_price, spare_parts_details.sell_invoice_id, parts_requested,invoice_gst_rate, spare_parts_details.service_center_id, spare_parts_details.booking_id, booking_details.service_id, shipped_quantity";
+
         $sp_data = $this->inventory_model->get_spare_parts_query($req);
 
         if (!empty($sp_data) && empty($sp_data[0]->sell_invoice_id) && ($sp_data[0]->purchase_price > 0)) {
@@ -4600,6 +4611,7 @@ exit();
                 if (!empty($vendor_details[0]['gst_no']) 
                     && !empty($vendor_details[0]['gst_status']) 
                     && !($vendor_details[0]['gst_status'] == _247AROUND_CANCELLED || $vendor_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
+
                     $data[0]['gst_number'] = $vendor_details[0]['gst_no'];
                 } else {
                     //this is 247around invoice thats why we are assigned true value.
@@ -7444,7 +7456,7 @@ exit();
         
         $percentage_oow_vs_iw = $this->get_sum_array_index_wise($sf_invoice_total_booking, $select_total_partner_invoice_booking, 3);
         
-        $spare_part_brand_invoice_details = $this->invoices_model->get_invoices_details(array('invoice_date > "'.$sdate.'" ' =>NULL, 'invoice_date < "'.$edate.'"'=>NULL, 'vendor_partner' => _247AROUND_PARTNER_STRING, "sub_category in('".MSL_NEW_PART_RETURN."', '".OOW_NEW_PART_RETURN."', '".MSL_DEFECTIVE_RETURN."')" => NULL
+        $spare_part_brand_invoice_details = $this->invoices_model->get_invoices_details(array('invoice_date > "'.$sdate.'" ' =>NULL, 'invoice_date < "'.$edate.'"'=>NULL, 'vendor_partner' => _247AROUND_PARTNER_STRING, "sub_category in('".MSL_NEW_PART_RETURN."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  .OOW_NEW_PART_RETURN."', '".MSL_DEFECTIVE_RETURN."')" => NULL
             , "amount_collected_paid > 0" => NULL ), "YEAR(invoice_date) AS year, MONTH(invoice_date) AS month, DATE_FORMAT(invoice_date, '%M-%Y') as invoice_month, sum(total_amount_collected - igst_tax_amount - cgst_tax_amount - sgst_tax_amount) as '1', sum(parts_count) as '2'", array('year', 'month'));
         
         if(empty($spare_part_brand_invoice_details)){
@@ -7457,7 +7469,7 @@ exit();
         
         
         $select_total_spare_brand_invoice_details = "select YEAR(vpi.invoice_date) AS year, MONTH(vpi.invoice_date) AS month, count(distinct(il.booking_id)) as '1', DATE_FORMAT(vpi.invoice_date, '%M-%Y') as invoice_month from vendor_partner_invoices as vpi, inventory_ledger as il where vpi.invoice_id = il.invoice_id"
-                                           . " and vpi.invoice_date > '".$sdate."' and vpi.invoice_date < '".$edate."' and vendor_partner = '"._247AROUND_PARTNER_STRING."' and vpi.sub_category in('".MSL_NEW_PART_RETURN."', '".OOW_NEW_PART_RETURN."', '".MSL_DEFECTIVE_RETURN."') and amount_collected_paid > 0 GROUP BY `year`, `month`";
+                                           . " and vpi.invoice_date > '".$sdate."' and vpi.invoice_date < '".$edate."' and vendor_partner = '"._247AROUND_PARTNER_STRING."' and vpi.sub_category in('".MSL_NEW_PART_RETURN."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  .OOW_NEW_PART_RETURN."', '".MSL_DEFECTIVE_RETURN."') and amount_collected_paid > 0 GROUP BY `year`, `month`";
         $spare_part_brand_invoice_call_details = $this->invoices_model->execute_query($select_total_spare_brand_invoice_details);
         if(empty($spare_part_brand_invoice_call_details)){
             //If we get no response from query, then set response to empty array 
@@ -8011,9 +8023,10 @@ exit();
             }
         }
     }
-	/**
+
+    /**
      * @desc This function is used to cancel invoice
-     */
+    */
     function cancel_invoice(){
         $invoice_id = $this->input->post('invoice_id');
         $vendor_partner_type = $this->input->post('vendor_partner_type');
@@ -8089,6 +8102,7 @@ exit();
     function copy_invoices(){
         $this->miscelleneous->copy_invoices_from_s3();
     }
+
     /**
      * @desc This function is used to generate sf oow invoice at the end  of month
      */

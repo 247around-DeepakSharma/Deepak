@@ -185,6 +185,7 @@
         $("input:radio[class^=tds]").each(function(i) {
             this.checked = false;
         });
+
         $('#other_amount_div').show();            
     });
     
@@ -261,7 +262,6 @@
         $('#final_amount').html(final_amount);
         $('#txn_amount').val(final_amount);
     }
-
     function deduct_tds(tds_percent) {
         // hide TDS Amount section if none selected.
         if(tds_percent == 0) {
@@ -272,7 +272,7 @@
         $('#apply_tds_percent').val(tds_percent);
         get_final_amount(true);
     }
-    
+
     $("#other_amount_value").blur(function(){
         var other_amount_value = $('#other_amount_value').val();
         parseInt($('input[name=amount]').filter(':checked').val(other_amount_value));

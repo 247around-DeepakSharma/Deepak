@@ -268,7 +268,6 @@
                             <th>Customer Dissatisfactory Reason</th>
                             <td style="max-width: 330px;"><?php echo $customer_dissatisfactory_reason;?></td>
                         </tr>
-                        
                     </table>                    
                     <table class="table  table-striped table-bordered" >
                         <tr>

@@ -2,6 +2,8 @@
 <script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
 <script src="<?php echo base_url(); ?>js/buyback_app/app.js"></script>
 <script src="<?php echo base_url(); ?>js/buyback_app/controller/controllers.js"></script>
+<link rel="stylesheet" href="<?php echo base_url(); ?>css/jquery.loading.css">
+<script src="<?php echo base_url(); ?>js/jquery.loading.js"></script>
 <style>
     .collape_icon {
         font-size: 18px;
@@ -37,7 +39,7 @@
                 <div class="dashboard_graph">
                     <div class="row x_title">
                         <div class="col-md-6">
-                            <h3>Invoice Details &nbsp;&nbsp;&nbsp;
+                            <h3>Invoice Summary Details &nbsp;&nbsp;&nbsp;
                                 <small>
                                 </small>
                             </h3>
@@ -79,7 +81,46 @@
         </form>
     </div>
     
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
+            <div class="dashboard_graph">
+                <div class="row x_title">
+                    <div class="col-md-11">
+                        <h3>Generate Sale Invoice &nbsp;&nbsp;&nbsp;
+                        </h3>
+                    </div>
+                    <div class="col-md-1">
+                            <span class="collape_icon" href="#accountant_dashboard_generate_sale_invoice" data-toggle="collapse" onclick="bring_generate_sale_invoice_view()" style="margin-right: 8px;"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                        </div>
+                </div>
+                <div class="x_content collapse" id='accountant_dashboard_generate_sale_invoice'>
+
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+
 </div>
+
+<script>
+
+function bring_generate_sale_invoice_view() {
+	url = '<?php echo base_url(); ?>employee/inventory/spare_invoice_list';
+	$.ajax({
+            method: 'POST',
+            url: url,
+            data: { dashboard : 'account_dashboard' },
+            beforeSend: function () {
+                $("#accountant_dashboard_generate_sale_invoice").html("<center><img src='<?php echo base_url(); ?>images/loadring.gif' style=></center>");
+            },
+            success: function (data) {
+                    $("#accountant_dashboard_generate_sale_invoice").html(data);
+            }
+	});
+}
+</script>
+
 <!-- /page content -->
 <!-- Chart Script -->
 <script>

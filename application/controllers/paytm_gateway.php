@@ -46,7 +46,6 @@ class Paytm_gateway extends CI_Controller {
             $INDUSTRY_TYPE_ID = $this->input->post('INDUSTRY_TYPE_ID');
             $CHANNEL_ID = $this->input->post('CHANNEL_ID');
             $TXN_AMOUNT = $this->input->post('TXN_AMOUNT');
-
             // Create an array having all required parameters for creating checksum.
             $param_list["MID"] = PAYTM_GATEWAY_MERCHANT_MID;
             $param_list["ORDER_ID"] = $ORDER_ID;
@@ -169,8 +168,9 @@ class Paytm_gateway extends CI_Controller {
         
         if($insert_id){
             log_message("info",__METHOD__." Payment has been completed successfully"); 
-            
-            if($this->session->userdata('partner_id')){
+
+            //$partner_id = $this->session->userdata('partner_id');
+           if($this->session->userdata('partner_id')){
                 $partner_id = $this->session->userdata('partner_id');
             } else {
                 $a = explode('_', $param_list['ORDERID']);
@@ -306,8 +306,7 @@ class Paytm_gateway extends CI_Controller {
             if (!empty($partner_details[0]['account_manager_id'])) {
                 //$am_email = $this->employee_model->getemployeefromid($partner_details[0]['account_manager_id'])[0]['official_email'];
                 $am_email = $this->employee_model->getemployeeMailFromID($partner_details[0]['account_manager_id'])[0]['official_email'];
-            }
-            
+            }            
             
             $partner_email = $partner_details[0]['owner_email']. ", ". $partner_details[0]['invoice_email_to'];
             $payer_name = $partner_details[0]['public_name'];
@@ -338,6 +337,13 @@ class Paytm_gateway extends CI_Controller {
             }
         }
         
+        if($this->session->userdata('user_email')){
+            $to = $this->session->userdata('user_email');
+        }else if(!empty ($partner_email)){
+            $to = $partner_email;
+        }else{
+            $to = ANUJ_EMAIL_ID;
+        }
         $email_template = $this->booking_model->get_booking_email_template("payment_transaction_email");
         if ($data['is_txn_successfull']) {
             switch ($data['final_txn_status']) {
@@ -356,7 +362,7 @@ class Paytm_gateway extends CI_Controller {
             $subject_text = "Payment Failed";
         }   
         
-        $bcc = $email_template[3].','.$am_email.','.ACCOUNTANT_EMAILID;
+        $cc = $email_template[3].','.$am_email;
         $subject = vsprintf($email_template[4], $subject_text);
         $data['payer_name'] = $payer_name;
         $email_body = $this->load->view('paytm_gateway/transaction_email_template',$data,TRUE);
@@ -369,7 +375,7 @@ class Paytm_gateway extends CI_Controller {
             $to = $email_template[1];
         }
 
-        $sendmail = $this->notify->sendEmail($email_template[2], $to, "", $bcc, $subject, $email_body, "",'payment_transaction_email');
+        $sendmail = $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $email_body, "",'payment_transaction_email');
         
         if ($sendmail) {
             log_message('info', __FUNCTION__ . 'Payment transaction email send successfully');

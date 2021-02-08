@@ -207,7 +207,7 @@ if ($this->uri->segment(3)) {
                                         </td>-->
                                         <?php if (!empty($is_generate_challan)) { ?>
                                         <td>
-                                            <input type="checkbox" class="form-control checkbox_challan" name="generate_challan[<?php echo $row['service_center_id']; ?>][]" id="generate_challan_<?php echo $i; ?>" onclick='check_checkbox(2, this.id)' data-service_center_id="<?php echo $row['service_center_id']; ?>" value="<?php echo $row['id']; ?>" />
+                                            <input type="checkbox" class="form-control checkbox_challan" name="generate_challan[<?php echo $row['service_center_id']; ?>][]" id="generate_challan_<?php echo $i; ?>" onclick='check_checkbox(2, this.id)' data-service_center_id="<?php echo $row['service_center_id']; ?>" value="<?php echo $row['booking_id']; ?>" />
                                         </td>
                                         <?php } ?>
                                         <?php if(!empty($is_send_to_sf)){ ?>
@@ -314,8 +314,6 @@ if ($this->uri->segment(3)) {
                 hide: 100
             }
         });
-
-    });
     
     table = $("#datatable1").dataTable({
             "pageLength": 100,
@@ -343,6 +341,8 @@ if ($this->uri->segment(3)) {
                 ]
 
         });
+
+    });
         
     
     function downloadSpare(){

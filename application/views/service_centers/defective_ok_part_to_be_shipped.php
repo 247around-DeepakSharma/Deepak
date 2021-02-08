@@ -26,7 +26,6 @@ if ($this->uri->segment(3)) {
                                         <th class="text-center">Consumption</th>
                                         <th class="text-center">Consumption Reason</th>
                                         <th class="text-center" >Spare Tag/Address<br><input type="checkbox" id="selectall_spare_tag" > </th>
-<!--                                        <th class="text-center" >Address<br><input type="checkbox" id="selectall_address" > </th>-->
                                         <th class="text-center" >Challan<br><input type="checkbox" id="selectall_challan_file" > </th>   
                                         <th class="text-center" >Bulk Send<br><input type="checkbox" id="selectall_send_courier" > </th>                          
                                         <th class="text-center">Action</th>
@@ -652,7 +651,7 @@ if ($this->uri->segment(3)) {
             $('#selectall_spare_tag').prop('checked', false);
         }
         var total_lineItmes = $('.checkbox_challan:checked').length;
-            $(".checkbox_challan").prop('checked', false); 
+            
          if(total_lineItmes > 30){
                 $("#"+checkBox_id).prop('checked', false);
                 alert('You can not select more than 30.');

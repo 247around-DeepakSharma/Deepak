@@ -458,12 +458,12 @@ class dealerApi extends CI_Controller {
                 $this->ProcessverifyUserOTP();
                 break;
             
-            case 'ResendOTP':	
-                $this->ProcessResendOTP();	
+            case 'ResendOTP':   
+                $this->ProcessResendOTP();  
                 break;
             
-            case 'GetBookingHistory':	
-                $this->ProcessGetBookingHistory();	
+            case 'GetBookingHistory':   
+                $this->ProcessGetBookingHistory();  
                 break;
             
             case 'SubmitBookingComment':	
@@ -596,19 +596,17 @@ function check_for_upgrade(){
         log_message("info", __METHOD__ . " Entering..in upgrade");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("app_version"), $requestData);
-        if ($requestData['app_version']!=DEALER_APP_VERSION) { 
-                // get configuration data from table for App version upgrade // 
-                $response = $this->engineer_model->get_engineer_config(DEALER_FORCE_UPGRADE); 
-                $this->jsonResponseString['response'] = array('configuration_type'=>$response[0]->configuration_type,'config_value'=>$response[0]->config_value); // chnage again acc to umesh  // Response one up according to umesh//
-                $this->sendJsonResponse(array('0000', 'success')); // send success response //
-               
+        $response = $this->engineer_model->get_engineer_config(DEALER_FORCE_UPGRADE);
+        if ($requestData['app_version'] != $response[0]->app_version) { //APP_VERSION 
+            // get configuration data from table for App version upgrade // 
+            $this->jsonResponseString['response'] = array('configuration_type' => $response[0]->configuration_type, 'config_value' => $response[0]->config_value); // chnage again acc to umesh  // Response one up according to umesh//
+            $this->sendJsonResponse(array('0000', 'success')); // send success response //
         } else {
             log_message("info", __METHOD__ . $validation['message']);
             $this->jsonResponseString['response'] = array(); /// Response one up according to umesh//
             $this->sendJsonResponse(array("9998",'Upgrade not required')); // Syntax Error Solve //
         }
-
-}
+    }
 
 
 /*
@@ -1126,7 +1124,7 @@ function submitEscalation(){
                     $curl_response = curl_exec($ch);
                     curl_close($ch);   
                     $this->jsonResponseString['response'] = $curl_response;
-					$this->sendJsonResponse(array('0000', "Escalation details updated successfully")); // send success response //    
+                    $this->sendJsonResponse(array('0000', "Escalation details updated successfully")); // send success response //    
                         }else{
                             $this->jsonResponseString['response'] = array();
                             $this->sendJsonResponse(array("1010", "Escalation Already done."));
@@ -1491,7 +1489,7 @@ function  getPartnerCompareTAT(){
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("entity_id","entity_type"), $requestData);
         if (!empty($requestData['entity_type'])) { 
-        	/* Get Partner , Service , warramty data from  DB */
+            /* Get Partner , Service , warramty data from  DB */
                   $response = array(); 
                   
                   $response['request_type'] = array('not_set'=>'All','Installation'=>'Installations','Repair_with_part'=>'Repair With Spare','Repair_without_part'=>'Repair Without Spare');
@@ -2357,38 +2355,38 @@ function  getPartnerCompareTAT(){
         $free_paid = array_search($warranty_type, $warrantyArray);
         return $free_paid;
     }
-    function ProcessResendOTP() {	
-        $requestData = json_decode($this->jsonRequestData['qsh'], true);	
-        $validation = $this->validateKeys(array("mobile"), $requestData);	
-        $fetch_user_detail = $this->dealer_model->fetch_retailer_detail('*', array('phone' => $requestData['mobile']));	
-        $type = $requestData['type'];	
-        if (!empty($fetch_user_detail)) {	
-            if (in_array($type, array('password_recovery', 'new_registration'))) {	
-                if ($type == 'password_recovery') {	
-                    $otp = rand(1000, 9999);	
-                    $sms['tag'] = "retailer_password_recovery";	
-                    $sms['smsData']['otp'] = $otp;	
-                    $sms['phone_no'] = $fetch_user_detail[0]['phone'];	
-                    $sms['booking_id'] = "";	
-                    $sms['type'] = "dealer";	
-                    $sms['type_id'] = $fetch_user_detail[0]['id'];	
-                    $send_SMS = $this->notify->send_sms_msg91($sms);	
-                    $this->jsonResponseString['response'] = array('otp' => $otp);	
-                    $this->sendJsonResponse(array('0000', 'OTP send successfully'));	
-                } else {	
-                    $resendOTP = $this->check_user_otp_verified($requestData['mobile']);	
-                    $otp = $resendOTP['otp'];	
-                    $this->jsonResponseString['response'] = array('otp' => $otp);	
-                    $this->sendJsonResponse(array('0000', 'OTP send successfully'));	
-                }	
-            } else {	
-                $this->jsonResponseString['response'] = array();	
-                $this->sendJsonResponse(array('0013', 'Invalid type'));	
-            }	
-        } else {	
-            $this->jsonResponseString['response'] = array();	
-            $this->sendJsonResponse(array('0013', 'User does not exist'));	
-        }	
+    function ProcessResendOTP() {   
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);    
+        $validation = $this->validateKeys(array("mobile"), $requestData);   
+        $fetch_user_detail = $this->dealer_model->fetch_retailer_detail('*', array('phone' => $requestData['mobile'])); 
+        $type = $requestData['type'];   
+        if (!empty($fetch_user_detail)) {   
+            if (in_array($type, array('password_recovery', 'new_registration'))) {  
+                if ($type == 'password_recovery') { 
+                    $otp = rand(1000, 9999);    
+                    $sms['tag'] = "retailer_password_recovery"; 
+                    $sms['smsData']['otp'] = $otp;  
+                    $sms['phone_no'] = $fetch_user_detail[0]['phone'];  
+                    $sms['booking_id'] = "";    
+                    $sms['type'] = "dealer";    
+                    $sms['type_id'] = $fetch_user_detail[0]['id'];  
+                    $send_SMS = $this->notify->send_sms_msg91($sms);    
+                    $this->jsonResponseString['response'] = array('otp' => $otp);   
+                    $this->sendJsonResponse(array('0000', 'OTP send successfully'));    
+                } else {    
+                    $resendOTP = $this->check_user_otp_verified($requestData['mobile']);    
+                    $otp = $resendOTP['otp'];   
+                    $this->jsonResponseString['response'] = array('otp' => $otp);   
+                    $this->sendJsonResponse(array('0000', 'OTP send successfully'));    
+                }   
+            } else {    
+                $this->jsonResponseString['response'] = array();    
+                $this->sendJsonResponse(array('0013', 'Invalid type')); 
+            }   
+        } else {    
+            $this->jsonResponseString['response'] = array();    
+            $this->sendJsonResponse(array('0013', 'User does not exist'));  
+        }   
     }
     /*
      * @Desc - This function is used to return booking history as CRM

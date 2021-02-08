@@ -1,4 +1,4 @@
-    <?php
+<?php
 if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
@@ -580,7 +580,6 @@ class Partner extends CI_Controller {
         }
         return $post;
     }
-        
     function insertion_failure($post, $error_msg = "", $api_response = array()) {
         $to = DEVELOPER_EMAIL;
         $cc = "";
@@ -735,7 +734,7 @@ class Partner extends CI_Controller {
                     $html .= "</ul>";
                     // ----------------------------------------------------------------
                     $email_data['to'] = $am_email. ",". $this->session->userdata("official_email");
-                    $email_data['cc'] = ACCOUNTANT_EMAILID.", ".ANUJ_EMAIL_ID;
+                    $email_data['cc'] = PARTNER_ONBOARDING_EMAIL_ID . ", " . ACCOUNTS_AR_EMAIL_ID;
                     $email_data['subject'] = "Partner Updated :  " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
                     $email_data['html'] = $html;
                     $sendUrl = base_url().'employee/partner/send_email_to_am_on_partner_update';
@@ -1621,15 +1620,18 @@ class Partner extends CI_Controller {
      */
     function process_escalation($booking_id) {
         log_message('info', __FUNCTION__ . ' booking_id: ' . $booking_id);
+        if(!$this->input->post("call_from_api")){
         $this->checkUserSession();
+        }
         $this->form_validation->set_rules('escalation_reason_id', 'Escalation Reason', 'callback_check_escalation_already_applied');
 
-
-
-        if ($this->form_validation->run() == FALSE) {
+        if ($this->form_validation->run() == FALSE && !$this->input->post("call_from_api")) {
             echo validation_errors();
-        } else {
-
+        } else if($this->form_validation->run() == FALSE && $this->input->post("call_from_api")){
+                        $response['status'] = FALSE;
+                        $response['message'] = "Bookig either already escalated or NRN approved ";
+			//echo  json_encode($response,true);
+		}else{
             $escalation['escalation_reason'] = $this->input->post('escalation_reason_id');
             $escalation_remarks = $this->input->post('escalation_remarks');
             $bookinghistory = $this->booking_model->getbooking_history($booking_id);
@@ -1664,8 +1666,13 @@ class Partner extends CI_Controller {
                 //inserts vendor escalation details
                 $escalation_id = $this->vendor_model->insertVendorEscalationDetails($escalation);
             }
+            if(!$this->input->post("call_from_api")){
             $this->notify->insert_state_change($escalation['booking_id'], "Escalation", _247AROUND_PENDING, $remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), 
-                    ACTOR_ESCALATION,NEXT_ACTION_ESCALATION,$this->session->userdata('partner_id'));
+                    ACTOR_ESCALATION,NEXT_ACTION_ESCALATION,$this->session->userdata('partner_id'));           
+            }else{
+            $this->notify->insert_state_change($escalation['booking_id'], "Escalation", _247AROUND_PENDING, $remarks, $this->input->post("dealer_agent_id"), $this->input->post("dealer_agent_type"), 
+                    ACTOR_ESCALATION,NEXT_ACTION_ESCALATION,'247001');
+            }
             //Send Email
             //get account manager details
                 $am_email = "";
@@ -1693,9 +1700,11 @@ class Partner extends CI_Controller {
                     //Sending Mail
                     if(!empty($from) && !empty($to))
                     {
-                        $this->notify->sendEmail($from, $to, $template[3] . "," . $cc, '', $subjectBody, $emailBody, "",'escalation_on_booking_from_partner_panel', "", $booking_id);
-                        //Logging
-                        log_message('info', " Escalation Mail Send successfully " . $emailBody);
+                        if(!$this->input->post("call_from_api")){
+                            $this->notify->sendEmail($from, $to, $template[3] . "," . $cc, '', $subjectBody, $emailBody, "",'escalation_on_booking_from_partner_panel', "", $booking_id);
+                            //Logging
+                            log_message('info', " Escalation Mail Send successfully " . $emailBody);
+                        }
                     }
                 } else {
                     //Logging Error Message
@@ -1734,19 +1743,32 @@ class Partner extends CI_Controller {
                     $value['booking_id'] = $escalation['booking_id'];
                     $value['assigned_vendor_id'] = $bookinghistory[0]['assigned_vendor_id'];
                     $value['current_state'] = "Escalation";
-                    $value['agent_id'] = $partner_details['entity_id'];
-                    $value['agent_type'] = 'partner';
+                    if(!$this->input->post("call_from_api")){
+                        $value['agent_id'] = $partner_details['entity_id'];
+                        $value['agent_type'] = 'partner';
+                    }else{
+                        $value['agent_id'] = $this->input->post('dealer_agent_id');
+                        $value['agent_type'] = $this->input->post('dealer_agent_type');
+                    }
                     $value['remarks'] = $escalation_remarks;
                     $where = array('penalty_details.escalation_id' => ESCALATION_PENALTY, 'penalty_details.active' => '1');
                     //Adding values in penalty on booking table
-                    $this->penalty_model->get_data_penalty_on_booking($value, $where, $booking_request_type);
+                    if(!$this->input->post("call_from_api")){
+                        $this->penalty_model->get_data_penalty_on_booking($value, $where, $booking_request_type);
+                    }
 
                     log_message('info', 'Penalty added for Escalations - Booking : ' . $escalation['booking_id']);
                 }
             }
 
             log_message('info', __FUNCTION__ . " Exiting");
-            echo "success";
+			if($this->input->post("call_from_api")){
+				$response['status'] = TRUE;
+				$response['message'] = "Booking escalated successfully !";
+                                //echo  json_encode($response,true);
+			}else{	
+                            echo "success";
+			}
         }
     }
 
@@ -4539,7 +4561,6 @@ class Partner extends CI_Controller {
      * 
      */
     function get_partner_booking_summary_data($partner_id) {
-
         //get bookings count by month 
         $select = "DATE_FORMAT(service_center_closed_date, '%b') AS month, "
                 . "SUM(IF(!(current_status = 'Cancelled' OR internal_status ='InProcess_Cancelled') , 1, 0)) AS completed, "
@@ -4549,7 +4570,9 @@ class Partner extends CI_Controller {
         $where = array('partner_id' => $partner_id, "booking_details.service_center_closed_date >= (DATE_FORMAT(CURDATE(), '%Y-%m-01') - INTERVAL 1 MONTH)" => NULL);
         $order_by = "YEAR(booking_details.service_center_closed_date),MONTH(booking_details.service_center_closed_date)";
         $group_by = "month";
+        
         $data['bookings_count'] = $this->booking_model->get_bookings_count_by_any($select, $where, $order_by, $group_by);
+        
         if(!empty($data['bookings_count']) && count($data['bookings_count']) == 2){
             $data['completed_booking'] = $data['bookings_count'][1]['completed'];
             $data['last_month_completed_booking'] = $data['bookings_count'][0]['completed'];
@@ -4573,9 +4596,12 @@ class Partner extends CI_Controller {
              //$data['cancelled_booking_percentage_change'] = 0;
              
         }
+        
         //get escalation percentage
         $data['escalation_percentage'] = $this->partner_model->get_booking_escalation_percantage($partner_id);
+        
         $data['pincode_covered'] = $this->reusable_model->get_search_query('vendor_pincode_mapping','count(distinct pincode) as pincode',NULL,NULL,NULL,NULL,NULL,NULL)->result_array()[0]['pincode'];
+        
         $data['avg_rating'] = $this->reusable_model->get_search_query('booking_details','ROUND( AVG( rating_stars ) , 2 ) AS rating_avg',
                 array("current_status"=>"Completed","rating_stars IS NOT NULL"=>NULL,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL)->result_array()[0]['rating_avg'];
        
@@ -4583,7 +4609,6 @@ class Partner extends CI_Controller {
         if(!empty($p)){
             $data['prepaid_amount'] = $p;
         }
-        
 
         $this->load->view('partner/show_partner_booking_summary', $data);
     }
@@ -4662,11 +4687,11 @@ class Partner extends CI_Controller {
      */
     function get_prepaid_amount($partner_id) {
         log_message("info", __METHOD__ . " Partner Id " . $partner_id);
+        
         if ($this->session->userdata('is_prepaid') == 1) {
             $p_details = $this->miscelleneous->get_partner_prepaid_amount($partner_id);
 
             if ($p_details['is_notification']) {
-
                 $d['prepaid_amount'] = '<strong class="blink" style="color:red;">' . $p_details['prepaid_amount'] . '</strong> ';
             } else {
                 $d['prepaid_amount'] = '<strong style="color:green;">' . $p_details['prepaid_amount'] . '</strong>';
@@ -4676,13 +4701,16 @@ class Partner extends CI_Controller {
 
             $userSession = array('status' => $p_details['active'], "message" => $p_details['prepaid_msg']);
             $this->session->set_userdata($userSession);
+            
             return $d;
         } else if ($this->session->userdata('is_prepaid') == 0) {
             $this->check_postpaid_partner_active($partner_id);
+            
             return array();
         } else {
             $userSession = array('status' => true);
             $this->session->set_userdata($userSession);
+            
             return array();
         }
         
@@ -10403,7 +10431,7 @@ class Partner extends CI_Controller {
         }
         else
         {
-        $post = $this->get_booking_form_data(1);
+            $post = $this->get_booking_form_data(1);
         }
         $assigned_vendor_id = $post['assigned_vendor_id'];
         $partner_id = $post['partner_id'];
@@ -10413,8 +10441,8 @@ class Partner extends CI_Controller {
         $pincode = $post['pincode'];
         if(!empty($assigned_vendor_id))
         {
-        $vendor_data = $this->vendor_model->getVendorContact($assigned_vendor_id);
-        $pincode = $vendor_data[0]['pincode'];
+            $vendor_data = $this->vendor_model->getVendorContact($assigned_vendor_id);
+            $pincode = $vendor_data[0]['pincode'];
         }
         
         // If request type is there in JSON, use that for Prices otherwise use ELS
@@ -10476,7 +10504,7 @@ class Partner extends CI_Controller {
         // Decode the response
         $responseData = json_decode($response, TRUE);
         if (isset($responseData['data']['code'])) {
-            if ($responseData['data']['code'] == -1003) {
+            if ($responseData['data']['code'] == -1003) { 
                 $output = ERR_ORDER_ID_EXISTS_MSG.", Booking ID: " . $responseData['data']['response']['247aroundBookingID'];
                 log_message('info', $output); 
                 return $this->show_booking_insertion_failure($is_api, ERR_ORDER_ID_EXISTS_CODE, ERR_ORDER_ID_EXISTS_MSG);
@@ -10488,16 +10516,16 @@ class Partner extends CI_Controller {
             else if ($responseData['data']['code'] == -24700) {
                 log_message('info', ERR_SAME_BOOKING_EXISTS_MSG. print_r($postData, true) . " error mgs" . print_r($responseData['data'], true)); 
                 return $this->show_booking_insertion_failure($is_api, ERR_SAME_BOOKING_EXISTS_CODE, ERR_SAME_BOOKING_EXISTS_MSG);
-                }
+            }
             else {
                 log_message('info', "Booking not Inserted, Internal Server Error " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
-                $this->insertion_failure($postData, "Internal Server Error", $responseData['data']);
+                $this->insertion_failure($postData, "Internal Server Error", $responseData['data']);                
                 return $this->show_booking_insertion_failure($is_api, FAILURE_CODE, ERR_BOOKING_NOT_INSERTED_MSG);
-                }
+            }
         }
         else {
-            log_message('info', "Booking not Inserted, Internal Server Error, Please Try Again. " . print_r($postData, true) . " error mgs");
-            $this->insertion_failure($postData, "Internal Server Error");                
+            log_message('info', "Booking not Inserted, Internal Server Error, Please Try Again. " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
+            $this->insertion_failure($postData, "Internal Server Error", $responseData['data']);                
             return $this->show_booking_insertion_failure($is_api, FAILURE_CODE, ERR_BOOKING_NOT_INSERTED_MSG);
         }
     }

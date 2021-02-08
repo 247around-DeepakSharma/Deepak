@@ -1537,8 +1537,9 @@ class Miscelleneous {
      * @return int
      */
     function get_partner_prepaid_amount($partner_id, $getAll = FALSE) {
-        //Get Partner details
         log_message("info",__METHOD__."  Prepaid Amount Request for Partner ". $partner_id);
+        
+        //Get Partner details
         $partner_details = $this->My_CI->partner_model->getpartner_details("is_active, is_prepaid,prepaid_amount_limit,"
                 . "grace_period_date,prepaid_notification_amount, partner_type ", array('partners.id' => $partner_id));
         
@@ -1546,6 +1547,7 @@ class Miscelleneous {
         
         if(!empty($partner_details) && ($partner_details[0]['is_prepaid'] == 1 || !empty($getAll))){
             log_message("info",__METHOD__."  Prepaid Partner Found id ". $partner_id);
+            
             //Get Partner invoice amout
             $invoice_where = "vendor_partner = 'partner' AND vendor_partner_id = " . $partner_id . 
                     " AND settle_amount = 0 AND sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_NEW_PART_RETURN."' ) ";
@@ -1573,22 +1575,29 @@ class Miscelleneous {
             );
            
             // sum of partner payable amount whose booking is in followup, pending and completed(Invoice not generated) state.
-            $service_amount = $this->My_CI->booking_model->get_unit_details($where, false, 'SUM(partner_net_payable) as amount');
-            log_message("info",__METHOD__."  Prepaid Partner id ".$partner_id." Service Amount " . print_r($service_amount, true));
+            $service_amount = $this->My_CI->booking_model->get_unit_details($where, 
+                    false, 'SUM(partner_net_payable) as amount');
+            
+            log_message("info",__METHOD__."  Prepaid Partner id " . 
+                    $partner_id . " Service Amount " . print_r($service_amount, true));
             
             //Get unpaid upcountry charges
             $upcountry = $this->My_CI->upcountry_model->getupcountry_for_partner_prepaid($partner_id);
             $upcountry_basic = 0;
+            
             if(!empty($upcountry)){
                 $upcountry_basic = $upcountry[0]['total_upcountry_price'];
             }
             
             $misc_select = 'SUM(miscellaneous_charges.partner_charge) as misc_charge';
 
-            $misc = $this->My_CI->invoices_model->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.partner_invoice_id IS NULL", false, FALSE, "booking_details.partner_id", $partner_id, "partner_charge");
-            $msic_charge = 0;
+            $misc = $this->My_CI->invoices_model->get_misc_charges_invoice_data($misc_select, 
+                    "miscellaneous_charges.partner_invoice_id IS NULL", false, FALSE, 
+                    "booking_details.partner_id", $partner_id, "partner_charge");
+            $misc_charge = 0;
+            
             if(!empty($misc)){
-                $msic_charge = $misc[0]['misc_charge'];
+                $misc_charge = $misc[0]['misc_charge'];
             }
             
             $bank_transactions = $this->My_CI->invoices_model->getbank_transaction_summary("partner", $partner_id);
@@ -1609,13 +1618,14 @@ class Miscelleneous {
             log_message("info", __METHOD__ . " Partner Id " . $partner_id . ", Prepaid account final amount: " . $final_amount);
             
             $d['prepaid_amount'] = round($final_amount,0);
+            
             // If final amount is greater than notification amount then we will display notification in the Partner CRM
             if (($partner_details[0]['is_prepaid'] == 1) & $final_amount < $partner_details[0]['prepaid_notification_amount']) {
-
                 $d['is_notification'] = TRUE;
             } else {
                 $d['is_notification'] = FALSE;
             }
+            
             $d['prepaid_msg'] = "";
             $d['active'] = $partner_details[0]['is_active'];
             
@@ -1624,8 +1634,10 @@ class Miscelleneous {
             if (($partner_details[0]['is_prepaid'] == 1) && $partner_details[0]['prepaid_amount_limit'] > $final_amount) {
                 // Display low amount msg on Partner CRM
                 $d['prepaid_msg'] = PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER;
+                
                 //If grace preiod is not and less than current date then partner is not able to insert new booking
-                if (!empty($partner_details[0]['grace_period_date']) && (date("Y-m-d") > date("Y-m-d", strtotime($partner_details[0]['grace_period_date'])))) {
+                if (!empty($partner_details[0]['grace_period_date']) 
+                        && (date("Y-m-d") > date("Y-m-d", strtotime($partner_details[0]['grace_period_date'])))) {
                     $d['active'] = 0;
                 } else if (empty($partner_details[0]['grace_period_date'])) {
                 // If grace period is empty and they have low balance then partner is not able to inert new booking
@@ -1637,21 +1649,29 @@ class Miscelleneous {
                     $d['is_notification'] = TRUE;
                     $d['prepaid_msg'] = PREPAID_DEACTIVATED_MSG_FOR_PARTNER;
                 }
-
+                
                 //$d['active'] = 1;
             }
+            
             $d['partner_type'] = $partner_details[0]['partner_type'];
-            log_message("info",__METHOD__."  Prepaid Partner id ".$partner_id." Return Prepaid data " . print_r($d, true));
+            
+            log_message("info",__METHOD__."  Prepaid Partner id ".
+                    $partner_id." Return Prepaid data " . print_r($d, true));
+            
             return $d;
         } else {
             $d['is_notification'] = false;
             $d['active'] = 1;
             $d['prepaid_msg'] = "";
             $d["prepaid_amount"] = "";
+            
             if(!empty($partner_details)){
                  $d['partner_type'] = $partner_details[0]['partner_type'];
             }
-            log_message("info",__METHOD__."  Prepaid Partner id ".$partner_id." Return false Prepaid data " . print_r($d, true));
+            
+            log_message("info",__METHOD__."  Prepaid Partner id ".$partner_id . 
+                    " Return false Prepaid data " . print_r($d, true));
+            
             return $d;
         }
     }
@@ -4780,7 +4800,7 @@ function generate_image($base64, $image_name,$directory){
             $in['agent_type'] = _247AROUND_SF_STRING;
             $in['is_wh'] = TRUE;
             $in['inventory_id'] = $data['shipped_inventory_id'];
-
+            $in['spare_id'] = $value['spare_id'];
             $this->process_inventory_stocks($in); 
  
             // $url = base_url() . "employee/service_centres/acknowledge_delivered_spare_parts/" . $value['booking_id'] . "/" . $value['service_center_id']."/".$value['spare_id']."/".$partner_id."/"."0"."1";
@@ -5334,7 +5354,7 @@ function generate_image($base64, $image_name,$directory){
             "agent_type" => _247AROUND_SF_STRING,
             "is_wh" => TRUE,
             "is_cancel_part" => TRUE,
-            "spare_id" => $spare_id            
+            "spare_id" => $spare_id
         );
         
         $this->process_inventory_stocks($data);
@@ -5408,7 +5428,7 @@ function generate_image($base64, $image_name,$directory){
     
     /* This function copy all invoice Images from misc-images folder to purchase-invoices folder on s3 server
      * 
-     */
+    */
     function copy_invoices_from_s3() {
         // Tables & columns in  which invoices are stored
         $arr_tables = ['service_center_booking_action' => 'sf_purchase_invoice', 'booking_files' => 'file_name', 'engineer_booking_action' => 'purchase_invoice', 'spare_parts_details' => 'invoice_pic'];
@@ -5499,7 +5519,6 @@ function generate_image($base64, $image_name,$directory){
         $sms['booking_id'] = "";
         $sms['type_id'] = "";
         $sms['smsData']['otp'] = $otp;        
-      
         // Send SMS to Customer Mobile
         $this->My_CI->notify->send_sms_msg91($sms);   
         log_message('info', "Walkin Booking OTP => ".$otp);

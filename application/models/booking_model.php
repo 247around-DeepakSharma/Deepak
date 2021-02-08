@@ -48,7 +48,7 @@ class Booking_model extends CI_Model {
      *  @return : void737
      */
 
-	/**
+    /**
      * @desc: get all files name having space from collateral table
      * @return:  Array
      */
@@ -168,7 +168,7 @@ class Booking_model extends CI_Model {
 
         } else if ($appliance_id != "") {
 
-	    $where = " `booking_unit_details`.appliance_id = '$appliance_id' AND booking_status <> '"._247AROUND_CANCELLED."'";
+        $where = " `booking_unit_details`.appliance_id = '$appliance_id' AND booking_status <> '"._247AROUND_CANCELLED."'";
 
             $sql = "SELECT distinct(appliance_id), brand, booking_id, category, capacity, booking_unit_details.partner_id, `appliance_details`.`model_number`,description, `appliance_details`.`purchase_date`, `appliance_details`.serial_number,`booking_unit_details`.sub_order_id, `booking_unit_details`.`sf_purchase_date`, `booking_unit_details`.`sf_model_number`
             from booking_unit_details,  appliance_details Where $where  AND `appliance_details`.`id` = `booking_unit_details`.`appliance_id`  ";
@@ -513,7 +513,7 @@ class Booking_model extends CI_Model {
      */
 
     function addbooking($booking){
-	$this->db->insert('booking_details', $booking);
+    $this->db->insert('booking_details', $booking);
         
         log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
         
@@ -524,7 +524,7 @@ class Booking_model extends CI_Model {
     /**
      *  @desc : this function is to get a particular service.
      *
-     * 	This function gets the service name with the help of its id
+     *  This function gets the service name with the help of its id
      *
      *  @param : service id
      *  @return : service
@@ -589,7 +589,7 @@ class Booking_model extends CI_Model {
             LEFT JOIN `penalty_on_booking` ON `booking_details`.`booking_id` = `penalty_on_booking`.`booking_id` and penalty_on_booking.active = '1'
             WHERE type = 'Booking' AND $where
             (booking_details.current_status = '$status')
-	    ORDER BY closed_date DESC $add_limit "
+        ORDER BY closed_date DESC $add_limit "
         );
        $temp = $query->result();
        usort($temp, array($this, 'date_compare_bookings')); 
@@ -737,21 +737,21 @@ class Booking_model extends CI_Model {
     public function total_queries($status, $booking_id = "") {
         $where = "";
 
-	if ($booking_id != "")
-	    $where .= "AND `booking_details`.`booking_id` = '$booking_id'";
+    if ($booking_id != "")
+        $where .= "AND `booking_details`.`booking_id` = '$booking_id'";
 
-	$sql = "SELECT count(*) as count from booking_details
+    $sql = "SELECT count(*) as count from booking_details
         JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
         JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
         LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
         WHERE booking_details.current_status = '"._247AROUND_FOLLOWUP."' $where
         AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) >= 0 OR
                 booking_details.booking_date='') AND `booking_details`.current_status='$status'";
-	$query = $this->db->query($sql);
-	$count = $query->result_array();
+    $query = $this->db->query($sql);
+    $count = $query->result_array();
 
 
-	return $count[0]['count'];
+    return $count[0]['count'];
     }
 
 
@@ -832,11 +832,11 @@ class Booking_model extends CI_Model {
         $partner_name = "";
         if($join !=""){
             $service_center_name = ",service_centres.name as vendor_name, service_centres.min_upcountry_distance, service_centres.district as sc_district,service_centres.address, service_centres.state as sf_state, service_centres.pincode, service_centres.district as sf_district,"
-		. "service_centres.primary_contact_name, service_centres.owner_email,service_centres.owner_name, gst_no, "
-		. "service_centres.primary_contact_phone_1,service_centres.primary_contact_phone_2, "
+        . "service_centres.primary_contact_name, service_centres.owner_email,service_centres.owner_name, gst_no, "
+        . "service_centres.primary_contact_phone_1,service_centres.primary_contact_phone_2, "
                     . "service_centres.primary_contact_email,service_centres.owner_phone_1, "
                     . "service_centres.phone_1, service_centres.min_upcountry_distance as municipal_limit, isEngineerApp ";
-	        $service_centre = ", service_centres ";
+            $service_centre = ", service_centres ";
             $condition = " and booking_details.assigned_vendor_id =  service_centres.id";
             $partner_name = ", partners.public_name ";
             $partner = ", partners  ";
@@ -936,8 +936,8 @@ class Booking_model extends CI_Model {
     function getBrandForService($service_id) {
         $this->db->where(array('service_id' => $service_id, 'seo' => 1));
         $this->db->select('brand_name');
-	    $this->db->order_by('brand_name');
-	    $query = $this->db->get('appliance_brands');
+        $this->db->order_by('brand_name');
+        $query = $this->db->get('appliance_brands');
         return $query->result_array();
     }
 
@@ -957,7 +957,7 @@ class Booking_model extends CI_Model {
         $this->db->order_by('category', 'asc');
         $query = $this->db->get('service_centre_charges');
         
-    	return $query->result_array();
+        return $query->result_array();
     }
 
     function getCapacityForCategory($service_id, $category, $brand, $partner_id) {
@@ -979,16 +979,16 @@ class Booking_model extends CI_Model {
         $this->db->order_by('capacity', 'asc');
         $query = $this->db->get('service_centre_charges');
       
-    	return $query->result_array();
+        return $query->result_array();
     }
 
     function getCapacityForAppliance($service_id) {
-	//echo $category;
-	$sql = "Select distinct capacity from service_centre_charges where service_id='$service_id' and active='1' order by capacity asc";
+    //echo $category;
+    $sql = "Select distinct capacity from service_centre_charges where service_id='$service_id' and active='1' order by capacity asc";
 
-	$query = $this->db->query($sql);
+    $query = $this->db->query($sql);
 
-	return $query->result_array();
+    return $query->result_array();
     }
     /*
      * @desc: This method return Price details. It filters according to service id, category, capacity, partner id
@@ -1011,9 +1011,9 @@ class Booking_model extends CI_Model {
             $this->db->where('brand', $brand);
         //}
 
-    	if (!empty($capacity)) {
+        if (!empty($capacity)) {
             $this->db->where('capacity', $capacity);
-    	}
+        }
         else
         {
             $this->db->where('(capacity IS NULL OR capacity = "")', NULL);
@@ -1021,9 +1021,9 @@ class Booking_model extends CI_Model {
         
         $this->db->order_by('service_category', 'asc');
 
-    	$query = $this->db->get('service_centre_charges');
+        $query = $this->db->get('service_centre_charges');
 
-    	return $query->result_array();
+        return $query->result_array();
     }
 
     /**
@@ -1232,20 +1232,20 @@ class Booking_model extends CI_Model {
      * partner. Order id is unique for each partner and is tied to a unique
      * booking id.
      *
-     *  @param : String	$partner_id Partner ID
-     *  @param : String	$order_id Order ID
+     *  @param : String $partner_id Partner ID
+     *  @param : String $order_id Order ID
      *
      *  @return : If exists, returns booking details specific to this order id else false
      */
     function check_order_id_exists($partner_id, $order_id) {
-	$this->db->where(array("partner_id" => $partner_id, "order_id" => $order_id));
-	$query = $this->db->get('booking_details');
+    $this->db->where(array("partner_id" => $partner_id, "order_id" => $order_id));
+    $query = $this->db->get('booking_details');
 
-	if (count($query->result_array()) > 0) {
-	    return $query->result_array()[0];
-	} else {
-	    return FALSE;
-	}
+    if (count($query->result_array()) > 0) {
+        return $query->result_array()[0];
+    } else {
+        return FALSE;
+    }
     }
 
     /**
@@ -1415,9 +1415,9 @@ class Booking_model extends CI_Model {
      */
     function find_sc_by_pincode_and_appliance($appliance, $pincode) {
         $query = $this->db->query("SELECT DISTINCT(`service_centres`.`id`),'SF_EXIST' AS sf_status, service_centres.name FROM (`vendor_pincode_mapping`)
-	    JOIN `service_centres` ON `service_centres`.`id` = `vendor_pincode_mapping`.`Vendor_ID`
-    		WHERE `Appliance_ID` = '$appliance' AND `vendor_pincode_mapping`.`Pincode` = '$pincode'
-	    AND `service_centres`.`active` = '1'
+        JOIN `service_centres` ON `service_centres`.`id` = `vendor_pincode_mapping`.`Vendor_ID`
+            WHERE `Appliance_ID` = '$appliance' AND `vendor_pincode_mapping`.`Pincode` = '$pincode'
+        AND `service_centres`.`active` = '1'
             AND `service_centres`.`on_off` = '1'
             AND `service_centres`.`is_wh` = '0'");
 
@@ -1444,22 +1444,22 @@ class Booking_model extends CI_Model {
      */
     function getbooking_charges($booking_id = "", $status="") {
         $this->db->select("service_center_booking_action.*, booking_cancellation_reasons.reason as cancellation_reason_text");
-	if ($booking_id != "") {
-	    $this->db->where('booking_id', $booking_id);
-	}
+    if ($booking_id != "") {
+        $this->db->where('booking_id', $booking_id);
+    }
 
-	//Status should NOT be Completed or Cancelled
+    //Status should NOT be Completed or Cancelled
         if($status !=""){
             $this->db->where_not_in('current_status', $status);
         }
 
         $this->db->where_not_in('internal_status', "Reschedule");
         $this->db->join('booking_cancellation_reasons', 'service_center_booking_action.cancellation_reason = booking_cancellation_reasons.id', 'left');
-	$query = $this->db->get('service_center_booking_action');
+    $query = $this->db->get('service_center_booking_action');
 
-	log_message('info', __METHOD__ . "=> " . $this->db->last_query());
+    log_message('info', __METHOD__ . "=> " . $this->db->last_query());
 
-	return $query->result_array();
+    return $query->result_array();
     }
 
     /**
@@ -1792,8 +1792,8 @@ class Booking_model extends CI_Model {
      * @return : Array()
      */
     function insert_data_in_booking_unit_details($services_details, $state, $update_key) {
-	log_message('info', __FUNCTION__);
-	$data = $this->getpricesdetails_with_tax($services_details['id'], $state);
+    log_message('info', __FUNCTION__);
+    $data = $this->getpricesdetails_with_tax($services_details['id'], $state);
         
         $result = array_merge($data[0], $services_details);
         unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
@@ -2909,7 +2909,7 @@ class Booking_model extends CI_Model {
      */
 
     function addBookingSymptom($booking_symptom){
-	$this->db->insert('booking_symptom_defect_details', $booking_symptom);
+    $this->db->insert('booking_symptom_defect_details', $booking_symptom);
         log_message ('info', __METHOD__ . "=> Booking Symptom Defect Details  SQL ". $this->db->last_query());
         
         return $this->db->insert_id();

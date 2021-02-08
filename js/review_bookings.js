@@ -202,6 +202,7 @@ function review_search(status,is_partner,sub_id,sort_on){
     // set value for the Review Range filter
     var min_review_age = 'not_set';
     var max_review_age = 'not_set';
+
     if($('#review_age_min_'+is_partner+'_'+status+sub_id).length && $('#review_age_min_'+is_partner+'_'+status+sub_id).val() != '') {
         var min_review_age_id = '#review_age_min_'+is_partner+'_'+status+sub_id;
         min_review_age = $(min_review_age_id).val();

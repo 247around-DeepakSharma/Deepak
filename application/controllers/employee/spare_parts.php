@@ -1053,7 +1053,7 @@ class Spare_parts extends CI_Controller {
             }
         } else {
           $spare_pending_on = 'Partner';   
-        }	
+        }   
 
         $row[] = $spare_pending_on;
         $row[] = $spare_list->sc_name;
@@ -1243,7 +1243,7 @@ class Spare_parts extends CI_Controller {
         $sc_icon_style = "";
         $row[] = $no;
         $row[] = '<a href="'. base_url().'employee/booking/viewdetails/'.$spare_list->booking_id.'" target= "_blank" >'.$spare_list->booking_id.'</a>';
-        	if($spare_list->is_micro_wh == 1){
+            if($spare_list->is_micro_wh == 1){
          $spare_pending_on = 'Micro-warehouse';   
         }elseif ($spare_list->is_micro_wh == 2) {
             $wh_details = $this->vendor_model->getVendorContact($spare_list->partner_id);
@@ -1253,7 +1253,7 @@ class Spare_parts extends CI_Controller {
              
         } else {
           $spare_pending_on = 'Partner';   
-        }	
+        }   
         
         if ($spare_list->active == 0) {
             $sc_icon_style = "color:#e10f0fd1;";
@@ -2335,7 +2335,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                     //$this->notify->insert_state_change($booking_id, PART_APPROVED_BY_ADMIN, $reason_text, $reason, $agent_id, $agent_name, $actor, $next_action, _247AROUND, NULL);
                     if (!empty($booking_id)) {
                         $affctd_id = $this->booking_model->update_booking($booking_id, $booking);
-			            if (isset($data['is_micro_wh']) && $data['is_micro_wh'] == 1 ) {
+                        if (isset($data['is_micro_wh']) && $data['is_micro_wh'] == 1 ) {
                                $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
                                unset($data['spare_id']);
                         }
@@ -3024,7 +3024,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                                 $spare_data['parts_requested_type'] = $warehouse_details['type'];
                                 $spare_data['quantity'] = $data['quantity'];
                                 $spare_data['requested_inventory_id'] = $warehouse_details['inventory_id'];
-								$check_defective_required_inventory_id = $warehouse_details['inventory_id'];
+                                $check_defective_required_inventory_id = $warehouse_details['inventory_id'];
                                 //$data['shipped_quantity'] = $data['quantity'];
                                 // $spare_data['shipped_inventory_id'] = $warehouse_details['inventory_id'];
                                     
@@ -3063,7 +3063,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                         $is_micro_wh = $spare_data['is_micro_wh'] = 0;
                         $spare_data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
                         $spare_data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
-						$spare_data['parts_requested_type'] = $spare_parts_details[0]['parts_requested_type'];
+                        $spare_data['parts_requested_type'] = $spare_parts_details[0]['parts_requested_type'];
                     }
                 } else {
                 $spare_data['partner_id'] = $partner_id;
@@ -3227,7 +3227,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                           $this->booking_model->insert_booking_file($data_booking_file);
                         }
 
-		         	if (isset($is_micro_wh) && $is_micro_wh == 1) {
+                    if (isset($is_micro_wh) && $is_micro_wh == 1) {
                         $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
                         unset($data['spare_id']);
 
@@ -5249,13 +5249,13 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         
         /* get spare part detail of $spare_id */ 
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $data['spare_id']], NULL, NULL, NULL, NULL, NULL)[0];
-		if(empty($spare_part_detail['awb_by_partner'])){
-			echo "<div class='alert alert-warning'>AWB Number not found for this booking, you cannot mark RTO for this booking.</div>";
-			exit;
-		}
+        if(empty($spare_part_detail['awb_by_partner'])){
+            echo "<div class='alert alert-warning'>AWB Number not found for this booking, you cannot mark RTO for this booking.</div>";
+            exit;
+        }
         if (!empty($post_data['rto'])) {
             // upload rto document.
-		if(!empty($spare_part_detail['awb_by_partner'])){
+        if(!empty($spare_part_detail['awb_by_partner'])){
             $post_data['rto_file'] = NULL;
             $post_data['awb_by_partner'] = $spare_part_detail['awb_by_partner'];
             if (!empty($_FILES['rto_file'])) {
@@ -5277,7 +5277,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             $this->inventory_model->update_courier_company_invoice_details(['awb_number' => $spare_part_detail['awb_by_partner']], ['is_rto' => 1, 'rto_file' => $post_data['rto_file']]);
             
             return $spare_part_detail['awb_by_partner'];
-		}
+        }
         }
         
         $this->load->view('employee/rto_spare_part', $data);

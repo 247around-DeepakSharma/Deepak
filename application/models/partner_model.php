@@ -323,10 +323,15 @@ function get_data_for_partner_callback($booking_id) {
     /**
      * @desc: This method gets price details for partner
      */
-    function getPrices($service_id, $category, $capacity, $partner_id, $service_category,$brand ="", $not_like = TRUE,$add_booking = NULL) {
+    function getPrices($service_id, $category, $capacity, $partner_id, $service_category,$brand ="", $not_like = TRUE,$add_booking = NULL,$partner_spare_extra=FALSE) {
         $this->db->distinct();
+        if($partner_spare_extra){
+        $this->db->select('id,partner_spare_extra_charge,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry, vendor_basic_percentage,product_or_services, '
+                . 'upcountry_customer_price, upcountry_vendor_price, upcountry_partner_price, flat_upcountry');    
+        }else{
         $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry, vendor_basic_percentage,product_or_services, '
-                . 'upcountry_customer_price, upcountry_vendor_price, upcountry_partner_price, flat_upcountry');
+                . 'upcountry_customer_price, upcountry_vendor_price, upcountry_partner_price, flat_upcountry');    
+        }
         $this->db->where('service_id', $service_id);
         $this->db->where('category', $category);
         $this->db->where('active', 1);
@@ -1460,8 +1465,7 @@ function get_data_for_partner_callback($booking_id) {
         log_message("info", $searched_text);
         if(!empty($searched_text)){
             $where_phone = "AND (`booking_primary_contact_no` = '$searched_text' OR `booking_alternate_contact_no` = '$searched_text' OR `booking_id` LIKE '%$searched_text%')";
-      
-       
+
             $sql = "SELECT `booking_id`,`booking_date`,`booking_timeslot` ,`order_id` , users.name as customername, users.phone_number, services.services, partner_internal_status, assigned_engineer_id,date(closed_date) as closed_date, service_center_closed_date, current_status, internal_status, service_id, cancellation_reason "
                     . " FROM `booking_details`,users, services "
                     . " WHERE users.user_id = booking_details.user_id "
@@ -2873,7 +2877,7 @@ function get_data_for_partner_callback($booking_id) {
      * @param type $whereConditions
      * @author Ankit Rajvanshi
      */
-    function get_detailed_summary_report_query($partner_id,$whereConditions=NULL){
+function get_detailed_summary_report_query($partner_id,$whereConditions=NULL){
         if(!$whereConditions){
             $where = "((booking_details.create_date > (CURDATE() - INTERVAL 3 MONTH)) OR (booking_details.current_status NOT IN ('"._247AROUND_CANCELLED."','"._247AROUND_COMPLETED."')))";
         }

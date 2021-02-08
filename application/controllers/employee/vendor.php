@@ -184,7 +184,7 @@ class vendor extends CI_Controller {
                    $send_email = $this->send_update_or_add_sf_basic_details_email($sc_id,$rm_official_email,$vendor_data, $rm);
                     // Sending Login details mail to Vendor using Template
                    $this->session->set_userdata('vendor_added', "Vendor Basic Details has been added Successfully , Please Fill other details");
-	redirect(base_url() . 'employee/vendor/editvendor/'.$sc_id);
+    redirect(base_url() . 'employee/vendor/editvendor/'.$sc_id);
             }
         } else {
             $this->add_vendor();
@@ -822,7 +822,7 @@ class vendor extends CI_Controller {
         $stamp_file = $this->vendor_model->fetch_sf_miscellaneous_data($select,$where);
         if(!empty($stamp_file)){
             $query[0]['stamp_file'] = $stamp_file[0]['stamp_file'];
-		}else{
+        }else{
             $query[0]['stamp_file'] ='';
         }
         $appliances = $query[0]['appliances'];
@@ -2617,9 +2617,9 @@ class vendor extends CI_Controller {
      */
      function change_engineer_activation($engineer_id, $active){
         log_message('info', __FUNCTION__ . " Activate/Deactivate Engineer Id:  " . $engineer_id .
-	    "status: " . $active);
+        "status: " . $active);
 
-	$where  = array('id' => $engineer_id );
+    $where  = array('id' => $engineer_id );
         $this->vendor_model->update_engineer($where, array('active'=> $active));
         $log = array(
             "entity" => "engineer",
@@ -2680,15 +2680,15 @@ class vendor extends CI_Controller {
         $this->form_validation->set_rules('identity_id_number', 'ID Number', 'trim');
         $this->form_validation->set_rules('identity_proof', 'Identity Proof', 'trim');
         $this->form_validation->set_rules('bank_account_no', 'Bank Account No', 'numeric');
-//	$this->form_validation->set_rules('service_id', 'Appliance ', 'trim');
+//  $this->form_validation->set_rules('service_id', 'Appliance ', 'trim');
     //    $this->form_validation->set_rules('file', 'Identity Proof Pic ', 'callback_upload_identity_proof_pic');
 //        $this->form_validation->set_rules('bank_name', 'Bank Name', 'trim');
 //        $this->form_validation->set_rules('bank_ifsc_code', 'IFSC Code', 'trim');
 //        $this->form_validation->set_rules('bank_holder_name', 'Account Holder Name', 'trim');
         
-//	$this->form_validation->set_rules('bank_proof_pic', 'Bank Proof Pic', 'callback_upload_bank_proof_pic');
+//  $this->form_validation->set_rules('bank_proof_pic', 'Bank Proof Pic', 'callback_upload_bank_proof_pic');
 
-	if ($this->form_validation->run() == FALSE) {
+    if ($this->form_validation->run() == FALSE) {
             return FALSE;
         }
         else {
@@ -2700,63 +2700,63 @@ class vendor extends CI_Controller {
      * @desc: This is used to upload Bank Proof Image and return true/false depending on result
      */
     public function upload_bank_proof_pic() {
-	$allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
-	$temp = explode(".", $_FILES["bank_proof_pic"]["name"]);
-	$extension = end($temp);
-	//$filename = prev($temp);
+    $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+    $temp = explode(".", $_FILES["bank_proof_pic"]["name"]);
+    $extension = end($temp);
+    //$filename = prev($temp);
 
-	if ($_FILES["bank_proof_pic"]["name"] != null) {
-	    if (($_FILES["bank_proof_pic"]["size"] < 2e+6) && in_array($extension, $allowedExts)) {
-		if ($_FILES["bank_proof_pic"]["error"] > 0) {
-		    $this->form_validation->set_message('upload_bank_proof_pic', $_FILES["bank_proof_pic"]["error"]);
-		} else {
-		    $pic = preg_replace('/\s+/', '', $this->input->post('name')) . "_" . preg_replace('/\s+/', ' ', $this->input->post('bank_name')) . "_" . uniqid(rand());
-		    $picName = $pic . "." . $extension;
-		    $_POST['bank_proof_pic'] = $picName;
+    if ($_FILES["bank_proof_pic"]["name"] != null) {
+        if (($_FILES["bank_proof_pic"]["size"] < 2e+6) && in_array($extension, $allowedExts)) {
+        if ($_FILES["bank_proof_pic"]["error"] > 0) {
+            $this->form_validation->set_message('upload_bank_proof_pic', $_FILES["bank_proof_pic"]["error"]);
+        } else {
+            $pic = preg_replace('/\s+/', '', $this->input->post('name')) . "_" . preg_replace('/\s+/', ' ', $this->input->post('bank_name')) . "_" . uniqid(rand());
+            $picName = $pic . "." . $extension;
+            $_POST['bank_proof_pic'] = $picName;
                     // Uploading to S3
-		    $bucket = BITBUCKET_DIRECTORY;
-		    $directory = "engineer-bank-proofs/" . $picName;
-		    $this->s3->putObjectFile($_FILES["bank_proof_pic"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory = "engineer-bank-proofs/" . $picName;
+            $this->s3->putObjectFile($_FILES["bank_proof_pic"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
 
-		    return TRUE;
-		}
-	    } else {
-		$this->form_validation->set_message('upload_bank_proof_pic', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
-		    . 'Maximum file size is 2 MB.');
-		return FALSE;
-	    }
-	}
+            return TRUE;
+        }
+        } else {
+        $this->form_validation->set_message('upload_bank_proof_pic', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
+            . 'Maximum file size is 2 MB.');
+        return FALSE;
+        }
+    }
     }
 
     /**
      * @desc: This is used to upload ID Proof Image and return true/false depending on result
      */
     public function upload_identity_proof_pic() {
-	$allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
-	$temp = explode(".", $_FILES["file"]["name"]);
-	$extension = end($temp);
-	//$filename = prev($temp);
+    $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+    $temp = explode(".", $_FILES["file"]["name"]);
+    $extension = end($temp);
+    //$filename = prev($temp);
 
-	if ($_FILES["file"]["name"] != null) {
-	    if (($_FILES["file"]["size"] < 2e+6) && in_array($extension, $allowedExts)) {
-		if ($_FILES["file"]["error"] > 0) {
-		    $this->form_validation->set_message('upload_identity_proof_pic', $_FILES["file"]["error"]);
-		} else {
-		    $pic = preg_replace('/\s+/', '', $this->input->post('name')) . "_" . preg_replace('/\s+/', '', $this->input->post('identity_proof')) . "_" . uniqid(rand());
-		    $picName = $pic . "." . $extension;
-		    $_POST['identity_file'] = $picName;
+    if ($_FILES["file"]["name"] != null) {
+        if (($_FILES["file"]["size"] < 2e+6) && in_array($extension, $allowedExts)) {
+        if ($_FILES["file"]["error"] > 0) {
+            $this->form_validation->set_message('upload_identity_proof_pic', $_FILES["file"]["error"]);
+        } else {
+            $pic = preg_replace('/\s+/', '', $this->input->post('name')) . "_" . preg_replace('/\s+/', '', $this->input->post('identity_proof')) . "_" . uniqid(rand());
+            $picName = $pic . "." . $extension;
+            $_POST['identity_file'] = $picName;
                     //Uploading to S3
-		    $bucket = BITBUCKET_DIRECTORY;
-		    $directory = "engineer-id-proofs/" . $picName;
-		    $this->s3->putObjectFile($_FILES["file"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory = "engineer-id-proofs/" . $picName;
+            $this->s3->putObjectFile($_FILES["file"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
 
-		    return TRUE;
-		}
-	    } else {
-		$this->form_validation->set_message('upload_identity_proof_pic', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
-		    . 'Maximum file size is 2 MB.');
-		return FALSE;
-	    }
+            return TRUE;
+        }
+        } else {
+        $this->form_validation->set_message('upload_identity_proof_pic', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
+            . 'Maximum file size is 2 MB.');
+        return FALSE;
+        }
         } else {
             $identity_uploaded = $this->input->post("identity_uploaded");
             if(empty($identity_uploaded)){
@@ -2916,47 +2916,47 @@ class vendor extends CI_Controller {
     */
       function process_vendor_pincode_delete_form() {
 
-	$data = array();
-	//Getting data from database
+    $data = array();
+    //Getting data from database
         $select = "service_centres.name, service_centres.id";
-	$data['vendor_details'] = $this->vendor_model->getVendorDetails($select);
-	$data['appliance'] = $this->booking_model->selectservice();
-	$data['state'] = $this->vendor_model->get_allstates();
+    $data['vendor_details'] = $this->vendor_model->getVendorDetails($select);
+    $data['appliance'] = $this->booking_model->selectservice();
+    $data['state'] = $this->vendor_model->get_allstates();
 
-	//Process Form
-	if ($this->input->post()) {
-	    if (!empty($this->input->post('service_id')[0])) {
-		$service_id = $this->input->post('service_id');
+    //Process Form
+    if ($this->input->post()) {
+        if (!empty($this->input->post('service_id')[0])) {
+        $service_id = $this->input->post('service_id');
 
-		foreach ($service_id as $key => $value) {
-		    if (!empty($value)) {
+        foreach ($service_id as $key => $value) {
+            if (!empty($value)) {
 
-			$data_post = array(
-			    'Appliance_ID' => $value,
-			    'Pincode' => $this->input->post('pincode')[$key],
-			    'Vendor_ID' => $this->input->post('vendor_id')[$key]
-			);
+            $data_post = array(
+                'Appliance_ID' => $value,
+                'Pincode' => $this->input->post('pincode')[$key],
+                'Vendor_ID' => $this->input->post('vendor_id')[$key]
+            );
 
-			//Deleting data
-			if ($this->vendor_model->delete_vendor($data_post) == '1') {
-			    //Echoing ID to log file
-			    log_message('info', __FUNCTION__ . ' Vendor has been deleted in Vendor_Pincode_Mapping table. ' . print_r($data_post, TRUE));
+            //Deleting data
+            if ($this->vendor_model->delete_vendor($data_post) == '1') {
+                //Echoing ID to log file
+                log_message('info', __FUNCTION__ . ' Vendor has been deleted in Vendor_Pincode_Mapping table. ' . print_r($data_post, TRUE));
 
-			    $data['delete'] = TRUE;
-			} else {
-			    log_message('info', __FUNCTION__ . ' Following pincode NOT found in Vendor_Pincode_Mapping table =  ' . $this->input->post('pincode')[$key]);
+                $data['delete'] = TRUE;
+            } else {
+                log_message('info', __FUNCTION__ . ' Following pincode NOT found in Vendor_Pincode_Mapping table =  ' . $this->input->post('pincode')[$key]);
 
-			    $data['not_found'][] = $this->input->post('pincode')[$key];
-			}
-		    }
-		}
-	    } else {
+                $data['not_found'][] = $this->input->post('pincode')[$key];
+            }
+            }
+        }
+        } else {
 
-		$data['no_input'] = '';
-	    }
-	}
-	$this->miscelleneous->load_nav_header();
-	$this->load->view('employee/list_vendor_pincode', $data);
+        $data['no_input'] = '';
+        }
+    }
+    $this->miscelleneous->load_nav_header();
+    $this->load->view('employee/list_vendor_pincode', $data);
     }
     
     /**
@@ -3820,7 +3820,7 @@ class vendor extends CI_Controller {
         
         $engineer[$data['type']] = "";
         $where = array('id' => $data['id'] );
-	$engineer_id = $this->vendor_model->update_engineer($where,$engineer);
+    $engineer_id = $this->vendor_model->update_engineer($where,$engineer);
         
         //Logging 
         log_message('info',__FUNCTION__.' '.$data['type'].' Following Images has been removed sucessfully for engineer ID : '.print_r($engineer_id));
@@ -5847,7 +5847,7 @@ class vendor extends CI_Controller {
                     
                 //     //return FALSE;
                 // }
-			}else{
+            }else{
                $attachment_signature = $this->input->post('signature_file_hd'); 
             }
    
@@ -5945,7 +5945,7 @@ class vendor extends CI_Controller {
             $this->notify->insert_state_change('', NEW_SF_BRANDS, NEW_SF_BRANDS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'),
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
             $this->session->set_userdata('vendor_added', "Vendor Brands Has been updated Successfully , Please Fill other details");
-			$this->session->set_userdata('current_tab', 3);
+            $this->session->set_userdata('current_tab', 3);
             $this->sfauthorization_certificate->create_new_certificate($this->input->post('id'));
             redirect(base_url() . 'employee/vendor/editvendor/'.$this->input->post('id'));
         }
@@ -6027,7 +6027,7 @@ class vendor extends CI_Controller {
         $this->notify->insert_state_change('', NEW_SF_CONTACTS, NEW_SF_CONTACTS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
         $this->session->set_userdata('vendor_added', "Vendor Contacts Has been updated Successfully , Please Fill other details");
         $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
-		$this->session->set_userdata('current_tab', 4);
+        $this->session->set_userdata('current_tab', 4);
         redirect(base_url() . 'employee/vendor/editvendor/'.$data['id']);
     }
     function save_vendor_bank_details(){
@@ -6073,7 +6073,7 @@ class vendor extends CI_Controller {
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
                 $this->session->set_userdata('vendor_added', "Vendor Bank Details Has been updated Successfully");
                 $this->miscelleneous->update_insert_bank_account_details($bank_data,'update');
-				$this->session->set_userdata('current_tab', 5);
+                $this->session->set_userdata('current_tab', 5);
                 redirect(base_url() . 'employee/vendor/editvendor/'.$this->input->post('id'));
     }
     function create_vendor_login($new_vendor_mail,$rm_email){
@@ -6154,52 +6154,99 @@ class vendor extends CI_Controller {
     }
     
      /**
-    * @desc This is used to load search GSTIN form.
-    * This form helps to search GSTIN for vendor and partner if not found then by using api.
+    * @desc Find GST number details on real time basis. No existing tables are searched
+      * for to find GST and only API is used to find latest details about the GST.
     */
-    function seach_gst_number(){
+    function seach_gst_number() {
         $api_response = "";
         $gstin = strtoupper(trim($this->input->post("gst_number")));
-        if(!empty($gstin)){
-            while(substr($gstin, -1) == ','){
-                $gstin = rtrim($gstin,","); 
+        
+        if (!empty($gstin)) {
+            while (substr($gstin, -1) == ',') {
+                $gstin = rtrim($gstin, ",");
             }
-            $gst =  explode(",",$gstin);
+            
+            $gst = explode(",", $gstin);
+            
             $i = 0;
             foreach ($gst as $value) {
-                $dbData = $this->vendor_model->search_gstn_number(trim($value));
-                if(!empty($dbData)){
-                    $data['data'][] = $dbData[0];
-                }
-                else{
-                    $api_response = json_decode($this->invoice_lib->taxpro_gstin_checking_curl_call(trim($value)),true);
-                    //$api_response = '{"stjCd":"UP530","lgnm":"NEERAJ RASTOGI","dty":"Regular","stj":"Ghaziabad Sector-4 , AC","adadr":[],"cxdt":"","gstin":"09ABJPR2848D1ZF","nba":["Service Provision","Office / Sale Office","Retail Business"],"lstupdt":"03/08/2018","ctb":"Proprietorship","rgdt":"01/07/2017","pradr":{"addr":{"bnm":"R.D.C","loc":"GHAZIABAD","st":"RAJ NAGAR","bno":"R-7/6","dst":"Ghaziabad","stcd":"Uttar Pradesh","city":"","flno":"","lt":"","pncd":"201002","lg":""},"ntr":"Service Provision, Office / Sale Office, Retail Business"},"tradeNam":"M/S SHIVAY ELECTRONICS","ctjCd":"YE0103","sts":"Active","ctj":"RANGE - 3"}';
-                    //$api_response = '{"status_cd":"0","error":{"error_cd":"GSP050D","message":"Error while decrypting or decoding received data. Upstream Response: {\"url\":\"/\",\"message\":null,\"errorCode\":\"SWEB_9035\"}"}}';
-                    //$api_response = json_decode($api_response, true);
-                    if(!(isset($api_response['error']))){
-                        $data['data'][$i]['lager_name'] = $api_response['lgnm'];
-                        $data['data'][$i]['gst_number'] = $api_response['gstin'];
-                        $data['data'][$i]['status'] = $api_response['sts'];
-                        $data['data'][$i]['type'] = $api_response['dty'];
-                        $data['data'][$i]['address'] = json_encode($api_response['pradr']);
-                        $data['data'][$i]['company_name'] = $api_response['tradeNam'];
-                        $data['data'][$i]['cancellation_date'] = $api_response['cxdt'];
-                        $data['data'][$i]['nature_of_business'] = $api_response['ctb'];
-                        $data['data'][$i]['create_date'] = date('Y-m-d H:i:s');
-                        
-                        $checkGSTDetail = $this->reusable_model->get_search_query("gstin_detail", 'id', array('gst_number'=>$api_response['gstin']), null, null, null, null, null, null)->result_array();
-                        if(empty($checkGSTDetail)){ 
-                            $this->reusable_model->insert_into_table("gstin_detail", $data['data'][$i]);
-                        }
-                        else{ 
-                            $this->reusable_model->update_table("gstin_detail", $data['data'][$i], array('gst_number'=>$api_response['gstin']));
-                        }
-                        $data['data'][$i]['entity'] = "By API";
+                $api_response = json_decode($this->invoice_lib->taxpro_gstin_checking_curl_call(trim($value)), true);
+                //$api_response = '{"stjCd":"UP530","lgnm":"NEERAJ RASTOGI","dty":"Regular","stj":"Ghaziabad Sector-4 , AC","adadr":[],"cxdt":"","gstin":"09ABJPR2848D1ZF","nba":["Service Provision","Office / Sale Office","Retail Business"],"lstupdt":"03/08/2018","ctb":"Proprietorship","rgdt":"01/07/2017","pradr":{"addr":{"bnm":"R.D.C","loc":"GHAZIABAD","st":"RAJ NAGAR","bno":"R-7/6","dst":"Ghaziabad","stcd":"Uttar Pradesh","city":"","flno":"","lt":"","pncd":"201002","lg":""},"ntr":"Service Provision, Office / Sale Office, Retail Business"},"tradeNam":"M/S SHIVAY ELECTRONICS","ctjCd":"YE0103","sts":"Active","ctj":"RANGE - 3"}';
+                //$api_response = '{"status_cd":"0","error":{"error_cd":"GSP050D","message":"Error while decrypting or decoding received data. Upstream Response: {\"url\":\"/\",\"message\":null,\"errorCode\":\"SWEB_9035\"}"}}';
+                //$api_response = json_decode($api_response, true);
+                if (!(isset($api_response['error']))) {
+                    //log_message('info', __METHOD__ . print_r($api_response, true));
+                    
+                    $data['data'][$i]['legal_name'] = $api_response['lgnm'];
+                    $data['data'][$i]['gst_number'] = $api_response['gstin'];
+                    $data['data'][$i]['status'] = $api_response['sts'];
+                    $data['data'][$i]['type'] = $api_response['dty'];
+                                        
+                    $data['data'][$i]['address'] = json_encode($api_response['pradr']);
+                    
+                    //save address in human readable format as well
+                    $address = $api_response['pradr']['addr'];
+                    $address_readable = '';
+                    
+                    if($address['flno'] != '')
+                        $address_readable .= ($address['flno'] . ", ");
+                    if($address['bno'] != '')
+                        $address_readable .= ($address['bno'] . ", ");
+                    if($address['bnm'] != '')
+                        $address_readable .= ($address['bnm'] . ", ");
+                    if($address['st'] != '')
+                        $address_readable .= ($address['st'] . ", ");
+                    if($address['loc'] != '')
+                        $address_readable .= ($address['loc'] . ", ");
+                    if($address['city'] != '')
+                        $address_readable .= ($address['city'] . ", ");
+                    if($address['dst'] != '')
+                        $address_readable .= ($address['dst'] . ", ");
+                    if($address['stcd'] != '')
+                        $address_readable .= ($address['stcd'] . ", ");
+                    if($address['pncd'] != '')
+                        $address_readable .= $address['pncd'];
+                    
+                    $data['data'][$i]['address_readable'] = $address_readable;
+                    
+                    //nature of business
+                    $nature_business = $api_response['pradr']['ntr'];
+                    $data['data'][$i]['nature_business'] = $nature_business;
+                    
+                    //company_name is actually trade name
+                    $data['data'][$i]['company_name'] = $api_response['tradeNam'];
+                    
+                    //$data['gst_cancelled_date'] = 
+                    //convert dates
+                    $data['data'][$i]['registration_date'] = 
+                            date("Y-m-d", strtotime(str_replace('/','-', $api_response['rgdt'])));
+                    
+                    //this field is populated only if GST is cancelled
+                    if (isset($api_response['cxdt']) && $api_response['cxdt'] != '') {
+                        $data['data'][$i]['cancellation_date'] = 
+                                date("Y-m-d", strtotime(str_replace('/','-', $api_response['cxdt'])));
                     }
-                    else{
-                        $data['gst_not_found'] = $value;
+                    
+                    $data['data'][$i]['constitution_of_business'] = $api_response['ctb'];
+                    $data['data'][$i]['create_date'] = date('Y-m-d H:i:s');
+
+                    //Search existing table and save data only for book-keeping purpose
+                    //but not for future searches.
+                    $checkGSTDetail = $this->reusable_model->get_search_query("gstin_detail",
+                                    'id', array('gst_number' => $api_response['gstin']),
+                                    null, null, null, null, null, null)->result_array();
+
+                    if (empty($checkGSTDetail)) {
+                        $this->reusable_model->insert_into_table("gstin_detail",
+                                $data['data'][$i]);
+                    } else {
+                        $this->reusable_model->update_table("gstin_detail",
+                                $data['data'][$i], array('gst_number' => $api_response['gstin']));
                     }
+                } else {
+                    $data['gst_not_found'] = $value;
                 }
+
                 $i++;
             }
             $this->miscelleneous->load_nav_header();
@@ -6209,7 +6256,7 @@ class vendor extends CI_Controller {
             $this->load->view("employee/search_gst_number");
         }
     }
-    
+
     function send_broadcast_sms_to_vendors(){
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/send_broadcast_sms_to_vendors_form');

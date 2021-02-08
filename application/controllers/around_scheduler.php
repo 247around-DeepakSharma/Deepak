@@ -1971,34 +1971,46 @@ class Around_scheduler extends CI_Controller {
     
     /** This function is used to get gst detail of all vendor from the taxPro API **/
     function all_vendor_gst_checking_by_api(){
-        $vendor = $this->vendor_model->getVendorDetails('id,gst_no', array(), 'id', array());
-        foreach ($vendor as $vendor){            
+        $vendors = $this->vendor_model->getVendorDetails('id, gst_no', array(), 'id', array());
+        
+        foreach ($vendors as $vendor){
             if($vendor['gst_no']){
                 $curl = curl_init();
+                
                 curl_setopt_array($curl, array(
-                    CURLOPT_URL => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=1606680918&password=priya@b30&Action=TP&Gstin=".$vendor['gst_no'],  
+                    CURLOPT_URL => 
+                    "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=1606680918&password=priya@b30&Action=TP&Gstin="
+                    . $vendor['gst_no'],  
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_ENCODING => "",
                     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                     CURLOPT_CUSTOMREQUEST => "GET",
                 ));
+                
                 $api_response = curl_exec($curl);
                 $err = curl_error($curl);
+                
                 curl_close($curl);
+                
                 if ($err) {
                     echo "cURL Error :" . $err ."</br>"; 
                 } else {
                     $api_response = json_decode($api_response, TRUE);
                     if(isset($api_response['error'])){
-                       // $gstin_insert = array("gst_number"=> $vendor['gst_no'], "lager_name"=>$vendor['id']);
+                       // $gstin_insert = array("gst_number"=> $vendor['gst_no'], "legal_name"=>$vendor['id']);
                        // $this->reusable_model->insert_into_table("gstin_detail", $gstin_insert);
                     }
                     else{
+                        //log_message('info', __METHOD__ . print_r($api_response, true));
+                        
+                        $data = array();
+                        
                         if(isset($api_response['dty'])){
                             $data['gst_taxpayer_type'] = $api_response['dty'];
                         }
                         if(isset($api_response['sts'])){
                             $data['gst_status'] = $api_response['sts'];
+                            
                             if($api_response['sts'] == 'Cancelled'){
                                  $date = str_replace('/', '-', $api_response['cxdt']);
                                  $date1 = date("Y-m-d", strtotime($date)); 
@@ -2007,11 +2019,85 @@ class Around_scheduler extends CI_Controller {
                         }
                        
                         $this->vendor_model->edit_vendor($data, $vendor['id']);
+                        
+                        //save for book keeping purpose
+                        unset($data['gst_taxpayer_type']);
+                        unset($data['gst_status']);
+                        unset($data['gst_cancelled_date']);
+                        
+                        $data['legal_name'] = $api_response['lgnm'];
+                        $data['gst_number'] = $api_response['gstin'];
+                        $data['status'] = $api_response['sts'];
+                        $data['type'] = $api_response['dty'];
+
+                        $data['address'] = json_encode($api_response['pradr']);
+
+                        //save address in human readable format as well
+                        $address = $api_response['pradr']['addr'];
+                        $address_readable = '';
+
+                        if($address['flno'] != '')
+                            $address_readable .= ($address['flno'] . ", ");
+                        if($address['bno'] != '')
+                            $address_readable .= ($address['bno'] . ", ");
+                        if($address['bnm'] != '')
+                            $address_readable .= ($address['bnm'] . ", ");
+                        if($address['st'] != '')
+                            $address_readable .= ($address['st'] . ", ");
+                        if($address['loc'] != '')
+                            $address_readable .= ($address['loc'] . ", ");
+                        if($address['city'] != '')
+                            $address_readable .= ($address['city'] . ", ");
+                        if($address['dst'] != '')
+                            $address_readable .= ($address['dst'] . ", ");
+                        if($address['stcd'] != '')
+                            $address_readable .= ($address['stcd'] . ", ");
+                        if($address['pncd'] != '')
+                            $address_readable .= $address['pncd'];
+
+                        $data['address_readable'] = $address_readable;
+
+                        //nature of business
+                        $nature_business = $api_response['pradr']['ntr'];
+                        $data['nature_business'] = $nature_business;
+
+                        //company_name is actually trade name
+                        $data['company_name'] = $api_response['tradeNam'];
+
+                        //$data['gst_cancelled_date'] = 
+                        //convert dates
+                        $data['registration_date'] = 
+                                date("Y-m-d", strtotime(str_replace('/','-', $api_response['rgdt'])));
+
+                        //this field is populated only if GST is cancelled
+                        if (isset($api_response['cxdt']) && $api_response['cxdt'] != '') {
+                            $data['cancellation_date'] = 
+                                    date("Y-m-d", strtotime(str_replace('/','-', $api_response['cxdt'])));
+                        }
+
+                        $data['constitution_of_business'] = $api_response['ctb'];
+                        $data['create_date'] = date('Y-m-d H:i:s');
+
+                        //Search existing table and save data only for book-keeping purpose
+                        //but not for future searches.
+                        $checkGSTDetail = $this->reusable_model->get_search_query("gstin_detail",
+                                        'id', array('gst_number' => $api_response['gstin']),
+                                        null, null, null, null, null, null)->result_array();
+
+                        if (empty($checkGSTDetail)) {
+                            $this->reusable_model->insert_into_table("gstin_detail",
+                                    $data);
+                        } else {
+                            $this->reusable_model->update_table("gstin_detail",
+                                    $data, array('gst_number' => $api_response['gstin']));
+                        }
                     }
                 }
             }
         }
     } 
+    
+    
     /*
      * This function will be used to auto approve all those booking where partner was responsible to approve theses booking but partner did not review these booking within time
      * So for this case we automatically approved these bookings
@@ -2261,7 +2347,7 @@ class Around_scheduler extends CI_Controller {
                 $message = vsprintf($email_template[0], array($vendor_value->company_name, $vendor_value->gst_no, $table)); 
                 $email_from = $email_template[2];
                 $to = $vendor_value->owner_email.",".$vendor_value->primary_contact_email;
-                $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
+                $cc = $email_template[3];
                 $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, '', VENDOR_GST_RETURN_WARNING);
             }
         }

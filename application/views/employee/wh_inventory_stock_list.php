@@ -371,9 +371,10 @@
 
             </div>
          </div>
+          <!-- Modal end -->
 </div>
 <script>
-    $("#shipped_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true});
+    $("#shipped_date,#mwh_shipped_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true});
     var inventory_stock_table;
     var is_admin_crm = false;
     var time = moment().format('D-MMM-YYYY');
@@ -392,6 +393,8 @@
     });
     
     $('#get_inventory_data').on('click',function(){
+        $("#sellItem").addClass("action-ban");
+        $("#settle_item").addClass("action-ban");
         var wh_id = $('#wh_id').val();
         var partner_id = $('#partner_id').val();
         Around_GST_ID = ((($("#wh_id").find(':selected').attr('data-warehose') == 1) && ($("#wh_id").find(':selected').val() == 804)) ? 6 : 7 );
@@ -437,7 +440,6 @@
             $("#sell_mwh_parts_id").html(HTMLTableBody);
             is_admin_crm = true;
             returnItemArray = [];
-            $("#sellItem").val("Return new Parts (0)");
             inventory_stock_table.ajax.reload( function ( json ) { 
             $("#total_stock").html('Total Stock (<i>'+json.stock+'</i>)').css({"font-size": "14px;", "color": "#288004;"});
         } );
@@ -663,31 +665,32 @@
         
     });
     
+        
     $("#shipped_spare_parts_weight_in_kg").on({
         "click": function () {
-            var weight_kg = $(this).val();
-            if (weight_kg.length > 3) {
-                $(this).val('');
-                return false;
-            }
-        },
-        "keypress": function () {
             var weight_kg = $(this).val();
             if (weight_kg.length > 2) {
                 $(this).val('');
                 return false;
             }
         },
+        "keypress": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 1) {
+                $(this).val('');
+                return false;
+            }
+        },
         "mouseleave": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 3) {
+            if (weight_kg.length > 2) {
                 $(this).val('');
                 return false;
             }
         }
     });
     
-    $("#shipped_spare_parts_weight_in_gram").on({
+    $("#shipped_spare_parts_weight_in_gram,#shipped_spare_parts_weight_in_gram").on({
         "click": function () {
             var weight_kg = $(this).val();
             if (weight_kg.length > 3) {
@@ -731,6 +734,7 @@
                 break;
         }
     });
+    
     function check_return_new_parts(){
         var shipped_spare_parts_boxes_count = $('#shipped_spare_parts_boxes_count').val() || 0;
         var shipped_spare_parts_small_boxes_count= $('#shipped_spare_parts_small_boxes_count').val() || 0;

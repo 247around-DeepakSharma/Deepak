@@ -626,7 +626,6 @@
                                     </div>
                                 </div>
                             </div>
-
                                 <div class="form-group">
                                     <label for="service_tax_no" class="col-md-4">GST File</label>
                                     <div class="col-md-7">

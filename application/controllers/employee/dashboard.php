@@ -2220,11 +2220,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                             . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
                 }
                 else{
-			if($request_type == 'Repair_with_part'){
+            if($request_type == 'Repair_with_part'){
                             $select = "booking_details.booking_id,ifnull(MIN(leg_1), ".LEG_DEFAULT_COUNT.") as leg_1,ifnull(MIN(leg_2), ".LEG_DEFAULT_COUNT.") as leg_2,"
                             . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
-		    	}
-		   	else {
+                }
+            else {
                     $select = "booking_details.booking_id,"
                                 . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
                     }
@@ -2236,11 +2236,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                             . "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
                 }
                 else{
-			if($request_type == 'Repair_with_part'){
+            if($request_type == 'Repair_with_part'){
                             $select = "booking_details.booking_id,ifnull(MIN(leg_1), ".LEG_DEFAULT_COUNT.") as leg_1,ifnull(MIN(leg_2), ".LEG_DEFAULT_COUNT.") as leg_2,"
                          . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
-                    	}
-                    	else{
+                        }
+                        else{
                      $select = "booking_details.booking_id,"
                              . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
                     }
@@ -2262,7 +2262,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
 //            }
 //            $conditionsArray['joinType']['rm_zone_mapping'] = 'left';
 //            $conditionsArray['joinType']['zones'] = 'left';
-	    $conditionsArray['join']['booking_tat'] = "booking_details.booking_id = booking_tat.booking_id"; 
+        $conditionsArray['join']['booking_tat'] = "booking_details.booking_id = booking_tat.booking_id"; 
             $conditionsArray['joinType']['booking_tat'] = 'left';
             $conditionsArray['orderBy']['booking_details.booking_id'] = 'asc';
             return $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,$conditionsArray['orderBy'],$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
