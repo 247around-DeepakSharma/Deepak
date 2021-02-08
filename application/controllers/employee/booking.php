@@ -6830,11 +6830,14 @@ class Booking extends CI_Controller {
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/courier_lost_parts', $data);
     }
-    function get_city_from_pincode() {
+    function get_city_from_pincode($show_all_cities = '') {
         $post_data = $this->input->post();
         $data = array();
         if (!empty($post_data['booking_pincode'])) {
             $data = $this->vendor_model->getDistrict_from_india_pincode('', $post_data['booking_pincode']);
+        }
+        if(!empty($show_all_cities) && empty($data)){
+            $data = $this->vendor_model->getDistrict_from_india_pincode();
         }
         echo json_encode($data);
     }
