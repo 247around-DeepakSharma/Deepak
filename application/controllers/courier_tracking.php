@@ -865,34 +865,36 @@ class Courier_tracking extends CI_Controller {
                 //$json = '{"meta":{"code":200,"type":"Success","message":"Success"},"data":{"items":[{"id":"fd758b85c349d0d4e8ad454f82389f92","tracking_number":"50691944004","carrier_code":"bluedart","status":"delivered","original_country":"","itemTimeLength":3,"origin_info":{"weblink":"http:\/\/www.bluedart.com\/","phone":null,"carrier_code":"bluedart","trackinfo":[{"Date":"2020-09-28 20:19:00","StatusDescription":"Shipment Delivered","Details":"Kalol Apex\/Sfc Pud","checkpoint_status":"delivered","substatus":"delivered001"},{"Date":"2020-09-28 11:27:00","StatusDescription":"Shipment Out For Delivery","Details":"Kalol Apex\/Sfc Pud","checkpoint_status":"pickup","substatus":"pickup001"},{"Date":"2020-09-28 11:04:00","StatusDescription":"Shipment Arrived","Details":"Kalol Apex\/Sfc Pud","checkpoint_status":"transit","substatus":"transit001"},{"Date":"2020-09-28 07:22:00","StatusDescription":"Shipment Further Connected","Details":"Aslali Warehouse","checkpoint_status":"transit","substatus":"transit001"},{"Date":"2020-09-28 01:42:00","StatusDescription":"Shipment Arrived","Details":"Aslali Warehouse","checkpoint_status":"transit","substatus":"transit001"},{"Date":"2020-09-27 23:55:00","StatusDescription":"Paper Work Inscan","Details":"Aslali Warehouse","checkpoint_status":"transit","substatus":"transit001"},{"Date":"2020-09-27 08:35:00","StatusDescription":"Shipment Further Connected","Details":"Bhiwandi Hub","checkpoint_status":"transit","substatus":"transit001"},{"Date":"2020-09-26 21:33:00","StatusDescription":"Shipment Arrived","Details":"Bhiwandi Hub","checkpoint_status":"transit","substatus":"transit001"},{"Date":"2020-09-26 19:58:00","StatusDescription":"Paper Work Inscan","Details":"Bhiwandi Hub","checkpoint_status":"transit","substatus":"transit001"},{"Date":"2020-09-26 19:55:00","StatusDescription":"Shipment Further Connected","Details":"Ovali Warehouse","checkpoint_status":"transit","substatus":"transit001"},{"Date":"2020-09-26 19:04:00","StatusDescription":"Shipment Arrived","Details":"Ovali Warehouse","checkpoint_status":"transit","substatus":"transit001"},{"Date":"2020-09-26 15:45:00","StatusDescription":"Shipment Picked Up","Details":"Ovali Warehouse","checkpoint_status":"transit","substatus":"transit001","ItemNode":"ItemReceived"}]},"destination_info":null}]}}';
                 //$api_data = json_decode($json, TRUE);
                 /* Inserting data to database */
-                if ($api_data['data']['items']) {
+                
+                               
+              if (!empty($api_data['data'])) {
                     $this->insert_courier_tracking_api_data($api_data['data']['items'][0]);
-                }
 
-                $select = "spare_parts_details.awb_by_partner, spare_parts_details.courier_name_by_partner, spare_parts_details.awb_by_sf, spare_parts_details.courier_name_by_sf, spare_parts_details.awb_by_wh, spare_parts_details.courier_name_by_wh";
+                    $select = "spare_parts_details.awb_by_partner, spare_parts_details.courier_name_by_partner, spare_parts_details.awb_by_sf, spare_parts_details.courier_name_by_sf, spare_parts_details.awb_by_wh, spare_parts_details.courier_name_by_wh";
 
-                $post['where']['((spare_parts_details.awb_by_partner = "' . $awb_number . '" AND spare_parts_details.courier_name_by_partner = "' . $courier_code . '")'
-                        . ' OR (spare_parts_details.awb_by_sf = "' . $awb_number . '" AND spare_parts_details.courier_name_by_sf = "' . $courier_code . '") '
-                        . ' OR (spare_parts_details.awb_by_wh = "' . $awb_number . '" AND spare_parts_details.courier_name_by_wh = "' . $courier_code . '"))'
-                        . ' ORDER BY spare_parts_details.id LIMIT 0, 1'] = NULL;
+                    $post['where']['((spare_parts_details.awb_by_partner = "' . $awb_number . '" AND spare_parts_details.courier_name_by_partner = "' . $courier_code . '")'
+                            . ' OR (spare_parts_details.awb_by_sf = "' . $awb_number . '" AND spare_parts_details.courier_name_by_sf = "' . $courier_code . '") '
+                            . ' OR (spare_parts_details.awb_by_wh = "' . $awb_number . '" AND spare_parts_details.courier_name_by_wh = "' . $courier_code . '"))'
+                            . ' ORDER BY spare_parts_details.id LIMIT 0, 1'] = NULL;
 
-                /* Call this function to fetch data from database */
-                $spare_data = $this->inventory_model->get_spare_parts_details($select, $post['where'], false, false, FALSE);
+                    /* Call this function to fetch data from database */
+                    $spare_data = $this->inventory_model->get_spare_parts_details($select, $post['where'], false, false, FALSE);
 
-                if (!empty($spare_data)) {
-                    if (($spare_data[0]['awb_by_partner'] == $awb_number ) && ( strtolower($spare_data[0]['courier_name_by_partner']) == strtolower($courier_code))) {
-                        if (!empty($api_data['data'])) {
-                            //common function it's used to update the courier and spare details
-                            $this->shipped_by_partner_internal_process($api_data['data']['items'][0]);
-                        }
-                    } elseif (($spare_data[0]['awb_by_sf'] == $awb_number ) && ( strtolower($spare_data[0]['courier_name_by_sf']) == strtolower($courier_code))) {
-                        if (!empty($api_data['data'])) {
+                    if (!empty($spare_data)) {
+                        if (($spare_data[0]['awb_by_partner'] == $awb_number ) && ( strtolower($spare_data[0]['courier_name_by_partner']) == strtolower($courier_code))) {
+                            if (!empty($api_data['data'])) {
+                                //common function it's used to update the courier and spare details
+                                $this->shipped_by_partner_internal_process($api_data['data']['items'][0]);
+                            }
+                        } elseif (($spare_data[0]['awb_by_sf'] == $awb_number ) && ( strtolower($spare_data[0]['courier_name_by_sf']) == strtolower($courier_code))) {
+                            if (!empty($api_data['data'])) {
+                                //update spare parts details and courier details
+                                $this->defective_shipped_by_sf_internal_process($api_data['data']['items'][0]);
+                            }
+                        } elseif (($spare_data[0]['awb_by_wh'] == $awb_number ) && ( strtolower($spare_data[0]['courier_name_by_wh']) == strtolower($courier_code))) {
                             //update spare parts details and courier details
-                            $this->defective_shipped_by_sf_internal_process($api_data['data']['items'][0]);
+                            $this->defective_shipped_by_Wh_to_partner_internal_process($api_data['data']['items'][0]);
                         }
-                    } elseif (($spare_data[0]['awb_by_wh'] == $awb_number ) && ( strtolower($spare_data[0]['courier_name_by_wh']) == strtolower($courier_code))) {
-                        //update spare parts details and courier details
-                        $this->defective_shipped_by_Wh_to_partner_internal_process($api_data['data']['items'][0]);
                     }
                 }
 
