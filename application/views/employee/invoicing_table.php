@@ -393,8 +393,49 @@
            </tr>
        </tbody>
       </table>
+     <?php if(isset($msl)){ ?>
+     <br>
+     <h2>Security Summary</h2>
+     
+     <table class="table table-bordered  table-hover table-striped data"  >
+          <thead>
+          <tr>
+             <th class="text-center">FNF Security</th>     
+             <th class="text-center">MSL Security</th>
+             <th class="text-center">MSL Spare</th>
+             
+          </tr>
+       </thead>
+       <tbody>
+           <tr>
+               <td class="text-center">
+                 
+                    <div class="count <?php if ($msl['fnf'] > 0) { ?>text-success<?php } else { ?>text-danger<?php } ?>">
+                        <strong><?php echo $msl['fnf']; ?>/-</strong>
+                    </div>
+
+               </td>
+               <td class="text-center">
+                 
+                    <div class="count <?php if ($msl['security'] > 0) { ?>text-success<?php } else { ?>text-danger<?php } ?>">
+                        <strong><?php echo $msl['security']; ?>/-</strong>
+                    </div>
+     
+               </td>
+               <td class="text-center">
+                 
+                    <div class="count <?php if ($msl['amount'] > 0) { ?>text-success<?php } else { ?>text-danger<?php } ?>">
+                        <strong><?php echo $msl['amount']; ?>/-</strong>
+                    </div>
+              
+               </td>
+               
+           </tr>
+       </tbody>
+      </table>
+    
       
- <?php }?>
+  <?php }}?>
   
     <?php //if(isset($bank_statement)) { ?>
     <br>
