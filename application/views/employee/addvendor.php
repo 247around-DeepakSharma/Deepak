@@ -91,7 +91,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                     <input type="hidden" value="<?php echo $query[0]['id']; ?>" name="service_center_id" />
                      <input type="hidden" value="<?php echo $query[0]['state']; ?>" name="state" />
                      <input type="submit" value="Add Upcountry" class="btn btn-primary btn-md pull-right" style="margin-left: 1%;"/>
-                     <?php if(in_array($this->session->userdata['user_group'], [_247AROUND_ACCOUNTANT, _247AROUND_ADMIN, _247AROUND_RM, _247AROUND_ASM, _247AROUND_DEVELOPER])) { ?>
+                     <?php if(in_array($this->session->userdata('user_group'), [_247AROUND_ACCOUNTANT, _247AROUND_ADMIN, _247AROUND_RM, _247AROUND_ASM, _247AROUND_DEVELOPER])) { ?>
                         <a onclick="edit_form();" id="edit_service_center" class="btn btn-primary pull-right" href="javascript:void(0);" title="Edit Service Center" style="margin-left:1%;"><span class="glyphicon glyphicon-pencil"></span></a>
                      <?php } ?>
                 </form>
@@ -499,7 +499,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                 <?php
                                 $check_uncheck_engineer = true;
                                 $check_uncheck_message = "";
-                                if(isset($query[0]['isEngineerApp']) && $query[0]['isEngineerApp'] == 1 && $this->session->userdata['user_group']!=_247AROUND_ADMIN){
+                                if(isset($query[0]['isEngineerApp']) && $query[0]['isEngineerApp'] == 1 && $this->session->userdata('user_group')!=_247AROUND_ADMIN){
                                     $check_uncheck_engineer = false;
                                     $check_uncheck_message = "Only Admin can uncheck.";
                                     //If already checked then only Admin can uncheck Enginner App checkbox
