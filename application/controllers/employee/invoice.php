@@ -211,6 +211,7 @@ class Invoice extends CI_Controller {
         if ($data['vendor_partner'] == "vendor") {
     
             $invoice['unbilled_amount'] = $this->invoices_model->get_unbilled_amount($data['vendor_partner_id']);
+            $invoice['msl'] = $this->miscelleneous->get_msl_amounts($data['vendor_partner_id']);
         }
         $invoice['vendor_partner'] = $this->input->post('source');
         $invoice['vendor_partner_id'] = $this->input->post('vendor_partner_id');
@@ -2207,7 +2208,8 @@ exit();
         $data['vendor_partner_id'] = $vendor_partner_id;
         $data['vendor_partner'] = $vendor_partner;
         if ($vendor_partner == 'vendor') {
-        $data['service_center_payment_hold_reason'] = $this->invoices_model->payment_hold_reason_list(array('sf_payment_hold_reason.service_center_id' => $vendor_partner_id, 'sf_payment_hold_reason.status' =>1));
+            $data['service_center_payment_hold_reason'] = $this->invoices_model->payment_hold_reason_list(array('sf_payment_hold_reason.service_center_id' => $vendor_partner_id, 'sf_payment_hold_reason.status' =>1));
+            
          }
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/invoices_details', $data);
