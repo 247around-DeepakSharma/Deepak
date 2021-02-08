@@ -5506,4 +5506,89 @@ function generate_image($base64, $image_name,$directory){
         log_message('info', "Walkin Booking OTP => ".$otp);
         echo md5($otp);exit;
     }
+    
+    /**
+     * get_msl_amounts() fetch msl amounts
+     * returns array() -> msl amounts
+     */
+    function get_msl_amounts($vendor_id) {
+        $oowAmount = 0.00;
+        $msl = array(
+            'security' => sprintf("%01.2f", 0.00),
+            'amount' => sprintf("%01.2f", 0.00),
+            'oow_note' => ''
+        );
+        $mslSecurityData = $this->My_CI->reusable_model->get_search_result_data(
+                'vendor_partner_invoices', "vendor_partner, vendor_partner_id, sub_category,(total_amount_collected-amount_paid) as 'amount'", array(
+            "vendor_partner" => "vendor",
+            "vendor_partner_id" => $vendor_id
+                ), NULL, NULL, NULL, array(
+            "sub_category" => array(
+                MSL,
+                MSL_SECURITY_AMOUNT,
+                MSL_NEW_PART_RETURN,
+                MSL_DEFECTIVE_RETURN,
+                MSL_Debit_Note,
+                MSL_Credit_Note
+            )
+                ), NULL, array()
+        );
+        
+        $mslSecurityAmount = 0.0;
+        $mslAmount = 0.0;
+        foreach ($mslSecurityData as $row) {
+            if (!empty($row['sub_category']) && $row['sub_category'] == MSL_SECURITY_AMOUNT) {
+                $mslSecurityAmount += floatval($row['amount']);
+            } else if (!empty($row['sub_category']) && ($row['sub_category'] == MSL_DEFECTIVE_RETURN || $row['sub_category'] == MSL_NEW_PART_RETURN || $row['sub_category'] == MSL_Credit_Note)) {
+                $mslAmount -= floatval($row['amount']);
+            } else if ($row['sub_category'] == MSL || $row['sub_category'] == MSL_Debit_Note) {
+                $mslAmount += floatval($row['amount']);
+            }
+        }
+        $oowData = $this->My_CI->service_centers_model->get_price_sum_of_oow_parts_used_from_micro($vendor_id);
+        if (isset($oowData['error']) && !$oowData['error']) {
+            $oowAmount = $oowData['payload']['amount'];
+        } else {
+            $msl['oow_note'] = 'Note: Part consumed in OOW call from SF Microwarehouse not included';
+        }
+        //removed oow part consumed from inventory from MSL Amount
+        $mslAmount = $mslAmount - $oowAmount;
+
+        //negate this value as it will be returned by SF
+        $mslAmount = -1 * $mslAmount;
+
+        /*
+         * negetive value -> sf have pending defective or new part to return
+         * positive value -> rare, represent 247 have to pay to sf.
+         * */
+        $msl['security'] = sprintf("%01.2f", $mslSecurityAmount);
+        $msl['amount'] = sprintf("%01.2f", $mslAmount);
+        $msl['fnf'] = $this->fnf_security_details($vendor_id);
+        return $msl;
+    }
+    
+    /**
+     * @desc This function is used to get fnf summary amount
+     * @param int $service_center_id
+     */
+    function fnf_security_details($vendor_id) {
+        $select = "total_amount_collected,(total_amount_collected-amount_paid) as 'amount'";
+        $fnf = $this->My_CI->reusable_model->get_search_result_data(
+                'vendor_partner_invoices', $select, array(
+            "vendor_partner" => "vendor",
+            "vendor_partner_id" => $vendor_id
+                ), NULL, NULL, NULL, array(
+            "sub_category" => array(
+                FNF
+            )
+                ), NULL, array()
+        );
+        
+        if(!empty($fnf)){
+            return $fnf[0]['amount'];
+        } else {
+            return 0;
+        }
+      
+    }
 }
