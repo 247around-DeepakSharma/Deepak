@@ -48,17 +48,27 @@
             </div>';
             }
             ?>
-        <?php if($this->session->userdata("is_micro_wh")==1){ ?>
-        <div class="col-md-10 col-md-offset-2" id="msl_info">
-            <div class="x_title">
-                <h2><b>MSL Summary</b></h2>
-            </div>
-            <div class="x_body">
-                <div>
-                    <a><label>MSL Security</label></a>
-                    <a href="<?php echo base_url();?>service_center/msl_security_details">
-                        <div class="count <?php if($msl['security']>0){ ?>text-success<?php }else{ ?>text-danger<?php }?>">
-                            <strong><?php echo $msl['security']; ?>/-</strong>
+            <?php if ($this->session->userdata("is_micro_wh") == 1) { ?>
+                <div class="col-md-10 col-md-offset-2" id="msl_info">
+<!--                    <div class="x_title">
+                        <h2><b>MSL Summary</b></h2>
+                    </div>-->
+                    <div class="x_body">
+                        <div>
+                            <a><label>FNF Security</label></a>
+                            <a href="javascript:void(0)">
+                                <div class="count <?php if ($msl['fnf'] > 0) { ?>text-success<?php } else { ?>text-danger<?php } ?>">
+                                    <strong><?php echo $msl['fnf']; ?>/-</strong>
+                                </div>
+                            </a>
+                        </div>
+                        <div>
+                            <a><label>MSL Security</label></a>
+                            <a href="<?php echo base_url(); ?>service_center/msl_security_details">
+                                <div class="count <?php if ($msl['security'] > 0) { ?>text-success<?php } else { ?>text-danger<?php } ?>">
+                                    <strong><?php echo $msl['security']; ?>/-</strong>
+                                </div>
+                            </a>
                         </div>
                     </a>
                 </div>
@@ -70,11 +80,25 @@
                         </div>
                     </a>
                 </div>
-            </div>
-        </div>
-        <?php } ?>
-        <div class="col-md-10 col-md-offset-2">
-            <div style="margin-top:10px; display: flex;font-size: 25px;">
+            <?php } else { ?>
+                <div class="col-md-10 col-md-offset-2" id="msl_info">
+<!--                    <div class="x_title">
+                        <h2><b>MSL Summary</b></h2>
+                    </div>-->
+                    <div class="x_body">
+                        <div>
+                            <a><label>FNF Security</label></a>
+                            <a href="javascript:void(0)">
+                                <div class="count <?php if ($msl['fnf'] > 0) { ?>text-success<?php } else { ?>text-danger<?php } ?>">
+                                    <strong><?php echo $msl['fnf']; ?>/-</strong>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            <?php } ?>
+            <div class="col-md-10 col-md-offset-2">
+                <div style="margin-top:10px; display: flex;font-size: 25px;">
                     <b>Rating:</b> &nbsp;
                     <span class="stars" style="margin-top: 9px;"><?php echo $rating; ?></span> &nbsp;
                     <b><span <?php if($rating > '3.5') { echo "class='text-success'";}else{echo "class='text-danger'";}?>><?php echo $rating; ?> /5</span></b> &nbsp;

@@ -88,7 +88,7 @@ class Service_centers extends CI_Controller {
             $data['rating'] = 0;
             $data['count'] = $rating_data[0]['count'];
         }
-        $data['msl'] = $this->get_msl_amounts();
+        $data['msl'] = $this->miscelleneous->get_msl_amounts($this->session->userdata('service_center_id'));
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/pending_booking', $data);
         if (!$this->session->userdata("login_by")) {
@@ -8713,69 +8713,10 @@ class Service_centers extends CI_Controller {
         }
         $join['services'] = "services.id = vendor_pincode_mapping.Appliance_ID";
         $data['services'] = $this->reusable_model->get_search_result_data("vendor_pincode_mapping", "DISTINCT vendor_pincode_mapping.Appliance_ID as id,services.services", array("Vendor_ID" => $this->session->userdata('service_center_id')), $join, NULL, array("services.services" => "ASC"), NULL, NULL, array());
-        $data['msl'] = $this->get_msl_amounts();
+        $data['msl'] = $this->miscelleneous->get_msl_amounts($this->session->userdata('service_center_id'));
         $data['brands'] = $this->vendor_model->get_mapped_brands($this->session->userdata('service_center_id'), 1);
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/dashboard', $data);
-    }
-
-    /**
-     * get_msl_amounts() fetch msl amounts
-     * returns array() -> msl amounts
-     */
-    private function get_msl_amounts() {
-         
-        $oowAmount = 0.00;
-        $msl = array(
-            'security' => sprintf("%01.2f", 0.00),
-            'amount' => sprintf("%01.2f", 0.00),
-            'oow_note' => ''
-        );
-        $mslSecurityData = $this->reusable_model->get_search_result_data(
-                'vendor_partner_invoices', "vendor_partner, vendor_partner_id, sub_category,(total_amount_collected-amount_paid) as 'amount'", array(
-            "vendor_partner" => "vendor",
-            "vendor_partner_id" => $this->session->userdata('service_center_id')
-                ), NULL, NULL, NULL, array(
-            "sub_category" => array(
-                MSL,
-                MSL_SECURITY_AMOUNT,
-                MSL_NEW_PART_RETURN,
-                MSL_DEFECTIVE_RETURN,
-                MSL_Debit_Note,
-                MSL_Credit_Note
-            )
-                ), NULL, array()
-        );
-        $mslSecurityAmount = 0.0;
-        $mslAmount = 0.0;
-        foreach ($mslSecurityData as $row) {
-            if (!empty($row['sub_category']) && $row['sub_category'] == MSL_SECURITY_AMOUNT) {
-                $mslSecurityAmount += floatval($row['amount']);
-            } else if (!empty($row['sub_category']) && ($row['sub_category'] == MSL_DEFECTIVE_RETURN || $row['sub_category'] == MSL_NEW_PART_RETURN || $row['sub_category'] == MSL_Credit_Note)) {
-                $mslAmount -= floatval($row['amount']);
-            } else if ($row['sub_category'] == MSL || $row['sub_category'] == MSL_Debit_Note) {
-                $mslAmount += floatval($row['amount']);
-            }
-        }
-        $oowData = $this->service_centers_model->get_price_sum_of_oow_parts_used_from_micro($this->session->userdata('service_center_id'));
-        if (isset($oowData['error']) && !$oowData['error']) {
-            $oowAmount = $oowData['payload']['amount'];
-        } else {
-            $msl['oow_note'] = 'Note: Part consumed in OOW call from SF Microwarehouse not included';
-        }
-        //removed oow part consumed from inventory from MSL Amount
-        $mslAmount = $mslAmount - $oowAmount;
-
-        //negate this value as it will be returned by SF
-        $mslAmount = -1 * $mslAmount;
-
-        /*
-         * negetive value -> sf have pending defective or new part to return
-         * positive value -> rare, represent 247 have to pay to sf.
-         * */
-        $msl['security'] = sprintf("%01.2f", $mslSecurityAmount);
-        $msl['amount'] = sprintf("%01.2f", $mslAmount);
-        return $msl;
     }
 
     /**
