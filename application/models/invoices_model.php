@@ -309,7 +309,8 @@ class invoices_model extends CI_Model {
                 $w = "AND settle_amount = 0 AND sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_SECURITY_AMOUNT."', '".MSL_NEW_PART_RETURN."', '".FNF."' ) ";
             } else {
                 $s = " COALESCE(SUM(`amount_collected_paid` ),0) as amount_collected_paid ";
-                $w = "";
+                $w = " AND sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_SECURITY_AMOUNT."', '".MSL_NEW_PART_RETURN."', '".FNF."' ) ";
+           
             }
             $sql = "SELECT $s "
                     . " FROM  `vendor_partner_invoices` "
