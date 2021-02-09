@@ -3910,7 +3910,7 @@ class Partner extends CI_Controller {
                 $html .= "<tr class='text-center'><td>" . $prices['service_category'] . "</td>";
                 $html .= "<td>" . $customer_net_payable . "</td>";
                 $html .= "<td><input type='hidden'name ='is_up_val' data-customer_price = '".$prices['upcountry_customer_price']."' data-flat_upcountry = '".$prices['flat_upcountry']."' id='is_up_val_" . $i . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox $checkboxClass'";
-                $html .= " type='checkbox' id='checkbox_" . $i . "'";
+                $html .= " type='checkbox' id='checkbox_" . $i . "' tabindex='-1' ";
                 $html .= "name='prices[]'";
                 $html .= $tempHelperString.$onclick."value=" . $prices['id'] . "_" . intval($customer_total) . "_" . intval($partner_net_payable) . "_" . $i . "  data-price_tag='".$prices['service_category']."' ></td><tr>";
                 $i++;
