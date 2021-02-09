@@ -2962,7 +2962,6 @@ function get_detailed_summary_report_query($partner_id,$whereConditions=NULL){
                     `Purchase Invoice Id`,
                     `Sale Invoice Id`,
                     `Dealer Name`,
-                    `Reverse purchase invoice date`,
                     `Part brought at`
             FROM (SELECT
                     booking_details.booking_id as '247around Booking ID',
