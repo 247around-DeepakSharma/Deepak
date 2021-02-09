@@ -133,10 +133,10 @@ class Invoice extends CI_Controller {
         
         if($msl_invoice == 1){
             //add condition in query to select MSL invoices ONLY
-            $where["sub_category like '%MSL%'"] = null;
+            $where["sub_category IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_NEW_PART_RETURN."' ) "] = null;
         }else{
             //add condition in query to exclude MSL invoices
-            $where["sub_category not like '%MSL%'"] = null;
+            $where["sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_NEW_PART_RETURN."' ) "] = null;
         }
         
         //by default, do not show fnf security invoices
