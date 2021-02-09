@@ -1666,7 +1666,7 @@ class Booking extends CI_Controller {
                 if($prices['service_category'] == REPAIR_OOW_PARTS_PRICE_TAGS ){
                     $html .= " onclick='return false;' ";
                 }
-                $html .= " name='prices[$brand_id][$clone_number][]'";
+                $html .= " name='prices[$brand_id][$clone_number][]' tabindex='-1' ";
                 
                 // auto check price-tags that are stored in booking_unit_details table
                 if(in_array($prices['service_category'], $arr_selected_price_tags)){

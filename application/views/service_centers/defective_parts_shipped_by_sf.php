@@ -55,6 +55,7 @@
                         <tr>
                             <th class="text-center">No</th>
                             <th class="text-center">Booking Id</th>
+                            <th class="text-center">Spare Id</th>
                             <th class="text-center">User Name</th>
                             <th class="text-center">SF Name</th>
                             <th class="text-center">SF City</th>
