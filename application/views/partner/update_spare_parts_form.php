@@ -1299,10 +1299,21 @@
             
             var numb = $(this)[0].files[0].size/1024/1024;
             numb = numb.toFixed(2);
-            if(numb > 2){
+            if(numb >= 2){
                 $(this).val(''); 
                 alert('Not allow file size greater than 2MB');
+                return false;
             } 
+            
+            var allowedFiles = [".png", ".jpg",".jpeg",".pdf"];
+            var fileUpload = $(this);
+            var regex = new RegExp("([a-zA-Z0-9\s_\\.\-:()])+(" + allowedFiles.join('|') + ")$");
+            if (!regex.test(fileUpload.val().toLowerCase())) {
+                $(this).val(''); 
+                alert("Please upload files having extensions:(" + allowedFiles.join(', ') + ") only.");
+                return false;
+            }
+
            
             file_name_with_extesion = $(this).val().replace(/.*(\/|\\)/, '');
             extension_dot_length = file_name_with_extesion.split('.').length;
