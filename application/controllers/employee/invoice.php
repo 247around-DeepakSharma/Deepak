@@ -3363,33 +3363,21 @@ exit();
             $tds_tax_rate = 20;
             $tds_per_rate = "20%";
         } else {
-            switch ($sc_details['company_type']) {
-                case "Individual":
+            $_4th_char = substr($sc_details['pan_no'], 3, 1);
+            
+            //Check 4th char of PAN. If it is P OR H, it means Individual
+            //or  Hindu Undivided Family (HUF).
+            //Rate for such case is 0.75% till 31st Mar, 2021.
+            //https://cleartax.in/s/tds-rate-chart
+            //https://www.incometaxindia.gov.in/Forms/tps/1.Permanent%20Account%20Number%20(PAN).pdf
+            if (strcasecmp($_4th_char, "P") == 0 || strcasecmp($_4th_char, "H") == 0) {
                     $tds = ($total_sc_charge) * .0075;
-                    $tds_tax_rate = .75;
+                    $tds_tax_rate = 0.75;
                     $tds_per_rate = "0.75%";
-                    break;
-
-                case "Partnership Firm":
-                case "Company (Pvt Ltd)":
-                case "Private Ltd Company":
-                    $_4th_char = substr($sc_details['pan_no'], 3, 1);
-                    if (strcasecmp($_4th_char, "P") == 0) {
-                            $tds = ($total_sc_charge) * .0075;
-                            $tds_tax_rate = 0.75;
-                            $tds_per_rate = "0.75%";
-                    } else {
-                        $tds = ($total_sc_charge) * .015;
-                        $tds_tax_rate = 1.5;
-                        $tds_per_rate = "1.5%";
-                    }
-                    
-                    break;
-                default :
-                    $tds = ($total_sc_charge) * .015;
-                    $tds_tax_rate = 1.5;
-                    $tds_per_rate = "1.5%";
-                    break;
+            } else {
+                $tds = ($total_sc_charge) * .015;
+                $tds_tax_rate = 1.5;
+                $tds_per_rate = "1.5%";
             }
         }
         $data['tds'] = $tds;
