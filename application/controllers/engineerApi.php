@@ -2259,6 +2259,12 @@ class engineerApi extends CI_Controller {
                     $missed_bookings[$key]['pre_consume_req'] = $previous_consumption_required;
                     $missed_bookings[$key]['spare_eligibility'] = $spare_resquest['spare_flag'];
                     $missed_bookings[$key]['message'] = $spare_resquest['message'];
+                    
+                    if ($missed_bookings['Bookings'][$key]['part_brought_at'] == 2) {
+                        $missed_bookings['Bookings'][$key]['part_brought_at_change'] = '0';
+                    } else {
+                        $missed_bookings['Bookings'][$key]['part_brought_at_change'] = '1';
+                    }
 
                     // Abhishek Send Spare Details of booking //
                     $spares_details = $this->getSpareDetailsOfBooking($value['booking_id']);
@@ -2314,6 +2320,12 @@ class engineerApi extends CI_Controller {
                     $previous_consumption_required = $this->checkConsumptionForPreviousPart($value['booking_id']);
                     $tomorrowBooking[$key]['pre_consume_req'] = $previous_consumption_required;
                     $tomorrowBooking[$key]['message'] = $spare_resquest['message'];
+                    
+                    if ($tomorrowBooking['Bookings'][$key]['part_brought_at'] == 2) {
+                        $tomorrowBooking['Bookings'][$key]['part_brought_at_change'] = '0';
+                    } else {
+                        $tomorrowBooking['Bookings'][$key]['part_brought_at_change'] = '1';
+                    }
 
                     // Abhishek Send Spare Details of booking //
                     $spares_details = $this->getSpareDetailsOfBooking($value['booking_id']);
@@ -2548,12 +2560,10 @@ class engineerApi extends CI_Controller {
                 $response['sparePartsOrder']['symptoms'] = array();
             }
                 
-            $spare_select = 'spare_parts_details.serial_number, '
-                        . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/purchase-invoices/", spare_parts_details.invoice_pic) as invoice_pic, '
-                        . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/' . SERIAL_NUMBER_PIC_DIR . '/", spare_parts_details.serial_number_pic) as serial_number_pic';
-                $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('booking_id' => $requestData["booking_id"]));
+            $spare_details = $this->can_edit_serial_number($requestData["booking_id"]);
             if (!empty($spare_details)) {
-                    $response['sparePartsOrder']['spare_parts'] = $spare_details[0];
+                    $spare_details['can_edit_serial_number'] = '0';
+                    $response['sparePartsOrder']['spare_parts'] = $spare_details;
                 }
             }
 
@@ -3553,6 +3563,7 @@ class engineerApi extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $missing_key = "";
         $check = true;
+
         $validateKeys = array("booking_id", "partner_id", "service_id", "primary_contact");  /*  for parent bookings */
         foreach ($validateKeys as $key) {
             if (!array_key_exists($key, $requestData)) {
@@ -3604,6 +3615,14 @@ class engineerApi extends CI_Controller {
             $spare_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.model_number, spare_parts_details.date_of_purchase', array('booking_id' => $requestData["booking_id"],'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL));
             if (!empty($spare_details)) {
                 $response['spare_parts'] = $spare_details[0];
+            }
+            //can_edit_serial_number function call
+            $can_edit_serial_number  = $this->can_edit_serial_number($requestData['booking_id']);
+            //print_r($can_edit_serial_number);exit;
+             if(!empty($response['spare_parts'])){
+                $response['spare_parts'] = array_merge($response['spare_parts'],$can_edit_serial_number);
+            }else{
+                $response['spare_parts'] = $can_edit_serial_number;
             }
             // Do not change the request type if invoiced to partner //
             $response['partner_invoiced'] = $this->checkBookingActionrequired($requestData['booking_id']);
@@ -3729,7 +3748,6 @@ class engineerApi extends CI_Controller {
                     }
                 }
             }
-
             if ($edit_call_type) {
                 if (isset($requestData['sc_agent_id'])) {
                     $curl_data['sc_agent_id'] = $requestData['sc_agent_id'];
@@ -4075,6 +4093,12 @@ class engineerApi extends CI_Controller {
 
                         $city = $value['district'];
                         $data['Bookings'][$key]['covid_zone'] = $this->booking_utilities->getBookingCovidZoneAndContZone($city);
+
+                        if($data['Bookings'][$key]['part_brought_at']==2){
+                            $data['Bookings'][$key]['part_brought_at_change'] = '0';
+                        }else{
+                            $data['Bookings'][$key]['part_brought_at_change'] = '1';
+                        }
 
                         $query_scba = $this->vendor_model->get_service_center_booking_action_details('*', array('booking_id' => $value['booking_id'], 'current_status' => 'InProcess'));
                         $data['Bookings'][$key]['service_center_booking_action_status'] = "Pending";
@@ -4840,4 +4864,45 @@ class engineerApi extends CI_Controller {
         }
 
     }
+    /**
+     * @Desc: This function is to check enginner can change serial number or not
+     * @params: void
+     * @return: JSON
+     * @author Ghanshyam Ji Gupta
+     * @date : 04-02-2021
+     */
+    function can_edit_serial_number($booking_id) {
+        $spare_select = 'spare_parts_details.serial_number, '
+                . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/purchase-invoices/", spare_parts_details.invoice_pic) as invoice_pic, '
+                . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/' . SERIAL_NUMBER_PIC_DIR . '/", spare_parts_details.serial_number_pic) as serial_number_pic';
+        $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('booking_id' => $booking_id));
+        $serial_number_details['serial_number'] = '';
+        $serial_number_details['invoice_pic'] = '';
+        $serial_number_details['serial_number_pic'] = '';
+        $serial_number_details['can_edit_serial_number'] = '1';
+        $serial_number_details['can_edit_invoice_pic'] = '1';
+        if (!empty($spare_details)) {
+            $serial_number_details = $spare_details[0];
+        }
+        $serial_number_details['can_edit_serial_number'] = '1';
+        $serial_number_details['can_edit_invoice_pic'] = '1';
+        $where = array(
+            'booking_id' => $booking_id,
+            'status !=' => _247AROUND_CANCELLED
+        );
+        $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
+        if (!empty($unit_details)) {
+            $serial_number_details['serial_number'] = $unit_details[0]['serial_number'];
+            $serial_number_details['serial_number_pic'] = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/" . SERIAL_NUMBER_PIC_DIR . "/" . $unit_details[0]['serial_number_pic'];
+        }
+        $spares = $this->engineer_model->get_spare_details("id", $where);
+        if (!empty($serial_number_details['serial_number']) && !empty($spares)) {
+            $serial_number_details['can_edit_serial_number'] = '0';
+        }
+        if (!empty($serial_number_details['invoice_pic']) && !empty($spares)) {
+            $serial_number_details['can_edit_invoice_pic'] = '0';
+        }
+        return $serial_number_details;
+    }
+
 }
