@@ -31,7 +31,7 @@ class DatabaseTesting extends CI_Controller {
 	$this->load->model('reporting_utils');
         $this->load->model('partner_model');
         $this->load->model('indiapincode_model');
-
+        $this->load->library('miscelleneous');
 	$this->load->library('notify');
 	$this->load->library('email');
 	$this->load->library('booking_utilities');
@@ -757,6 +757,7 @@ function updateZonesDb() {
 
         $districts = json_decode($districts, true);
 
+
         foreach ($districts['zones'] as $district) {
             $data = array(
                 'zone' => json_encode($district),
@@ -765,6 +766,24 @@ function updateZonesDb() {
                 'update_date' => date('Y-d-m')
             );
             $this->indiapincode_model->insertZone($data);
+        }
+    }
+    
+    /*
+     * Desc: Used to upload file on S3
+     * 
+     * 
+     */
+    function upload_oow_invoice_file() {
+        // put file in temp folder.
+        $fileNameArr = array("sp_parts_invoice3245MB-8641462012021.pdf", "sp_parts_invoice3935MB-8641462012021.pdf","sp_parts_invoice4189MB-8641462012021.pdf","sp_parts_invoice7261MB-8641462012021.pdf");
+        foreach ($fileNameArr as $file_name) {
+            $file = $file_name;
+            $csv = TMP_FOLDER . $file;
+            if (!empty($file_name)) {
+                $this->s3->putObjectFile($csv, 'bookings-collateral', 'invoices-excel/' . $file, S3::ACL_PUBLIC_READ);
+                unlink($csv);
+            }
         }
     }
 
