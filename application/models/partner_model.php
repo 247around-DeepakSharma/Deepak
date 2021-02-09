@@ -3120,7 +3120,6 @@ function get_detailed_summary_report_query($partner_id,$whereConditions=NULL){
                     '' AS 'Purchase Invoice Id',
                     '' AS 'Sale Invoice Id',
                     dealer_details.dealer_name AS 'Dealer Name',
-                    vendor_partner_invoices.invoice_date AS 'Reverse purchase invoice date',
                     CASE WHEN booking_details.part_brought_at=1 THEN 'Customer Location'  WHEN booking_details.part_brought_at=2 THEN 'Service Center location' ELSE '' END AS 'Part brought at'
             FROM
                     booking_details
@@ -3307,7 +3306,6 @@ function get_detailed_summary_report_query($partner_id,$whereConditions=NULL){
                     IFNULL(spare_parts_details.purchase_invoice_id, ' ') AS 'Purchase Invoice Id',
                     IFNULL(spare_parts_details.sell_invoice_id, ' ') AS 'Sale Invoice Id',
                     dealer_details.dealer_name AS 'Dealer Name',
-                    vendor_partner_invoices.invoice_date AS 'Reverse purchase invoice date',
                     CASE WHEN booking_details.part_brought_at=1 THEN 'Customer Location'  WHEN booking_details.part_brought_at=2 THEN 'Service Center location' ELSE '' END AS 'Part brought at'
             FROM
                 booking_details
