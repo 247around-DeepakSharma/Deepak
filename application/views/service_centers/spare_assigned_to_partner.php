@@ -181,7 +181,7 @@ if ($this->uri->segment(3)) {
                                         </td>
 
                                         <td>
-                                            <input type="checkbox" class="form-control checkbox_challan" name="generate_challan[<?php echo $row['service_center_id']; ?>][]" id="generate_challan_<?php echo $key; ?>" onclick='check_checkbox(2)' data-service_center_id="<?php echo $row['service_center_id']; ?>" value="<?php echo $row['booking_id']; ?>" />
+                                            <input type="checkbox" class="form-control checkbox_challan" name="generate_challan_assign_to_partner[<?php echo $row['service_center_id']; ?>][]" id="generate_challan_<?php echo $key; ?>" onclick='check_checkbox(2)' data-service_center_id="<?php echo $row['service_center_id']; ?>" value="<?php echo $row['booking_id']; ?>" />
                                         </td>
                                     </tr>
                                     <?php
