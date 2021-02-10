@@ -10484,7 +10484,7 @@ class Partner extends CI_Controller {
             $this->form_validation->set_rules('service_id', '', 'required');
             $this->form_validation->set_rules('brand', '', 'required');
             $this->form_validation->set_rules('category', '', 'required');
-            $this->form_validation->set_rules('capacity', '', 'required');
+            //$this->form_validation->set_rules('capacity', '', 'required');
             $this->form_validation->set_rules('purchase_date', '', 'required');
             $this->form_validation->set_rules('partner_source', '', 'required');
             $this->form_validation->set_rules('orderID', '', 'required');          
@@ -10502,7 +10502,7 @@ class Partner extends CI_Controller {
             $where = array('partners.public_name' => $partner_name_check);
             $partner_detail = $this->partner_model->getpartner_details('*',$where);
             if(!empty($partner_detail)){
-                $post['partner_id'] = $partner_detail[0]['id'];
+                $post['partner_id'] = $partner_detail[0]['partner_id'];
                 $post['partner_code'] = $partner_detail[0]['code'];
                 $post['partner_type'] = $partner_detail[0]['partner_type'];
             }else{
