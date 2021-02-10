@@ -1550,7 +1550,7 @@ class Miscelleneous {
             
             //Get Partner invoice amout
             $invoice_where = "vendor_partner = 'partner' AND vendor_partner_id = " . $partner_id . 
-                    " AND settle_amount = 0 AND sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_NEW_PART_RETURN."' ) ";
+                    " AND sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_NEW_PART_RETURN."' ) ";
             
 //            $invoice_amount = $this->My_CI->invoices_model->get_invoices_details
 //                    (array(
@@ -3242,8 +3242,10 @@ function generate_image($base64, $image_name,$directory){
         $where2['select'] = "wh_challan_number as challan_number";
 
         $challan_no_temp3 = $this->My_CI->partner_model->get_spare_parts_by_any($where2['select'], $where2['where']);
+        
+        $challan_no_temp4 = $this->My_CI->invoices_model->get_challan_deatils("challan_id as challan_number", array("( challan_id LIKE '%" . $challan_id_tmp . "%' )" => NULL));
 
-        $challan_no_temp = array_merge($challan_no_temp1, $challan_no_temp2, $challan_no_temp3);
+        $challan_no_temp = array_merge($challan_no_temp1, $challan_no_temp2, $challan_no_temp3, $challan_no_temp4);
         
         $challan_no = 1;
         $int_challan_no = array();
@@ -3573,7 +3575,7 @@ function generate_image($base64, $image_name,$directory){
 
         $select = "e.phone as am_caontact,e.official_email as am_email, e.full_name as am,partners.primary_contact_name as partner_poc,"
                 . "partners.primary_contact_phone_1 as poc_contact,service_centres.primary_contact_email as service_center_email,partners.public_name as partner,"
-                . "booking_details.assigned_vendor_id,employee.official_email as rm_email,employee.full_name as rm ,employee.phone as rm_contact, emp.official_email as asm_email,emp.full_name as asm, emp.phone as asm_contact, group_concat(distinct agent_filters.state) as am_state";
+                . "booking_details.assigned_vendor_id,ifnull(employee.official_email, '') as rm_email,ifnull(employee.full_name, '') as rm ,ifnull(employee.phone, '') as rm_contact, ifnull(emp.official_email, '') as asm_email,ifnull(emp.full_name, '') as asm, ifnull(emp.phone, '') as asm_contact, group_concat(distinct agent_filters.state) as am_state";
         $join['partners'] = "partners.id = booking_details.partner_id";
         $join['agent_filters'] = "partners.id = agent_filters.entity_id";
         $join['service_centres'] = "service_centres.id = booking_details.assigned_vendor_id";

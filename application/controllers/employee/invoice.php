@@ -133,10 +133,10 @@ class Invoice extends CI_Controller {
         
         if($msl_invoice == 1){
             //add condition in query to select MSL invoices ONLY
-            $where["sub_category like '%MSL%'"] = null;
+            $where["sub_category IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_NEW_PART_RETURN."' ) "] = null;
         }else{
             //add condition in query to exclude MSL invoices
-            $where["sub_category not like '%MSL%'"] = null;
+            $where["sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_NEW_PART_RETURN."' ) "] = null;
         }
         
         //by default, do not show fnf security invoices
@@ -149,7 +149,7 @@ class Invoice extends CI_Controller {
         }
         if ($fnf_invoice == 0) {
             //add condition in query to hide FNF invoices by default
-            $where["sub_category not in ('".FNF."','".SECURITY."')"] = null;
+            $where["sub_category not in ('".FNF."')"] = null;
         }
         if($invoice_period === 'all'){
             $where['vendor_partner'] = $this->input->post('source');
@@ -3386,33 +3386,21 @@ exit();
             $tds_tax_rate = 20;
             $tds_per_rate = "20%";
         } else {
-            switch ($sc_details['company_type']) {
-                case "Individual":
+            $_4th_char = substr($sc_details['pan_no'], 3, 1);
+            
+            //Check 4th char of PAN. If it is P OR H, it means Individual
+            //or  Hindu Undivided Family (HUF).
+            //Rate for such case is 0.75% till 31st Mar, 2021.
+            //https://cleartax.in/s/tds-rate-chart
+            //https://www.incometaxindia.gov.in/Forms/tps/1.Permanent%20Account%20Number%20(PAN).pdf
+            if (strcasecmp($_4th_char, "P") == 0 || strcasecmp($_4th_char, "H") == 0) {
                     $tds = ($total_sc_charge) * .0075;
-                    $tds_tax_rate = .75;
+                    $tds_tax_rate = 0.75;
                     $tds_per_rate = "0.75%";
-                    break;
-
-                case "Partnership Firm":
-                case "Company (Pvt Ltd)":
-                case "Private Ltd Company":
-                    $_4th_char = substr($sc_details['pan_no'], 3, 1);
-                    if (strcasecmp($_4th_char, "P") == 0) {
-                            $tds = ($total_sc_charge) * .0075;
-                            $tds_tax_rate = 0.75;
-                            $tds_per_rate = "0.75%";
-                    } else {
-                        $tds = ($total_sc_charge) * .015;
-                        $tds_tax_rate = 1.5;
-                        $tds_per_rate = "1.5%";
-                    }
-                    
-                    break;
-                default :
-                    $tds = ($total_sc_charge) * .015;
-                    $tds_tax_rate = 1.5;
-                    $tds_per_rate = "1.5%";
-                    break;
+            } else {
+                $tds = ($total_sc_charge) * .015;
+                $tds_tax_rate = 1.5;
+                $tds_per_rate = "1.5%";
             }
         }
         $data['tds'] = $tds;
@@ -4617,7 +4605,7 @@ exit();
                     //this is 247around invoice thats why we are assigned true value.
                     $data[0]['gst_number'] = true;
                 }
-
+                
                 $data[0]['company_name'] = $vendor_details[0]['company_name'];
                 $data[0]['company_address'] = $vendor_details[0]['company_address'];
                 $data[0]['district'] = $vendor_details[0]['district'];
@@ -7849,177 +7837,6 @@ exit();
        $array = $this->get_dashboard_invoice_data(1);
        $this->miscelleneous->downloadCSV($array, NULL, $fileName);
     }
-        /**
-     *  @desc : This function is used to generate invoice and challan for not required spare parts
-     *  @param : Array $spare_id
-     *  @return : String $message
-     *  @author Ankit Bhatt
-     *  @date : 23-04-2020
-     */
-    function generate_reverse_purchase_invoice_non_return_parts(){
-        $spare_id_data = $this->input->post('data');
-        log_message('info', "Entering: " . __METHOD__ . 'Spare_id:' . print_r($spare_id_data, true) );
-        $message = '';
-        if(!empty($spare_id_data)){
-            //Received spare id data
-            $spare_id_array = json_decode($spare_id_data, true);
-            foreach($spare_id_array as $spare_data){
-                //loop through each spare id
-                if($spare_data['is_micro_wh'] == 1){
-                    //generate MWH reverse purchase invoice
-                    $this->generate_reverse_micro_purchase_invoice($spare_data['spare_id']);
-                }
-                //generate partner challan
-                $message = $this->generate_partner_challan_not_required_parts($spare_id_array);
-                
-            }
-            $message = "Spare part received";
-        }else{
-            $message = "Spare part not received";
-        }
-        echo $message;
-    }
-    
-    /**
-     *  @desc : This function is used to generate partner challan for not required parts
-     *  @param : Integer $spare_id
-     *  @return : void
-     *  @author Ankit Bhatt
-     *  @date : 23-04-2020
-     */
-    function generate_partner_challan_not_required_parts($spare_data){
-        log_message("info", __METHOD__ . 'Spare_id:' . print_r($spare_data, true));
-        $is_r = $this->is_reverse_purchase_invoice_generated($spare_data);
-        if (!empty($is_r)) {
-            return 'Reverse Invoice already generated for the booking id: ' . $is_r;
-        } else {
-            $sender_entity_id = $spare_data['defective_return_to_entity_id'];
-            $sender_entity_type = _247AROUND_SF_STRING;
-            $awb_by_wh = $this->input->post('awb_by_wh');
-            $courier_name_by_wh = $this->input->post('courier_name_by_wh');
-            $courier_price_by_wh = $this->input->post('courier_price_by_wh');
-            $defective_parts_shippped_date_by_wh = $this->input->post('defective_parts_shippped_date_by_wh');
-            $kilo_gram = (!empty($this->input->post('shipped_spare_parts_weight_in_kg')) ? $this->input->post('shipped_spare_parts_weight_in_kg') : '0');
-            $gram = (!empty($this->input->post('shipped_spare_parts_weight_in_gram')) ? $this->input->post('shipped_spare_parts_weight_in_gram') : '00');
-            $billable_weight = $kilo_gram . "." . $gram;
-            $postData = json_decode($this->input->post('data'));
-            //$wh_name = $this->input->post('wh_name');
-            if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($postData) && !empty($awb_by_wh) && !empty($courier_name_by_wh) && !empty($defective_parts_shippped_date_by_wh)) {
-                $exist_courier_image = $this->input->post("exist_courier_image");
-
-                        $invoice = $this->invoice_lib->inventory_invoice_settlement($sender_entity_id, $sender_entity_type, '');
-                        $this->inventory_model->insert_ewaybill_details($eway_details);
-                        if (!empty($invoice['processData'])) {
-
-                            foreach ($invoice['booking_id_array'] as $booking_id) {
-
-                                $actor = ACTOR_NOT_DEFINE;
-                                $next_action = NEXT_ACTION_NOT_DEFINE;
-                                
-                                /**
-                                 * Check session to set agant id & entity id
-                                 * @modifiedBy Ankit Rajvanshi
-                                 */
-                                if(!empty($this->session->userdata('warehouse_id'))) {
-                                    $agent_id = $this->session->userdata('id');
-                                    $entity_id = _247AROUND;
-                                    $agent_name = $this->session->userdata('employee_id');
-                                    $entity_type = _247AROUND_EMPLOYEE_STRING;
-                                    
-                                    $this->notify->insert_state_change($booking_id, DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, "", DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, $agent_id, $agent_name, $actor, $next_action, $entity_id, NULL);
-                                } else { 
-                                    $agent_id = $this->session->userdata('service_center_agent_id');
-                                    $agent_name = $this->session->userdata('service_center_name');
-                                    $entity_id = $this->session->userdata('service_center_id');                                
-                                    $entity_type = _247AROUND_SF_STRING;
-                                    
-                                    $this->notify->insert_state_change($booking_id, DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, "", DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, $agent_id, $agent_name, $actor, $next_action, NULL, $entity_id);
-                                }                                
-                                
-                                log_message("info", "Booking State change inserted");
-                            }
-
-                            foreach ($invoice['spare_id_array'] as $spare_id) {
-                                /**
-                                 * @modifiedBy Ankit Rajvanshi
-                                 */
-                                // Fetch spare details of $spare_id.
-                                $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
-                                $booking_id = $spare_part_detail['booking_id'];
-                                $partner_id = $spare_part_detail['partner_id'];
-                                $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
-                                $spare_status = DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH;
-                                if(!empty($is_spare_consumed) && $is_spare_consumed == 1) {
-                                    $spare_status = DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH;
-                                } else {
-                                    $spare_status = OK_PARTS_SEND_TO_PARTNER_BY_WH;
-                                }                                  
-                                
-                                $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => $spare_status, 'wh_to_partner_defective_shipped_date' => date('Y-m-d H:i:s'),
-                                    'defective_parts_shippped_date_by_wh' => $defective_parts_shippped_date_by_wh, 'courier_name_by_wh' => $courier_name_by_wh, 'courier_price_by_wh' => $courier_price_by_wh,
-                                    'awb_by_wh' => $awb_by_wh, 'defective_parts_shippped_courier_pic_by_wh' => $courier_file['message'], 'reverse_purchase_invoice_id' => $invoice['invoice'][0]));
-                                
-                                $agent_id = $this->session->userdata('service_center_agent_id');
-                                $service_center_id = $this->session->userdata('service_center_id');
-                                /* Insert Spare Tracking Details */
-                                $tracking_details = array('spare_id' => $spare_id, 'action' =>$spare_status, 'remarks' => '');
-                                if(!empty($this->session->userdata('warehouse_id'))) {
-                                    $tracking_details['agent_id'] = $this->session->userdata('id');
-                                    $tracking_details['entity_id'] = _247AROUND;
-                                    $tracking_details['entity_type'] = _247AROUND_EMPLOYEE_STRING;
-                                } else { 
-                                    $tracking_details['agent_id'] = $this->session->userdata('service_center_agent_id');
-                                    $tracking_details['entity_id'] = $this->session->userdata('service_center_id');
-                                    $tracking_details['entity_type'] = _247AROUND_SF_STRING;
-                                }                                
-                                
-                                $this->service_centers_model->insert_spare_tracking_details($tracking_details);
-                                // fetch record from booking details of $booking_id.
-                                $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
-                                
-                                $is_exist = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status", array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.defective_part_required' => 1, "status IN  (
-                                                '" . DEFECTIVE_PARTS_RECEIVED . "', '" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "', '" .Ok_PARTS_RECEIVED_BY_WAREHOUSE . "', '" . Ok_PARTS_RECEIVED . "', '".OK_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_SHIPPED."') " => NULL));
-
-                                $actor = $next_action = 'not_define';
-                                if (empty($is_exist)) {
-                                    $booking_internal_status = $spare_status;
-                                } else {
-                                    $booking_internal_status = $is_exist[0]['status'];
-                                }
-
-                                // Change booking internal status if booking is completed.
-                                if($booking_details['current_status'] == _247AROUND_COMPLETED) {
-                                    $booking['internal_status'] = $booking_internal_status;
-                                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, $booking['internal_status'], $partner_id, $booking_id);
-                                    if (!empty($partner_status)) {
-                                        $booking['partner_current_status'] = $partner_status[0];
-                                        $booking['partner_internal_status'] = $partner_status[1];
-                                        $actor = $booking['actor'] = $partner_status[2];
-                                        $next_action = $booking['next_action'] = $partner_status[3];
-                                    }
-                                    $this->booking_model->update_booking($booking_id, $booking);
-                                }
-                            }
-
-                            if (empty($invoice['not_update_booking_id'])) {
-                                $res['status'] = TRUE;
-                                $res['message'] = 'Details Updated Successfully';
-                            } else {
-                                $res['status'] = false;
-                                $res['message'] = "These Bookings not updated " . implode(',', $invoice['not_update_booking_id']) .
-                                        " Please Contact to 247Around.";
-                            }
-                        } else {
-                            $res['status'] = false;
-                            $res['message'] = "There is no inventory invoice to tag with your selected inventory.";
-                        }
-            } else {
-                $res['status'] = false;
-                $res['message'] = 'All fields are required';
-            }
-        }
-    }
-
     /**
      * @desc This function is used to update bank transaction date 
      */

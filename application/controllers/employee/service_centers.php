@@ -7816,55 +7816,55 @@ class Service_centers extends CI_Controller {
      * @desc: This method is used to display list of booking which received by Partner
      * @param Integer $offset
      */
-    function get_approved_defective_parts_booking_by_warehouse($offset = 0) {
-        $this->check_WH_UserSession();
-        log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
-
-        //check if call from form submission or direct url
-        //used to filter the page by partner id
-
-        $config['per_page'] = 500;
-        $config['uri_segment'] = 3;
-        $config['first_link'] = 'First';
-        $config['last_link'] = 'Last';
-
-        if ($this->input->post('partner_id')) {
-
-            $partner_id = $this->input->post('partner_id');
-            $data['filtered_partner'] = $this->input->post('partner_id');
-            $sf_id = $this->session->userdata('service_center_id');
-
-            $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
-                    . " AND defective_part_required = '1' AND status IN ('" . _247AROUND_COMPLETED . "') ";
-
-
-            $where .= " AND booking_details.partner_id = " . $partner_id;
-            $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
-            $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
-        } else {
-
-            $data['spare_parts'] = array();
-            $total_rows = array(array("total_rows" => 0));
-        }
-
-        $config['base_url'] = base_url() . 'service_center/approved_defective_parts_booking_by_warehouse';
-
-        $config['total_rows'] = $total_rows[0]['total_rows'];
-
-
-        $this->pagination->initialize($config);
-        $data['links'] = $this->pagination->create_links();
-
-        $data['count'] = $config['total_rows'];
-
-
-        if (empty($this->input->post('is_ajax'))) {
-            $this->load->view('service_centers/header');
-            $this->load->view('service_centers/approved_defective_parts_by_warehouse', $data);
-        } else {
-            $this->load->view('service_centers/approved_defective_parts_by_warehouse', $data);
-        }
-    }
+//    function get_approved_defective_parts_booking_by_warehouse($offset = 0) {
+//        $this->check_WH_UserSession();
+//        log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
+//
+//        //check if call from form submission or direct url
+//        //used to filter the page by partner id
+//
+//        $config['per_page'] = 500;
+//        $config['uri_segment'] = 3;
+//        $config['first_link'] = 'First';
+//        $config['last_link'] = 'Last';
+//
+//        if ($this->input->post('partner_id')) {
+//
+//            $partner_id = $this->input->post('partner_id');
+//            $data['filtered_partner'] = $this->input->post('partner_id');
+//            $sf_id = $this->session->userdata('service_center_id');
+//
+//            $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
+//                    . " AND defective_part_required = '1' AND status IN ('" . _247AROUND_COMPLETED . "') ";
+//
+//
+//            $where .= " AND booking_details.partner_id = " . $partner_id;
+//            $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
+//            $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
+//        } else {
+//
+//            $data['spare_parts'] = array();
+//            $total_rows = array(array("total_rows" => 0));
+//        }
+//
+//        $config['base_url'] = base_url() . 'service_center/approved_defective_parts_booking_by_warehouse';
+//
+//        $config['total_rows'] = $total_rows[0]['total_rows'];
+//
+//
+//        $this->pagination->initialize($config);
+//        $data['links'] = $this->pagination->create_links();
+//
+//        $data['count'] = $config['total_rows'];
+//
+//
+//        if (empty($this->input->post('is_ajax'))) {
+//            $this->load->view('service_centers/header');
+//            $this->load->view('service_centers/approved_defective_parts_by_warehouse', $data);
+//        } else {
+//            $this->load->view('service_centers/approved_defective_parts_by_warehouse', $data);
+//        }
+//    }
 
     function warehouse_ack_partner_list() {
         if(!empty($this->session->userdata('warehouse_id'))) {
@@ -7970,7 +7970,7 @@ class Service_centers extends CI_Controller {
             
             $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
                     . " AND defective_part_required = '1' AND reverse_purchase_invoice_id IS NULL AND status IN ('" . _247AROUND_COMPLETED . "','" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "', '".Ok_PARTS_RECEIVED_BY_WAREHOUSE."') AND spare_parts_details.is_micro_wh IN (1,2) AND spare_parts_details.awb_by_wh IS NULL AND spare_parts_details.consumed_part_status_id IN (".PART_CONSUMED_STATUS_ID.") ";
-            $where .= " AND booking_details.partner_id = " . $partner_id . " AND booking_details.current_status = '"._247AROUND_COMPLETED."'";
+            $where .= " AND booking_details.partner_id = " . $partner_id . " AND booking_details.current_status = '"._247AROUND_COMPLETED."' AND spare_parts_details.wh_challan_number IS NULL ";
 
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, '', true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
 
@@ -7982,7 +7982,6 @@ class Service_centers extends CI_Controller {
         } else {
             $data['spare_parts'] = array();
         }
-        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         $gst_where = array(
             "entity_type" => _247AROUND_PARTNER_STRING,
             "entity_id" => _247AROUND,
@@ -8525,53 +8524,23 @@ class Service_centers extends CI_Controller {
      */
     function process_update_spare_courier_details($id) {
         log_message('info', __METHOD__ . ' update spare courier details of spare id ' . $id);
-        $this->form_validation->set_rules('shipped_parts', 'shipped_parts', 'trim|required');
+        //$this->form_validation->set_rules('shipped_parts', 'shipped_parts', 'trim|required');
         $this->form_validation->set_rules('courier_name', 'courier_name', 'trim|required');
         $this->form_validation->set_rules('awb', 'awb', 'required');
         $this->form_validation->set_rules('courier_charge', 'courier_charge', 'trim|required');
-        $this->form_validation->set_rules('shipped_date', 'shipped_date', 'required');
+        //$this->form_validation->set_rules('shipped_date', 'shipped_date', 'required');
         $this->form_validation->set_rules('remarks_by_sf', 'remarks_by_sf', 'trim|required');
         if ($this->form_validation->run() == TRUE) {
             $booking_id = $this->input->post('booking_id');
-            $sf_challan_number = $this->input->post("sf_challan_number");
-            $partner_id = $this->input->post("partner_id");
-            $service_center_id = $this->input->post("service_center_id");
-            $entity_type = $this->input->post("entity_type");
-
+            $agent_id = $this->session->userdata("id");
+            $entity_id = _247AROUND;
+            $entity_type = _247AROUND_EMPLOYEE_STRING;
             $data = array();
-
-            $data['courier_name_by_sf'] = trim($this->input->post('courier_name'));
-            $data['awb_by_sf'] = trim($this->input->post('awb'));
-            $data['courier_charges_by_sf'] = trim($this->input->post('courier_charge'));
-            $data['defective_part_shipped_date'] = ($this->input->post('shipped_date'));
-            $data['remarks_defective_part_by_sf'] = trim($this->input->post('remarks_by_sf'));
-            $challan_approx_value = $challan_approx_value = trim($this->input->post('challan_approx_value'));
-            $data['partner_challan_number'] = $partner_challan_number = trim($this->input->post('partner_challan_number'));
-
-            $spare_details = array();
-            $new_spare_details = array();
-            if (!empty($sf_challan_number)) {
-                //get all spare data with form challan number
-                $select = "spare_parts_details.id,spare_parts_details.defective_part_shipped,spare_parts_details.challan_approx_value,spare_parts_details.partner_challan_number";
-                $where = array('spare_parts_details.sf_challan_number' => $this->input->post('sf_challan_number'), "spare_parts_details.id NOT IN ($id)" => NULL, 'spare_parts_details.booking_id' => $booking_id);
-                $spare_details = $this->partner_model->get_spare_parts_by_any($select, $where);
-            }
-            $data['partner_challan_number'] = trim($partner_challan_number . ',' . implode(',', array_column($spare_details, 'partner_challan_number')), ',');
-            //push updated part data to old spare data
-            $tmp_arr = array('id' => $id,
-                'defective_part_shipped' => trim($this->input->post('shipped_parts')),
-                'challan_approx_value' => $challan_approx_value
-            );
-            array_push($spare_details, $tmp_arr);
-
-            //make new array to create new challan file
-            $new_spare_details['booking_id'] = $booking_id;
-            $new_spare_details['partner_challan_number'] = $data['partner_challan_number'];
-            foreach ($spare_details as $value) {
-                $new_spare_details['parts_shipped'][$value['id']] = $value['defective_part_shipped'];
-                $new_spare_details['part_price'][$value['id']] = $value['challan_approx_value'];
-            }
-
+            $courier_name_by_sf = trim($this->input->post('courier_name'));
+            $awb_number = trim($this->input->post('awb'));
+            $pre_awb_by_sf = trim($this->input->post('pre_awb_by_sf'));
+            $courier_charges = trim($this->input->post('courier_charge'));
+            $remarks_defective_part_by_sf = trim($this->input->post('remarks_by_sf'));
 
             if (!empty($_FILES['defective_courier_receipt']['name'])) {
                 $courier_image = $this->upload_defective_spare_pic();
@@ -8580,21 +8549,76 @@ class Service_centers extends CI_Controller {
                 }
             }
 
-            foreach ($new_spare_details['parts_shipped'] as $key => $value) {
+            if ($pre_awb_by_sf != $awb_number && empty($this->input->post('sp_parts'))) {
+                $this->session->set_flashdata('failed', "Courier file should not empty.");
+                redirect(base_url() . 'employee/service_centers/process_update_spare_courier_details/' . $id);
+            } else {
 
-                if ($key == $id) {
-                    $data['defective_part_shipped'] = trim($this->input->post('shipped_parts'));
-                }
+                $courier_company_detail = $this->inventory_model->get_courier_company_invoice_details('courier_company_invoice_details.id, courier_company_invoice_details.awb_number', array('awb_number' => $awb_number));
 
-                $update_id = $this->inventory_model->update_spare_courier_details($key, $data);
-                if ($update_id) {
-                    log_message('info', __METHOD__ . ' details updated successfully for spare id ' . $key);
+                if (empty($courier_company_detail)) {
+                    $courier_company_data = array(
+                        'awb_number' => trim($this->input->post('awb')),
+                        'company_name' => strtolower(trim($this->input->post('courier_name'))),
+                        'courier_charge' => trim($this->input->post('courier_charge')),
+                    );
+
+                    if (!empty($this->input->post('sp_parts'))) {
+                        $courier_company_data['courier_invoice_file'] = $this->input->post('sp_parts');
+                    }
+
+                    $courier_company_detail[0]['id'] = $this->inventory_model->insert_courier_company_invoice_details($courier_company_data);
+                    $updateCharge = TRUE;
                 } else {
-                    log_message('info', __METHOD__ . ' details did not updated successfully for spare id ' . $key);
-                }
-            }
 
-            redirect(base_url() . DEFAULT_SEARCH_PAGE);
+                    if (!empty($courier_company_detail)) {
+                        $courier_company_data_update = array(
+                            'company_name' => strtolower(trim($this->input->post('courier_name'))),
+                            'courier_charge' => trim($this->input->post('courier_charge'))
+                        );
+
+                        if (!empty($this->input->post('sp_parts'))) {
+                            $courier_company_data_update['courier_invoice_file'] = $this->input->post('sp_parts');
+                        }
+
+                        $this->inventory_model->update_courier_company_invoice_details(array('id' => $courier_company_detail[0]['id']), $courier_company_data_update);
+                        $updateCharge = TRUE;
+                    }
+                }
+
+                if ($updateCharge === TRUE) {
+
+                    $this->inventory_model->update_spare_courier_details($id, array('spare_parts_details.awb_by_sf' => $awb_number));
+
+                    $data_spare_part_detail = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id, spare_parts_details.awb_by_sf, spare_parts_details.courier_name_by_sf', array('spare_parts_details.awb_by_sf = "' . $awb_number . '"  AND status != "' . _247AROUND_CANCELLED . '"' => null), false);
+
+                    if (!empty($data_spare_part_detail)) {
+                        $courier_amount = ($courier_charges / count($data_spare_part_detail));
+                        $data['spare_parts_details.awb_by_sf'] = $awb_number;
+                        $data['spare_parts_details.courier_name_by_sf'] = $courier_name_by_sf;
+                        $data['spare_parts_details.courier_charges_by_sf'] = $courier_amount;
+
+                        foreach ($data_spare_part_detail as $value) {
+
+                            $this->inventory_model->update_spare_courier_details($value['id'], $data);
+                            /* Insert in Spare Tracking Details */
+                            if ($pre_awb_by_sf != $awb_number) {
+                                $remarks = " Docket replaced from " . $pre_awb_by_sf . " To " . $awb_number . "," . $remarks_defective_part_by_sf;
+                                $new_state = "New Awb Number updated";
+                                $action = 'New Awb Number ' . $awb_number;
+                            } else {
+                                $remarks = $remarks_defective_part_by_sf;
+                                $new_state = "Courier Charges Or Courier name Updated";
+                                $action = 'Courier Charges Or Courier name Of Awb Number ' . $awb_number;
+                            }
+                            $tracking_details = array('spare_id' => $value['id'], 'action' => $action, 'remarks' => $remarks, 'agent_id' => $agent_id, 'entity_id' => $entity_id, 'entity_type' => $entity_type);
+                            $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                        }
+                    }
+                }
+
+                redirect(base_url() . 'employee/booking/viewdetails/' . $booking_id);
+            }
         } else {
             log_message('info', __METHOD__ . ' validation failed');
             $this->update_spare_courier_details($id);
@@ -8653,6 +8677,7 @@ class Service_centers extends CI_Controller {
      * returns array() -> msl amounts
      */
     private function get_msl_amounts() {
+         
         $oowAmount = 0.00;
         $msl = array(
             'security' => sprintf("%01.2f", 0.00),
