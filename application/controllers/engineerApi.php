@@ -92,11 +92,11 @@ class engineerApi extends CI_Controller {
             }
 
             $this->requestId = $requestData['requestId'];
-        /*  Configure to skip device info in request from spalsh screen if device id come or not */
-            if(isset($requestData['deviceId']) && !empty($requestData['deviceId'])){
-                $this->deviceId =   $requestData['deviceId'];
-            }else{
-                $this->deviceId =   ACCESS_FROM_SPLASH_SCREEN;
+            /*  Configure to skip device info in request from spalsh screen if device id come or not */
+            if (isset($requestData['deviceId']) && !empty($requestData['deviceId'])) {
+                $this->deviceId = $requestData['deviceId'];
+            } else {
+                $this->deviceId = ACCESS_FROM_SPLASH_SCREEN;
             }
 
             $this->requestUrl = $requestData['requestUrl'];
@@ -151,11 +151,11 @@ class engineerApi extends CI_Controller {
         $this->user = $this->input->get('username');
         $this->token = $this->input->get('jwt');
         /*  Configure to skip device info in request from spalsh screen if device id come or not */
-        $deviceID =  $this->input->get('deviceId');
-        if(isset($deviceID) && !empty($deviceID)){
-                $this->deviceId =   $deviceID;
-        }else{
-                $this->deviceId =   ACCESS_FROM_SPLASH_SCREEN;
+        $deviceID = $this->input->get('deviceId');
+        if (isset($deviceID) && !empty($deviceID)) {
+            $this->deviceId = $deviceID;
+        } else {
+            $this->deviceId = ACCESS_FROM_SPLASH_SCREEN;
         }
 
         $this->requestId = $this->input->get('requestId');
@@ -304,11 +304,11 @@ class engineerApi extends CI_Controller {
               case 'cancelBooking':
               $this->processCancelBooking();
               break;
-            */
+             */
             case 'checkForUpgrade':
-              $this->check_for_upgrade();  // this function is used to check the app version and hard/soft upgrade //
-              break;
-             
+                $this->check_for_upgrade();  // this function is used to check the app version and hard/soft upgrade //
+                break;
+
             case 'engineerLogin':
                 $this->processEngineerLogin();
                 break;
@@ -444,47 +444,47 @@ class engineerApi extends CI_Controller {
             case 'todaysSlotBookings':
                 $this->getTodaysSlotBookings();
                 break;
-/*   get users notification on phone number */
+            /*   get users notification on phone number */
             case 'usernotifications':
                 $this->getUserNotifications();
                 break;
 
-/*   get partners active list */
+            /*   get partners active list */
             case 'partners':
-                $this->getActivepartnersList(); 
-                break;  
+                $this->getActivepartnersList();
+                break;
 
-/*   get partner appliances */
-            case 'partnerAppliances':  
+            /*   get partner appliances */
+            case 'partnerAppliances':
                 $this->getPartner_appliances();  ////getPartner_appliances
                 break;
 
 
-/*   get partner appliances models */
-            case 'partnerappliancesModels':  
+            /*   get partner appliances models */
+            case 'partnerappliancesModels':
                 $this->getPartnerAppliancesModels();  ////getPartner_appliances
                 break;
-/*   get partner appliances model part types */
-            case 'partnerappliancesModelsPartTypes':  
+            /*   get partner appliances model part types */
+            case 'partnerappliancesModelsPartTypes':
                 $this->getPartnerAppliancesModelsPartTypes();  ////get parts types
                 break;
 
-/*   get partner appliances model part types inventory list */
-            case 'partnerappliancesModelsPartTypesInventory':  
+            /*   get partner appliances model part types inventory list */
+            case 'partnerappliancesModelsPartTypesInventory':
                 $this->getPartnerAppliancesModelsPartTypesInventory();  ////get parts names
                 break;
 
-/*   this API used to submit previous parts consume data */
-            case 'submitPrevPartsConsumption':  
+            /*   this API used to submit previous parts consume data */
+            case 'submitPrevPartsConsumption':
                 $this->submitPreviousPartsConsumptionData();  ////Submit Request for Previous consume data
                 break;
 
-/*   this API used to get incentive  data of engineer */
-            case 'getEngineerIncentives':  
+            /*   this API used to get incentive  data of engineer */
+            case 'getEngineerIncentives':
                 $this->get_engineer_incentives();  //// Getting engineer Incentives
                 break;
-/*   this API used to get parents of booking */
-            case 'checkBookingParents':  
+            /*   this API used to get parents of booking */
+            case 'checkBookingParents':
                 $this->getBookingParents();  //// Getting parents
                 break; 
 
@@ -496,6 +496,7 @@ class engineerApi extends CI_Controller {
             case 'sendCancelRescheduleOTP':
                 $this->sendCancelRescheduleOTPCustomer();  //// Sending OTP
                 break;
+
             default:
                 break;
         }
@@ -1216,16 +1217,16 @@ class engineerApi extends CI_Controller {
                 "active" => 1, "user_id" => $requestData["mobile"], "password" => md5($requestData["password"])));
             if (!empty($login)) {
                 $engineer = $this->engineer_model->get_engineers_details(array("id" => $login[0]['entity_id'], "active" => 1), "service_center_id, name");
-                /*  handle condition for OLD APK where device token not present  Abhishek  */ 
-                $engg_data=array();
-                if(isset($requestData['device_firebase_token']) && !empty($requestData['device_firebase_token'])){
-                $engg_data = array(
-                    'device_firebase_token' => $requestData['device_firebase_token']
-                );
-                }else{
-                $engg_data = array(
-                    'device_firebase_token' => NULL
-                );  
+                /*  handle condition for OLD APK where device token not present  Abhishek  */
+                $engg_data = array();
+                if (isset($requestData['device_firebase_token']) && !empty($requestData['device_firebase_token'])) {
+                    $engg_data = array(
+                        'device_firebase_token' => $requestData['device_firebase_token']
+                    );
+                } else {
+                    $engg_data = array(
+                        'device_firebase_token' => NULL
+                    );
                 }
 
                 $engg_where = array('id' => $login[0]['entity_id']);
@@ -1252,7 +1253,9 @@ class engineerApi extends CI_Controller {
             $this->sendJsonResponse(array('0014', 'User Id does not exist'));
         }
     }
-/*  This function is used to process complete the booking  Comment : Abhishek */
+
+    /*  This function is used to process complete the booking  Comment : Abhishek */
+
     function processCompleteBookingByEngineer() {
 
         $postData = json_decode($this->jsonRequestData['qsh'], true);
@@ -1387,24 +1390,24 @@ class engineerApi extends CI_Controller {
             /*   Whatsapp sms sending  Abhishek */
             $customer_phone = $bookinghistory[0]['phone_number'];
             if(!isset($data['amount_paid']) || empty($data['amount_paid'])){
-                $data['amount_paid'] = 0;
+            	$data['amount_paid'] = 0;
             }
             if(!isset($partner_data[0]['public_name']) || empty($partner_data[0]['public_name'])){
-                $partner_data[0]['public_name'] = "Partner";
+            	$partner_data[0]['public_name'] = "Partner";
             }
             $whatsapp_array = array(
-              'booking_id'=>$booking_id,
-              'name'=>$bookinghistory[0]['name'],
-              'amount_pay'=>$data['amount_paid'],
-              'appliance' => $bookinghistory[0]['services'],
-              'request'=> $bookinghistory[0]['request_type'],
-              'partner'=> $partner_data[0]['public_name']
+                'booking_id' => $booking_id,
+                'name' => $bookinghistory[0]['name'],
+                'amount_pay' => $data['amount_paid'],
+                'appliance' => $bookinghistory[0]['services'],
+                'request' => $bookinghistory[0]['request_type'],
+                'partner' => $partner_data[0]['public_name']
             );
             /*  Decide from DB to send or not   */
             // Variable defined to get whatsapp config //
             $whatsapp = $this->engineer_model->get_engineer_config(SEND_WHATSAPP);
-            if($whatsapp[0]->config_value){
-             $this->notify->send_whatsapp_on_booking_complete($customer_phone,$whatsapp_array);     
+            if ($whatsapp[0]->config_value) {
+                $this->notify->send_whatsapp_on_booking_complete($customer_phone, $whatsapp_array);
             }
 
             /*   */
@@ -1424,8 +1427,8 @@ class engineerApi extends CI_Controller {
             
             }
             
-            
-            /* Device info at complete booking */
+			
+			/* Device info at complete booking */
                 if(isset($postData["deviceInfo"]) && !empty($postData["deviceInfo"])){
                 $en['device_info']  = $postData["deviceInfo"];
             }
@@ -1478,9 +1481,7 @@ class engineerApi extends CI_Controller {
             $this->sendJsonResponse(array('0018', 'Please Add All Deatils'));
         }
     }
-    
 
-    
     /*  Function to send whatsapp SMS when engg complete */
 
 //     function send_whatsapp_on_booking_complete($phone_number, $whatsapp_array = array()) {
@@ -1490,7 +1491,6 @@ class engineerApi extends CI_Controller {
 //         $config = Karix\Configuration::getDefaultConfiguration();
 //         $config->setUsername(API_KARIX_USER_ID);
 //         $config->setPassword(API_KARIX_PASSWORD);
-
 //         $apiInstance = new Karix\Api\MessageApi(
 //                 // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
 //                 // This is optional, `GuzzleHttp\Client` will be used as default.
@@ -1498,7 +1498,6 @@ class engineerApi extends CI_Controller {
 //                 $config
 //         );
 //         $message = new Karix\Model\CreateMessage(); // Karix\Model\CreateAccount | Subaccount object
-
 // /*  Making templet for sending message */
 //             $template = $this->vendor_model->getVendorSmsTemplate(SEND_COMPLETE_WHATSAPP_NUMBER_TAG);
 //             $sms['smsData']['name'] = $whatsapp_array['name'];
@@ -1509,7 +1508,6 @@ class engineerApi extends CI_Controller {
 //             $sms['smsData']['ctime'] = date("h:i:s A"); // New Templet data 
 //             $sms['smsData']['partner'] = $whatsapp_array['partner'];
 //             $smsBody = vsprintf($template, $sms['smsData']);
-
 //         date_default_timezone_set('UTC');
 //         $phone_number = "+91" . $phone_number;
 //         $message->setChannel(API_KARIX_CHANNEL); // Use "sms" or "whatsapp"
@@ -1518,7 +1516,6 @@ class engineerApi extends CI_Controller {
 //         $message->setContent([
 //             "text" => $smsBody,
 //         ]);
-
 //         try {
 //             $result = $apiInstance->sendMessage($message);
 //             log_message('Whatsapp Response', __METHOD__ . json_encode($result));
@@ -1541,14 +1538,14 @@ class engineerApi extends CI_Controller {
             $bookinghistory = $this->booking_model->getbooking_history($requestData["bookingID"]);
             /* check spare part oredered status on booking which need to be cancel */
             $isdisable = false;
-            /*   Abhishek Removing Switch case and check according to spare id if any status for any part without cancelled*/
-            $status="";
+            /*   Abhishek Removing Switch case and check according to spare id if any status for any part without cancelled */
+            $status = "";
             if (isset($bookinghistory['spare_parts'])) {
                 foreach ($bookinghistory['spare_parts'] as $sp) {
                     $spare_status = $this->engineer_model->check_cancell_allowed($sp['id']);
-                    if($spare_status[0]['status']!=_247AROUND_CANCELLED){
-                         $status = CANCEL_PAGE_SPARE_NOT_SHIPPED;
-                         $isdisable = true;
+                    if ($spare_status[0]['status'] != _247AROUND_CANCELLED) {
+                        $status = CANCEL_PAGE_SPARE_NOT_SHIPPED;
+                        $isdisable = true;
                     }
                 }
             }
@@ -1618,14 +1615,12 @@ class engineerApi extends CI_Controller {
                     'id'=>$requestData["cancellationReason"]
                 ); 
                 $reason = $this->booking_model->cancelreason($where_cancel);
-
                 if(!empty($reason) && !empty($reason[0]->reason)){
                   $cancel_reason = $reason[0]->reason;  
                 }else{
-                  $cancel_reason = $requestData["cancellationReason"];
+                  $cancel_reason = $requestData["cancellationReason"]; 
                 }
-                   
-
+                    
                 $this->booking_model->update_booking($requestData["bookingID"], $booking);
 //  Appending Status of Engg //
                 $this->notify->insert_state_change($requestData["bookingID"],BOOKING_CANCELLED_BY_ENGINEER_STATUS . " - Booking Cancelled By Engineer From App", _247AROUND_PENDING,$cancel_reason ,$requestData['sc_agent_id'], "", ACTOR_BOOKING_CANCELLED, NEXT_ACTION_CANCELLED_BOOKING, NULL, $requestData['service_center_id']);
@@ -2031,17 +2026,17 @@ class engineerApi extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
 
-            /*  handle condition for OLD APK where device token not present  Abhishek  */ 
-            $engg_data=array();
-            if(isset($requestData['device_firebase_token']) && !empty($requestData['device_firebase_token'])){
-            $engg_data = array(
+            /*  handle condition for OLD APK where device token not present  Abhishek  */
+            $engg_data = array();
+            if (isset($requestData['device_firebase_token']) && !empty($requestData['device_firebase_token'])) {
+                $engg_data = array(
                     'device_firebase_token' => $requestData['device_firebase_token'],
-                    'installed'=>1
-            );
-            }else{
-            $engg_data = array(
+                    'installed' => 1
+                );
+            } else {
+                $engg_data = array(
                     'device_firebase_token' => NULL
-            );  
+                );
             }
 
             $engg_where = array('id' => $requestData["engineer_id"]); /* Update installed app when token available */
@@ -2058,7 +2053,7 @@ class engineerApi extends CI_Controller {
                 "booking_details.assigned_vendor_id" => $requestData["service_center_id"],
                 "booking_details.assigned_engineer_id" => $requestData["engineer_id"],
                 "engineer_incentive_details.is_active" => 1,
-              //  "engineer_incentive_details.is_paid" => 0, // Showing all amount paid/unpaid
+                    //  "engineer_incentive_details.is_paid" => 0, // Showing all amount paid/unpaid
             );
             $missed_bookings_count = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             $tommorow_bookings_count = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
@@ -2166,13 +2161,13 @@ class engineerApi extends CI_Controller {
         if ($engineer_pincode) {
             foreach ($bookings as $key => $value) {
                 if ($engineer_pincode) {
-/*  Make True if want calculation from google API */
+                    /*  Make True if want calculation from google API */
                     $calculate_ddistance = FALSE;
-                    $distance = "0"; 
-                    if($calculate_ddistance){
-                    $distance_details = $this->upcountry_model->calculate_distance_between_pincode($engineer_pincode, "", $value['booking_pincode'], "");
-                    $distance_array = explode(" ", $distance_details['distance']['text']);
-                    $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
+                    $distance = "0";
+                    if ($calculate_ddistance) {
+                        $distance_details = $this->upcountry_model->calculate_distance_between_pincode($engineer_pincode, "", $value['booking_pincode'], "");
+                        $distance_array = explode(" ", $distance_details['distance']['text']);
+                        $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
                     }
 
                     $bookings[$key]['booking_distance'] = $distance;
@@ -2180,7 +2175,6 @@ class engineerApi extends CI_Controller {
                     $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
                     // Abhishek Check if we required the previous consumption or not return true/false
                     $previous_consumption_required = $this->checkConsumptionForPreviousPart($value['booking_id']);
-
                     $bookings[$key]['pre_consume_req'] = $previous_consumption_required;
                     $bookings[$key]['in_out_status'] = $this->getBookingWarrantyFlag($value['request_type']);
                     /*  Completion Allow Flag */
@@ -2226,23 +2220,23 @@ class engineerApi extends CI_Controller {
         }
     }
 
-    function getMissedBookings($requestData=array()) {
+    function getMissedBookings($requestData = array()) {
         log_message("info", __METHOD__ . " Entering..");
         $response = array();  ////  Removing Call from API and making internal call and add alternate number //
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
                     . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, booking_details.create_date,"
-                    . "symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status,booking_details.district";
+                    . "symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status,booking_details.district,booking_details.part_brought_at";
             $missed_bookings = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             foreach ($missed_bookings as $key => $value) {
                 if ($requestData['engineer_pincode']) {
-/*  Make True if want calculation from google API */
+                    /*  Make True if want calculation from google API */
                     $calculate_ddistance = FALSE;
-                    $distance = "0"; 
-                    if($calculate_ddistance){
-                    $distance_details = $this->upcountry_model->calculate_distance_between_pincode($requestData['engineer_pincode'], "", $value['booking_pincode'], "");
-                    $distance_array = explode(" ", $distance_details['distance']['text']);
-                    $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
+                    $distance = "0";
+                    if ($calculate_ddistance) {
+                        $distance_details = $this->upcountry_model->calculate_distance_between_pincode($requestData['engineer_pincode'], "", $value['booking_pincode'], "");
+                        $distance_array = explode(" ", $distance_details['distance']['text']);
+                        $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
                     }
                     $missed_bookings[$key]['booking_distance'] = $distance;
                     $missed_bookings[$key]['in_out_status'] = $this->getBookingWarrantyFlag($value['request_type']);
@@ -2262,17 +2256,15 @@ class engineerApi extends CI_Controller {
                     $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
                     // Abhishek Check if we required the previous consumption or not return true/false
                     $previous_consumption_required = $this->checkConsumptionForPreviousPart($value['booking_id']);
-
                     $missed_bookings[$key]['pre_consume_req'] = $previous_consumption_required;
                     $missed_bookings[$key]['spare_eligibility'] = $spare_resquest['spare_flag'];
                     $missed_bookings[$key]['message'] = $spare_resquest['message'];
                     
-                    if ($missed_bookings['Bookings'][$key]['part_brought_at'] == 2) {
-                        $missed_bookings['Bookings'][$key]['part_brought_at_change'] = '0';
+                    if ($missed_bookings[$key]['part_brought_at'] == 2) {
+                        $missed_bookings[$key]['part_brought_at_change'] = '0';
                     } else {
-                        $missed_bookings['Bookings'][$key]['part_brought_at_change'] = '1';
+                        $missed_bookings[$key]['part_brought_at_change'] = '1';
                     }
-
 
                     // Abhishek Send Spare Details of booking //
                     $spares_details = $this->getSpareDetailsOfBooking($value['booking_id']);
@@ -2289,29 +2281,28 @@ class engineerApi extends CI_Controller {
         }
     }
 
-    function getTommorowBookings($requestData=array()) {
+    function getTommorowBookings($requestData = array()) {
         log_message("info", __METHOD__ . " Entering..");
         $response = array();
- ///and add alternate number
+        ///and add alternate number
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks, "
                     . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, "
-                    . "booking_details.service_id, booking_details.create_date, symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status,booking_details.district";
+                    . "booking_details.service_id, booking_details.create_date, symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status,booking_details.district,booking_details.part_brought_at";
             $tomorrowBooking = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             foreach ($tomorrowBooking as $key => $value) {
                 if ($requestData['engineer_pincode']) {
-/*  Make True if want calculation from google API */
+                    /*  Make True if want calculation from google API */
                     $calculate_ddistance = FALSE;
-                    $distance = "0"; 
-                    if($calculate_ddistance){
-                    $distance_details = $this->upcountry_model->calculate_distance_between_pincode($requestData['engineer_pincode'], "", $value['booking_pincode'], "");
-                    $distance_array = explode(" ", $distance_details['distance']['text']);
-                    $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
+                    $distance = "0";
+                    if ($calculate_ddistance) {
+                        $distance_details = $this->upcountry_model->calculate_distance_between_pincode($requestData['engineer_pincode'], "", $value['booking_pincode'], "");
+                        $distance_array = explode(" ", $distance_details['distance']['text']);
+                        $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
                     }
                     $tomorrowBooking[$key]['booking_distance'] = $distance;
                     // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
                     $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
-
                     $tomorrowBooking[$key]['in_out_status'] = $this->getBookingWarrantyFlag($value['request_type']);
                     /*  Completion Allow Flag */
                     $complete_flag = $this->checkCompletionAllowed($value['booking_id']);
@@ -2327,16 +2318,14 @@ class engineerApi extends CI_Controller {
                     $tomorrowBooking[$key]['spare_eligibility'] = $spare_resquest['spare_flag'];
                     // Abhishek Check if we required the previous consumption or not return true/false
                     $previous_consumption_required = $this->checkConsumptionForPreviousPart($value['booking_id']);
-
                     $tomorrowBooking[$key]['pre_consume_req'] = $previous_consumption_required;
                     $tomorrowBooking[$key]['message'] = $spare_resquest['message'];
                     
-                    if ($tomorrowBooking['Bookings'][$key]['part_brought_at'] == 2) {
-                        $tomorrowBooking['Bookings'][$key]['part_brought_at_change'] = '0';
+                    if ($tomorrowBooking[$key]['part_brought_at'] == 2) {
+                        $tomorrowBooking[$key]['part_brought_at_change'] = '0';
                     } else {
-                        $tomorrowBooking['Bookings'][$key]['part_brought_at_change'] = '1';
+                        $tomorrowBooking[$key]['part_brought_at_change'] = '1';
                     }
-
 
                     // Abhishek Send Spare Details of booking //
                     $spares_details = $this->getSpareDetailsOfBooking($value['booking_id']);
@@ -2345,33 +2334,31 @@ class engineerApi extends CI_Controller {
                     $tomorrowBooking[$key]['covid_zone'] = $this->booking_utilities->getBookingCovidZoneAndContZone($city);
                 }
             }
-          //  $response['tomorrowBooking'] = $tomorrowBooking;  //// Remove Child array index
+            //  $response['tomorrowBooking'] = $tomorrowBooking;  //// Remove Child array index
 ////  Removing return to response  making internal call
-           return $tomorrowBooking;
+            return $tomorrowBooking;
         } else {
             log_message("info", __METHOD__ . " Engineer ID Not Found - " . $requestData["engineer_id"] . " or Service Center Id not found - " . $requestData["service_center_id"]);
             $this->sendJsonResponse(array('0024', 'Engineer ID or Service Center Id not found'));
         }
     }
 
-/*  Check if we required the previous consumption or not return true/false
-    
-    Author @ Abhishek Awasthi
-    parameters @ booking_id
-    return boolean
+    /*  Check if we required the previous consumption or not return true/false
 
-*/
+      Author @ Abhishek Awasthi
+      parameters @ booking_id
+      return boolean
 
-    function checkConsumptionForPreviousPart($booking_id){
+     */
+
+    function checkConsumptionForPreviousPart($booking_id) {
         $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL, 'consumed_part_status_id is null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);
-       if(!empty($spare_parts_details)){
-         return TRUE;
-       }else{
-        return FALSE;
-       }        
+        if (!empty($spare_parts_details)) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
     }
-
-
 
     function getEngineerBookingsByStatus() {
         log_message("info", __METHOD__ . " Entering..");
@@ -2379,7 +2366,7 @@ class engineerApi extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"]) && !empty($requestData["booking_status"])) {
             if ($requestData["booking_status"] == _247AROUND_CANCELLED || $requestData["booking_status"] == _247AROUND_COMPLETED) {
-               /// and add alternate number
+                /// and add alternate number
                 $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.request_type, booking_details.amount_due, "
                         . "engineer_booking_action.amount_paid, CAST(engineer_booking_action.closed_date AS date) as closed_date, "
                         . "CASE WHEN service_center_booking_action.current_status = '" . _247AROUND_PENDING . "' THEN 'Booking ON SF Approval'
@@ -2457,10 +2444,10 @@ class engineerApi extends CI_Controller {
                     /*  consition according to ENV set to engineer_config constant */
                     $pdf['brand'] = $value['brand'];
                     $pdf['request_type'] = $value['request_type'];
-                    if(ENV=="test"){
-                    $pdf['file'] = COLLATERAL_S3_PATH_TEST . $value['file'];
-                    }else{
-                    $pdf['file'] = COLLATERAL_S3_PATH_LIVE . $value['file']; 
+                    if (ENV == "test") {
+                        $pdf['file'] = COLLATERAL_S3_PATH_TEST . $value['file'];
+                    } else {
+                        $pdf['file'] = COLLATERAL_S3_PATH_LIVE . $value['file'];
                     }
                     array_push($pdf_docs, $pdf);
                 } else if ($value['document_type'] == "video") {
@@ -2469,10 +2456,10 @@ class engineerApi extends CI_Controller {
                     /*  consition according to ENV set to engineer_config constant */
                     $video['brand'] = $value['brand'];
                     $video['request_type'] = $value['request_type'];
-                    if(ENV=="test"){
-                    $video['file'] = COLLATERAL_S3_PATH_TEST . $value['file'];
-                    }else{
-                    $video['file'] = COLLATERAL_S3_PATH_LIVE . $value['file'];
+                    if (ENV == "test") {
+                        $video['file'] = COLLATERAL_S3_PATH_TEST . $value['file'];
+                    } else {
+                        $video['file'] = COLLATERAL_S3_PATH_LIVE . $value['file'];
                     }
                     array_push($video_docs, $video);
                 } else {
@@ -2481,10 +2468,10 @@ class engineerApi extends CI_Controller {
                     /*  consition according to ENV set to engineer_config constant */
                     $others['brand'] = $value['brand'];
                     $others['request_type'] = $value['request_type'];
-                    if(ENV=="test"){
-                    $others['file'] = COLLATERAL_S3_PATH_TEST . $value['file'];
-                    }else{
-                    $others['file'] = COLLATERAL_S3_PATH_LIVE . $value['file'];
+                    if (ENV == "test") {
+                        $others['file'] = COLLATERAL_S3_PATH_TEST . $value['file'];
+                    } else {
+                        $others['file'] = COLLATERAL_S3_PATH_LIVE . $value['file'];
                     }
                     array_push($other_docs, $others);
                 }
@@ -2562,24 +2549,23 @@ class engineerApi extends CI_Controller {
                 array_push($price_tags_symptom, $price_tags2);
             }
 
+            if (isset($requestData["booking_id"])) {    
             if (!empty($price_tags_symptom)) {
                 $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom', array('symptom.service_id' => $data['booking_history'][0]['service_id'], 'symptom.active' => 1, 'symptom.partner_id' => $data['booking_history'][0]['partner_id']), array('request_type.service_category' => $price_tags_symptom));
             }
-
+            /* Send as sysmptom key in response */   
             if (!empty($data['technical_problem'])) {
                 $response['sparePartsOrder']['symptoms'] = $data['technical_problem'];
             } else {
                 $response['sparePartsOrder']['symptoms'] = array();
             }
-
                 
             $spare_details = $this->can_edit_serial_number($requestData["booking_id"]);
             if (!empty($spare_details)) {
                     $spare_details['can_edit_serial_number'] = '0';
                     $response['sparePartsOrder']['spare_parts'] = $spare_details;
-
                 }
-            
+            }
 
             log_message("info", __METHOD__ . "Model Number or Part Type found successfully");
             $this->jsonResponseString['response'] = $response;
@@ -2671,10 +2657,10 @@ class engineerApi extends CI_Controller {
             
             if(!empty($spare_part_can_requested)){
             if ($check_serial['status']) {
-        /* Check for duplicate Part Request */
+		/* Check for duplicate Part Request */
                 $duplicate_part = $this->is_part_already_requested($requestData['part'],$requestData['booking_id']);
-        if($duplicate_part['status'])
-        {               
+		if($duplicate_part['status'])
+		{				
                 /* Check part warranty status */
                 $bookingDetails = $this->reusable_model->get_search_query("booking_details", "request_type", array("booking_id" => $requestData['booking_id']), false, false, false, false, false)->result_array();
                 foreach ($requestData['part'] as $key => $value) {
@@ -2744,8 +2730,8 @@ class engineerApi extends CI_Controller {
                 curl_setopt($ch, CURLOPT_HEADER, false);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                 curl_setopt($ch, CURLOPT_POST, true);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
                 curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($requestData));
                 $curl_response = curl_exec($ch);
                 curl_close($ch);
@@ -2770,11 +2756,11 @@ class engineerApi extends CI_Controller {
                   $this->sendJsonResponse(array('0035', $response->message));
                   }
                  */ 
-        }else{
-        log_message("info", __METHOD__ . "Duplicate Part Request");
-                $this->sendJsonResponse(array('0077','Not Available'));         
-        }                   
-                         
+		}else{
+		log_message("info", __METHOD__ . "Duplicate Part Request");
+                $this->sendJsonResponse(array('0077','Not Available'));			
+		}					
+				 		 
             } else {
                 log_message("info", __METHOD__ . "Serial number validation failed");
                 $this->sendJsonResponse(array($check_serial['code'], $check_serial['message']));
@@ -3066,8 +3052,8 @@ class engineerApi extends CI_Controller {
             $spare_select = 'spare_parts_details.model_number, spare_parts_details.date_of_purchase, spare_parts_details.serial_number, '
                     . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/purchase-invoices/", spare_parts_details.invoice_pic) as invoice_pic, '
                     . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/' . SERIAL_NUMBER_PIC_DIR . '/", spare_parts_details.serial_number_pic) as serial_number_pic';
-            /*  This is to get consumtption required or not */        
-            $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('booking_id' => $requestData["booking_id"], 'status != "' . _247AROUND_CANCELLED . '"' => NULL,'parts_shipped is not null' => NULL,'(spare_parts_details.consumed_part_status_id is null or spare_parts_details.consumed_part_status_id = '.OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID.')' => NULL));
+            /*  This is to get consumtption required or not */
+            $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('booking_id' => $requestData["booking_id"], 'status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL, '(spare_parts_details.consumed_part_status_id is null or spare_parts_details.consumed_part_status_id = ' . OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID . ')' => NULL));
 
             if (!empty($spare_details)) {
                 $response['spare_parts'] = $spare_details[0];
@@ -3405,7 +3391,7 @@ class engineerApi extends CI_Controller {
         }
     }
 
-    function warrantyChecker($booking_id, $partner_id, $booking_create_date, $model_number, $purchase_date, $booking_request_type,$service_id=NULL) {
+    function warrantyChecker($booking_id, $partner_id, $booking_create_date, $model_number, $purchase_date, $booking_request_type,$service_id=NULL,$serial_number='') {
         $data = array();
         $matching_flag = false;
         $arrBookings[0] = array(
@@ -3414,8 +3400,16 @@ class engineerApi extends CI_Controller {
             "booking_create_date" => $booking_create_date,
             "purchase_date" => $purchase_date,
             "model_number" => $model_number,
-            "service_id"=>$service_id
+            "service_id"=>$service_id,
+            "serial_number"=>$serial_number
         );
+        $checkInstallationDate = $this->partner_model->getpartner($partner_id)[0]['check_warranty_from'];
+        if($checkInstallationDate == WARRANTY_ON_DOI) {
+            $arrInstallationData = $this->booking_utilities->get_installation_date_of_booking($arrBookings);
+            if (!empty($arrInstallationData['installation_date'])) {
+                $arrBookings[0]['purchase_date'] = date("d-m-Y", strtotime($arrInstallationData['installation_date']));
+            }
+        }
         $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings);
         $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData);
         foreach ($arrBookings as $key => $arrBooking) {
@@ -3494,7 +3488,7 @@ class engineerApi extends CI_Controller {
         }
     }
 
-    function checkSparePartsOrder($booking_id="") {
+    function checkSparePartsOrder($booking_id = "") {
         log_message("info", __METHOD__ . " Entering..");
         $response = array();
         //$requestData = json_decode($this->jsonRequestData['qsh'], true);
@@ -3548,19 +3542,19 @@ class engineerApi extends CI_Controller {
                     }
                 }
                 log_message("info", "Spare parts flag found");
-            //// Removing JSON return make internal call and return Array
+                //// Removing JSON return make internal call and return Array
                 return $response;
             } else {
-           //// Removing JSON return make internal call and return Array
-                    $response["spare_flag"] = 0;
-                    $response["message"] = "Booking data not found";
-                    return $response;
+                //// Removing JSON return make internal call and return Array
+                $response["spare_flag"] = 0;
+                $response["message"] = "Booking data not found";
+                return $response;
             }
         } else {
             //// Removing JSON return make internal call and return Array
-                    $response["spare_flag"] = 0;
-                    $response["message"] = "Booking data not found";
-                    return $response;
+            $response["spare_flag"] = 0;
+            $response["message"] = "Booking data not found";
+            return $response;
         }
     }
 
@@ -3577,7 +3571,8 @@ class engineerApi extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $missing_key = "";
         $check = true;
-        $validateKeys = array("booking_id", "partner_id", "service_id","primary_contact");  /*  for parent bookings */
+
+        $validateKeys = array("booking_id", "partner_id", "service_id", "primary_contact");  /*  for parent bookings */
         foreach ($validateKeys as $key) {
             if (!array_key_exists($key, $requestData)) {
                 $check = false;
@@ -3601,8 +3596,8 @@ class engineerApi extends CI_Controller {
                 $model_numbers = $this->inventory_model->get_appliance_model_details('id, model_number', $where);
             }
             $response['model_number_list'] = $model_numbers;
-            $booking_details = $this->booking_creation_lib->get_edit_booking_form_helper_data($requestData['booking_id'], NULL, NULL);
-            $initial_booking_date  = $booking_details['booking_history'][0]['initial_booking_date'];
+            $booking_details = $this->booking_creation_lib->get_edit_booking_form_helper_data($requestData['booking_id'], NULL, NULL, TRUE); ///show all category and capacity ///
+            $initial_booking_date = $booking_details['booking_history'][0]['initial_booking_date'];
             unset($booking_details['city']);
             unset($booking_details['sources']);
             unset($booking_details['booking_history']);
@@ -3622,7 +3617,7 @@ class engineerApi extends CI_Controller {
             unset($booking_details['c2c']);
             $response['booking_details'] = $booking_details;
             /* Abhishek check for paarent bookings in repeat bookings . Calculation of parent and repeat booking from initial booking date instead of current date */
-            $response['parents'] = $this->booking_model->get_posible_parent_booking_id($requestData['primary_contact'],$requestData['service_id'],$requestData['partner_id'],30,$initial_booking_date);
+            $response['parents'] = $this->booking_model->get_posible_parent_booking_id($requestData['primary_contact'], $requestData['service_id'], $requestData['partner_id'], 30, $initial_booking_date);
 
             /** get model number and date of purchase if spare part already ordered * */
             $spare_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.model_number, spare_parts_details.date_of_purchase', array('booking_id' => $requestData["booking_id"],'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL));
@@ -3674,7 +3669,6 @@ class engineerApi extends CI_Controller {
     function submitWarrantyCheckerAndEditCallType() {
         log_message("info", __METHOD__ . " Entering..");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-
         $missing_key = "";
         $check = true;
         $check_request_type = array();
@@ -3738,6 +3732,25 @@ class engineerApi extends CI_Controller {
                     }
                 }
             }
+            $serial_number_array = json_decode($requestData['submitWarrantyCheckerAndEditCallType'],true);
+            if (isset($serial_number_array['serial_number_pic_exist'])) {
+                if ($serial_number_array['serial_number_pic_exist']) {
+                    $serial_number_pic = "serial_number_pic_" . date("YmdHis") . ".png";
+                    $this->miscelleneous->generate_image($serial_number_array['serial_number_pic_exist'], $serial_number_pic, SERIAL_NUMBER_PIC_DIR);
+                    $unit_detail['serial_number_pic'] = $serial_number_pic;
+                }
+            } else {
+                if (isset($serial_number_array['existing_serial_number_pic'])) {
+                    if ($serial_number_array['existing_serial_number_pic']) {
+
+                        $serial_number_pic = "serial_number_pic_" . date("YmdHis") . ".png";
+                        $this->miscelleneous->generate_image($serial_number_array['existing_serial_number_pic'], $serial_number_pic, SERIAL_NUMBER_PIC_DIR);
+                        $unit_detail['serial_number_pic'] = $serial_number_pic;
+                    }
+                }
+            }
+            $unit_detail['serial_number'] = $requestData['serial_number'];
+            $this->booking_model->update_booking_unit_details($requestData['booking_id'],$unit_detail);
 
             if ($warranty_checker) {
                 $arrBookings[0] = array(
@@ -3751,7 +3764,7 @@ class engineerApi extends CI_Controller {
                 $service_id = $booking_details["booking_history"][0]['service_id'];
                 foreach ($request_types as $request_typess) {
                     $new_request_type = $this->booking_utilities->get_booking_request_type($request_typess);
-                    $response = $this->warrantyChecker($requestData["booking_id"], $booking_details["booking_history"][0]['partner_id'], $booking_details["booking_history"][0]['create_date'], $requestData["model_number"], $requestData["purchase_date"], $new_request_type,$service_id);
+                    $response = $this->warrantyChecker($requestData["booking_id"], $booking_details["booking_history"][0]['partner_id'], $booking_details["booking_history"][0]['create_date'], $requestData["model_number"], $requestData["purchase_date"], $new_request_type,$service_id,$requestData["serial_number"]);
                     if ($response['warranty_flag'] == 1) {
                         $warranty_status = false;
                         $warranty_status_holder = $response;
@@ -3923,14 +3936,14 @@ class engineerApi extends CI_Controller {
             $booking_id = $requestData['booking_id'];
             $select = 'spare_parts_details.id, spare_parts_details.shipped_inventory_id, spare_parts_details.parts_requested, spare_parts_details.parts_requested_type, spare_parts_details.status, spare_parts_details.quantity,spare_parts_details.parts_shipped,spare_parts_details.model_number_shipped,spare_parts_details.shipped_parts_type,spare_parts_details.shipped_date, inventory_master_list.part_number';
             /*  Response and condition according to Second Part Request and also acc to first part request */
-            if(isset($requestData["pre_consume_req"]) && $requestData["pre_consume_req"]){
-            $response['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any($select, ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL,'consumed_part_status_id is null' => NULL,'parts_shipped is not null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);  // Remove hardcode test booking
-            }else{
-            // $response['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any($select, ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL,'(consumed_part_status_id is null or spare_parts_details.consumed_part_status_id ="' . OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID . ')"' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);   
-/*  New  select with where clause */
-             $response['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any($select, ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL, '(spare_parts_details.consumed_part_status_id is null or spare_parts_details.consumed_part_status_id = '.OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID.')' => NULL,'parts_shipped is not null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);
+            if (isset($requestData["pre_consume_req"]) && $requestData["pre_consume_req"]) {
+                $response['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any($select, ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'consumed_part_status_id is null' => NULL, 'parts_shipped is not null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);  // Remove hardcode test booking
+            } else {
+                // $response['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any($select, ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL,'(consumed_part_status_id is null or spare_parts_details.consumed_part_status_id ="' . OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID . ')"' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);   
+                /*  New  select with where clause */
+                $response['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any($select, ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL, '(spare_parts_details.consumed_part_status_id is null or spare_parts_details.consumed_part_status_id = ' . OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID . ')' => NULL, 'parts_shipped is not null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);
 
-             /// Consumption Except OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID 
+                /// Consumption Except OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID 
             }
 
             $response['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag', ['active' => 1], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
@@ -3974,7 +3987,7 @@ class engineerApi extends CI_Controller {
      * @response - json
      */
 
-  function getBookingDetails() {
+    function getBookingDetails() {
         log_message("info", __METHOD__ . " Entering..");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $response = array();
@@ -3987,9 +4000,9 @@ class engineerApi extends CI_Controller {
                     $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id, spare_parts_details.parts_requested,spare_parts_details.consumed_part_status_id, spare_parts_details.parts_requested,spare_parts_details.consumption_remarks, spare_parts_details.parts_requested_type, spare_parts_details.status, inventory_master_list.part_number as spare_part_name', ['booking_id' => $requestData["booking_id"], 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]); ///Show details when consumption is filled 
                     foreach ($spare_parts_details as $key => $value) {
                         /* Consumption Update from consumption Table  */
-                        $consumption_details = $this->engineer_model->get_consumption_status_spare( array("id" => $value['consumed_part_status_id']));
+                        $consumption_details = $this->engineer_model->get_consumption_status_spare(array("id" => $value['consumed_part_status_id']));
                         $consume_status = "";
-                        if(isset($consumption_details[0]->consumed_status) && !empty($consumption_details[0]->consumed_status)){
+                        if (isset($consumption_details[0]->consumed_status) && !empty($consumption_details[0]->consumed_status)) {
                             $consume_status = $consumption_details[0]->consumed_status;
                         }
                         $consumption_data = array(
@@ -4016,7 +4029,6 @@ class engineerApi extends CI_Controller {
             $this->sendJsonResponse(array("0060", "Booking id not found"));
         }
     }
-
 
     /*
      * @Desc - This function is used to get booking deatails related to search value which is either booking id or user phone number
@@ -4064,13 +4076,13 @@ class engineerApi extends CI_Controller {
                 $engineer_pincode = $requestData["engineer_pincode"];
                 foreach ($data['Bookings'] as $key => $value) {
                     if ($engineer_pincode) {
-/*  Make True if want calculation from google API */
-                    $calculate_ddistance = FALSE;
-                    $distance = "0"; 
-                    if($calculate_ddistance){
-                        $distance_details = $this->upcountry_model->calculate_distance_between_pincode($engineer_pincode, "", $value['booking_pincode'], "");
-                        $distance_array = explode(" ", $distance_details['distance']['text']);
-                        $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
+                        /*  Make True if want calculation from google API */
+                        $calculate_ddistance = FALSE;
+                        $distance = "0";
+                        if ($calculate_ddistance) {
+                            $distance_details = $this->upcountry_model->calculate_distance_between_pincode($engineer_pincode, "", $value['booking_pincode'], "");
+                            $distance_array = explode(" ", $distance_details['distance']['text']);
+                            $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
                         }
                         $data['Bookings'][$key]['booking_distance'] = $distance;
 
@@ -4081,7 +4093,7 @@ class engineerApi extends CI_Controller {
                         $data['Bookings'][$key]['appliance_capacity'] = $unit_data[0]['appliance_capacity'];
                         // Removing extra hit  Giving flag in same hit  Abhishek ///
                         $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
-                        $data['Bookings'][$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
+                        $data['Bookings'][$key]['spare_eligibility'] = $spare_resquest['spare_flag'];
                         /*  Completion Allow Flag */
                         $complete_flag = $this->checkCompletionAllowed($value['booking_id']);
                         $data['Bookings'][$key]['complete_allow'] = $complete_flag;
@@ -4091,19 +4103,19 @@ class engineerApi extends CI_Controller {
                         $data['Bookings'][$key]['reschedule_allow'] = $reschedule_flag;
                         /*  Cancel Allow Flag */
                         $cancel_flag = $this->checkCancellationAllowed($value['booking_id']);
-                        $data['Bookings'][$key]['cancel_allow'] =  $cancel_flag;
+                        $data['Bookings'][$key]['cancel_allow'] = $cancel_flag;
                         /*  NO Action  Flag */
                         $action_flag = $this->checkBookingActionrequired($value['booking_id']);
-                        $data['Bookings'][$key]['action_flag'] =  $action_flag['action_flag'];
-                        $data['Bookings'][$key]['message_flag'] =  $action_flag['message'];
+                        $data['Bookings'][$key]['action_flag'] = $action_flag['action_flag'];
+                        $data['Bookings'][$key]['message_flag'] = $action_flag['message'];
                         // Abhishek Check if we required the previous consumption or not return true/false
                         $previous_consumption_required = $this->checkConsumptionForPreviousPart($value['booking_id']);
-                        $data['Bookings'][$key]['pre_consume_req'] =  $previous_consumption_required;
-                        $data['Bookings'][$key]['message'] =  $spare_resquest['message']; 
+                        $data['Bookings'][$key]['pre_consume_req'] = $previous_consumption_required;
+                        $data['Bookings'][$key]['message'] = $spare_resquest['message'];
 
                         // Abhishek Send Spare Details of booking //
                         $spares_details = $this->getSpareDetailsOfBooking($value['booking_id']);
-                        $data['Bookings'][$key]['spares'] =  $spares_details;
+                        $data['Bookings'][$key]['spares'] = $spares_details;
 
                         $city = $value['district'];
                         $data['Bookings'][$key]['covid_zone'] = $this->booking_utilities->getBookingCovidZoneAndContZone($city);
@@ -4133,76 +4145,67 @@ class engineerApi extends CI_Controller {
         }
     }
 
-
-
-      /*
+    /*
      * @Desc - This function used to check booking is billed to partner or not     
      * @param - $booking_id
      * @response - boolean
      * @Author - Abhishek Awasthi
      */
-    
-    function checkBookingActionrequired($booking_id){
 
-       $where = array('booking_id'=>$booking_id);
-       $select = 'partner_invoice_id';
-       $unit_array =  $this->booking_model->get_unit_details($where, FALSE, $select);
-       $response =  $this->booking_utilities->is_partner_invoiced($unit_array); 
-       // Response with messsgae // 
-       if($response){
-        $return_res['action_flag'] = FALSE;
-        $return_res['message'] = '';  //MSG_PARTNER_INVOICED_APP
-        return $return_res;
+    function checkBookingActionrequired($booking_id) {
 
-       }else{
-        $return_res['action_flag'] = FALSE;
-        $return_res['message'] = '';
-        return $return_res;
-
-       }
-
-
+        $where = array('booking_id' => $booking_id);
+        $select = 'partner_invoice_id';
+        $unit_array = $this->booking_model->get_unit_details($where, FALSE, $select);
+        $response = $this->booking_utilities->is_partner_invoiced($unit_array);
+        // Response with messsgae // 
+        if ($response) {
+            $return_res['action_flag'] = TRUE;
+            $return_res['message'] = MSG_PARTNER_INVOICED_APP;
+            return $return_res;
+        } else {
+            $return_res['action_flag'] = FALSE;
+            $return_res['message'] = '';
+            return $return_res;
+        }
     }
 
-      /*
+    /*
      * @Desc - This function used to get spares of booking     
      * @param - $booking_id
      * @response - Array
      * @Author - Abhishek Awasthi
      */
 
-    function getSpareDetailsOfBooking($booking_id){
-/*  If Shipped is empty or NULL Show Requested Data */
+    function getSpareDetailsOfBooking($booking_id) {
+        /*  If Shipped is empty or NULL Show Requested Data */
         $sp_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.part_warranty_status,IFNULL(spare_parts_details.parts_shipped,spare_parts_details.parts_requested) as parts_shipped ,IF(spare_parts_details.shipped_parts_type=' ',spare_parts_details.parts_requested_type,spare_parts_details.shipped_parts_type) as shipped_parts_type,spare_parts_details.status,IFNULL(spare_parts_details.shipped_quantity,spare_parts_details.quantity) as shipped_quantity", array('booking_id' => $booking_id));
 
         return $sp_details;
     }
 
-
-
-
-
-      /*
+    /*
      * @Desc - This function used to check the cancellation is allowed for a booking or not    
      * @param - $booking_id
      * @response - boolean
      * @Author - Abhishek Awasthi
      */
 
-    function checkCancellationAllowed($booking_id){
+    function checkCancellationAllowed($booking_id) {
 
         $allow = TRUE;
-/*  Check for booking cancel complete by engg */
+        /*  Check for booking cancel complete by engg */
         $booking_select = "booking_id,partner_internal_status";
         $booking_where = array(
-            "booking_id"=>$booking_id,
-            "partner_internal_status IN('".BOOKING_CANCELLED_BY_ENGINEER_STATUS."')" => NULL
+            "booking_id" => $booking_id,
+            "partner_internal_status IN('" . BOOKING_CANCELLED_BY_ENGINEER_STATUS . "')" => NULL
         );
-        $booking_details = $this->engineer_model->get_booking_details($booking_select,$booking_where);
-        if(!empty($booking_details)){
-                $allow = FALSE;
-                return $allow;  
+        $booking_details = $this->engineer_model->get_booking_details($booking_select, $booking_where);
+        if (!empty($booking_details)) {
+            $allow = FALSE;
+            return $allow;
         }
+
 
         /*  Check for booking cancel complete by Engineer in Engg Action Table */
         $enggbooking_select = "booking_id,internal_status";
@@ -4227,11 +4230,7 @@ class engineerApi extends CI_Controller {
         //         $allow = FALSE;
         //         return $allow;  
         // }
-
     }
-
-
-
 
     /*
      * @Desc - This function used to check the completion is allowed for a booking or not    
@@ -4298,6 +4297,7 @@ class engineerApi extends CI_Controller {
 
     }
 
+
     /*
      * @Desc - This function used to check the reschedule is allowed for a booking or not    
      * @param - $booking_id
@@ -4362,7 +4362,7 @@ class engineerApi extends CI_Controller {
                 "booking_details.assigned_vendor_id" => $requestData['service_center_id'],
                 "booking_details.assigned_engineer_id" => $requestData['engineer_id'],
                 "engineer_incentive_details.is_active" => 1,
-               // "engineer_incentive_details.is_paid" => 0, // Showing all amount paid/unpaid
+                    // "engineer_incentive_details.is_paid" => 0, // Showing all amount paid/unpaid
             );
             $incentive_details = $this->engineer_model->get_en_incentive_details($select, $where);
             if (!empty($incentive_details)) {
@@ -4404,19 +4404,19 @@ class engineerApi extends CI_Controller {
         }
     }
 
+    /*  This function is used to get the notifications of user in app */
 
-/*  This function is used to get the notifications of user in app */
-    function getUserNotifications(){
+    function getUserNotifications() {
 
         log_message("info", __METHOD__ . " Entering..in notifications");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("mobile"), $requestData);
         if ($validation['status']) {
             $select = '*';
-            $where =array(
-                'phone'=>$requestData["mobile"]
+            $where = array(
+                'phone' => $requestData["mobile"]
             );
-            $response = $this->_getUserNotifications($select,$where);
+            $response = $this->_getUserNotifications($select, $where);
             if (!empty($response)) {
                 log_message("info", __METHOD__ . "Notifications Found");
                 $this->jsonResponseString['response']['notifications'] = $response;  /////response key according to umesh
@@ -4432,29 +4432,30 @@ class engineerApi extends CI_Controller {
         }
     }
 
-/*   Abhishek php This function is used to get the notifications of user in app */
-    function _getUserNotifications($select,$where){
+    /*   Abhishek php This function is used to get the notifications of user in app */
 
-       return  $this->engineer_model->get_engg_notification_data($select,$where);
+    function _getUserNotifications($select, $where) {
+
+        return $this->engineer_model->get_engg_notification_data($select, $where);
     }
 
+    /* Abhishek  
 
-/* Abhishek  
+      API for getting partner  list in APP
 
-API for getting partner  list in APP
+     */
 
-*/
-    function getActivepartnersList(){
+    function getActivepartnersList() {
 
         log_message("info", __METHOD__ . " Entering..in partners list");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("mobile"), $requestData);
         if ($validation['status']) {
             $select = 'id,company_name,public_name';
-            $where =array(
-                'is_active'=>1
+            $where = array(
+                'is_active' => 1
             );
-            $response = $this->_partnersList($select,$where);
+            $response = $this->_partnersList($select, $where);
             if (!empty($response)) {
                 log_message("info", __METHOD__ . "partners Found");
                 $this->jsonResponseString['response']['partners'] = $response;  /////response key according to umesh
@@ -4468,32 +4469,28 @@ API for getting partner  list in APP
             log_message("info", __METHOD__ . $validation['message']);
             $this->sendJsonResponse(array("0066", $validation['message']));
         }
-
     }
 
     /*   Abhishek   This function is used to get partners list in app */
-    function _partnersList($select,$where){
 
-       return  $this->engineer_model->get_partnersList_data($select,$where);
+    function _partnersList($select, $where) {
+
+        return $this->engineer_model->get_partnersList_data($select, $where);
     }
 
+    /* This  Abhishek php function is to get appliances of partner */
 
-
-/* This  Abhishek php function is to get appliances of partner */
-
-
-    function getPartner_appliances(){
+    function getPartner_appliances() {
 
         log_message("info", __METHOD__ . " Entering..in partners list");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("partner_id"), $requestData);
         if ($validation['status']) {
             $select = 'services.id,services.services,partner_appliance_details.partner_id';
-            $where =array(
-                'partner_appliance_details.partner_id'=>$requestData['partner_id']  /// Resolve Fatal Error correct the vaiable name
-
+            $where = array(
+                'partner_appliance_details.partner_id' => $requestData['partner_id']  /// Resolve Fatal Error correct the vaiable name
             );
-            $response = $this->_getPartner_appliances($select,$where);
+            $response = $this->_getPartner_appliances($select, $where);
             if (!empty($response)) {
                 log_message("info", __METHOD__ . "partners Found");
                 $this->jsonResponseString['response']['partner_appliances'] = $response;  /////response key according to umesh
@@ -4507,36 +4504,31 @@ API for getting partner  list in APP
             log_message("info", __METHOD__ . $validation['message']);
             $this->sendJsonResponse(array("0066", $validation['message']));
         }
-
-
     }
 
+    /*  Abhishek This function is to get appliances of partner */
 
-/*  Abhishek This function is to get appliances of partner */
+    function _getPartner_appliances($select, $where) {
 
-function _getPartner_appliances($select,$where){
+        return $this->engineer_model->get_partner_appliances($select, $where);
+    }
 
-    return  $this->engineer_model->get_partner_appliances($select,$where);
-}
+    /*  Abhishek php This function is to get appliances model of partner */
 
-
-/*  Abhishek php This function is to get appliances model of partner */
-
-function getPartnerAppliancesModels(){
+    function getPartnerAppliancesModels() {
 
 
-      log_message("info", __METHOD__ . " Entering..in models list");
+        log_message("info", __METHOD__ . " Entering..in models list");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("partner_id"), $requestData);
         if ($validation['status']) {
-             $select = 'appliance_model_details.id,appliance_model_details.service_id,appliance_model_details.model_number,appliance_model_details.entity_id';
-            $where =array(
-                'appliance_model_details.service_id'=>$requestData['service_id'],
-                'appliance_model_details.entity_id'=>$requestData['partner_id'],
-                'appliance_model_details.active'=>1
-
+            $select = 'appliance_model_details.id,appliance_model_details.service_id,appliance_model_details.model_number,appliance_model_details.entity_id';
+            $where = array(
+                'appliance_model_details.service_id' => $requestData['service_id'],
+                'appliance_model_details.entity_id' => $requestData['partner_id'],
+                'appliance_model_details.active' => 1
             );
-            $response = $this->_getPartner_appliancesModels($select,$where);
+            $response = $this->_getPartner_appliancesModels($select, $where);
             if (!empty($response)) {
                 log_message("info", __METHOD__ . "partners Found");
                 $this->jsonResponseString['response']['partner_appliances_models'] = $response;  /////response key according to umesh
@@ -4550,36 +4542,33 @@ function getPartnerAppliancesModels(){
             log_message("info", __METHOD__ . $validation['message']);
             $this->sendJsonResponse(array("0066", $validation['message']));
         }
+    }
 
+    /*  Abhishek  This is to get models of appliance  */
 
-}
+    function _getPartner_appliancesModels($select, $where) {
 
-/*  Abhishek  This is to get models of appliance  */ 
-
-function _getPartner_appliancesModels($select,$where){
-
-    return  $this->engineer_model->getPartner_appliancesModels($select,$where);
-
-}
+        return $this->engineer_model->getPartner_appliancesModels($select, $where);
+    }
 
     /* @author Abhishek Awasthi
-     *@Desc - This function is used to get part types
-     *@param - array
-     *@return - Row
+     * @Desc - This function is used to get part types
+     * @param - array
+     * @return - Row
      */
 
-function getPartnerAppliancesModelsPartTypes(){
+    function getPartnerAppliancesModelsPartTypes() {
 
         log_message("info", __METHOD__ . " Entering..in types list");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("partner_id"), $requestData);
         if ($validation['status']) {
-             $select = 'inventory_master_list.type';
-            $where =array(
-                'inventory_master_list.service_id'=>$requestData['service_id'],
-                'inventory_master_list.entity_id'=>$requestData['partner_id']
+            $select = 'inventory_master_list.type';
+            $where = array(
+                'inventory_master_list.service_id' => $requestData['service_id'],
+                'inventory_master_list.entity_id' => $requestData['partner_id']
             );
-            $response = $this->getPartner_appliancesInventoryData($select,$where);
+            $response = $this->getPartner_appliancesInventoryData($select, $where);
             if (!empty($response)) {
                 log_message("info", __METHOD__ . "types Found");
                 $this->jsonResponseString['response']['part_types'] = $response;  /////response key according to umesh
@@ -4593,30 +4582,26 @@ function getPartnerAppliancesModelsPartTypes(){
             log_message("info", __METHOD__ . $validation['message']);
             $this->sendJsonResponse(array("0066", $validation['message']));
         }
-
-}
-
+    }
 
     /* @author Abhishek Awasthi
-     *@Desc - This function is used to get parts data
-     *@param - $select ,$where
-     *@return - Array
+     * @Desc - This function is used to get parts data
+     * @param - $select ,$where
+     * @return - Array
      */
 
-function getPartner_appliancesInventoryData($select,$where){
+    function getPartner_appliancesInventoryData($select, $where) {
 
-    return  $this->engineer_model->getPartner_appliancesInventoryData($select,$where);
-
-}
-
+        return $this->engineer_model->getPartner_appliancesInventoryData($select, $where);
+    }
 
     /* @author Abhishek Awasthi
-     *@Desc - This function is used to get parts inventory
-     *@param - array
-     *@return - Row
+     * @Desc - This function is used to get parts inventory
+     * @param - array
+     * @return - Row
      */
 
-function getPartnerAppliancesModelsPartTypesInventory(){
+    function getPartnerAppliancesModelsPartTypesInventory() {
 
         log_message("info", __METHOD__ . " Entering..in parts list");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
@@ -4624,14 +4609,14 @@ function getPartnerAppliancesModelsPartTypesInventory(){
         if ($validation['status']) {
 
             //  Price with customer total apply protected identifiers ///
-             $select = 'inventory_master_list.type,part_number,part_name,entity_id, ROUND(price,2) as price,oow_vendor_margin,oow_around_margin,gst_rate , ROUND(price+(price*gst_rate/100),2) as gst_price , ROUND((SELECT gst_price)+ ((SELECT gst_price)*oow_around_margin/100),2) AS vendor_price, ROUND((SELECT gst_price)+ ((SELECT gst_price)*(oow_vendor_margin+oow_around_margin)/100),2) as customer_price';
+            $select = 'inventory_master_list.type,part_number,part_name,entity_id, ROUND(price,2) as price,oow_vendor_margin,oow_around_margin,gst_rate , ROUND(price+(price*gst_rate/100),2) as gst_price , ROUND((SELECT gst_price)+ ((SELECT gst_price)*oow_around_margin/100),2) AS vendor_price, ROUND((SELECT gst_price)+ ((SELECT gst_price)*(oow_vendor_margin+oow_around_margin)/100),2) as customer_price';
 
-            $where =array(
-                'inventory_master_list.service_id'=>$requestData['service_id'],
-                'inventory_master_list.entity_id'=>$requestData['partner_id'],
-                'inventory_master_list.type'=>$requestData['part_type']
+            $where = array(
+                'inventory_master_list.service_id' => $requestData['service_id'],
+                'inventory_master_list.entity_id' => $requestData['partner_id'],
+                'inventory_master_list.type' => $requestData['part_type']
             );
-            $response = $this->getPartner_appliancesInventoryData($select,$where);
+            $response = $this->getPartner_appliancesInventoryData($select, $where);
             if (!empty($response)) {
                 log_message("info", __METHOD__ . "parts Found");
                 $this->jsonResponseString['response']['parts'] = $response;  /////response key according to umesh
@@ -4645,17 +4630,15 @@ function getPartnerAppliancesModelsPartTypesInventory(){
             log_message("info", __METHOD__ . $validation['message']);
             $this->sendJsonResponse(array("0066", $validation['message']));
         }
-
-}
-
+    }
 
     /* @author Abhishek Awasthi
-     *@Desc - This function is used to check app upgrade
-     *@param - 
-     *@return - json
+     * @Desc - This function is used to check app upgrade
+     * @param - 
+     * @return - json
      */
 
-function check_for_upgrade(){
+    function check_for_upgrade() {
 
         log_message("info", __METHOD__ . " Entering..in upgrade");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
@@ -4665,25 +4648,20 @@ function check_for_upgrade(){
             // get configuration data from table for App version upgrade // 
             $this->jsonResponseString['response'] = array('configuration_type' => $response[0]->configuration_type, 'config_value' => $response[0]->config_value); // chnage again acc to umesh  // Response one up according to umesh//
             $this->sendJsonResponse(array('0000', 'success')); // send success response //
-
         } else {
             log_message("info", __METHOD__ . $validation['message']);
             $this->jsonResponseString['response'] = array(); /// Response one up according to umesh//
-            $this->sendJsonResponse(array("9998",'Upgrade not required')); // Syntax Error Solve //
+            $this->sendJsonResponse(array("9998", 'Upgrade not required')); // Syntax Error Solve //
         }
+    }
 
-}
-
-
-
-/* @author Abhishek Awasthi
-     *@Desc - This function is used to check app upgrade
-     *@param - 
-     *@return - json
-*/
+    /* @author Abhishek Awasthi
+     * @Desc - This function is used to check app upgrade
+     * @param - 
+     * @return - json
+     */
 
 // function previousPartsConsumptionData(){
-
 //         log_message("info", __METHOD__ . " Entering..in previousPartsConsumptionData list");
 //         $requestData = json_decode($this->jsonRequestData['qsh'], true);
 //         $validation = $this->validateKeys(array("booking_id"), $requestData);
@@ -4702,96 +4680,88 @@ function check_for_upgrade(){
 //             log_message("info", __METHOD__ . $validation['message']);
 //             $this->sendJsonResponse(array("0077", $validation['message']));
 //         }
-
 // }
 
-/* @author Abhishek Awasthi
-     *@Desc - This function is used to update previous part Consumption
-     *@param - 
-     *@return - boolean
-*/
+    /* @author Abhishek Awasthi
+     * @Desc - This function is used to update previous part Consumption
+     * @param - 
+     * @return - boolean
+     */
 
-function submitPreviousPartsConsumptionData(){
+    function submitPreviousPartsConsumptionData() {
 
         $postData = json_decode($this->jsonRequestData['qsh'], true);
         $requestData = json_decode($postData['submitPreviousPartsConsumption'], true);
         $spares_data = $requestData["spares_data"];
-        if(!empty($spares_data)){
+        if (!empty($spares_data)) {
             $updated = FALSE;
-            foreach ($spares_data as $spare){
-                $affected_row = $this->update_part_consumption($spare['consumed_spare_status_id'], $spare['remarks'],$spare['spare_id']); /// updating consumption 
-                if($affected_row){
+            foreach ($spares_data as $spare) {
+                $affected_row = $this->update_part_consumption($spare['consumed_spare_status_id'], $spare['remarks'], $spare['spare_id']); /// updating consumption 
+                if ($affected_row) {
                     $updated = TRUE;
-                }else{
+                } else {
                     $updated = FALSE;
                 }
             }
-            if($updated){
-              $this->sendJsonResponse(array('0000', 'Spare Conumptions Updated !'));
-            }else{
-              $this->sendJsonResponse(array('0079','Some Spares were not updated. Try Again! After some time.'));
+            if ($updated) {
+                $this->sendJsonResponse(array('0000', 'Spare Conumptions Updated !'));
+            } else {
+                $this->sendJsonResponse(array('0079', 'Some Spares were not updated. Try Again! After some time.'));
             }
-        }else{
-        $this->sendJsonResponse(array('0079', 'Some Spares were not updated. Try Again! After some time.'));  // Managing Error msgs with Same error key ///
+        } else {
+            $this->sendJsonResponse(array('0079', 'Some Spares were not updated. Try Again! After some time.'));  // Managing Error msgs with Same error key ///
         }
-        
+    }
 
-}
-
-
-
-
-   /**
+    /**
      * Update consumption at the time of spare part request.
      * @param type $post
      * @author Abhishek Awasthi
      */
-    function update_part_consumption($consume_id, $remark,$spare_id) {
-        if(!empty($consume_id)) { 
-          //  foreach($post['spare_consumption_status'] as $spare_id => $consumed_status_id) {
-                $update_data = [];
-                $courier_lost_spare = [];
-                $update_data['spare_parts_details.consumed_part_status_id'] = $consume_id;
-                // fetch record of $consumed_status_id from table spare_consumption_status. 
-                $consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status', 'tag', ['id' => $consume_id], NULL, NULL, NULL, NULL, NULL)[0]['tag'];
-                // fetch record of $spare_id from table spare_parts_details. 
-                $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
+    function update_part_consumption($consume_id, $remark, $spare_id) {
+        if (!empty($consume_id)) {
+            //  foreach($post['spare_consumption_status'] as $spare_id => $consumed_status_id) {
+            $update_data = [];
+            $courier_lost_spare = [];
+            $update_data['spare_parts_details.consumed_part_status_id'] = $consume_id;
+            // fetch record of $consumed_status_id from table spare_consumption_status. 
+            $consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status', 'tag', ['id' => $consume_id], NULL, NULL, NULL, NULL, NULL)[0]['tag'];
+            // fetch record of $spare_id from table spare_parts_details. 
+            $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
 
-               $service_center_id = $spare_part_detail['service_center_id'];
-               
-                // set Ok part return in case of wrong & damage/broken part.
-                if($consumption_status_tag == DAMAGE_BROKEN_PART_RECEIVED_TAG || $consumption_status_tag == WRONG_PART_RECEIVED_TAG) {
-                    $update_data['status'] = OK_PART_TO_BE_SHIPPED;
-                    $update_data['defective_part_required'] = 1;
+            $service_center_id = $spare_part_detail['service_center_id'];
+
+            // set Ok part return in case of wrong & damage/broken part.
+            if ($consumption_status_tag == DAMAGE_BROKEN_PART_RECEIVED_TAG || $consumption_status_tag == WRONG_PART_RECEIVED_TAG) {
+                $update_data['status'] = OK_PART_TO_BE_SHIPPED;
+                $update_data['defective_part_required'] = 1;
+            }
+            // in case of courier lost .
+            if ($consumption_status_tag == PART_NOT_RECEIVED_COURIER_LOST_TAG) {
+                $courier_lost_spare[] = $spare_part_detail;
+                $update_data['status'] = COURIER_LOST;
+            }
+            // set defective part return for part consumed.
+            if ($consumption_status_tag == PART_CONSUMED_TAG) {
+                $update_data['status'] = _247AROUND_COMPLETED;
+                if ($spare_part_detail['defective_part_required'] == 1) {
+                    $update_data['status'] = DEFECTIVE_PARTS_PENDING;
                 }
-                // in case of courier lost .
-                if($consumption_status_tag == PART_NOT_RECEIVED_COURIER_LOST_TAG) {
-                    $courier_lost_spare[] = $spare_part_detail;
-                    $update_data['status'] = COURIER_LOST;
-                }
-                // set defective part return for part consumed.
-                if($consumption_status_tag == PART_CONSUMED_TAG) {
-                   $update_data['status'] = _247AROUND_COMPLETED;
-                    if($spare_part_detail['defective_part_required'] == 1) {
-                        $update_data['status'] = DEFECTIVE_PARTS_PENDING;
-                    } 
-                }
-                // set remarks if remarks not empty.
-                if(!empty($remark)) {
-                    $update_data['spare_parts_details.consumption_remarks'] = $remark;
-               }
-               // update spare parts details.
-                $this->service_centers_model->update_spare_parts(array('spare_parts_details.id' => $spare_id), $update_data);
-               
-               // generate challan.
-               if (!empty($service_center_id)
-                    && !empty($spare_part_detail['defective_part_required']) && $spare_part_detail['defective_part_required'] == 1 
-                    && empty($spare_part_detail['defective_part_shipped']) && empty($spare_part_detail['defective_part_shipped_date'])) {
-                    $this->invoice_lib->generate_challan_file($spare_id, $service_center_id);
-                }
-         //  }
-           // send mail in case of courier lost.
-           if (!empty($courier_lost_spare)) {
+            }
+            // set remarks if remarks not empty.
+            if (!empty($remark)) {
+                $update_data['spare_parts_details.consumption_remarks'] = $remark;
+            }
+            // update spare parts details.
+            $this->service_centers_model->update_spare_parts(array('spare_parts_details.id' => $spare_id), $update_data);
+
+            // generate challan.
+            if (!empty($service_center_id) && !empty($spare_part_detail['defective_part_required']) && $spare_part_detail['defective_part_required'] == 1 && empty($spare_part_detail['defective_part_shipped']) && empty($spare_part_detail['defective_part_shipped_date'])) {
+                $this->invoice_lib->generate_challan_file($spare_id, $service_center_id);
+            }
+            //  }
+            // send mail in case of courier lost.
+            if (!empty($courier_lost_spare)) {
                 $this->service_centers_model->get_courier_lost_email_template($spare_part_detail['booking_id'], $courier_lost_spare); ///  Solve undefined variable
             }
             return true;
@@ -4800,37 +4770,33 @@ function submitPreviousPartsConsumptionData(){
         }
     }
 
-   /**
+    /**
      * Get All transactions according to booking ID .
      * @param type $post
      * @author Abhishek Awasthi
      */
-   function get_engineer_incentives(){
+    function get_engineer_incentives() {
 
         log_message("info", __METHOD__ . " Entering..in incentives");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("engineer_id"), $requestData);
-        if ($validation['status']) { 
-                // get engineer incentives data //
-                $select = "booking_details.booking_id,booking_details.district,engineer_incentive_details.*";
-                $where = array(
-                    'booking_details.assigned_engineer_id'=>$requestData['engineer_id']
-                ); 
-                $response = $this->engineer_model->get_engineer_incentives($select,$where); 
-                $this->jsonResponseString['response'] =  $response; // All Data in response//
-                $this->sendJsonResponse(array('0000', 'success')); // send success response //
-               
+        if ($validation['status']) {
+            // get engineer incentives data //
+            $select = "booking_details.booking_id,booking_details.district,engineer_incentive_details.*";
+            $where = array(
+                'booking_details.assigned_engineer_id' => $requestData['engineer_id']
+            );
+            $response = $this->engineer_model->get_engineer_incentives($select, $where);
+            $this->jsonResponseString['response'] = $response; // All Data in response//
+            $this->sendJsonResponse(array('0000', 'success')); // send success response //
         } else {
             log_message("info", __METHOD__ . $validation['message']);
             $this->jsonResponseString['response'] = array(); /// Response one up according to umesh//
-            $this->sendJsonResponse(array("9998",'No Incentives Found'));
-        }    
+            $this->sendJsonResponse(array("9998", 'No Incentives Found'));
+        }
+    }
 
-   }
-
-
-
-   /**
+    /**
      * Get All parents of booking .
      * @param 
      * @author Abhishek Awasthi
@@ -4961,6 +4927,17 @@ function submitPreviousPartsConsumptionData(){
         }
         if (!empty($serial_number_details['invoice_pic']) && !empty($spares)) {
             $serial_number_details['can_edit_invoice_pic'] = '0';
+        }
+        if(empty($serial_number_details['serial_number'])){
+            unset($serial_number_details['serial_number']);
+            $serial_number_details['can_edit_serial_number'] = '1';
+        }
+        if(empty($serial_number_details['serial_number_pic'])){
+            unset($serial_number_details['serial_number_pic']);
+        }
+        if(empty($serial_number_details['invoice_pic'])){
+            unset($serial_number_details['invoice_pic']);
+            $serial_number_details['can_edit_invoice_pic'] = '1';
         }
         return $serial_number_details;
     }
