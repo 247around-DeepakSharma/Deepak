@@ -10287,7 +10287,7 @@ class Partner extends CI_Controller {
 	private function checkAuthentication() {
         $h = $this->getallheaders();
         if ($h === FALSE || empty($h['Authorization'])) {
-            return true;
+            return false;
         } else {
             $this->header = json_encode($h);
             $this->token = $h['Authorization'];
@@ -10336,10 +10336,11 @@ class Partner extends CI_Controller {
             $this->form_validation->set_rules('service_id', '', 'required');
             $this->form_validation->set_rules('brand', '', 'required');
             $this->form_validation->set_rules('category', '', 'required');
-            //$this->form_validation->set_rules('capacity', '', 'required');
             $this->form_validation->set_rules('purchase_date', '', 'required');
             $this->form_validation->set_rules('partner_source', '', 'required');
-            $this->form_validation->set_rules('orderID', '', 'required');          
+            $this->form_validation->set_rules('orderID', '', 'required'); 
+			$this->form_validation->set_rules('appliance_unit', '', 'required');
+			$this->form_validation->set_rules('booking_date', 'Booking Date', 'required');
             
             
             if ($this->form_validation->run() == FALSE){
@@ -10347,6 +10348,9 @@ class Partner extends CI_Controller {
                 $error_string_array = explode(',',$error_string);
                 return $this->show_booking_insertion_failure($is_api, ERR_GENERIC_ERROR_CODE, $error_string_array[0]);
             }
+			if($post['appliance_unit']!=1){
+				return $this->show_booking_insertion_failure($is_api, ERR_GENERIC_ERROR_CODE, 'Appliance Unit should be 1');
+			}
         }
         
         if($is_api){
