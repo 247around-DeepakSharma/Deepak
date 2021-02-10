@@ -10421,6 +10421,32 @@ class Partner extends CI_Controller {
      * @author Prity Sharma
      * @date 10-01-2021
     */
+	function getallheaders() {
+        //Use this if you are using Nginx
+
+        $headers = array();
+        foreach ($_SERVER as $name => $value) {
+            if (substr($name, 0, 5) == 'HTTP_') {
+                $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+            }
+        }
+        return $headers;
+    }
+	private function checkAuthentication() {
+        $h = $this->getallheaders();
+        if ($h === FALSE || empty($h['Authorization'])) {
+            return true;
+        } else {
+            $this->header = json_encode($h);
+            $this->token = $h['Authorization'];
+            $partner_validate = $this->partner_model->validate_partner($this->token);
+            if (empty($partner_validate)) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }
     function process_addbooking_walkin($is_api = 0, $input_d = NULL) {
         if($this->session->userdata('booking_otp')){
             $this->session->unset_userdata('booking_otp');            
@@ -10428,10 +10454,61 @@ class Partner extends CI_Controller {
         
         if($is_api){
             $post = json_decode($input_d, TRUE);
+			if (!is_array($post)) {
+                return $this->show_booking_insertion_failure($is_api, ERR_INVALID_JSON_FORMAT_ERR_CODE, ERR_INVALID_JSON_FORMAT_ERR_MSG);
+            }
+            $authentication = $this->checkAuthentication();
+            if(empty($authentication)){
+                return $this->show_booking_insertion_failure($is_api, ERR_GENERIC_ERROR_CODE, ERR_GENERIC_ERROR_MSG);
+            }
         }
         else
         {
             $post = $this->get_booking_form_data(1);
+        }
+		if($is_api){
+            $this->load->library('form_validation');
+            $this->form_validation->set_error_delimiters('',',');
+            $_POST = $post;
+            $this->form_validation->set_rules('partnerName', '', 'required');
+            $this->form_validation->set_rules('name', '', 'required');
+            $this->form_validation->set_rules('mobile', '', 'required|numeric|exact_length[10]');
+            if(!empty($post['email'])){
+                $this->form_validation->set_rules('email', '', 'valid_email');
+            }
+            $this->form_validation->set_rules('email', '', 'valid_email');
+            $this->form_validation->set_rules('address', '', 'required');
+            $this->form_validation->set_rules('pincode', '', 'required|numeric|exact_length[6]');
+            $this->form_validation->set_rules('city', '', 'required');
+            $this->form_validation->set_rules('requestType', '', 'required');
+            $this->form_validation->set_rules('service_id', '', 'required');
+            $this->form_validation->set_rules('brand', '', 'required');
+            $this->form_validation->set_rules('category', '', 'required');
+            $this->form_validation->set_rules('capacity', '', 'required');
+            $this->form_validation->set_rules('purchase_date', '', 'required');
+            $this->form_validation->set_rules('partner_source', '', 'required');
+            $this->form_validation->set_rules('orderID', '', 'required');          
+            
+            
+            if ($this->form_validation->run() == FALSE){
+                $error_string = validation_errors();
+                $error_string_array = explode(',',$error_string);
+                return $this->show_booking_insertion_failure($is_api, ERR_GENERIC_ERROR_CODE, $error_string_array[0]);
+            }
+        }
+        
+        if($is_api){
+            $partner_name_check = $post['partnerName'];
+            $where = array('partners.public_name' => $partner_name_check);
+            $partner_detail = $this->partner_model->getpartner_details('*',$where);
+            if(!empty($partner_detail)){
+                $post['partner_id'] = $partner_detail[0]['id'];
+                $post['partner_code'] = $partner_detail[0]['code'];
+                $post['partner_type'] = $partner_detail[0]['partner_type'];
+            }else{
+                return $this->show_booking_insertion_failure($is_api, ERR_INVALID_PARTNER_NAME_CODE, ERR_INVALID_PARTNER_NAME_MSG);
+            }
+            
         }
         $assigned_vendor_id = $post['assigned_vendor_id'];
         $partner_id = $post['partner_id'];
