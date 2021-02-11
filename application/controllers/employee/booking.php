@@ -3008,7 +3008,7 @@ class Booking extends CI_Controller {
                 $trimSno = str_replace(' ', '', trim($serial_number));
                 if (!ctype_alnum($serial_number)) {
                     log_message('info', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
-                    $this->form_validation->set_message('validate_serial_no', "Serial Number Entered With Special Character " . $serial_number[$unit_id] . " . This is not allowed.");
+                    $this->form_validation->set_message('validate_serial_no', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
                     return FALSE;
                 }
             }
