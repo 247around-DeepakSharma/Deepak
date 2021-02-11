@@ -1472,9 +1472,10 @@ function validateSerialNo(count = ""){
                         $("#error_serial_no" +count).html(data.message);
                         $("#duplicate_sno_required"+count).val('0');
                         $('body').loadingModal('destroy');
-                        if(data.code == "247" || (data.message.indexOf('Serial Number not valid') !== -1)) {
-                            $("#submitform").attr("disabled",true);
-                        }
+                        $("#submitform").attr("disabled",true);
+//                        if(data.code == "247" || (data.message.indexOf('Serial Number not valid') !== -1)) {
+//                            $("#submitform").attr("disabled",true);
+//                        }
                     }
                 }
             });
