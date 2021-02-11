@@ -4924,7 +4924,7 @@ exit();
                                     $data[0]['from_pincode'] = $value['to_pincode'];
                                     $data[0]['from_city'] = $value['to_city'];
                                     $email_array = array($spare[0]['owner_email'], $spare[0]['primary_contact_email']);
-                                    $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare, MSL_DEFECTIVE_RETURN, $email_array);
+                                    $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare, MSL_DEFECTIVE_RETURN, $invoice_type, $email_array);
                                     if ($a) {
                                         
                                     } else {
