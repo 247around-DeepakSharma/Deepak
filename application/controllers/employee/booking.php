@@ -7207,7 +7207,7 @@ class Booking extends CI_Controller {
         
         if($status){
             $str = "";
-            if($cancelled_percentage < CANCELLATION_THRESHOLD){
+            if($cancelled_percentage > CANCELLATION_THRESHOLD){
                 $str = "<span style='color:red;margin-left:5px;font-weight:bold'>C</span>";
             }
             echo $str;
