@@ -348,7 +348,12 @@
           </div>
     </div>
    </div>
-
+<style>
+    .cursor_ban{
+        cursor: not-allowed;
+        pointer-events: none !important;
+    }
+</style>
 <script>
     $('#defective_parts_send_to_partner_on_challan').DataTable({
         pageLength:100,
@@ -518,7 +523,7 @@
     });
     
     function process_send_all_spare_on_challan(){
-        
+        $("#courier_model_form").trigger('reset')
         var tmp_arr = {};
         var flag = false;
         $(".check_single_row:checked").each(function (key) {
@@ -570,7 +575,8 @@
         //postData['eway_vehicle_number'] = $('#eway_vehicle_number').val();
         postData['shipped_spare_parts_boxes_count'] = $('#shipped_spare_parts_boxes_count').val() || 0;
         postData['shipped_spare_parts_small_boxes_count'] = $('#shipped_spare_parts_small_boxes_count').val() || 0;
-        var total_boxes = postData['shipped_spare_parts_boxes_count']+postData['shipped_spare_parts_small_boxes_count'];
+        var total_boxes = parseInt(postData['shipped_spare_parts_boxes_count'])+ parseInt(postData['shipped_spare_parts_small_boxes_count']);
+        
         postData['shipped_spare_parts_weight_in_kg'] = $('#shipped_spare_parts_weight_in_kg').val();
         postData['shipped_spare_parts_weight_in_gram'] = $('#shipped_spare_parts_weight_in_gram').val();
         
@@ -612,8 +618,13 @@
             alert("Courier price should be numerical and should not contain alphabets and special characters except decimal.")
             return false;
         }
-
-
+        
+         if($('#shipped_spare_parts_boxes_count').val() == '' && $('#shipped_spare_parts_small_boxes_count').val() ==''){
+            total_boxes = '-1';
+            alert("Box count can not be empty."); 
+            return false;
+          }
+          
         let kg = $("#shipped_spare_parts_weight_in_kg").val();
         if(kg == ''){
             killo = 0; 
@@ -687,7 +698,7 @@
         
         $('#submit_courier_form_id').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
         
-        if(postData['awb_by_wh'] && postData['courier_name_by_wh'] && postData['courier_price_by_wh'] && postData['defective_parts_shippped_date_by_wh'] && is_exist_file && total_boxes > 0 && postData['shipped_spare_parts_weight_in_kg']  && postData['shipped_spare_parts_weight_in_gram']){
+        if(postData['awb_by_wh'] && postData['courier_name_by_wh'] && postData['courier_price_by_wh'] && postData['defective_parts_shippped_date_by_wh'] && is_exist_file && total_boxes >= 0 && (postData['shipped_spare_parts_weight_in_kg'] || postData['shipped_spare_parts_weight_in_gram'])){
             $.ajax({
                 method:'POST',
                 url:'<?php echo base_url(); ?>employee/inventory/send_defective_to_partner_from_wh_on_challan',
@@ -713,11 +724,7 @@
         }else{
             $("#send_spare_to_partner").attr('disabled',false);
             $('#submit_courier_form_id').html('Submit').attr('disabled',false);
-            if(total_boxes >= 0){
-                alert('Minimum box count should be not negative, Please select from Large or small box count.');
-            }else{
-                alert("Please enter all required field");
-            }
+            alert("Please enter all required field");
         }
         
     });
@@ -773,9 +780,12 @@
                             alert("This AWB already used same price will be added");
                             $("#same_awb").css("display","block");
                             $('body').loadingModal('destroy');
-                            $("#defective_parts_shippped_date_id").val(data.message[0].shipped_date);
-                            $("#courier_name_by_wh_id").val(data.message[0].courier_name_by_partner).trigger('change');
-                            $("#courier_price_id").val(data.message[0].courier_price_by_wh);
+                            $("#defective_parts_shippped_date_id").val(data.message[0].defective_parts_shippped_date_by_wh);
+                            $("#defective_parts_shippped_date_id").addClass("cursor_ban");
+                            var courier = data.message[0]['courier_name_by_wh'].toLowerCase();
+                            $("#courier_name_by_wh_id").val(courier).trigger('change');
+                            $("#courier_price_id").val(data.message[0].courier_charge);
+                            $("#courier_price_id").attr("readonly", true);
                             $("#courier_name_by_wh_id").select2('destroy').attr("readonly", true);
                             $('#courier_name_by_wh_id').css('pointer-events','none');
                             if(data.message[0].courier_invoice_file){
@@ -801,20 +811,26 @@
                         } else if (data.code === 777) {
                             // show message if shipment done more than allowed days ago.
                             alert("<?php echo UPDATE_AWB_NUMBER_DAYS_MESSAGE; ?>");
-                            $("#same_awb").css("display", "block");
                             $('body').loadingModal('destroy');
+                            $("#defective_parts_shippped_date_id").removeClass("cursor_ban");
                             $("#same_awb").css("display", "none");
+                            $("#courier_price_id").attr("readonly", false);
+                            $("#courier_name_by_wh_id").attr("readonly", false);
+                            $("#courier_name_by_wh_id").val('').trigger('change');
                             $("#courier_name_by_wh_id").select2();
                             $('#courier_name_by_wh_id').css('pointer-events', 'auto');
 
                         } else {
                             $('body').loadingModal('destroy');
                             $("#defective_parts_shippped_courier_pic_by_wh").css("display","block");
-                            $("#courier_price_id").css("display","block");
+                            $("#courier_price_id").attr("readonly", false);
                             $("#same_awb").css("display","none");
+                            $("#defective_parts_shippped_date_id").removeClass("cursor_ban");
                             $("#exist_courier_image").val("");
                             $("#shipped_spare_parts_weight_in_kg").removeAttr("readonly");
                             $("#shipped_spare_parts_weight_in_gram").removeAttr("readonly");
+                            $("#courier_name_by_wh_id").attr("readonly", false);
+                            $("#courier_name_by_wh_id").val('').trigger('change');
                             $("#courier_name_by_wh_id").select2();
                             $('#courier_name_by_wh_id').css('pointer-events', 'auto');
                         }

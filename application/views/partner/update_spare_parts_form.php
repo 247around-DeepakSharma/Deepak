@@ -14,6 +14,14 @@
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
+                <?php if (!empty($this->session->userdata('success'))) { ?>
+                    <div class="alert alert-danger">
+                        <strong><?php echo $this->session->userdata('success'); ?></strong>  
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                <?php } ?>
                 <div class="x_title">
                     <h2>Requested Spare Parts</h2>
                     <div class="clearfix"></div>
@@ -632,6 +640,9 @@
 
 <script type="text/javascript">
     
+    $(".close").on("click",function(){
+        <?php echo $this->session->unset_userdata('success');?>
+    });
     
     $("body").on("change", "#challan_file", function () {
         var allowedFiles = [".gif", ".jpg",".png",".jpeg",".pdf",".zip"];

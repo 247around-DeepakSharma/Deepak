@@ -9,6 +9,10 @@
         padding: 0;
         text-align: left;
     }
+    .cursor_ban{
+        cursor: not-allowed;
+        pointer-events: none !important;
+    }
 </style>
 <div class="right_col" role="main" style="padding:0 30px; margin-bottom: 30px;">
     <div class="row">
@@ -521,7 +525,7 @@
                                 <div class="col-md-6">
                                     <input type="number" class="form-control"  id="courier_price_by_partner" name="courier_price_by_partner" placeholder="Please Enter courier price" required>
                                     <?php echo form_error('courier_price_by_partner'); ?>
-                                    <span id="same_awb" style="display:none">This AWB already used same price will be added</span>
+<!--                                    <span id="same_awb" style="display:none">This AWB already used same price will be added</span>-->
                                 </div>
                             </div>
                         </div>
@@ -615,7 +619,6 @@
                                 awb: "required",
                                 shipment_date: "required",
                                 courier_price_by_partner: {
-                                    digits: true,
                                     range: [0, 2000]
                                 },
                                 courier_image:{
@@ -628,7 +631,6 @@
                                 awb: "Please Enter Valid AWB",
                                 shipment_date: "Please Enter Shipped date",
                                 courier_price_by_partner: {
-                                    digits: "Courier Price can only be Numeric.",
                                     range: "Courier price should be in between 0 to 2000."
                                 },
                                 courier_image:{
@@ -955,10 +957,12 @@
                         $("#same_awb").css("display", "block");
                         $('body').loadingModal('destroy');
                         $("#shipment_date").val(data.message[0].shipped_date);
-                        $("#courier_name").val(data.message[0].courier_name_by_partner).trigger('change');
+                        $("#shipment_date").addClass("cursor_ban");
+                         var courier = data.message[0]['courier_name_by_partner'].toLowerCase();
+                        $("#courier_name").val(courier).trigger('change');
                         $("#courier_name").select2('destroy').attr("readonly", true);
                         $('#courier_name').css('pointer-events','none');
-                        $("#courier_price_by_partner").css("display", "none");
+                        
                         if (data.message[0].courier_pic_by_partner) {
                             $("#exist_courier_image").val(data.message[0].courier_pic_by_partner);
                             $("#courier_image").css("display", "none");
@@ -966,6 +970,7 @@
 
                         if (data.message[0].courier_charge > 0) {
                             $("#courier_price_by_partner").val(data.message[0].courier_charge);
+                            $("#courier_price_by_partner").attr("readonly", true);
                         }
 
                         $('#shipped_spare_parts_boxes_count option[value="' + data.message[0]['box_count'] + '"]').attr("selected", "selected");
@@ -988,20 +993,25 @@
                         alert("<?php echo UPDATE_AWB_NUMBER_DAYS_MESSAGE; ?>");
                         $("#same_awb").css("display", "block");
                         $('body').loadingModal('destroy');
-                        $("#same_awb").css("display", "none");
+                        $("#courier_price_by_partner").attr("readonly", false);
+                        $("#shipment_date").removeClass("cursor_ban");
+                        $("#courier_name").val('').trigger('change');
+                        //$("#same_awb").css("display", "none");
                         $("#courier_name").select2();
                         $('#courier_name').css('pointer-events', 'auto');
                     }else {
 
                         $('body').loadingModal('destroy');
                         $("#courier_image").css("display", "block");
-                        $("#courier_price_by_partner").css("display", "block");
+                        $("#courier_price_by_partner").attr("readonly", false);
+                        $("#shipment_date").removeClass("cursor_ban");
                         if($("#courier_price_by_partner").val()!=''){
                             $("#courier_price_by_partner").val(parseInt($("#courier_price_by_partner").val()));
                         }
                         $("#courier_name").select2();
+                         $("#courier_name").val('').trigger('change');
                         $('#courier_name').css('pointer-events', 'auto');
-                        $("#same_awb").css("display", "none");
+                        //$("#same_awb").css("display", "none");
                         $("#exist_courier_image").val("");
                         $("#shipped_spare_parts_weight_in_kg").val('').removeAttr("readonly");
                         $("#shipped_spare_parts_weight_in_gram").val('').removeAttr("readonly");
