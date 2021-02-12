@@ -133,10 +133,10 @@ class Invoice extends CI_Controller {
         
         if($msl_invoice == 1){
             //add condition in query to select MSL invoices ONLY
-            $where["sub_category like '%MSL%'"] = null;
+            $where["sub_category IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_NEW_PART_RETURN."' ) "] = null;
         }else{
             //add condition in query to exclude MSL invoices
-            $where["sub_category not like '%MSL%'"] = null;
+            $where["sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_NEW_PART_RETURN."' ) "] = null;
         }
         
         //by default, do not show fnf security invoices
@@ -149,7 +149,7 @@ class Invoice extends CI_Controller {
         }
         if ($fnf_invoice == 0) {
             //add condition in query to hide FNF invoices by default
-            $where["sub_category not in ('".FNF."','".SECURITY."')"] = null;
+            $where["sub_category not in ('".FNF."')"] = null;
         }
         if($invoice_period === 'all'){
             $where['vendor_partner'] = $this->input->post('source');
@@ -3386,33 +3386,21 @@ exit();
             $tds_tax_rate = 20;
             $tds_per_rate = "20%";
         } else {
-            switch ($sc_details['company_type']) {
-                case "Individual":
+            $_4th_char = substr($sc_details['pan_no'], 3, 1);
+            
+            //Check 4th char of PAN. If it is P OR H, it means Individual
+            //or  Hindu Undivided Family (HUF).
+            //Rate for such case is 0.75% till 31st Mar, 2021.
+            //https://cleartax.in/s/tds-rate-chart
+            //https://www.incometaxindia.gov.in/Forms/tps/1.Permanent%20Account%20Number%20(PAN).pdf
+            if (strcasecmp($_4th_char, "P") == 0 || strcasecmp($_4th_char, "H") == 0) {
                     $tds = ($total_sc_charge) * .0075;
-                    $tds_tax_rate = .75;
+                    $tds_tax_rate = 0.75;
                     $tds_per_rate = "0.75%";
-                    break;
-
-                case "Partnership Firm":
-                case "Company (Pvt Ltd)":
-                case "Private Ltd Company":
-                    $_4th_char = substr($sc_details['pan_no'], 3, 1);
-                    if (strcasecmp($_4th_char, "P") == 0) {
-                            $tds = ($total_sc_charge) * .0075;
-                            $tds_tax_rate = 0.75;
-                            $tds_per_rate = "0.75%";
-                    } else {
-                        $tds = ($total_sc_charge) * .015;
-                        $tds_tax_rate = 1.5;
-                        $tds_per_rate = "1.5%";
-                    }
-                    
-                    break;
-                default :
-                    $tds = ($total_sc_charge) * .015;
-                    $tds_tax_rate = 1.5;
-                    $tds_per_rate = "1.5%";
-                    break;
+            } else {
+                $tds = ($total_sc_charge) * .015;
+                $tds_tax_rate = 1.5;
+                $tds_per_rate = "1.5%";
             }
         }
         $data['tds'] = $tds;
@@ -4920,7 +4908,7 @@ exit();
                                     $data[0]['from_pincode'] = $value['to_pincode'];
                                     $data[0]['from_city'] = $value['to_city'];
                                     $email_array = array($spare[0]['owner_email'], $spare[0]['primary_contact_email']);
-                                    $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare, MSL_DEFECTIVE_RETURN, $email_array);
+                                    $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare, MSL_DEFECTIVE_RETURN, $invoice_type, $email_array);
                                     if ($a) {
                                         
                                     } else {
