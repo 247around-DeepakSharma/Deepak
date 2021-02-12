@@ -44,7 +44,7 @@
     <div class="col-md-12 col-sm-12 col-xs-12">
         <ul class="nav nav-tabs" role="tablist" >
             <li role="presentation" class="active"><a href="#onMsl" aria-controls="onMsl" role="tab" data-toggle="tab">Inventory On MSL</a></li>
-            <li role="presentation" ><a href="#onBooking" class="<?php if(!empty($this->session->userdata('is_micro_wh')) && empty($this->session->userdata('is_wh'))){ echo 'isDisabled'; } ?>" aria-controls="onBooking" role="tab" data-toggle="tab">Inventory On Booking</a></li>
+            <li role="presentation" ><a href="#onBooking" class="" aria-controls="onBooking" role="tab" data-toggle="tab">Inventory On Booking</a></li>
         </ul>
     </div>
 </div>
@@ -379,7 +379,7 @@
                                         </div>
                                         <label class="col-xs-4 col-sm-2 control-label">Invoice Date*</label>
                                         <div class="col-xs-8 col-sm-4">
-                                            <input placeholder="Select Invoice Date" readonly=""   onkeydown="return false;"  type="text" class="form-control" name="dated" id="on_invoice_date" required="" autocomplete="off"/>
+                                            <input placeholder="Select Invoice Date" readonly=""   onkeydown="return false;"  type="text" class="form-control" style="background-color:#fff!important" name="dated" id="on_invoice_date" required="" autocomplete="off"/>
                                             <span id="error_on_invoice_date" class="error" style="color: red;"></span>
                                         </div>
                                     </div>
@@ -1278,8 +1278,8 @@ $("#on_invoice_file").change(function(){
     function get_vendor_by_booking_id() {
         $.ajax({
             type: 'POST',
-            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_details',
-            data:{'is_wh' : 1},
+            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_with_micro_wh',
+            data:{'partner_id':<?php echo $this->session->userdata('partner_id'); ?>},
             success: function (response) {                
                 $("#on_wh_id").html(response);
             }
@@ -1493,58 +1493,60 @@ $("#on_invoice_file").change(function(){
     }
     
     function search_booking_details(count){
-        var booking_id = $("#onbookingid_" + count).val();
-        if(booking_id !== ""){
-            $.ajax({
-                method:'POST',
-                beforeSend: function(){
+        var warehouse_id = $("#on_wh_id").val();
+        if(warehouse_id !== null){
+            var is_micro = $("#on_wh_id").find(':selected').attr('data-warehose');
+            var booking_id = $("#onbookingid_" + count).val();
+            if(booking_id !== ""){
+                $.ajax({
+                    method:'POST',
+                    beforeSend: function(){
 
-                    $('body').loadingModal({
-                    position: 'auto',
-                    text: 'Loading Please Wait...',
-                    color: '#fff',
-                    opacity: '0.7',
-                    backgroundColor: 'rgb(0,0,0)',
-                    animation: 'wave'
-                });
+                        $('body').loadingModal({
+                        position: 'auto',
+                        text: 'Loading Please Wait...',
+                        color: '#fff',
+                        opacity: '0.7',
+                        backgroundColor: 'rgb(0,0,0)',
+                        animation: 'wave'
+                    });
 
-                    },
-                url:'<?php echo base_url(); ?>employee/inventory/get_spare_line_item_for_tag_spare/'+booking_id +"/" + count,
-                data:{is_ajax:true},
-                success:function(res){
-                  // console.log(res);
-                    var obj = JSON.parse(res);
-                    $('body').loadingModal('destroy');
-                    if(obj.code === 247){
-                        //onBookingIndex = (count + Number(obj.count) - 1);
+                        },
+                    url:'<?php echo base_url(); ?>employee/inventory/get_spare_line_item_for_tag_spare/'+booking_id +"/" + count,
+                    data:{is_ajax:true, is_micro:is_micro, vendor_id: warehouse_id},
+                    success:function(res){
+                      // console.log(res);
+                        var obj = JSON.parse(res);
+                        $('body').loadingModal('destroy');
+                        if(obj.code === 247){
+                            //onBookingIndex = (count + Number(obj.count) - 1);
 
-                        $("#sparelineitem_"+count).html(obj.data);
-                        $("#on_submit_btn").attr('disabled',false);
-                        $(".part_name").select2();
-                        var service_id = $('#onserviceId_'+count).val();
-                        var part_name = $('#onpartName_'+count).val();
-                        if($.inArray(part_name,partArr[service_id]) > 0) {
-                            alert("Please select another part as this is already selected!!");
+                            $("#sparelineitem_"+count).html(obj.data);
+                            $("#on_submit_btn").attr('disabled',false);
+                            $(".part_name").select2();
+                            var service_id = $('#onserviceId_'+count).val();
+                            var part_name = $('#onpartName_'+count).val();
+                            if($.inArray(part_name,partArr[service_id]) > 0) {
+                                alert("Please select another part as this is already selected!!");
+                                return false;
+                            }
+                            if( partArr[service_id] === undefined ) {
+                                partArr[service_id] = new Array();
+                            }
+                            if(part_name !== undefined) {
+                                partArr[service_id].push(part_name);
+                            }
+                        } else {
+                            alert(obj.data);
+                            $("#onbookingid_" + count).val("");
                             return false;
                         }
-                        if( partArr[service_id] === undefined ) {
-                            partArr[service_id] = new Array();
-                        }
-                        if(part_name !== undefined) {
-                            partArr[service_id].push(part_name);
-                        }
-                    } else {
-                        alert(obj.data);
-                        $("#onbookingid_" + count).val("");
-                        return false;
                     }
-                }
-            });
-        } else {
-           alert("Please Enter Booking ID");
+                });
+            } else {
+               alert("Please Enter Booking ID");
+            }
         }
-        
-        
     }
 </script>
 <script>
