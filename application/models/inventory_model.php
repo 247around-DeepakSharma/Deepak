@@ -4484,9 +4484,7 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return count($query->result_array());
     }
-    
-    
-       
+          
     /*
      * @desc: This function is used to get the Bill docket details
      * @params: $select
