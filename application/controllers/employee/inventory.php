@@ -4695,7 +4695,7 @@ class Inventory extends CI_Controller {
 
                                 // 2 Means - this part send to Micro Warehouse And 1 means sent to warehouse
                                 If ($is_wh_micro == 2) {
-                                    $not_updated_data = $this->generate_micro_warehouse_invoice($invoice, $wh_id, str_replace('/', '-', $invoice_dated), $tqty, $partner_id, $to_gst_number, $sender_enity_id, $sender_entity_type, $agent_id, $agent_type, $courier_company_details_id, $action_agent_id);
+                                    $not_updated_data = $this->generate_micro_warehouse_invoice($invoice, $wh_id, $tqty, $partner_id, $to_gst_number, $sender_enity_id, $sender_entity_type, $agent_id, $agent_type, $courier_company_details_id, $action_agent_id);
                                 }
 
                                 //send email to 247around warehouse incharge
@@ -5043,8 +5043,7 @@ class Inventory extends CI_Controller {
      * @param int $tqty
      * @param int $partner_id
      */
-    function generate_micro_warehouse_invoice($invoice, $wh_id, $invoice_date, $tqty, $partner_id, $from_gst_number, 
-            $sender_enity_id, $sender_entity_type, $agent_id, $agent_type, $courier_id, $action_agent_id) {
+    function generate_micro_warehouse_invoice($invoice, $wh_id, $tqty, $partner_id, $from_gst_number, $sender_enity_id, $sender_entity_type, $agent_id, $agent_type, $courier_id, $action_agent_id) {
         log_message('info', __METHOD__);
         $invoice_date = date('Y-m-d');
         $entity_details = $this->vendor_model->getVendorDetails("gst_no as gst_number, sc_code,"
@@ -5187,9 +5186,10 @@ class Inventory extends CI_Controller {
                 $ledger_data['quantity'] = $value['qty'];
                 $ledger_data['agent_id'] = $agent_id;
                 $ledger_data['agent_type'] = $agent_type;
-                $ledger_data['booking_id'] = "";
-                $pin= $this->input->post('invoice_id');
-                if(!empty($pin)){
+                $ledger_data['booking_id'] = $value['booking_id'];
+                $pin = $this->input->post('invoice_id');
+                if (!empty($pin)) {
+
                     $ledger_data['invoice_id'] = $this->input->post('invoice_id');
                 } else {
                     $ledger_data['invoice_id'] = NULL;
@@ -5209,9 +5209,11 @@ class Inventory extends CI_Controller {
                     log_message("info", "Ledger details added successfully");
                     // Don't uncomment below line
                     //$this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, 2, $action_agent_id);
-                    $stock = "stock - '" . $value['qty'] . "'";
-                    $this->inventory_model->update_inventory_stock(array('entity_id' => $sender_enity_id, 'inventory_id' => $value['inventory_id']), $stock);
-                    
+                    if($sender_entity_type == _247AROUND_SF_STRING){
+                        $stock = "stock - '" . $value['qty'] . "'";
+                        $this->inventory_model->update_inventory_stock(array('entity_id' => $sender_enity_id, 'inventory_id' => $value['inventory_id']), $stock);
+                    }
+
                 } else {
                     array_push($not_updated_data, $value['part_number']);
                     log_message("info", "error in adding inventory ledger details data: " . print_r($ledger_data, TRUE));
@@ -7631,8 +7633,10 @@ function get_bom_list_by_inventory_id($inventory_id) {
     function get_spare_line_item_for_tag_spare($booking_id, $count) {
         log_message('info', __METHOD__ . " Booking ID " . $booking_id);
         if (!empty($booking_id)) {
+            $is_micro = $this->input->post('is_micro');
+            $vendor_id = $this->input->post('vendor_id');
 
-            $sc_close_date = $this->reusable_model->get_search_query('booking_details','booking_details.service_center_closed_date, booking_details.request_type',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
+            $sc_close_date = $this->reusable_model->get_search_query('booking_details','booking_details.service_center_closed_date, booking_details.request_type, assigned_vendor_id',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
             $data['add_more'] = false;
             if (isset($sc_close_date[0]['request_type']) && $sc_close_date[0]['request_type'] == REPAIR_OOW_TAG) {
                 $s_change = $this->booking_model->getbooking_state_change_by_any(array('booking_id' => $booking_id, "new_state" => SPARE_OOW_EST_GIVEN));
@@ -7643,8 +7647,13 @@ function get_bom_list_by_inventory_id($inventory_id) {
 
             
             if (!empty($sc_close_date[0]['service_center_closed_date'])) {
-               echo json_encode(array('code' => -247, "data" => "Booking already closed. Part shipping not allowed"));
-            }else{
+                echo json_encode(array('code' => -247, "data" => "Booking already closed. Part shipping not allowed"));
+                
+            } else if($is_micro == 2 && $sc_close_date[0]['assigned_vendor_id'] != $vendor_id){
+                
+                echo json_encode(array('code' => -247, "data" => "Booking assigned another Warehouse. Part shipping not allowed"));
+                
+            } else {
 
                 $where = array('status' => SPARE_PARTS_REQUESTED,
                 'spare_parts_details.entity_type' => _247AROUND_PARTNER_STRING,
