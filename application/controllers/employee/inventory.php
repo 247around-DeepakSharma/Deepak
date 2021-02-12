@@ -10690,5 +10690,123 @@ class Inventory extends CI_Controller {
         }
         return $row;
     }
+    
+         
+     /**
+     *  @desc : This function is used to show OOW Spare Parts Details
+     *  @param : void
+     *  @return : void
+     */
+    function get_oow_spare_invoice_list() {
+        $data = $this->get_oow_spare_invoice_list_data();
+        $post = $data['post'];
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->inventory_model->count_filtered_oow_spare_invoice_list($post),
+            "recordsFiltered" => $this->inventory_model->count_all_oow_spare_invoice_list($post),
+            "data" => $data['data'],
+        );
+
+        echo json_encode($output);
+    }
+    
+    
+       function get_oow_spare_invoice_list_data() {
+        $post = $this->get_post_data();
+        $post['spare_invoice_flag'] = true;
+        $post['column_order'] = array();
+        $post['column_search'] = array('spare_parts_details.booking_id, oow_spare_invoice_details.spare_id', 'oow_spare_invoice_details.invoice_id', 'oow_spare_invoice_details.services', 'oow_spare_invoice_details.id');
+        $post['where'] = array("spare_parts_details.part_warranty_status" => 2,
+            "status != 'Cancelled'" => NULL,
+            "spare_parts_details.create_date >= '2017-12-01'" => NULL,
+            "(`purchase_invoice_id` IS NULL )" => NULL,
+            "spare_parts_details.partner_id != '" . _247AROUND . "'" => NULL,
+            "spare_parts_details.parts_shipped IS NOT NULL" => NULL,
+            "spare_parts_details.is_micro_wh" => 0);
+
+        $post['select'] = "spare_parts_details.id, spare_parts_details.parts_shipped, spare_parts_details.part_warranty_status, spare_parts_details.booking_id, purchase_price, public_name,"
+                . "purchase_invoice_id,sell_invoice_id, incoming_invoice_pdf, sell_price, booking_details.partner_id as booking_partner_id,booking_details.request_type, spare_parts_details.status,oow_spare_invoice_details.invoice_id,oow_spare_invoice_details.invoice_pdf, oow_spare_invoice_details.invoice_amount as basic_amount";
+
+        $list = $this->inventory_model->get_spare_parts_query($post);
+        $no = $post['start'];
+        foreach ($list as $invoice_list) {
+            $no++;
+            $row = $this->get_inventory_spare_invoice_list_table($invoice_list, $no);
+            $data[] = $row;
+        }
+
+        return array(
+            'data' => $data,
+            'post' => $post
+        );
+    }
+
+    function get_inventory_spare_invoice_list_table($invoice_list, $no) {
+        $row = array();
+
+        $row[] = $no;
+        $row[] = "<a href='javascript:void(0);' onclick= 'spare_history_tracking(" . $invoice_list->id . ")'>" . $invoice_list->id . "</a>";
+        $row[] = '<a  target="_blank" href="'.base_url().'employee/booking/viewdetails/'.$invoice_list->booking_id.'"  title="View">'.$invoice_list->booking_id.'</a>';
+        $row[] = "<spane style='word-break: break-all;'>" . $invoice_list->parts_shipped . "</span>";
+        $row[] = $invoice_list->request_type;
+        if ($invoice_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+            $part_warranty = REPAIR_OOW_TAG;
+        } else {
+            $part_warranty = REPAIR_IN_WARRANTY_TAG;
+        }
+        $row[] = $part_warranty;
+        $row[] = $invoice_list->status;
+        $row[] = $invoice_list->public_name;
+
+        if (!empty($invoice_list->purchase_price)) {
+            $purchase_price = '<i class = "fa fa-inr" aria-hidden = "true"></i>' . $invoice_list->purchase_price;
+        } else {
+            $purchase_price = '';
+        }
+        $row[] = $purchase_price;
+        $row[] = $invoice_list->invoice_id;
+        if (!empty($invoice_list->basic_amount)) {
+            $basic_amount = '<i class="fa fa-inr" aria-hidden="true"></i>' . $invoice_list->basic_amount;
+        } else {
+            $basic_amount = '';
+        }
+
+        $row[] = $basic_amount;
+
+        if (!empty($invoice_list->sell_price)) {
+            $sell_price = '<i class="fa fa-inr" aria-hidden="true"></i>' . $invoice_list->sell_price;
+        } else {
+            $sell_price = '';
+        }
+
+        $row[] = $sell_price;
+
+        if (!empty($invoice_list->invoice_pdf)) {
+            $invoice_pdf = $invoice_list->invoice_pdf;
+        } else {
+            $invoice_pdf = $invoice_list->incoming_invoice_pdf;
+        }
+
+        if (!empty($invoice_pdf)) {
+            $link = '<a target="_blank" href="https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' . $invoice_pdf . '">
+                <img style="width:27px;" src="' . base_url() . 'images/invoice_icon.png"; /></a>';
+        } else {
+            $link = '';
+        }
+
+        $row[] = $link;
+
+        if (!empty($invoice_list->sell_invoice_id)) {
+            $button = $invoice_list->sell_invoice_id;
+        } else {
+            $button = '<button type = "button" class = "btn btn-success" data-toggle = "modal" data-target = "#reverse_sale_invoice_model" onclick = "sale_invoice_put_spare_id(' . $invoice_list->id . ')">Generate Sale Invoice</button>';
+        }
+
+
+        $row[] = $button;
+        $row[] = '<input type="checkbox" class="form-control spare_id" name="spare_id[]" data-partner_id="' . $invoice_list->booking_partner_id . '" data-invoice_id ="' . $invoice_list->invoice_id . '" data-spare_id="' . $invoice_list->id . '" value="' . $invoice_list->id . '" />';
+
+        return $row;
+    }
 
 }
