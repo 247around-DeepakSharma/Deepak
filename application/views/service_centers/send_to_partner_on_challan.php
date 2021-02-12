@@ -613,8 +613,13 @@
             alert("Courier price should be numerical and should not contain alphabets and special characters except decimal.")
             return false;
         }
-
-
+        
+         if($('#shipped_spare_parts_boxes_count').val() == '' && $('#shipped_spare_parts_small_boxes_count').val() ==''){
+            total_boxes = '-1';
+            alert("Box count can not be empty."); 
+            return false;
+          }
+          
         let kg = $("#shipped_spare_parts_weight_in_kg").val();
         if(kg == ''){
             killo = 0; 
@@ -681,7 +686,7 @@
         
         $('#submit_courier_form_id').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
         
-        if(postData['awb_by_wh'] && postData['courier_name_by_wh'] && postData['courier_price_by_wh'] && postData['defective_parts_shippped_date_by_wh'] && is_exist_file && (postData['shipped_spare_parts_weight_in_kg'] || postData['shipped_spare_parts_weight_in_gram'])){
+        if(postData['awb_by_wh'] && postData['courier_name_by_wh'] && postData['courier_price_by_wh'] && postData['defective_parts_shippped_date_by_wh'] && is_exist_file && total_boxes >= 0 && (postData['shipped_spare_parts_weight_in_kg'] || postData['shipped_spare_parts_weight_in_gram'])){
             $.ajax({
                 method:'POST',
                 url:'<?php echo base_url(); ?>employee/inventory/send_defective_to_partner_from_wh_on_challan',
@@ -707,6 +712,7 @@
         }else{
             $("#send_spare_to_partner").attr('disabled',false);
             $('#submit_courier_form_id').html('Submit').attr('disabled',false);
+            alert("Please enter all required field");
         }
         
     });
