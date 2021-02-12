@@ -10554,4 +10554,75 @@ class Service_centers extends CI_Controller {
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/add_booking_walkin', $data);
     }
+    
+    /**
+    * This function is used to auto-approve engineer completed bookings
+    * This function is called from CRON
+    * @author Prity Sharma
+    * @create_date 12-02-2021
+    */
+    function auto_approve_engineer_bookings(){
+        $this->db->_protect_identifiers = FALSE;
+        // Fetch all Bookings that are completed by Engineer
+        $where['where'] =   array(
+                                "engineer_booking_action.current_status" => "InProcess",
+                                "DATEDIFF(CURDATE(), engineer_booking_action.closed_date) > 2" => NULL
+                            );
+        $select = 'engineer_booking_action.*,'
+                . 'engineer_table_sign.upcountry_charges,'
+                . 'engineer_table_sign.cancellation_reason,'
+                . 'engineer_table_sign.mismatch_pincode,'
+                . 'DATEDIFF(CURDATE(), engineer_booking_action.closed_date) as days_diff,'
+                . ' booking_details.partner_id';
+        $engg_bookings = $this->engineer_model->get_engineer_action_table_list($where, $select);
+        if(empty($engg_bookings)){
+            return ;
+        } 
+        foreach ($engg_bookings as $engg_completed_booking) {
+            $booking_id = $engg_completed_booking->booking_id;
+            $partner_id = $engg_completed_booking->partner_id;
+            $closed_date = $engg_completed_booking->closed_date;
+            // Update Booking Statuses
+            $this->update_booking_internal_status($booking_id, SF_BOOKING_COMPLETE_STATUS, $partner_id);
+            // Update SF Closed date
+            $this->booking_model->update_booking($booking_id, ['service_center_closed_date' => $closed_date]);
+            
+            // Update Model , Serial & DOP details in booking_unit_details
+            $ud_data = [
+                'sf_model_number' => $engg_completed_booking->model_number,
+                'serial_number' => $engg_completed_booking->serial_number,
+                'serial_number' => $engg_completed_booking->serial_number_pic,
+                'sf_purchase_date' => $engg_completed_booking->sf_purchase_date,
+            ];
+            $this->booking_model->update_booking_unit_details($booking_id, $ud_data);
+            
+            // Update Charges in service_center_booking_action
+            $ssba_data = [
+                'service_charge' => $engg_completed_booking->service_charge,
+                'additional_service_charge' => $engg_completed_booking->additional_service_charge,                
+                'parts_cost' => $engg_completed_booking->parts_cost,                
+                'upcountry_charges' => $engg_completed_booking->upcountry_charges,                
+                'serial_number' => $engg_completed_booking->serial_number,
+                'model_number' => $engg_completed_booking->model_number,                
+                'amount_paid' => $engg_completed_booking->amount_paid,                
+                'service_center_remarks' => $engg_completed_booking->closing_remark,                
+                'cancellation_reason' => $engg_completed_booking->cancellation_reason,                
+                'current_status' => SF_BOOKING_INPROCESS_STATUS,
+                'internal_status' => _247AROUND_COMPLETED,                
+                'mismatch_pincode' => $engg_completed_booking->mismatch_pincode,
+                'closed_date' => $closed_date,
+                'serial_number_pic' => $engg_completed_booking->serial_number_pic,                
+                'is_broken' => $engg_completed_booking->is_broken,
+                'sf_purchase_date' => $engg_completed_booking->sf_purchase_date,
+                'sf_purchase_invoice' => $engg_completed_booking->purchase_invoice,                
+                'technical_solution' => $engg_completed_booking->solution,
+                'technical_problem' => $engg_completed_booking->defect,                
+                
+            ];
+            $this->vendor_model->update_service_center_action($booking_id, $ssba_data);
+            
+            // Update Statuses in engineer_booking_action
+            $this->engineer_model->update_engineer_table(array("current_status" => _247AROUND_COMPLETED, "internal_status" => _247AROUND_COMPLETED), ['booking_id' => $booking_id]);
+        }              
+    }
 }
