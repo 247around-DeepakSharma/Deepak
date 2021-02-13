@@ -2204,7 +2204,8 @@ class Partner extends CI_Controller {
             $this->form_validation->set_rules('courier_name', 'Courier Name', 'trim|required');
             $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
             //$this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
-            //$this->form_validation->set_rules('partner_challan_number', 'Partner Challan Number', 'trim|required');  
+            $this->form_validation->set_rules('partner_challan_number', 'Partner Challan Number', 'trim|required'); 
+            $this->form_validation->set_rules('challan_file', 'Challan', 'callback_upload_challan_file');
             /*
               if ($part_warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
               $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
@@ -2231,27 +2232,18 @@ class Partner extends CI_Controller {
                 }
             }
         }
-
+        
         if (!empty($this->input->post('partner_challan_number'))) {
             
-            if (!empty($_FILES['challan_file']['name'])) {
-                
-                $partner_id = $this->session->userdata('partner_id');
-                if (!empty($this->input->post('courier_status'))) {
-
-                    //$request_type = $this->input->post('request_type');
-                    $challan_file = $this->upload_challan_file(rand(10, 100));
-                    if ($challan_file) {
-                        $data['partner_challan_file'] = $challan_file;
-                    }
+            $challan_file = $this->input->post('challan_file'); 
+            
+            if (!empty($challan_file)) {
+                    $partner_id = $this->session->userdata('partner_id');
+                    $data['partner_challan_file'] = $challan_file;
                     $data['courier_name_by_partner'] = $this->input->post('courier_name');
                     $data['awb_by_partner'] = $this->input->post('awb');
                     $data['shipped_date'] = $this->input->post('shipment_date');
-                    //if ($this->input->post('request_type') !== REPAIR_OOW_TAG) {
                     $data['partner_challan_number'] = $this->input->post('partner_challan_number');
-                    //$data['challan_approx_value'] = $this->input->post('approx_value');
-                    //} 
-
                     $kilo_gram = $this->input->post('defective_parts_shipped_kg') ?: '0';
                     $gram = $this->input->post('defective_parts_shipped_gram') ?: '00';
 
@@ -2304,9 +2296,8 @@ class Partner extends CI_Controller {
 
                         $this->service_centers_model->update_awb_details($awb_data, trim($this->input->post('awb')));
                     }
-                }
 
-                
+                    
                 $shipped_part_details = $this->input->post("part");
                 /* if parts empty no need to run loop */
                 if (!empty($shipped_part_details)) {
@@ -5285,7 +5276,8 @@ class Partner extends CI_Controller {
      * @params: void
      * @return: $res
      */
-    function upload_challan_file($id) {
+    function upload_challan_file() {
+        $id = rand(10, 100);
         if (empty($_FILES['challan_file']['error']) && $_FILES['challan_file']['name']) {
             $challan_file = "partner_challan_file_" . $this->input->post('booking_id'). "_".$id."_" . str_replace(" ", "_", $_FILES['challan_file']['name']);
             //Upload files to AWS
@@ -5293,7 +5285,7 @@ class Partner extends CI_Controller {
             $directory_xls = "vendor-partner-docs/" . $challan_file;
             $this->s3->putObjectFile($_FILES['challan_file']['tmp_name'], $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
             
-            $res = $challan_file;
+            $res = $_POST['challan_file'] = $challan_file;
         } else {
             $res = FALSE;
         }
