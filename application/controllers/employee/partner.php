@@ -5275,7 +5275,8 @@ class Partner extends CI_Controller {
      * @params: void
      * @return: $res
      */
-    function upload_challan_file($id) {
+    function upload_challan_file() {
+        $id = rand(10, 100);
         if (empty($_FILES['challan_file']['error']) && $_FILES['challan_file']['name']) {
             $challan_file = "partner_challan_file_" . $this->input->post('booking_id'). "_".$id."_" . str_replace(" ", "_", $_FILES['challan_file']['name']);
             //Upload files to AWS
@@ -5283,7 +5284,7 @@ class Partner extends CI_Controller {
             $directory_xls = "vendor-partner-docs/" . $challan_file;
             $this->s3->putObjectFile($_FILES['challan_file']['tmp_name'], $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
             
-            $res = $challan_file;
+            $res = $_POST['challan_file'] = $challan_file;
         } else {
             $res = FALSE;
         }
