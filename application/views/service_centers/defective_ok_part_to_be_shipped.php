@@ -248,6 +248,10 @@ if ($this->uri->segment(3)) {
         z-index: 9999;
         background: url('<?php echo base_url(); ?>images/loading_new.gif') 50% 50% no-repeat rgba(249,249,249,0.62);
     }
+    .cursor_ban{
+        cursor: not-allowed;
+        pointer-events: none !important;
+    }
 </style>
 <script type="text/javascript">
 
@@ -760,34 +764,21 @@ if ($this->uri->segment(3)) {
                     console.log(response);
                     var data = jQuery.parseJSON(response);
                     if (data.code === 247) {
-
-
-                        // $("#same_awb").css({"color": "green", "font-weight": "900"});
-
-                        //  $("#same_awb").css("font-wight",900);
-                        //alert("This AWB already used same price will be added");
-                        //$("#same_awb").css("display", "block");
                         $('body').loadingModal('destroy');
-
-
-
                         $("#defective_part_shipped_date").val(data.message[0].defective_part_shipped_date);
-
+                        $("#defective_part_shipped_date").addClass("cursor_ban");
                         $("#courier_name_by_sf").val("");
                         $("#courier_name_by_sf").attr('readonly', "readonly");
-                        $("#courier_name_by_sf").css("pointer-events", "none");
                         var courier = data.message[0]['courier_name_by_sf'].toLowerCase();
-                        // $('#courier_name_by_sf option[value="'+data.message[0].courier_name_by_sf.toLowerCase()+'"]').attr("selected", "selected");
                         $('#courier_name_by_sf').val(courier).trigger('change');
+                        $("#courier_name_by_sf").select2('destroy').attr("readonly", true);
+                        $('#courier_name_by_sf').css('pointer-events','none');
                         if (data.message[0].courier_charge > 0) {
                             $("#courier_charges_by_sf").val(data.message[0].courier_charge);
                             $("#courier_charges_by_sf_hidden").val(data.message[0].courier_charge);
-                            // $("#courier_charges_by_sf").attr('readonly', "readonly");
+                            $("#courier_charges_by_sf").attr('readonly', "readonly");
                         }
 
-
-
-                        // $("#courier_charges_by_sf").css("display","none");
                         $('#defective_parts_shipped_boxes_count option[value="' + data.message[0]['box_count'] + '"]').attr("selected", "selected");
                         if (data.message[0]['box_count'] === 0) {
                             $('#defective_parts_shipped_boxes_count').val("");
@@ -798,18 +789,7 @@ if ($this->uri->segment(3)) {
                         }
 
                         $("#courier_boxes_weight_flag").val(data.message[0]['partcount']);
-                        //$("#aws_receipt").removeAttr("required");
-                        /*
-                         if (data.message[0].defective_courier_receipt) {
-                         
-                         
-                         $("#exist_courier_image").val(data.message[0].defective_courier_receipt);
-                         $("#aws_receipt").css("display", "none");
-                         
-                         }
-                         */
-
-                        //    alert(data.message[0]['partcount'])
+           
                         var wt = Number(data.message[0]['billable_weight']);
                         if (wt > 0) {
                             var wieght = data.message[0]['billable_weight'].split(".");
@@ -826,11 +806,14 @@ if ($this->uri->segment(3)) {
                         $("#same_awb").css("display", "none");
                         $("#exist_courier_image").removeAttr("readonly");
                         $("#courier_name_by_sf").val("");
-                        $("#courier_name_by_sf").val("");
+                        $("#courier_name_by_sf").removeAttr('readonly');
+                        $("#courier_name_by_sf").select2();
+                        $('#courier_name_by_sf').css('pointer-events','');
                         $("#courier_charges_by_sf").removeAttr('readonly');
                         $("#courier_charges_by_sf").val("");
                         $("#aws_receipt").attr("required", "required");
                         $("#defective_part_shipped_date").val("");
+                        $("#defective_part_shipped_date").removeClass("cursor_ban");
                         $("#defective_parts_shipped_boxes_count").val("");
                         $("#defective_parts_shipped_weight_in_kg").removeAttr('readonly');
                         $("#defective_parts_shipped_weight_in_gram").removeAttr('readonly');
@@ -847,11 +830,14 @@ if ($this->uri->segment(3)) {
                         $("#same_awb").css("display", "none");
                         $("#exist_courier_image").removeAttr("readonly");
                         $("#courier_name_by_sf").val("");
-                        $("#courier_name_by_sf").val("");
+                        $("#courier_name_by_sf").removeAttr('readonly');
+                        $("#courier_name_by_sf").select2();
+                        $('#courier_name_by_sf').css('pointer-events','');
                         $("#courier_charges_by_sf").removeAttr('readonly');
                         $("#courier_charges_by_sf").val("");
                         $("#aws_receipt").attr("required", "required");
                         $("#defective_part_shipped_date").val("");
+                        $("#defective_part_shipped_date").removeClass("cursor_ban");
                         $("#defective_parts_shipped_boxes_count").val("");
                         $("#defective_parts_shipped_weight_in_kg").removeAttr('readonly');
                         $("#defective_parts_shipped_weight_in_gram").removeAttr('readonly');

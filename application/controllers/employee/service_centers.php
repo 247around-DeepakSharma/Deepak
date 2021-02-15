@@ -88,7 +88,7 @@ class Service_centers extends CI_Controller {
             $data['rating'] = 0;
             $data['count'] = $rating_data[0]['count'];
         }
-        $data['msl'] = $this->get_msl_amounts();
+        $data['msl'] = $this->miscelleneous->get_msl_amounts($this->session->userdata('service_center_id'));
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/pending_booking', $data);
         if (!$this->session->userdata("login_by")) {
@@ -4347,7 +4347,7 @@ class Service_centers extends CI_Controller {
             if (!empty($generate_challan)) {
                 $post = array();
                 if (!empty($flag)) {
-                    $post['where_in'] = array('spare_parts_details.booking_id' => $value, 'spare_parts_details.status' => SPARE_PARTS_REQUESTED);
+                    $post['where_in'] = array('spare_parts_details.booking_id' => $value, 'spare_parts_details.entity_type' => _247AROUND_PARTNER_STRING, 'spare_parts_details.status' => SPARE_PARTS_REQUESTED);
                 } else {
                     $post['where_in'] = array('spare_parts_details.booking_id' => $value, 'spare_parts_details.entity_type' => _247AROUND_SF_STRING, 'spare_parts_details.status' => SPARE_PARTS_REQUESTED);
                 }
@@ -6466,7 +6466,17 @@ class Service_centers extends CI_Controller {
         
         $post = $this->get_post_view_data();
         log_message('info', __FUNCTION__ . " SF ID: " . $sf_id);
+        if (!empty($post['search_value'])) {
 
+            $where = array(
+                "spare_parts_details.defective_part_required" => 1,
+                "approved_defective_parts_by_admin" => 1,
+                "(defective_return_to_entity_id = $sf_id or consumed_part_status_id = 1)" =>null,
+                "(spare_lost is null or spare_lost = 0)" => NULL,
+                "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
+                "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "','" . OK_PARTS_SHIPPED . "','" . DAMAGE_PARTS_SHIPPED . "')" => NULL,
+            );
+        } else {
         $where = array(
                 "spare_parts_details.defective_part_required" => 1,
                 "approved_defective_parts_by_admin" => 1,
@@ -6475,8 +6485,9 @@ class Service_centers extends CI_Controller {
                 "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
                 "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "','" . OK_PARTS_SHIPPED . "','" . DAMAGE_PARTS_SHIPPED . "')" => NULL,
             );
+        }
         
-        $select = "defective_part_shipped,spare_parts_details.defective_part_rejected_by_partner, spare_parts_details.shipped_quantity,spare_parts_details.id, spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, spare_consumption_status.reason_text, "
+        $select = "spare_parts_details.id,defective_part_shipped,spare_parts_details.defective_part_rejected_by_partner, spare_parts_details.shipped_quantity,spare_parts_details.id, spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, spare_consumption_status.reason_text,spare_parts_details.defective_return_to_entity_id, "
                 . " spare_parts_details.booking_id, users.name as 'user_name', courier_name_by_sf, awb_by_sf,defective_part_shipped_date,"
                 . "remarks_defective_part_by_sf,booking_details.partner_id,service_centres.name as 'sf_name',service_centres.district as 'sf_city',s.part_number, spare_parts_details.defactive_part_received_date_by_courier_api, spare_parts_details.status, spare_parts_details.defective_part_rejected_by_wh";
         $group_by = "spare_parts_details.id";
@@ -6489,9 +6500,26 @@ class Service_centers extends CI_Controller {
         $no = $post['start'];
         $data=array();
         //$no =0;
+        $ware_house_name_array = array();
         foreach ($list as $spare_list) {
             $no++;
-            $row = $this->defective_parts_shipped_by_sf_table_data($spare_list, $no);
+            $warehouse_name = '';
+            $wh_id = $spare_list['defective_return_to_entity_id'];
+            if(!empty($whare_house_name_array[$wh_id])){
+                $warehouse_name = $whare_house_name_array[$wh_id];
+            }else{
+                $select_wh = "service_centres.id,service_centres.name,service_centres.is_wh";
+                $post_where['where']['(service_centres.is_wh = 1)'] = null;
+                $post_where['where']['service_centres.id'] = $wh_id;
+                $post_where['length'] = -1;
+                $post_where['start'] = 0;
+                $list_wh = $this->vendor_model->viewallvendor($post_where, $select_wh);
+                if(!empty($list_wh)){
+                   $warehouse_name = $list_wh[0]['name']; 
+                   $whare_house_name_array[$wh_id] = $warehouse_name;
+                }
+            }
+            $row = $this->defective_parts_shipped_by_sf_table_data($spare_list, $no, $warehouse_name);
             $data[] = $row;
         }
 
@@ -6509,7 +6537,7 @@ class Service_centers extends CI_Controller {
         // $this->load->view('employee/get_spare_parts', $data);
     }
 
-    function defective_parts_shipped_by_sf_table_data($spare_list, $no) {
+    function defective_parts_shipped_by_sf_table_data($spare_list, $no, $warehouse_name = '') {
 
         $row = array();
         
@@ -6528,12 +6556,17 @@ class Service_centers extends CI_Controller {
             $row[] = "<a href='" . base_url() . "service_center/booking_details/" . urlencode(base64_encode($spare_list['booking_id'])) . "'target='_blank'>" . $spare_list['booking_id'] . "</a>";
         } else if ($this->session->userdata('id')) {
             $row[] = "<a href='" . base_url() . "employee/booking/viewdetails/" . $spare_list['booking_id'] . "'target='_blank'>" . $spare_list['booking_id'] . "</a>";
-        }        
+        } 
+        $row[] = "<span class='".$color_class."'>". $spare_list['id'] ."</span>";
 
         $row[] = "<span class='".$color_class."'>". $spare_list['user_name'] ."</span>";
         $row[] = "<span class='".$color_class."'>". $spare_list['sf_name'] ."</span>";
         $row[] = "<span class='".$color_class."'>". $spare_list['sf_city'] ."</span>";
+        if(empty($warehouse_name)){
         $row[] = "<span class='".$color_class."'>". $spare_list['defective_part_shipped'] ."</span>";
+        }else{
+        $row[] = "<span class='".$color_class."'>". $spare_list['defective_part_shipped'] ." ($warehouse_name)</span>";   
+        }
         $row[] = "<span class='".$color_class."'>". $spare_list['shipped_quantity'] ."</span>";
         $row[] = "<span class='".$color_class."'>". $spare_list['part_number'] ."</span>";
         $row[] = "<span class='".$color_class."'>". $spare_list['courier_name_by_sf'] ."</span>";
@@ -7206,7 +7239,12 @@ class Service_centers extends CI_Controller {
             echo json_encode(array('This Defective / OK part is already acknowledged.', ''));
             return false;
         }
-
+        if(!empty($post_data['spare_consumption_status'][$spare_id]) && $post_data['spare_consumption_status'][$spare_id]!=1 && $spare_part_detail['defective_return_to_entity_id']!=$sf_id){
+            echo json_encode(array('You can not acknowledge this part as ok, as original spare was not shipped from this warehouse.', ''));
+            return false;
+        }
+      
+       
         //
         if (!empty($post_data['spare_consumption_status'][$spare_id]) && ($post_data['spare_consumption_status'][$spare_id] != $spare_part_detail['consumed_part_status_id'])) {
             $this->miscelleneous->change_consumption_by_warehouse($post_data, $booking_id);
@@ -8624,69 +8662,10 @@ class Service_centers extends CI_Controller {
         }
         $join['services'] = "services.id = vendor_pincode_mapping.Appliance_ID";
         $data['services'] = $this->reusable_model->get_search_result_data("vendor_pincode_mapping", "DISTINCT vendor_pincode_mapping.Appliance_ID as id,services.services", array("Vendor_ID" => $this->session->userdata('service_center_id')), $join, NULL, array("services.services" => "ASC"), NULL, NULL, array());
-        $data['msl'] = $this->get_msl_amounts();
+        $data['msl'] = $this->miscelleneous->get_msl_amounts($this->session->userdata('service_center_id'));
         $data['brands'] = $this->vendor_model->get_mapped_brands($this->session->userdata('service_center_id'), 1);
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/dashboard', $data);
-    }
-
-    /**
-     * get_msl_amounts() fetch msl amounts
-     * returns array() -> msl amounts
-     */
-    private function get_msl_amounts() {
-         
-        $oowAmount = 0.00;
-        $msl = array(
-            'security' => sprintf("%01.2f", 0.00),
-            'amount' => sprintf("%01.2f", 0.00),
-            'oow_note' => ''
-        );
-        $mslSecurityData = $this->reusable_model->get_search_result_data(
-                'vendor_partner_invoices', "vendor_partner, vendor_partner_id, sub_category,(total_amount_collected-amount_paid) as 'amount'", array(
-            "vendor_partner" => "vendor",
-            "vendor_partner_id" => $this->session->userdata('service_center_id')
-                ), NULL, NULL, NULL, array(
-            "sub_category" => array(
-                MSL,
-                MSL_SECURITY_AMOUNT,
-                MSL_NEW_PART_RETURN,
-                MSL_DEFECTIVE_RETURN,
-                MSL_Debit_Note,
-                MSL_Credit_Note
-            )
-                ), NULL, array()
-        );
-        $mslSecurityAmount = 0.0;
-        $mslAmount = 0.0;
-        foreach ($mslSecurityData as $row) {
-            if (!empty($row['sub_category']) && $row['sub_category'] == MSL_SECURITY_AMOUNT) {
-                $mslSecurityAmount += floatval($row['amount']);
-            } else if (!empty($row['sub_category']) && ($row['sub_category'] == MSL_DEFECTIVE_RETURN || $row['sub_category'] == MSL_NEW_PART_RETURN || $row['sub_category'] == MSL_Credit_Note)) {
-                $mslAmount -= floatval($row['amount']);
-            } else if ($row['sub_category'] == MSL || $row['sub_category'] == MSL_Debit_Note) {
-                $mslAmount += floatval($row['amount']);
-            }
-        }
-        $oowData = $this->service_centers_model->get_price_sum_of_oow_parts_used_from_micro($this->session->userdata('service_center_id'));
-        if (isset($oowData['error']) && !$oowData['error']) {
-            $oowAmount = $oowData['payload']['amount'];
-        } else {
-            $msl['oow_note'] = 'Note: Part consumed in OOW call from SF Microwarehouse not included';
-        }
-        //removed oow part consumed from inventory from MSL Amount
-        $mslAmount = $mslAmount - $oowAmount;
-
-        //negate this value as it will be returned by SF
-        $mslAmount = -1 * $mslAmount;
-
-        /*
-         * negetive value -> sf have pending defective or new part to return
-         * positive value -> rare, represent 247 have to pay to sf.
-         * */
-        $msl['security'] = sprintf("%01.2f", $mslSecurityAmount);
-        $msl['amount'] = sprintf("%01.2f", $mslAmount);
-        return $msl;
     }
 
     /**
@@ -10449,5 +10428,76 @@ function do_delivered_spare_transfer() {
         $data['vendor_id'] = $vendor_id;
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/add_booking_walkin', $data);
+    }
+    
+    /**
+    * This function is used to auto-approve engineer completed bookings
+    * This function is called from CRON
+    * @author Prity Sharma
+    * @create_date 12-02-2021
+    */
+    function auto_approve_engineer_bookings(){
+        $this->db->_protect_identifiers = FALSE;
+        // Fetch all Bookings that are completed by Engineer
+        $where['where'] =   array(
+                                "engineer_booking_action.current_status" => "InProcess",
+                                "DATEDIFF(CURDATE(), engineer_booking_action.closed_date) > 2" => NULL
+                            );
+        $select = 'engineer_booking_action.*,'
+                . 'engineer_table_sign.upcountry_charges,'
+                . 'engineer_table_sign.cancellation_reason,'
+                . 'engineer_table_sign.mismatch_pincode,'
+                . 'DATEDIFF(CURDATE(), engineer_booking_action.closed_date) as days_diff,'
+                . ' booking_details.partner_id';
+        $engg_bookings = $this->engineer_model->get_engineer_action_table_list($where, $select);
+        if(empty($engg_bookings)){
+            return ;
+        } 
+        foreach ($engg_bookings as $engg_completed_booking) {
+            $booking_id = $engg_completed_booking->booking_id;
+            $partner_id = $engg_completed_booking->partner_id;
+            $closed_date = $engg_completed_booking->closed_date;
+            // Update Booking Statuses
+            $this->update_booking_internal_status($booking_id, SF_BOOKING_COMPLETE_STATUS, $partner_id);
+            // Update SF Closed date
+            $this->booking_model->update_booking($booking_id, ['service_center_closed_date' => $closed_date]);
+            
+            // Update Model , Serial & DOP details in booking_unit_details
+            $ud_data = [
+                'sf_model_number' => $engg_completed_booking->model_number,
+                'serial_number' => $engg_completed_booking->serial_number,
+                'serial_number' => $engg_completed_booking->serial_number_pic,
+                'sf_purchase_date' => $engg_completed_booking->sf_purchase_date,
+            ];
+            $this->booking_model->update_booking_unit_details($booking_id, $ud_data);
+            
+            // Update Charges in service_center_booking_action
+            $ssba_data = [
+                'service_charge' => $engg_completed_booking->service_charge,
+                'additional_service_charge' => $engg_completed_booking->additional_service_charge,                
+                'parts_cost' => $engg_completed_booking->parts_cost,                
+                'upcountry_charges' => $engg_completed_booking->upcountry_charges,                
+                'serial_number' => $engg_completed_booking->serial_number,
+                'model_number' => $engg_completed_booking->model_number,                
+                'amount_paid' => $engg_completed_booking->amount_paid,                
+                'service_center_remarks' => $engg_completed_booking->closing_remark,                
+                'cancellation_reason' => $engg_completed_booking->cancellation_reason,                
+                'current_status' => SF_BOOKING_INPROCESS_STATUS,
+                'internal_status' => _247AROUND_COMPLETED,                
+                'mismatch_pincode' => $engg_completed_booking->mismatch_pincode,
+                'closed_date' => $closed_date,
+                'serial_number_pic' => $engg_completed_booking->serial_number_pic,                
+                'is_broken' => $engg_completed_booking->is_broken,
+                'sf_purchase_date' => $engg_completed_booking->sf_purchase_date,
+                'sf_purchase_invoice' => $engg_completed_booking->purchase_invoice,                
+                'technical_solution' => $engg_completed_booking->solution,
+                'technical_problem' => $engg_completed_booking->defect,                
+                
+            ];
+            $this->vendor_model->update_service_center_action($booking_id, $ssba_data);
+            
+            // Update Statuses in engineer_booking_action
+            $this->engineer_model->update_engineer_table(array("current_status" => _247AROUND_COMPLETED, "internal_status" => _247AROUND_COMPLETED), ['booking_id' => $booking_id]);
+        }              
     }
 }

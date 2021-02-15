@@ -14,6 +14,14 @@
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
+                <?php if (!empty($this->session->userdata('success'))) { ?>
+                    <div class="alert alert-danger">
+                        <strong><?php echo $this->session->userdata('success'); ?></strong>  
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                <?php } ?>
                 <div class="x_title">
                     <h2>Requested Spare Parts</h2>
                     <div class="clearfix"></div>
@@ -304,9 +312,9 @@
                                     <?php } ?>
                                     
                                                                                                          
-                                    <?php if(!is_null($value->estimate_cost_given_date) || $value->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){ ?>
+                                    <?php //if(!is_null($value->estimate_cost_given_date) || $value->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){ ?>
                                     <div class="form-group">
-                                        <label for="gst_number" class="col-md-4">GST Rate *</label>
+                                        <label for="gst_number" class="col-md-4">Spare GST Rate *</label>
                                         <div class="col-md-7">
                                             <select class="form-control" id="<?php echo "gst_rate_" . $key; ?>" name="part[<?php echo $key; ?>][gst_rate]" required="">
                                                 <option disabled="" selected="">Select GST Rate</option>
@@ -316,7 +324,7 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <?php } ?>
+                                    <?php //} ?>
                                     
                                     <?php if(!is_null($value->estimate_cost_given_date) || $value->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){  $purchase_price += $value->purchase_price; ?>
                                     <div class="form-group <?php
@@ -582,7 +590,7 @@
                         <div class="col-md-6">
                             <div class="form-group <?php
                                 if (form_error('partner_challan_number')) { echo 'has-error'; } ?>">
-                                <label for="partner_challan_number" class="col-md-4">Challan Number</label>
+                                <label for="partner_challan_number" class="col-md-4">Challan Number *</label>
                                 <div class="col-md-6">
                                     <input type="text" class="form-control" id="partner_challan_number" name="partner_challan_number" value = "" placeholder="Please Enter challan Number">
                                     <?php echo form_error('partner_challan_number'); ?>
@@ -590,7 +598,7 @@
                             </div>
                             <div class="form-group <?php
                                 if (form_error('challan_file')) { echo 'has-error'; } ?>">
-                                <label for="challan_file" class="col-md-4">Challan File</label>
+                                <label for="challan_file" class="col-md-4">Challan File *</label>
                                 <div class="col-md-6">
                                     <input type="file" class="form-control" id="challan_file" name="challan_file">
                                     <?php echo form_error('challan_file'); ?>
@@ -631,6 +639,21 @@
 </div>
 
 <script type="text/javascript">
+    
+    $(".close").on("click",function(){
+        <?php echo $this->session->unset_userdata('success');?>
+    });
+    
+    $("body").on("change", "#challan_file", function () {
+        var allowedFiles = [".gif", ".jpg",".png",".jpeg",".pdf",".zip"];
+        var fileUpload = $("#challan_file");
+        var regex = new RegExp("([a-zA-Z0-9\s_\\.\-:()])+(" + allowedFiles.join('|') + ")$");
+        if (!regex.test(fileUpload.val().toLowerCase())) {
+            $("#challan_file").val('');
+            alert("Please upload files having extensions:(" + allowedFiles.join(', ') + ") only.");
+            return false;
+        }
+    });     
     
     $("#submit_form").on('click', function(){
       $(".invoice_id_class").each(function(i) {
@@ -756,7 +779,9 @@
                 rules: {
                 courier_name:"required",
                 awb: "required",
+                partner_challan_number:"required",
                 shipment_date:"required",
+                challan_file:"required",
                 defective_parts_shipped_boxes_count:'required',
                 courier_price_by_partner:{
                     digits:true,
@@ -766,7 +791,9 @@
                 messages: {
                 courier_name: "Please Select Courier Name",
                 awb: "Please Enter Valid AWB",
+                partner_challan_number: "Please Enter Challan Number",
                 shipment_date:"Please Enter Shipped date",
+                challan_file: "Please Select File",
                 defective_parts_shipped_boxes_count : "Please Select Boxes Count",
                 courier_price_by_partner:{
                     digits: "Courier Price can only be Numeric.",
@@ -1382,10 +1409,21 @@
             
             var numb = $(this)[0].files[0].size/1024/1024;
             numb = numb.toFixed(2);
-            if(numb > 2){
+            if(numb >= 2){
                 $(this).val(''); 
                 alert('Not allow file size greater than 2MB');
+                return false;
             } 
+            
+            var allowedFiles = [".png", ".jpg",".jpeg",".pdf"];
+            var fileUpload = $(this);
+            var regex = new RegExp("([a-zA-Z0-9\s_\\.\-:()])+(" + allowedFiles.join('|') + ")$");
+            if (!regex.test(fileUpload.val().toLowerCase())) {
+                $(this).val(''); 
+                alert("Please upload files having extensions:(" + allowedFiles.join(', ') + ") only.");
+                return false;
+            }
+
            
             file_name_with_extesion = $(this).val().replace(/.*(\/|\\)/, '');
             extension_dot_length = file_name_with_extesion.split('.').length;
@@ -1463,8 +1501,8 @@
         
     function get_hsn_code_list(key,service_id){
         var hsn_code = $("#hsn_code_"+key+" option:selected").attr("data-gst");
-        if(hsn_code!='' && hsn_code != 'undefined'){
-            $("#gst_rate_"+key).val(hsn_code);
+        if(hsn_code!='' && hsn_code != undefined){
+            $("#gst_rate_"+key).val(hsn_code).change();
         }
         if(service_id !=''){
           $.ajax({

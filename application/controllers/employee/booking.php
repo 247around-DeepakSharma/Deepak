@@ -473,6 +473,7 @@ class Booking extends CI_Controller {
             $ssba_details['serial_number'] = $serial_number;
             $ssba_details['serial_number_pic'] = $serial_number_pic;
             $this->service_centers_model->update_service_centers_action_table($booking['booking_id'], $ssba_details);
+            $this->engineer_model->update_engineer_table($ssba_details, ['booking_id' => $booking['booking_id']]);
             if($booking_id == INSERT_NEW_BOOKING){
                 $this->send_sms_email($booking['booking_id'], "SendWhatsAppNo");
             }
@@ -1096,7 +1097,7 @@ class Booking extends CI_Controller {
                     $upcountry_price = $service_center_data[0]['upcountry_charges'];
                 }
                 
-                if(!in_array($this->session->userdata['user_group'], [_247AROUND_CLOSURE, _247AROUND_ADMIN, _247AROUND_DEVELOPER]) && !empty($price_tag['partner_invoice_id']) && empty($data['is_invoice_generated']) && in_array($data['booking_history'][0]['current_status'], [_247AROUND_COMPLETED, _247AROUND_CANCELLED])) {
+                if(!in_array($this->session->userdata('user_group'), [_247AROUND_CLOSURE, _247AROUND_ADMIN, _247AROUND_DEVELOPER]) && !empty($price_tag['partner_invoice_id']) && empty($data['is_invoice_generated']) && in_array($data['booking_history'][0]['current_status'], [_247AROUND_COMPLETED, _247AROUND_CANCELLED])) {
                     $data['is_invoice_generated'] = TRUE;
                 }
             }
@@ -1193,7 +1194,7 @@ class Booking extends CI_Controller {
         }
         
         $check_invoice_generated = array_column($this->reusable_model->get_search_result_data('booking_unit_details', 'partner_invoice_id', ['booking_id' => $booking_id], NULL, NULL, NULL, NULL, NULL), 'partner_invoice_id');
-        if(!empty(array_filter($check_invoice_generated)) && $this->session->userdata['user_group'] != _247AROUND_ADMIN) {
+        if(!empty(array_filter($check_invoice_generated)) && $this->session->userdata('user_group') != _247AROUND_ADMIN) {
             $data['is_invoice_generated'] = TRUE;
         } else {
             $data['is_invoice_generated'] = FALSE;
@@ -1666,7 +1667,7 @@ class Booking extends CI_Controller {
                 if($prices['service_category'] == REPAIR_OOW_PARTS_PRICE_TAGS ){
                     $html .= " onclick='return false;' ";
                 }
-                $html .= " name='prices[$brand_id][$clone_number][]'";
+                $html .= " name='prices[$brand_id][$clone_number][]' tabindex='-1' ";
                 
                 // auto check price-tags that are stored in booking_unit_details table
                 if(in_array($prices['service_category'], $arr_selected_price_tags)){
@@ -2460,7 +2461,7 @@ class Booking extends CI_Controller {
                 $this->update_completed_unit_applinace_details($booking_id);
             }
             $is_closure = 0;
-            if ($this->session->userdata['user_group'] == _247AROUND_CLOSURE) {
+            if ($this->session->userdata('user_group') == _247AROUND_CLOSURE) {
                 $is_closure = 1;
             }
             // customer paid basic charge is comming in array
@@ -3028,7 +3029,7 @@ class Booking extends CI_Controller {
                 $trimSno = str_replace(' ', '', trim($serial_number));
                 if (!ctype_alnum($serial_number)) {
                     log_message('info', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
-                    $this->form_validation->set_message('validate_serial_no', "Serial Number Entered With Special Character " . $serial_number[$unit_id] . " . This is not allowed.");
+                    $this->form_validation->set_message('validate_serial_no', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
                     return FALSE;
                 }
             }
@@ -6830,11 +6831,14 @@ class Booking extends CI_Controller {
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/courier_lost_parts', $data);
     }
-    function get_city_from_pincode() {
+    function get_city_from_pincode($show_all_cities = '') {
         $post_data = $this->input->post();
         $data = array();
         if (!empty($post_data['booking_pincode'])) {
             $data = $this->vendor_model->getDistrict_from_india_pincode('', $post_data['booking_pincode']);
+        }
+        if(!empty($show_all_cities) && empty($data)){
+            $data = $this->vendor_model->getDistrict_from_india_pincode();
         }
         echo json_encode($data);
     }
@@ -7225,7 +7229,7 @@ class Booking extends CI_Controller {
         
         if($status){
             $str = "";
-            if($cancelled_percentage < CANCELLATION_THRESHOLD){
+            if($cancelled_percentage > CANCELLATION_THRESHOLD){
                 $str = "<span style='color:red;margin-left:5px;font-weight:bold'>C</span>";
             }
             echo $str;

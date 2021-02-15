@@ -69,6 +69,21 @@
             </td>
         </tr>
         <tr>
+            <td  colspan="5" align="left"  style="<?php if(!empty($excel_data['courier_servicable_area'])){ ?>border-bottom: hidden;<?php } ?>"><b>GST: </b><?php echo $excel_data['sf_gst']; ?></td>
+            <td colspan="9"  style="<?php if(!empty($excel_data['courier_servicable_area'])){ ?>border-bottom: hidden;<?php } ?>"></td>
+        </tr>
+        <?php
+        if(!empty($excel_data['courier_servicable_area'])){
+        ?>
+        <tr>
+            <td  colspan="5" align="left"><b>Courier Servicable Area: </b><?php echo $excel_data['courier_servicable_area']; ?></td>
+            <td style="border-right: hidden;"></td>
+            <td colspan="8"></td>
+        </tr>
+        <?php
+        }
+        ?>
+        <tr>
             <td  colspan="5" align="left"><b>GST: </b><?php echo $excel_data['sf_gst']; ?></td>
             <td style="border-right: hidden;"></td>
             <td colspan="8"></td>
@@ -83,7 +98,6 @@
             <td colspan="1" style="text-align: center; width: 50px;"><b>Qty</b></td>
             <td colspan="1" style="text-align: center;"><b>Booking ID</b></td>
             <td colspan="1" style="text-align: center;"><b>Consumption</b></td>
-            <td colspan="1" style="text-align: center;"><b>Courier Name</b></td>
             <?php
 		if(!empty($excel_data['show_serial_number'])){
 		$colspan_value_for_rs =2;
@@ -112,7 +126,6 @@
 							<td colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['qty'] . "
 							<td  style='font-size:13px;padding-right: -1px !important;padding:0px;width:10%;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['booking_id'] . "
                                                         <td style='width:0px;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['consumption'] . "
-                                                        <td style='width:0px;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['courier_name'].$extra_td_for_serial_number . "
 							<td  style='font-size:13px;width:6%;'  colspan=" . $colspan_value_for_rs . " align=" . "\"center\"" . ">" . $info['value'] . "
 					</tr>";
             $total_qty +=$info['qty'];

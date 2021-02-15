@@ -306,10 +306,11 @@ class invoices_model extends CI_Model {
     function get_summary_invoice_amount($vendor_partner, $vendor_partner_id, $otherWhere =""){
             if($vendor_partner ==  _247AROUND_SF_STRING){
                 $s = " SUM( CASE WHEN (amount_collected_paid > 0) THEN COALESCE((`amount_collected_paid` - amount_paid ),0) ELSE COALESCE((`amount_collected_paid` + amount_paid ),0) END ) as amount_collected_paid ";
-                $w = "AND settle_amount = 0 AND sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_SECURITY_AMOUNT."', '".MSL_NEW_PART_RETURN."', '".FNF."' ) ";
+                $w = "AND settle_amount = 0 AND sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_SECURITY_AMOUNT."', '".MSL_NEW_PART_RETURN."', '".FNF."', '".MSL_SECURITY_AMOUNT."' ) ";
             } else {
                 $s = " COALESCE(SUM(`amount_collected_paid` ),0) as amount_collected_paid ";
-                $w = "";
+                $w = " AND sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_SECURITY_AMOUNT."', '".MSL_NEW_PART_RETURN."', '".FNF."', '".MSL_SECURITY_AMOUNT."' ) ";
+           
             }
             $sql = "SELECT $s "
                     . " FROM  `vendor_partner_invoices` "

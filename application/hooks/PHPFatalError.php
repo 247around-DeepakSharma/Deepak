@@ -9,7 +9,7 @@ class PHPFatalError {
 }
 
 function handleShutdown() {
-     $error = error_get_last();
+    $error = error_get_last();
     if ($error['type'] === E_ERROR) {
         $buffer = ob_get_contents();
         if(ob_get_length() > 0) {
@@ -29,6 +29,12 @@ function handleShutdown() {
         $msg .= "<br><br><br>";
         $msg .= "<b>Error Line:</b>";
         $msg .= $error['line'];
+        $msg .= "<br><br><br>";
+        $msg .= "<b>Session :</b>";
+        $msg .= json_encode($CI->session->userdata);
+        $msg .= "<br><br><br>";
+        $msg .= "<b>Referrer :</b>";
+        $msg .= $CI->agent->referrer();
         $CI->email->message($msg);
         $CI->email->send();
         exit();

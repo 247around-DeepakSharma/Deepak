@@ -623,10 +623,11 @@
                     </div>
                     
                     <div class='row' style='padding-bottom: 10px;display:none' id='part_brought_at'>
-                        <label for="prob_desc" class="col-md-2">Part brought at</label>
+                        <label for="prob_desc" class="col-md-2">Did you brought appliance at workshop?</label>
                         <div class='col-md-6'>
-                            <input type='radio' name='part_brought_at' value=1 <?php if (!empty($booking_set_location[0]['part_brought_at']) && $booking_set_location[0]['part_brought_at'] == 1) { ?>checked <?php } ?> <?php if (!empty($booking_set_location[0]['part_brought_at']) && $booking_set_location[0]['part_brought_at'] == 2) { ?> onclick='return false'<?php } ?>>&nbsp;&nbsp;Customer Location&nbsp;&nbsp;
-                            <input type='radio' name='part_brought_at' value=2 <?php if (!empty($booking_set_location[0]['part_brought_at']) && $booking_set_location[0]['part_brought_at'] == 2) { ?> checked onclick='return false'<?php } ?>>&nbsp;&nbsp;SF Workshop                                                                      
+                            <input type='radio' name='part_brought_at' value=2 <?php if (!empty($booking_set_location[0]['part_brought_at']) && $booking_set_location[0]['part_brought_at'] == 2) { ?> checked onclick='return false'<?php } ?>>&nbsp;&nbsp;Yes &nbsp;&nbsp;
+                            <input type='radio' name='part_brought_at' value=1 <?php if (!empty($booking_set_location[0]['part_brought_at']) && $booking_set_location[0]['part_brought_at'] == 1) { ?>checked <?php } ?> <?php if (!empty($booking_set_location[0]['part_brought_at']) && $booking_set_location[0]['part_brought_at'] == 2) { ?> onclick='return false'<?php } ?>>&nbsp;&nbsp;No
+                                                                                                 
                         </div>
                     </div>
                     <?php 
@@ -956,8 +957,8 @@ function alpha(e) {
               var serial_number = $("#serial_number").val();
               var prob_des = $("#prob_desc").val();
               var dop = $("#dop").val();
-              var serial_number_pic = $('#serial_number_pic').val();
-           
+              var serial_number_pic = $('#serial_number_pic').val();               
+
               if(model_number ==="" || model_number === null){
                   alert("Please enter model number");
                   checkbox_value =0;
@@ -1102,6 +1103,13 @@ function alpha(e) {
                 checkbox_value = 0;
                 return false;
             }
+            
+            radioName = 'part_brought_at';
+            if ($('input[name='+radioName+']:checked').length == '0'){
+                alert("Please select option, Did you brought appliance at workshop?");
+                checkbox_value = 0;
+                return false;
+            }
                           
           } else if(around_flag === '1'){
               var parts_name1 = $('#247parts_name').val();
@@ -1129,6 +1137,8 @@ function alpha(e) {
           }
 
       }
+      
+      
          
       if(checkbox_value === 0){
           $('#submitform').val("Update Booking");

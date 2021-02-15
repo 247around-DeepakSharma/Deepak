@@ -811,8 +811,8 @@ class Invoice_lib {
                 $tmp_arr['spare_desc'] = $value2[0]['parts_shipped'];
                 $tmp_arr['part_number'] =(isset($value2[0]['part_number'])) ? $value2[0]['part_number'] : '-'; 
                 $tmp_arr['qty'] = $value2[0]['shipped_quantity'];
-                $tmp_arr['serial_number'] = $value2[0]['serial_number'];
-                $tmp_arr['model_number_shipped'] = $value2[0]['model_number_shipped'];
+                $tmp_arr['serial_number'] = (isset($value2[0]['serial_number'])) ? $value2[0]['serial_number'] : '-'; 
+                $tmp_arr['model_number_shipped'] = (isset($value2[0]['model_number_shipped'])) ? $value2[0]['model_number_shipped'] : '-';
                 if(isset($value2[0]['consumed_status']) && !empty($value2[0]['consumed_status'])){
                     $tmp_arr['consumption'] = $value2[0]['consumed_status'];
                 }else{
