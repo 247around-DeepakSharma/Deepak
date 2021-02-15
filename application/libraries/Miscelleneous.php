@@ -577,7 +577,7 @@ class Miscelleneous {
         $data_vendor['cancellation_reason'] = $data['cancellation_reason'];
         
         $data_vendor['current_status'] = SF_BOOKING_INPROCESS_STATUS;
-        if (($this->My_CI->session->userdata['user_group'] == _247AROUND_CLOSURE) 
+        if (($this->My_CI->session->userdata('user_group') == _247AROUND_CLOSURE) 
                 || $cancellation_reason == UPCOUNTRY_CHARGES_NOT_APPROVED_CANCELLATION_ID) {
             $data['closed_date'] = date("Y-m-d H:i:s");
             $data['current_status'] = _247AROUND_CANCELLED;
@@ -1586,9 +1586,9 @@ class Miscelleneous {
             $misc_select = 'SUM(miscellaneous_charges.partner_charge) as misc_charge';
 
             $misc = $this->My_CI->invoices_model->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.partner_invoice_id IS NULL", false, FALSE, "booking_details.partner_id", $partner_id, "partner_charge");
-            $msic_charge = 0;
+            $misc_charge = 0;
             if(!empty($misc)){
-                $msic_charge = $misc[0]['misc_charge'];
+                $misc_charge = $misc[0]['misc_charge'];
             }
             
             $bank_transactions = $this->My_CI->invoices_model->getbank_transaction_summary("partner", $partner_id);
