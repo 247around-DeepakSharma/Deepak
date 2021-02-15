@@ -192,7 +192,10 @@ class Warranty_utilities {
         // Check if warranty is to be calculated on the basis of DOI od DOP
         // If warranty is to calculated on the basis of DOI, replace DOP with DOI
         $partner_id = $arrBookings[0]['partner_id'];
-        $checkInstallationDate = $this->My_CI->partner_model->getpartner($partner_id)[0]['check_warranty_from'];
+        $arr_partner_data = $this->My_CI->partner_model->getpartner($partner_id);
+        if(!empty($arr_partner_data[0]['check_warranty_from'])){
+            $checkInstallationDate = $arr_partner_data[0]['check_warranty_from'];
+        }
         if($checkInstallationDate == WARRANTY_ON_DOI){
             $arrInstallationData = $this->My_CI->booking_utilities->get_installation_date_of_booking($arrBookings);
             if(!empty($arrInstallationData['installation_date'])){
