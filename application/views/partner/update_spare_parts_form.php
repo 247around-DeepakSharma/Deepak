@@ -312,9 +312,9 @@
                                     <?php } ?>
                                     
                                                                                                          
-                                    <?php if(!is_null($value->estimate_cost_given_date) || $value->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){ ?>
+                                    <?php //if(!is_null($value->estimate_cost_given_date) || $value->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){ ?>
                                     <div class="form-group">
-                                        <label for="gst_number" class="col-md-4">GST Rate *</label>
+                                        <label for="gst_number" class="col-md-4">Spare GST Rate *</label>
                                         <div class="col-md-7">
                                             <select class="form-control" id="<?php echo "gst_rate_" . $key; ?>" name="part[<?php echo $key; ?>][gst_rate]" required="">
                                                 <option disabled="" selected="">Select GST Rate</option>
@@ -324,7 +324,7 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <?php } ?>
+                                    <?php //} ?>
                                     
                                     <?php if(!is_null($value->estimate_cost_given_date) || $value->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){  $purchase_price += $value->purchase_price; ?>
                                     <div class="form-group <?php
@@ -590,7 +590,7 @@
                         <div class="col-md-6">
                             <div class="form-group <?php
                                 if (form_error('partner_challan_number')) { echo 'has-error'; } ?>">
-                                <label for="partner_challan_number" class="col-md-4">Challan Number</label>
+                                <label for="partner_challan_number" class="col-md-4">Challan Number *</label>
                                 <div class="col-md-6">
                                     <input type="text" class="form-control" id="partner_challan_number" name="partner_challan_number" value = "" placeholder="Please Enter challan Number">
                                     <?php echo form_error('partner_challan_number'); ?>
@@ -598,7 +598,7 @@
                             </div>
                             <div class="form-group <?php
                                 if (form_error('challan_file')) { echo 'has-error'; } ?>">
-                                <label for="challan_file" class="col-md-4">Challan File</label>
+                                <label for="challan_file" class="col-md-4">Challan File *</label>
                                 <div class="col-md-6">
                                     <input type="file" class="form-control" id="challan_file" name="challan_file">
                                     <?php echo form_error('challan_file'); ?>
@@ -1426,8 +1426,8 @@
         
     function get_hsn_code_list(key,service_id){
         var hsn_code = $("#hsn_code_"+key+" option:selected").attr("data-gst");
-        if(hsn_code!='' && hsn_code != 'undefined'){
-            $("#gst_rate_"+key).val(hsn_code);
+        if(hsn_code!='' && hsn_code != undefined){
+            $("#gst_rate_"+key).val(hsn_code).change();
         }
         if(service_id !=''){
           $.ajax({
