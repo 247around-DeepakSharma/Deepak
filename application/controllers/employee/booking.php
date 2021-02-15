@@ -3028,7 +3028,7 @@ class Booking extends CI_Controller {
                 $trimSno = str_replace(' ', '', trim($serial_number));
                 if (!ctype_alnum($serial_number)) {
                     log_message('info', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
-                    $this->form_validation->set_message('validate_serial_no', "Serial Number Entered With Special Character " . $serial_number[$unit_id] . " . This is not allowed.");
+                    $this->form_validation->set_message('validate_serial_no', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
                     return FALSE;
                 }
             }
@@ -7228,7 +7228,7 @@ class Booking extends CI_Controller {
         
         if($status){
             $str = "";
-            if($cancelled_percentage < CANCELLATION_THRESHOLD){
+            if($cancelled_percentage > CANCELLATION_THRESHOLD){
                 $str = "<span style='color:red;margin-left:5px;font-weight:bold'>C</span>";
             }
             echo $str;

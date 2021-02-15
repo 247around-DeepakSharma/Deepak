@@ -133,10 +133,10 @@ class Invoice extends CI_Controller {
         
         if($msl_invoice == 1){
             //add condition in query to select MSL invoices ONLY
-            $where["sub_category IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_NEW_PART_RETURN."' ) "] = null;
+            $where["sub_category IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_NEW_PART_RETURN."', '".MSL_SECURITY_AMOUNT."' ) "] = null;
         }else{
             //add condition in query to exclude MSL invoices
-            $where["sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_NEW_PART_RETURN."' ) "] = null;
+            $where["sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_NEW_PART_RETURN."', '".MSL_SECURITY_AMOUNT."' ) "] = null;
         }
         
         //by default, do not show fnf security invoices
@@ -4908,7 +4908,7 @@ exit();
                                     $data[0]['from_pincode'] = $value['to_pincode'];
                                     $data[0]['from_city'] = $value['to_city'];
                                     $email_array = array($spare[0]['owner_email'], $spare[0]['primary_contact_email']);
-                                    $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare, MSL_DEFECTIVE_RETURN, $email_array);
+                                    $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare, MSL_DEFECTIVE_RETURN, $invoice_type, $email_array);
                                     if ($a) {
                                         
                                     } else {

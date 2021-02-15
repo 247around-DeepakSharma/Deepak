@@ -4675,7 +4675,7 @@ class Inventory extends CI_Controller {
 
                                 // 2 Means - this part send to Micro Warehouse And 1 means sent to warehouse
                                 If ($is_wh_micro == 2) {
-                                    $not_updated_data = $this->generate_micro_warehouse_invoice($invoice, $wh_id, str_replace('/', '-', $invoice_dated), $tqty, $partner_id, $to_gst_number, $sender_enity_id, $sender_entity_type, $agent_id, $agent_type, $courier_company_details_id, $action_agent_id);
+                                    $not_updated_data = $this->generate_micro_warehouse_invoice($invoice, $wh_id, $tqty, $partner_id, $to_gst_number, $sender_enity_id, $sender_entity_type, $agent_id, $agent_type, $courier_company_details_id, $action_agent_id);
                                 }
 
                                 //send email to 247around warehouse incharge
@@ -5016,7 +5016,7 @@ class Inventory extends CI_Controller {
      * @param int $tqty
      * @param int $partner_id
      */
-    function generate_micro_warehouse_invoice($invoice, $wh_id, $invoice_date, $tqty, $partner_id, $from_gst_number, $sender_enity_id, $sender_entity_type, $agent_id, $agent_type, $courier_id, $action_agent_id) {
+    function generate_micro_warehouse_invoice($invoice, $wh_id, $tqty, $partner_id, $from_gst_number, $sender_enity_id, $sender_entity_type, $agent_id, $agent_type, $courier_id, $action_agent_id) {
         log_message('info', __METHOD__);
         $invoice_date = date('Y-m-d'); 
         $entity_details = $this->vendor_model->getVendorDetails("gst_no as gst_number, sc_code,"
@@ -5159,7 +5159,7 @@ class Inventory extends CI_Controller {
                 $ledger_data['quantity'] = $value['qty'];
                 $ledger_data['agent_id'] = $agent_id;
                 $ledger_data['agent_type'] = $agent_type;
-                $ledger_data['booking_id'] = "";
+                $ledger_data['booking_id'] = $value['booking_id'];
                 $pin = $this->input->post('invoice_id');
                 if (!empty($pin)) {
                     $ledger_data['invoice_id'] = $this->input->post('invoice_id');
@@ -5181,8 +5181,10 @@ class Inventory extends CI_Controller {
                     log_message("info", "Ledger details added successfully");
                     // Don't uncomment below line
                     //$this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, 2, $action_agent_id);
-                    $stock = "stock - '" . $value['qty'] . "'";
-                    $this->inventory_model->update_inventory_stock(array('entity_id' => $sender_enity_id, 'inventory_id' => $value['inventory_id']), $stock);
+                    if($sender_entity_type == _247AROUND_SF_STRING){
+                        $stock = "stock - '" . $value['qty'] . "'";
+                        $this->inventory_model->update_inventory_stock(array('entity_id' => $sender_enity_id, 'inventory_id' => $value['inventory_id']), $stock);
+                    }
                 } else {
                     array_push($not_updated_data, $value['part_number']);
                     log_message("info", "error in adding inventory ledger details data: " . print_r($ledger_data, TRUE));
@@ -7550,8 +7552,10 @@ class Inventory extends CI_Controller {
     function get_spare_line_item_for_tag_spare($booking_id, $count) {
         log_message('info', __METHOD__ . " Booking ID " . $booking_id);
         if (!empty($booking_id)) {
+            $is_micro = $this->input->post('is_micro');
+            $vendor_id = $this->input->post('vendor_id');
 
-            $sc_close_date = $this->reusable_model->get_search_query('booking_details','booking_details.service_center_closed_date, booking_details.request_type',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
+            $sc_close_date = $this->reusable_model->get_search_query('booking_details','booking_details.service_center_closed_date, booking_details.request_type, assigned_vendor_id',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
             $data['add_more'] = false;
             if (isset($sc_close_date[0]['request_type']) && $sc_close_date[0]['request_type'] == REPAIR_OOW_TAG) {
                 $s_change = $this->booking_model->getbooking_state_change_by_any(array('booking_id' => $booking_id, "new_state" => SPARE_OOW_EST_GIVEN));
@@ -7562,6 +7566,11 @@ class Inventory extends CI_Controller {
 
             if (!empty($sc_close_date[0]['service_center_closed_date'])) {
                 echo json_encode(array('code' => -247, "data" => "Booking already closed. Part shipping not allowed"));
+                
+            } else if($is_micro == 2 && $sc_close_date[0]['assigned_vendor_id'] != $vendor_id){
+                
+                echo json_encode(array('code' => -247, "data" => "Booking assigned another Warehouse. Part shipping not allowed"));
+                
             } else {
 
                 $where = array('status' => SPARE_PARTS_REQUESTED,
@@ -10688,6 +10697,124 @@ class Inventory extends CI_Controller {
         }else{
         $row[] = '<button type="button" class="btn btn-danger" style="background-color: #01903a; border-color: #fff; width: 90px; color: #fff;" href="#" id="' . $hsncode_list->id.'" onclick="process_to_manage_status(this.id)">Activate</button>';
         }
+        return $row;
+    }
+    
+         
+     /**
+     *  @desc : This function is used to show OOW Spare Parts Details
+     *  @param : void
+     *  @return : void
+     */
+    function get_oow_spare_invoice_list() {
+        $data = $this->get_oow_spare_invoice_list_data();
+        $post = $data['post'];
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->inventory_model->count_filtered_oow_spare_invoice_list($post),
+            "recordsFiltered" => $this->inventory_model->count_all_oow_spare_invoice_list($post),
+            "data" => $data['data'],
+        );
+
+        echo json_encode($output);
+    }
+    
+    
+       function get_oow_spare_invoice_list_data() {
+        $post = $this->get_post_data();
+        $post['spare_invoice_flag'] = true;
+        $post['column_order'] = array();
+        $post['column_search'] = array('spare_parts_details.booking_id, oow_spare_invoice_details.spare_id', 'oow_spare_invoice_details.invoice_id', 'oow_spare_invoice_details.services', 'oow_spare_invoice_details.id');
+        $post['where'] = array("spare_parts_details.part_warranty_status" => 2,
+            "status != 'Cancelled'" => NULL,
+            "spare_parts_details.create_date >= '2017-12-01'" => NULL,
+            "(`purchase_invoice_id` IS NULL )" => NULL,
+            "spare_parts_details.partner_id != '" . _247AROUND . "'" => NULL,
+            "spare_parts_details.parts_shipped IS NOT NULL" => NULL,
+            "spare_parts_details.is_micro_wh" => 0);
+
+        $post['select'] = "spare_parts_details.id, spare_parts_details.parts_shipped, spare_parts_details.part_warranty_status, spare_parts_details.booking_id, purchase_price, public_name,"
+                . "purchase_invoice_id,sell_invoice_id, incoming_invoice_pdf, sell_price, booking_details.partner_id as booking_partner_id,booking_details.request_type, spare_parts_details.status,oow_spare_invoice_details.invoice_id,oow_spare_invoice_details.invoice_pdf, oow_spare_invoice_details.invoice_amount as basic_amount";
+
+        $list = $this->inventory_model->get_spare_parts_query($post);
+        $no = $post['start'];
+        foreach ($list as $invoice_list) {
+            $no++;
+            $row = $this->get_inventory_spare_invoice_list_table($invoice_list, $no);
+            $data[] = $row;
+        }
+
+        return array(
+            'data' => $data,
+            'post' => $post
+        );
+    }
+
+    function get_inventory_spare_invoice_list_table($invoice_list, $no) {
+        $row = array();
+
+        $row[] = $no;
+        $row[] = "<a href='javascript:void(0);' onclick= 'spare_history_tracking(" . $invoice_list->id . ")'>" . $invoice_list->id . "</a>";
+        $row[] = '<a  target="_blank" href="'.base_url().'employee/booking/viewdetails/'.$invoice_list->booking_id.'"  title="View">'.$invoice_list->booking_id.'</a>';
+        $row[] = "<spane style='word-break: break-all;'>" . $invoice_list->parts_shipped . "</span>";
+        $row[] = $invoice_list->request_type;
+        if ($invoice_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+            $part_warranty = REPAIR_OOW_TAG;
+        } else {
+            $part_warranty = REPAIR_IN_WARRANTY_TAG;
+        }
+        $row[] = $part_warranty;
+        $row[] = $invoice_list->status;
+        $row[] = $invoice_list->public_name;
+
+        if (!empty($invoice_list->purchase_price)) {
+            $purchase_price = '<i class = "fa fa-inr" aria-hidden = "true"></i>' . $invoice_list->purchase_price;
+        } else {
+            $purchase_price = '';
+        }
+        $row[] = $purchase_price;
+        $row[] = $invoice_list->invoice_id;
+        if (!empty($invoice_list->basic_amount)) {
+            $basic_amount = '<i class="fa fa-inr" aria-hidden="true"></i>' . $invoice_list->basic_amount;
+        } else {
+            $basic_amount = '';
+        }
+
+        $row[] = $basic_amount;
+
+        if (!empty($invoice_list->sell_price)) {
+            $sell_price = '<i class="fa fa-inr" aria-hidden="true"></i>' . $invoice_list->sell_price;
+        } else {
+            $sell_price = '';
+        }
+
+        $row[] = $sell_price;
+
+        if (!empty($invoice_list->invoice_pdf)) {
+            $invoice_pdf = $invoice_list->invoice_pdf;
+        } else {
+            $invoice_pdf = $invoice_list->incoming_invoice_pdf;
+        }
+
+        if (!empty($invoice_pdf)) {
+            $link = '<a target="_blank" href="https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' . $invoice_pdf . '">
+                <img style="width:27px;" src="' . base_url() . 'images/invoice_icon.png"; /></a>';
+        } else {
+            $link = '';
+        }
+
+        $row[] = $link;
+
+        if (!empty($invoice_list->sell_invoice_id)) {
+            $button = $invoice_list->sell_invoice_id;
+        } else {
+            $button = '<button type = "button" class = "btn btn-success" data-toggle = "modal" data-target = "#reverse_sale_invoice_model" onclick = "sale_invoice_put_spare_id(' . $invoice_list->id . ')">Generate Sale Invoice</button>';
+        }
+
+
+        $row[] = $button;
+        $row[] = '<input type="checkbox" class="form-control spare_id" name="spare_id[]" data-partner_id="' . $invoice_list->booking_partner_id . '" data-invoice_id ="' . $invoice_list->invoice_id . '" data-spare_id="' . $invoice_list->id . '" value="' . $invoice_list->id . '" />';
+
         return $row;
     }
 

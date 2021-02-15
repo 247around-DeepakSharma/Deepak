@@ -337,6 +337,10 @@
     padding: 0;
     text-align: left;
     }
+    .cursor_ban{
+        cursor: not-allowed;
+        pointer-events: none !important;
+    }
 </style>
 <script type="text/javascript">
     (function ($, W, D)
@@ -437,14 +441,15 @@
                         $('body').loadingModal('destroy');
     
                         $("#defective_part_shipped_date").val(data.message[0].defective_part_shipped_date);
+                        $("#defective_part_shipped_date").addClass("cursor_ban");
                         var courier = data.message[0]['courier_name_by_sf'].toLowerCase();
-                        alert(courier);
                         $('#courier_name_by_sf').val(courier).trigger('change');
                         $("#courier_name_by_sf").select2('destroy').attr("readonly", true);
                         $('#courier_name_by_sf').css('pointer-events','none');
                         
                         if(data.message[0].courier_charge > 0){
                             $("#courier_charges_by_sf").val(data.message[0].courier_charge);
+                            $("#courier_charges_by_sf").attr("readonly","readonly")
                             $("#courier_charges_by_sf_hidden").val(data.message[0].courier_charge);
                         }
                         
@@ -480,12 +485,11 @@
                         $("#courier_name_by_sf").val("");
                         $("#courier_name_by_sf").prop("disabled", false);
                         $("#courier_name_by_sf").select2();
-                        $('#courier_name_by_sf').css('pointer-events', 'auto');
                         $("#courier_name_by_sf").removeAttr("style");
-                        
                         $("#courier_charges_by_sf").removeAttr('readonly');
                         $("#courier_charges_by_sf").val("");
                         $("#defective_part_shipped_date").val("");
+                        $("#defective_part_shipped_date").removeClass("cursor_ban");
                         $("#defective_parts_shipped_boxes_count").val("");
                         $("#defective_parts_shipped_weight_in_kg").removeAttr('readonly');
                         $("#defective_parts_shipped_weight_in_gram").removeAttr('readonly');
@@ -503,12 +507,12 @@
                         $("#exist_courier_image").removeAttr("readonly");
                         $("#courier_name_by_sf").val("");
                         $("#courier_name_by_sf").select2();
-                        $('#courier_name_by_sf').css('pointer-events', 'auto');
                         $("#courier_name_by_sf").removeAttr("style");
                         
                         $("#courier_charges_by_sf").removeAttr('readonly');
                         $("#courier_charges_by_sf").val("");
                         $("#defective_part_shipped_date").val("");
+                         $("#defective_part_shipped_date").removeClass("cursor_ban");
                         $("#defective_parts_shipped_boxes_count").val("");
                         $("#defective_parts_shipped_weight_in_kg").removeAttr('readonly');
                         $("#defective_parts_shipped_weight_in_gram").removeAttr('readonly');
