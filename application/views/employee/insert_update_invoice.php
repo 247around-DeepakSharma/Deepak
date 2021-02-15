@@ -568,9 +568,13 @@
 <script>
     $("#to_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
     $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: false, changeYear: false,
-
-            minDate:new Date(),
-            maxDate:new Date(),
+           minDate: function(){
+            var today = new Date();
+            var yesterday = new Date();
+            yesterday.setDate(today.getDate() - 2);
+            return yesterday;
+             }(),
+            maxDate:new Date(),//'today',
             setDate: new Date(),
             locale:{
                 format: 'yy-mm-dd'
