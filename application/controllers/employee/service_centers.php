@@ -8533,45 +8533,15 @@ class Service_centers extends CI_Controller {
         $this->form_validation->set_rules('remarks_by_sf', 'remarks_by_sf', 'trim|required');
         if ($this->form_validation->run() == TRUE) {
             $booking_id = $this->input->post('booking_id');
-            $sf_challan_number = $this->input->post("sf_challan_number");
-            $partner_id = $this->input->post("partner_id");
-            $service_center_id = $this->input->post("service_center_id");
-            $entity_type = $this->input->post("entity_type");
-
+            $agent_id = $this->session->userdata("id");
+            $entity_id = _247AROUND;
+            $entity_type = _247AROUND_EMPLOYEE_STRING;
             $data = array();
-
-            $data['courier_name_by_sf'] = trim($this->input->post('courier_name'));
-            $data['awb_by_sf'] = trim($this->input->post('awb'));
-            $data['courier_charges_by_sf'] = trim($this->input->post('courier_charge'));
-            $data['defective_part_shipped_date'] = ($this->input->post('shipped_date'));
-            $data['remarks_defective_part_by_sf'] = trim($this->input->post('remarks_by_sf'));
-            $challan_approx_value = $challan_approx_value = trim($this->input->post('challan_approx_value'));
-            $data['partner_challan_number'] = $partner_challan_number = trim($this->input->post('partner_challan_number'));
-
-            $spare_details = array();
-            $new_spare_details = array();
-            if (!empty($sf_challan_number)) {
-                //get all spare data with form challan number
-                $select = "spare_parts_details.id,spare_parts_details.defective_part_shipped,spare_parts_details.challan_approx_value,spare_parts_details.partner_challan_number";
-                $where = array('spare_parts_details.sf_challan_number' => $this->input->post('sf_challan_number'), "spare_parts_details.id NOT IN ($id)" => NULL, 'spare_parts_details.booking_id' => $booking_id);
-                $spare_details = $this->partner_model->get_spare_parts_by_any($select, $where);
-            }
-            $data['partner_challan_number'] = trim($partner_challan_number . ',' . implode(',', array_column($spare_details, 'partner_challan_number')), ',');
-            //push updated part data to old spare data
-            $tmp_arr = array('id' => $id,
-                'defective_part_shipped' => trim($this->input->post('shipped_parts')),
-                'challan_approx_value' => $challan_approx_value
-            );
-            array_push($spare_details, $tmp_arr);
-
-            //make new array to create new challan file
-            $new_spare_details['booking_id'] = $booking_id;
-            $new_spare_details['partner_challan_number'] = $data['partner_challan_number'];
-            foreach ($spare_details as $value) {
-                $new_spare_details['parts_shipped'][$value['id']] = $value['defective_part_shipped'];
-                $new_spare_details['part_price'][$value['id']] = $value['challan_approx_value'];
-            }
-
+            $courier_name_by_sf = trim($this->input->post('courier_name'));
+            $awb_number = trim($this->input->post('awb'));
+            $pre_awb_by_sf = trim($this->input->post('pre_awb_by_sf'));
+            $courier_charges = trim($this->input->post('courier_charge'));
+            $remarks_defective_part_by_sf = trim($this->input->post('remarks_by_sf'));
 
             if (!empty($_FILES['defective_courier_receipt']['name'])) {
                 $courier_image = $this->upload_defective_spare_pic();
@@ -8581,8 +8551,8 @@ class Service_centers extends CI_Controller {
             }
 
             if ($pre_awb_by_sf != $awb_number && empty($this->input->post('sp_parts'))) {
-                $this->session->set_flashdata('failed', "Courier file should not empty.");
-                redirect(base_url() . 'employee/service_centers/process_update_spare_courier_details/' . $id);
+                $this->session->set_userdata('failed', "Courier file should not empty.");
+                redirect(base_url() . 'employee/service_centers/update_spare_courier_details/' . $id);
             } else {
 
                 $courier_company_detail = $this->inventory_model->get_courier_company_invoice_details('courier_company_invoice_details.id, courier_company_invoice_details.awb_number', array('awb_number' => $awb_number));
