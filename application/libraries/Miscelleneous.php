@@ -1570,7 +1570,7 @@ class Miscelleneous {
             
             //Get Partner invoice amout
             $invoice_where = "vendor_partner = 'partner' AND vendor_partner_id = " . $partner_id . 
-                    " AND sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_NEW_PART_RETURN."' ) ";
+                    " AND sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_NEW_PART_RETURN."', '".MSL_SECURITY_AMOUNT."' ) ";
             
 //            $invoice_amount = $this->My_CI->invoices_model->get_invoices_details
 //                    (array(
