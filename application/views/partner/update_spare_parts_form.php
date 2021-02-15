@@ -590,7 +590,7 @@
                         <div class="col-md-6">
                             <div class="form-group <?php
                                 if (form_error('partner_challan_number')) { echo 'has-error'; } ?>">
-                                <label for="partner_challan_number" class="col-md-4">Challan Number *</label>
+                                <label for="partner_challan_number" class="col-md-4">Challan Number</label>
                                 <div class="col-md-6">
                                     <input type="text" class="form-control" id="partner_challan_number" name="partner_challan_number" value = "" placeholder="Please Enter challan Number">
                                     <?php echo form_error('partner_challan_number'); ?>
@@ -598,7 +598,7 @@
                             </div>
                             <div class="form-group <?php
                                 if (form_error('challan_file')) { echo 'has-error'; } ?>">
-                                <label for="challan_file" class="col-md-4">Challan File *</label>
+                                <label for="challan_file" class="col-md-4">Challan File</label>
                                 <div class="col-md-6">
                                     <input type="file" class="form-control" id="challan_file" name="challan_file">
                                     <?php echo form_error('challan_file'); ?>
