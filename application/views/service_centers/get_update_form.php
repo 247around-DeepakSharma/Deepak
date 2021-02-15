@@ -958,8 +958,8 @@ function alpha(e) {
               var serial_number = $("#serial_number").val();
               var prob_des = $("#prob_desc").val();
               var dop = $("#dop").val();
-              var serial_number_pic = $('#serial_number_pic').val();
-           
+              var serial_number_pic = $('#serial_number_pic').val();               
+
               if(model_number ==="" || model_number === null){
                   alert("Please enter model number");
                   checkbox_value =0;
@@ -1104,6 +1104,13 @@ function alpha(e) {
                 checkbox_value = 0;
                 return false;
             }
+            
+            radioName = 'part_brought_at';
+            if ($('input[name='+radioName+']:checked').length == '0'){
+                alert("Please select option, Did you brought appliance at workshop?");
+                checkbox_value = 0;
+                return false;
+            }
                           
           } else if(around_flag === '1'){
               var parts_name1 = $('#247parts_name').val();
@@ -1131,6 +1138,8 @@ function alpha(e) {
           }
 
       }
+      
+      
          
       if(checkbox_value === 0){
           $('#submitform').val("Update Booking");
