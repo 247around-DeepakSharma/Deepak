@@ -3377,7 +3377,7 @@ class engineerApiv1 extends CI_Controller {
         }
     }
 
-    function warrantyChecker($booking_id, $partner_id, $booking_create_date, $model_number, $purchase_date, $booking_request_type,$service_id=NULL) {
+    function warrantyChecker($booking_id, $partner_id, $booking_create_date, $model_number, $purchase_date, $booking_request_type,$service_id=NULL,$serial_number='') {
         $data = array();
         $matching_flag = false;
         $arrBookings[0] = array(
@@ -3440,6 +3440,7 @@ class engineerApiv1 extends CI_Controller {
                 //$returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type."), to request part please change request type of the Booking.";
                 $returnMessage = "Warranty Status is " . $arr_warranty_status_full_names[$warranty_checker_status] . ", Change request type";
                 if ($checkInstallationDate == WARRANTY_ON_DOI && !empty($arrBookings[$booking_id])) {
+                    $arrBookingsnew[0] = $arrBookings[$booking_id];
                     $arrBookingsWarrantyStatus = $this->warranty_utilities->get_warranty_status_of_bookings($arrBookingsnew, 1);
                     if (!empty($arrBookingsWarrantyStatus['installation_date']) && !empty($arrBookingsWarrantyStatus['installation_booking'])) {
                         $returnMessage = "Booking Warranty Status (" . $arr_warranty_status_full_names[$warranty_checker_status] . ") is not matching "
@@ -3920,7 +3921,8 @@ class engineerApiv1 extends CI_Controller {
                 $this->jsonResponseString['response'] = $response;
                 $this->sendJsonResponse(array('0000', 'success'));
             }
-            if(!empty($response['warranty_flag']) && $response['warranty_flag']!=1 && !empty($repeat_booking_message)){
+            
+            if(isset($response['warranty_flag']) && $response['warranty_flag']!=1 && !empty($repeat_booking_message)){
                 $response['warranty_flag'] = 2;
                 $this->jsonResponseString['response'] = $response;
                 $this->sendJsonResponse(array('0054', $repeat_booking_message));
