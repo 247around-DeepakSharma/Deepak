@@ -10314,7 +10314,7 @@ class Partner extends CI_Controller {
             }
             $authentication = $this->checkAuthentication();
             if(empty($authentication)){
-                return $this->show_booking_insertion_failure($is_api, ERR_GENERIC_ERROR_CODE, ERR_GENERIC_ERROR_MSG);
+                return $this->show_booking_insertion_failure($is_api, ERR_GENERIC_ERROR_CODE, ERR_INVALID_AUTH_TOKEN_MSG);
             }
         }
         else
@@ -10324,6 +10324,16 @@ class Partner extends CI_Controller {
 		if($is_api){
             $this->load->library('form_validation');
             $this->form_validation->set_error_delimiters('',',');
+            $post['appliance_unit'] = 1;
+            $post['assigned_vendor_id'] = '';
+            $post['upcountry_data'] = '';
+            $post['appliance_name'] = '';
+            $post['dealer_name'] = '';
+            $post['service_id'] = '';
+            $post['agent_id'] = '';
+            $post['dealer_phone_number'] = '';
+            $post['dealer_id'] = '';
+            $post['amount_due'] = false;
             $_POST = $post;
             $this->form_validation->set_rules('partnerName', '', 'required');
             $this->form_validation->set_rules('name', '', 'required');
@@ -10336,14 +10346,12 @@ class Partner extends CI_Controller {
             $this->form_validation->set_rules('pincode', '', 'required|numeric|exact_length[6]');
             $this->form_validation->set_rules('city', '', 'required');
             $this->form_validation->set_rules('requestType', '', 'required');
-            $this->form_validation->set_rules('service_id', '', 'required');
             $this->form_validation->set_rules('brand', '', 'required');
             $this->form_validation->set_rules('category', '', 'required');
             $this->form_validation->set_rules('purchase_date', '', 'required');
             $this->form_validation->set_rules('partner_source', '', 'required');
             $this->form_validation->set_rules('orderID', '', 'required'); 
-			$this->form_validation->set_rules('appliance_unit', '', 'required');
-			$this->form_validation->set_rules('booking_date', 'Booking Date', 'required');
+            $this->form_validation->set_rules('booking_date', 'Booking Date', 'required');
             
             
             if ($this->form_validation->run() == FALSE){
@@ -10351,9 +10359,9 @@ class Partner extends CI_Controller {
                 $error_string_array = explode(',',$error_string);
                 return $this->show_booking_insertion_failure($is_api, ERR_GENERIC_ERROR_CODE, $error_string_array[0]);
             }
-			if($post['appliance_unit']!=1){
-				return $this->show_booking_insertion_failure($is_api, ERR_GENERIC_ERROR_CODE, 'Appliance Unit should be 1');
-			}
+            if($post['appliance_unit']!=1){
+                    return $this->show_booking_insertion_failure($is_api, ERR_GENERIC_ERROR_CODE, 'Appliance Unit should be 1');
+            }
         }
         
         if($is_api){
@@ -10364,6 +10372,17 @@ class Partner extends CI_Controller {
                 $post['partner_id'] = $partner_detail[0]['partner_id'];
                 $post['partner_code'] = $partner_detail[0]['code'];
                 $post['partner_type'] = $partner_detail[0]['partner_type'];
+                $agent_id_array = $this->dealer_model->entity_login(array('entity_id' => $partner_detail[0]['partner_id']));
+                if(!empty($agent_id_array)){
+                    $post['agent_id'] = $agent_id_array[0]['agent_id'];
+                }
+                $producttypecheck = $post['productType'];
+                $where_service = array("services.services like '$producttypecheck%'" => null);
+                $service_id_array =$this->vendor_model->get_active_services($where_service);
+                if(!empty($service_id_array)){
+                    $service_id_array_new = array_keys($service_id_array);
+                    $post['service_id'] = $service_id_array_new[0];
+                }
             }else{
                 return $this->show_booking_insertion_failure($is_api, ERR_INVALID_PARTNER_NAME_CODE, ERR_INVALID_PARTNER_NAME_MSG);
             }
@@ -10436,6 +10455,7 @@ class Partner extends CI_Controller {
 
         // Send the request
         $response = curl_exec($ch);
+        
 
         // Decode the response
         $responseData = json_decode($response, TRUE);

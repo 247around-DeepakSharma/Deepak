@@ -2279,12 +2279,15 @@ class vendor_model extends CI_Model {
      /*
      * @desc This is used to get active service from services table
      */
-        function get_active_services()
+        function get_active_services($where = '')
     {
         $return=array();
         $this->db->select('id,services');
         $this->db->from('services');
         $this->db->where('isBookingActive',1);
+        if(!empty($where)){
+          $this->db->where($where);  
+        }
         $this->db->order_by('services','ASC');
         $result=$this->db->get()->result_array();
         if(count($result)>0)
