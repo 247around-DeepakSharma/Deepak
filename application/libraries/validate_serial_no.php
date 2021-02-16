@@ -826,31 +826,31 @@ class Validate_serial_no {
              $serialNumber = substr($serialNo,13,5);
              //First 2 digit represent $plantLocation, it must be alphanumeric 
               if(!preg_match('/^[a-zA-Z]+[a-zA-Z0-9._]+$/', $plantLocation)){
-                 return false;
+                 return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
              }
              //Next 2 digit represent $month, 
              $expectedMonthValuesArray = explode(",",MONTH_POSIBLE_VALUES);
              if(!in_array($month, $expectedMonthValuesArray)){
-                 return false;
+                 return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
             }
             //Next 2 digit represents year it should be numeric
              if(!is_numeric($year)){
-                  return false;
+                  return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
              }
              //Next 2 digit represent $month, 
              $productCatArray = explode(",",VIDEOCON_PRODUCT_CAT_POSIBLE_VALUES);
              if(!in_array($productCat, $productCatArray)){
-                 return false;
+                 return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
             }
              //Next 2 digit represents $productCat , it must be 2 alphabets 
               if(!ctype_alpha($serialNumber)){
-                  return false;
+                  return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
              }
          }
          else{
-             return false;
+             return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
          }
-         return true;
+         return array('code' => SUCCESS_CODE);
     }
     function kenstar_serialNoValidation($partnerID,$serialNo){
         $stringLength = strlen($serialNo);
