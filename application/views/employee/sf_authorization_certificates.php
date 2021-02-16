@@ -76,15 +76,16 @@
 </div>
 <script>
     $(document).ready(function () {
-       $('#auth_cert').DataTable({
-         dom: 'Bfrtip',
-          buttons: [
-        {
-            extend: 'excel',
-            exportOptions: { rows: ':visible' }
-        }]
+        $('#auth_cert').DataTable({
+            "order": [[0, "asc"]],
+            'columnDefs': [{
+                    'targets': [2, 3,4], // column index (start from 0)
+                    'orderable': false, // set orderable false for selected columns
+                }],
+              dom:'lBfrtip',
+              buttons:['excel']        
         
-    });
+        });
     });
 
     $(document).on('click', '.send_certificate', function () {

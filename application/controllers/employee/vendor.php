@@ -1219,6 +1219,16 @@ class vendor extends CI_Controller {
             $where = array("service_center_booking_action.booking_id" => $booking_id);
             $booking_action_details = $this->vendor_model->get_service_center_booking_action_details($select, $where);
             $previous_sf_id = $this->reusable_model->get_search_query('booking_details', 'booking_details.assigned_vendor_id,booking_details.id, booking_details.partner_id, booking_details.request_type', array('booking_id' => $booking_id), NULL, NULL, NULL, NULL, NULL)->result_array();
+            if(!empty($previous_sf_id)){
+                $current_sf_id = $previous_sf_id[0]['assigned_vendor_id'];
+                if($current_sf_id == $service_center_id){
+                    $booking_id = $this->input->post('booking_id');
+                    $output = "You can not reassign to same vendor";
+                    $userSession = array('error' => $output);
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "employee/vendor/get_reassign_vendor_form/" . $booking_id);
+                }
+            }
             //            if (IS_DEFAULT_ENGINEER == TRUE) {
             //                $b['assigned_engineer_id'] = DEFAULT_ENGINEER;
             //            } else {
@@ -1356,20 +1366,28 @@ class vendor extends CI_Controller {
                     } else {
 
                         if (!empty($spare['parts_shipped'])) {
+                            $update_spare_part = false;
+                            if($spare['parts_shipped']!=1 && !empty($spare['defective_part_shipped_date'])){
                             $sp['service_center_id'] = $previous_sf_id[0]['assigned_vendor_id'];
                             $sp['status'] = OK_PART_TO_BE_SHIPPED;
                             $sp['consumed_part_status_id'] = 5;
+                            $sp['defective_part_required'] = 1;
                             $sp['consumption_remarks'] = OK_PART_TO_BE_SHIPPED;
+                            $update_spare_part = true;
+                            }
                         } else {
                             $sp['status'] = _247AROUND_CANCELLED;
                             // $sp['service_center_id'] = $service_center_id;
                             $sp['consumed_part_status_id'] = NULL;
                             $sp['consumption_remarks'] = NULL;
+                            $update_spare_part = true;
                         }
-
+                        if(!empty($update_spare_part)){
                         $this->service_centers_model->update_spare_parts(array('id' => $spare['id']), $sp);
                         $tracking_details = array('spare_id' => $spare['id'], 'action' => OK_PART_TO_BE_SHIPPED, 'remarks' => "Booking Reassign - " . OK_PART_TO_BE_SHIPPED, 'agent_id' => $this->session->userdata("id"), 'entity_id' => _247AROUND, 'entity_type' => _247AROUND_EMPLOYEE_STRING);
                         $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                        $this->invoice_lib->generate_challan_file($spare['id'],$spare['service_center_id'], '',true);
+                        }
                     }
                 }
             }

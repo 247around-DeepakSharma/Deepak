@@ -473,6 +473,7 @@ class Booking extends CI_Controller {
             $ssba_details['serial_number'] = $serial_number;
             $ssba_details['serial_number_pic'] = $serial_number_pic;
             $this->service_centers_model->update_service_centers_action_table($booking['booking_id'], $ssba_details);
+            $this->engineer_model->update_engineer_table($ssba_details, ['booking_id' => $booking['booking_id']]);
             if($booking_id == INSERT_NEW_BOOKING){
                 $this->send_sms_email($booking['booking_id'], "SendWhatsAppNo");
             }

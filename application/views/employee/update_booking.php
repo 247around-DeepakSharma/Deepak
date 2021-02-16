@@ -138,7 +138,7 @@ if(empty($booking_history[0]['booking_id'])){
                                     } ?>">
                                     <label for="booking_pincode" class="col-md-4">Pincode *</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(isset($booking_history[0]['booking_pincode'])){echo $booking_history[0]['booking_pincode'];} ?>" placeholder="Enter Area Pin" <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>>
+                                        <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" onkeyup="if (/[^|0-9]+/g.test(this.value)) this.value = this.value.replace(/[^|0-9]+/g,'')" value = "<?php if(isset($booking_history[0]['booking_pincode'])){echo $booking_history[0]['booking_pincode'];} ?>" placeholder="Enter Area Pin" <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>>
                                            <span id="error_pincode" style="color:red"></span>
                                     </div>
                                 </div>
