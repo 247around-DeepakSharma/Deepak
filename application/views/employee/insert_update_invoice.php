@@ -353,7 +353,7 @@
                                             <input type="hidden" id="<?php echo "create_date_".$key; ?>" name="invoice[<?php echo $value['id']; ?>][create_date]" value="<?php if(isset($value['create_date'])){ echo $value['create_date'];  } ?>" >
                                             <input type="hidden" id="<?php echo "inventory_id_".$key; ?>" name="invoice[<?php echo $value['id']; ?>][inventory_id]" value="<?php echo (isset($value['inventory_id']) ? $value['inventory_id'] : NULL);?>" >
                                             
-                                            <input type="hidden" id="<?php echo "togst_number_".$key; ?>" name="invoice[<?php echo $value['id']; ?>][to_gst_number_id]" value="<?php echo (isset($value['to_gst_number']) ? $value['to_gst_number'] : NULL);?>" >
+                                            <input type="hidden" id="<?php echo "to_gst_number_".$key; ?>" name="invoice[<?php echo $value['id']; ?>][to_gst_number_id]" value="<?php echo (isset($value['to_gst_number']) ? $value['to_gst_number'] : NULL);?>" >
                                             <input type="hidden" id="<?php echo "spareid_".$key; ?>" name="invoice[<?php echo $value['id']; ?>][spare_id]" value="<?php echo (isset($value['spare_id']) ? $value['spare_id'] : NULL);?>" >
                                             
                                         </td>
@@ -629,10 +629,10 @@
                 index = id.split("_")[1];
                 if(type_code === 'A') {
                     $('#from_gst_number_'+index).val(gst_number);
-                    $('#to_gst_number_'+index).val('');
+                    //$('#to_gst_number_'+index).val('');
                 }
                 else {
-                    $('#from_gst_number_'+index).val('');
+                    //$('#from_gst_number_'+index).val('');
                     $('#to_gst_number_'+index).val(gst_number);
                 }
             });
