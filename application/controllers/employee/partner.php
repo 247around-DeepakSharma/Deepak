@@ -10372,7 +10372,7 @@ class Partner extends CI_Controller {
                 $post['partner_id'] = $partner_detail[0]['partner_id'];
                 $post['partner_code'] = $partner_detail[0]['code'];
                 $post['partner_type'] = $partner_detail[0]['partner_type'];
-                $agent_id_array = $this->dealer_model->entity_login(array('entity_id' => $partner_detail[0]['partner_id']));
+                $agent_id_array = $this->dealer_model->entity_login(array('entity_id' => $partner_detail[0]['partner_id'],'entity' => 'partner', 'active' => 1));
                 if(!empty($agent_id_array)){
                     $post['agent_id'] = $agent_id_array[0]['agent_id'];
                 }
