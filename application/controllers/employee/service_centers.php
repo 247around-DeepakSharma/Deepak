@@ -10623,6 +10623,9 @@ class Service_centers extends CI_Controller {
             
             // Update Statuses in engineer_booking_action
             $this->engineer_model->update_engineer_table(array("current_status" => _247AROUND_COMPLETED, "internal_status" => _247AROUND_COMPLETED), ['booking_id' => $booking_id]);
+            
+            // Insert data into booking state change
+            $this->insert_details_in_state_change($booking_id, SF_BOOKING_COMPLETE_STATUS, "Booking Auto Approved", "247Around", "Review the Booking");
         }              
     }
 }
