@@ -1437,6 +1437,91 @@ class vendor extends CI_Controller {
                 if(($curr_status === 'InProcess') && (($internal_status === 'Completed') || ($internal_status === 'Cancelled'))) {
                     $internal_status = 'Pending';
                     $curr_status = 'Pending';
+            $spare_data = $this->inventory_model->get_spare_parts_details("id, status,partner_id,service_center_id,shipped_inventory_id,shipped_quantity,booking_id,parts_shipped", array("booking_id" => $this->input->post('booking_id'), "status != '" . _247AROUND_CANCELLED . "'" => NULL));
+            $booking_id = $this->input->post('booking_id');
+            $service_center_id = $this->input->post('service');
+            $remarks = $this->input->post('remarks');
+            $select = "service_center_booking_action.id, service_center_booking_action.booking_id, service_center_booking_action.current_status,service_center_booking_action.internal_status";
+            $where = array("service_center_booking_action.booking_id" => $booking_id);
+            $booking_action_details = $this->vendor_model->get_service_center_booking_action_details($select, $where);
+            $previous_sf_id = $this->reusable_model->get_search_query('booking_details', 'booking_details.assigned_vendor_id,booking_details.id, booking_details.partner_id, booking_details.request_type', array('booking_id' => $booking_id), NULL, NULL, NULL, NULL, NULL)->result_array();
+            if(!empty($previous_sf_id)){
+                $current_sf_id = $previous_sf_id[0]['assigned_vendor_id'];
+                if($current_sf_id == $service_center_id){
+                    $booking_id = $this->input->post('booking_id');
+                    $output = "You can not reassign to same vendor";
+                    $userSession = array('error' => $output);
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "employee/vendor/get_reassign_vendor_form/" . $booking_id);
+                }
+            }
+            //            if (IS_DEFAULT_ENGINEER == TRUE) {
+            //                $b['assigned_engineer_id'] = DEFAULT_ENGINEER;
+            //            } else {
+            //                $engineer = $this->vendor_model->get_engineers($service_center_id);
+            //                if (!empty($engineer)) {
+            //                    $b['assigned_engineer_id'] = $engineer[0]['id'];
+            //                }
+            //            }
+            //Assign service centre and engineer
+            $assigned_data = array('assigned_vendor_id' => $service_center_id,
+                'assigned_engineer_id' => NULL,
+                'is_upcountry' => 0,
+                'upcountry_pincode' => NULL,
+                'sub_vendor_id' => NULL,
+                'sf_upcountry_rate' => NULL,
+                'partner_upcountry_rate' => NULL,
+                'is_penalty' => 0,
+                'upcountry_partner_approved' => 1,
+                'upcountry_paid_by_customer' => 0,
+                'service_center_closed_date' => NULL,
+                'cancellation_reason' => NULL,
+                'upcountry_distance' => NULL,
+                'internal_status' => _247AROUND_PENDING);
+
+            $actor = $next_action = 'not_define';
+
+            $this->booking_model->update_booking($booking_id, $assigned_data);
+
+            $this->vendor_model->delete_previous_service_center_action($booking_id);
+            $unit_details = $this->booking_model->getunit_details($booking_id);
+
+            $this->engineer_model->delete_booking_from_engineer_table($booking_id);
+
+            $vendor_data = $this->vendor_model->getVendorDetails("isEngineerApp", array("id" => $service_center_id, "isEngineerApp" => 1));
+
+            $curr_status = (!empty($booking_action_details[0]['current_status']) ? $booking_action_details[0]['current_status'] : 'Pending');
+            $internal_status = (!empty($booking_action_details[0]['internal_status']) ? $booking_action_details[0]['internal_status'] : 'Pending');
+
+            if (($curr_status === 'InProcess') && (($internal_status === 'Completed') || ($internal_status === 'Cancelled'))) {
+                $internal_status = 'Pending';
+                $curr_status = 'Pending';
+            }
+
+            foreach ($unit_details[0]['quantity'] as $value) {
+
+                $data['current_status'] = $curr_status;
+                $data['internal_status'] = $internal_status;
+                $data['service_center_id'] = $service_center_id;
+                $data['booking_id'] = $booking_id;
+                $data['create_date'] = date('Y-m-d H:i:s');
+                $data['update_date'] = date('Y-m-d H:i:s');
+                $data['unit_details_id'] = $value['unit_id'];
+                $this->vendor_model->insert_service_center_action($data);
+
+                if (!empty($vendor_data)) {
+                    $engineer_action['unit_details_id'] = $value['unit_id'];
+                    $engineer_action['service_center_id'] = $service_center_id;
+                    $engineer_action['booking_id'] = $booking_id;
+                    $engineer_action['current_status'] = _247AROUND_PENDING;
+                    $engineer_action['internal_status'] = _247AROUND_PENDING;
+                    $engineer_action["create_date"] = date("Y-m-d H:i:s");
+
+                    $enID = $this->engineer_model->insert_engineer_action($engineer_action);
+                    if (!$enID) {
+                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, "", "",
+                                "BUG in Enginner Table " . $booking_id, "SF Assigned but Action table not updated", "", SF_ASSIGNED_ACTION_TABLE_NOT_UPDATED, "", $booking_id);
+                    }
                 }
 
                 foreach ($unit_details[0]['quantity'] as $value) {
@@ -1525,14 +1610,37 @@ class vendor extends CI_Controller {
                         $tracking_details = array('spare_id' => $spare['id'], 'action' => "Spare Part Cancelled", 'remarks' => "Booking Reassign - Micro Stock In", 'agent_id' => $this->session->userdata("id"), 'entity_id' => _247AROUND, 'entity_type' => _247AROUND_EMPLOYEE_STRING);
                         $this->service_centers_model->insert_spare_tracking_details($tracking_details);
 
-
-
                     }else{
                         if(isset($rm_responsible) && !empty($rm_responsible)){
                          $sp['service_center_id'] = $service_center_id;
+
+                        if (!empty($spare['parts_shipped'])) {
+                            $update_spare_part = false;
+                            if($spare['parts_shipped']!=1 && !empty($spare['defective_part_shipped_date'])){
+                            $sp['service_center_id'] = $previous_sf_id[0]['assigned_vendor_id'];
+                            $sp['status'] = OK_PART_TO_BE_SHIPPED;
+                            $sp['consumed_part_status_id'] = 5;
+                            $sp['defective_part_required'] = 1;
+                            $sp['consumption_remarks'] = OK_PART_TO_BE_SHIPPED;
+                            $update_spare_part = true;
+                            }
+                        } else {
+                            $sp['status'] = _247AROUND_CANCELLED;
+                            // $sp['service_center_id'] = $service_center_id;
+                            $sp['consumed_part_status_id'] = NULL;
+                            $sp['consumption_remarks'] = NULL;
+                            $update_spare_part = true;
+                        }
+                        if(!empty($update_spare_part)){
                         $this->service_centers_model->update_spare_parts(array('id' => $spare['id']), $sp);
                                 $tracking_details = array('spare_id' => $spare['id'], 'action' => "Spare Part Reassign", 'remarks' => "Booking Reassign - Part Reassign", 'agent_id' => $this->session->userdata("id"), 'entity_id' => _247AROUND, 'entity_type' => _247AROUND_EMPLOYEE_STRING);
                         $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                        $this->invoice_lib->generate_challan_file($spare['id'],$spare['service_center_id'], '',true);
+                        }
+                    }
+                }
+            }
+
 
 
                         }else{
