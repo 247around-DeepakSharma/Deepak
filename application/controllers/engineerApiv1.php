@@ -6,7 +6,7 @@ if (!defined('BASEPATH'))
 //error_reporting(E_ERROR);
 //ini_set('display_errors', '0');
 
-class engineerApi extends CI_Controller {
+class engineerApiv1 extends CI_Controller {
 
     private $token;
     private $header;
@@ -74,6 +74,9 @@ class engineerApi extends CI_Controller {
 
             $requestData = json_decode($jsonRequestData, true);
 
+            $activity = array('activity' => $requestData['requestUrl'], 'data' => json_encode($requestData), 'time' => $this->microtime_float());
+            $this->db->insert('log_table',$activity);
+            
             $this->token = $requestData['token'];
             /// checkif Engineer is Active for every API hit ///
             if(isset($requestData["engineer_id"])  && !empty($requestData["engineer_id"]) ){
@@ -111,7 +114,7 @@ class engineerApi extends CI_Controller {
                 $jsonData = $this->tokenArray[1];
                 $signature = $this->tokenArray[2];
             }else{
-                $header = $jsonData = $signature;
+                $header = $jsonData = $signature='';
             }
             $type = 'post';
 
@@ -1296,8 +1299,8 @@ class engineerApi extends CI_Controller {
                     } else {
                         if (isset($value["existing_purchase_invoice"])) {
                             if ($value["existing_purchase_invoice"]) {
-                                $purchase_inv_url = $requestData['booking_id'] . "_" . $unit_id . "_purchase_inv_" . date("YmdHis") . ".png";
-                                $this->miscelleneous->generate_image($value["existing_purchase_invoice"], $purchase_inv_url, "purchase-invoices");
+                                $invoice_pic_array = array_reverse(explode('/',$value['existing_purchase_invoice']));				
+                                $purchase_inv_url =  $invoice_pic_array[0];
                             }
                         }
                     }
@@ -1312,8 +1315,8 @@ class engineerApi extends CI_Controller {
                         } else {
                             if (isset($value["existing_serial_number_pic"])) {
                                 if ($value["existing_serial_number_pic"]) {
-                                    $sn_pic_url = $requestData['booking_id'] . "_" . $unit_id . "_serialNO_" . rand(10, 100) . ".png";
-                                    $this->miscelleneous->generate_image($value["existing_serial_number_pic"], $sn_pic_url, SERIAL_NUMBER_PIC_DIR);
+                                    $sn_pic_url_array = array_reverse(explode('/',$value['existing_serial_number_pic']));
+                                    $sn_pic_url = $sn_pic_url_array[0];
                                 }
                             }
                         }
@@ -1753,6 +1756,7 @@ class engineerApi extends CI_Controller {
             $responseData = array("data" => $this->jsonResponseString);
             $activity = array('activity' => 'sending response', 'data' => json_encode($responseData), 'time' => $this->microtime_float());
             //$this->apis->logTable($activity);
+            $this->db->insert('log_table',$activity);
             $response = json_encode($responseData, JSON_UNESCAPED_SLASHES);
 
             echo $response;
@@ -2053,10 +2057,10 @@ class engineerApi extends CI_Controller {
             ///  Abhishek ... Insread of count passing the entire response  and add alternate number////
             $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
                     . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, booking_details.create_date,booking_details.district,"
-                    . "symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status";
+                    . "symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status,booking_details.part_brought_at,CASE WHEN booking_details.part_brought_at = 2 THEN '0' ELSE '1'  END AS part_brought_at_change";
             $slot_select = 'distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,'
                     . 'booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id,booking_details.district, '
-                    . 'booking_details.create_date, symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status';
+                    . 'booking_details.create_date, symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status,booking_details.part_brought_at,CASE WHEN booking_details.part_brought_at = 2 THEN "0" ELSE "1"  END AS part_brought_at_change';
             $incentive_select = "sum(partner_incentive) as total_earning";
             $incentive_where = array(
                 "booking_details.assigned_vendor_id" => $requestData["service_center_id"],
@@ -2236,7 +2240,7 @@ class engineerApi extends CI_Controller {
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
                     . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, booking_details.create_date,"
-                    . "symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status,booking_details.district";
+                    . "symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status,booking_details.district,booking_details.part_brought_at,CASE WHEN booking_details.part_brought_at = 2 THEN '0' ELSE '1'  END AS part_brought_at_change";
             $missed_bookings = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             foreach ($missed_bookings as $key => $value) {
                 if ($requestData['engineer_pincode']) {
@@ -2292,7 +2296,7 @@ class engineerApi extends CI_Controller {
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks, "
                     . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, "
-                    . "booking_details.service_id, booking_details.create_date, symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status,booking_details.district";
+                    . "booking_details.service_id, booking_details.create_date, symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status,booking_details.district,booking_details.part_brought_at,CASE WHEN booking_details.part_brought_at = 2 THEN '0' ELSE '1'  END AS part_brought_at_change";
             $tomorrowBooking = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             foreach ($tomorrowBooking as $key => $value) {
                 if ($requestData['engineer_pincode']) {
@@ -2561,12 +2565,10 @@ class engineerApi extends CI_Controller {
                 $response['sparePartsOrder']['symptoms'] = array();
             }
                 
-            $spare_select = 'spare_parts_details.serial_number, '
-                        . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/purchase-invoices/", spare_parts_details.invoice_pic) as invoice_pic, '
-                        . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/' . SERIAL_NUMBER_PIC_DIR . '/", spare_parts_details.serial_number_pic) as serial_number_pic';
-                $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('booking_id' => $requestData["booking_id"]));
-            if (!empty($spare_details)) {
-                    $response['sparePartsOrder']['spare_parts'] = $spare_details[0];
+            $spare_details = $this->can_edit_serial_number($requestData["booking_id"]);
+                if (!empty($spare_details)) {
+                    $spare_details['can_edit_serial_number'] = '0';
+                    $response['sparePartsOrder']['spare_parts'] = $spare_details;
                 }
             }
 
@@ -2687,9 +2689,8 @@ class engineerApi extends CI_Controller {
                 } else {
                     if (isset($requestData['existing_serial_number_pic'])) {
                         if ($requestData['existing_serial_number_pic']) {
-                            $serial_number_pic = "serial_number_pic_" . date("YmdHis") . ".png";
-                            $this->miscelleneous->generate_image($requestData['existing_serial_number_pic'], $serial_number_pic, SERIAL_NUMBER_PIC_DIR);
-                            $requestData['serial_number_pic'] = $serial_number_pic;
+                            $serial_number_pic_exp = array_reverse(explode('/',$requestData['existing_serial_number_pic']));				
+                            $requestData['serial_number_pic'] =  $serial_number_pic_exp[0];
                         }
                     }
                 }
@@ -2702,9 +2703,8 @@ class engineerApi extends CI_Controller {
                     }
                 } else {
                     if (isset($requestData['existing_purchase_invoice']) && $requestData['existing_purchase_invoice']) {
-                        $invoice_pic = "invoice_" . $requestData['booking_id'] . "_" . date("YmdHis") . ".png";
-                        $this->miscelleneous->generate_image($requestData['existing_purchase_invoice'], $invoice_pic, "purchase-invoices");
-                        $requestData['invoice_pic'] = $invoice_pic;
+                        $invoice_pic_array = array_reverse(explode('/',$requestData['existing_purchase_invoice']));				
+                        $requestData['invoice_pic'] =  $invoice_pic_array[0];
                     }
                 }
 
@@ -3041,6 +3041,11 @@ class engineerApi extends CI_Controller {
             } else {
                 $response['is_consumption_required'] = false;
             }
+            
+            $can_edit_serial_number  = $this->can_edit_serial_number($requestData['booking_id']);
+            $can_edit_serial_number['can_edit_serial_number'] = 0;
+            $response['spare_parts'] = $can_edit_serial_number;
+            
             $bookingDetails = $this->reusable_model->get_search_query("booking_details", "upcountry_paid_by_customer,partner_upcountry_rate,upcountry_distance,is_upcountry", array("booking_id" => $requestData['booking_id']), false, false, false, false, false)->result_array();
             if($bookingDetails[0]['is_upcountry'] && $bookingDetails[0]['upcountry_paid_by_customer']){
              $response['upcountry_paid_by_customer'] = 1;   
@@ -3225,6 +3230,9 @@ class engineerApi extends CI_Controller {
                         "call_from_api" => true,
                         "sc_agent_id" => $requestData['sc_agent_id']
                     );
+                    if(!empty($requestData['part_brought_at'])){
+                        $postData['part_brought_at'] = $requestData['part_brought_at'];
+                    }
                     //Call curl for updating booking by engineer
                     $url = base_url() . "employee/service_centers/process_update_booking";
                     $ch = curl_init($url);
@@ -3378,8 +3386,17 @@ class engineerApi extends CI_Controller {
             "booking_create_date" => $booking_create_date,
             "purchase_date" => $purchase_date,
             "model_number" => $model_number,
-            "service_id"=>$service_id
+            "service_id"=>$service_id,
+            "serial_number"=>$serial_number
         );
+        $checkInstallationDate = $this->partner_model->getpartner($partner_id)[0]['check_warranty_from'];
+        if($checkInstallationDate == WARRANTY_ON_DOI) {
+            $arrInstallationData = $this->booking_utilities->get_installation_date_of_booking($arrBookings);
+            if (!empty($arrInstallationData['installation_date'])) {
+                $arrBookings[0]['purchase_date'] = date("d-m-Y", strtotime($arrInstallationData['installation_date']));
+            }
+        }
+        
         $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings);
         $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData);
         foreach ($arrBookings as $key => $arrBooking) {
@@ -3422,6 +3439,15 @@ class engineerApi extends CI_Controller {
             } else {
                 //$returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type."), to request part please change request type of the Booking.";
                 $returnMessage = "Warranty Status is " . $arr_warranty_status_full_names[$warranty_checker_status] . ", Change request type";
+                if ($checkInstallationDate == WARRANTY_ON_DOI && !empty($arrBookings[$booking_id])) {
+                    $arrBookingsWarrantyStatus = $this->warranty_utilities->get_warranty_status_of_bookings($arrBookingsnew, 1);
+                    if (!empty($arrBookingsWarrantyStatus['installation_date']) && !empty($arrBookingsWarrantyStatus['installation_booking'])) {
+                        $returnMessage = "Booking Warranty Status (" . $arr_warranty_status_full_names[$warranty_checker_status] . ") is not matching "
+                                . "with current request type , Please change request type of the Booking. Product "
+                                . "Installation Date : ".date('d-M-Y',strtotime($arrBookingsWarrantyStatus['installation_date'])).", "
+                                . "Booking : ".$arrBookingsWarrantyStatus['installation_booking'];
+                    }
+                }
             }
         }
 
@@ -3585,6 +3611,14 @@ class engineerApi extends CI_Controller {
             if (!empty($spare_details)) {
                 $response['spare_parts'] = $spare_details[0];
             }
+            
+            $can_edit_serial_number = $this->can_edit_serial_number($requestData['booking_id'], true);
+            if (!empty($response['spare_parts'])) {
+                $response['spare_parts'] = array_merge($response['spare_parts'], $can_edit_serial_number);
+            } else {
+                $response['spare_parts'] = $can_edit_serial_number;
+            }
+            
             // Do not change the request type if invoiced to partner //
             $response['partner_invoiced'] = $this->checkBookingActionrequired($requestData['booking_id']);
             /** End * */
@@ -3642,6 +3676,29 @@ class engineerApi extends CI_Controller {
             }
         }
         if ($check) {
+            $booking_id = $requestData["booking_id"];
+            $booking_history = $this->booking_model->getbooking_history($booking_id);
+            $serial_number = $requestData['serial_number'];
+            $partner_id = $booking_history[0]['partner_id'];
+            $user_id = $booking_history[0]['user_id'];
+            $price_tags = array_reverse(json_decode($requestData['request_types'], true)[0]);
+            $appliance_id = $booking_history[0]['service_id'];
+            $model_number = $requestData['model_number'];
+            $repeat_booking_message = false;
+            foreach ($price_tags as $key => $value) {
+                $check_serial = $this->checkVaidationOnSerialNumber($partner_id, $serial_number, $value, $user_id, $booking_id, $appliance_id, $model_number);
+                if ($check_serial['code'] != 0000) {
+                    if($check_serial['message']!=REPEAT_BOOKING_FAILURE_MSG){
+                        $response['warranty_flag'] = 1;
+                        $this->jsonResponseString['response'] = $response;
+                        $this->sendJsonResponse(array('0055', $check_serial['message']));
+                        exit;
+                    }else{
+                        $repeat_booking_message = $check_serial['message'];
+                    }
+                }
+            }
+
             $booking_details = $this->booking_creation_lib->get_edit_booking_form_helper_data($requestData['booking_id'], NULL, NULL);
             foreach ($booking_details['unit_details'] as $unit_key => $unit_value) {
                 $quan = array();
@@ -3686,6 +3743,24 @@ class engineerApi extends CI_Controller {
                     }
                 }
             }
+            
+            $serial_number_array = json_decode($requestData['submitWarrantyCheckerAndEditCallType'], true);
+            if (isset($serial_number_array['serial_number_pic_exist'])) {
+                if ($serial_number_array['serial_number_pic_exist']) {
+                    $serial_number_pic = "serial_number_pic_" . date("YmdHis") . ".png";
+                    $this->miscelleneous->generate_image($serial_number_array['serial_number_pic_exist'], $serial_number_pic, SERIAL_NUMBER_PIC_DIR);
+                    $unit_detail['serial_number_pic'] = $serial_number_pic;
+                }
+            } else {
+                if (isset($serial_number_array['existing_serial_number_pic'])) {
+                    if ($serial_number_array['existing_serial_number_pic']) {
+                        $serial_number_pic_exp = array_reverse(explode('/', $serial_number_array['existing_serial_number_pic']));
+                        $unit_detail['serial_number_pic'] = $serial_number_pic_exp[0];
+                    }
+                }
+            }
+            $unit_detail['serial_number'] = $requestData['serial_number'];
+            $this->booking_model->update_booking_unit_details($requestData['booking_id'], $unit_detail);
 
             if ($warranty_checker) {
                 $arrBookings[0] = array(
@@ -3699,7 +3774,7 @@ class engineerApi extends CI_Controller {
                 $service_id = $booking_details["booking_history"][0]['service_id'];
                 foreach ($request_types as $request_typess) {
                     $new_request_type = $this->booking_utilities->get_booking_request_type($request_typess);
-                    $response = $this->warrantyChecker($requestData["booking_id"], $booking_details["booking_history"][0]['partner_id'], $booking_details["booking_history"][0]['create_date'], $requestData["model_number"], $requestData["purchase_date"], $new_request_type,$service_id);
+                    $response = $this->warrantyChecker($requestData["booking_id"], $booking_details["booking_history"][0]['partner_id'], $booking_details["booking_history"][0]['create_date'], $requestData["model_number"], $requestData["purchase_date"], $new_request_type,$service_id,$requestData["serial_number"]);
                     if ($response['warranty_flag'] == 1) {
                         $warranty_status = false;
                         $warranty_status_holder = $response;
@@ -3836,9 +3911,20 @@ class engineerApi extends CI_Controller {
                 $this->booking_model->update_booking_unit_details($requestData["booking_id"], $booking_update_data);
 
                 log_message("info", "Booking Request type hase been updated successfully");
-
+                if(!empty($repeat_booking_message)){
+                    $response['warranty_flag'] = 2;
+                    $this->jsonResponseString['response'] = $response;
+                    $this->sendJsonResponse(array('0054', $repeat_booking_message));
+                    exit;
+                }
                 $this->jsonResponseString['response'] = $response;
                 $this->sendJsonResponse(array('0000', 'success'));
+            }
+            if(!empty($response['warranty_flag']) && $response['warranty_flag']!=1 && !empty($repeat_booking_message)){
+                $response['warranty_flag'] = 2;
+                $this->jsonResponseString['response'] = $response;
+                $this->sendJsonResponse(array('0054', $repeat_booking_message));
+                exit;
             }
             if ($warranty_status) {
                 if (!$edit_call_type) {
@@ -4056,7 +4142,11 @@ class engineerApi extends CI_Controller {
 
                         $city = $value['district'];
                         $data['Bookings'][$key]['covid_zone'] = $this->booking_utilities->getBookingCovidZoneAndContZone($city);
-
+                        if($data['Bookings'][$key]['part_brought_at']==2){
+                            $data['Bookings'][$key]['part_brought_at_change'] = '0';
+                        }else{
+                            $data['Bookings'][$key]['part_brought_at_change'] = '1';
+                        }
                         $query_scba = $this->vendor_model->get_service_center_booking_action_details('*', array('booking_id' => $value['booking_id'], 'current_status' => 'InProcess'));
                         $data['Bookings'][$key]['service_center_booking_action_status'] = "Pending";
                         if (!empty($query_scba)) {
@@ -4330,7 +4420,7 @@ class engineerApi extends CI_Controller {
         if ($validation['status']) {
             $slot_select = 'distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,'
                     . 'booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, '
-                    . 'booking_details.create_date, symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status';
+                    . 'booking_details.create_date, symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status,booking_details.part_brought_at,CASE WHEN booking_details.part_brought_at = 2 THEN "0" ELSE "1"  END AS part_brought_at_change';
             $response = $this->getTodaysSlotBookingList($slot_select, $requestData["booking_slot"], $requestData["service_center_id"], $requestData["engineer_id"], $requestData["engineer_pincode"]);
             if (!empty($response)) {
                 log_message("info", __METHOD__ . "Bookings Found Successfully");
@@ -4867,4 +4957,60 @@ function submitPreviousPartsConsumptionData(){
         }
 
     }
+    /**
+    * @Desc: This function is to check enginner can change serial number or not
+    * @params: void
+    * @return: JSON
+    * @author Ghanshyam Ji Gupta
+    * @date : 04-02-2021
+    */
+    function can_edit_serial_number($booking_id, $autofill = false) {
+            $spare_select = 'spare_parts_details.serial_number, '
+                    . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/purchase-invoices/", spare_parts_details.invoice_pic) as invoice_pic, '
+                    . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/' . SERIAL_NUMBER_PIC_DIR . '/", spare_parts_details.serial_number_pic) as serial_number_pic';
+            $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('booking_id' => $booking_id));
+            $serial_number_details['serial_number'] = '';
+            $serial_number_details['invoice_pic'] = '';
+            $serial_number_details['serial_number_pic'] = '';
+            $serial_number_details['can_edit_serial_number'] = '1';
+            $serial_number_details['can_edit_invoice_pic'] = '1';
+            if (!empty($spare_details)) {
+                $serial_number_details = $spare_details[0];
+            }
+            $serial_number_details['can_edit_serial_number'] = '1';
+            $serial_number_details['can_edit_invoice_pic'] = '1';
+            $where = array(
+                'booking_id' => $booking_id,
+                'status !=' => _247AROUND_CANCELLED
+            );
+            $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
+            if (empty($spare_details) && !empty($unit_details) && !empty($unit_details[0]['serial_number_pic'])) {
+                $serial_number_details['serial_number'] = $unit_details[0]['serial_number'];
+                $serial_number_details['serial_number_pic'] = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/" . SERIAL_NUMBER_PIC_DIR . "/" . $unit_details[0]['serial_number_pic'];
+            }
+            $spares = $this->engineer_model->get_spare_details("id", $where);
+            if (!empty($serial_number_details['serial_number']) && !empty($spares)) {
+                $serial_number_details['can_edit_serial_number'] = '0';
+            }
+            if (!empty($serial_number_details['invoice_pic']) && !empty($spares)) {
+                $serial_number_details['can_edit_invoice_pic'] = '0';
+            }
+            if (empty($serial_number_details['serial_number'])) {
+                unset($serial_number_details['serial_number']);
+                $serial_number_details['can_edit_serial_number'] = '1';
+            }
+            if (empty($serial_number_details['serial_number_pic'])) {
+                unset($serial_number_details['serial_number_pic']);
+            }
+            if (empty($serial_number_details['invoice_pic'])) {
+                unset($serial_number_details['invoice_pic']);
+                $serial_number_details['can_edit_invoice_pic'] = '1';
+            }
+            if (!empty($autofill) && $serial_number_details['can_edit_serial_number'] == 1) {
+                unset($serial_number_details['serial_number_pic']);
+                unset($serial_number_details['serial_number']);
+            }
+            return $serial_number_details;
+        }
+
 }
