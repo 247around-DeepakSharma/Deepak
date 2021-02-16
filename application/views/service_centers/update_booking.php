@@ -630,14 +630,9 @@ $arr_partner_discount = array();
             var price_tag = $(this).attr('data-price_tag');
             booking_request_types.push(price_tag);
         });
-        // Enable Submit button , only if Serial Number Validation Passed
-        if($("#is_sn_correct").val() != '1')
-        {
-            $("#submitform").attr("disabled", false);
-        }
         $('.errorMsg').html("");
         // To check warranty => Model Number, DOP/Serial Number & Request Types should be filled
-        if((model_number !== "" && model_number !== null && model_number !== undefined) && (dop !== "" || serial_number != "") && (booking_request_types.length > 0)){                               
+        if((model_number !== "" && model_number !== null && model_number !== undefined) && (dop !== "" || serial_number != "") && (booking_request_types.length > 0)){                                           
             $.ajax({
                 method:'POST',
                 url:"<?php echo base_url(); ?>employee/service_centers/get_warranty_data/2/1",
@@ -653,12 +648,25 @@ $arr_partner_discount = array();
                         'booking_request_types' : booking_request_types
                     }
                 },
+                beforeSend: function() {                    
+                    $("#submitform").hide(); 
+                },
                 success:function(response){
                     var returnData = JSON.parse(response);
                     $('.errorMsg').html(returnData['message']);
                     if(returnData['status'] == 1)
                     {
-                        $("#submitform").attr("disabled", true);                        
+                        $("#submitform").attr("disabled", true);   
+                        $("#submitform").show();
+                    }
+                    else
+                    {
+                        // Enable Submit button , only if Serial Number Validation Passed
+                        if($("#is_sn_correct").val() != '1')
+                        {
+                            $("#submitform").attr("disabled", false);
+                            $("#submitform").show();
+                        }
                     }
                 }                           
             });

@@ -245,10 +245,14 @@
             <h1 align="left">
                 <b>Pending Bookings</b>
                 <?php
+                    $actor = "SF";
+                    if(empty($Bookings[0]->edit_by_sf)){
+                        $actor =  "Admin";
+                    }
                     if(isset($booking_status) && $booking_status === 0){
-                        echo "<small class='text-danger'>(Booking Cancelled By SF)</small>";
+                        echo "<small class='text-danger'>(Booking Cancelled By $actor)</small>";
                     }else if($booking_status === 1){
-                        echo "<small class='text-danger'>(Booking Completed By SF)</small>";
+                        echo "<small class='text-danger'>(Booking Completed By $actor)</small>";
                     }
                 ?>
             </h1>
