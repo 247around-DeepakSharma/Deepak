@@ -666,9 +666,9 @@ $arr_partner_discount = array();
                         // Enable Submit button , only if Serial Number Validation Passed
                         if($("#is_sn_correct").val() != '1')
                         {
-                            $("#submitform").attr("disabled", false);
-                            $("#submitform").show();
+                            $("#submitform").attr("disabled", false);                           
                         }
+                        $("#submitform").show();
                     }
                 }                           
             });
