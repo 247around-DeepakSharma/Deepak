@@ -1428,7 +1428,7 @@ class invoices_model extends CI_Model {
             $meta['parts_count'] = $parts_count;
             $meta['service_count'] = $service_count;
             $meta['total_taxable_value'] = sprintf("%.2f",$meta['total_taxable_value']);
-            $meta['sub_total_amount'] = sprintf("%.2f",$meta['sub_total_amount']);
+            $meta['sub_total_amount'] = round($meta['sub_total_amount'],0);
             $meta['igst_total_tax_amount'] = sprintf("%.2f",$meta['igst_total_tax_amount']);
             $meta['cgst_total_tax_amount'] = sprintf("%.2f",$meta['cgst_total_tax_amount']);
             $meta['sgst_total_tax_amount'] = sprintf("%.2f",$meta['sgst_total_tax_amount']);
