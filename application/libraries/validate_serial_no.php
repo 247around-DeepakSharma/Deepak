@@ -817,6 +817,10 @@ class Validate_serial_no {
     function videocon_serialNoValidation($partnerID,$serialNo){
         $stringLength = strlen($serialNo);
          if($stringLength == 18){
+             // return success ( FOR now only 18 digit check)
+             return array('code' => SUCCESS_CODE);
+             // return success ( FOR now only 18 digit check)
+             
              $plantLocation = substr($serialNo,0,2);
              $month = substr($serialNo,2,2);
              $year = substr($serialNo,4,2);
