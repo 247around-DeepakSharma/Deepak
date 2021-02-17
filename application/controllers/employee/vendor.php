@@ -12,7 +12,7 @@ use Box\Spout\Reader\ReaderFactory;
 use Box\Spout\Common\Type;
 
 require_once BASEPATH . 'libraries/spout-2.4.3/src/Spout/Autoloader/autoload.php';
-tion process_reassign_vendor_form
+
 class vendor extends CI_Controller {
 
     var $vendorPinArray = array();
