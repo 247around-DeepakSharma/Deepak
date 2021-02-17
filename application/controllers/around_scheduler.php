@@ -3372,5 +3372,39 @@ class Around_scheduler extends CI_Controller {
           }        
         }        
     }
-
+    /**
+     * @desc This is used to Send Email to All RM for those Service Center who are not using Engineer Buddy App 
+     * @return boolean
+     * Ghanshyam
+     */
+    function Send_notification_for_non_engineer_SF(){
+        $list = $result = $this->inventory_model->call_procedure('non_engineer_sf_list','');
+        //non_engineer_sf_email
+        $table = "<table style='width:100%'  border='1'>";
+        $count = 1;
+        $table .= "<tr><th>Sn</th>"
+                . "<th>RM Name</th>"
+                . "<th>SF Name</th>"
+                . "<th >State</th></tr>";
+        foreach($list as $key => $value){            
+            $table .= "<tr><td>".$count++."</td>"
+                    . "<td>".$value['full_name']."</td>"
+                    . "<td>".$value['name']."</td>"
+                    . "<td >".$value['state']."</td></tr>";
+        }
+        $table .= "</table>";
+        
+            $template = $this->booking_model->get_booking_email_template("non_engineer_sf_email");
+            if(!empty($template)){
+            $body = $template[0];
+            $to = $template[1];
+            $from = $template[2];
+            $cc = $template[3];
+            $subject = $template[4]; 
+            $bcc = '';
+            $emailBody = vsprintf($template[0], array($table));
+            $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $emailBody, "",'non_engineer_sf_email');
+            }
+            
+    }
 }
