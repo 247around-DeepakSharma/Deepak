@@ -12,7 +12,7 @@ use Box\Spout\Reader\ReaderFactory;
 use Box\Spout\Common\Type;
 
 require_once BASEPATH . 'libraries/spout-2.4.3/src/Spout/Autoloader/autoload.php';
-
+tion process_reassign_vendor_form
 class vendor extends CI_Controller {
 
     var $vendorPinArray = array();
@@ -1364,10 +1364,9 @@ class vendor extends CI_Controller {
                         $tracking_details = array('spare_id' => $spare['id'], 'action' => "Spare Part Reassign", 'remarks' => "Booking Reassign - Part Reassign", 'agent_id' => $this->session->userdata("id"), 'entity_id' => _247AROUND, 'entity_type' => _247AROUND_EMPLOYEE_STRING);
                         $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                     } else {
-
-                        if (!empty($spare['parts_shipped'])) {
-                            $update_spare_part = false;
-                            if($spare['parts_shipped']!=1 && !empty($spare['defective_part_shipped_date'])){
+                        $update_spare_part = false;
+                        if (!empty($spare['parts_shipped'])) {                            
+                            if($spare['consumed_part_status_id']!=1 && empty($spare['defective_part_shipped_date'])){
                             $sp['service_center_id'] = $previous_sf_id[0]['assigned_vendor_id'];
                             $sp['status'] = OK_PART_TO_BE_SHIPPED;
                             $sp['consumed_part_status_id'] = 5;
