@@ -624,6 +624,7 @@ $arr_partner_discount = array();
         var partner_id = $("#partner_id").val();
         var service_id = $("#service_id").val();
         var serial_number = $("#serial_number").val();
+        var brand = $("#appliance_brand_1").val();
         var booking_id = "<?= $booking_history[0]['booking_id']?>";
         var booking_request_types = []; 
         $(".price_checkbox:checked").each(function(){
@@ -642,6 +643,7 @@ $arr_partner_discount = array();
                         'booking_id' : booking_id,
                         'booking_create_date' : "<?= $booking_history[0]['create_date']?>",
                         'service_id' : service_id,
+                        'brand' : brand,
                         'model_number' : model_number,
                         'purchase_date' : dop,
                         'serial_number' : serial_number,
