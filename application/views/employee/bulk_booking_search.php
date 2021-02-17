@@ -59,6 +59,9 @@
                             <th>Capacity</th>
                             <th>Price Tag</th>
                             <th>Product/Service</th>
+                            <th>Partner Serial Number</th>
+                            <th>SF Serial Number</th>
+                            <th>Call Charges</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -73,7 +76,7 @@
         select_type = document.getElementById("select_type").value;
         bulk_input = document.getElementById("bulk_input").value;
         bulkInputArray = bulk_input.replace( /\n/g, " " ).split( " " );
-        if(bulkInputArray.length>100){
+        if(bulkInputArray.length>500){
             alert("Search Input Should be less then 100");
         }
         else{
