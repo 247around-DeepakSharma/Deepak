@@ -5179,12 +5179,13 @@ class Booking extends CI_Controller {
     }
     function get_bulk_search_result_view(){
        $receieved_Data = $this->input->post();
+       
        $bookingDetailsSelect = "booking_details.booking_id,booking_details.request_type,booking_details.order_id,booking_details.booking_primary_contact_no,bookings_sources.source,booking_details.city,"
                 . "service_centres.company_name,services.services,booking_details.current_status,booking_details.internal_status";
-        $unitDetailsSelect =", 'Not_found' as purchase_date, 'Not_found' as appliance_brand,'Not_found' as appliance_category,'Not_found' as appliance_capacity,'Not_found' as price_tags,'Not_found' as product_or_services";
+        $unitDetailsSelect =", 'Not_found' as purchase_date, 'Not_found' as appliance_brand,'Not_found' as appliance_category,'Not_found' as appliance_capacity,'Not_found' as price_tags,'Not_found' as product_or_services, 'Not_found' as partner_serial_number, 'Not Found' as serial_number, 'Not_found' as customer_total";
        if($this->input->post("is_unit_details")){
-           $unitDetailsSelect = ",  booking_unit_details.purchase_date as purchase_date, booking_unit_details.appliance_brand,booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_unit_details.price_tags,"
-         . "booking_unit_details.product_or_services";
+           $unitDetailsSelect = ",  booking_unit_details.purchase_date as purchase_date, booking_unit_details.appliance_brand,booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_unit_details.price_tags, "
+         . "booking_unit_details.product_or_services, booking_unit_details.partner_serial_number, booking_unit_details.serial_number,customer_total";
        }
        $select = $bookingDetailsSelect.$unitDetailsSelect;
        $data = $this->get_bulk_search_result_data($receieved_Data,$select);
@@ -5214,10 +5215,10 @@ class Booking extends CI_Controller {
                 . "booking_details.upcountry_distance,booking_details.is_penalty,booking_details.create_date,booking_details.update_date,"
                 . "booking_details.service_center_closed_date as service_center_closed_date, "
                 . "booking_details.closed_date as 247around_closed_date";
-        $unitDetailsSelect =", 'Not_found' as purchase_date, 'Not_found' as appliance_brand,'Not_found' as appliance_category,'Not_found' as appliance_capacity,'Not_found' as price_tags,'Not_found' as product_or_services";
+        $unitDetailsSelect =", 'Not_found' as purchase_date, 'Not_found' as appliance_brand,'Not_found' as appliance_category,'Not_found' as appliance_capacity,'Not_found' as price_tags,'Not_found' as product_or_services, 'Not_found' as partner_serial_number, 'Not Found' as serial_number, 'Not_found' as customer_total";
        if($this->input->post("is_unit_details")){
            $unitDetailsSelect = ",booking_unit_details.purchase_date as purchase_date, booking_unit_details.appliance_brand,booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_unit_details.price_tags,"
-         . "booking_unit_details.product_or_services";
+         . "booking_unit_details.product_or_services, booking_unit_details.partner_serial_number, booking_unit_details.serial_number,customer_total";
        }
        $select = $bookingDetailsSelect.$unitDetailsSelect;
        $data = $this->get_bulk_search_result_data($receieved_Data,$select);
@@ -5225,7 +5226,7 @@ class Booking extends CI_Controller {
                     "Partner Source","Partner Current Status","Partner Internal Status","Booking Address","Pincode","District","State","Primary Contact Number","Current Booking Date","First Booking Date",
                     "Age Of Booking","TAT","Booking Timeslot","Booking Remarks","Query Remarks","Cancellation Reason","Reschedule_reason","Vendor(SF)",
                     "Rating","Vendor Rating Comments","Closing Remarks","Count Reschedule","Count Escalation",
-                    "Is Upcountry","Upcountry Pincode","Upcountry Distance","IS Penalty","Create Date","Update Date","Service Center Closed Date","Closed Date", "Purchase Date", "Brand","Category","Capacity","Request Type","Product/Service");
+                    "Is Upcountry","Upcountry Pincode","Upcountry Distance","IS Penalty","Create Date","Update Date","Service Center Closed Date","Closed Date", "Purchase Date", "Brand","Category","Capacity","Request Type","Product/Service", "Partner Serial Number", "Sf Serial Number", "Call Charges");
        $this->miscelleneous->downloadCSV($data['data'],$headings,"booking_bulk_search_summary");   
        ob_end_clean();
     }
@@ -5785,7 +5786,7 @@ class Booking extends CI_Controller {
                     . "CASE WHEN spare_parts_details.parts_requested != '' THEN 'YES' ELSE 'No' END AS 'Is Part Involved', REPLACE(group_concat(in_req.part_number),trim(','),' | ') as 'Requested Part Code', REPLACE(group_concat(spare_parts_details.parts_requested),trim(','),' | ') as 'Requested Part Name',"
                     . "REPLACE(group_concat(spare_parts_details.parts_requested_type),trim(','),' | ') as 'Requested Part Type',spare_parts_details.date_of_request as 'Part Requested Date'"
                     . ",REPLACE(group_concat(in_sh.part_number),trim(','),' | ')  as 'Shipped Part Code', REPLACE(group_concat(spare_parts_details.parts_shipped),trim(','),' | ') as 'Shipped Part Name',REPLACE(group_concat(spare_parts_details.shipped_parts_type),trim(','),' | ') as 'Shipped Part Type'"
-                    . ",spare_parts_details.shipped_date as 'Part Shipped Date',spare_parts_details.acknowledge_date as 'SF Acknowledged Date'"
+                    . ",spare_parts_details.shipped_date as 'Part Shipped Date',max(spare_parts_details.acknowledge_date) as 'SF Acknowledged Date'"
                     . ",CASE WHEN (spare_parts_details.auto_acknowledeged = 1 or spare_parts_details.auto_acknowledeged = 2) THEN 'YES' ELSE 'No' END AS 'Is auto Acknowledge',penalty_on_booking.active as 'Penalty Active'";
             // Show Distinct Bookings
             $group_by = 'booking_details.booking_id';
