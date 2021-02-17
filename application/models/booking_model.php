@@ -2902,12 +2902,25 @@ class Booking_model extends CI_Model {
     
     // check for duplicate serial number bookings which are not cancelled 
     
-    function get_data_for_duplicate_serial_number_check($serialNumber,$booking_id,$getDOI = false){
+    function get_data_for_duplicate_serial_number_check($serialNumber,$booking_id,$getDOI = false,$partner_id = "",$service_id = "", $brand = "", $model_number = ""){
         $strWhere = " AND booking_unit_details.booking_status != '"._247AROUND_CANCELLED."' 
                     AND (service_center_booking_action.current_status != '"._247AROUND_CANCELLED."' || service_center_booking_action.internal_status != '"._247AROUND_CANCELLED."') ";
         
         if($getDOI){
-           $strWhere = " AND booking_details.request_type LIKE '%".FILTER_INSTALLATION."%' AND booking_details.current_status = '"._247AROUND_COMPLETED."' "; 
+            $strWhere = " AND booking_details.request_type LIKE '%".FILTER_INSTALLATION."%'"
+                        . " AND booking_details.current_status = '"._247AROUND_COMPLETED."'";
+            if(!empty($partner_id)){
+                $strWhere .= " AND booking_details.partner_id = '".$partner_id."'";
+            }
+            if(!empty($service_id)){
+                $strWhere .= " AND booking_details.service_id = '".$service_id."'";
+            }
+            if(!empty($brand)){
+                $strWhere .= " AND booking_unit_details.appliance_brand = '".$brand."'";
+            }
+            if(!empty($model_number)){
+                 $strWhere .= " AND booking_unit_details.sf_model_number = '".$model_number."'"; 
+            }                        
         }
         $sql = "SELECT 
                         *
