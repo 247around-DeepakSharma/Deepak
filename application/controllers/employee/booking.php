@@ -7185,7 +7185,7 @@ class Booking extends CI_Controller {
             if($ow_completed_percentage < OW_COMPLETED_THRESHOLD){
                 $str = "<span style='color:red;margin-left:5px;font-weight:bold'>O</span>";
             }
-            echo $str;
+            echo $str." (O=> ".$ow_completed_percentage."%)";
         }
         else
         {
@@ -7211,7 +7211,7 @@ class Booking extends CI_Controller {
             if($cancelled_percentage > CANCELLATION_THRESHOLD){
                 $str = "<span style='color:red;margin-left:5px;font-weight:bold'>C</span>";
             }
-            echo $str;
+            echo $str." (C=> ".$cancelled_percentage."%)";
         }
         else
         {

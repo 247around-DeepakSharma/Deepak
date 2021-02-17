@@ -317,7 +317,7 @@ class Penalty extends CI_Controller {
             if($penalty_percentage > PENALTY_THRESHOLD){
                 $str = "<i class='fa fa-circle' style='color:red;margin-left:5px;'></i>";
             }
-            echo $str;
+            echo $str." (".$penalty_percentage."%)";
         }
         else
         {

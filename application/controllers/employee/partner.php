@@ -1,3 +1,4 @@
+
 <?php
 if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
@@ -613,7 +614,19 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('grand_total', 'Grand Total', 'trim');
         $this->form_validation->set_rules('dealer_name', 'Dealer Name', 'trim');
         $this->form_validation->set_rules('dealer_phone_number', 'Dealer Phone Number', 'trim');
-
+//$post['product_type'] = 'Delivered';
+       //$post['service_id'] = 45;
+// $post['agent_id'] = 981649;
+$post['service_id'] = 46;
+$post['appliance_unit'] = 1;
+$post['agent_id'] = 981649;
+$post['assigned_vendor_id'] = '';
+$post['upcountry_data'] = '';
+$post['appliance_name'] = '';
+$post['dealer_name'] = '';
+$post['dealer_phone_number'] = '';
+$post['dealer_id'] = '';
+$post['amount_due'] = false; 
         if ($this->form_validation->run() == FALSE) {
             return FALSE;
         } else {
