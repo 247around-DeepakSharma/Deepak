@@ -10446,7 +10446,7 @@ $post['amount_due'] = false;
         }
         return $headers;
     }
-	private function checkAuthentication() {
+	private function checkAuthentication($return_token = false) {
         $h = $this->getallheaders();
         if ($h === FALSE || empty($h['Authorization'])) {
             return false;
@@ -10457,7 +10457,11 @@ $post['amount_due'] = false;
             if (empty($partner_validate)) {
                 return false;
             } else {
+                if(!empty($return_token)){
+                    return $h['Authorization'];
+                }else{
                 return true;
+                }
             }
         }
     }
@@ -10786,5 +10790,79 @@ $post['amount_due'] = false;
             $this->load->view('partner/booking_result', $data);
         }        
     }
-    
+    /*
+     * @Desc - This function is used to return booking history as API
+     * @param -
+     * @response - json
+     * @Author  - Ghanshyam Ji Gupta
+     */
+    function getBookingHistory() {
+        $input_d = file_get_contents('php://input');
+        $post = json_decode($input_d, TRUE);
+        $authentication = $this->checkAuthentication(true);
+        if (empty($authentication)) {
+            return $this->show_booking_insertion_failure(true, ERR_GENERIC_ERROR_CODE, ERR_INVALID_AUTH_TOKEN_MSG);
+        }
+        $_POST = $post;
+        $this->form_validation->set_error_delimiters('', ',');
+
+        $this->form_validation->set_rules('booking_id', '', 'required');
+        if ($this->form_validation->run() == FALSE) {
+            $error_string = validation_errors();
+            $error_string_array = explode(',', $error_string);
+            return $this->show_booking_insertion_failure(true, ERR_GENERIC_ERROR_CODE, $error_string_array[0]);
+        }
+
+        $where = array('partners.auth_token' => $authentication);
+        $partner_detail = $this->partner_model->getpartner_details('*', $where);
+        if (!empty($partner_detail)) {
+            $post['partner_id'] = $partner_detail[0]['partner_id'];
+            $post['partner_code'] = $partner_detail[0]['code'];
+            $post['partner_type'] = $partner_detail[0]['partner_type'];
+        } else {
+            return $this->show_booking_insertion_failure(true, ERR_INVALID_PARTNER_NAME_CODE, ERR_INVALID_PARTNER_NAME_MSG);
+        }
+        $booking_select = "booking_id,service_center_closed_date";
+        $booking_where = array("booking_id" => $post['booking_id'], "partner_id" => $post['partner_id']);
+        $booking_details = $this->engineer_model->get_booking_details($booking_select, $booking_where);
+        if (!empty($booking_details)) {
+            $bookingID_state_change = $this->booking_model->get_booking_state_change_by_id($post['booking_id'], true, true);
+            $comment_section = $this->booking_model->get_remarks(array('booking_id' => $post['booking_id'], "isActive" => 1, 'comment_type' => 1));
+            $newarray = array();
+            $newarray_comment = array();
+            if (!empty($bookingID_state_change) || !empty($comment_section)) {
+                if (!empty($bookingID_state_change)) {
+                    foreach ($bookingID_state_change as $key => $value) {
+                        $newarray[$key]['old_state'] = $value['old_state'];
+                        $newarray[$key]['new_state'] = $value['new_state'];
+                        $newarray[$key]['remarks'] = $value['remarks'];
+                        $newarray[$key]['insert_date'] = $value['create_date'];
+                        $newarray[$key]['full_name'] = $value['full_name'];
+                        $newarray[$key]['source'] = $value['source'];
+                    }
+                }
+                if (!empty($bookingID_state_change)) {
+                    foreach ($bookingID_state_change as $key => $value) {
+                        $newarray_comment[$key]['remarks'] = $value['remarks'];
+                        $newarray_comment[$key]['employee'] = $value['employee'];
+                        $newarray_comment[$key]['full_name'] = $value['full_name'];
+                        $newarray_comment[$key]['create_date'] = $value['create_date'];
+                    }
+                }
+                $this->jsonResponseString['code'] = SUCCESS_CODE;
+                $this->jsonResponseString['result']['history'] = $newarray;
+                $this->jsonResponseString['result']['comment'] = $newarray_comment;
+                $responseData = array("data" => $this->jsonResponseString);
+
+                header('Content-Type: application/json');
+                $response = json_encode($responseData, JSON_UNESCAPED_SLASHES);
+                echo $response;
+            } else {
+                return $this->show_booking_insertion_failure(true, ERR_INVALID_BOOKING_ID_CODE, "No history found");
+            }
+        } else {
+            return $this->show_booking_insertion_failure(true, ERR_INVALID_BOOKING_ID_CODE, ERR_INVALID_BOOKING_ID_MSG);
+        }
+    }
+
 }
