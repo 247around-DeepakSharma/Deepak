@@ -3641,7 +3641,7 @@ class Booking extends CI_Controller {
      */
     function validate_upload_orderId_support_file() {
         if(!empty($_FILES['support_file'])){
-            for($i=0; $i< count($_FILES['support_file']['tmp_name']); $i++) {
+            for($i=0; $i< count(array($_FILES['support_file']['tmp_name'])); $i++) {
                 if (!empty($_FILES['support_file']['tmp_name'][$i])) {
                     $MB = 1048576;
                     if ($_FILES['support_file']['size'][$i] < 5 * $MB) {
