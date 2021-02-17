@@ -623,7 +623,7 @@
                     </div>
                     
                     <div class='row' style='padding-bottom: 10px;display:none' id='part_brought_at'>
-                        <label for="prob_desc" class="col-md-2">Did you brought appliance at workshop?</label>
+                        <label for="prob_desc" class="col-md-2">Did you bring appliance at workshop?</label>
                         <div class='col-md-6'>
                             <input type='radio' name='part_brought_at' value=2 <?php if (!empty($booking_set_location[0]['part_brought_at']) && $booking_set_location[0]['part_brought_at'] == 2) { ?> checked onclick='return false'<?php } ?>>&nbsp;&nbsp;Yes &nbsp;&nbsp;
                             <input type='radio' name='part_brought_at' value=1 <?php if (!empty($booking_set_location[0]['part_brought_at']) && $booking_set_location[0]['part_brought_at'] == 1) { ?>checked <?php } ?> <?php if (!empty($booking_set_location[0]['part_brought_at']) && $booking_set_location[0]['part_brought_at'] == 2) { ?> onclick='return false'<?php } ?>>&nbsp;&nbsp;No
@@ -1107,7 +1107,7 @@ function alpha(e) {
             
             radioName = 'part_brought_at';
             if ($('input[name='+radioName+']:checked').length == '0'){
-                alert("Please select option, Did you brought appliance at workshop?");
+                alert("Please select option, Did you bring appliance at workshop?");
                 checkbox_value = 0;
                 return false;
             }
