@@ -342,7 +342,7 @@ if(empty($booking_history[0]['booking_id'])){
                                                 $image_src = $src;
                                                 if (isset($files['file_name']) && !empty($files['file_name'])) {
                                                     //Path to be changed
-                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$files['file_name'];
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/purchase-invoices/".$files['file_name'];
                                                     $image_src = base_url().'images/view_image.png';
                                                 }
                                                 ?>
@@ -1270,7 +1270,7 @@ function uploadsupportingfile(key, id){
         return;
     } else {
         var formData = new FormData();
-        formData.append('support_file', $("#supportfileLoader_"+key)[0].files[0]);
+        formData.append('support_file[]', $("#supportfileLoader_"+key)[0].files[0]);
         formData.append('id', id);
         formData.append('booking_id', '<?php echo $booking_history[0]['booking_id'];?>');
         
@@ -1299,8 +1299,8 @@ function uploadsupportingfile(key, id){
                     obj = JSON.parse(response);
                     
                     if(obj.code === "success"){
-                        $("#a_order_support_file_"+key).attr("href", "<?php echo S3_WEBSITE_URL;?>misc-images/" + obj.name);
-                        $("#m_order_support_file_"+key).attr("src", "<?php echo S3_WEBSITE_URL;?>misc-images/" + obj.name);
+                        $("#a_order_support_file_"+key).attr("href", "<?php echo S3_WEBSITE_URL;?>purchase-invoices/" + obj.name);
+                        $("#m_order_support_file_"+key).attr("src", "<?php echo S3_WEBSITE_URL;?>purchase-invoices/" + obj.name);
                     } else {
                         alert(obj.message);
                     }
