@@ -5786,7 +5786,7 @@ class Booking extends CI_Controller {
                     . "CASE WHEN spare_parts_details.parts_requested != '' THEN 'YES' ELSE 'No' END AS 'Is Part Involved', REPLACE(group_concat(in_req.part_number),trim(','),' | ') as 'Requested Part Code', REPLACE(group_concat(spare_parts_details.parts_requested),trim(','),' | ') as 'Requested Part Name',"
                     . "REPLACE(group_concat(spare_parts_details.parts_requested_type),trim(','),' | ') as 'Requested Part Type',spare_parts_details.date_of_request as 'Part Requested Date'"
                     . ",REPLACE(group_concat(in_sh.part_number),trim(','),' | ')  as 'Shipped Part Code', REPLACE(group_concat(spare_parts_details.parts_shipped),trim(','),' | ') as 'Shipped Part Name',REPLACE(group_concat(spare_parts_details.shipped_parts_type),trim(','),' | ') as 'Shipped Part Type'"
-                    . ",spare_parts_details.shipped_date as 'Part Shipped Date',spare_parts_details.acknowledge_date as 'SF Acknowledged Date'"
+                    . ",spare_parts_details.shipped_date as 'Part Shipped Date',max(spare_parts_details.acknowledge_date) as 'SF Acknowledged Date'"
                     . ",CASE WHEN (spare_parts_details.auto_acknowledeged = 1 or spare_parts_details.auto_acknowledeged = 2) THEN 'YES' ELSE 'No' END AS 'Is auto Acknowledge',penalty_on_booking.active as 'Penalty Active'";
             // Show Distinct Bookings
             $group_by = 'booking_details.booking_id';
