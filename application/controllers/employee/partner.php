@@ -2528,7 +2528,7 @@ class Partner extends CI_Controller {
                     redirect(base_url() . "partner/update_spare_parts_form/" . $booking_id);
                 }
             } else {
-                $userSession = array('success' => 'Challan file should not be empty.');
+                $userSession = array('success' => 'Uploaded challan file must be Less than or equal 2MB in size.');
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "partner/update_spare_parts_form/" . $booking_id);
             }
