@@ -1272,11 +1272,12 @@
     $("#booking_form").validate({
        rules: {
     booking_status: "required",
-    serial_number: "required"
+// Commented  on 17-02-2021, serial number will be mandatory only in case of POD = 1
+//    serial_number: "required"
        },
        messages: {
     booking_status: "Please select on of these button ",
-    serial_number: " Please Enter Serial Number"
+//    serial_number: " Please Enter Serial Number"
     
        },
        submitHandler: function (form) {
