@@ -2282,7 +2282,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                 if ($affected_id) {
                     if (isset($data['is_micro_wh']) && $data['is_micro_wh'] == 1 ) {
                         $data['spare_id'] = $spare_parts_id;
-                         $data['shipped_inventory_id'] = $spare_data['requested_inventory_id'];
+                        $data['shipped_inventory_id'] = $data['requested_inventory_id'];
                         array_push($delivered_sp, $data);
                     }
 
