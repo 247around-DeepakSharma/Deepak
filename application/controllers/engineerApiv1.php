@@ -3377,7 +3377,7 @@ class engineerApiv1 extends CI_Controller {
         }
     }
 
-    function warrantyChecker($booking_id, $partner_id, $booking_create_date, $model_number, $purchase_date, $booking_request_type,$service_id=NULL) {
+    function warrantyChecker($booking_id, $partner_id, $booking_create_date, $model_number, $purchase_date, $booking_request_type,$service_id=NULL,$serial_number='') {
         $data = array();
         $matching_flag = false;
         $arrBookings[0] = array(
@@ -3440,6 +3440,7 @@ class engineerApiv1 extends CI_Controller {
                 //$returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type."), to request part please change request type of the Booking.";
                 $returnMessage = "Warranty Status is " . $arr_warranty_status_full_names[$warranty_checker_status] . ", Change request type";
                 if ($checkInstallationDate == WARRANTY_ON_DOI && !empty($arrBookings[$booking_id])) {
+                    $arrBookingsnew[0] = $arrBookings[$booking_id];
                     $arrBookingsWarrantyStatus = $this->warranty_utilities->get_warranty_status_of_bookings($arrBookingsnew, 1);
                     if (!empty($arrBookingsWarrantyStatus['installation_date']) && !empty($arrBookingsWarrantyStatus['installation_booking'])) {
                         $returnMessage = "Booking Warranty Status (" . $arr_warranty_status_full_names[$warranty_checker_status] . ") is not matching "
@@ -3576,9 +3577,16 @@ class engineerApiv1 extends CI_Controller {
             }
         }
         if ($check) {
-            $where = array('entity_id' => $requestData['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $requestData['service_id'], 'inventory_model_mapping.active' => 1, 'appliance_model_details.active' => 1);
-            $model_numbers = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where);
-            if (empty($model_numbers)) {
+            $type = '';
+            if(!empty($requestData['type'])){
+                $type = $requestData['type'];
+            }
+            //For spare part request show inventory mapped mpdel, for complete booking warranty checker show model non mapped model also
+            if($type!='complete_booking'){
+                $where = array('entity_id' => $requestData['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $requestData['service_id'], 'inventory_model_mapping.active' => 1, 'appliance_model_details.active' => 1);
+                $model_numbers = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where);
+            }
+            if (empty($model_numbers) || $type=='complete_booking') {
                 $where = array('entity_id' => $requestData['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $requestData['service_id'], 'active' => 1);
                 $model_numbers = $this->inventory_model->get_appliance_model_details('id, model_number', $where);
             }
@@ -3743,22 +3751,31 @@ class engineerApiv1 extends CI_Controller {
                     }
                 }
             }
-            
+            $serial_number_img_submit = false;
             $serial_number_array = json_decode($requestData['submitWarrantyCheckerAndEditCallType'], true);
             if (isset($serial_number_array['serial_number_pic_exist'])) {
                 if ($serial_number_array['serial_number_pic_exist']) {
                     $serial_number_pic = "serial_number_pic_" . date("YmdHis") . ".png";
                     $this->miscelleneous->generate_image($serial_number_array['serial_number_pic_exist'], $serial_number_pic, SERIAL_NUMBER_PIC_DIR);
                     $unit_detail['serial_number_pic'] = $serial_number_pic;
+                    $serial_number_img_submit = true;
                 }
             } else {
                 if (isset($serial_number_array['existing_serial_number_pic'])) {
                     if ($serial_number_array['existing_serial_number_pic']) {
                         $serial_number_pic_exp = array_reverse(explode('/', $serial_number_array['existing_serial_number_pic']));
                         $unit_detail['serial_number_pic'] = $serial_number_pic_exp[0];
+                        $serial_number_img_submit = true;
                     }
                 }
             }
+            if (empty($serial_number_img_submit)) {
+                $response['warranty_flag'] = 1;
+                $this->jsonResponseString['response'] = $response;
+                $this->sendJsonResponse(array('0055', "Serial image is required"));
+                exit;
+            }
+
             $unit_detail['serial_number'] = $requestData['serial_number'];
             $this->booking_model->update_booking_unit_details($requestData['booking_id'], $unit_detail);
 
@@ -3920,7 +3937,8 @@ class engineerApiv1 extends CI_Controller {
                 $this->jsonResponseString['response'] = $response;
                 $this->sendJsonResponse(array('0000', 'success'));
             }
-            if(!empty($response['warranty_flag']) && $response['warranty_flag']!=1 && !empty($repeat_booking_message)){
+            
+            if(isset($response['warranty_flag']) && $response['warranty_flag']!=1 && !empty($repeat_booking_message)){
                 $response['warranty_flag'] = 2;
                 $this->jsonResponseString['response'] = $response;
                 $this->sendJsonResponse(array('0054', $repeat_booking_message));
