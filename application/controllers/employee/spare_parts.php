@@ -5160,6 +5160,17 @@ class Spare_parts extends CI_Controller {
 			echo "<div class='alert alert-warning'>AWB Number not found for this booking, you cannot mark RTO for this booking.</div>";
 			exit;
 		}
+                
+        $spare_part_details = $this->reusable_model->get_search_result_data('spare_parts_details', 'id,defective_part_shipped_date,status,booking_id', ['awb_by_partner' => $spare_part_detail['awb_by_partner'], 'status != "'._247AROUND_CANCELLED.'"' => NULL], NULL, NULL, NULL, NULL, NULL);
+        if(!empty($spare_part_details)){
+            foreach($spare_part_details as $keysc => $valuesc){
+            if(!in_array($valuesc['status'],array(DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE,OK_PARTS_REJECTED_BY_WAREHOUSE)) && !empty($valuesc['defective_part_shipped_date'])){
+                echo "<div class='alert alert-warning'>Defective part already shipped for booking ID ".$valuesc['booking_id'].". You can not mark RTO.</div>";
+                echo $valuesc['status'];
+                exit;
+            }
+            }
+        }
         if (!empty($post_data['rto'])) {
             // upload rto document.
 		if(!empty($spare_part_detail['awb_by_partner'])){
@@ -5171,7 +5182,7 @@ class Spare_parts extends CI_Controller {
             }
             
             /* fetch all spare associated with this awb number */
-            $spare_part_details = $this->reusable_model->get_search_result_data('spare_parts_details', 'id', ['awb_by_partner' => $spare_part_detail['awb_by_partner'], 'status != "'._247AROUND_CANCELLED.'"' => NULL], NULL, NULL, NULL, NULL, NULL);
+            
             if(!empty($spare_part_details)) {
                 foreach($spare_part_details as $spare_part) {
                     $this->inventory_model->handle_rto_case($spare_part['id'], $post_data);

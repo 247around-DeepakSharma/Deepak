@@ -3373,4 +3373,54 @@ class Around_scheduler extends CI_Controller {
           }        
         }        
     }
+    /**
+     * @desc This is used to Send Email to All RM for those Service Center who are not using Engineer Buddy App 
+     * @return boolean
+     * Ghanshyam
+     */
+    function Send_notification_for_non_engineer_SF(){
+        $select = "service_centres.id,service_centres.name,service_centres.state,service_centres.rm_id";
+        $post['where']['(service_centres.is_sf = 1)'] = null;
+        $post['where']['service_centres.active'] = 1;
+        $post['where']['service_centres.isEngineerApp'] = 0;     
+        $post['order'][0]['dir'] = 'DESC';
+        $post['order'][0]['column'] = 'rm_id';
+        $post['column_order']['rm_id'] = 'rm_id';
+        $post['length'] = -1;
+        $post['start'] = 0;
+        $list = $this->vendor_model->viewallvendor($post, $select);
+        //non_engineer_sf_email
+        $table = "<table style='width:100%'>";
+        $count = 1;
+        $table .= "<tr><th style='border: 1px solid black;padding:3px 10px'>Sn</th>"
+                . "<th style='border: 1px solid black;padding:3px 10px'>RM Name</th>"
+                . "<th style='border: 1px solid black;padding:3px 10px'>SF Name</th>"
+                . "<th  style='border: 1px solid black;padding:3px 10px'>State</th></tr>";
+        foreach($list as $key => $value){
+            $rm_id = $value['rm_id'];
+            $rm_name = '';
+            if(!empty($rm_id)){
+                $rm_details = $this->vendor_model->get_rm_contact_details_by_sf_id($value['id']);
+                if(!empty($rm_details)){
+                  $rm_name =   $rm_details[0]['full_name'];
+                }
+            }
+            $table .= "<tr><td style='border: 1px solid black;padding:3px 10px'>".$count++."</td>"
+                    . "<td style='border: 1px solid black;padding:3px 10px'>".$rm_name."</td>"
+                    . "<td style='border: 1px solid black;padding:3px 10px'>".$value['name']."</td>"
+                    . "<td  style='border: 1px solid black;padding:3px 10px'>".$value['state']."</td></tr>";
+        }
+        $table .= "</table>";
+        
+            $template = $this->booking_model->get_booking_email_template("non_engineer_sf_email");
+            $body = $template[0];
+            $to = $template[1];
+            $from = $template[2];
+            $cc = $template[3];
+            $subject = $template[4]; 
+            $bcc = '';
+            $emailBody = vsprintf($template[0], array($table));
+            $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $emailBody, "",'non_engineer_sf_email');
+            
+    }
 }
