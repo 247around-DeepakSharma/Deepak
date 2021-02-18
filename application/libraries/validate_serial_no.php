@@ -289,7 +289,7 @@ class Validate_serial_no {
     function check_duplicate_serial_number($serial_number, $price_tags, $user_id, $booking_id){
         $data = $this->MY_CI->booking_model->get_data_for_duplicate_serial_number_check($serial_number,$booking_id);
         // get booking initial date
-        $arr_booking_date = $this->MY_CI->booking_model->get_booking_details("initial_booking_date", array("booking_id"=>$booking_id));
+        $arr_booking_date = $this->MY_CI->booking_model->get_booking_details("initial_booking_date, service_id, partner_id", array("booking_id"=>$booking_id));
         $initial_booking_date = date_create('today');
         if(!empty($arr_booking_date)){
             $initial_booking_date = $arr_booking_date[0]['initial_booking_date'];
@@ -299,43 +299,46 @@ class Validate_serial_no {
             $msg = "";
             $isDuplicate = false;
             foreach ($data as $key =>$value) {
-               $booking_details = $this->MY_CI->booking_model->get_bookings_count_by_any('user_id', array('booking_id' => $value['booking_id']));
-               if($value['booking_status'] == _247AROUND_COMPLETED){
+                $booking_details = $this->MY_CI->booking_model->get_bookings_count_by_any('user_id', array('booking_id' => $value['booking_id']));
+                // Check if Service is same
+                if($arr_booking_date[0]['service_id'] != $value['service_id']){
+                    $msg = "Same Serial number is used against different Appliance in Booking ID - ".$value['booking_id'];
+                    $isDuplicate = TRUE;
+                    break;
+                }
+                // Check if Partner is same                
+                elseif ($arr_booking_date[0]['partner_id'] != $value['partner_id']) {
+                    $msg = "Same Serial number is for different Brand in Booking ID - ".$value['booking_id'];
+                    $isDuplicate = TRUE;
+                    break;
+                }
+                // Check if User is same   
+                elseif($booking_details[0]['user_id'] != $user_id){
+                    $msg = "Different User already used in Booking ID - ".$value['booking_id'];
+                    $isDuplicate = TRUE;
+                    break;
+                }
+                elseif($value['booking_status'] == _247AROUND_COMPLETED){
                    // calculate 30 days from service_center_closed_date and booking initial date
                    // if sf_closed_Date not found use booking closed date by admin
                     $booking_closed_date = !empty($value['service_center_closed_date']) ? $value['service_center_closed_date'] : $value['closed_date'];
                     $d = date_diff(date_create($booking_closed_date), $initial_booking_date); 
                     if($d->days < BOOKING_WARRANTY_DAYS){                      
-                        
-                        if($booking_details[0]['user_id'] == $user_id){
-                        
-                            if($price_tags == $value['price_tags']){
-                          
-                                $msg = " Already used in Booking ID - ".$value['booking_id']." with same request type";
-                                $isDuplicate = TRUE;
-                                break;
-                            }
-                        } else {
-                            $msg = "Different User already used in Booking ID - ".$value['booking_id'];
+                        if($price_tags == $value['price_tags']){
+                            $msg = " Already used in Booking ID - ".$value['booking_id']." with same request type";
                             $isDuplicate = TRUE;
                             break;
                         }
                     }
-               } else {
-                   if($booking_details[0]['user_id'] == $user_id){                        
-                        if($price_tags == $value['price_tags']){
-
-                            $msg = " Already used in Open Booking ID - ".$value['booking_id'];
-                            $isDuplicate = TRUE;
-                            break;
-                        }
-                    } else {
-                        $msg = " You already used in Booking ID - ".$value['booking_id'];
+                } else {
+                    if($price_tags == $value['price_tags']){
+                        $msg = " Already used in Open Booking ID - ".$value['booking_id'];
                         $isDuplicate = TRUE;
                         break;
                     }
-               }
+                }
             }
+            
             if($isDuplicate){
                return array('code' => DUPLICATE_SERIAL_NO_CODE, "message" => DUPLICATE_SERIAL_NUMBER_USED." ".$msg);
             } else {
@@ -814,46 +817,50 @@ class Validate_serial_no {
         }
     }
     
-    function videocon_serialNoValidation($partnerID,$serialNo){
+    function videocon_serialNoValidation($partnerID, $serialNo) {
         $stringLength = strlen($serialNo);
-         if($stringLength == 18){
-			 // return success ( FOR now only 18 digit check)
-             return array('code' => SUCCESS_CODE);
-             // return success ( FOR now only 18 digit check)
-             $plantLocation = substr($serialNo,0,2);
-             $month = substr($serialNo,2,2);
-             $year = substr($serialNo,4,2);
-             $productCat = substr($serialNo,6,2);
-             $Brand = substr($serialNo,8,2);
-             $model = substr($serialNo,10,3);
-             $serialNumber = substr($serialNo,13,5);
-             //First 2 digit represent $plantLocation, it must be alphanumeric 
-              if(!preg_match('/^[a-zA-Z]+[a-zA-Z0-9._]+$/', $plantLocation)){
-                 return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
-             }
-             //Next 2 digit represent $month, 
-             $expectedMonthValuesArray = explode(",",MONTH_POSIBLE_VALUES);
-             if(!in_array($month, $expectedMonthValuesArray)){
-                 return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
-            }
-            //Next 2 digit represents year it should be numeric
-             if(!is_numeric($year)){
-                  return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
-             }
-             //Next 2 digit represent $month, 
-             $productCatArray = explode(",",VIDEOCON_PRODUCT_CAT_POSIBLE_VALUES);
-             if(!in_array($productCat, $productCatArray)){
-                 return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
-            }
-             //Next 2 digit represents $productCat , it must be 2 alphabets 
-              if(!ctype_alpha($serialNumber)){
-                  return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
-             }
-         }
-         else{
-             return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
-         }
-         return array('code' => SUCCESS_CODE);
+        if ($stringLength == 18 || $stringLength == 16) {
+            // return success ( FOR now only 18 & 16 digit check)
+            return array('code' => SUCCESS_CODE);
+        } else {
+            return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
+        }
+
+//             // COmmented as of now, Discussion Pending with Videocon Team
+//             $plantLocation = substr($serialNo,0,2);
+//             $month = substr($serialNo,2,2);
+//             $year = substr($serialNo,4,2);
+//             $productCat = substr($serialNo,6,2);
+//             $Brand = substr($serialNo,8,2);
+//             $model = substr($serialNo,10,3);
+//             $serialNumber = substr($serialNo,13,5);
+//             //First 2 digit represent $plantLocation, it must be alphanumeric 
+//              if(!preg_match('/^[a-zA-Z]+[a-zA-Z0-9._]+$/', $plantLocation)){
+//                 return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
+//             }
+//             //Next 2 digit represent $month, 
+//             $expectedMonthValuesArray = explode(",",MONTH_POSIBLE_VALUES);
+//             if(!in_array($month, $expectedMonthValuesArray)){
+//                 return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
+//            }
+//            //Next 2 digit represents year it should be numeric
+//             if(!is_numeric($year)){
+//                  return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
+//             }
+//             //Next 2 digit represent $month, 
+//             $productCatArray = explode(",",VIDEOCON_PRODUCT_CAT_POSIBLE_VALUES);
+//             if(!in_array($productCat, $productCatArray)){
+//                 return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
+//            }
+//             //Next 2 digit represents $productCat , it must be 2 alphabets 
+//              if(!ctype_alpha($serialNumber)){
+//                  return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
+//             }
+//         }
+//         else{
+//             return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
+//         }
+//         return array('code' => SUCCESS_CODE);
     }
     function kenstar_serialNoValidation($partnerID,$serialNo){
         $stringLength = strlen($serialNo);

@@ -1,3 +1,9 @@
+<script>
+ var DUPLICATE_SERIAL_NO_CODE = '<?php echo DUPLICATE_SERIAL_NO_CODE; ?>';
+ var DUPLICATE_SERIAL_NUMBER_USED = '<?php echo DUPLICATE_SERIAL_NUMBER_USED;?>';
+</script>
+<link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
+<script src="<?php echo base_url();?>js/jquery.loading.js"></script>
 <script src="<?php echo base_url();?>js/validation_js.js"></script>
 <style>
     .disable_link {
@@ -7,6 +13,7 @@
         width: 100% !important;
     }
 </style>
+<body>
 <div id="page-wrapper">
     <div class="container-fluid">
         <div class="row">
@@ -69,10 +76,10 @@
                     </div>
                     <input type="hidden" class="form-control" id="booking_id" name="booking_id" value = "<?php echo $booking_id; ?>">
                     <input type="hidden" class="form-control"  name="amount_due" value = "<?php if (isset($bookinghistory[0]['amount_due'])) {echo $bookinghistory[0]['amount_due']; }?>">
-
-  
                     <input type="hidden" class="form-control"  name="partner_id" value = "<?php if (isset($bookinghistory[0]['partner_id'])) {echo $bookinghistory[0]['partner_id']; }?>">
-                    <input type="hidden" class="form-control"  name="price_tags" value = "<?php if (isset($price_tags)) {echo $price_tags; }?>">
+                    <input type="hidden" class="form-control"  name="price_tags" value = "<?php if (isset($price_tags)) {echo $price_tags; }?>">                   
+                    <input type="hidden" class="form-control"  name="is_serial_number_required" value = "<?php echo $is_serial_number_required; ?>">
+                    <input type="hidden" class="form-control"  name="is_invoice_required" value = "<?php echo $is_invoice_required; ?>">
                     <input type="hidden" class="form-control" id="partner_flag" name="partner_flag" value="0" />
                     <input type="hidden" name="spare_shipped" value="<?php echo $spare_shipped; ?>" />
                     <div class="form-group ">
@@ -177,9 +184,10 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="serial_number" class="col-md-4">Serial Number *</label>
-                                        <div class="col-md-6">
- 
-                                            <input type="text" class="form-control spare_parts" id="serial_number" name="serial_number"  value="<?php if(isset($unit_serial_number) && !empty($unit_serial_number)){echo $unit_serial_number;}  ?>" placeholder="Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" required="" onblur="check_booking_request()">
+                                        <div class="col-md-6"> 
+                                            <input type="text" class="form-control spare_parts" id="serial_number" name="serial_number"  value="<?php if(isset($unit_serial_number) && !empty($unit_serial_number)){echo $unit_serial_number;}  ?>" placeholder="Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" required="" onblur="validate_serial_number()">
+                                            <input type="hidden" id="is_sn_correct" name="is_sn_correct" value="">
+                                            <span id="error_serial_no" class="text-danger"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -187,7 +195,7 @@
                                     <div class="form-group">
                                         <label for="serial_number_pic" class="col-md-4" id="serial_text">Serial Number Picture <?php if((!isset($unit_serial_number_pic) || empty($unit_serial_number_pic)) && empty($on_saas)){echo '*';}  ?></label>
                                         <div class="col-md-6">
-                                            <input type="file" class="form-control spare_parts" tabindex="-1" id="serial_number_pic" name="serial_number_pic" >
+                                            <input type="file" class="form-control spare_parts" tabindex="-1" id="serial_number_pic" name="serial_number_pic" required>
                                             <input type="hidden" value="<?php if(isset($unit_serial_number_pic) && !empty($unit_serial_number_pic)){echo $unit_serial_number_pic;}  ?>"  name="serial_number_pic_exist" >
                                         </div>
                                         <?php if(isset($unit_serial_number_pic)  && !empty($unit_serial_number_pic)){ ?>
@@ -645,7 +653,7 @@
         </div>
     </div>
 </div>
-
+</body>
 <div id="CancelBookingOtpModal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg" id="cancel_booking_otp_model">
         <!-- Modal content-->
@@ -887,6 +895,12 @@ function alpha(e) {
        <?php } ?>
     });
     
+    $("#spare_parts").click(function(){
+        if(this.checked){
+            validate_serial_number();
+        }
+    });
+    
     function submitForm(){
                                      
      var checkbox_value = 0;
@@ -1079,7 +1093,7 @@ function alpha(e) {
                         alert('Please Select Part Warranty Status');    
                         checkbox_value = 0;
                        return false;
-                    }else if($(this).val() == 1 &&(invoice_pic =='' || invoice_pic == null)){
+                    }else if((($(this).val() == 1) || ($('#is_invoice_required').val() == 1)) && (invoice_pic =='' || invoice_pic == null)){
                         alert('Please Upload Invoice Picture.');    
                         checkbox_value = 0;
                         return false;
@@ -1396,7 +1410,11 @@ function alpha(e) {
     // function to cross check request type of booking with warranty status of booking 
     function check_booking_request()
     {
-        $("#submitform").attr("disabled", false);   
+        var reason = $("input[name='reason']:checked"). val();
+        if(reason !== "<?php echo SPARE_PARTS_REQUIRED;?>"){
+            return true;
+        }
+        $("#submitform").attr("disabled", true); 
         var model_number = $('#model_number').val();
         var dop = $("#dop").val();
         var serial_number = $("#serial_number").val();
@@ -1412,7 +1430,7 @@ function alpha(e) {
                 url:"<?php echo base_url(); ?>employee/service_centers/get_warranty_data/2/1",
                 data:{
                     'bookings_data[0]' : {
-                        'partner_id' : "<?= $bookinghistory[0]['partner_id']?>",
+                        'partner_id' : partner_id,
                         'booking_id' : booking_id,
                         'booking_create_date' : "<?= $bookinghistory[0]['create_date']?>",
                         'service_id' : service_id,
@@ -1422,6 +1440,9 @@ function alpha(e) {
                         'booking_request_types' : [booking_request_type]
                     }
                 },
+                beforeSend: function(){
+                    $('.errorMsg').html("<p>Validating Booking Warranty Status, Please Wait ...</p>");
+                },
                 success:function(response){
                     var returnData = JSON.parse(response);
                     $('.errorMsg').html(returnData['message']);
@@ -1429,7 +1450,72 @@ function alpha(e) {
                     {
                         $("#submitform").attr("disabled", true);                        
                     }
+                    else
+                    {                        
+                        if($("#is_sn_correct").val() == "1"){
+                            $("#submitform").attr("disabled", false);  
+                        }
+                    }
                 }                            
+            });
+        }
+    }
+    
+    function validate_serial_number(){
+        var reason = $("input[name='reason']:checked"). val();
+        if(reason !== "<?php echo SPARE_PARTS_REQUIRED;?>"){
+            return true;
+        }
+        var postData = {};
+        var UrlValidateSerialNumber = '<?php echo base_url(); ?>employee/service_centers/validate_booking_serial_number';
+        postData['serial_number'] = $.trim($("#serial_number").val());
+        postData['price_tags'] = "<?= $bookinghistory[0]['request_type']?>";
+        postData['user_id'] = "<?= $bookinghistory[0]['user_id']?>";
+        postData['booking_id'] = "<?= $bookinghistory[0]['booking_id']?>";
+        postData['partner_id'] = "<?= $bookinghistory[0]['partner_id']?>";
+        postData['appliance_id'] = "<?= $bookinghistory[0]['service_id']?>";
+        $('#serial_number').css("border-color", "#ccc");
+        if(postData['serial_number'] !== ''){
+            $.ajax({
+                type: 'POST',
+                beforeSend: function(){
+                    $('body').loadingModal({
+                        position: 'auto',
+                        text: 'Validating Serial Number, Please Wait...',
+                        color: '#fff',
+                        opacity: '0.7',
+                        backgroundColor: 'rgb(0,0,0)',
+                        animation: 'wave'
+                    });
+                },
+                url: UrlValidateSerialNumber,
+                data:postData,
+                success: function (response) {                    
+                    console.log(response);
+                    var data = jQuery.parseJSON(response);
+                    if(data.code === 247){
+                        console.log("Correct Serial Number");
+                        $('body').loadingModal('destroy');
+                        $("#is_sn_correct").val("1");
+                        $("#error_serial_no").html("");
+                        check_booking_request();
+                        return true;
+                    } else if(data.code === Number(DUPLICATE_SERIAL_NO_CODE)){
+                        console.log("Duplicate Serial Number");
+                        $('body').loadingModal('destroy');
+                        $("#is_sn_correct").val("0");
+                        $("#error_serial_no").html(data.message);
+                        $("#submitform").attr("disabled",true);
+                        return false;
+                    } else {
+                        console.log("Incorrect Serial Number");
+                        $('body').loadingModal('destroy');
+                        $("#is_sn_correct").val("0");
+                        $("#error_serial_no").html(data.message);
+                        $("#submitform").attr("disabled",true);
+                        return false;
+                    }
+                }
             });
         }
     }
