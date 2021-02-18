@@ -10668,10 +10668,10 @@ class Partner extends CI_Controller {
                         $newarray[$key]['source'] = $value['source'];
                     }
                 }
-                if (!empty($bookingID_state_change)) {
-                    foreach ($bookingID_state_change as $key => $value) {
+                if (!empty($comment_section)) {
+                    foreach ($comment_section as $key => $value) {
                         $newarray_comment[$key]['remarks'] = $value['remarks'];
-                        $newarray_comment[$key]['employee'] = $value['employee'];
+                        $newarray_comment[$key]['employee'] = $value['employee_id'];
                         $newarray_comment[$key]['full_name'] = $value['full_name'];
                         $newarray_comment[$key]['create_date'] = $value['create_date'];
                     }
