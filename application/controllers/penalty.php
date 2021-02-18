@@ -313,9 +313,9 @@ class Penalty extends CI_Controller {
         }
         
         if($status){
-            $str = "<i class='fa fa-circle' style='color:green;margin-left:5px;'></i>";
+            $str = "<i class='fa fa-circle' style='color:green;margin-left:5px;' data-toggle='tooltip' title='The SF has penalty percentage of less then 10%, in last 60 days.'></i>";
             if($penalty_percentage > PENALTY_THRESHOLD){
-                $str = "<i class='fa fa-circle' style='color:red;margin-left:5px;'></i>";
+                $str = "<i class='fa fa-circle' style='color:red;margin-left:5px;' data-toggle='tooltip' title='The SF has penalty percentage of more then 10%, in last 60 days.'></i>";
             }
             echo $str." (".$penalty_percentage."%)";
         }
