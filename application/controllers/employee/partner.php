@@ -10445,7 +10445,7 @@ class Partner extends CI_Controller {
                 return false;
             } else {
                 if(!empty($return_token)){
-                    return $h['Authorization'];
+                    return $partner_validate;
                 }else{
                 return true;
                 }
@@ -10789,25 +10789,11 @@ class Partner extends CI_Controller {
         $authentication = $this->checkAuthentication(true);
         if (empty($authentication)) {
             return $this->show_booking_insertion_failure(true, ERR_GENERIC_ERROR_CODE, ERR_INVALID_AUTH_TOKEN_MSG);
+        }else{
+            $post['partner_id'] = $authentication['id'];
         }
-        $_POST = $post;
-        $this->form_validation->set_error_delimiters('', ',');
-
-        $this->form_validation->set_rules('booking_id', '', 'required');
-        if ($this->form_validation->run() == FALSE) {
-            $error_string = validation_errors();
-            $error_string_array = explode(',', $error_string);
-            return $this->show_booking_insertion_failure(true, ERR_GENERIC_ERROR_CODE, $error_string_array[0]);
-        }
-
-        $where = array('partners.auth_token' => $authentication);
-        $partner_detail = $this->partner_model->getpartner_details('*', $where);
-        if (!empty($partner_detail)) {
-            $post['partner_id'] = $partner_detail[0]['partner_id'];
-            $post['partner_code'] = $partner_detail[0]['code'];
-            $post['partner_type'] = $partner_detail[0]['partner_type'];
-        } else {
-            return $this->show_booking_insertion_failure(true, ERR_INVALID_PARTNER_NAME_CODE, ERR_INVALID_PARTNER_NAME_MSG);
+        if (empty($post['booking_id'])) {
+            return $this->show_booking_insertion_failure(true, ERR_INVALID_BOOKING_ID_CODE,ERR_INVALID_BOOKING_ID_MSG);
         }
         $booking_select = "booking_id,service_center_closed_date";
         $booking_where = array("booking_id" => $post['booking_id'], "partner_id" => $post['partner_id']);
