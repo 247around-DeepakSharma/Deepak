@@ -101,7 +101,7 @@
                                     } ?>">
                                     <label for="awb" class="col-md-4">No Of Boxes *</label>
                                     <div class="col-md-6">
-                                        <select class="form-control" id="defective_parts_shipped_boxes_count" name="defective_parts_shipped_boxes_count"  required="">
+                                        <select class="form-control" id="defective_parts_shipped_boxes_count" name="defective_parts_shipped_boxes_count" tabindex="-1"  required="">
                                             <option selected="" disabled="" value="">Select Boxes</option>
                                             <?php for ($i = 1; $i < 31; $i++) { ?>
                                             <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
@@ -136,8 +136,8 @@
                                     } ?>">
                                     <label for="courier" class="col-md-4">Courier Name *</label>
                                     <div class="col-md-6">
-                                        <select class="form-control" id="courier_name_by_sf" name="courier_name_by_sf" required>
-                                            <option selected="" disabled="" value="">Select Courier Name</option>
+                                        <select class="form-control" id="courier_name_by_sf" name="courier_name_by_sf" tabindex="-1" required>
+                                            <option selected="" disabled="" value="">Select Courier Name </option>
                                             <?php foreach ($courier_details as $value1) { ?> 
                                             <option <?php if ((set_value("courier_name_by_sf") == $value1['courier_name'])) {
                                                 echo "selected";
@@ -155,7 +155,7 @@
                                         <div class="input-group input-append date">
                                             <input id="defective_part_shipped_date" class="form-control"  name="defective_part_shipped_date" type="text" value = "<?php
                                                 echo date("Y-m-d", strtotime("+0 day"));
-                                                ?>" required readonly='true' style="background-color:#fff;pointer-events:cursor">
+                                                ?>" required readonly='true' tabindex="-1" style="background-color:#fff;pointer-events:cursor">
                                             <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                         </div>
                                     </div>
@@ -449,7 +449,7 @@
                         
                         if(data.message[0].courier_charge > 0){
                             $("#courier_charges_by_sf").val(data.message[0].courier_charge);
-                            $("#courier_charges_by_sf").attr("readonly","readonly")
+                            $("#courier_charges_by_sf").attr("readonly","readonly");
                             $("#courier_charges_by_sf_hidden").val(data.message[0].courier_charge);
                         }
                         
@@ -458,6 +458,9 @@
                             $('#defective_parts_shipped_boxes_count').val("");
                         } else {
                             $('#defective_parts_shipped_boxes_count').val(data.message[0]['box_count']).trigger('change');
+                            $("#defective_parts_shipped_boxes_count").addClass("cursor_ban");
+                            $("#defective_parts_shipped_boxes_count").attr("readonly","readonly");
+                                    
                         }
                         
                         $("#courier_boxes_weight_flag").val(data.message[0]['partcount'] );
@@ -490,6 +493,8 @@
                         $("#courier_charges_by_sf").val("");
                         $("#defective_part_shipped_date").val("");
                         $("#defective_part_shipped_date").removeClass("cursor_ban");
+                        $("#defective_parts_shipped_boxes_count").removeClass("cursor_ban");
+                        $("#defective_parts_shipped_boxes_count").removeAttr("readonly","readonly");
                         $("#defective_parts_shipped_boxes_count").val("");
                         $("#defective_parts_shipped_weight_in_kg").removeAttr('readonly');
                         $("#defective_parts_shipped_weight_in_gram").removeAttr('readonly');
@@ -512,7 +517,9 @@
                         $("#courier_charges_by_sf").removeAttr('readonly');
                         $("#courier_charges_by_sf").val("");
                         $("#defective_part_shipped_date").val("");
-                         $("#defective_part_shipped_date").removeClass("cursor_ban");
+                        $("#defective_part_shipped_date").removeClass("cursor_ban");
+                        $("#defective_parts_shipped_boxes_count").removeClass("cursor_ban");
+                        $("#defective_parts_shipped_boxes_count").removeAttr("readonly","readonly");
                         $("#defective_parts_shipped_boxes_count").val("");
                         $("#defective_parts_shipped_weight_in_kg").removeAttr('readonly');
                         $("#defective_parts_shipped_weight_in_gram").removeAttr('readonly');
