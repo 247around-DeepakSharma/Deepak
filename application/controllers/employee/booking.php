@@ -7205,7 +7205,7 @@ class Booking extends CI_Controller {
         if($status){
             $str = "";
             if($ow_completed_percentage < OW_COMPLETED_THRESHOLD){
-                $str = "<span style='color:red;margin-left:5px;font-weight:bold'>O</span>";
+                $str = "<span style='color:red;margin-left:5px;font-weight:bold' data-toggle='tooltip' title='The SF OW booking completion is below 20%, in last 60 days.'>O</span>";
             }
             echo $str;
         }
@@ -7231,7 +7231,7 @@ class Booking extends CI_Controller {
         if($status){
             $str = "";
             if($cancelled_percentage > CANCELLATION_THRESHOLD){
-                $str = "<span style='color:red;margin-left:5px;font-weight:bold'>C</span>";
+                $str = "<span style='color:red;margin-left:5px;font-weight:bold' data-toggle='tooltip' title='The SF Booking Cancellation % is greater than 20%, in last 60 days.'>C</span>";
             }
             echo $str;
         }
