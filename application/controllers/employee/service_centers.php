@@ -8549,9 +8549,9 @@ class Service_centers extends CI_Controller {
                     $data['defective_courier_receipt'] = $this->input->post('sp_parts');
                 }
             }
-
+            
             if ($pre_awb_by_sf != $awb_number && empty($this->input->post('sp_parts'))) {
-                $this->session->set_userdata('failed', "Courier file should not empty.");
+                $this->session->set_userdata('failed', "Courier file should not empty or check your file size less than 5MB.");
                 redirect(base_url() . 'employee/service_centers/update_spare_courier_details/' . $id);
             } else {
 
@@ -8581,7 +8581,7 @@ class Service_centers extends CI_Controller {
                         if (!empty($this->input->post('sp_parts'))) {
                             $courier_company_data_update['courier_invoice_file'] = $this->input->post('sp_parts');
                         }
-
+                        
                         $this->inventory_model->update_courier_company_invoice_details(array('id' => $courier_company_detail[0]['id']), $courier_company_data_update);
                         $updateCharge = TRUE;
                     }
@@ -8594,6 +8594,15 @@ class Service_centers extends CI_Controller {
                     $data_spare_part_detail = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id, spare_parts_details.awb_by_sf, spare_parts_details.courier_name_by_sf', array('spare_parts_details.awb_by_sf = "' . $awb_number . '"  AND status != "' . _247AROUND_CANCELLED . '"' => null), false);
 
                     if (!empty($data_spare_part_detail)) {
+                        $spare_part_reverse_data = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id, spare_parts_details.awb_by_sf, spare_parts_details.courier_name_by_sf', array('spare_parts_details.awb_by_sf = "' . $pre_awb_by_sf . '"  AND status != "' . _247AROUND_CANCELLED . '"' => null), false);
+                        if (!empty($spare_part_reverse_data)) {
+                            $couir_invoice_details = $this->inventory_model->get_courier_company_invoice_details('courier_company_invoice_details.id, courier_company_invoice_details.awb_number,courier_company_invoice_details.company_name, courier_company_invoice_details.courier_charge', array('awb_number' => $pre_awb_by_sf));
+                            if (!empty($couir_invoice_details)) {
+                                $courier_charge = ($couir_invoice_details[0]['courier_charge'] / count($spare_part_reverse_data));
+                                $this->service_centers_model->update_spare_parts(array('spare_parts_details.awb_by_sf' => $pre_awb_by_sf), array("spare_parts_details.courier_charges_by_sf" => $courier_charge));
+                            }
+                        }
+
                         $courier_amount = ($courier_charges / count($data_spare_part_detail));
                         $data['spare_parts_details.awb_by_sf'] = $awb_number;
                         $data['spare_parts_details.courier_name_by_sf'] = $courier_name_by_sf;
