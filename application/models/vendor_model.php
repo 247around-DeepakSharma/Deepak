@@ -1247,10 +1247,13 @@ class vendor_model extends CI_Model {
     /**
      * @desc: get Active vendor
      */
-    function getactive_vendor(){
+    function getactive_vendor($where = array()){
         $this->db->select('*');
         $this->db->where('active',1);
         $this->db->where('is_wh',0);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
         $this->db->order_by("name");
         $query = $this->db->get('service_centres');
         return $query->result_array();
@@ -2272,12 +2275,15 @@ class vendor_model extends CI_Model {
      /*
      * @desc This is used to get active service from services table
      */
-        function get_active_services()
+        function get_active_services($where = '')
     {
         $return=array();
         $this->db->select('id,services');
         $this->db->from('services');
         $this->db->where('isBookingActive',1);
+        if(!empty($where)){
+          $this->db->where($where);  
+        }
         $this->db->order_by('services','ASC');
         $result=$this->db->get()->result_array();
         if(count($result)>0)
@@ -2406,14 +2412,20 @@ class vendor_model extends CI_Model {
      * @author - Prity Sharma
      * @date - 26-06-2019
      * @params - $Sf_id (Service Center Id) 
+     * @return - array of Brands mapped to SF
     */
-    function get_mapped_brands($sf_id)
+    function get_mapped_brands($sf_id, $walk_in = 0)
     {
         $this->db->select('GROUP_CONCAT(service_center_brand_mapping.brand_name) as map_brands');
+        $this->db->join("services", "service_center_brand_mapping.service_id = services.id");
         $this->db->where(['service_center_id' => $sf_id, 'isActive' => 1]);
+        if($walk_in){
+            $this->db->where(['walk_in' => $walk_in]);
+        }
         $query = $this->db->get('service_center_brand_mapping');
         return $query->result_array()[0]['map_brands']; 
     }
+    
     function get_sf_call_load($sfArray){
         $sfString = implode("','",$sfArray);
         $sql = "SELECT assigned_vendor_id,COUNT(booking_id) as booking_count FROM booking_details WHERE assigned_vendor_id IN ('".$sfString."') AND current_status NOT IN ('Completed','Cancelled') "

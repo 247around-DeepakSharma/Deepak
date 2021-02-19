@@ -10330,4 +10330,18 @@ function do_delivered_spare_transfer() {
         }
         echo json_encode($array);
     }
+    
+    /**
+     @desc: This method loads the iframe to add booking form for WalkIns / SFs
+     * @param $sf_id Vendor Id
+     * @return View of add booking form
+     * @author: Prity Sharma
+     * @created_on 21-01-2021 
+     */
+    function add_booking_walkin($vendor_id) {
+        $this->checkUserSession();
+        $data['vendor_id'] = $vendor_id;
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/add_booking_walkin', $data);
+    }
 }

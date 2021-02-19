@@ -496,7 +496,7 @@ class Booking_model extends CI_Model {
     /**
      *  @desc : this function is to get a particular service.
      *
-     * 	This function gets the service name with the help of its id
+     *  This function gets the service name with the help of its id
      *
      *  @param : service id
      *  @return : service
@@ -520,7 +520,7 @@ class Booking_model extends CI_Model {
         {
             $strWhere = 'isBookingActive = 1';
         }
-        $query = $this->db->query("Select id,services,isBookingActive from services where ".$strWhere." order by services");
+        $query = $this->db->query("Select id,services,walk_in,isBookingActive from services where ".$strWhere." order by services");
         if(empty($format)){
             return $query->result();
         }else{
@@ -797,9 +797,9 @@ class Booking_model extends CI_Model {
      */
     function getbooking_history($booking_id, $join=""){
 
-        $service_centre = "";
-        $condition ="";
-        $service_center_name ="";
+        $service_centre = ", service_centres ";
+        $condition = " and booking_details.assigned_vendor_id =  service_centres.id";
+        $service_center_name = ",service_centres.name as vendor_name,service_centres.address ";
         $partner = "";  
         $partner_name = "";
         if($join !=""){
@@ -2926,7 +2926,7 @@ class Booking_model extends CI_Model {
             $this->db->join('partners', 'booking_details.partner_id = partners.id'); 
         }
         if($is_vendor){
-            $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id'); 
+            $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id', 'left'); 
         }
         $query = $this->db->get();
         return $query->result_array();

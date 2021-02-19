@@ -149,9 +149,9 @@ $route['service_center/download_sf_declaration/(:any)'] = 'employee/service_cent
 $route['service_center/acknowledge_spares_send_by_partner'] = 'employee/service_centers/acknowledge_spares_send_by_partner';
 $route['service_center/acknowledge_spares_send_by_vendor'] = 'employee/service_centers/acknowledge_spares_send_by_vendor';
 $route['service_center/dashboard'] = 'employee/service_centers/sf_dashboard';
+$route['service_center/add_booking_walkin/(:any)'] = 'employee/service_centers/add_booking_walkin/$1';
 
     
-
 $route['service_center/inventory/appliance_model_list'] = 'employee/service_centers/appliance_model_list';
 $route['service_center/booking_spare_list'] = 'employee/service_centers/booking_spare_list';
 $route['service_center/spare_transfer'] = 'employee/service_centers/spare_transfer';
@@ -179,6 +179,7 @@ $route['partner/pending_queries'] = 'employee/partner/pending_queries';
 $route['partner/pending_queries/(:any)'] = 'employee/partner/pending_queries/$1';
 $route['partner/booking_form'] = 'employee/partner/get_addbooking_form';
 $route['partner/booking_form/(:any)'] = 'employee/partner/get_addbooking_form/$1';
+$route['partner/insert_booking/(:any)'] = 'employee/partner/get_addbooking_form_api/$1';
 $route['partner/invoices_details'] = 'employee/partner/invoices_details';
 $route['partner/get_user_form'] = 'employee/partner/get_user_form';
 $route['partner/get_nrn_approval'] = 'employee/partner/get_nrn_approval';
@@ -346,5 +347,6 @@ $route['employee/vendor/unapprovered_service_centers'] = 'employee/vendor/unappr
 $route['employee/courier/add_courier_serviceable_area'] = 'employee/spare_parts/add_courier_serviceable_area';
 $route['employee/devmode'] = 'employee/login';
 $route['exotel-callback'] = 'api/recordUrl';
+$route['partner/submitBooking'] = 'employee/partner/submitBooking';
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */
