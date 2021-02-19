@@ -2065,7 +2065,7 @@ class Partner extends CI_Controller {
         }
     }
 
-    private function checkAuthentication() {
+    private function checkAuthentication($return_result = false) {
         log_message('info', __FUNCTION__ . "=> Entering ");
         //Default values
         $this->jsonResponseString['response'] = NULL;
@@ -2084,7 +2084,11 @@ class Partner extends CI_Controller {
             //Validate token
             $this->partner = $this->partner_model->validate_partner($this->token);
             if ($this->partner) {
-                return true;
+                if(!empty($return_result)){
+                    return $this->partner;
+                }else{
+                    return true;
+                }
             } else {
                 log_message('info', __METHOD__ . ":: Invalid token: " . $this->token);
 
@@ -2886,5 +2890,49 @@ exit();
         $this->load->model('nrn_model');
         $this->nrn_model->update_nrn_details($nrn_details,$nrn_id);
         return TRUE;
+    }
+	/*
+     * @Desc - This function is used to return booking history as API
+     * @param -
+     * @response - json
+     * @Author  - Ghanshyam Ji Gupta
+     */
+    function getBookingHistory() {
+        $input_d = file_get_contents('php://input');
+        $post = json_decode($input_d, TRUE);
+        $authentication = $this->checkAuthentication(true);
+        if (empty($authentication)) {
+            $this->sendJsonResponse(array(ERR_GENERIC_ERROR_CODE, ERR_INVALID_AUTH_TOKEN_MSG));
+        } else {
+            $post['partner_id'] = $authentication['id'];
+        }
+        if (empty($post['booking_id'])) {
+            $this->sendJsonResponse(array(ERR_INVALID_BOOKING_ID_CODE, ERR_INVALID_BOOKING_ID_MSG));
+        }
+        $booking_select = "booking_id,service_center_closed_date";
+        $booking_where = array("booking_id" => $post['booking_id'], "partner_id" => $post['partner_id']);
+        $booking_details = $this->engineer_model->get_booking_details($booking_select, $booking_where);
+        if (!empty($booking_details)) {
+            $bookingID_state_change = $this->booking_model->get_booking_state_change_by_id($post['booking_id'], true, true);
+            $newarray = array();
+            if (!empty($bookingID_state_change)) {
+                if (!empty($bookingID_state_change)) {
+                    foreach ($bookingID_state_change as $key => $value) {
+                        $newarray[$key]['old_state'] = $value['old_state'];
+                        $newarray[$key]['new_state'] = $value['new_state'];
+                        $newarray[$key]['remarks'] = $value['remarks'];
+                        $newarray[$key]['date'] = $value['create_date'];
+                        $newarray[$key]['agent'] = $value['full_name'];
+                        $newarray[$key]['source'] = $value['source'];
+                    }
+                }
+                $this->jsonResponseString['response'] = array('history' => $newarray);
+                $this->sendJsonResponse(array(SUCCESS_CODE, SUCCESS_MSG));
+            } else {
+                $this->sendJsonResponse(array(ERR_INVALID_BOOKING_ID_CODE, "No history found"));
+            }
+        } else {
+            $this->sendJsonResponse(array(ERR_INVALID_BOOKING_ID_CODE, ERR_INVALID_BOOKING_ID_MSG));
+        }
     }
 }
