@@ -27,11 +27,11 @@
                         <div class="col-md-12">
                             <div class="col-md-6 col-md-offset-2">
                                 <div class="form-group <?php if (form_error('shipped_parts')) { echo 'has-error'; } ?>">
-                                    <label for="shipped_parts" class="col-md-4">Shipped Parts *</label>
+                                    <label for="shipped_parts" class="col-md-4">Shipped Parts </label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control" id="category" name="shipped_parts" value="<?php if (!empty($data)) {
                                                     echo $data[0]['defective_part_shipped'];
-                                                    } ?>" placeholder="Enter Shipped Parts" required="">
+                                                    } ?>" placeholder="Enter Shipped Parts" readonly="" style="pointer-events: none;" required="">
                                         <?php echo form_error('shippped_parts'); ?>
                                     </div>
                                 </div>
@@ -39,9 +39,17 @@
                                 <div class="form-group <?php if (form_error('courier_name')) { echo 'has-error'; } ?>">
                                     <label for="courier_name" class="col-md-4">Courier Name *</label>
                                     <div class="col-md-6">
-                                            <input type="text" class="form-control" id="courier_name" name="courier_name" value="<?php if (!empty($data)) {
+<!--                                            <input type="text" class="form-control" id="courier_name" name="courier_name" value="<?php if (!empty($data)) {
                                                 echo $data[0]['courier_name_by_sf'];
-                                            } ?>" placeholder="Enter Courier Name" required>
+                                            } ?>" placeholder="Enter Courier Name" required>-->
+                                            
+                                            <select class="form-control" id="courier_name" name="courier_name">
+                                                 <option selected="" disabled="" value="">Select Courier Name </option>
+                                                 <?php foreach ($courier_details as $value) { ?>
+                                                 <option value="<?php echo strtolower($value['courier_name']); ?>" <?php if(strtolower($value['courier_name']) == strtolower($data[0]['courier_name_by_sf'])){ echo 'selected'; } ?>><?php echo ucfirst($value['courier_name']); ?></option>
+                                                 <?php } ?>
+                                            </select>
+                                            
                                             <?php echo form_error('courier_name'); ?>
                                     </div>
                                 </div>
@@ -59,9 +67,9 @@
                                 <div class="form-group <?php if (form_error('courier_charge')) { echo 'has-error'; } ?>">
                                     <label for="courier_charge" class="col-md-4">Courier Charge *</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="awb" name="courier_charge" value="<?php if (!empty($data)) {
+                                        <input type="number" min="1" class="form-control" id="courier_charge" name="courier_charge" value="<?php if (!empty($data)) {
                                             echo $data[0]['courier_charges_by_sf'];
-                                        } ?>" placeholder="Enter Courier Charge" required>
+                                        } ?>" placeholder="Enter Courier Charge" onblur="chkPrice($(this),2000)" required>
                                         <?php echo form_error('courier_charge'); ?>
                                     </div>
                                 </div>
@@ -92,10 +100,10 @@
                                 </div>
                                 
                                 <div class="form-group <?php if (form_error('shipped_date')) { echo 'has-error'; } ?>">
-                                    <label for="shipped_date" class="col-md-4">Shipped Date *</label>
+                                    <label for="shipped_date" class="col-md-4">Shipped Date </label>
                                     <div class="col-md-6">
                                         <input type="date" class="form-control" id="shipped_date" name="shipped_date" value = "<?php if (isset($data[0]['defective_part_shipped_date'])) {
-                                            echo $data[0]['defective_part_shipped_date'];} ?>" required>
+                                            echo $data[0]['defective_part_shipped_date'];} ?>" readonly="" style="pointer-events: none;" required>
                                         <?php echo form_error('shipped_date'); ?>
                                     </div>
                                 </div>
@@ -110,13 +118,15 @@
                                     </div>
                                 </div>
 
-                                <input type="hidden" name="booking_id" value="<?php echo $data[0]['booking_id']; ?>" >
-                                <input type="hidden" name="sf_challan_number" value="<?php echo $data[0]['sf_challan_number']; ?>" >
+                               <input type="hidden" name="booking_id" value="<?php echo $data[0]['booking_id']; ?>">
+                               <input type="hidden" name="pre_awb_by_sf" value="<?php  echo $data[0]['awb_by_sf']; ?>">
+                               
+                                <!--<input type="hidden" name="sf_challan_number" value="<?php echo $data[0]['sf_challan_number']; ?>" >
                                 <input type="hidden" name="partner_id" value="<?php echo $data[0]['partner_id']; ?>" >
                                 <input type="hidden" name="entity_type" value="<?php echo $data[0]['entity_type']; ?>" >
                                 <input type="hidden" name="service_center_id" value="<?php echo $data[0]['service_center_id']; ?>">
                                 <input type="hidden" name="partner_challan_number" value="<?php echo $data[0]['partner_challan_number']; ?>">
-                                <input type="hidden" name="challan_approx_value" value="<?php echo $data[0]['challan_approx_value']; ?>">
+                                <input type="hidden" name="challan_approx_value" value="<?php echo $data[0]['challan_approx_value']; ?>">-->
                             </div>
                         </div>
                     </div>
@@ -156,5 +166,48 @@ if ($this->session->userdata('failed')) {
             return false;
         }
     }
+    
+    
+    $('#courier_name').select2({
+        placeholder:'Select Courier Name',
+        allowClear:true
+    });
+    
+    function chkPrice(curval,maxval){
+        if(!isNaN(curval.val())){
+            if(parseFloat(curval.val())<1) {
+                alert('Courier Charges cannot be less than 1.00');
+                $("#courier_charge").val('');
+                return false;
+            } else if(parseFloat(curval.val())>parseFloat(maxval)) {
+               alert('Courier Charges cannot be more than '+maxval);
+               $("#courier_charge").val('');
+               return false;
+            }
+        } else {
+            alert('Enter numeric value');
+            $("#courier_charge").val('');
+            return false;
+        }
+    } 
+    
+    
+    $("#submit_btn").on("click",function(){
+        var file = $("#defective_courier_receipt").val();
+        if(file != '' && file != null){
+            var allowedFiles = [".gif", ".jpg",".png",".jpeg",".pdf"];
+            var fileUpload = $("#defective_courier_receipt");
+            var regex = new RegExp("([a-zA-Z0-9\s_\\.\-:()])+(" + allowedFiles.join('|') + ")$");
+            if (!regex.test(fileUpload.val().toLowerCase())) {
+                alert("Please upload files having extensions:(" + allowedFiles.join(', ') + ") only.");
+                return false;
+            }
+         }
+
+         if($('#remarks_by_sf').val() == '' || $('#remarks_by_sf').val() == null) {
+             alert('Please enter remarks.');
+             return false;
+         }
+    });  
 
 </script>
