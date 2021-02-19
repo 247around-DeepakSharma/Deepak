@@ -1826,6 +1826,8 @@ class Service_centers extends CI_Controller {
                 }
                 $price_tags_symptom = array();
                 $data['spare_flag'] = SPARE_PART_RADIO_BUTTON_NOT_REQUIRED;
+                $is_serial_number_required =0;
+                $is_invoice_required = 0;
                 foreach ($unit_details as $value) {
 
                 $price_tags1 = str_replace('(Free)', '', $value['price_tags']);
@@ -1875,6 +1877,14 @@ class Service_centers extends CI_Controller {
                             $serial_number_pic = $value['serial_number_pic'];
                         }
                     }
+                    
+                    if ($value['pod'] == 1) {
+                        $is_serial_number_required = 1;
+                    }
+                    
+                    if ($value['invoice_pod'] == 1) {
+                        $is_invoice_required = 1;
+                    }
                 }
 
                 $data['unit_model_number'] = $model_nunmber;
@@ -1889,6 +1899,8 @@ class Service_centers extends CI_Controller {
                 }
                 
                 $data['is_disable'] = $is_disable;
+                $data['is_serial_number_required'] = $is_serial_number_required;
+                $data['is_invoice_required'] = $is_invoice_required;
                 $data['unit_serial_number_pic'] = $serial_number_pic;
                 $where = array('entity_id' => $data['bookinghistory'][0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['bookinghistory'][0]['service_id'], 'inventory_model_mapping.active' => 1, 'appliance_model_details.active' => 1);
                 $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where);
@@ -8544,10 +8556,10 @@ class Service_centers extends CI_Controller {
                     $data['defective_courier_receipt'] = $this->input->post('sp_parts');
                 }
             }
-
+            
             if ($pre_awb_by_sf != $awb_number && empty($this->input->post('sp_parts'))) {
-                $this->session->set_flashdata('failed', "Courier file should not empty.");
-                redirect(base_url() . 'employee/service_centers/process_update_spare_courier_details/' . $id);
+                $this->session->set_userdata('failed', "Courier file should not empty or check your file size less than 5MB.");
+                redirect(base_url() . 'employee/service_centers/update_spare_courier_details/' . $id);
             } else {
 
                 $courier_company_detail = $this->inventory_model->get_courier_company_invoice_details('courier_company_invoice_details.id, courier_company_invoice_details.awb_number', array('awb_number' => $awb_number));
@@ -8576,7 +8588,7 @@ class Service_centers extends CI_Controller {
                         if (!empty($this->input->post('sp_parts'))) {
                             $courier_company_data_update['courier_invoice_file'] = $this->input->post('sp_parts');
                         }
-
+                        
                         $this->inventory_model->update_courier_company_invoice_details(array('id' => $courier_company_detail[0]['id']), $courier_company_data_update);
                         $updateCharge = TRUE;
                     }
@@ -8589,6 +8601,15 @@ class Service_centers extends CI_Controller {
                     $data_spare_part_detail = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id, spare_parts_details.awb_by_sf, spare_parts_details.courier_name_by_sf', array('spare_parts_details.awb_by_sf = "' . $awb_number . '"  AND status != "' . _247AROUND_CANCELLED . '"' => null), false);
 
                     if (!empty($data_spare_part_detail)) {
+                        $spare_part_reverse_data = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id, spare_parts_details.awb_by_sf, spare_parts_details.courier_name_by_sf', array('spare_parts_details.awb_by_sf = "' . $pre_awb_by_sf . '"  AND status != "' . _247AROUND_CANCELLED . '"' => null), false);
+                        if (!empty($spare_part_reverse_data)) {
+                            $couir_invoice_details = $this->inventory_model->get_courier_company_invoice_details('courier_company_invoice_details.id, courier_company_invoice_details.awb_number,courier_company_invoice_details.company_name, courier_company_invoice_details.courier_charge', array('awb_number' => $pre_awb_by_sf));
+                            if (!empty($couir_invoice_details)) {
+                                $courier_charge = ($couir_invoice_details[0]['courier_charge'] / count($spare_part_reverse_data));
+                                $this->service_centers_model->update_spare_parts(array('spare_parts_details.awb_by_sf' => $pre_awb_by_sf), array("spare_parts_details.courier_charges_by_sf" => $courier_charge));
+                            }
+                        }
+
                         $courier_amount = ($courier_charges / count($data_spare_part_detail));
                         $data['spare_parts_details.awb_by_sf'] = $awb_number;
                         $data['spare_parts_details.courier_name_by_sf'] = $courier_name_by_sf;
