@@ -158,7 +158,7 @@ define('_247AROUND_PARTNER_DEACTIVATED','Partner_Deactivated');
 define('_247AROUND_VENDOR_SUSPENDED','Vendor Temporary OFF');
 //constant to define State for making Partner Non Suspended
 define('_247AROUND_VENDOR_NON_SUSPENDED','Vendor Temporary ON');
-
+define('GST_STATUS_SUSPENDED', 'Suspended');
 define("INSERT_NEW_BOOKING", "INSERT_NEW_BOOKING");
 
 //Constant to define groups
