@@ -5474,4 +5474,31 @@ function generate_image($base64, $image_name,$directory){
             return; // do nothing
         }
     }
+    
+    /**
+     * @desc: Method is used to send otp to customer for booking creation
+     * @param $booking_primary_contact_no (POST)
+     * @return srting OTP
+     * @author Prity Sharma
+     * @date 190-01-2021
+    */
+    function request_otp_for_booking_creation($post_data)
+    {
+        $booking_primary_contact_number = $post_data['booking_primary_contact_no'];
+        $tag = BOOKING_CREATION_OTP;
+        $sms = [];
+
+        // prepare data for sms template.
+        $otp = rand(1000,9999);
+        $sms['tag'] = $tag;
+        $sms['phone_no'] = $booking_primary_contact_number;
+        $sms['type'] = "user";
+        $sms['booking_id'] = "";
+        $sms['type_id'] = "";
+        $sms['smsData']['otp'] = $otp;        
+        // Send SMS to Customer Mobile
+        $this->My_CI->notify->send_sms_msg91($sms);   
+        log_message('info', "Walkin Booking OTP => ".$otp);
+        echo md5($otp);exit;
+    }
 }
