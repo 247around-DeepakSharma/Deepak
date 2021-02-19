@@ -67,6 +67,7 @@
                                 <div class="form-group <?php if (form_error('courier_charge')) { echo 'has-error'; } ?>">
                                     <label for="courier_charge" class="col-md-4">Courier Charge *</label>
                                     <div class="col-md-6">
+
                                         <input type="number" min="1" class="form-control" id="courier_charge" name="courier_charge" value="<?php if (!empty($data)) {
                                             echo $data[0]['courier_charges_by_sf'];
                                         } ?>" placeholder="Enter Courier Charge" onblur="chkPrice($(this),2000)" required>
@@ -149,6 +150,12 @@ if ($this->session->userdata('failed')) {
 }
 ?>
 <script type="text/javascript">
+    
+    
+  $('#courier_charge').bind('keyup paste keypress', function(){
+        this.value = this.value.replace(/[^0-9.]/g, '');
+   });
+
     function remove_image(id, file_name, type) {
         var c = confirm('Do you want to permanently remove photo?');
 
