@@ -12,13 +12,13 @@ SET total_penalty_imposed = 0;
 
 IF review_status = 'Completed' THEN
 
-select count(*) INTO total_bookings from booking_details where assigned_vendor_id = sf_id AND DATEDIFF(CURDATE(), service_center_closed_date) <= penalty_period AND ((internal_status = 'InProcess_Completed' AND service_center_closed_date IS NOT NULL) OR  current_status = 'Completed');
+select count(*) INTO total_bookings from booking_details where assigned_vendor_id = sf_id AND DATEDIFF(CURDATE(), service_center_closed_date) <= penalty_period AND current_status = 'Completed';
 
 select SUM(penalty_on_booking.penalty_point) INTO total_penalty_imposed from penalty_on_booking JOIN penalty_details ON (penalty_on_booking.criteria_id = penalty_details.id) WHERE penalty_on_booking.penalty_point <> 0 AND penalty_details.reason_of = 1 AND DATEDIFF(CURDATE(), penalty_on_booking.create_date) <= penalty_period AND service_center_id = sf_id;
 
 ELSE
 
-select count(*) INTO total_bookings from booking_details where assigned_vendor_id = sf_id AND DATEDIFF(CURDATE(), service_center_closed_date) <= penalty_period AND ((internal_status = 'InProcess_Cancelled' AND service_center_closed_date IS NOT NULL) OR  current_status = 'Cancelled');
+select count(*) INTO total_bookings from booking_details where assigned_vendor_id = sf_id AND DATEDIFF(CURDATE(), service_center_closed_date) <= penalty_period AND current_status = 'Cancelled';
 
 select SUM(penalty_on_booking.penalty_point) INTO total_penalty_imposed from penalty_on_booking JOIN penalty_details ON (penalty_on_booking.criteria_id = penalty_details.id) WHERE penalty_on_booking.penalty_point <> 0 AND penalty_details.reason_of = 2  AND DATEDIFF(CURDATE(), penalty_on_booking.create_date) <= penalty_period AND service_center_id = sf_id;
 
