@@ -1746,6 +1746,9 @@ class vendor extends CI_Controller {
         $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity' => '247around', 'active' => '1', 'process_type' => 'escalation'));
         $data['vendor_details'] = $this->vendor_model->getVendor($booking_id);
         $data['booking_id'] = $booking_id;
+        if(empty($data['vendor_details'])){
+            exit("Booking Details Not Found");
+        }
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/vendor_escalation_form', $data);
     }
