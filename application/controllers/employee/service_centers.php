@@ -1103,6 +1103,9 @@ class Service_centers extends CI_Controller {
         $booking_id = $this->input->post("booking_id");
         $appliance_id = $this->input->post("appliance_id");
         $model_number = $this->input->post("model_number");
+        if(!empty($this->input->post('booking_request_types'))){
+            $price_tags = $this->booking_utilities->get_booking_request_type($this->input->post('booking_request_types')); 
+        }
         if (!ctype_alnum($serial_number)) {
             $status = array('code' => '247', "message" => "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
             log_message('info', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
@@ -1826,6 +1829,8 @@ class Service_centers extends CI_Controller {
                 }
                 $price_tags_symptom = array();
                 $data['spare_flag'] = SPARE_PART_RADIO_BUTTON_NOT_REQUIRED;
+                $is_serial_number_required =0;
+                $is_invoice_required = 0;
                 foreach ($unit_details as $value) {
 
                 $price_tags1 = str_replace('(Free)', '', $value['price_tags']);
@@ -1875,6 +1880,14 @@ class Service_centers extends CI_Controller {
                             $serial_number_pic = $value['serial_number_pic'];
                         }
                     }
+                    
+                    if ($value['pod'] == 1) {
+                        $is_serial_number_required = 1;
+                    }
+                    
+                    if ($value['invoice_pod'] == 1) {
+                        $is_invoice_required = 1;
+                    }
                 }
 
                 $data['unit_model_number'] = $model_nunmber;
@@ -1889,6 +1902,8 @@ class Service_centers extends CI_Controller {
                 }
                 
                 $data['is_disable'] = $is_disable;
+                $data['is_serial_number_required'] = $is_serial_number_required;
+                $data['is_invoice_required'] = $is_invoice_required;
                 $data['unit_serial_number_pic'] = $serial_number_pic;
                 $where = array('entity_id' => $data['bookinghistory'][0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['bookinghistory'][0]['service_id'], 'inventory_model_mapping.active' => 1, 'appliance_model_details.active' => 1);
                 $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where);
