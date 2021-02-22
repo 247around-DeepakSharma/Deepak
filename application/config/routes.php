@@ -356,6 +356,6 @@ $route['partner/inventory/inventory_list_by_model/(:any)'] = 'employee/partner/g
 $route['partner/inventory/stock_by_model'] = 'employee/partner/get_stock_by_model';
 $route['partner/inventory/stock_by_model/(:any)'] = 'employee/partner/get_stock_by_model/$1';
 $route['partner/inventory/stock_by_model/(:any)'] = 'employee/partner/get_stock_by_model/$1/$3';
-
+$route['partner/submitBooking'] = 'employee/partner/submitBooking';
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

@@ -1424,12 +1424,18 @@ function getCapacityCategoryForModel(model_number, div_id) {
 
 function validateSerialNo(count = ""){
         var postData = {};
+        var booking_request_types = []; 
+        $(".price_checkbox:checked").each(function(){
+            var price_tag = $(this).attr('data-price_tag');
+            booking_request_types.push(price_tag);
+        });
         postData['serial_number'] = $.trim($("#serial_number"+count).val());
         postData['price_tags'] = $("#price_tags"+count).text();
         postData['user_id'] = $("#user_id").val();
         postData['booking_id'] = $("#booking_id").val();
         postData['partner_id'] = $("#partner_id").val();
         postData['appliance_id'] = $('#service_id').val();
+        postData['booking_request_types'] = booking_request_types;
         $("#submitform").attr("disabled",false);
         $('#serial_number' + count).css("border-color", "#ccc");
         if(postData['serial_number'] !== ''){
