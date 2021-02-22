@@ -571,6 +571,12 @@
                                     <?php echo form_error('courier_name'); ?>
                                 </div>
                             </div>
+                            <div class="form-group">
+                                <label for="partner_challan_number" class="col-md-4">Courier Price</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control"  id="courier_price_by_partner" onblur="chkPrice($(this),2000)" name="courier_price_by_partner" placeholder="Please Enter courier price">
+                                </div>
+                            </div>
                             <!-- <div class="form-group <?php
                                 if (form_error('approx_value')) { echo 'has-error'; } ?>">
                                 <label for="approx_value" class="col-md-4">Approx Value <?php if($warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){  ?>*<?php } ?></label>
@@ -619,6 +625,12 @@
                                 </div>
                                 <?php echo form_error('courier_name'); ?>
                             </div>
+                             <div class="form-group>">
+                                <label for="co" class="col-md-4"> Courier Image </label>
+                                <div class="col-md-6">
+                                    <input type="file" class="form-control"  id="courier_image" name="courier_image" >
+                                </div>
+                            </div> 
                         </div>
                         <input type="hidden" id="courier_status" name="courier_status" value="1">
                     </div>
@@ -646,11 +658,46 @@
 
 <script type="text/javascript">
     
+   $('#courier_price_by_partner').bind('keyup paste keypress', function(){
+        this.value = this.value.replace(/[^0-9.]/g, '');
+   });
+   
+    function chkPrice(curval,maxval){
+        if(parseFloat(curval.val())<1) {
+            alert('Courier Charges cannot be less than 1.00');
+            $("#courier_price_by_partner").val('');
+            return false;
+        } else if(parseFloat(curval.val())>parseFloat(maxval)) {
+           alert('Courier Charges cannot be more than '+maxval);
+           $("#courier_price_by_partner").val('');
+           return false;
+        }
+    }
+    
+    $("#courier_image").on('change',function(){
+        var numb = $(this)[0].files[0].size/1024/1024;
+        numb = numb.toFixed(2);
+        if(numb >= 2){
+            $(this).val(''); 
+            alert('Not allow file size greater than 2MB');
+            return false;
+        } 
+
+        var allowedFiles = [".png", ".jpg",".jpeg",".pdf"];
+        var fileUpload = $(this);
+        var regex = new RegExp("([a-zA-Z0-9\s_\\.\-:()])+(" + allowedFiles.join('|') + ")$");
+        if (!regex.test(fileUpload.val().toLowerCase())) {
+            $(this).val(''); 
+            alert("Please upload files having extensions:(" + allowedFiles.join(', ') + ") only.");
+            return false;
+        }
+    });
+    
     $(".close").on("click",function(){
         <?php echo $this->session->unset_userdata('success');?>
     });
     $("body").on("change", "#challan_file", function () {
-        var allowedFiles = [".gif", ".jpg",".png",".jpeg",".pdf",".zip"];
+        var allowedFiles = [".gif", ".jpg",".png",".jpeg",".pdf"];
         var fileUpload = $("#challan_file");
         var regex = new RegExp("([a-zA-Z0-9\s_\\.\-:()])+(" + allowedFiles.join('|') + ")$");
         if (!regex.test(fileUpload.val().toLowerCase())) {
@@ -787,10 +834,6 @@
                 shipment_date:"required",
                 challan_file:"required",
                 defective_parts_shipped_boxes_count:'required',
-                courier_price_by_partner:{
-                    digits:true,
-                    range:[0,2000]
-                }
                 },
                 messages: {
                 courier_name: "Please Select Courier Name",
@@ -799,10 +842,6 @@
                 shipment_date:"Please Enter Shipped date",
                 challan_file: "Please Select File",
                 defective_parts_shipped_boxes_count : "Please Select Boxes Count",
-                courier_price_by_partner:{
-                    digits: "Courier Price can only be Numeric.",
-                    range: "Courier price should be in between 0 to 2000."
-                }
                 },
                 submitHandler: function (form) {
 
