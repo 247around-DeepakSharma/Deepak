@@ -221,6 +221,23 @@ $arr_partner_discount = array();
                                                 ?>
                                                 <span style="color:red;" id="error_serial_no"></span>                    
                                             </div>
+                                            
+                                             <label for="serial_number" class="col-md-4">AMC File *</label>
+                                            <div class="col-md-6">
+                                                <input type="file" class="form-control support_file" id="support_file_1"  name="support_file[]" tabindex=-1 style="margin-top:5px;">
+                                                <input type="hidden" class="form-control file_description" id="file_description_1" name="file_description[]" value="<?php  echo ANNUAL_MAINTENANCE_CONTRACT;  ?>">
+                                                <?php
+                                                if(!empty($amc_file_lists)) {
+                                                    foreach ($amc_file_lists as $file){
+                                                    $url="https://s3.amazonaws.com/". BITBUCKET_DIRECTORY.'/purchase-invoices/'.$file; ?>
+                                                    <p style="margin-top: 5px;"><a href="<?php echo $url; ?>" target="_blank">Annual Maintenance Contract File</a></p>
+                                                   <?php
+                                                        }
+                                                    }
+                                                    ?>
+                                                <span style="color:red;" id="error_serial_no"></span>                    
+                                            </div>
+                                             
                                         </div>
                                         </div>
                                                 <input type="hidden"  name="appliance_description[]" id="description_1" placeholder="Enter Description"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?>  value="<?php if(isset($unit_details[0]['description'])) { echo $unit_details[0]['description']; } ?>">
@@ -350,7 +367,7 @@ $arr_partner_discount = array();
                                                                     }
                                                                     
                                                                     ?>
-                                                                    type='checkbox' id="<?php echo "checkbox_" . $div . "_1" ; ?>" name='prices[<?php echo $unit_details[0]['brand_id']; ?>][<?php echo $clone_number; ?>][]' <?php if( $price['service_category'] ==REPAIR_OOW_PARTS_PRICE_TAGS){ if($customer_net_payable == 0){ echo "onclick='return false;' ";}}?>  <?php echo $onclick; ?> value = "<?php echo $price['id']. "_" .intval($ct)."_".$div."_1" ?>"  data-price_tag="<?php echo $price['service_category']?>" >
+                                                                    type='checkbox' id="<?php echo "checkbox_" . $div . "_1" ; ?>" name='prices[<?php echo $unit_details[0]['brand_id']; ?>][<?php echo $clone_number; ?>][]' <?php if( $price['service_category'] ==REPAIR_OOW_PARTS_PRICE_TAGS){ if($customer_net_payable == 0){ echo "onclick='return false;' ";}}?>  <?php echo $onclick; ?> value = "<?php echo $price['id']. "_" .intval($ct)."_".$div."_1" ?>"  data-price_tag="<?php echo $price['service_category']?>" data-pod="<?php echo $price['pod']; ?>">
                                                             </td>
                                                         </tr>
                                                         <?php  $i++; $div++; if(count($unit_details[0]['quantity']) > $k){  $k++;} }} ?>
@@ -584,6 +601,16 @@ $arr_partner_discount = array();
 </div>
 <script>
 
+    $("body").on("change", ".support_file", function () {
+        var allowedFiles = [".gif", ".jpg",".png",".jpeg",".pdf"];
+        var fileUpload = $("#support_file_1");
+        var regex = new RegExp("([a-zA-Z0-9\s_\\.\-:()])+(" + allowedFiles.join('|') + ")$");
+        if (!regex.test(fileUpload.val().toLowerCase())) {
+            $("#support_file_1").val('');
+            alert("Please upload files having extensions:(" + allowedFiles.join(', ') + ") only.");
+            return false;
+        }
+    });     
    
 </script>
 <script>
