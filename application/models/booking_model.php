@@ -995,7 +995,7 @@ class Booking_model extends CI_Model {
      */
     function getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $brand, $add_booking = NULL) {
         $this->db->distinct();
-        $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry, '
+        $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod,invoice_pod, is_upcountry, '
                 . 'vendor_basic_percentage, '
                 . 'around_net_payable,product_or_services,  upcountry_customer_price, upcountry_vendor_price, upcountry_partner_price, flat_upcountry ');
         $this->db->where('service_id',$service_id);
