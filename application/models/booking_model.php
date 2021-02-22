@@ -830,11 +830,11 @@ class Booking_model extends CI_Model {
      */
     function getbooking_history($booking_id, $join=""){
 
-        $service_centre = ", service_centres ";
-        $condition = " and booking_details.assigned_vendor_id =  service_centres.id";
+        
         $service_center_name = ",service_centres.name as vendor_name,service_centres.address ";
         $partner = "";  
         $partner_name = "";
+        $condition = "";
         if($join !=""){
             $service_center_name = ",service_centres.name as vendor_name, service_centres.min_upcountry_distance, service_centres.district as sc_district,service_centres.address, service_centres.state as sf_state, service_centres.pincode, service_centres.district as sf_district,"
 		. "service_centres.primary_contact_name, service_centres.owner_email,service_centres.owner_name, gst_no, "
@@ -842,7 +842,7 @@ class Booking_model extends CI_Model {
                     . "service_centres.primary_contact_email,service_centres.owner_phone_1, "
                     . "service_centres.phone_1, service_centres.min_upcountry_distance as municipal_limit, isEngineerApp ";
 	        $service_centre = ", service_centres ";
-            $condition = " and booking_details.assigned_vendor_id =  service_centres.id";
+            
             $partner_name = ", partners.public_name ";
             $partner = ", partners  ";
             $condition .= " and booking_details.partner_id =  partners.id";
@@ -851,12 +851,12 @@ class Booking_model extends CI_Model {
         $sql = " SELECT booking_details.id as booking_primary_id,`services`.`services`, users.*, booking_details.* ".  $service_center_name. $partner_name. ",booking_cancellation_reasons.reason as cancellation_reason, (CASE WHEN sms_sent_details.sms_tag = 'sms_to_redzone_customers' THEN 1 ELSE 0 END) as is_red_zone_sms_sent "
                . "from booking_details "
                . " LEFT JOIN sms_sent_details ON sms_sent_details.booking_id = booking_details.booking_id AND sms_sent_details.sms_tag = 'sms_to_redzone_customers' "
-               . " LEFT JOIN booking_cancellation_reasons ON (booking_details.cancellation_reason = booking_cancellation_reasons.id),"
-               . " users, services " . $service_centre .$partner
+               . " LEFT JOIN booking_cancellation_reasons ON (booking_details.cancellation_reason = booking_cancellation_reasons.id)"
+               . " LEFT JOIN service_centres ON ( booking_details.assigned_vendor_id = service_centres.id),"
+               . " users, services "  .$partner
                . "where booking_details.booking_id='$booking_id' and "
                . "booking_details.user_id = users.user_id and "
                . "services.id = booking_details.service_id  ". $condition;
-
         $query = $this->db->query($sql);
         $result = $query->result_array();
         $post['is_inventory']=1;
@@ -1000,7 +1000,7 @@ class Booking_model extends CI_Model {
      */
     function getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $brand, $add_booking = NULL) {
         $this->db->distinct();
-        $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry, '
+        $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod,invoice_pod, is_upcountry, '
                 . 'vendor_basic_percentage, '
                 . 'around_net_payable,product_or_services,  upcountry_customer_price, upcountry_vendor_price, upcountry_partner_price, flat_upcountry ');
         $this->db->where('service_id',$service_id);

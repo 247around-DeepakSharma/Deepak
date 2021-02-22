@@ -4487,4 +4487,25 @@ class Inventory_model extends CI_Model {
         return count($query->result_array());
     }
     
+    
+       
+    /*
+     * @desc: This function is used to get the Bill docket details
+     * @params: $select
+     * @params: Array $where
+     * @return: Array
+     */
+
+    function get_billed_courier_invoice_list($select, $where) {
+        $this->db->select($select);
+        $this->db->from('courier_company_invoice_details');
+        $this->db->join('billed_docket', 'courier_company_invoice_details.id = billed_docket.courier_id');
+
+        if (!empty($where)) {
+            $this->db->where($where);
+        }
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
 }
