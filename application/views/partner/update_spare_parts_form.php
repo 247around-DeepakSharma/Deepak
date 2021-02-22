@@ -242,7 +242,7 @@
                                         if (form_error('invoice_amount')) { echo 'has-error'; } ?>">
                                         <label for="invoice_amount" class="col-md-4">Invoice Amount (including tax)</label>
                                         <div class="col-md-7">
-                                            <input type="number" class="form-control invoice_amount" id="<?php echo "invoiceamount_". $key; ?>" name="part[<?php echo $key; ?>][invoiceamount]" value = "" placeholder="Please Enter Invoice Amount"  required>
+                                            <input type="number" class="form-control" id="<?php echo "invoiceamount_". $key; ?>" name="part[<?php echo $key; ?>][invoiceamount]" value = "" placeholder="Please Enter Invoice Amount"  required>
                                             <?php echo form_error('invoice_amount'); ?>
                                         </div>
                                     </div>
@@ -438,7 +438,7 @@
                                     <div class="form-group">
                                         <label for="invoice_amount" class="col-md-4">Invoice Amount (including tax)</label>
                                         <div class="col-md-7">
-                                            <input type="number" class="form-control invoice_amount" id="invoiceamount"  value = "" placeholder="Please Enter Invoice Amount"  required>
+                                            <input type="number" class="form-control" id="invoiceamount"  value = "" placeholder="Please Enter Invoice Amount"  required>
                                         </div>
                                     </div>
                                     <?php } ?>
@@ -571,27 +571,12 @@
                                     <?php echo form_error('courier_name'); ?>
                                 </div>
                             </div>
-
                                 <div class="form-group <?php if (form_error('shipment_date')) { echo 'has-error'; } ?>">
                                     <label for="shipment_date" class="col-md-4">Shipment Date *</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control" readonly  style="background-color:#FFF; cursor: pointer;" id="shipment_date" name="shipment_date"  value = "<?php echo date("Y-m-d", strtotime("+0 day")); ?>"  required>
                                     <?php echo form_error('shipment_date'); ?>
                                     </div>
-
-                            <div class="form-group">
-                                <label for="partner_challan_number" class="col-md-4">Courier Price</label>
-                                <div class="col-md-6">
-                                    <input type="text" class="form-control"  id="courier_price_by_partner" onblur="chkPrice($(this),2000)" name="courier_price_by_partner" placeholder="Please Enter courier price">
-                                </div>
-                            </div>
-                            <!-- <div class="form-group <?php
-                                if (form_error('approx_value')) { echo 'has-error'; } ?>">
-                                <label for="approx_value" class="col-md-4">Approx Value <?php if($warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){  ?>*<?php } ?></label>
-                                <div class="col-md-6">
-                                    <input type="text" class="form-control" id="approx_value" name="approx_value" max="100000" value = "" placeholder="Please Enter approx value"  <?php if(isset($spare_parts[0]->part_warranty_status) && ($spare_parts[0]->part_warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS)){  ?> required  <?php } ?>>
-                                    <?php echo form_error('approx_value'); ?>
->>>>>>> 019c9b1c4... Courier file and courier charges is optional to updated when sending spare from partner crm #CRMS-2228
                                 </div>
                                 
                          
@@ -630,7 +615,6 @@
                                     <?php echo form_error('awb'); ?>
                                 </div>
                             </div>
-
                             
                             <div class="form-group <?php
                                 if (form_error('awb')) { echo 'has-error'; } ?>">
@@ -645,7 +629,6 @@
                                 </div>
                                 <?php echo form_error('awb'); ?>
                             </div>
-
                              <div class="form-group>">
                                 <label for="co" class="col-md-4"> Courier Image </label>
                                 <div class="col-md-6">
@@ -717,7 +700,6 @@
     $(".close").on("click",function(){
         <?php echo $this->session->unset_userdata('success');?>
     });
-    
     $("body").on("change", "#challan_file", function () {
         var allowedFiles = [".gif", ".jpg",".png",".jpeg",".pdf"];
         var fileUpload = $("#challan_file");
@@ -740,7 +722,6 @@
         }
       });
     });
-      
      $("#awb").on({
         "click": function () {
             var awb_number = $(this).val();
@@ -957,79 +938,7 @@
         });  
         return str;  
     }
-    
        
-    $('.invoice_amount').bind('keydown', function (event) {
-        switch (event.keyCode) {
-            case 8:  // Backspace
-            case 9:  // Tab
-            case 13: // Enter
-            case 37: // Left
-            case 38: // Up
-            case 39: // Right
-            case 40: // Down
-                break;
-            default:
-                var regex = new RegExp("^[a-df-zA-DF-Z0-9,]+$");
-                var key = event.key;
-                if (!regex.test(key)) {
-                    event.preventDefault();
-                    return false;
-                }
-                break;
-        }
-    });
-    
-    
-      $(".invoice_amount").on({
-        "click": function () {
-            var amount = $(this).val();
-            if (amount < 0 || amount == 0) {
-                $(this).val('');
-                return false;
-            }
- 
-        },
-        "keyup": function () {
-            var amount = $(this).val();
-            if (amount < 0 || amount == 0) {
-                $(this).val('');
-                return false;
-            }
- 
-        },
-        "mouseleave": function () {
-            var amount = $(this).val();
-            if (amount < 0 || amount == 0) {
-                $(this).val('');
-                return false;
-            }
- 
-        },
-        "mouseout": function () {
-            var amount = $(this).val();
-            if (amount < 0 || amount == 0 ) {
-                $(this).val('');
-                return false;
-            }
-        }
-    });
-    
-   
-       
-   
- 
-        $(".invoice_id_class").keypress(function (e) {
-            var keyCode = e.keyCode || e.which;
-            var regex = /^[A-Za-z0-9-,./\|_]+$/;
-            //Validate TextBox value against the Regex.
-            var isValid = regex.test(String.fromCharCode(keyCode));
-            if (!isValid) {
-                alert("Invoice id should not be special character.");
-            }
-            return isValid;
-        });
-        
     <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
 
 //    $('.shipped_model_number_id').select2();

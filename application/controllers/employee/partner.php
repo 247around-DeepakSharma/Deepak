@@ -2575,7 +2575,7 @@ $post['amount_due'] = false;
             redirect(base_url() . "partner/update_spare_parts_form/" . $booking_id);
         }
     }
-    
+   
 
      /**
      * @desc: This function is used to upload the courier file when partner shipped spare parts on booking
@@ -2609,8 +2609,7 @@ $post['amount_due'] = false;
 
         return $res;
     }
-
-
+    
     function inset_new_spare_request($booking_id, $data, $part_details){
         $sp_details = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $booking_id));
         $data['entity_type'] =_247AROUND_PARTNER_STRING;
