@@ -3867,6 +3867,10 @@ class engineerApiv1 extends CI_Controller {
                 $curl_data['query_remarks'] = $booking_details['booking_history'][0]['booking_remarks'];
                 $curl_data['repeat_reason'] = $booking_details['booking_history'][0]['repeat_reason'];
                 $curl_data['internal_status'] = $booking_details['booking_history'][0]['internal_status'];
+                if(isset($unit_detail['serial_number']) && !empty($unit_detail['serial_number'])){
+                $curl_data['serial_number'] = $unit_detail['serial_number'];
+                $curl_data['serial_number_pic'] = $unit_detail['serial_number_pic'];
+                }
 
                 $appliance_ids = array();
                 $appliance_brands = array();
