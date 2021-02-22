@@ -2642,6 +2642,15 @@ class engineerApiv1 extends CI_Controller {
                     $check_serial['status'] = TRUE;
                 }
             }
+            $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $requestData['booking_id']));
+            $spare_part_can_requested = false;
+            foreach ($unit_details as $value) {
+                if (stristr($value['price_tags'], "Repair") || stristr($value['price_tags'], "Repeat") || stristr($value['price_tags'], "Replacement") || stristr($value['price_tags'], EXTENDED_WARRANTY_TAG) || stristr($value['price_tags'], PRESALE_REPAIR_TAG) || stristr($value['price_tags'], GAS_RECHARGE_IN_WARRANTY) || stristr($value['price_tags'], AMC_PRICE_TAGS) || stristr($value['price_tags'], GAS_RECHARGE_OUT_OF_WARRANTY)) {
+
+                    $spare_part_can_requested = true;
+                }
+            }
+            if(!empty($spare_part_can_requested)){
             if ($check_serial['status']) {
 		/* Check for duplicate Part Request */
                 $duplicate_part = $this->is_part_already_requested($requestData['part'],$requestData['booking_id']);
@@ -2748,6 +2757,10 @@ class engineerApiv1 extends CI_Controller {
             } else {
                 log_message("info", __METHOD__ . "Serial number validation failed");
                 $this->sendJsonResponse(array($check_serial['code'], $check_serial['message']));
+            }
+            }else{
+                log_message("info", __METHOD__ . "Spare parts can't be requested for this booking.");
+                $this->sendJsonResponse(array($check_serial['code'], "Spare parts can't be requested for this booking."));
             }
         } else {
             log_message("info", __METHOD__ . "Request validation failed " . $validation['message']);
@@ -3377,7 +3390,7 @@ class engineerApiv1 extends CI_Controller {
         }
     }
 
-    function warrantyChecker($booking_id, $partner_id, $booking_create_date, $model_number, $purchase_date, $booking_request_type,$service_id=NULL,$serial_number='') {
+    function warrantyChecker($booking_id, $partner_id, $booking_create_date, $model_number, $purchase_date, $booking_request_type,$service_id=NULL,$serial_number='',$brand_warranty='') {
         $data = array();
         $matching_flag = false;
         $arrBookings[0] = array(
@@ -3387,7 +3400,8 @@ class engineerApiv1 extends CI_Controller {
             "purchase_date" => $purchase_date,
             "model_number" => $model_number,
             "service_id"=>$service_id,
-            "serial_number"=>$serial_number
+            "serial_number"=>$serial_number,
+            "brand" => $brand_warranty
         );
         $checkInstallationDate = $this->partner_model->getpartner($partner_id)[0]['check_warranty_from'];
         if($checkInstallationDate == WARRANTY_ON_DOI) {
@@ -3664,7 +3678,6 @@ class engineerApiv1 extends CI_Controller {
     function submitWarrantyCheckerAndEditCallType() {
         log_message("info", __METHOD__ . " Entering..");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-
         $missing_key = "";
         $check = true;
         $check_request_type = array();
@@ -3693,21 +3706,22 @@ class engineerApiv1 extends CI_Controller {
             $appliance_id = $booking_history[0]['service_id'];
             $model_number = $requestData['model_number'];
             $repeat_booking_message = false;
-            foreach ($price_tags as $key => $value) {
-                $check_serial = $this->checkVaidationOnSerialNumber($partner_id, $serial_number, $value, $user_id, $booking_id, $appliance_id, $model_number);
+            $price_tag_real = $this->booking_utilities->get_booking_request_type($price_tags);
+            if(!empty($serial_number)){
+                $check_serial = $this->checkVaidationOnSerialNumber($partner_id, $serial_number, $price_tag_real, $user_id, $booking_id, $appliance_id, $model_number);
                 if ($check_serial['code'] != 0000) {
-                    if($check_serial['message']!=REPEAT_BOOKING_FAILURE_MSG){
                         $response['warranty_flag'] = 1;
                         $this->jsonResponseString['response'] = $response;
                         $this->sendJsonResponse(array('0055', $check_serial['message']));
                         exit;
-                    }else{
-                        $repeat_booking_message = $check_serial['message'];
-                    }
                 }
             }
 
             $booking_details = $this->booking_creation_lib->get_edit_booking_form_helper_data($requestData['booking_id'], NULL, NULL);
+            $brand_warranty = "";
+            if(!empty($booking_details['unit_details'][0]['brand'])){
+                $brand_warranty = $booking_details['unit_details'][0]['brand'];
+            }
             foreach ($booking_details['unit_details'] as $unit_key => $unit_value) {
                 $quan = array();
                 foreach ($unit_value['quantity'] as $quan_key => $quan_value) {
@@ -3751,8 +3765,10 @@ class engineerApiv1 extends CI_Controller {
                     }
                 }
             }
+            
             $serial_number_img_submit = false;
             $serial_number_array = json_decode($requestData['submitWarrantyCheckerAndEditCallType'], true);
+            
             if (isset($serial_number_array['serial_number_pic_exist'])) {
                 if ($serial_number_array['serial_number_pic_exist']) {
                     $serial_number_pic = "serial_number_pic_" . date("YmdHis") . ".png";
@@ -3769,12 +3785,20 @@ class engineerApiv1 extends CI_Controller {
                     }
                 }
             }
-            if (empty($serial_number_img_submit)) {
-                $response['warranty_flag'] = 1;
-                $this->jsonResponseString['response'] = $response;
-                $this->sendJsonResponse(array('0055', "Serial image is required"));
+            //If Serial Number is entered then serail number image is mandatory and vice-a-versa - Start
+            if(!empty($serial_number_img_submit) && empty($serial_number)){
+                $response_new['warranty_flag'] = 1;
+                $this->jsonResponseString['response'] = $response_new;
+                $this->sendJsonResponse(array('0055', "Serial Number is Required."));
                 exit;
             }
+            if(!empty($serial_number) && empty($serial_number_img_submit)){
+                $response_new['warranty_flag'] = 1;
+                $this->jsonResponseString['response'] = $response_new;
+                $this->sendJsonResponse(array('0055', "Serial Image is Required."));
+                exit;
+            }
+            //If serial Number is entered then serial number image is mandatory and vice-a-versa - End
 
             $unit_detail['serial_number'] = $requestData['serial_number'];
             $this->booking_model->update_booking_unit_details($requestData['booking_id'], $unit_detail);
@@ -3791,7 +3815,7 @@ class engineerApiv1 extends CI_Controller {
                 $service_id = $booking_details["booking_history"][0]['service_id'];
                 foreach ($request_types as $request_typess) {
                     $new_request_type = $this->booking_utilities->get_booking_request_type($request_typess);
-                    $response = $this->warrantyChecker($requestData["booking_id"], $booking_details["booking_history"][0]['partner_id'], $booking_details["booking_history"][0]['create_date'], $requestData["model_number"], $requestData["purchase_date"], $new_request_type,$service_id,$requestData["serial_number"]);
+                    $response = $this->warrantyChecker($requestData["booking_id"], $booking_details["booking_history"][0]['partner_id'], $booking_details["booking_history"][0]['create_date'], $requestData["model_number"], $requestData["purchase_date"], $new_request_type,$service_id,$requestData["serial_number"],$brand_warranty);
                     if ($response['warranty_flag'] == 1) {
                         $warranty_status = false;
                         $warranty_status_holder = $response;
@@ -3801,7 +3825,7 @@ class engineerApiv1 extends CI_Controller {
                     }
                 }
             }
-
+            $edit_call_type = true;
             if ($edit_call_type) {
                 if (isset($requestData['sc_agent_id'])) {
                     $curl_data['sc_agent_id'] = $requestData['sc_agent_id'];
@@ -3908,8 +3932,10 @@ class engineerApiv1 extends CI_Controller {
 
                 $url = base_url() . "employee/booking/Api_getAllBookingInput/" . $booking_details['booking_history'][0]['user_id'] . "/" . $requestData["booking_id"];
                 $ch = curl_init($url);
-
+                
                 $postdata = json_encode($curl_data, true);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
                 curl_setopt_array($ch, array(
                     CURLOPT_POST => TRUE,
                     CURLOPT_RETURNTRANSFER => TRUE,
@@ -4992,6 +5018,10 @@ function submitPreviousPartsConsumptionData(){
             $serial_number_details['serial_number_pic'] = '';
             $serial_number_details['can_edit_serial_number'] = '1';
             $serial_number_details['can_edit_invoice_pic'] = '1';
+            $serial_number_details['is_serial_number_required'] = '1';
+            $serial_number_details['is_invoice_pic_required'] = '1';
+            $serial_number_details['is_serial_number_required'] = '1';
+            $serial_number_details['is_invoice_pic_required'] = '1';
             if (!empty($spare_details)) {
                 $serial_number_details = $spare_details[0];
             }
@@ -5024,7 +5054,7 @@ function submitPreviousPartsConsumptionData(){
                 unset($serial_number_details['invoice_pic']);
                 $serial_number_details['can_edit_invoice_pic'] = '1';
             }
-            if (!empty($autofill) && $serial_number_details['can_edit_serial_number'] == 1) {
+            if (!empty($spare_details) && empty($spares) && empty($unit_details)) {
                 unset($serial_number_details['serial_number_pic']);
                 unset($serial_number_details['serial_number']);
             }
