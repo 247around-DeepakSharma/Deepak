@@ -319,7 +319,7 @@ if(empty($booking_history[0]['booking_id'])){
                                 <div class="col-md-6" style='margin-top:10px;'>
                                     <!--<div class='form-group'>-->
                                         <div class="col-md-6">
-                                            <select class="form-control" id="file_desc_<?=$key?>" >
+                                            <select class="form-control file_description" id="file_desc_<?=$key?>" >
                                                 <option selected disabled>Select File Type</option>
                                                 <?php if(!empty($file_type)) {
                                                     foreach($file_type as $val) {
@@ -372,7 +372,7 @@ if(empty($booking_history[0]['booking_id'])){
                                             <div class="col-md-12">
                                                 <div class='form-group'>
                                                     <div class="col-md-4">
-                                                        <select class="form-control" id="file_description_1"  name="file_description[]" >
+                                                        <select class="form-control file_description" id="file_description_1"  name="file_description[]" >
                                                             <option selected disabled>Select File Type</option>
                                                             <?php if(!empty($file_type)) {
                                                                 foreach($file_type as $val) { ?>
@@ -1037,6 +1037,18 @@ if(empty($booking_history[0]['booking_id'])){
 </div>
 
 <script>
+    
+    $("body").on("change", ".support_file", function () {
+        var allowedFiles = [".gif", ".jpg",".png",".jpeg",".pdf"];
+        var fileUpload = $("#support_file_1");
+        var regex = new RegExp("([a-zA-Z0-9\s_\\.\-:()])+(" + allowedFiles.join('|') + ")$");
+        if (!regex.test(fileUpload.val().toLowerCase())) {
+            $("#support_file_1").val('');
+            alert("Please upload files having extensions:(" + allowedFiles.join(', ') + ") only.");
+            return false;
+        }
+    });   
+    
     <?php if(!empty($str_disabled)) { ?> 
         $('.appliance_brand, .appliance_category, .appliance_capacity, .purchase_date, .select-model, .input-model, #source_code, #partner_source, #service_id, .booking_type').attr('tabindex', '-1'); 
     <?php } ?>    
@@ -1258,7 +1270,16 @@ function upload_supporting_file(supportfileLoader){
 }
 
 function uploadsupportingfile(key, id){
-     var file = $("#supportfileLoader_"+key).val();
+    var file = $("#supportfileLoader_"+key).val();
+    var allowedFiles = [".gif", ".jpg",".png",".jpeg",".pdf"];
+    var fileUpload = $("#supportfileLoader_"+key);
+    var regex = new RegExp("([a-zA-Z0-9\s_\\.\-:()])+(" + allowedFiles.join('|') + ")$");
+        if (!regex.test(fileUpload.val().toLowerCase())) {
+            $("#support_file_1").val('');
+            alert("Please upload files having extensions:(" + allowedFiles.join(', ') + ") only.");
+            return false;
+        }
+        
      if (file === '') {
         alert('Please select file');
         return;

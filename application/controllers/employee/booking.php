@@ -565,6 +565,7 @@ class Booking extends CI_Controller {
         $file_description_arr = $this->input->post('file_description');
         //add support file for booking id if it is uploaded
         if(!empty($_FILES['support_file']['tmp_name'])){
+            
             for($i=0; $i< count($_FILES['support_file']['tmp_name']); $i++) {
                 if(!empty($_FILES['support_file']['tmp_name'][$i])) {
                     $booking_files = array();
@@ -575,9 +576,20 @@ class Booking extends CI_Controller {
                         $booking_files['file_name'] = $support_file;
                         $booking_files['file_type'] = $_FILES['support_file']['type'][$i];
                         $booking_files['size'] = $_FILES['support_file']['size'][$i];
-                        $booking_files['create_date'] = date("Y-m-d H:i:s");
-                        $Status = $this->booking_model->insert_booking_file($booking_files);
-                        if(!$Status) {
+                        if ($booking_files['file_description_id'] == ANNUAL_MAINTENANCE_CONTRACT) {
+                            $support_files = $this->booking_model->get_booking_files(array("booking_files.file_description_id" => ANNUAL_MAINTENANCE_CONTRACT, "booking_files.booking_id" => $booking['booking_id']));
+                            if (!empty($support_files)) {
+                               $status = $this->booking_model->update_booking_file($booking_files, array("booking_files.file_description_id" => $booking_files['file_description_id'], "booking_files.booking_id" => $booking['booking_id']));
+                            } else {
+                                $booking_files['create_date'] = date("Y-m-d H:i:s");
+                                $status = $this->booking_model->insert_booking_file($booking_files);
+                            }
+                        } else {
+                            $booking_files['create_date'] = date("Y-m-d H:i:s");
+                            $status = $this->booking_model->insert_booking_file($booking_files);
+                        }
+
+                        if(!$status) {
                             return false;
                         }
                     }
@@ -6712,6 +6724,16 @@ class Booking extends CI_Controller {
         $booking_id = base64_decode(urldecode($booking_id));
         $redirect_url = !empty($redirect_url) ? base64_decode(urldecode($redirect_url)) : "";
         $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,NULL,NULL,true);
+        if (isset($booking['booking_files'])) {
+            $amc_file_array = array();
+            foreach ($booking['booking_files'] as $value) {
+                if ($value['file_description_id'] == ANNUAL_MAINTENANCE_CONTRACT) {
+                    array_push($amc_file_array, $value['file_name']);
+                }
+            }
+            $booking['amc_file_lists'] = $amc_file_array;
+        }
+        
         $booking['booking_history']['redirect_url'] = $redirect_url;
         if($booking){
             $is_spare_requested = $this->booking_utilities->is_spare_requested($booking);
