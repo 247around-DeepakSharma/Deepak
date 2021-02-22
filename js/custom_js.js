@@ -333,12 +333,22 @@ function check_prepaid_balance(type) {
 
 function addBookingDialog(chanel = '', check_serial_no = '0') {
     var delivered_price_tags = [];
+    var delivered_price_tags_pod = [];
     var partner_id = $("#partner_id").val();
     var is_sf_panel = $("#is_sf_panel").val();
     $(".price_checkbox:checked").each(function (i) {
              var price_tags = $("#"+ $(this).attr('id')).attr('data-price_tag');
              delivered_price_tags.push(price_tags);
+             if($("#"+ $(this).attr('id')).attr('data-pod')){
+                var pod = $("#"+ $(this).attr('id')).attr('data-pod');
+                delivered_price_tags_pod.push(pod);
+             }
      });
+     $("#pod").val("0");
+     if(jQuery.inArray("1", delivered_price_tags_pod) !== -1){
+         $("#pod").val("1");
+     }
+
      var pr = checkPriceTagValidation(delivered_price_tags, partner_id);
      if(pr === false){
          alert('Not Allow to select multiple different type of service category');
@@ -684,6 +694,17 @@ if (!is_sf_panel && (partner_source == "" || partner_source== null)) {
             return false;
         }
     }
+    
+    // If serial number is filled , Image should also be uploaded and vice-versa
+    if($('#serial_number_pic').val() == '' && $("#serial_number").val() != ''){
+            alert('Please Attach Serial Number image');
+            return false;
+    }  
+    
+    if($('#serial_number_pic').val() != '' && $("#serial_number").val() == ''){
+            alert('Please Fill Serial Number');
+            return false;
+    }  
     
     if (count_number > 1) {
 
