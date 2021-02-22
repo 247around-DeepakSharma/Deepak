@@ -571,12 +571,27 @@
                                     <?php echo form_error('courier_name'); ?>
                                 </div>
                             </div>
+
                                 <div class="form-group <?php if (form_error('shipment_date')) { echo 'has-error'; } ?>">
                                     <label for="shipment_date" class="col-md-4">Shipment Date *</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control" readonly  style="background-color:#FFF; cursor: pointer;" id="shipment_date" name="shipment_date"  value = "<?php echo date("Y-m-d", strtotime("+0 day")); ?>"  required>
                                     <?php echo form_error('shipment_date'); ?>
                                     </div>
+
+                            <div class="form-group">
+                                <label for="partner_challan_number" class="col-md-4">Courier Price</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control"  id="courier_price_by_partner" onblur="chkPrice($(this),2000)" name="courier_price_by_partner" placeholder="Please Enter courier price">
+                                </div>
+                            </div>
+                            <!-- <div class="form-group <?php
+                                if (form_error('approx_value')) { echo 'has-error'; } ?>">
+                                <label for="approx_value" class="col-md-4">Approx Value <?php if($warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){  ?>*<?php } ?></label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" id="approx_value" name="approx_value" max="100000" value = "" placeholder="Please Enter approx value"  <?php if(isset($spare_parts[0]->part_warranty_status) && ($spare_parts[0]->part_warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS)){  ?> required  <?php } ?>>
+                                    <?php echo form_error('approx_value'); ?>
+>>>>>>> 019c9b1c4... Courier file and courier charges is optional to updated when sending spare from partner crm #CRMS-2228
                                 </div>
                                 
                          
@@ -615,6 +630,7 @@
                                     <?php echo form_error('awb'); ?>
                                 </div>
                             </div>
+
                             
                             <div class="form-group <?php
                                 if (form_error('awb')) { echo 'has-error'; } ?>">
@@ -629,6 +645,7 @@
                                 </div>
                                 <?php echo form_error('awb'); ?>
                             </div>
+
                              <div class="form-group>">
                                 <label for="co" class="col-md-4"> Courier Image </label>
                                 <div class="col-md-6">
