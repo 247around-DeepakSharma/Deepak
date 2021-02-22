@@ -9541,6 +9541,15 @@ class Service_centers extends CI_Controller {
                 $arr_booking_unit_details = !empty($booking['unit_details'][0]['quantity']) ? $booking['unit_details'][0]['quantity'] : [];
                 $booking['booking_history']['is_partner_invoiced'] = $this->booking_utilities->is_partner_invoiced($arr_booking_unit_details);                                       
                 $this->load->view('service_centers/header');
+                if (isset($booking['booking_files'])) {
+                    $amc_file_array = array();
+                    foreach ($booking['booking_files'] as $value) {
+                        if ($value['file_description_id'] == ANNUAL_MAINTENANCE_CONTRACT) {
+                            array_push($amc_file_array, $value['file_name']);
+                        }
+                    }
+                    $booking['amc_file_lists'] = $amc_file_array;
+                }
                 $this->load->view('service_centers/update_booking', $booking);
             } else {
                 echo "<p style='text-align: center;font: 20px sans-serif;background: #df6666; padding: 10px;color: #fff;'>Booking Id Not Exist</p>";

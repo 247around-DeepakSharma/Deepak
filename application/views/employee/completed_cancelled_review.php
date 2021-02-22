@@ -163,7 +163,7 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                                 <th class="jumbotron no-sort" >Warranty Status</th>
                               <?php
                               }
-                              ?>                              
+                              ?>  
                               <th class="jumbotron no-sort" >Admin Remarks</th>
                               <th class="jumbotron no-sort" >Vendor Remarks</th>
                               <th class="jumbotron no-sort" >Vendor Cancellation Reason</th>
@@ -188,6 +188,16 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                                   <input type="hidden" name="approved_by" value='<?php echo _247AROUND ?>'  id="approved_by">
                                   <input type="hidden" name="booking_request_type[]" value="<?=$value['request_type']?>"  class="booking_request_type_<?=$value['booking_id']?>">
                                   <input type="hidden" name="booking_warranty_status[]" value=''  class="booking_warranty_status_<?=$value['booking_id']?>">
+                                  <?php
+                                      if (!empty($value1['booking_amc_files'])) {
+                                          foreach ($value1['booking_amc_files'] as $file) {
+                                              $url = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/purchase-invoices/" . $file['file_name'];
+                                        ?>
+                                         <p style="margin-top: 5px;"><a href="<?php echo $url; ?>" target="_blank">Annual Maintenance Contract File</a></p>
+                                     <?php
+                                          }
+                                      }
+                                      ?>
                               </td>
 
                             <input type="hidden" class="form-control" id="partner_id" name="partner_id[<?php echo $value['booking_id']; ?>]" value = "<?php if(isset($value['booking'][0]['partner_id'])){ echo $value['booking'][0]['partner_id']; } ?>" >
