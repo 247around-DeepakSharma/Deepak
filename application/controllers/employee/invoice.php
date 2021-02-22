@@ -3495,7 +3495,7 @@ exit();
                 $sc_details['beneficiary_name'] = trim($sc['beneficiary_name']);
                 $msl_amount = $this->get_msl_summary_amount($service_center_id, $due_date);
                 $sc_details['final_amount'] = abs(sprintf("%.2f",$amount));
-                $sc_details['msl_amount'] = abs(sprintf("%.2f",$msl_amount ));
+                $sc_details['msl_amount'] = abs(sprintf("%.2f",$msl_amount['amount_summary'] ));
                 if (trim($sc['bank_name']) === ICICI_BANK_NAME) {
                     $sc_details['payment_mode'] = "I";
                 } else {
@@ -3537,7 +3537,7 @@ exit();
 
                 $sc_details['is_verified'] = ($sc['is_verified'] ==0) ? "Not Verified" : "Verified";
                 $sc_details['amount_type'] = ($amount > 0)? "CR":"DR";
-                $sc_details['msl_amount_type'] = ($msl_amount > 0)? "CR":"DR";
+                $sc_details['msl_amount_type'] = ($msl_amount['amount_summary'] > 0)? "CR":"DR";
                 $sc_details['sf_id'] = $service_center_id;
                 $sc_details['is_sf'] = ($sc['is_sf'] ==0) ? "No" : "Yes";
                 $sc_details['is_cp'] = ($sc['is_cp'] ==0) ? "No" : "Yes";
@@ -3574,6 +3574,7 @@ exit();
                 }
                
                 $sc_details['fnf_security_amount'] = $this->get_fnf_summary_amount($service_center_id, $due_date);
+                $sc_details['msl_security_amount'] = $msl_amount['security'];
                 
                 array_push($payment_data, $sc_details);
                 
@@ -3747,7 +3748,8 @@ exit();
          * */
         $msl['security'] = sprintf("%01.2f", $mslSecurityAmount);
         $msl['amount'] = sprintf("%01.2f", $mslAmount);
-        return (-$mslSecurityAmount + $mslAmount);
+        $msl['amount_summary'] = (-$mslSecurityAmount + $mslAmount);
+        return $msl;
 
     }
     
@@ -3844,6 +3846,7 @@ exit();
         $sc_details['last_payment_amount'] = "Last Payment Amount";
         $sc_details['last_payment_type'] = "Last Payment Type";
         $sc_details['fnf_security_amount'] = "FNF Security Deposit";
+        $sc_details['msl_security_amount'] = "MSL Security Deposit";
 
         return $sc_details;
     }
