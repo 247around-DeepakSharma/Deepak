@@ -6461,7 +6461,6 @@ class Service_centers extends CI_Controller {
             $where = array(
                 "spare_parts_details.defective_part_required" => 1,
                 "approved_defective_parts_by_admin" => 1,
-                "(defective_return_to_entity_id = $sf_id or consumed_part_status_id = 1)" =>null,
                 "(spare_lost is null or spare_lost = 0)" => NULL,
                 "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
                 "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "','" . OK_PARTS_SHIPPED . "','" . DAMAGE_PARTS_SHIPPED . "')" => NULL,
@@ -6510,7 +6509,7 @@ class Service_centers extends CI_Controller {
                    $whare_house_name_array[$wh_id] = $warehouse_name;
                 }
             }
-            $row = $this->defective_parts_shipped_by_sf_table_data($spare_list, $no, $warehouse_name);
+            $row = $this->defective_parts_shipped_by_sf_table_data($spare_list, $no, $warehouse_name, $sf_id);
             $data[] = $row;
         }
 
@@ -6528,7 +6527,7 @@ class Service_centers extends CI_Controller {
         // $this->load->view('employee/get_spare_parts', $data);
     }
 
-    function defective_parts_shipped_by_sf_table_data($spare_list, $no, $warehouse_name = '') {
+    function defective_parts_shipped_by_sf_table_data($spare_list, $no, $warehouse_name = '', $sf_id = '') {
 
         $row = array();
 
@@ -6584,7 +6583,7 @@ class Service_centers extends CI_Controller {
         $row[] = "<span class='".$color_class."'>". $spare_list['reason_text'] ."</span>";
 
 
-        if (!empty($spare_list['defective_part_shipped'])) {
+        if (!empty($spare_list['defective_part_shipped']) && $sf_id == $spare_list['defective_return_to_entity_id']) {
 
             $a = "<a href='javascript:void(0);' id='defective_parts_' class='btn btn-sm btn-primary recieve_defective' onclick='";
             $a .= "open_spare_consumption_model(this.id," . '"' . $spare_list['booking_id'] . '"';
