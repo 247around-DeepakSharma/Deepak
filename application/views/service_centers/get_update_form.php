@@ -1000,8 +1000,27 @@ function alpha(e) {
                } 
               
   <?php } ?>            
-
-              
+            $('.spare_parts_type').each(function() {
+                var id = $(this).attr('id');
+                if(id !== "parts_type"){
+                    if(!$(this).val() || $(this).val() === "undefined" ||  $(this).val() === null){
+                        alert('Please Enter Part Type');
+                        checkbox_value = 0;
+                       return false;
+                    }
+                }
+            });
+         
+            $('.parts_type').each(function() {
+                  var id = $(this).attr('id');
+                  if(id !== "parts_type"){
+                      if(!$(this).val() || $(this).val() === "undefined" ||  $(this).val() === null){
+                          alert('Please Enter Part Type');
+                          checkbox_value = 0;
+                         return false;
+                      }
+                  }
+              });
               
               $('.parts_name').each(function() {
                 var id = $(this).attr('id');
@@ -1016,17 +1035,7 @@ function alpha(e) {
                 
                 });
             
-            $('.parts_type').each(function() {
-                var id = $(this).attr('id');
-                if(id !== "parts_type"){
-                    if(!$(this).val() || $(this).val() === "undefined" ||  $(this).val() === null){
-                        alert('Please Enter Part Type');
-                        checkbox_value = 0;
-                       return false;
-                    }
-                }
-            });
-
+           
     var ptypes =[];
     $(".parts_type_check").each(function(i) {
 
@@ -1399,7 +1408,7 @@ function alpha(e) {
             method:'POST',
             url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
             data: { service_id:service_id},
-            success:function(data){                       
+            success:function(data){    
                 $('.spare_parts_type').html(data); 
                 $('#parts_type_0').select2();
             }
