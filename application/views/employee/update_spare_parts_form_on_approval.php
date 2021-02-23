@@ -1,3 +1,7 @@
+<script>
+ var DUPLICATE_SERIAL_NO_CODE = '<?php echo DUPLICATE_SERIAL_NO_CODE; ?>';
+ var DUPLICATE_SERIAL_NUMBER_USED = '<?php echo DUPLICATE_SERIAL_NUMBER_USED;?>';
+</script>
 <div id="page-wrapper">
     <div class="container-fluid">
         <div class="row">
@@ -22,6 +26,13 @@
                 <?php } ?>
                 
                 <form class="form-horizontal" id="requested_parts" name="myForm" action="<?php echo base_url() ?>employee/service_centers/update_spare_parts_details" method="POST" onSubmit="document.getElementById('submitform').disabled=true;" enctype="multipart/form-data">
+                    <div class="panel panel-default col-md-offset-2" style="border : 0px;">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <span class="error_serial_no" style="font-size: 16px;color:red;"></span>
+                            </div>
+                        </div>
+                    </div>
                     <div class="panel panel-default col-md-offset-2">
                         <div class="panel-body" >
                             <div class="row">
@@ -293,9 +304,10 @@
                         <input type="hidden" name="part[0][service_center_id]" value="<?php echo $spare_parts_details['assigned_vendor_id']; ?>">
                         <input type="hidden" name="part[0][date_of_request]" value="<?php echo $spare_parts_details['date_of_request']; ?>">
                         <input type="hidden" name="part[0][booking_id]" value="<?php echo $spare_parts_details['booking_id']; ?>">
+                        <input type="hidden" id="is_sn_correct" name="is_sn_correct" value="0">
                         <?php 
                           if($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer"   ){  ?>
-                        <input type="submit"  value="Update" id="submitform" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return submitForm();"   class="btn btn-danger btn-large">
+                        <input type="button"  value="Update" id="submitform" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return submitForm();"   class="btn btn-danger btn-large">
 
                        <?php } ?>
 
@@ -575,7 +587,22 @@ function get_inventory_id(id){
             return false;
         }
         else
-            return true;
+        {
+            if(confirm("Validating Serial Number & Booking Warranty Status, Click OK to continue.")){
+                $("#submitform").prop("disabled", true);
+                setTimeout(function(){ 
+                    var is_correct = validate_serial_number_and_warranty();
+                    if(is_correct){
+                        $("#requested_parts").submit();
+                        return true;
+                    }
+                    else{
+                        $("#submitform").prop("disabled", false);
+                        return false;
+                    }
+                }, 3000);                
+            }
+        }
     }
 
     $(document).on('keyup', ".quantity", function(e)
@@ -622,6 +649,99 @@ function get_inventory_id(id){
         $("#purchase_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true}).datepicker('show');
     }
     
+    function validate_serial_number_and_warranty()
+    {
+        // Validate Serial Number
+        var postData = {};
+        var valid_serial_number = false;
+        var UrlValidateSerialNumber = '<?php echo base_url(); ?>employee/service_centers/validate_booking_serial_number';
+        postData['serial_number'] = $.trim($("#serial_number").val());
+        postData['price_tags'] = "<?= $spare_parts_details['request_type']?>";
+        postData['user_id'] = "<?= $spare_parts_details['user_id']?>";
+        postData['booking_id'] = "<?= $spare_parts_details['booking_id']?>";
+        postData['partner_id'] = "<?= $spare_parts_details['partner_id']?>";
+        postData['appliance_id'] = "<?= $spare_parts_details['service_id']?>";
+        if(postData['serial_number'] !== ''){
+            $.ajax({
+                type: 'POST',
+                async: false,
+                url: UrlValidateSerialNumber,
+                data:postData,
+                success: function (response) {                    
+                    console.log(response);
+                    var data = jQuery.parseJSON(response);
+                    if(data.code === 247){
+                        console.log("Correct Serial Number");
+                        $("#is_sn_correct").val("1");
+                        $(".error_serial_no").html("");
+                        valid_serial_number = check_booking_request();
+                    } else if(data.code === Number(DUPLICATE_SERIAL_NO_CODE)){
+                        console.log("Duplicate Serial Number");
+                        $("#is_sn_correct").val("0");
+                        $(".error_serial_no").html(data.message);
+                    } else {
+                        console.log("Incorrect Serial Number");
+                        $("#is_sn_correct").val("0");
+                        $(".error_serial_no").html(data.message);
+                    }
+                }
+            });
+        }
+        return valid_serial_number;        
+    }
+    
+    // function to cross check request type of booking with warranty status of booking 
+    function check_booking_request()
+    {
+        var model_number = $('#model_number').val();
+        var dop = $("#purchase_date").val();
+        var serial_number = $("#serial_number").val();
+        var partner_id = "<?= $spare_parts_details['partner_id']; ?>";
+        var brand = "<?= $unit_details[0]['appliance_brand']; ?>";
+        var service_id = "<?= $spare_parts_details['service_id']; ?>";
+        var booking_id = "<?= $spare_parts_details['booking_id']; ?>";
+        var booking_request_type = "<?= $spare_parts_details['request_type']; ?>";  
+        var booking_create_date = "<?= $spare_parts_details['booking_create_date']; ?>"; 
+        var valid_request = false;
+        // Model Number & DOP/Serial number should be there for checking warranty
+        // Booking Request Type should not be AMC/repeat
+        if((model_number !== "" && model_number !== null) && (dop !== "" || serial_number != "")){                               
+            $.ajax({
+                method:'POST',
+                async: false,
+                url:"<?php echo base_url(); ?>employee/service_centers/get_warranty_data/2/1",
+                data:{
+                    'bookings_data[0]' : {
+                        'partner_id' : partner_id,
+                        'brand' : brand,
+                        'booking_id' : booking_id,
+                        'booking_create_date' : booking_create_date,
+                        'service_id' : service_id,
+                        'model_number' : model_number,
+                        'purchase_date' : dop, 
+                        'serial_number' : serial_number,
+                        'booking_request_types' : [booking_request_type]
+                    }
+                },
+                success:function(response){
+                    var returnData = JSON.parse(response);
+                    $(".error_serial_no").html(returnData['message']);
+                    if(returnData['status'] == 1)
+                    {
+                        console.log("Invalid Booking Request Type");
+                    }
+                    else
+                    {                        
+                        if($("#is_sn_correct").val() == "1"){
+                            console.log("Valid Booking Request Type");
+                            valid_request = true;
+                        }
+                    }
+                }                            
+            });
+            return valid_request;
+        }
+    }
 </script>
 <style type="text/css">
     #hide_spare, #hide_rescheduled { display: none;}

@@ -1946,7 +1946,7 @@ class Service_centers extends CI_Controller {
                 . 'spare_parts_details.serial_number,spare_parts_details.serial_number_pic,spare_parts_details.invoice_pic,'
                 . 'spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.invoice_pic,spare_parts_details.part_warranty_status,'
                 . 'spare_parts_details.defective_parts_pic,spare_parts_details.defective_back_parts_pic,spare_parts_details.requested_inventory_id,spare_parts_details.serial_number_pic,spare_parts_details.remarks_by_sc,'
-                . 'booking_details.service_id,booking_details.partner_id as booking_partner_id, spare_parts_details.quantity, booking_details.assigned_vendor_id';
+                . 'booking_details.service_id,booking_details.partner_id as booking_partner_id, spare_parts_details.quantity, booking_details.assigned_vendor_id,booking_details.user_id,booking_details.request_type,booking_details.create_date as booking_create_date';
 
         $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, TRUE, false);
 
@@ -1966,6 +1966,7 @@ class Service_centers extends CI_Controller {
         $price_tags_symptom = array();
         $data['bookinghistory'] = $this->booking_model->getbooking_history($spare_parts_details[0]['booking_id']);
         $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $spare_parts_details[0]['booking_id']));
+        $data['unit_details'] = $unit_details;
         foreach ($unit_details as $value) {
          $price_tags1 = str_replace('(Free)', '', $value['price_tags']);
          $price_tags2 = str_replace('(Paid)', '', $price_tags1);
@@ -6497,7 +6498,6 @@ class Service_centers extends CI_Controller {
             $where = array(
                 "spare_parts_details.defective_part_required" => 1,
                 "approved_defective_parts_by_admin" => 1,
-                "(defective_return_to_entity_id = $sf_id or consumed_part_status_id = 1)" =>null,
                 "(spare_lost is null or spare_lost = 0)" => NULL,
                 "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
                 "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "','" . OK_PARTS_SHIPPED . "','" . DAMAGE_PARTS_SHIPPED . "')" => NULL,
@@ -6545,7 +6545,7 @@ class Service_centers extends CI_Controller {
                    $whare_house_name_array[$wh_id] = $warehouse_name;
                 }
             }
-            $row = $this->defective_parts_shipped_by_sf_table_data($spare_list, $no, $warehouse_name);
+            $row = $this->defective_parts_shipped_by_sf_table_data($spare_list, $no, $warehouse_name, $sf_id);
             $data[] = $row;
         }
 
@@ -6563,7 +6563,7 @@ class Service_centers extends CI_Controller {
         // $this->load->view('employee/get_spare_parts', $data);
     }
 
-    function defective_parts_shipped_by_sf_table_data($spare_list, $no, $warehouse_name = '') {
+    function defective_parts_shipped_by_sf_table_data($spare_list, $no, $warehouse_name = '', $sf_id = '') {
 
         $row = array();
         
@@ -6616,7 +6616,7 @@ class Service_centers extends CI_Controller {
         $row[] = "<span class='".$color_class."'>". $spare_list['reason_text'] ."</span>";
 
 
-        if (!empty($spare_list['defective_part_shipped'])) {
+        if (!empty($spare_list['defective_part_shipped']) && $sf_id == $spare_list['defective_return_to_entity_id']) {
 
             $a = "<a href='javascript:void(0);' id='defective_parts_' class='btn btn-sm btn-primary recieve_defective' onclick='";
             $a .= "open_spare_consumption_model(this.id," . '"' . $spare_list['booking_id'] . '"';
@@ -10493,7 +10493,9 @@ function do_delivered_spare_transfer() {
         // Fetch all Bookings that are completed by Engineer
         $where['where'] =   array(
                                 "engineer_booking_action.current_status" => "InProcess",
-                                "DATEDIFF(CURDATE(), engineer_booking_action.closed_date) > 2" => NULL
+                                "DATEDIFF(CURDATE(), engineer_booking_action.closed_date) > 2" => NULL,
+                                "engineer_booking_action.internal_status IN ('"._247AROUND_CANCELLED."', '"._247AROUND_COMPLETED."')" => NULL,
+                                 "booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."')" => NULL
                             );
         $select = 'engineer_booking_action.*,'
                 . 'engineer_table_sign.upcountry_charges,'
@@ -10509,6 +10511,7 @@ function do_delivered_spare_transfer() {
             $booking_id = $engg_completed_booking->booking_id;
             $partner_id = $engg_completed_booking->partner_id;
             $closed_date = $engg_completed_booking->closed_date;
+            $internal_status_engg = $engg_completed_booking->internal_status;
             // Update Booking Statuses
             $this->update_booking_internal_status($booking_id, SF_BOOKING_COMPLETE_STATUS, $partner_id);
             // Update SF Closed date
@@ -10553,6 +10556,19 @@ function do_delivered_spare_transfer() {
             
             // Insert data into booking state change
             $this->insert_details_in_state_change($booking_id, SF_BOOKING_COMPLETE_STATUS, "Booking Auto Approved", "247Around", "Review the Booking");
-        }              
+            //Update spare consumption as entered by engineer Booking Completed
+            if ($internal_status_engg == _247AROUND_COMPLETED) {
+                $spare_select = 'spare_parts_details.id';
+                $spare_Consumption_details = $this->service_centers_model->get_engineer_consumed_details('*', array('booking_id' => $booking_id));
+                if (!empty($spare_Consumption_details)) {
+                    $array_consumption = array();
+                    foreach ($spare_Consumption_details as $key => $value) {
+                        $array_consumption['spare_consumption_status'][$value['spare_id']] = $value['consumed_part_status_id'];
+                        $array_consumption['consumption_remarks'][$value['spare_id']] = $value['remarks'];
+                    }
+                    $is_update_spare_parts = $this->miscelleneous->update_spare_consumption_status($array_consumption, $booking_id);
+                }
+            }
+        }
     }
 }
