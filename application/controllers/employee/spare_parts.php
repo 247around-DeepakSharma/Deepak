@@ -2288,7 +2288,8 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                 if ($affected_id) {
                     if (isset($data['is_micro_wh']) && $data['is_micro_wh'] == 1 ) {
                         $data['spare_id'] = $spare_parts_id;
-                         $data['shipped_inventory_id'] = $spare_data['requested_inventory_id'];
+                        $data['shipped_inventory_id'] = $data['requested_inventory_id'];
+
                         array_push($delivered_sp, $data);
                     }
 
@@ -4426,9 +4427,10 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             
         } else {
             $where_array['booking_details.partner_id'] = $partner_id;
-            if (!empty($warranty)) {
-                $where_array['spare_parts_details.part_warranty_status'] = $warranty;
-            }
+            //if (!empty($warranty)) {
+           //     $where_array['spare_parts_details.part_warranty_status'] = $warranty;
+           // }
+           $where_array['spare_parts_details.part_warranty_status'] = 1;
             $where_array['spare_parts_details.is_micro_wh IN (1, 2)'] = NULL;
             $where_array['spare_parts_details.reverse_purchase_invoice_id IS NULL'] = NULL;
         }
@@ -6327,7 +6329,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                             $courier_id = "";
                         }
                     } else {
-                        $courier_id = $exist_courier_details[0]['courier_id'];
+                        $courier_id = $exist_courier_details[0]['id'];
                         $courier_file['message'] = $courier_file["courier_invoice_file"];
                         $courier_file['status'] = true;
                     }
@@ -6534,7 +6536,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             if (!empty($ch)) {
                 $from_gst_number = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $ch[0]['from_gst_number_id']));
                 $to_gst_number = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $ch[0]['to_gst_number_id']));
-
+                $challan_id = $ch[0]['invoice_id'];
                 $entity_details = $this->partner_model->getpartner_details("primary_contact_email, company_name, address,,", array('partners.id' => $to_gst_number[0]['entity_id']));
                 $ch[0]['primary_contact_email'] = $entity_details[0]['primary_contact_email'];
                 $ch[0]['gst_number'] = $to_gst_number[0]['gst_number'];
@@ -6614,7 +6616,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
 
                     $anx = $this->inventory_model->get_annx_inventory_invoice_mapping("inventory_invoice_mapping.incoming_invoice_id, spare_parts_details.booking_id, "
                             . "inventory_master_list.part_number, settle_qty as qty, inventory_invoice_mapping.rate",
-                            "inventory_invoice_mapping.outgoing_invoice_id ='" . $response['meta']['invoice_id'] . "' ");
+                            "inventory_invoice_mapping.outgoing_invoice_id ='" . $challan_id . "' ");
 
                     $this->invoice_lib->generate_invoice_excel($template, $response['meta'], $anx, TMP_FOLDER . $response['meta']['details_file']);
                     $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], true, false, $dir);

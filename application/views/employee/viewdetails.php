@@ -1126,6 +1126,7 @@
                                         <th>SF Challan Number</th>
                                         <th>SF Challan File</th>
                                         <th>Courier POD File</th>
+                                        <th>Update Courier Details</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1135,7 +1136,7 @@
                                             <a href="javascript:void(0);"  data-spare_id="<?php echo $sp['id']; ?>" class="spare_history_tracking"><?php echo $sp['id']; ?></a>
                                         </td>
                                         <td><?php if(!empty($sp['send_defective_to'])) { echo $sp['send_defective_to']; } else { echo ucfirst(_247AROUND_PARTNER_STRING); }?></td>   
-                                        <td><?php echo $sp['defective_part_shipped']; ?></td>
+                                        <td><span style="word-break: break-all;"><?php echo $sp['defective_part_shipped']; ?></span></td>
                                         <td><?php if(!empty($sp['shipped_part_number'])){ echo $sp['shipped_part_number'];}else{echo 'Not Available';} ?></td>
                                         <td><?php echo $sp['shipped_quantity']; ?></td>
                                         <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_sf'])); ?></td>
@@ -1147,7 +1148,7 @@
                                         ?>
                                         <td>
                                             <span class="serial_no_text" id="<?php echo $sp['id']."|awb_by_sf";?>" style="color:blue; pointer:cursor" onclick="get_awb_details('<?php echo $sp['courier_name_by_sf']; ?>','<?php echo $sp['awb_by_sf']; ?>','<?php echo $sp['status']; ?>','<?php echo "awb_loader_".$sp['awb_by_sf']; ?>')"><?php echo $sp['awb_by_sf']; ?></span> 
-                                            <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span>
+<!--                                            <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span>-->
                                             <span id=<?php echo "awb_loader_".$sp['awb_by_sf'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span>
                                         </td>
                                         <td><?php if(!empty($sp['awb_by_sf']) && !empty($sp['sf_box_count'])){ echo $sp['sf_box_count']; } ?></td>
@@ -1167,7 +1168,7 @@
                                        <td><?php echo $sp['courier_charges_by_sf']; ?></td>
                                         <td>
                                             <div class="progress-bar progress-bar-success myprogress" id="myprogressdefective_courier_receipt<?php echo $sp['id']; ?>" role="progressbar" style="width: 0%;">100%</div>
-                                            <a class='defective_courier_receipt' href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY ?>/misc-images/<?php echo $sp['defective_courier_receipt']; ?>" target="_blank" id="<?php echo "a_defective_courier_receipt_".$sp['id']; ?>" line_item_id='<?php echo $sp['id']; ?>' awb_number="<?php if(!empty($sp['awb_by_sf'])){echo $sp['awb_by_sf'];} ?>">Click Here to view</a> &nbsp;&nbsp;<i id="<?php echo "defective_courier_receipt_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','defective_courier_receipt');"></i>
+                                            <a class='defective_courier_receipt' href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY ?>/misc-images/<?php echo $sp['defective_courier_receipt']; ?>" target="_blank" id="<?php echo "a_defective_courier_receipt_".$sp['id']; ?>" line_item_id='<?php echo $sp['id']; ?>' awb_number="<?php if(!empty($sp['awb_by_sf'])){echo $sp['awb_by_sf'];} ?>">Click Here to view</a> &nbsp;&nbsp;
                                         </td>
                                         <td><?php echo date('d-M-Y', strtotime($sp['defective_part_shipped_date'])); ?></td>
                                         <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
@@ -1192,6 +1193,9 @@
                                             <?php if (!empty($sp['awb_by_sf_pod'])) { ?>
                                                 <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY ?>/courier-pod/<?php echo $sp['awb_by_sf_pod']; ?>" target="_blank">Click Here to view</a>
                                             <?php } ?>
+                                        </td>
+                                        <td>
+                                            <a class="btn btn-primary" href="<?php echo base_url();?>employee/service_centers/update_spare_courier_details/<?php echo $sp['id'];?>" target="_blank">Update</a>
                                         </td>
                                     </tr>
                                     <?php

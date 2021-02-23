@@ -3082,10 +3082,12 @@ exit();
         $this->form_validation->set_rules('from_date', 'Invoice Period', 'required|trim');
         $this->form_validation->set_rules('type', 'Type', 'required|trim');
         $this->form_validation->set_rules('tds_rate', 'TDS Rate', 'trim');
-        $this->form_validation->set_rules('tds_amount', 'Tds Amount', 'trim');
+        $this->form_validation->set_rules('tds_amount', 'TDS Amount', 'trim');
         $this->form_validation->set_rules('tcs_rate', 'TCS Rate', 'trim');
         $this->form_validation->set_rules('tcs_amount', 'TCS Amount', 'trim');
-        
+        $this->form_validation->set_rules('num_bookings', 'Bookings', 'required|trim');
+        $this->form_validation->set_rules('parts_count', 'Parts', 'required|trim');
+      
         if ($this->form_validation->run()) {
             $flag = true;
             $text = (($insert_flag)?"inserted":"updated");
@@ -3097,6 +3099,10 @@ exit();
             $tds_rate = $this->input->post('tds_rate');
             $tcs_amount = $this->input->post('tcs_amount');
             $tcs_rate = $this->input->post('tcs_rate');
+            
+            $num_bookings = $this->input->post('num_bookings');
+            $parts_count = $this->input->post('parts_count');
+            $around_type = $this->input->post('around_type');
 
             $data['hsn_code'] = $invoice['booking'][array_keys($invoice['booking'])[0]]['hsn_code'];
             
@@ -3123,20 +3129,30 @@ exit();
                 $data['tds_amount'] = $tds_amount;
                 $data['tcs_rate'] = $tcs_rate;
                 $data['tcs_amount'] = $tcs_amount;
+                
+                $data['num_bookings'] = $num_bookings;
+                $data['parts_count'] = $parts_count;
 
                 if ($data['vendor_partner'] == "vendor") {
-                    $entity_details = $this->vendor_model->viewvendor($data['vendor_partner_id']);
-                    $gst_number = $entity_details[0]['gst_no'];
+                    $entity_details = $this->vendor_model->viewvendor($data['vendor_partner_id']);                    
+                    
+                    if($around_type == "A"){
+                        $gst_number = true;
+                    } else {
+                        if (!empty($entity_details[0]['gst_number']) 
+                        && !empty($entity_details[0]['gst_status']) 
+                        && !($entity_details[0]['gst_status'] == _247AROUND_CANCELLED || $entity_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
+                            $gst_number = $entity_details[0]['gst_no'];
+                        } else {
+                            $gst_number = "";
+                        }
+                    }
+                    
                 } else {
                     $entity_details = $this->partner_model->getpartner_details("gst_number, state", array('partners.id' => $data['vendor_partner_id']));
                     $gst_number = $entity_details[0]['gst_number'];
                 }
-
-                if (empty($gst_number)) {
-                    $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = $data['sgst_tax_rate'] = $data['cgst_tax_rate'] = 0;
-                    $data['igst_tax_amount'] = $data['igst_tax_rate'] = 0;
-                }
-
+               
                 $data['total_amount_collected'] = sprintf("%.2f",($this->input->post('total_amount_charge') + $data['tds_amount']));
                 $data['rcm'] = 0;
 
@@ -3151,6 +3167,11 @@ exit();
                     $data['cgst_tax_rate'] = sprintf("%.2f",($this->input->post('total_cgst_amount')*100)/$this->input->post('total_taxablevalue'));
                     $data['sgst_tax_rate'] = sprintf("%.2f",($this->input->post('total_sgst_amount')*100)/$this->input->post('total_taxablevalue'));
                     $data['igst_tax_rate'] = $data['igst_tax_amount'] = 0;
+                }
+                
+                if (empty($gst_number)) {
+                    $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = $data['sgst_tax_rate'] = $data['cgst_tax_rate'] = 0;
+                    $data['igst_tax_amount'] = $data['igst_tax_rate'] = 0;
                 }
                  
                 switch ($data['type_code']) {
@@ -3474,7 +3495,7 @@ exit();
                 $sc_details['beneficiary_name'] = trim($sc['beneficiary_name']);
                 $msl_amount = $this->get_msl_summary_amount($service_center_id, $due_date);
                 $sc_details['final_amount'] = abs(sprintf("%.2f",$amount));
-                $sc_details['msl_amount'] = abs(sprintf("%.2f",$msl_amount ));
+                $sc_details['msl_amount'] = abs(sprintf("%.2f",$msl_amount['amount_summary'] ));
                 if (trim($sc['bank_name']) === ICICI_BANK_NAME) {
                     $sc_details['payment_mode'] = "I";
                 } else {
@@ -3516,7 +3537,7 @@ exit();
 
                 $sc_details['is_verified'] = ($sc['is_verified'] ==0) ? "Not Verified" : "Verified";
                 $sc_details['amount_type'] = ($amount > 0)? "CR":"DR";
-                $sc_details['msl_amount_type'] = ($msl_amount > 0)? "CR":"DR";
+                $sc_details['msl_amount_type'] = ($msl_amount['amount_summary'] > 0)? "CR":"DR";
                 $sc_details['sf_id'] = $service_center_id;
                 $sc_details['is_sf'] = ($sc['is_sf'] ==0) ? "No" : "Yes";
                 $sc_details['is_cp'] = ($sc['is_cp'] ==0) ? "No" : "Yes";
@@ -3553,6 +3574,7 @@ exit();
                 }
                
                 $sc_details['fnf_security_amount'] = $this->get_fnf_summary_amount($service_center_id, $due_date);
+                $sc_details['msl_security_amount'] = $msl_amount['security'];
                 
                 array_push($payment_data, $sc_details);
                 
@@ -3726,7 +3748,8 @@ exit();
          * */
         $msl['security'] = sprintf("%01.2f", $mslSecurityAmount);
         $msl['amount'] = sprintf("%01.2f", $mslAmount);
-        return (-$mslSecurityAmount + $mslAmount);
+        $msl['amount_summary'] = (-$mslSecurityAmount + $mslAmount);
+        return $msl;
 
     }
     
@@ -3823,6 +3846,7 @@ exit();
         $sc_details['last_payment_amount'] = "Last Payment Amount";
         $sc_details['last_payment_type'] = "Last Payment Type";
         $sc_details['fnf_security_amount'] = "FNF Security Deposit";
+        $sc_details['msl_security_amount'] = "MSL Security Deposit";
 
         return $sc_details;
     }
@@ -4579,7 +4603,8 @@ exit();
                     
                     $data[0]['gst_number'] = $vendor_details[0]['gst_no'];
                 } else {
-                    $data[0]['gst_number'] = 1;
+                    //this is 247around invoice thats why we are assigned true value.
+                    $data[0]['gst_number'] = true;
                 }
                 
                 $data[0]['company_name'] = $vendor_details[0]['company_name'];
@@ -4777,7 +4802,7 @@ exit();
         $data[0]['state'] = $vendor_details[0]['state'];
         $data[0]['owner_phone_1'] = $vendor_details[0]['owner_phone_1'];
         $data[0]['inventory_id'] = $invoice_details[0]['inventory_id'];
-        $data[0]['inventory_id'] = $invoice_details[0]['spare_id'];
+        $data[0]['spare_id'] = $invoice_details[0]['spare_id'];
        
         $data[0]['qty'] = $shipped_quantity;
         $data[0]['hsn_code'] = SPARE_HSN_CODE;
