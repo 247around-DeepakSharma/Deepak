@@ -771,6 +771,8 @@ class Invoice_lib {
         
         $booking_id = $spare_details[0][0]['booking_id'];
         $excel_data['excel_data_line_item'] = array();
+        
+        $c_s_gst = $this->ci->invoices_model->check_gst_tax_type($sf_details[0]['state'], $partner_details[0]['state']);
 
 
         foreach ($spare_details as $value2) {
@@ -817,12 +819,30 @@ class Invoice_lib {
                 } else {
                     $tmp_arr['courier_name'] = 'NA';
                 }
-
+                
+                if(($challan_generated_by_wh == true) || $sf_details[0]['is_gst_doc'] == 1){
+                    
+                   $taxable_value = $tmp_arr['value']/(1 + $value2[0]['gst_rate']/100); 
+                    $rate = $taxable_value/$value2[0]['shipped_quantity'];
+                    $tmp_arr['rate'] = $rate;
+                    $tmp_arr['taxable_value'] = $taxable_value;
+                    if($c_s_gst){
+                        $excel_data['c_s_gst'] = true;
+                        $tmp_arr['s_gst_rate'] = $tmp_arr['c_gst_rate'] = $value2[0]['gst_rate']/2;
+                        $tmp_arr['s_gst_amount'] = $tmp_arr['c_gst_amount'] = ($tmp_arr['value'] - $taxable_value)/2;
+                    } else {
+                        $excel_data['c_s_gst'] = false;
+                        $tmp_arr['i_gst_rate'] = $value2[0]['gst_rate'];
+                        $tmp_arr['i_gst_amount'] = ($tmp_arr['value'] - $taxable_value);
+                    }
+                    
+                }
+                
                 array_push($excel_data['excel_data_line_item'], $tmp_arr);
             }
         }
         
-        if ($sf_details[0]['is_gst_doc'] == 1) {
+        if(($challan_generated_by_wh == true) || $sf_details[0]['is_gst_doc'] == 1){
             $template = 'delivery_challan_template';
             $excel_data['excel_data']['sf_gst'] = $sf_details[0]['gst_number'];
             $signature_file = FALSE;
@@ -840,10 +860,10 @@ class Invoice_lib {
                 $excel_data['excel_data']['signature_file'] = $signature_file = "";
             }
         }
-
         if (!empty($template)) {
+            //print_r($excel_data);
             //generated pdf file name
-            $output_file = "delivery_challan_" . $booking_id . "_" . rand(10, 100) . "_" . date('d_M_Y_H_i_s');
+            $output_file = "deliverychallan_" . $booking_id. rand(10, 100) . "_" . date('dMYHis');
             //generated pdf file template
             $html_file = $this->ci->load->view('templates/' . $template, $excel_data, true);
 
@@ -902,7 +922,7 @@ class Invoice_lib {
         $spare_parts_details = array();
         $spare_ids = explode(',', $spare_id);
         foreach ($spare_ids as $spare_id) {
-            $select = 'spare_parts_details.*, IF(spare_consumption_status.consumed_status !="" , spare_consumption_status.consumed_status, "NA") as consumed_status';
+            $select = 'spare_parts_details.*, invoice_gst_rate as gst_rate, IF(spare_consumption_status.consumed_status !="" , spare_consumption_status.consumed_status, "NA") as consumed_status';
             $where = array('spare_parts_details.id' => $spare_id,
                 "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . DAMAGE_PART_TO_BE_SHIPPED . "', '" . COURIER_LOST . "','" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "')  " => NULL,
                 'defective_part_required' => 1);
@@ -911,6 +931,7 @@ class Invoice_lib {
                 $spare_parts_details[] = $a;
             }
         }
+        
         if (!empty($spare_parts_details)) {
             $partner_challan_number = trim(implode(',', array_column($spare_parts_details, 'partner_challan_number')), ',');
             $shipped_inventory_id = '';
@@ -959,9 +980,10 @@ class Invoice_lib {
                 $spare_parts_details[$spare_key][0]['courier_name'] = $couriers_name; 
             }
 
-            $sf_details = $this->ci->vendor_model->getVendorDetails("name as company_name,concat(service_centres.address,',', service_centres.district,',',service_centres.state,',','Pincode - ',service_centres.pincode) as address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,gst_no as gst_number, is_signature_doc,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number", array('id' => $service_center_id));
+
+            $sf_details = $this->ci->vendor_model->getVendorDetails("name as company_name,concat(service_centres.address,',', service_centres.district,',',service_centres.state,',','Pincode - ',service_centres.pincode) as address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,gst_no as gst_number, is_signature_doc,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number, state", array('id' => $service_center_id));
             
-            $select = "concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address,contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number";
+            $select = "concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address,contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number, warehouse_state as state";
 
             $where = array('contact_person.entity_id' => $spare_parts_details[0][0]['defective_return_to_entity_id'],
                 'contact_person.entity_type' => $spare_parts_details[0][0]['defective_return_to_entity_type']);
@@ -969,14 +991,15 @@ class Invoice_lib {
             $partner_details = array();
 
             if ($spare_parts_details[0][0]['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
-                $partner_details = $this->ci->partner_model->getpartner_details('company_name, address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number', array('partners.id' => $spare_parts_details[0][0]['defective_return_to_entity_id']));
+                $partner_details = $this->ci->partner_model->getpartner_details('company_name, address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number, state', array('partners.id' => $spare_parts_details[0][0]['defective_return_to_entity_id']));
             } else if ($spare_parts_details[0][0]['defective_return_to_entity_type'] === _247AROUND_SF_STRING) {
-                $partner_details = $this->ci->vendor_model->getVendorDetails("name as company_name,concat(service_centres.address,',', service_centres.district,',',service_centres.state,',','Pincode - ',service_centres.pincode) as address,owner_name,gst_no as gst_number", array('id' => $spare_parts_details[0][0]['defective_return_to_entity_id']));
+                $partner_details = $this->ci->vendor_model->getVendorDetails("name as company_name,concat(service_centres.address,',', service_centres.district,',',service_centres.state,',','Pincode - ',service_centres.pincode) as address,owner_name,gst_no as gst_number, service_centres.state as state", array('id' => $spare_parts_details[0][0]['defective_return_to_entity_id']));
             }
             if (!empty($wh_address_details)) {
                 $partner_details[0]['address'] = $wh_address_details[0]['address'];
                 $partner_details[0]['contact_person_name'] = $wh_address_details[0]['contact_person_name'];
                 $partner_details[0]['contact_number'] = $wh_address_details[0]['contact_number'];
+                $partner_details[0]['state'] = $wh_address_details[0]['state'];
             }
 
             $partner_details[0]['is_gst_doc'] = $sf_details[0]['is_gst_doc'];
@@ -1022,7 +1045,7 @@ class Invoice_lib {
         $spare_ids = explode(',', $spare_id);
         foreach ($spare_ids as $spare_id) {
             /* Consumption reason in Partner on DC  */
-            $select = 'spare_parts_details.*,booking_details.partner_id as booking_partner_id, booking_details.assigned_vendor_id, IF(spare_consumption_status.consumed_status !="" , spare_consumption_status.consumed_status, "NA") as consumed_status';
+            $select = 'spare_parts_details.*, invoice_gst_rate as gst_rate,booking_details.partner_id as booking_partner_id, booking_details.assigned_vendor_id, IF(spare_consumption_status.consumed_status !="" , spare_consumption_status.consumed_status, "NA") as consumed_status';
             $where = array('spare_parts_details.id' => $spare_id, 'spare_parts_details.entity_type' => _247AROUND_PARTNER_STRING, 'defective_part_required' => 1);
             $spare_parts_details[] = $this->ci->partner_model->get_spare_parts_by_any($select, $where, true);
         }
@@ -1057,7 +1080,7 @@ class Invoice_lib {
 
             }
 
-            $sf_details = $this->ci->vendor_model->getVendorDetails("name as company_name,concat(service_centres.address,',', service_centres.district,',',service_centres.state,',','Pincode - ',service_centres.pincode) as address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,gst_no as gst_number, is_signature_doc,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number", array('id' => $service_center_id));
+            $sf_details = $this->ci->vendor_model->getVendorDetails("name as company_name,concat(service_centres.address,',', service_centres.district,',',service_centres.state,',','Pincode - ',service_centres.pincode) as address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,gst_no as gst_number, is_signature_doc,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number, service_centres.state", array('id' => $service_center_id));
 
 //            $select = "concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address,contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number";
 //
@@ -1067,7 +1090,7 @@ class Invoice_lib {
 //
 //            $partner_details = array();
 
-            $select1 = "warehouse_details.warehouse_address_line1 as company_name, concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address, contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number, warehouse_details.warehouse_city, warehouse_pincode as pincode";
+            $select1 = "warehouse_details.warehouse_address_line1 as company_name, concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address, contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number, warehouse_details.warehouse_city, warehouse_pincode as pincode, warehouse_state as state";
             $partner_details = $this->ci->inventory_model->get_warehouse_details($select1, array("contact_person.entity_type" => _247AROUND_PARTNER_STRING, "contact_person.entity_id" => $spare_parts_details[0][0]['booking_partner_id'], "warehouse_details.warehouse_city" => $wh_city), true, true);
 
             if (!empty($partner_details)) {
@@ -1081,7 +1104,7 @@ class Invoice_lib {
                 }
             } else {
                 if ($spare_parts_details[0][0]['defective_return_to_entity_type'] == _247AROUND_SF_STRING) {
-                    $partner_details = $this->ci->partner_model->getpartner_details("company_name, concat(partners.address,',',partners.district,',',partners.state,',',partners.pincode) AS address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number, primary_contact_name as contact_person_name,owner_name, partners.pincode", array('partners.id' => $spare_parts_details[0][0]['booking_partner_id']));
+                    $partner_details = $this->ci->partner_model->getpartner_details("company_name, concat(partners.address,',',partners.district,',',partners.state,',',partners.pincode) AS address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number, primary_contact_name as contact_person_name,owner_name, partners.pincode, partners.state", array('partners.id' => $spare_parts_details[0][0]['booking_partner_id']));
                 }
             }
 
@@ -1119,7 +1142,7 @@ class Invoice_lib {
         $spare_parts_details = array();
         $spare_ids = explode(',', $spare_id);
         foreach ($spare_ids as $spare_id) {
-            $select = 'spare_parts_details.*, IF(spare_consumption_status.consumed_status !="" , spare_consumption_status.consumed_status, "NA") as consumed_status';
+            $select = 'spare_parts_details.*, invoice_gst_rate as gst_rate, IF(spare_consumption_status.consumed_status !="" , spare_consumption_status.consumed_status, "NA") as consumed_status';
             $where = array('spare_parts_details.id' => $spare_id, 'defective_part_required' => 1);
             $spare_parts_details[] = $this->ci->partner_model->get_spare_parts_by_any($select, $where);
         }
@@ -1154,9 +1177,9 @@ class Invoice_lib {
             }
 
 
-            $sf_details = $this->ci->vendor_model->getVendorDetails("name as company_name,concat(service_centres.address,',', service_centres.district,',',service_centres.state,',','Pincode - ',service_centres.pincode) as address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,gst_no as gst_number, is_signature_doc,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number", array('id' => $service_center_id));
+            $sf_details = $this->ci->vendor_model->getVendorDetails("name as company_name,concat(service_centres.address,',', service_centres.district,',',service_centres.state,',','Pincode - ',service_centres.pincode) as address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,gst_no as gst_number, is_signature_doc,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number, state", array('id' => $service_center_id));
 
-            $select = "concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address,contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number";
+            $select = "concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address,contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number, warehouse_state as state";
 
 
             $where = array('contact_person.entity_id' => $spare_parts_details[0][0]['defective_return_to_entity_id'],
@@ -1166,15 +1189,16 @@ class Invoice_lib {
             $partner_details = array();
 
             if ($spare_parts_details[0][0]['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
-                $partner_details = $this->ci->partner_model->getpartner_details('company_name, address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number', array('partners.id' => $spare_parts_details[0][0]['defective_return_to_entity_id']));
+                $partner_details = $this->ci->partner_model->getpartner_details('company_name, address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number, state', array('partners.id' => $spare_parts_details[0][0]['defective_return_to_entity_id']));
             } else if ($spare_parts_details[0][0]['defective_return_to_entity_type'] === _247AROUND_SF_STRING) {
-                $partner_details = $this->ci->vendor_model->getVendorDetails("name as company_name,concat(service_centres.address,',', service_centres.district,',',service_centres.state,',','Pincode - ',service_centres.pincode) as address,owner_name,gst_no as gst_number", array('id' => $spare_parts_details[0][0]['defective_return_to_entity_id']));
+                $partner_details = $this->ci->vendor_model->getVendorDetails("name as company_name,concat(service_centres.address,',', service_centres.district,',',service_centres.state,',','Pincode - ',service_centres.pincode) as address,owner_name,gst_no as gst_number, state", array('id' => $spare_parts_details[0][0]['defective_return_to_entity_id']));
             }
 
             if (!empty($wh_address_details)) {
                 $partner_details[0]['address'] = $wh_address_details[0]['address'];
                 $partner_details[0]['contact_person_name'] = $wh_address_details[0]['contact_person_name'];
                 $partner_details[0]['contact_number'] = $wh_address_details[0]['contact_number'];
+                $partner_details[0]['state'] = $wh_address_details[0]['state'];
             }
 
             $partner_details[0]['is_gst_doc'] = $sf_details[0]['is_gst_doc'];
