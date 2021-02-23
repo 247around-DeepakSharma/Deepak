@@ -819,48 +819,37 @@ class Validate_serial_no {
     
     function videocon_serialNoValidation($partnerID, $serialNo) {
         $stringLength = strlen($serialNo);
-        if ($stringLength == 18 || $stringLength == 16) {
-            // return success ( FOR now only 18 & 16 digit check)
-            return array('code' => SUCCESS_CODE);
-        } else {
-            return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
-        }
-
-//             // COmmented as of now, Discussion Pending with Videocon Team
-//             $plantLocation = substr($serialNo,0,2);
-//             $month = substr($serialNo,2,2);
-//             $year = substr($serialNo,4,2);
-//             $productCat = substr($serialNo,6,2);
-//             $Brand = substr($serialNo,8,2);
-//             $model = substr($serialNo,10,3);
-//             $serialNumber = substr($serialNo,13,5);
-//             //First 2 digit represent $plantLocation, it must be alphanumeric 
-//              if(!preg_match('/^[a-zA-Z]+[a-zA-Z0-9._]+$/', $plantLocation)){
-//                 return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
-//             }
-//             //Next 2 digit represent $month, 
-//             $expectedMonthValuesArray = explode(",",MONTH_POSIBLE_VALUES);
-//             if(!in_array($month, $expectedMonthValuesArray)){
-//                 return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
-//            }
-//            //Next 2 digit represents year it should be numeric
-//             if(!is_numeric($year)){
-//                  return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
-//             }
-//             //Next 2 digit represent $month, 
-//             $productCatArray = explode(",",VIDEOCON_PRODUCT_CAT_POSIBLE_VALUES);
-//             if(!in_array($productCat, $productCatArray)){
-//                 return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
-//            }
-//             //Next 2 digit represents $productCat , it must be 2 alphabets 
-//              if(!ctype_alpha($serialNumber)){
-//                  return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
-//             }
-//         }
-//         else{
-//             return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
-//         }
-//         return array('code' => SUCCESS_CODE);
+        if ($stringLength == 18) {
+              $plantLocation = substr($serialNo,0,2);
+              $month = substr($serialNo,2,2);
+              $year = substr($serialNo,4,2);
+              $productCat = substr($serialNo,6,2);
+              $Brand = substr($serialNo,8,2);
+              $model = substr($serialNo,10,3);
+              $serialNumber = substr($serialNo,13,5);
+              //Serail number should be Alphanumberic
+               if (!ctype_alnum($serialNo)) {
+                  return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
+              }
+              //Next 2 digit represent $month, 
+              $expectedMonthValuesArray = explode(",",MONTH_POSIBLE_VALUES);
+              if(!in_array($month, $expectedMonthValuesArray)){
+                  return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
+             }
+             //Next 2 digit represents year it should be numeric
+              if(!is_numeric($year)){
+                   return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
+              }
+             //Next 2 digit represent Product code, 
+             $productCatArray = explode(",",VIDEOCON_PRODUCT_CAT_POSIBLE_VALUES);
+             if(!in_array($productCat, $productCatArray)){
+                 return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
+            }             
+         }
+         else{
+             return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
+         }
+         return array('code' => SUCCESS_CODE);
     }
     function kenstar_serialNoValidation($partnerID,$serialNo){
         $stringLength = strlen($serialNo);
