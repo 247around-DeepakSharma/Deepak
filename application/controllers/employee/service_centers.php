@@ -2877,7 +2877,11 @@ class Service_centers extends CI_Controller {
         } else {
             if (!$this->input->post("call_from_api")) {
                 $booking_id = urlencode(base64_encode($this->input->post('booking_id')));
-                $userSession = array('error' => $is_same_parts_type['parts_requested_type'] . " already requested.");
+                if (!empty($is_same_parts_type['parts_requested_type'])) {
+                    $userSession = array('error' => $is_same_parts_type['parts_requested_type'] . " already requested.");
+                } else {
+                    $userSession = array('error' => "Please select requested part type.");
+                }
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "service_center/update_booking_status/$booking_id");
                 //$this->update_booking_status($booking_id);
@@ -9095,6 +9099,9 @@ class Service_centers extends CI_Controller {
                     $array = array("status" => false, "parts_requested_type" => $value['parts_type']);
                     break;
                 }
+            } else {
+                $array = array("status" => false, "parts_requested_type" => '');
+                break;
             }
         }
         return $array;
