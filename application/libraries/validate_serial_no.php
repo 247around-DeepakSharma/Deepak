@@ -850,7 +850,7 @@ class Validate_serial_no {
                  return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
             }
             //Brand should always 01
-            if($Brand!=01){
+            if($Brand!=1){
                 return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
             }
             //Model and serial number should be numeric
