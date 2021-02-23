@@ -5,6 +5,18 @@
     .line_break{
         word-break: break-all;
     }
+    .modal-class{
+        width: 100%;
+        height: 34px;
+        padding: 6px 12px;
+        font-size: 14px;
+        line-height: 1.42857143;
+        color: #555;
+        background-color: #fff;
+        background-image: none;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
 </style>
 <div role="tabpanel" class="tab-pane" id="estimate_cost_given">
     <div class="container-fluid">
@@ -333,7 +345,7 @@
                 <div id="part_warranty_option"></div>
                 <h4 style="padding: 3px;font-size: 1em;" id="remarks_label" class="modal-title">Remarks *</h4>
                 <textarea rows="3" class="form-control" id="textarea" placeholder="Enter Remarks"></textarea>
-                <input style="margin-top:20px; display: none" type="number" name="charge" class="form-control" id="charges" placeholder="Enter Courier Charge" />
+                <input style="margin-top:20px; display: none" type="number" name="charge" step = "0.00" class="modal-class" id="charges" placeholder="Enter Courier Charge" />
             </div>
             <input type="hidden" id="url"></input>
             <div class="modal-footer">
@@ -2455,7 +2467,7 @@ $(document).on('click', '.awb_number_by_sf_edit', function(){
     }
 });
     
- 
+    
     
 </script>
 <style>
