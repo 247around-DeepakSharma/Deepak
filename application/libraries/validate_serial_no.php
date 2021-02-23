@@ -827,8 +827,12 @@ class Validate_serial_no {
               $Brand = substr($serialNo,8,2);
               $model = substr($serialNo,10,3);
               $serialNumber = substr($serialNo,13,5);
-              //Serail number should be Alphanumberic
+              //Serial number should be Alphanumberic
                if (!ctype_alnum($serialNo)) {
+                  return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
+              }
+              //First 2 digit represent $plantLocation, it must be alphanumeric
+              if(!preg_match('/^[a-zA-Z0-9]+[0-9]+$/', $plantLocation)){
                   return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
               }
               //Next 2 digit represent $month, 
@@ -844,7 +848,15 @@ class Validate_serial_no {
              $productCatArray = explode(",",VIDEOCON_PRODUCT_CAT_POSIBLE_VALUES);
              if(!in_array($productCat, $productCatArray)){
                  return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
-            }             
+            }
+            //Brand should always 01
+            if($Brand!=01){
+                return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
+            }
+            //Model and serial number should be numeric
+            if(!ctype_digit($model) || !ctype_digit($serialNumber)){
+                return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
+            }
          }
          else{
              return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
