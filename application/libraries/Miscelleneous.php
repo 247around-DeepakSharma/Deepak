@@ -612,7 +612,8 @@ class Miscelleneous {
         $data_vendor['internal_status'] = _247AROUND_CANCELLED;
         log_message('info', __FUNCTION__ . " Update Service center action table  " . print_r($data_vendor, true));
         $this->My_CI->vendor_model->update_service_center_action($booking_id, $data_vendor);
-        if ($this->My_CI->session->userdata['user_group'] == _247AROUND_CLOSURE) {
+        if (($this->My_CI->session->userdata('user_group') == _247AROUND_CLOSURE) 
+                || $cancellation_reason == UPCOUNTRY_CHARGES_NOT_APPROVED_CANCELLATION_ID) {
             $this->update_price_while_cancel_booking($booking_id, $agent_id, $cancelled_by);
         }
         //Update Engineer table while booking cancelled
