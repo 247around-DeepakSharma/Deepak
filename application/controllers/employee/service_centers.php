@@ -1946,7 +1946,7 @@ class Service_centers extends CI_Controller {
                 . 'spare_parts_details.serial_number,spare_parts_details.serial_number_pic,spare_parts_details.invoice_pic,'
                 . 'spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.invoice_pic,spare_parts_details.part_warranty_status,'
                 . 'spare_parts_details.defective_parts_pic,spare_parts_details.defective_back_parts_pic,spare_parts_details.requested_inventory_id,spare_parts_details.serial_number_pic,spare_parts_details.remarks_by_sc,'
-                . 'booking_details.service_id,booking_details.partner_id as booking_partner_id, spare_parts_details.quantity, booking_details.assigned_vendor_id';
+                . 'booking_details.service_id,booking_details.partner_id as booking_partner_id, spare_parts_details.quantity, booking_details.assigned_vendor_id,booking_details.user_id,booking_details.request_type,booking_details.create_date as booking_create_date';
 
         $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, TRUE, false);
 
@@ -1966,6 +1966,7 @@ class Service_centers extends CI_Controller {
         $price_tags_symptom = array();
         $data['bookinghistory'] = $this->booking_model->getbooking_history($spare_parts_details[0]['booking_id']);
         $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $spare_parts_details[0]['booking_id']));
+        $data['unit_details'] = $unit_details;
         foreach ($unit_details as $value) {
          $price_tags1 = str_replace('(Free)', '', $value['price_tags']);
          $price_tags2 = str_replace('(Paid)', '', $price_tags1);
