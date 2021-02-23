@@ -4327,7 +4327,7 @@ class Service_centers extends CI_Controller {
                 }
 
                 $post['is_inventory'] = true;
-                $select = 'booking_details.booking_id, booking_details.assigned_vendor_id, spare_parts_details.id,spare_parts_details.requested_inventory_id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id,IF(spare_consumption_status.consumed_status !="" , spare_consumption_status.consumed_status, "NA") as consumed_status';
+                $select = 'booking_details.booking_id, booking_details.assigned_vendor_id, spare_parts_details.model_number,spare_parts_details.serial_number, spare_parts_details.id,spare_parts_details.requested_inventory_id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, inventory_master_list.gst_rate, spare_parts_details.partner_id,booking_details.assigned_vendor_id,IF(spare_consumption_status.consumed_status !="" , spare_consumption_status.consumed_status, "NA") as consumed_status';
                 $part_details = $this->partner_model->get_spare_parts_by_any($select, array(), true, false, false, $post);
 
 
@@ -4335,7 +4335,7 @@ class Service_centers extends CI_Controller {
                     $spare_details = array();
                     foreach ($part_details as $value) {
                         $spare_parts = array();
-                        if ($value['part_warranty_status'] !== SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                        //if ($value['part_warranty_status'] !== SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
                             $spare_parts['spare_id'] = $value['id'];
                             $spare_parts['booking_id'] = $value['booking_id'];
                             $spare_parts['parts_shipped'] = $value['parts_requested'];
@@ -4343,7 +4343,10 @@ class Service_centers extends CI_Controller {
                             $spare_parts['part_number'] = $value['part_number'];
                             $spare_parts['shipped_quantity'] = $value['quantity'];
                             $spare_parts['inventory_id'] = $value['requested_inventory_id'];
+                            $spare_parts['gst_rate'] = $value['gst_rate'];
                             $spare_parts['consumed_status'] = $value['consumed_status'];
+                            $spare_parts['model_number_shipped'] = $value['model_number'];
+                            $spare_parts['serial_number'] = $value['serial_number'];
                             if (!empty($value['assigned_vendor_id'])) {
                                 $vendor_details = $this->vendor_model->getVendorDetails("service_centres.id, service_centres.pincode", array("service_centres.id" => $value['assigned_vendor_id']), 'name', array(), array(), array());
                                 if (!empty($vendor_details)) {
@@ -4358,7 +4361,7 @@ class Service_centers extends CI_Controller {
                                 } else {
                                     $couriers_name = 'NA';
                                 }
-                            }
+                            //}
                             $spare_parts['courier_name'] = $couriers_name;
                         }
                         $spare_details[][] = $spare_parts;
@@ -4366,15 +4369,14 @@ class Service_centers extends CI_Controller {
                     $assigned_vendor_id = $part_details[0]['partner_id'];
                     $service_center_id = $part_details[0]['assigned_vendor_id'];
                 }
-
-
-
+                
+                
                 $sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,district, pincode, state,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name, primary_contact_phone_1 as contact_number , primary_contact_phone_2 as contact_number_2 , owner_phone_1 as contact_number_3, owner_phone_2 as contact_number_4, service_centres.gst_no as gst_number', array('id' => $service_center_id));
 
 
 
                 if (!empty($part_details)) {
-                    $select = "concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address,contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number,service_centres.gst_no as gst_number";
+                    $select = "concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address,contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number,service_centres.gst_no as gst_number, warehouse_state as state";
 
                     $where = array('contact_person.entity_id' => $part_details[0]['partner_id'],
                         'contact_person.entity_type' => $part_details[0]['entity_type']);
@@ -4391,10 +4393,10 @@ class Service_centers extends CI_Controller {
                                 $login_sc_id = $this->session->userdata("service_center_id");
                             }
 
-                            $partner_details = $this->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number', array('id' => $login_sc_id));
+                            $partner_details = $this->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number, state', array('id' => $login_sc_id));
                         } else {
 
-                            $partner_details = $this->partner_model->getpartner_details('company_name, address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number', array('partners.id' => $part_details[0]['partner_id']));
+                            $partner_details = $this->partner_model->getpartner_details('company_name, address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number, state', array('partners.id' => $part_details[0]['partner_id']));
                         }
                     } else if ($part_details[0]['entity_type'] === _247AROUND_SF_STRING) {
                         $partner_details = $this->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number', array('id' => $part_details[0]['partner_id']));
@@ -4404,6 +4406,7 @@ class Service_centers extends CI_Controller {
                         $partner_details[0]['address'] = $wh_address_details[0]['address'];
                         $partner_details[0]['contact_person_name'] = $wh_address_details[0]['contact_person_name'];
                         $partner_details[0]['contact_number'] = $wh_address_details[0]['contact_number'];
+                        $partner_details[0]['state'] = $wh_address_details[0]['state'];
                     }
                 }
 
@@ -4417,7 +4420,7 @@ class Service_centers extends CI_Controller {
                     $contact_number_string = implode(', ',array_unique(array_filter($contact_number_array))); 
                      $sf_details[0]['contact_number'] = $contact_number_string;
                 }
-
+                
                 if (!empty($spare_details)) {
                     $data['partner_challan_file'] = $this->invoice_lib->process_create_sf_challan_file($sf_details, $partner_details, $data['partner_challan_number'], $spare_details, '', '', false, true, false);
                     array_push($delivery_challan_file_name_array, $data['partner_challan_file']);
@@ -4447,32 +4450,36 @@ class Service_centers extends CI_Controller {
         if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
             unlink(TMP_FOLDER . $challan_file . '.zip');
         }
-        $zip = 'zip ' . TMP_FOLDER . $challan_file . '.zip ';
-        foreach ($delivery_challan_file_name_array as $value1) {
-            $zip .= " " . TMP_FOLDER . $value1 . " ";
-        }
-        $challan_file_zip = $challan_file . ".zip";
-        $res = 0;
-        system($zip, $res);
-        header('Content-Description: File Transfer');
-        header('Content-Type: application/octet-stream');
-        header("Content-Disposition: attachment; filename=\"$challan_file_zip\"");
+        
+        $this->booking_creation_lib->create_and_download_zip_file('challan_file_'.date('YmdHis').'.zip', $delivery_challan_file_name_array);
+        exit();
 
-        $res2 = 0;
-        system(" chmod 777 " . TMP_FOLDER . $challan_file . '.zip ', $res2);
-        readfile(TMP_FOLDER . $challan_file . '.zip');
-        if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
-            unlink(TMP_FOLDER . $challan_file . '.zip');
-            if (file_exists(TMP_FOLDER . $challan_file_zip)) {
-                unlink(TMP_FOLDER . $challan_file_zip);  // ZIP extension coming two times // 
-            }
-
-            foreach ($delivery_challan_file_name_array as $value_unlink) {
-                if (file_exists(TMP_FOLDER . $value_unlink)) {
-                    unlink(TMP_FOLDER . $value_unlink);
-                }
-            }
-        }
+//        
+//        
+//        $zip = 'zip ' . TMP_FOLDER . $challan_file . '.zip ';
+//        
+//        $challan_file_zip = $challan_file . ".zip";
+//        $res = 0;
+//        system($zip, $res);
+//        header('Content-Description: File Transfer');
+//        header('Content-Type: application/octet-stream');
+//        header("Content-Disposition: attachment; filename=\"$challan_file_zip\"");
+//
+//        $res2 = 0;
+//        system(" chmod 777 " . TMP_FOLDER . $challan_file . '.zip ', $res2);
+//        readfile(TMP_FOLDER . $challan_file . '.zip');
+//        if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
+//            unlink(TMP_FOLDER . $challan_file . '.zip');
+//            if (file_exists(TMP_FOLDER . $challan_file_zip)) {
+//                unlink(TMP_FOLDER . $challan_file_zip);  // ZIP extension coming two times // 
+//            }
+//
+//            foreach ($delivery_challan_file_name_array as $value_unlink) {
+//                if (file_exists(TMP_FOLDER . $value_unlink)) {
+//                    unlink(TMP_FOLDER . $value_unlink);
+//                }
+//            }
+//        }
     }
 
     /**
@@ -6732,6 +6739,8 @@ class Service_centers extends CI_Controller {
                             $data['model_number_shipped'] = $part_details['shipped_model_number'];
                             $data['shipped_parts_type'] = $part_details['shipped_part_type'];
                             $data['parts_shipped'] = $part_details['shipped_parts_name'];
+                            $data['parts_shipped'] = $part_details['shipped_parts_name'];
+                            $data['invoice_gst_rate'] = $part_details['gst_rate'];
 
                             /**
                              * change defective part required flag in spare part details on the basis of shipped inventory id
@@ -6861,6 +6870,7 @@ class Service_centers extends CI_Controller {
                                         $estimate_cost = round((($part_details_challan[0]['price'] + ( $part_details_challan[0]['price'] * $part_details_challan[0]['gst_rate']) / 100) * $part_details_challan[0]['shipped_quantity']), 2);
                                         $spare_oow_est_margin = $margin['oow_est_margin']/100;
                                         $spare_oow_around_margin=$margin['oow_around_margin']/100;
+                                        $part_details_challan['gst_rate'] = $margin['gst_rate'];
                                         $data_price_update['purchase_price'] = $estimate_cost;
                                         $data_price_update['sell_price'] = ($estimate_cost + $estimate_cost * $spare_oow_est_margin );
                                         $data_price_update['challan_approx_value'] = ($estimate_cost + $estimate_cost * $spare_oow_around_margin);
@@ -7088,7 +7098,7 @@ class Service_centers extends CI_Controller {
             $spare_details = array();
             foreach ($part_details as $value) {
                 $spare_parts = array();
-                if ($value['part_warranty_status'] !== SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                //if ($value['part_warranty_status'] !== SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
                     $spare_parts['spare_id'] = $value['id'];
                     $spare_parts['booking_id'] = $value['booking_id'];
                     if(!empty($value['parts_shipped'])){
@@ -7101,18 +7111,19 @@ class Service_centers extends CI_Controller {
                     $spare_parts['challan_approx_value'] = $value['challan_approx_value'];
                     $spare_parts['part_number'] = $value['part_number'];
                     $spare_parts['inventory_id'] = $value['shipped_inventory_id'];
-                    $spare_parts['consumption'] = $value['consumed_status']; 
-                }
+                    $spare_parts['consumption'] = $value['consumed_status'];
+                    $spare_parts['gst_rate'] = $value['gst_rate'];
+                //}
                 $spare_details[][] = $spare_parts;
             }
             $assigned_vendor_id = $part_details[0]['partner_id'];
             $service_center_id = $part_details[0]['assigned_vendor_id'];
         }
 
-        $sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,district, pincode, state,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name, primary_contact_phone_1 as contact_number, service_centres.gst_no as gst_number', array('id' => $service_center_id));
+        $sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,district, pincode, state,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name, primary_contact_phone_1 as contact_number, service_centres.gst_no as gst_number, state', array('id' => $service_center_id));
 
         if (!empty($part_details)) {
-            $select = "concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address,contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number,service_centres.gst_no as gst_number";
+            $select = "concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address,contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number,service_centres.gst_no as gst_number, warehouse_state as state";
 
             $where = array('contact_person.entity_id' => $part_details[0]['partner_id'],
                 'contact_person.entity_type' => $part_details[0]['entity_type']);
@@ -7121,15 +7132,16 @@ class Service_centers extends CI_Controller {
             $partner_details = array();
 
             if ($part_details[0]['entity_type'] == _247AROUND_PARTNER_STRING) {
-                $partner_details = $this->partner_model->getpartner_details('company_name, address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number', array('partners.id' => $part_details[0]['partner_id']));
+                $partner_details = $this->partner_model->getpartner_details('company_name, address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number, state', array('partners.id' => $part_details[0]['partner_id']));
             } else if ($part_details[0]['entity_type'] === _247AROUND_SF_STRING) {
-                $partner_details = $this->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number', array('id' => $part_details[0]['partner_id']));
+                $partner_details = $this->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number, state', array('id' => $part_details[0]['partner_id']));
             }
 
             if (!empty($wh_address_details)) {
                 $partner_details[0]['address'] = $wh_address_details[0]['address'];
                 $partner_details[0]['contact_person_name'] = $wh_address_details[0]['contact_person_name'];
                 $partner_details[0]['contact_number'] = $wh_address_details[0]['contact_number'];
+                $partner_details[0]['state'] = $wh_address_details[0]['state'];
             }
         }
 
@@ -7608,7 +7620,7 @@ class Service_centers extends CI_Controller {
         $declaration_detail = $this->input->post('coueriers_declaration');
         $generate_challan = $this->input->post('generate_challan');
         $assign_to_partner = $this->input->post('generate_challan_assign_to_partner');
-       
+
         if (!empty($booking_address)) {
 
             $this->download_shippment_address($booking_address);
