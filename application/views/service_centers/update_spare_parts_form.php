@@ -319,6 +319,7 @@
                                 </div>
                                 <input type="hidden" name="part[<?php echo $skey; ?>][approx_value]" id="<?php echo "approx_value_" . $skey; ?>" value="">
                                 <input type="hidden" name="part[<?php echo $skey; ?>][inventory_id]" id="<?php echo "inventory_id_" . $skey; ?>">
+                                <input type="hidden" name="part[<?php echo $skey; ?>][gst_rate]" id="<?php echo "gst_rate" . $skey; ?>">
                                 <input type="hidden" name="part[<?php echo $skey; ?>][spare_id]" value="<?php echo $sp->id; ?>" id="<?php echo "spare_id_" . $skey; ?>">
                                 <input type="hidden" name="part[<?php echo $skey; ?>][gst_rate]" id="<?php echo "gst_rate_" . $skey; ?>">
                                 <input type="hidden" name="part[<?php echo $skey; ?>][oow_around_margin]" id="<?php echo "oow_around_margin_" . $skey; ?>">
@@ -432,6 +433,7 @@
                             </div>
                             <input type="hidden" id="approx_value" value="">
                             <input type="hidden" id="inventory_id">
+                            <input type="hidden" id="gst_rate">
                             <input type="hidden"  value="new" id="spare_id">                                                      
                         </div>
                     </div>
@@ -907,6 +909,7 @@
                 .find('[id="remarks"]').attr('name', 'part[' + partIndex + '][remarks_by_partner]').attr('id', 'remarks_' + partIndex).end()
                 .find('[id="approx_value"]').attr('name', 'part[' + partIndex + '][approx_value]').attr('id', 'approx_value_' + partIndex).end()
                 .find('[id="inventory_id"]').attr('name', 'part[' + partIndex + '][inventory_id]').attr('id', 'inventory_id_' + partIndex).end()
+                .find('[id="gst_rate"]').attr('name', 'part[' + partIndex + '][gst_rate]').attr('id', 'gst_rate_' + partIndex).end()
                 .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').attr('id', 'shippedquantity_' + partIndex).end()
                 .find('[id="shippedquantity"]').attr('name', 'part[' + partIndex + '][shipped_quantity]').attr('id', 'shippedquantity_' + partIndex).end()
                 .find('[id="error_span"]').addClass('hide').attr('id', 'error_span_' + partIndex).attr("required", true).end()

@@ -3330,71 +3330,101 @@ class invoices_model extends CI_Model {
      * @param int $partner_id
      * @return boolean|Array
      */
-    function get_partner_invoice_tat_data($data, $partner_id){
+    function get_partner_invoice_tat_data($data, $partner_id) {
         log_message('info', __METHOD__);
-        $booking_id = array_column($data, 'booking_id');
-        $w = array('entity_id'=> $partner_id, "entity" => _247AROUND_PARTNER_STRING, "active" => 1);
+        $groud_by_data = $this->group_by_tat_data("partner_net_payable", $data);
+        $w = array('entity_id' => $partner_id, "entity" => _247AROUND_PARTNER_STRING, "active" => 1);
         $tat_condition = $this->get_tat_invoicing_codition($w);
         $booking_tat_type = array();
         $penalty_tata_booking_details = array();
-        if(!empty($tat_condition)){
-            foreach ($tat_condition as $key => $value) {
-                $request_type = ($value['installation_repair'] == 0)?"Installation":"Repair";
-                $l_u = ($value['local_upcountry'] == 0)?"Local":"Upcountry";
-                
-                $b_w = array('is_upcountry' => $value['local_upcountry'],
-                    'request_type' => $value['installation_repair'],
-                    'leg_1 >="0" ' => NULL,
-                    'leg_1 <"'.($value['tat_with_in_days']).'" ' => NULL);
-                
-                $b_data = $this->get_booking_tat_data("*, Case WHEN `request_type` = 0 THEN 'Installation' ELSE 'Repair' END as 'type',"
-                        . " case WHEN `is_upcountry` = 0 THEN 'No' ELSE 'Yes' END as 'upcountry_status'", 
-                        $b_w, array('booking_id' => $booking_id));
-                
-                array_push($penalty_tata_booking_details, $b_data);
-                
-                $tat_condition[$key]['achieved_count'] = count($b_data);
+        echo "<pre>";
+        $tat_data = array();
+        if (!empty($groud_by_data)) {
+            foreach ($groud_by_data as $basic_amount => $b) {
 
-                $b_w1 = array('is_upcountry' => $value['local_upcountry'],
-                    'request_type' => $value['installation_repair']);
-                
-                $tat_condition[$key]['total_booking'] = $this->get_booking_tat_data("COUNT(id) as count", $b_w1, array('booking_id' => $booking_id))[0]['count'];
-                if($tat_condition[$key]['total_booking'] > 0){
-                    $tat_condition[$key]['archieved_percentage'] = sprintf("%.2f",($tat_condition[$key]['achieved_count']/$tat_condition[$key]['total_booking'])*100);
-                    if($tat_condition[$key]['archieved_percentage'] < $value['penalty_below_criteria']){
-                        $tat_condition[$key]['booking_failed'] = sprintf("%.2f",(($value['penalty_below_criteria'] - $tat_condition[$key]['archieved_percentage'])/100) * $tat_condition[$key]['total_booking']);
-                        $tat_condition[$key]['penalty_amount'] = sprintf("%.2f",((($tat_condition[$key]['basic_amount'] * $value['penalty_percentage'])/100) * $tat_condition[$key]['booking_failed']));
-                    } else {
-                        $tat_condition[$key]['booking_failed'] = 0;
-                        $tat_condition[$key]['penalty_amount'] = 0;
+
+                if (!empty($tat_condition)) {
+
+                    $booking_id = array_column($b, 'booking_id');
+                    foreach ($tat_condition as $key => $value) {
+                        $request_type = ($value['installation_repair'] == 0) ? "Installation" : "Repair";
+                        $l_u = ($value['local_upcountry'] == 0) ? "Local" : "Upcountry";
+
+                        $b_w = array('is_upcountry' => $value['local_upcountry'],
+                            'request_type' => $value['installation_repair'],
+                            'leg_1 >="0" ' => NULL,
+                            'leg_1 <="' . ($value['tat_with_in_days']) . '" ' => NULL);
+                        $b_data = $this->get_booking_tat_data("*, Case WHEN `request_type` = 0 THEN 'Installation' ELSE 'Repair' END as 'type',"
+                                . " case WHEN `is_upcountry` = 0 THEN 'No' ELSE 'Yes' END as 'upcountry_status'",
+                                $b_w, array('booking_id' => $booking_id));
+
+                        array_push($penalty_tata_booking_details, $b_data);
+
+                        $tat_condition[$key]['achieved_count'] = count($b_data);
+
+                        $b_w1 = array('is_upcountry' => $value['local_upcountry'],
+                            'request_type' => $value['installation_repair']);
+
+                        $tat_condition[$key]['total_booking'] = $this->get_booking_tat_data("COUNT(id) as count", $b_w1, array('booking_id' => $booking_id))[0]['count'];
+
+                        if ($tat_condition[$key]['total_booking'] > 0) {
+                            $tat_condition[$key]['archieved_percentage'] = sprintf("%.2f", ($tat_condition[$key]['achieved_count'] / $tat_condition[$key]['total_booking']) * 100);
+                            if ($value['target_acheived_percentage'] > $tat_condition[$key]['archieved_percentage'] && $tat_condition[$key]['archieved_percentage'] < $value['penalty_below_criteria']) {
+                                $tat_condition[$key]['booking_failed'] = sprintf("%.2f", (($value['penalty_below_criteria'] - $tat_condition[$key]['archieved_percentage']) / 100) * $tat_condition[$key]['total_booking']);
+                                $tat_condition[$key]['penalty_amount'] = sprintf("%.2f", ((($basic_amount * $value['penalty_percentage']) / 100) * $tat_condition[$key]['booking_failed']));
+                                $tat_condition[$key]['basic_amount'] = $basic_amount;
+                            } else {
+                                $tat_condition[$key]['booking_failed'] = 0;
+                                $tat_condition[$key]['penalty_amount'] = 0;
+                                $tat_condition[$key]['basic_amount'] = $basic_amount;
+                            }
+                        } else {
+                            $tat_condition[$key]['archieved_percentage'] = 0;
+                            $tat_condition[$key]['booking_failed'] = 0;
+                            $tat_condition[$key]['penalty_amount'] = 0;
+                            $tat_condition[$key]['basic_amount'] = $basic_amount;
+                        }
+
+                        array_push($tat_data, $tat_condition[$key]);
+
+                        array_push($booking_tat_type, array('booking_type' => $request_type . " " . $l_u,
+                            "booking_count" => $tat_condition[$key]['total_booking']));
                     }
-                } else {
-                    $tat_condition[$key]['archieved_percentage'] = 0;
-                    $tat_condition[$key]['booking_failed'] = 0;
-                    $tat_condition[$key]['penalty_amount'] = 0;
                 }
-                
-                array_push($booking_tat_type, array('booking_type' => $request_type." ".$l_u, "booking_count" => $tat_condition[$key]['total_booking']));
-
             }
+
+
             $i = 0;
             $a = array();
             foreach ($penalty_tata_booking_details as $value) {
                 foreach ($value as $value1) {
-                    array_push($a, array('booking_id' => $value1['booking_id'], "type" => $value1['type'], 
-                        "upcountry_status" => $value1['upcountry_status'],"leg_1" => $value1['leg_1'] ));
+                    array_push($a, array('booking_id' => $value1['booking_id'], "type" => $value1['type'],
+                        "upcountry_status" => $value1['upcountry_status'], "leg_1" => $value1['leg_1']));
                 }
             }
-           
+
             $tat['tat_count'] = array_map("unserialize", array_unique(array_map("serialize", $booking_tat_type)));
-            $tat['tat'] = $tat_condition;
+            $tat['tat'] = $tat_data;
             $tat['penalty_booking_data'] = $a;
             return $tat;
-            
-        } else {
-            return false;
         }
     }
+
+    /**
+    * Function that groups an array of associative arrays by some key.
+    * 
+    * @param {String} $key Property to sort by.
+    * @param {Array} $data Array that stores multiple associative arrays.
+    */
+   function group_by_tat_data($key, $data) {
+       $result = array();
+       foreach($data as $val) {
+           $result[$val[$key]][] = $val;
+       }
+
+       return $result;
+   }
+
     /**
      * @desc This function is used to get penalty condition
      * Partner apply penalty on Around. We already set condition for specific partner
