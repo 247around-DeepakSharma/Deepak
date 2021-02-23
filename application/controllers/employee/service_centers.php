@@ -10566,7 +10566,9 @@ class Service_centers extends CI_Controller {
         // Fetch all Bookings that are completed by Engineer
         $where['where'] =   array(
                                 "engineer_booking_action.current_status" => "InProcess",
-                                "DATEDIFF(CURDATE(), engineer_booking_action.closed_date) > 2" => NULL
+                                "DATEDIFF(CURDATE(), engineer_booking_action.closed_date) > 2" => NULL,
+                                "engineer_booking_action.internal_status IN ('"._247AROUND_CANCELLED."', '"._247AROUND_COMPLETED."')" => NULL,
+                                 "booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."')" => NULL
                             );
         $select = 'engineer_booking_action.*,'
                 . 'engineer_table_sign.upcountry_charges,'
@@ -10582,6 +10584,7 @@ class Service_centers extends CI_Controller {
             $booking_id = $engg_completed_booking->booking_id;
             $partner_id = $engg_completed_booking->partner_id;
             $closed_date = $engg_completed_booking->closed_date;
+            $internal_status_engg = $engg_completed_booking->internal_status;
             // Update Booking Statuses
             $this->update_booking_internal_status($booking_id, SF_BOOKING_COMPLETE_STATUS, $partner_id);
             // Update SF Closed date
@@ -10626,6 +10629,19 @@ class Service_centers extends CI_Controller {
             
             // Insert data into booking state change
             $this->insert_details_in_state_change($booking_id, SF_BOOKING_COMPLETE_STATUS, "Booking Auto Approved", "247Around", "Review the Booking");
-        }              
+            //Update spare consumption as entered by engineer Booking Completed
+            if ($internal_status_engg == _247AROUND_COMPLETED) {
+                $spare_select = 'spare_parts_details.id';
+                $spare_Consumption_details = $this->service_centers_model->get_engineer_consumed_details('*', array('booking_id' => $booking_id));
+                if (!empty($spare_Consumption_details)) {
+                    $array_consumption = array();
+                    foreach ($spare_Consumption_details as $key => $value) {
+                        $array_consumption['spare_consumption_status'][$value['spare_id']] = $value['consumed_part_status_id'];
+                        $array_consumption['consumption_remarks'][$value['spare_id']] = $value['remarks'];
+                    }
+                    $is_update_spare_parts = $this->miscelleneous->update_spare_consumption_status($array_consumption, $booking_id);
+                }
+            }
+        }
     }
 }
