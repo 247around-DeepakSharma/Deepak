@@ -10551,7 +10551,6 @@ function do_delivered_spare_transfer() {
             $this->insert_details_in_state_change($booking_id, SF_BOOKING_COMPLETE_STATUS, "Booking Auto Approved", "247Around", "Review the Booking");
             //Update spare consumption as entered by engineer Booking Completed
             if ($internal_status_engg == _247AROUND_COMPLETED) {
-                $spare_select = 'spare_parts_details.id';
                 $spare_Consumption_details = $this->service_centers_model->get_engineer_consumed_details('*', array('booking_id' => $booking_id));
                 if (!empty($spare_Consumption_details)) {
                     $array_consumption = array();
