@@ -5833,6 +5833,9 @@ class Spare_parts extends CI_Controller {
 
                     $defective_part_in_warehouse = (!empty($result[7]['quantity'])) ? $result[7]['quantity'] : 0;
                     $array_service_center_msl_array[$incremented_key]['defective_part_in_warehouse'] = $defective_part_in_warehouse;
+
+		    $defective_ok_part_return_on_invoice = (!empty($result[8]['quantity'])) ? $result[8]['quantity'] : 0;
+                    $array_service_center_msl_array[$incremented_key]['defective_ok_part_return_on_invoice'] = $defective_ok_part_return_on_invoice;
                 } else {
                         
                     $array_service_center_msl_array_micro_wh[$incremented_key]['service_center_name'] = $value['name'];
@@ -5882,7 +5885,8 @@ class Spare_parts extends CI_Controller {
                 'stock_wh_to_partner' => $value['stock_wh_to_partner'],
                 'defective_part_to_be_recived_by_wh' => $value['defective_part_to_be_recived_by_wh'],
                 'expected_quantity' => $expected_quantity,
-                'mistatch' => $mistatch
+                'mistatch' => $mistatch,
+		'defective_return_on_invoice' => $value['defective_ok_part_return_on_invoice']
             );
             if (empty($this->session->userdata('user_group'))) {
                 $data_to_insert_table = array();
