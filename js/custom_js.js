@@ -744,7 +744,12 @@ function addBookingDialog(chanel = '', check_serial_no = '0') {
         for (var k = 1; k <= numItems; k++) {
             cloned_price(regex1, priceIndexClone, k);
         }
-        if(confirm("Validating Serial Number & Booking Warranty Status, Click OK to continue.")){
+        if(!is_sf_panel){
+            return true;
+        }
+        else
+        {
+            if(confirm("Validating Serial Number & Booking Warranty Status, Click OK to continue.")){
                 var btn_text = $("#btn_text").val();
                 $("#submitform").prop("disabled", true);
                 $("#submitform").attr('value', 'Verifying Data ... ');
@@ -759,7 +764,8 @@ function addBookingDialog(chanel = '', check_serial_no = '0') {
                         return false;
                     }
                 }, 3000);                         
-        }
+            }
+        }             
     }
 }
 
