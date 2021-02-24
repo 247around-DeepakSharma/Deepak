@@ -110,18 +110,22 @@
                         <div class="panel panel-default" style="margin-left:10px; margin-right:10px;">
                             <div class="panel-body" >
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    
+                                    <input type="text" id="part_warranty_status_0" class="part_in_warranty_status" style="display:none" value="<?php if(strpos($bookinghistory[0]['request_type'],'Out Of Warranty') == true || strpos($bookinghistory[0]['request_type'],'Gas Recharge - Out')==true ){echo '2';}else{echo '1';}  ?>" name="part_warranty_status" >  
+<!--                                    <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="part_warranty" class="col-md-4">Part Warranty*</label>
                                             <div class="col-md-6">
-                                                <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part_warranty_status"> <!--  onchange="get_symptom(0)" -->
+                                                
+                                                
+                                                <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part_warranty_status">   onchange="get_symptom(0)" 
                                                     <option selected="" disabled="">Select warranty status</option>
-                                                    <option value="1"  data-request_type = "<?php echo REPAIR_IN_WARRANTY_TAG;?>" <?php if ($spare_parts_details['part_warranty_status'] == 1) { echo 'selected'; } ?>> In-Warranty </option>
-                                                    <option value="2"  data-request_type = "<?php echo REPAIR_OOW_TAG;?>" <?php if ($spare_parts_details['part_warranty_status'] == 2) { echo 'selected'; } ?>> Out-Warranty </option>
+                                                    <option value="1"  data-request_type = "<?php //echo REPAIR_IN_WARRANTY_TAG;?>" <?php //if ($spare_parts_details['part_warranty_status'] == 1) { echo 'selected'; } ?>> In-Warranty </option>
+                                                    <option value="2"  data-request_type = "<?php //echo REPAIR_OOW_TAG;?>" <?php //if ($spare_parts_details['part_warranty_status'] == 2) { echo 'selected'; } ?>> Out-Warranty </option>
                                                 </select>
                                             </div>                                            
                                         </div>
-                                    </div>
+                                    </div>-->
                                     <!--<div class = 'col-md-6'>
                                         <div class="form-group">
                                             <label for="Technical Issue" class="col-md-4">Technical Problem *</label>                                             
@@ -151,8 +155,6 @@
                                             <?php } ?>
                                         </div>                              
                                     </div>
-                                </div>
-                                <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="parts_name" class="col-md-4">Part Name *</label>
@@ -171,6 +173,9 @@
                                         </div>
                                         
                                     </div>
+                                </div>
+                                <div class="row">
+                                    
                                     <?php if (isset($inventory_details) && !empty($inventory_details)) { ?>
                                         <div class="col-md-6">
                                             <div class="form-group">
@@ -184,6 +189,16 @@
                                             </div>
                                         </div>
                                     <?php } ?>
+                                    <div class="col-md-6">
+                                        <div class="form-group ">
+                                            <label for="shipped_parts_name" class="col-md-4">Requested Quantity *</label>
+                                            <div class="col-md-6">
+                                                <input class="form-control quantity" tabindex="-1" type="text" min="1" value="<?php if(!empty($spare_parts_details['quantity'])){ echo $spare_parts_details['quantity']; } ?>" id="requested_quantity_0" name="part[0][quantity]"  required readonly="" />
+                                                <span id="error_span_0" style="color:red;" class="hide"></span>
+                                                <?php echo form_error('quantity'); ?>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6">
@@ -212,16 +227,7 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group ">
-                                            <label for="shipped_parts_name" class="col-md-4">Requested Quantity *</label>
-                                            <div class="col-md-6">
-                                                <input class="form-control quantity" tabindex="-1" type="text" min="1" value="<?php if(!empty($spare_parts_details['quantity'])){ echo $spare_parts_details['quantity']; } ?>" id="requested_quantity_0" name="part[0][quantity]"  required readonly="" />
-                                                <span id="error_span_0" style="color:red;" class="hide"></span>
-                                                <?php echo form_error('quantity'); ?>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="symptom" class="col-md-4">Symptom </label>
@@ -238,8 +244,6 @@
 
                                         </div>
                                     </div>
-                                </div>
-                                <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="defect_pic" class="col-md-4">Defect Picture  </label>
