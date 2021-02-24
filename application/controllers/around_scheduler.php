@@ -3033,14 +3033,14 @@ class Around_scheduler extends CI_Controller {
         $spare_part_details = $this->around_scheduler_model->get_spares_pending_for_more_than_45_days_after_shipment();
         /**
          * Check if data exists then
-         * if check consumption status is part consumed then update status to DEFECTIVE_PARTS_PENDING.
+         * if check consumption status is null then update status to DEFECTIVE_PARTS_PENDING.
          * else if consumption status is ok part then update status to OK_PART_TO_BE_SHIPPED.
          */
         if(!empty($spare_part_details))
         {
             foreach($spare_part_details as $spare_part_detail)
             {
-                if($spare_part_detail['consumed_part_status_id'] == 1)
+                if(empty($spare_part_detail['consumed_part_status_id']) || $spare_part_detail['consumed_part_status_id'] == 1)
                 {
                     $spare_status = DEFECTIVE_PARTS_PENDING;
                 } 
