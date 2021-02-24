@@ -1747,7 +1747,7 @@ class Service_centers extends CI_Controller {
             $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
             $data['bookinghistory'] = $this->booking_model->getbooking_history($booking_id);
             $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
-
+            $data['unit_details'] = $unit_details;
             $data['on_saas'] = FALSE;
             if (!empty($data['bookinghistory'])) {
                 $partner_id = $data['bookinghistory'][0]['partner_id'];

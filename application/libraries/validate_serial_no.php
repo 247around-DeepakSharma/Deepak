@@ -318,13 +318,13 @@ class Validate_serial_no {
                     $isDuplicate = TRUE;
                     break;
                 }
-                elseif($value['booking_status'] == _247AROUND_COMPLETED){
+                elseif($value['booking_status'] == _247AROUND_COMPLETED){                    
                    // calculate 30 days from service_center_closed_date and booking initial date
                    // if sf_closed_Date not found use booking closed date by admin
                     $booking_closed_date = !empty($value['service_center_closed_date']) ? $value['service_center_closed_date'] : $value['closed_date'];
-                    $d = date_diff(date_create($booking_closed_date), $initial_booking_date); 
-                    if($d->days < BOOKING_WARRANTY_DAYS){                      
-                        if($price_tags == $value['price_tags']){
+                    $d = date_diff(date_create($booking_closed_date), $initial_booking_date);           
+                    if($d->days < BOOKING_WARRANTY_DAYS){   
+                        if($price_tags == $value['request_type']){
                             $msg = " Already used in Booking ID - ".$value['booking_id']." with same request type";
                             $isDuplicate = TRUE;
                             break;
@@ -862,6 +862,7 @@ class Validate_serial_no {
 //         }
 //         return array('code' => SUCCESS_CODE);
     }
+    
     function kenstar_serialNoValidation($partnerID,$serialNo){
         $stringLength = strlen($serialNo);
          if($stringLength == 18){

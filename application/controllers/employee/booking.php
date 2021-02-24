@@ -6701,8 +6701,8 @@ class Booking extends CI_Controller {
         $booking_id = base64_decode(urldecode($booking_id));
         $redirect_url = !empty($redirect_url) ? base64_decode(urldecode($redirect_url)) : "";
         $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,NULL,NULL,true);
-        $booking['booking_history']['redirect_url'] = $redirect_url;
         if($booking){
+            $booking['booking_history']['redirect_url'] = $redirect_url;
             $is_spare_requested = $this->booking_utilities->is_spare_requested($booking);
             $booking['booking_history']['is_spare_requested'] = $is_spare_requested; 
             // Check if any line item against booking is invoiced to partner or not
