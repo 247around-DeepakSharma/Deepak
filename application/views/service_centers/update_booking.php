@@ -350,7 +350,7 @@ $arr_partner_discount = array();
                                                                     }
                                                                     
                                                                     ?>
-                                                                    type='checkbox' id="<?php echo "checkbox_" . $div . "_1" ; ?>" name='prices[<?php echo $unit_details[0]['brand_id']; ?>][<?php echo $clone_number; ?>][]' <?php if( $price['service_category'] ==REPAIR_OOW_PARTS_PRICE_TAGS){ if($customer_net_payable == 0){ echo "onclick='return false;' ";}}?>  <?php echo $onclick; ?> value = "<?php echo $price['id']. "_" .intval($ct)."_".$div."_1" ?>"  data-price_tag="<?php echo $price['service_category']?>" >
+                                                                    type='checkbox' id="<?php echo "checkbox_" . $div . "_1" ; ?>" name='prices[<?php echo $unit_details[0]['brand_id']; ?>][<?php echo $clone_number; ?>][]' <?php if( $price['service_category'] ==REPAIR_OOW_PARTS_PRICE_TAGS){ if($customer_net_payable == 0){ echo "onclick='return false;' ";}}?>  <?php echo $onclick; ?> value = "<?php echo $price['id']. "_" .intval($ct)."_".$div."_1" ?>"  data-price_tag="<?php echo $price['service_category']?>" data-pod="<?php echo $price['pod']; ?>">
                                                             </td>
                                                         </tr>
                                                         <?php  $i++; $div++; if(count($unit_details[0]['quantity']) > $k){  $k++;} }} ?>
