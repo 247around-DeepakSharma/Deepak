@@ -76,13 +76,9 @@
          
          <td><?php echo $invoice['invoice_id']; ?>
              <p style="margin-top:15px;">
-               <?php  if(!empty($invoice['invoice_file_main'])){?>
                  <a  href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/invoices-excel/<?php echo $invoice['invoice_file_main']; ?>">Main</a>
-               <?php }?>
              </p> <p style="margin-top:15px;">
-             <?php  if(!empty($invoice['invoice_detailed_excel'])){?>
-               <a  href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/invoices-excel/<?php echo $invoice['invoice_detailed_excel']; ?>">Detail</a>
-              <?php }?>
+             <a  href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/invoices-excel/<?php echo $invoice['invoice_detailed_excel']; ?>">Detail</a>
              </p> <p style="margin-top:15px;">
              <a  href="javascript:void(0);" class="get_invoice_payment_history" data-id="<?php echo $invoice['invoice_id'];?>">History</a>
              </p>
