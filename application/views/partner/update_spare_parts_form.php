@@ -96,10 +96,16 @@
             <div class="col-md-12 col-sm12 col-xs-12">
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2 class="col-md-12">Update Spare Part <?php if(isset($spare_parts[0]->request_type) && $spare_parts[0]->request_type == REPAIR_OOW_TAG){ ?> <button type="button" class="btn btn-primary pull-right" disabled="">Ship More Parts</button> <?php }else{ ?><button type="button" class="btn btn-primary pull-right addButton">Ship More Parts</button><?php } ?></h2>
-                        <?php if(isset($spare_parts[0]->request_type) && $spare_parts[0]->request_type == REPAIR_OOW_TAG){ ?>
-                        <span style="float: right; color: red;">(Add More) option could not allowed for OOW booking.</span>
-                        <?php } ?>
+                        <h2 class="col-md-12">Update Spare Part 
+                        <?php // if(isset($spare_parts[0]->request_type) && $spare_parts[0]->request_type == REPAIR_OOW_TAG){ ?>
+                            <!--<button type="button" class="btn btn-primary pull-right" disabled="">Ship More Parts</button>-->
+                        <?php // }else{ ?>
+                            <!--<button type="button" class="btn btn-primary pull-right addButton">Ship More Parts</button>-->
+                        <?php // } ?>
+                        </h2>
+                        <?php // if(isset($spare_parts[0]->request_type) && $spare_parts[0]->request_type == REPAIR_OOW_TAG){ ?>
+                        <!--<span style="float: right; color: red;">(Add More) option could not allowed for OOW booking.</span>-->
+                        <?php // } ?>
                         <div class="clearfix"></div>
                     </div>
                     <input type="hidden" name="request_type" value="<?php echo ((isset($spare_parts[0]->request_type)) ? $spare_parts[0]->request_type : '')?>"/>
@@ -154,7 +160,7 @@
                                         <label for="shipped_model_number" class="col-md-4">Shipped Model Number *</label>
                                         <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                         <div class="col-md-7">
-                                            <select class="form-control spare_parts shipped_model_number_id" onchange="change_shipped_model('<?php echo $key;?>')" id="<?php echo "shippedmodelnumberid_".$key;?>" name="part[<?php echo $key; ?>][shipped_model_number_id]" required="">
+                                            <select class="form-control spare_parts shipped_model_number_id" onchange="change_shipped_model('<?php echo $key;?>')" id="<?php echo "shippedmodelnumberid_".$key;?>" name="part[<?php echo $key; ?>][shipped_model_number_id]" required="" readonly="readonly" tabindex="-1" style="pointer-events: none;">
                                                 <option value="" disabled="" selected="">Select Model Number</option>
                                                 <?php foreach ($inventory_details as $key1 => $value1) { ?> 
                                                 <option value="<?php echo $value1['id']; ?>" <?php if(trim(strtoupper($value1['model_number'])) == trim(strtoupper($value->model_number))){ echo "selected"; } ?> ><?php echo $value1['model_number']; ?></option>
@@ -164,7 +170,7 @@
                                         </div>
                                         <?php } else if(isset($appliance_model_details) && !empty($appliance_model_details)){ ?>
                                             <div class="col-md-7">
-                                            <select class="form-control spare_parts shipped_model_number_id" onchange="change_shipped_model('<?php echo $key;?>')" id="<?php echo "shippedmodelnumberid_".$key;?>" name="part[<?php echo $key; ?>][shipped_model_number_id]" required="">
+                                            <select class="form-control spare_parts shipped_model_number_id" onchange="change_shipped_model('<?php echo $key;?>')" id="<?php echo "shippedmodelnumberid_".$key;?>" name="part[<?php echo $key; ?>][shipped_model_number_id]" required="" readonly="readonly" tabindex="-1" style="pointer-events: none;">
                                                 <option value="" disabled="" selected="">Select Model Number</option>
                                                 <?php foreach ($appliance_model_details as $key1 => $value1) { ?> 
                                                 <option value="<?php echo $value1['id']; ?>" <?php if(trim(strtoupper($value1['model_number'])) == trim(strtoupper($value->model_number))){ echo "selected"; } ?> ><?php echo $value1['model_number']; ?></option>
@@ -175,7 +181,7 @@
                                         <?php } else { ?> 
                                         <div class="col-md-7">
                                             <input required="" type="hidden" id="<?php echo "shippedmodelnumberid_".$key;?>" class="shipped_model_number_id" name="part[<?php echo $key; ?>][shipped_model_number_id]">
-                                            <input type="text" class="form-control spare_parts" id="<?php echo "shippedmodelnumber_".$key;?>" name="part[<?php echo $key;?>][shipped_model_number]" value = "<?php echo $value->model_number;?>" placeholder="Shipped Model Number" required>
+                                            <input type="text" class="form-control spare_parts" id="<?php echo "shippedmodelnumber_".$key;?>" name="part[<?php echo $key;?>][shipped_model_number]" value = "<?php echo $value->model_number;?>" placeholder="Shipped Model Number" required readonly="readonly">
                                         </div>
                                         <?php } ?>
                                     </div>                                     
@@ -1005,7 +1011,7 @@
         
     <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
 
-    $('.shipped_model_number_id').select2();
+//    $('.shipped_model_number_id').select2();
     $('.shipped_parts_name').select2({
         placeholder:'Select Part Name',
         allowClear:true
@@ -1561,7 +1567,7 @@
 
 <?php if(isset($appliance_model_details) && !empty($appliance_model_details)){  ?>
     <script>
-        $("#shippedmodelnumberid_0").select2();
+//        $("#shippedmodelnumberid_0").select2();
     </script> 
 <?php } ?>
 

@@ -773,8 +773,8 @@
                                             }
                                             ?>
                                         </td>
-                                        <td style=" word-break: break-all;"><span class="serial_no_text" data-booking_id="<?php echo $sp['booking_id'];?>" id="<?php echo $sp['id']."|serial_number";?>"><?php echo $sp['serial_number']; ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span></td>
-
+                                        <!--<td style=" word-break: break-all;"><span class="serial_no_text" data-booking_id="<?php echo $sp['booking_id'];?>" id="<?php echo $sp['id']."|serial_number";?>"><?php echo $sp['serial_number']; ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span></td>-->
+                                        <td style=" word-break: break-all;"><span class="serial_no_text" data-booking_id="<?php echo $sp['booking_id'];?>" id="<?php echo $sp['id']."|serial_number";?>"><?php echo $sp['serial_number']; ?></span></td>    
                                         <?php if (!empty($sp['acknowledge_date'])) { ?>
                                            <td><?php echo date("d-M-Y", strtotime($sp['acknowledge_date'])); ?></td>  
                                         <?php }else{ ?>
