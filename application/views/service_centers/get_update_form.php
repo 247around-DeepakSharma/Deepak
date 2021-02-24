@@ -737,6 +737,9 @@
                     }
                 }
             });
+        }        
+        else{
+            valid_serial_number = check_booking_warranty();
         }
         return valid_serial_number;        
     }
@@ -745,7 +748,7 @@
     function check_booking_request()
     {
         var model_number = $('#model_number').val();
-        var dop = $("#dop_calendar").val();
+        var dop = $("#dop").val();
         var serial_number = $("#serial_number").val();
         var partner_id = "<?= $bookinghistory[0]['partner_id']?>";
         var brand = "<?= $unit_details[0]['appliance_brand']; ?>";

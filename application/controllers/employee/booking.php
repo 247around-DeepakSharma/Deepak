@@ -2999,6 +2999,7 @@ class Booking extends CI_Controller {
     
     function validate_serial_no() {
         $serial_number = $this->input->post('serial_number');
+        $trimSno = str_replace(' ', '', trim($serial_number));
         $upload_serial_number_pic = array();
         if(isset($_FILES['upload_serial_number_pic'])){
             $upload_serial_number_pic = $_FILES['upload_serial_number_pic'];
@@ -3013,8 +3014,7 @@ class Booking extends CI_Controller {
         $return_status = true;
         $message = "";
         if (isset($pod)) {            
-            if(!empty($serial_number)) {
-                $trimSno = str_replace(' ', '', trim($serial_number));
+            if(!empty($serial_number)) {                
                 if (!ctype_alnum($serial_number)) {
                     log_message('info', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
                     $this->form_validation->set_message('validate_serial_no', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
