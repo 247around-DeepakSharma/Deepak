@@ -47,7 +47,7 @@ class Courier_tracking extends CI_Controller {
             $subject = $template[4];
             $email_body_data .= "<br/> <br/>". json_encode($error_type, TRUE);
             $emailBody = vsprintf($template[0], $email_body_data);
-            $this->notify->sendEmail($template[2], 'abhaya@247around.com,gorakhn@247around.com', '', '', $subject, $emailBody, "", 'courier_api_failed_mail');
+            $this->notify->sendEmail($template[2], 'gorakhn@247around.com', '', '', $subject, $emailBody, "", 'courier_api_failed_mail');
         }
     }
 
@@ -1552,6 +1552,32 @@ class Courier_tracking extends CI_Controller {
         echo '<pre/>';
 
         print_r($_POST);
+    }
+    
+    /*
+     * Desc: update POD file in courier company invoice details
+     */
+    
+    function update_delivered_spare_pod() {
+        $select = " DISTINCT(spare_parts_details.awb_by_partner) as awb_number,  spare_parts_details.courier_name_by_partner as couriercode";
+        $where = array("spare_parts_details.auto_acknowledeged" => 1, "spare_parts_details.consumed_part_status_id != 1 AND spare_parts_details.shipped_date < '2021-02-23' AND spare_parts_details.shipped_date > '2020-11-15'  AND spare_parts_details.status IN('Spare Parts Delivered to SF')" => NULL);
+        $spare_parts_data = $this->inventory_model->get_generic_table_details('spare_parts_details', $select, $where, '');
+        $awb_array = array();
+        foreach ($spare_parts_data as $value) {
+            $courier_code = $value['couriercode'];
+            $awb_number = $value['awb_number'];
+            if (!empty($awb_number)) {
+                $api_data = $this->trackingmore_api->getRealtimeTrackingResults($courier_code, $awb_number);
+                if (!empty($api_data['data'])) {
+                    $this->insert_courier_tracking_api_data($api_data['data']['items'][0]);
+                    array_push($awb_array, array('awb_number'=>$awb_number));
+                }
+                $this->update_pod_courier($value['awb_number']);
+            }
+        }
+        
+        $this->send_api_failed_email(json_encode($awb_array), array("Method" => __METHOD__));
+        
     }
 
 }
