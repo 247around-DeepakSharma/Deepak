@@ -1,4 +1,3 @@
-
 <?php
 
 if (!defined('BASEPATH'))
@@ -75,11 +74,6 @@ class engineerApi extends CI_Controller {
 
             $requestData = json_decode($jsonRequestData, true);
 
-
-
-$activity = array('activity' => $requestData['requestUrl'], 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-$this->db->insert('log_table',$activity);
-
             $this->token = $requestData['token'];
             /// checkif Engineer is Active for every API hit ///
             if(isset($requestData["engineer_id"])  && !empty($requestData["engineer_id"]) ){
@@ -131,11 +125,11 @@ $this->db->insert('log_table',$activity);
                 'browser_information' => $_SERVER['HTTP_USER_AGENT'],
                 'ip_address' => $_SERVER["REMOTE_ADDR"],
                 'type' => $type);
-            $this->apis->saveRequestData($details);
+            //$this->apis->saveRequestData($details);
 
             $activity = array('activity' => 'data input', 'data' => json_encode($details), 'time' => $this->microtime_float());
             //$this->apis->logTable($activity);
-//$this->db->insert('log_table',$activity);
+
             $this->validateRequest();
         } else {
             log_message('info', "request key NOT exists");
@@ -189,8 +183,7 @@ $this->db->insert('log_table',$activity);
                 'type' => $type);
             //$this->apis->saveRequestData($details);
 
-            
-$activity = array('activity' => 'data input', 'data' => json_encode($details), 'time' => $this->microtime_float());
+            $activity = array('activity' => 'data input', 'data' => json_encode($details), 'time' => $this->microtime_float());
             //$this->apis->logTable($activity);
 
             $this->validateRequest();
@@ -218,7 +211,7 @@ $activity = array('activity' => 'data input', 'data' => json_encode($details), '
      */
     function checkAppKeyAndTimeout() {
         $activity = array('activity' => 'checking appkey and timeout', 'data' => json_encode($this->jsonRequestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $appKey = $this->jsonRequestData['iss'];
         $expTime = $this->jsonRequestData['exp'];
@@ -1319,13 +1312,9 @@ $activity = array('activity' => 'data input', 'data' => json_encode($details), '
                         } else {
                             if (isset($value["existing_serial_number_pic"])) {
                                 if ($value["existing_serial_number_pic"]) {
-                                    /*$sn_pic_url = $requestData['booking_id'] . "_" . $unit_id . "_serialNO_" . rand(10, 100) . ".png";
+                                    $sn_pic_url = $requestData['booking_id'] . "_" . $unit_id . "_serialNO_" . rand(10, 100) . ".png";
                                     $this->miscelleneous->generate_image($value["existing_serial_number_pic"], $sn_pic_url, SERIAL_NUMBER_PIC_DIR);
-*/
-//$sn_pic_url = array_reverse(explode('/',$serial_number_array['existing_serial_number_pic']));                                
-$sn_pic_url_array = array_reverse(explode('/',$value['existing_serial_number_pic']));		
-									 $sn_pic_url = $sn_pic_url_array[0];
-}
+                                }
                             }
                         }
                     }
@@ -1764,7 +1753,6 @@ $sn_pic_url_array = array_reverse(explode('/',$value['existing_serial_number_pic
             $responseData = array("data" => $this->jsonResponseString);
             $activity = array('activity' => 'sending response', 'data' => json_encode($responseData), 'time' => $this->microtime_float());
             //$this->apis->logTable($activity);
-		$this->db->insert('log_table',$activity);
             $response = json_encode($responseData, JSON_UNESCAPED_SLASHES);
 
             echo $response;
@@ -2065,10 +2053,10 @@ $sn_pic_url_array = array_reverse(explode('/',$value['existing_serial_number_pic
             ///  Abhishek ... Insread of count passing the entire response  and add alternate number////
             $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
                     . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, booking_details.create_date,booking_details.district,"
-                    . "symptom.symptom,booking_details.part_brought_at, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status";
+                    . "symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status";
             $slot_select = 'distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,'
                     . 'booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id,booking_details.district, '
-                    . 'booking_details.part_brought_at,CASE WHEN booking_details.part_brought_at = 2 THEN "0" ELSE "1" END AS part_brought_at_change,booking_details.create_date, symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status';
+                    . 'booking_details.create_date, symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status';
             $incentive_select = "sum(partner_incentive) as total_earning";
             $incentive_where = array(
                 "booking_details.assigned_vendor_id" => $requestData["service_center_id"],
@@ -3053,12 +3041,6 @@ $sn_pic_url_array = array_reverse(explode('/',$value['existing_serial_number_pic
             } else {
                 $response['is_consumption_required'] = false;
             }
-
-$can_edit_serial_number  = $this->can_edit_serial_number($requestData['booking_id']);
-			$can_edit_serial_number['can_edit_serial_number'] = 0;
-			$response['spare_parts'] = $can_edit_serial_number;
-
-
             $bookingDetails = $this->reusable_model->get_search_query("booking_details", "upcountry_paid_by_customer,partner_upcountry_rate,upcountry_distance,is_upcountry", array("booking_id" => $requestData['booking_id']), false, false, false, false, false)->result_array();
             if($bookingDetails[0]['is_upcountry'] && $bookingDetails[0]['upcountry_paid_by_customer']){
              $response['upcountry_paid_by_customer'] = 1;   
@@ -3231,7 +3213,6 @@ $can_edit_serial_number  = $this->can_edit_serial_number($requestData['booking_i
         if (!empty($requestData['booking_id'])) {
             if (!empty($requestData['reason'])) {
                 if (!empty($requestData['remark'])) {
-
                     $postData = array(
                         "booking_id" => $requestData['booking_id'],
                         "reason" => $requestData['reason'],
@@ -3242,8 +3223,7 @@ $can_edit_serial_number  = $this->can_edit_serial_number($requestData['booking_i
                         "partner_id" => $requestData['partner_id'],
                         "service_center_id" => $requestData['service_center_id'],
                         "call_from_api" => true,
-                        "sc_agent_id" => $requestData['sc_agent_id'],
-	                "part_brought_at" => $requestData['part_brought_at']
+                        "sc_agent_id" => $requestData['sc_agent_id']
                     );
                     //Call curl for updating booking by engineer
                     $url = base_url() . "employee/service_centers/process_update_booking";
@@ -3662,40 +3642,8 @@ $can_edit_serial_number  = $this->can_edit_serial_number($requestData['booking_i
             }
         }
         if ($check) {
-
-	$booking_id = $requestData["booking_id"];
-			$booking_history = $this->booking_model->getbooking_history($booking_id);
-			$serial_number = $requestData['serial_number'];
-			$partner_id = $booking_history[0]['partner_id'];
-			$user_id = $booking_history[0]['user_id'];
-			$price_tags = $requestData['request_types'];
-			$appliance_id = $booking_history[0]['service_id'];
-			$model_number = $requestData['model_number'];
-
-			$check_serial = $this->checkVaidationOnSerialNumber($partner_id, $serial_number, $price_tags, $user_id, $booking_id, $appliance_id, $model_number);
-			
-			if($check_serial['code']!=0000){
-                    $response['warranty_flag'] = 1;
-                    $this->jsonResponseString['response'] = $response;
-	            $this->sendJsonResponse(array('0054', $check_serial['message']));
-			exit;
-}
-
-
             $booking_details = $this->booking_creation_lib->get_edit_booking_form_helper_data($requestData['booking_id'], NULL, NULL);
-
-if($booking_details['repeat_booking_flag']==1){
-				$validate_repeat_booking = $this->validate_serial_no->validate_repeat_booking_serial_number($serial_number,$booking_id);
-				if(!empty($validate_repeat_booking['message'])){
-					$response['warranty_flag'] = 2;
-					$this->jsonResponseString['response'] = $response;
-					$this->sendJsonResponse(array('0054', $validate_repeat_booking['message']));
-					exit;
-				}
-			}
-            
-
-foreach ($booking_details['unit_details'] as $unit_key => $unit_value) {
+            foreach ($booking_details['unit_details'] as $unit_key => $unit_value) {
                 $quan = array();
                 foreach ($unit_value['quantity'] as $quan_key => $quan_value) {
                     array_push($quan, $quan_value['price_tags']);
@@ -3738,31 +3686,6 @@ foreach ($booking_details['unit_details'] as $unit_key => $unit_value) {
                     }
                 }
             }
-<<<<<<< Updated upstream
-=======
-            $serial_number_array = json_decode($requestData['submitWarrantyCheckerAndEditCallType'],true);
-            if (isset($serial_number_array['serial_number_pic_exist'])) {
-                if ($serial_number_array['serial_number_pic_exist']) {
-                    $serial_number_pic = "serial_number_pic_" . date("YmdHis") . ".png";
-                    $this->miscelleneous->generate_image($serial_number_array['serial_number_pic_exist'], $serial_number_pic, SERIAL_NUMBER_PIC_DIR);
-                    $unit_detail['serial_number_pic'] = $serial_number_pic;
-                }
-            } else {
-                if (isset($serial_number_array['existing_serial_number_pic'])) {
-                    if ($serial_number_array['existing_serial_number_pic']) {
-
-                    /*    $serial_number_pic = "serial_number_pic_" . date("YmdHis") . ".png";
-                        $this->miscelleneous->generate_image($serial_number_array['existing_serial_number_pic'], $serial_number_pic, SERIAL_NUMBER_PIC_DIR);
-                        $unit_detail['serial_number_pic'] = $serial_number_pic;
-*/
-$serial_number_pic_exp = array_reverse(explode('/',$serial_number_array['existing_serial_number_pic']));				
-                        $unit_detail['serial_number_pic'] =  $serial_number_pic_exp[0];                   
- }
-                }
-            }
-            $unit_detail['serial_number'] = $requestData['serial_number'];
-            $this->booking_model->update_booking_unit_details($requestData['booking_id'],$unit_detail);
->>>>>>> Stashed changes
 
             if ($warranty_checker) {
                 $arrBookings[0] = array(
@@ -4407,7 +4330,7 @@ $serial_number_pic_exp = array_reverse(explode('/',$serial_number_array['existin
         if ($validation['status']) {
             $slot_select = 'distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,'
                     . 'booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, '
-                    . 'booking_details.create_date,booking_details.part_brought_at, symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status,booking_details.part_brought_at';
+                    . 'booking_details.create_date, symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status';
             $response = $this->getTodaysSlotBookingList($slot_select, $requestData["booking_slot"], $requestData["service_center_id"], $requestData["engineer_id"], $requestData["engineer_pincode"]);
             if (!empty($response)) {
                 log_message("info", __METHOD__ . "Bookings Found Successfully");
@@ -4944,59 +4867,4 @@ function submitPreviousPartsConsumptionData(){
         }
 
     }
-<<<<<<< Updated upstream
-=======
-    /**
-     * @Desc: This function is to check enginner can change serial number or not
-     * @params: void
-     * @return: JSON
-     * @author Ghanshyam Ji Gupta
-     * @date : 04-02-2021
-     */
-    function can_edit_serial_number($booking_id) {
-        $spare_select = 'spare_parts_details.serial_number, '
-                . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/purchase-invoices/", spare_parts_details.invoice_pic) as invoice_pic, '
-                . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/' . SERIAL_NUMBER_PIC_DIR . '/", spare_parts_details.serial_number_pic) as serial_number_pic';
-        $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('booking_id' => $booking_id));
-        $serial_number_details['serial_number'] = '';
-        $serial_number_details['invoice_pic'] = '';
-        $serial_number_details['serial_number_pic'] = '';
-        $serial_number_details['can_edit_serial_number'] = '1';
-        $serial_number_details['can_edit_invoice_pic'] = '1';
-        if (!empty($spare_details)) {
-            $serial_number_details = $spare_details[0];
-        }
-        $serial_number_details['can_edit_serial_number'] = '1';
-        $serial_number_details['can_edit_invoice_pic'] = '1';
-        $where = array(
-            'booking_id' => $booking_id,
-            'status !=' => _247AROUND_CANCELLED
-        );
-        $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
-        if (!empty($unit_details) && !empty($unit_details[0]['serial_number_pic'])) {
-            $serial_number_details['serial_number'] = $unit_details[0]['serial_number'];
-            $serial_number_details['serial_number_pic'] = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/" . SERIAL_NUMBER_PIC_DIR . "/" . $unit_details[0]['serial_number_pic'];
-        }
-        $spares = $this->engineer_model->get_spare_details("id", $where);
-        if (!empty($serial_number_details['serial_number']) && !empty($spares)) {
-            $serial_number_details['can_edit_serial_number'] = '0';
-        }
-        if (!empty($serial_number_details['invoice_pic']) && !empty($spares)) {
-            $serial_number_details['can_edit_invoice_pic'] = '0';
-        }
-        if(empty($serial_number_details['serial_number'])){
-            unset($serial_number_details['serial_number']);
-            $serial_number_details['can_edit_serial_number'] = '1';
-        }
-        if(empty($serial_number_details['serial_number_pic'])){
-            unset($serial_number_details['serial_number_pic']);
-        }
-        if(empty($serial_number_details['invoice_pic'])){
-            unset($serial_number_details['invoice_pic']);
-            $serial_number_details['can_edit_invoice_pic'] = '1';
-        }
-        return $serial_number_details;
-    }
-
->>>>>>> Stashed changes
 }
