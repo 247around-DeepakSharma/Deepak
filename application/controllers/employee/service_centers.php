@@ -2878,7 +2878,11 @@ class Service_centers extends CI_Controller {
         } else {
             if (!$this->input->post("call_from_api")) {
                 $booking_id = urlencode(base64_encode($this->input->post('booking_id')));
-                $userSession = array('error' => $is_same_parts_type['parts_requested_type'] . " already requested.");
+                if (!empty($is_same_parts_type['parts_requested_type'])) {
+                    $userSession = array('error' => $is_same_parts_type['parts_requested_type'] . " already requested.");
+                } else {
+                    $userSession = array('error' => "Please select requested part type.");
+                }
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "service_center/update_booking_status/$booking_id");
                 //$this->update_booking_status($booking_id);
@@ -9095,6 +9099,9 @@ class Service_centers extends CI_Controller {
                     $array = array("status" => false, "parts_requested_type" => $value['parts_type']);
                     break;
                 }
+            } else {
+                $array = array("status" => false, "parts_requested_type" => '');
+                break;
             }
         }
         return $array;
@@ -10551,7 +10558,6 @@ function do_delivered_spare_transfer() {
             $this->insert_details_in_state_change($booking_id, SF_BOOKING_COMPLETE_STATUS, "Booking Auto Approved", "247Around", "Review the Booking");
             //Update spare consumption as entered by engineer Booking Completed
             if ($internal_status_engg == _247AROUND_COMPLETED) {
-                $spare_select = 'spare_parts_details.id';
                 $spare_Consumption_details = $this->service_centers_model->get_engineer_consumed_details('*', array('booking_id' => $booking_id));
                 if (!empty($spare_Consumption_details)) {
                     $array_consumption = array();
