@@ -3640,6 +3640,12 @@ class engineerApiv1 extends CI_Controller {
             } else {
                 $response['spare_parts'] = $can_edit_serial_number;
             }
+
+            /*$response['amc_file'] = "";
+            $amc_support_file = $this->booking_model->get_booking_files(array('booking_id' => $requestData['booking_id'],'file_description_id' => 5));
+            if(!empty($amc_support_file)){
+                $response['amc_file'] = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/purchase-invoices/".$amc_support_file[0]['file_name'];
+            }*/
             
             // Do not change the request type if invoiced to partner //
             $response['partner_invoiced'] = $this->checkBookingActionrequired($requestData['booking_id']);
@@ -3826,7 +3832,7 @@ class engineerApiv1 extends CI_Controller {
                 }
             }
             $edit_call_type = true;
-            if ($edit_call_type) {
+            if ($edit_call_type && $response['warranty_flag']!=1) {
                 if (isset($requestData['sc_agent_id'])) {
                     $curl_data['sc_agent_id'] = $requestData['sc_agent_id'];
                 }
