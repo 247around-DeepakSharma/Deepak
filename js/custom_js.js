@@ -665,12 +665,12 @@ function addBookingDialog(chanel = '', check_serial_no = '0') {
             return false;
         }  
 
-        var duplicateSerialNo = $('#duplicate_sno_required').val();
-        if(duplicateSerialNo === '1'){
-            alert(DUPLICATE_SERIAL_NUMBER_USED);
-            $("#error_serial_no").html(DUPLICATE_SERIAL_NUMBER_USED);
-            return false;
-        }
+//        var duplicateSerialNo = $('#duplicate_sno_required').val();
+//        if(duplicateSerialNo === '1'){
+//            alert(DUPLICATE_SERIAL_NUMBER_USED);
+//            $("#error_serial_no").html(DUPLICATE_SERIAL_NUMBER_USED);
+//            return false;
+//        }
     }
     
     // If serial number is filled , Image should also be uploaded and vice-versa
@@ -1216,7 +1216,9 @@ function set_upcountry() {
         final_price();
         $("#upcountry_charges").val("0");
         console.log("Upcountry Charges 0");
-        $('#submitform').attr('disabled', true);
+        if(!is_sf_panel){
+            $('#submitform').attr('disabled', true);
+        }
     }
 }
 
@@ -1556,6 +1558,9 @@ function validateSerialNo(count = ""){
                     }
                 }
             });
+        }
+        else{
+            valid_serial_number = check_booking_warranty();
         }
         return valid_serial_number; 
     }

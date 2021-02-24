@@ -684,6 +684,9 @@ function get_inventory_id(id){
                     }
                 }
             });
+        }        
+        else{
+            valid_serial_number = check_booking_warranty();
         }
         return valid_serial_number;        
     }
