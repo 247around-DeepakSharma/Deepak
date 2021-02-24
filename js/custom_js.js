@@ -15,6 +15,7 @@ var partnerChannelServiceUrl = baseUrl + '/employee/partner/get_partner_channel/
 var CategoryCapacityForModelUrl =  baseUrl + '/employee/booking/getCategoryCapacityForModel/';
 var URLGETCITYFROMPINCODE =  baseUrl + '/employee/booking/get_city_from_pincode/';
 var UrlValidateSerialNumber =  baseUrl + '/employee/service_centers/validate_booking_serial_number';
+var UrlCheckWarranty =  baseUrl + '/employee/service_centers/get_warranty_data/2/1';
 
 function getAppliance(service_id) {
 
@@ -420,7 +421,7 @@ function addBookingDialog(chanel = '', check_serial_no = '0') {
         return false;
     }
 
-if (!is_sf_panel && (partner_source == "" || partner_source== null)) {
+    if (!is_sf_panel && (partner_source == "" || partner_source== null)) {
 
         alert("Please Select a partner source");
 
@@ -435,7 +436,7 @@ if (!is_sf_panel && (partner_source == "" || partner_source== null)) {
     }
     
     var not_exists = 0;
-     var amc_file_count = 0;
+    var amc_file_count = 0;
     $(".file_description").each( function(){
        if($(this).val() == 5){
            amc_file_count++;
@@ -615,19 +616,7 @@ if (!is_sf_panel && (partner_source == "" || partner_source== null)) {
         alert("Please Enter Symptom");
         return false;
     }
-//    if(customer_paid == 0  && type === "Booking"){
-//        var select_model = $(".select-model");
-//        var input_model = $(".input-model");
-//        for(var tt = 0; tt< select_model.length; tt++){
-//            var select_model_value = $(select_model[tt]).val();
-//            var input_model_value = $(input_model[tt]).val();
-//            if(select_model_value || input_model_value){
-//            }
-//            else{
-//                  alert("Please Add Model Number");
-//            }
-//        }
-//    }
+
     if(type === "Booking"){
         for(var t=1; t<=div_count; t++){
             var p_date_value = $("#purchase_date_"+t).val();
@@ -672,17 +661,7 @@ if (!is_sf_panel && (partner_source == "" || partner_source== null)) {
         alert("Please fill Booking date ");
         return false;
     } else {
-        //Adding Previous date validation on Booking Edit
-//        var selectedDate = booking_date;
-//        var d = new Date();
-//        var today = formatDate(d);
-//        selectedDate = new Date(selectedDate);
-//        today = new Date(today);
-//        if (selectedDate < today) {
-//            $('#myModal').modal('toggle');
-//            alert("Please select Today or Future date ");
-//            return false;
-//        }
+
     }
 
     if (!is_sf_panel && timeslot === null) {
@@ -760,12 +739,34 @@ if (!is_sf_panel && (partner_source == "" || partner_source== null)) {
     if ($status === 0) {
         return false;
     }
-
-    for (var k = 1; k <= numItems; k++) {
-        cloned_price(regex1, priceIndexClone, k);
-
+    else
+    {
+        for (var k = 1; k <= numItems; k++) {
+            cloned_price(regex1, priceIndexClone, k);
+        }
+        if(!is_sf_panel){
+            return true;
+        }
+        else
+        {
+            if(confirm("Validating Serial Number & Booking Warranty Status, Click OK to continue.")){
+                var btn_text = $("#btn_text").val();
+                $("#submitform").prop("disabled", true);
+                $("#submitform").attr('value', 'Verifying Data ... ');
+                setTimeout(function(){ 
+                    var is_correct = validate_serial_number_and_warranty();
+                    if(is_correct){
+                        $("#booking_form").submit();
+                    }
+                    else{
+                        $("#submitform").attr('value', btn_text);
+                        $("#submitform").prop("disabled", false);
+                        return false;
+                    }
+                }, 3000);                         
+            }
+        }             
     }
-    $("#submitform").button('loading');
 }
 
 function setAppliances(i) {
@@ -1535,7 +1536,119 @@ function validateSerialNo(count = ""){
             });
         }
     }
+    
+    function validate_serial_number_and_warranty(){
+        // Validate Serial Number
+        var postData = {};
+        var valid_serial_number = false;
+        var booking_request_types = [];
+        $(".price_checkbox:checked").each(function(){
+            var price_tag = $(this).attr('data-price_tag');
+            booking_request_types.push(price_tag);
+        });
+        postData['serial_number'] = $.trim($("#serial_number").val());
+        postData['price_tags'] = $("#price_tags").text();
+        postData['user_id'] = $("#user_id").val();
+        postData['booking_id'] = $("#booking_id").val();
+        postData['partner_id'] = $("#partner_id").val();
+        postData['appliance_id'] = $('#service_id').val();
+        postData['booking_request_types'] = booking_request_types;
 
-
+        if(postData['serial_number'] !== ''){
+            $.ajax({
+                type: 'POST',
+                async: false,
+                url: UrlValidateSerialNumber,
+                data:postData,
+                success: function (response) {
+                    console.log(response);
+                    var data = jQuery.parseJSON(response);
+                    if(data.code === 247){
+                        console.log("Correct Serial Number");
+                        $("#error_serial_no").text("");
+                        $("#is_sn_correct").val('0');
+                        $("#sno_required").val('0');
+                        $("#duplicate_sno_required").val('0');
+                        valid_serial_number = check_booking_warranty();
+                    } else if(data.code === Number(DUPLICATE_SERIAL_NO_CODE)){
+                        console.log("Duplicate Serial Number");
+                        $("#duplicate_sno_required").val('1');
+                        $("#is_sn_correct").val('1');
+                        $("#error_serial_no").html(data.message);                        
+                    } else {
+                        console.log("Incorrect Serial Number");
+                        $("#sno_required").val('1');
+                        $("#is_sn_correct").val('1');
+                        $("#error_serial_no").html(data.message);
+                        $("#duplicate_sno_required").val('0');
+                    }
+                }
+            });
+        }
+        return valid_serial_number; 
+    }
+    
+    // function to cross check request type of booking with warranty status of booking 
+    function check_booking_warranty()
+    {
+        if(!$(".input-model").length)
+        {
+            var model_number = $(".select-model").val();
+        }
+        else
+        {
+            var model_number = $(".input-model").val();
+        }        
+        var dop = $("#purchase_date_1").val();
+        var partner_id = $("#partner_id").val();
+        var service_id = $("#service_id").val();
+        var serial_number = $("#serial_number").val();
+        var brand = $("#appliance_brand_1").val();
+        var booking_id = $("#booking_id").val();
+        var booking_create_date = $("#booking_create_date").val();
+        var booking_request_types = []; 
+        $(".price_checkbox:checked").each(function(){
+            var price_tag = $(this).attr('data-price_tag');
+            booking_request_types.push(price_tag);
+        });
+        $('.errorMsg').html("");
+        var valid_request = false;
+        // Model Number & DOP/Serial number should be there for checking warranty
+        // Booking Request Type should not be AMC/repeat
+        if((model_number !== "" && model_number !== null && model_number !== undefined) && (dop !== "" || serial_number != "") && (booking_request_types.length > 0)){                             
+            $.ajax({
+                method: 'POST',
+                async: false,
+                url: UrlCheckWarranty,
+                data: {
+                    'bookings_data[0]' : {
+                        'partner_id' : partner_id,
+                        'booking_id' : booking_id,
+                        'booking_create_date' : booking_create_date,
+                        'service_id' : service_id,
+                        'brand' : brand,
+                        'model_number' : model_number,
+                        'purchase_date' : dop,
+                        'serial_number' : serial_number,
+                        'booking_request_types' : booking_request_types
+                    }
+                },
+                success:function(response){
+                    var returnData = JSON.parse(response);
+                    $('.errorMsg').html(returnData['message']);
+                    if(returnData['status'] == 1)
+                    {
+                        console.log("Invalid Booking Request Type");
+                    }
+                    else
+                    {                        
+                        console.log("Valid Booking Request Type");
+                        valid_request = true;
+                    }
+                }                            
+            });
+            return valid_request;
+        }
+    }
 
 

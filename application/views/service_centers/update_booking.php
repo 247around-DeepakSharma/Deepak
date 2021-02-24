@@ -141,9 +141,9 @@ $arr_partner_discount = array();
                                             <label for="type" class="col-md-4">Appliance Model* </label>
                                             <div class="col-md-6">
                                                 <?php if(empty($model[0])) { ?>
-                                                    <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" style="<?= $str_disabled?>" value = "<?php if(isset($unit_details[0]['model_number'])) { echo $unit_details[0]['model_number']; } ?>" placeholder="Enter Model"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> <?php if($is_repeat){ echo 'readonly="readonly"'; } ?> required onfocusout="check_booking_request()"  onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">
+                                                    <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" style="<?= $str_disabled?>" value = "<?php if(isset($unit_details[0]['model_number'])) { echo $unit_details[0]['model_number']; } ?>" placeholder="Enter Model"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> <?php if($is_repeat){ echo 'readonly="readonly"'; } ?> required onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">
                                                 <?php } else { ?>
-                                                    <select class="form-control select-model"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="model_number_1" name="model_number[]" required onchange="getCapacityCategoryForModel(this.value, this.id);check_booking_request();" style="<?= $str_disabled?>">
+                                                    <select class="form-control select-model"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="model_number_1" name="model_number[]" required onchange="getCapacityCategoryForModel(this.value, this.id);" style="<?= $str_disabled?>">
                                                         <option selected disabled value="">Select Appliance Model</option>
                                                         <?php foreach ($model[0] as $value) { ?>
                                                         <option <?php if(!empty($booking_model_number)) {if(trim(strtoupper($value['model'])) == trim(strtoupper($booking_model_number))) { echo "selected"; }} elseif(isset($unit_details[0]['model_number'])) {if(trim(strtoupper($value['model'])) == trim(strtoupper($unit_details[0]['model_number']))) { echo "selected"; }}?>
@@ -156,7 +156,7 @@ $arr_partner_discount = array();
                                         <div class="form-group ">
                                             <label for="dop" class="col-md-4">Purchase Date* </label>
                                             <div class="col-md-6">
-                                                <input <?php if($is_repeat && (!empty($booking_model_purchase_date))){ echo 'readonly="readonly"'; } ?> id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "<?php if(!empty($booking_model_purchase_date)){ echo $booking_model_purchase_date; }elseif(isset($unit_details[0]['purchase_date']) && $unit_details[0]['purchase_date'] != '0000-00-00'){ echo date("d-m-Y", strtotime($unit_details[0]['purchase_date'])); }?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" required onchange="check_booking_request()" style="<?= $str_disabled?>">
+                                                <input <?php if($is_repeat && (!empty($booking_model_purchase_date))){ echo 'readonly="readonly"'; } ?> id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "<?php if(!empty($booking_model_purchase_date)){ echo $booking_model_purchase_date; }elseif(isset($unit_details[0]['purchase_date']) && $unit_details[0]['purchase_date'] != '0000-00-00'){ echo date("d-m-Y", strtotime($unit_details[0]['purchase_date'])); }?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" required style="<?= $str_disabled?>">
                                             </div>
                                         </div> 
                                         <div class="form-group ">
@@ -205,12 +205,14 @@ $arr_partner_discount = array();
                                                     $serial_number_pic = !empty($unit_details[0]['quantity'][0]['serial_number_pic']) ? $unit_details[0]['quantity'][0]['serial_number_pic'] : ""; 
                                                     $pod = !empty($unit_details[0]['quantity'][0]['pod']) ? $unit_details[0]['quantity'][0]['pod'] : ""; 
                                                 ?>
-                                                <input type="text" style="text-transform: uppercase;<?= $str_disabled?>" onblur="validateSerialNo();check_booking_request();" class="form-control" id="serial_number" name="serial_number"  value="<?php echo $serial_number; ?>"  placeholder = "Enter Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" tabindex=-1/>
+                                                <input type="text" style="text-transform: uppercase;<?= $str_disabled?>" class="form-control" id="serial_number" name="serial_number"  value="<?php echo $serial_number; ?>"  placeholder = "Enter Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" tabindex=-1/>
                                                 <input type="hidden" class="form-control" id="serial_number_pic" name="serial_number_pic"  value="<?php echo $serial_number_pic; ?>"  />
                                                 <input type="hidden" id="pod" class="form-control" name="pod" value="<?php echo $pod; ?>"   />
                                                 <input type="hidden" id="sno_required" class="form-control" name="is_sn_file" value="0"   />
                                                 <input type="hidden" id="duplicate_sno_required" class="form-control" name="is_dupliacte" value="0"   />
-                                                <input type="hidden" id="is_sn_correct" class="form-control" name="is_sn_correct"/>                                                                    
+                                                <input type="hidden" id="is_sn_correct" class="form-control" name="is_sn_correct"/> 
+                                                <input type="hidden" id="booking_create_date" class="form-control" name="booking_create_date" value="<?php echo $booking_history[0]['create_date']; ?>"/> 
+                                                <input type="hidden" id="btn_text" class="form-control" name="btn_text" value="<?php echo $button_caption; ?>"/> 
                                                 <input type="file" id="upload_serial_number_pic" class="form-control serialNumberPic" name="upload_serial_number_pic" value="<?php echo $serial_number_pic; ?>" style="margin-top:5px;<?= $str_disabled?>"  tabindex=-1 accept="image/*"/>
                                                 <?php
                                                 if(!empty($serial_number_pic)) {
@@ -324,7 +326,7 @@ $arr_partner_discount = array();
                                                                 placeholder='Enter discount' readonly />
                                                             <td>
                                                                 <?php
-                                                                 $onclick = "onclick='check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry()'";
+                                                                 $onclick = "onclick='final_price(), get_symptom(), enable_discount(this.id), set_upcountry()'";
                                                                 ?>
                                                                 <input type='hidden'name ='is_up_val'   data-customer_price = '<?php echo $price['upcountry_customer_price'];?>' data-flat_upcountry = '<?php echo $price['flat_upcountry'];?>' id="<?php echo "is_up_val_".$div."_1" ?>" value="<?php echo $price['is_upcountry']; ?>" />
                                                                 <input <?php if ($price['service_category'] == REPEAT_BOOKING_TAG){ echo "class='price_checkbox repeat_".$price['product_or_services']."'"; } else { ?>
@@ -344,7 +346,7 @@ $arr_partner_discount = array();
                                                                                 echo " checked ";
                                                                                 if($price['service_category'] ==  REPEAT_BOOKING_TAG){
                                                                                     $tempString = "'".$booking_history[0]['booking_primary_contact_no']."','".$booking_history[0]['service_id']."','".$booking_history[0]['partner_id']."',this.checked,true,'".$booking_history[0]['initial_booking_date']."'";
-                                                                                    $onclick = 'onclick="check_booking_request(), get_parent_booking('.$tempString.'), final_price(), get_symptom(), enable_discount(this.id), set_upcountry()"';
+                                                                                    $onclick = 'onclick="get_parent_booking('.$tempString.'), final_price(), get_symptom(), enable_discount(this.id), set_upcountry()"';
                                                                                 }
                                                                                 // If partner is billed against a line item do not allow to uncheck this item
                                                                                 if(!empty($tags['partner_invoice_id']))
@@ -355,7 +357,7 @@ $arr_partner_discount = array();
                                                                             else{ 
                                                                                 if($price['service_category'] ==  REPEAT_BOOKING_TAG){
                                                                                    $tempString = "'".$booking_history[0]['booking_primary_contact_no']."','".$booking_history[0]['service_id']."','".$booking_history[0]['partner_id']."',this.checked,false,'".$booking_history[0]['initial_booking_date']."'";
-                                                                                   $onclick = 'onclick="check_booking_request(), get_parent_booking('.$tempString.'), final_price(), get_symptom(), enable_discount(this.id), set_upcountry()"';
+                                                                                   $onclick = 'onclick="get_parent_booking('.$tempString.'), final_price(), get_symptom(), enable_discount(this.id), set_upcountry()"';
                                                                                     // If partner is billed against a line item , Repeat booking category can not be selected
                                                                                     if($is_partner_invoiced){
                                                                                         $onclick = "onclick='return false;' ";
@@ -535,7 +537,7 @@ $arr_partner_discount = array();
                                                                         }
                                                                         
                                                                         ?>
-                                                                        type='checkbox' id="<?php echo "checkbox_" . $div . "_".$number ; ?>" name='prices[<?php echo $booking_unit_details['brand_id']; ?>][<?php echo $clone_number;?>][]'  onclick='check_booking_request(), final_price(), enable_discount(this.id), set_upcountry()' value = "<?php echo $price['id']. "_" .intval($ct)."_".$div."_".$number ?>">
+                                                                        type='checkbox' id="<?php echo "checkbox_" . $div . "_".$number ; ?>" name='prices[<?php echo $booking_unit_details['brand_id']; ?>][<?php echo $clone_number;?>][]'  onclick='final_price(), enable_discount(this.id), set_upcountry()' value = "<?php echo $price['id']. "_" .intval($ct)."_".$div."_".$number ?>">
                                                                 </td>
                                                             </tr>
                                                             <?php  $i++; $div++; if(count($booking_unit_details['quantity']) > $k){ $k++;} }} ?>
@@ -571,7 +573,7 @@ $arr_partner_discount = array();
                         <div class="form-group  col-md-12" >
                             <center>
                                 
-                                <input type="submit" id="submitform" onclick="return addBookingDialog('sf_update', 1)" class="btn btn-primary" value="<?= $button_caption?>">
+                                <input type="button" id="submitform" onclick="return addBookingDialog('sf_update', 1)" class="btn btn-primary" value="<?= $button_caption?>">
                         </div>
                         </center>
                     </div>
@@ -615,7 +617,6 @@ $arr_partner_discount = array();
 </script>
 <script>
     check_pincode();
-    validateSerialNo();
     if(($("#model_not_mapped").val() != 1) && ($("#is_spare_requested").val() == ""))
     {
         $(".select-model").select2();
@@ -635,74 +636,7 @@ $arr_partner_discount = array();
 <script type="text/javascript">
     var regex = /^(.+?)(\d+)$/i;
     var cloneIndex= $(".clonedInput").length +1;
-    
-    // function to cross check request type of booking with warranty status of booking 
-    function check_booking_request()
-    {
-        if(!$(".input-model").length)
-        {
-            var model_number = $(".select-model").val();
-        }
-        else
-        {
-            var model_number = $(".input-model").val();
-        }
-        var dop = $("#purchase_date_1").val();
-        var partner_id = $("#partner_id").val();
-        var service_id = $("#service_id").val();
-        var serial_number = $("#serial_number").val();
-        var brand = $("#appliance_brand_1").val();
-        var booking_id = "<?= $booking_history[0]['booking_id']?>";
-        var booking_request_types = []; 
-        $(".price_checkbox:checked").each(function(){
-            var price_tag = $(this).attr('data-price_tag');
-            booking_request_types.push(price_tag);
-        });
-        $('.errorMsg').html("");
-        // To check warranty => Model Number, DOP/Serial Number & Request Types should be filled
-        if((model_number !== "" && model_number !== null && model_number !== undefined) && (dop !== "" || serial_number != "") && (booking_request_types.length > 0)){                                           
-            $.ajax({
-                method:'POST',
-                url:"<?php echo base_url(); ?>employee/service_centers/get_warranty_data/2/1",
-                data:{
-                    'bookings_data[0]' : {
-                        'partner_id' : partner_id,
-                        'booking_id' : booking_id,
-                        'booking_create_date' : "<?= $booking_history[0]['create_date']?>",
-                        'service_id' : service_id,
-                        'brand' : brand,
-                        'model_number' : model_number,
-                        'purchase_date' : dop,
-                        'serial_number' : serial_number,
-                        'booking_request_types' : booking_request_types
-                    }
-                },
-                beforeSend: function() {                    
-                    $("#submitform").hide(); 
-                },
-                success:function(response){
-                    var returnData = JSON.parse(response);
-                    $('.errorMsg').html(returnData['message']);
-                    if(returnData['status'] == 1)
-                    {
-                        $("#submitform").attr("disabled", true);   
-                        $("#submitform").show();
-                    }
-                    else
-                    {
-                        // Enable Submit button , only if Serial Number Validation Passed
-                        if($("#is_sn_correct").val() != '1')
-                        {
-                            $("#submitform").attr("disabled", false);                           
-                        }
-                        $("#submitform").show();
-                    }
-                }                           
-            });
-        }           
-    }
-    // function ends here ---------------------------------------------------------------- 
-    
+           
     function clone(){
        $(this).parents(".clonedInput").clone()
     .appendTo(".cloned")
@@ -779,12 +713,18 @@ $arr_partner_discount = array();
         {
             $('.select-model').trigger("change");
         }
-      final_price();
-    if($('div.uploaded_support_file').length == 1) {
-        $("#btn_addSupportFile").click();
-    }
-    check_booking_request();
+        final_price();
+        if($('div.uploaded_support_file').length == 1) {
+            $("#btn_addSupportFile").click();
+        }
     });
+    
+    // function to cross check request type of booking with warranty status of booking 
+    function check_booking_request()
+    {
+        // Do nothing
+        // Booking Request type verification is done along with serial number verification
+    }
     
     function outbound_call(phone_number){
         var confirm_call = confirm("Call Customer ?");

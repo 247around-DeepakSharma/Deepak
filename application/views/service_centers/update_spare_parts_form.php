@@ -120,7 +120,13 @@
             <div class="col-md-12 col-sm12 col-xs-12">
                 <div class="x_panel">
                     <div class="x_title">
-                        <h3>Spare Part Details <?php if(isset($spare_parts[0]->request_type) && $spare_parts[0]->request_type == REPAIR_OOW_TAG){ ?><button type="button" class="btn btn-primary pull-right" disabled="">Ship More Parts</button><?php }else{ ?> <button type="button" class="btn btn-primary pull-right addButton">Ship More Parts</button><?php } ?> </h3>
+                        <h3>Spare Part Details
+                            <?php // if(isset($spare_parts[0]->request_type) && $spare_parts[0]->request_type == REPAIR_OOW_TAG){ ?>
+                                <!--<button type="button" class="btn btn-primary pull-right" disabled="">Ship More Parts</button>-->
+                            <?php // }else{ ?> 
+                                <!--<button type="button" class="btn btn-primary pull-right addButton">Ship More Parts</button>-->
+                            <?php // } ?>
+                        </h3>
                         <hr>
                         <div class="clearfix"></div>
                     </div>
@@ -176,7 +182,7 @@
                                             ?>">
                                                 <label for="shipped_model_number" class="col-md-4">Shipped Model Number *</label>
                                                 <div class="col-md-6">
-                                                    <select class="form-control spare_parts shipped_model_number_id" onchange="change_shipped_model('<?php echo $skey; ?>')" id="<?php echo "shippedmodelnumberid_" . $skey; ?>" name="part[<?php echo $skey; ?>][shipped_model_number_id]">
+                                                    <select class="form-control spare_parts shipped_model_number_id" onchange="change_shipped_model('<?php echo $skey; ?>')" id="<?php echo "shippedmodelnumberid_" . $skey; ?>" name="part[<?php echo $skey; ?>][shipped_model_number_id]"  readonly="readonly" tabindex="-1" style="pointer-events: none;">
                                                                 <option value="" disabled="" selected="">Select Model Number</option>
                                                                 <?php foreach ($inventory_details as $key => $value) { ?> 
                                                                     <option value="<?php echo $value['id']; ?>" <?php
@@ -702,7 +708,7 @@
     })(jQuery, window, document);
 
 
-    $('.shipped_model_number_id').select2();
+//    $('.shipped_model_number_id').select2();
     $($('.shipped_parts_name')[0]).select2({
         placeholder: 'Select Part Name',
         allowClear: true

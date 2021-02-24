@@ -2,8 +2,6 @@
  var DUPLICATE_SERIAL_NO_CODE = '<?php echo DUPLICATE_SERIAL_NO_CODE; ?>';
  var DUPLICATE_SERIAL_NUMBER_USED = '<?php echo DUPLICATE_SERIAL_NUMBER_USED;?>';
 </script>
-<link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
-<script src="<?php echo base_url();?>js/jquery.loading.js"></script>
 <script src="<?php echo base_url();?>js/validation_js.js"></script>
 <style>
     .disable_link {
@@ -141,7 +139,10 @@
                         </div>
                     </div>
                     <input type="hidden" name="days" value="<?php echo $days; ?>" />    
-                    <div class="row"><div class='col-md-2'></div><div class="col-md-10 errorMsg" style="font-weight:bold;padding:15px;color:red;"></div></div>
+                    <div class="row">
+                        <div class='col-md-2'></div>
+                        <div class="col-md-10 errorMsg" style="font-weight:bold;padding:15px;color:red;"></div>                            
+                    </div>
                     <div class="panel panel-default col-md-offset-2" id="hide_spare" >                        
                         <div class="panel-body">
                             <div class="row">
@@ -150,7 +151,7 @@
                                         <label for="model_number" class="col-md-4">Model Number *</label>
                                         <?php $is_modal_number = false;  if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                         <div class="col-md-6">
-                                            <select class="form-control spare_parts" id="model_number_id" tabindex="-1" name="model_number_id"  onchange="check_booking_request()">
+                                            <select class="form-control spare_parts" id="model_number_id" tabindex="-1" name="model_number_id">
                                                 <option value="" disabled="" selected="">Select Model Number <?php  //echo $unit_model_number; ?></option>
                                                 <?php foreach ($inventory_details as $key => $value) { ?> 
                                                 <option value="<?php echo $value['id']; ?>"   <?php if(trim(strtoupper($unit_model_number))==trim(strtoupper($value['model_number']))){ $is_modal_number = true; echo 'selected';} ?>   ><?php echo $value['model_number']; ?></option>
@@ -173,7 +174,7 @@
                                         <label for="dop" class="col-md-4" id="dat_of_puchase">Date of Purchase *</label>
                                         <div class="col-md-6">
                                             <div class="input-group input-append date">
-                                                <input id="dop" class="form-control" tabindex="-1" value="<?php if(isset($purchase_date) && (!empty($purchase_date) && $purchase_date != "0000-00-00" && $ask_purchase_date==0)){ echo date('d-m-Y', strtotime($purchase_date)); } ?>"  placeholder="Select Date" name="dop" type="text" autocomplete='off' onkeypress="return false;"  onchange="check_booking_request()">
+                                                <input id="dop" class="form-control" tabindex="-1" value="<?php if(isset($purchase_date) && (!empty($purchase_date) && $purchase_date != "0000-00-00" && $ask_purchase_date==0)){ echo date('d-m-Y', strtotime($purchase_date)); } ?>"  placeholder="Select Date" name="dop" type="text" autocomplete='off' onkeypress="return false;">
                                                 <span class="input-group-addon add-on" id="dop_calendar" onclick="dop_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                         </div>
@@ -185,9 +186,9 @@
                                     <div class="form-group">
                                         <label for="serial_number" class="col-md-4">Serial Number *</label>
                                         <div class="col-md-6"> 
-                                            <input type="text" class="form-control spare_parts" id="serial_number" name="serial_number"  value="<?php if(isset($unit_serial_number) && !empty($unit_serial_number)){echo $unit_serial_number;}  ?>" placeholder="Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" required="" onblur="validate_serial_number()">
+                                            <input type="text" class="form-control spare_parts" id="serial_number" name="serial_number"  value="<?php if(isset($unit_serial_number) && !empty($unit_serial_number)){echo $unit_serial_number;}  ?>" placeholder="Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" required="">
                                             <input type="hidden" id="is_sn_correct" name="is_sn_correct" value="">
-                                            <span id="error_serial_no" class="text-danger"></span>
+                                            <span id="error_serial_no" class="error_serial_no text-danger"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -645,7 +646,7 @@
                     else {
                     ?>
                     <div class="col-md-6 col-md-offset-2">
-                        <input type="submit"  value="Update Booking" id="submitform" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return submitForm();"   class="btn btn-danger btn-large">
+                        <input type="button"  value="Update Booking" id="submitform" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return submitForm();"   class="btn btn-danger btn-large">
                     </div>
                     <?php }?>
                 </form>
@@ -689,13 +690,109 @@
     $(".spare_consumption_status").select2();
     $('#symptom_0').select2();
     $('[data-toggle="popover"]').attr('data-content', $('#status_consumption_status').html());
-function alpha(e) {
-   var k;
-   document.all ? k = e.keyCode : k = e.which;
-   return ((k > 64 && k < 91) || (k > 96 && k < 123) || k == 8 || k == 32 || (k >= 48 && k <= 57) || k==189);
-}
+    function alpha(e) {
+       var k;
+       document.all ? k = e.keyCode : k = e.which;
+       return ((k > 64 && k < 91) || (k > 96 && k < 123) || k == 8 || k == 32 || (k >= 48 && k <= 57) || k==189);
+    }
 
+    function validate_serial_number_and_warranty()
+    {
+        // Validate Serial Number in case of Spare Request page
+        var reason = $("input[name='reason']:checked"). val();
+        if(reason !== "<?php echo SPARE_PARTS_REQUIRED;?>" && reason !== "<?php echo SPARE_OOW_EST_REQUESTED;?>"){
+            return true;
+        }
+        var postData = {};
+        var valid_serial_number = false;
+        var UrlValidateSerialNumber = '<?php echo base_url(); ?>employee/service_centers/validate_booking_serial_number';
+        postData['serial_number'] = $.trim($("#serial_number").val());
+        postData['price_tags'] = "<?= $bookinghistory[0]['request_type']?>";
+        postData['user_id'] = "<?= $bookinghistory[0]['user_id']?>";
+        postData['booking_id'] = "<?= $bookinghistory[0]['booking_id']?>";
+        postData['partner_id'] = "<?= $bookinghistory[0]['partner_id']?>";
+        postData['appliance_id'] = "<?= $bookinghistory[0]['service_id']?>";
+        if(postData['serial_number'] !== ''){
+            $.ajax({
+                type: 'POST',
+                async: false,
+                url: UrlValidateSerialNumber,
+                data:postData,
+                success: function (response) {                    
+                    console.log(response);
+                    var data = jQuery.parseJSON(response);
+                    if(data.code === 247){
+                        console.log("Correct Serial Number");
+                        $("#is_sn_correct").val("1");
+                        $(".error_serial_no").html("");
+                        valid_serial_number = check_booking_request();
+                    } else if(data.code === Number(DUPLICATE_SERIAL_NO_CODE)){
+                        console.log("Duplicate Serial Number");
+                        $("#is_sn_correct").val("0");
+                        $(".error_serial_no").html(data.message);
+                    } else {
+                        console.log("Incorrect Serial Number");
+                        $("#is_sn_correct").val("0");
+                        $(".error_serial_no").html(data.message);
+                    }
+                }
+            });
+        }
+        return valid_serial_number;        
+    }
     
+    // function to cross check request type of booking with warranty status of booking 
+    function check_booking_request()
+    {
+        var model_number = $('#model_number').val();
+        var dop = $("#dop_calendar").val();
+        var serial_number = $("#serial_number").val();
+        var partner_id = "<?= $bookinghistory[0]['partner_id']?>";
+        var brand = "<?= $unit_details[0]['appliance_brand']; ?>";
+        var service_id = "<?= $bookinghistory[0]['service_id']?>";
+        var booking_id = "<?= $bookinghistory[0]['booking_id']?>";
+        var booking_request_type = "<?= $bookinghistory[0]['request_type']; ?>";  
+        var booking_create_date = "<?= $bookinghistory[0]['booking_create_date']; ?>"; 
+        var valid_request = false;
+        // Model Number & DOP/Serial number should be there for checking warranty
+        // Booking Request Type should not be AMC/repeat
+        if((model_number !== "" && model_number !== null) && (dop !== "" || serial_number != "")){                               
+            $.ajax({
+                method:'POST',
+                async: false,
+                url:"<?php echo base_url(); ?>employee/service_centers/get_warranty_data/2/1",
+                data:{
+                    'bookings_data[0]' : {
+                        'partner_id' : partner_id,
+                        'brand' : brand,
+                        'booking_id' : booking_id,
+                        'booking_create_date' : booking_create_date,
+                        'service_id' : service_id,
+                        'model_number' : model_number,
+                        'purchase_date' : dop, 
+                        'serial_number' : serial_number,
+                        'booking_request_types' : [booking_request_type]
+                    }
+                },
+                success:function(response){
+                    var returnData = JSON.parse(response);
+                    $(".errorMsg").html(returnData['message']);
+                    if(returnData['status'] == 1)
+                    {
+                        console.log("Invalid Booking Request Type");
+                    }
+                    else
+                    {                        
+                        if($("#is_sn_correct").val() == "1"){
+                            console.log("Valid Booking Request Type");
+                            valid_request = true;
+                        }
+                    }
+                }                            
+            });
+            return valid_request;
+        }
+    }
     
     <?php if(isset($inventory_details) && !empty($inventory_details)) { ?> 
         <?php if(!$is_disable) { ?>
@@ -855,7 +952,7 @@ function alpha(e) {
             success:function(data){
                 if(data){
                     $("#appliance_model_div").empty();
-                    var html = "<select class='form-control spare_parts' id='model_number_id' name='model_number_id' onchange='model_number_text();check_booking_request()'>";
+                    var html = "<select class='form-control spare_parts' id='model_number_id' name='model_number_id' onchange='model_number_text();'>";
                         html += data;
                         html += "</select>";
                         html += "<input type='hidden' id='model_number' name='model_number'>";
@@ -893,13 +990,7 @@ function alpha(e) {
             $("#spare_parts").prop('checked', true);
        <?php } ?>
     });
-    
-    $("#spare_parts").click(function(){
-        if(this.checked){
-            validate_serial_number();
-        }
-    });
-    
+        
     function submitForm(){
                                      
      var checkbox_value = 0;
@@ -1163,17 +1254,28 @@ function alpha(e) {
       
       
          
-      if(checkbox_value === 0){
-          $('#submitform').val("Update Booking");
-          return false;
+        if(checkbox_value === 0){
+            $('#submitform').val("Update Booking");
+            return false;
           
-      } else if(checkbox_value === 1){
-          
-          return true;
-          
-      }
-    
-    
+        } else if(checkbox_value === 1){          
+            if(confirm("Validating Serial Number & Booking Warranty Status, Click OK to continue.")){
+                $("#submitform").prop("disabled", true);
+                $("#submitform").attr('value', 'Validating Data...');
+                setTimeout(function(){ 
+                    var is_correct = validate_serial_number_and_warranty();
+                    if(is_correct){
+                        $("#requested_parts").submit();
+                        return true;
+                    }
+                    else{                        
+                        $("#submitform").attr('value', "Update Booking");
+                        $("#submitform").prop("disabled", false);
+                        return false;
+                    }
+                }, 3000);                
+            }          
+        }    
     }
     
     $('#reschedule_booking_otp_btn').on('click', function() {
@@ -1408,126 +1510,13 @@ function alpha(e) {
             method:'POST',
             url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
             data: { service_id:service_id},
-            success:function(data){    
+            success:function(data){                       
                 $('.spare_parts_type').html(data); 
                 $('#parts_type_0').select2();
             }
         });
     });
-
-    // function to cross check request type of booking with warranty status of booking 
-    function check_booking_request()
-    {
-        var reason = $("input[name='reason']:checked"). val();
-        if(reason !== "<?php echo SPARE_PARTS_REQUIRED;?>"){
-            return true;
-        }
-        $("#submitform").attr("disabled", true); 
-        var model_number = $('#model_number').val();
-        var dop = $("#dop").val();
-        var serial_number = $("#serial_number").val();
-        var partner_id = "<?= $bookinghistory[0]['partner_id']?>";
-        var service_id = "<?= $bookinghistory[0]['service_id']?>";
-        var booking_id = "<?= $bookinghistory[0]['booking_id']?>";
-        var booking_request_type = "<?= $bookinghistory[0]['request_type']?>"; 
-        // Model Number & DOP/Serial number should be there for checking warranty
-        // Booking Request TYpe should not be AMC/repeat
-        if((model_number !== "" && model_number !== null) && (dop !== "" || serial_number != "") && (booking_request_type != "<?php echo REPEAT_BOOKING_TAG;?>" && booking_request_type != "<?php echo WARRANTY_TYPE_AMC;?>")){                               
-            $.ajax({
-                method:'POST',
-                url:"<?php echo base_url(); ?>employee/service_centers/get_warranty_data/2/1",
-                data:{
-                    'bookings_data[0]' : {
-                        'partner_id' : partner_id,
-                        'booking_id' : booking_id,
-                        'booking_create_date' : "<?= $bookinghistory[0]['create_date']?>",
-                        'service_id' : service_id,
-                        'model_number' : model_number,
-                        'purchase_date' : dop, 
-                        'serial_number' : serial_number,
-                        'booking_request_types' : [booking_request_type]
-                    }
-                },
-                beforeSend: function(){
-                    $('.errorMsg').html("<p>Validating Booking Warranty Status, Please Wait ...</p>");
-                },
-                success:function(response){
-                    var returnData = JSON.parse(response);
-                    $('.errorMsg').html(returnData['message']);
-                    if(returnData['status'] == 1)
-                    {
-                        $("#submitform").attr("disabled", true);                        
-                    }
-                    else
-                    {                        
-                        if($("#is_sn_correct").val() == "1"){
-                            $("#submitform").attr("disabled", false);  
-                        }
-                    }
-                }                            
-            });
-        }
-    }
-    
-    function validate_serial_number(){
-        var reason = $("input[name='reason']:checked"). val();
-        if(reason !== "<?php echo SPARE_PARTS_REQUIRED;?>"){
-            return true;
-        }
-        var postData = {};
-        var UrlValidateSerialNumber = '<?php echo base_url(); ?>employee/service_centers/validate_booking_serial_number';
-        postData['serial_number'] = $.trim($("#serial_number").val());
-        postData['price_tags'] = "<?= $bookinghistory[0]['request_type']?>";
-        postData['user_id'] = "<?= $bookinghistory[0]['user_id']?>";
-        postData['booking_id'] = "<?= $bookinghistory[0]['booking_id']?>";
-        postData['partner_id'] = "<?= $bookinghistory[0]['partner_id']?>";
-        postData['appliance_id'] = "<?= $bookinghistory[0]['service_id']?>";
-        $('#serial_number').css("border-color", "#ccc");
-        if(postData['serial_number'] !== ''){
-            $.ajax({
-                type: 'POST',
-                beforeSend: function(){
-                    $('body').loadingModal({
-                        position: 'auto',
-                        text: 'Validating Serial Number, Please Wait...',
-                        color: '#fff',
-                        opacity: '0.7',
-                        backgroundColor: 'rgb(0,0,0)',
-                        animation: 'wave'
-                    });
-                },
-                url: UrlValidateSerialNumber,
-                data:postData,
-                success: function (response) {                    
-                    console.log(response);
-                    var data = jQuery.parseJSON(response);
-                    if(data.code === 247){
-                        console.log("Correct Serial Number");
-                        $('body').loadingModal('destroy');
-                        $("#is_sn_correct").val("1");
-                        $("#error_serial_no").html("");
-                        check_booking_request();
-                        return true;
-                    } else if(data.code === Number(DUPLICATE_SERIAL_NO_CODE)){
-                        console.log("Duplicate Serial Number");
-                        $('body').loadingModal('destroy');
-                        $("#is_sn_correct").val("0");
-                        $("#error_serial_no").html(data.message);
-                        $("#submitform").attr("disabled",true);
-                        return false;
-                    } else {
-                        console.log("Incorrect Serial Number");
-                        $('body').loadingModal('destroy');
-                        $("#is_sn_correct").val("0");
-                        $("#error_serial_no").html(data.message);
-                        $("#submitform").attr("disabled",true);
-                        return false;
-                    }
-                }
-            });
-        }
-    }
-    
+      
     $(document).ready(function(){
         var model_number = $("#model_number_id option:selected").val();    
         if (!$('input[type=radio][name=reason]').length) {
@@ -1561,8 +1550,7 @@ function alpha(e) {
         $("#serial_number").attr('readonly', 'readonly');
         $("#serial_number").css("cursor", "not-allowed");
         $("#serial_number").css("pointer-events","none");
-    <?php } } ?>
-    // function ends here ---------------------------------------------------------------- 
+    <?php } } ?>    
 </script>
 <style type="text/css">
     #hide_spare, #hide_rescheduled { display: none;}
