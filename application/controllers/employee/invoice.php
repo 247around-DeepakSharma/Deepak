@@ -5367,7 +5367,7 @@ exit();
                                 "invoice_id" => $invoice_id,
                                 "description" => $value->parts_shipped,
                                 "qty" => $shipped_quantity,
-                                "product_or_services" => "Parts",
+                                "product_or_services" => "Product",
                                 "rate" => sprintf("%.2f", ($taxable_value/$shipped_quantity)),
                                 "taxable_value" => $taxable_value,
                                 "cgst_tax_rate" => $cgst_rate,
@@ -5982,7 +5982,11 @@ exit();
      */
     function insert_invoice_breakup($invoice){
         $invoice_breakup = array();
-        foreach($invoice['booking'] as $value){
+        $to_gst_number = NULL;
+        $from_gst_number = NULL;
+        $pre_spare_id = NULL;
+        $pre_inventory_id = NULL;
+        foreach($invoice['booking'] as $key => $value){
             $invoice_details = array(
                 "invoice_id" => $invoice['meta']['invoice_id'],
                 "description" => $value['description'],
@@ -6003,32 +6007,47 @@ exit();
             );
             
             if(!empty($value['inventory_id'])){
+                
                 $invoice_details['inventory_id'] = $value['inventory_id'];
+                $pre_inventory_id = $value['inventory_id'];
+                
+            } else if(!empty($pre_inventory_id)){
+                $invoice_details['inventory_id'] = NULL;
             }
             
             if(!empty($value['is_settle'])){
                 $invoice_details['is_settle'] = $value['is_settle'];
+            } else {
+                $invoice_details['is_settle'] =0;
             }
             
             if(!empty($value['spare_id'])){
                 $invoice_details['spare_id'] = $value['spare_id'];
+                $pre_spare_id = $value['spare_id'];
+                
+            } else if(!empty($pre_spare_id)){
+                $invoice_details['spare_id'] = NULL;
             }
             
             if(!empty($value['settle_qty'])){
                 $invoice_details['settle_qty'] = $value['settle_qty'];
+            } else {
+                $invoice_details['settle_qty'] = 0;
             }
             
             if(!empty($value['from_gst_number_id'])){
-                $invoice_details['from_gst_number'] = $value['from_gst_number_id'];
+                $from_gst_number = $value['from_gst_number_id'];
             }
             
             if(!empty($value['to_gst_number_id'])){
-                $invoice_details['to_gst_number'] = $value['to_gst_number_id'];
+                $to_gst_number = $value['to_gst_number_id'];
             }
-           
+            $invoice_details['from_gst_number'] = $from_gst_number;
+            $invoice_details['to_gst_number'] = $to_gst_number;
             
             array_push($invoice_breakup, $invoice_details);
         }
+        
          $this->invoices_model->insert_invoice_breakup($invoice_breakup);
     }
     /**
