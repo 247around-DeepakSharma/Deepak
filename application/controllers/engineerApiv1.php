@@ -3641,7 +3641,7 @@ class engineerApiv1 extends CI_Controller {
                 $response['spare_parts'] = $can_edit_serial_number;
             }
 
-            $response['amc_file'] = "";
+            $response['amc_file'] = null;
             $amc_support_file = $this->booking_model->get_booking_files(array('booking_id' => $requestData['booking_id'],'file_description_id' => ANNUAL_MAINTENANCE_CONTRACT));
             if(!empty($amc_support_file)){
                 $response['amc_file'] = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/purchase-invoices/".$amc_support_file[0]['file_name'];
@@ -3713,6 +3713,9 @@ class engineerApiv1 extends CI_Controller {
             $model_number = $requestData['model_number'];
             $repeat_booking_message = false;
             $price_tag_real = $this->booking_utilities->get_booking_request_type($price_tags);
+            
+            
+            
             if(!empty($serial_number)){
                 $check_serial = $this->checkVaidationOnSerialNumber($partner_id, $serial_number, $price_tag_real, $user_id, $booking_id, $appliance_id, $model_number);
                 if ($check_serial['code'] != 0000) {
@@ -3737,7 +3740,8 @@ class engineerApiv1 extends CI_Controller {
             }
 
             sort($check_request_type);
-            sort($request_types);
+            sort($request_types);           
+            
 
             if ($check_request_type == $request_types) {
                 $edit_call_type = false;
@@ -3792,9 +3796,24 @@ class engineerApiv1 extends CI_Controller {
                 }
             }
             //update AMC file if submitted from App
-            if (isset($serial_number_array['amc_pic_exist']) && !empty($serial_number_array['amc_pic_exist'])) {
-                $amc_pic = $requestData['booking_id']."_amc_pic_" . date("YmdHis") . ".png";
-                $file_upload_status = $this->miscelleneous->generate_image($serial_number_array['amc_pic_exist'], $amc_pic, 'purchase-invoices');
+            if(in_array(WARRANTY_TYPE_AMC,$request_types[0])){
+                $amc_file_uploaded = false;
+                if(isset($serial_number_array['amc_pic_new']) && !empty($serial_number_array['amc_pic_new'])){
+                    $amc_file_uploaded = true;
+                }else if(isset($serial_number_array['existing_amc_pic']) && !empty($serial_number_array['existing_amc_pic'])){
+                    $amc_file_uploaded = true;
+                }
+                if(empty($amc_file_uploaded)){
+                    $response['warranty_flag'] = 1;
+                    $this->jsonResponseString['response'] = $response;
+                    $this->sendJsonResponse(array('0054', 'Please Upload AMC Document.'));
+                    exit;
+                }
+            }
+
+            if (isset($serial_number_array['amc_pic_new']) && !empty($serial_number_array['amc_pic_new'])) {
+                $amc_pic = $requestData['booking_id']."_amc_pic" . date("YmdHis") . ".png";
+                $file_upload_status = $this->miscelleneous->generate_image($serial_number_array['amc_pic_new'], $amc_pic, 'purchase-invoices');
                 $booking_files['file_name'] = $amc_pic;
                 $support_files = $this->booking_model->get_booking_files(array("booking_files.file_description_id" => ANNUAL_MAINTENANCE_CONTRACT, "booking_files.booking_id" => $requestData['booking_id']));
                 if (!empty($support_files)) {
