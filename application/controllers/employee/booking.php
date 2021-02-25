@@ -555,46 +555,43 @@ class Booking extends CI_Controller {
         }
         $file_description_arr = $this->input->post('file_description');
         //add support file for booking id if it is uploaded
-        if (!empty($_FILES['support_file']['tmp_name'])) {
-
-            for ($i = 0; $i < count($_FILES['support_file']['tmp_name']); $i++) {
-                if (!empty($_FILES['support_file']['tmp_name'][$i])) {
-                    if (($_FILES['support_file']['error'][$i] != UPLOAD_ERR_NO_FILE)) {
-                        $booking_files = array();
-                        $support_file = $this->upload_orderId_support_file($booking['booking_id'], $_FILES['support_file']['tmp_name'][$i], $_FILES['support_file']['error'][$i], $_FILES['support_file']['name'][$i]);
-                        if ($support_file) {
-                            $booking_files['booking_id'] = $booking['booking_id'];
-                            $booking_files['file_description_id'] = $file_description_arr[$i];
-                            $booking_files['file_name'] = $support_file;
-                            $booking_files['file_type'] = $_FILES['support_file']['type'][$i];
-                            $booking_files['size'] = $_FILES['support_file']['size'][$i];
-                            if ($booking_files['file_description_id'] == ANNUAL_MAINTENANCE_CONTRACT) {
-                                $support_files = $this->booking_model->get_booking_files(array("booking_files.file_description_id" => ANNUAL_MAINTENANCE_CONTRACT, "booking_files.booking_id" => $booking['booking_id']));
-                                if (!empty($support_files)) {
-                                    $status = $this->booking_model->update_booking_file($booking_files, array("booking_files.file_description_id" => $booking_files['file_description_id'], "booking_files.booking_id" => $booking['booking_id']));
-                                } else {
-                                    $booking_files['create_date'] = date("Y-m-d H:i:s");
-                                    $status = $this->booking_model->insert_booking_file($booking_files);
-                                }
+        if(!empty($_FILES['support_file']['tmp_name'])){
+            
+            for($i=0; $i< count($_FILES['support_file']['tmp_name']); $i++) {
+                if(!empty($_FILES['support_file']['tmp_name'][$i])) {
+                    $booking_files = array();
+                    $support_file = $this->upload_orderId_support_file($booking['booking_id'], $_FILES['support_file']['tmp_name'][$i], $_FILES['support_file']['error'][$i], $_FILES['support_file']['name'][$i]);
+                    if ($support_file) {
+                        $booking_files['booking_id'] = $booking['booking_id'];
+                        $booking_files['file_description_id'] = $file_description_arr[$i];
+                        $booking_files['file_name'] = $support_file;
+                        $booking_files['file_type'] = $_FILES['support_file']['type'][$i];
+                        $booking_files['size'] = $_FILES['support_file']['size'][$i];
+                        if ($booking_files['file_description_id'] == ANNUAL_MAINTENANCE_CONTRACT) {
+                            $support_files = $this->booking_model->get_booking_files(array("booking_files.file_description_id" => ANNUAL_MAINTENANCE_CONTRACT, "booking_files.booking_id" => $booking['booking_id']));
+                            if (!empty($support_files)) {
+                               $status = $this->booking_model->update_booking_file($booking_files, array("booking_files.file_description_id" => $booking_files['file_description_id'], "booking_files.booking_id" => $booking['booking_id']));
                             } else {
                                 $booking_files['create_date'] = date("Y-m-d H:i:s");
                                 $status = $this->booking_model->insert_booking_file($booking_files);
                             }
-
-                            if (!$status) {
-                                return false;
-                            }
                         } else {
-                            log_message('info', __FUNCTION__ . "Error in Uploading File  " . $_FILES['support_file']['tmp_name'][$i] . ", Error  " . $_FILES['support_file']['error'][$i] . ", Booking ID: " . $booking['booking_id']);
+                            $booking_files['create_date'] = date("Y-m-d H:i:s");
+                            $status = $this->booking_model->insert_booking_file($booking_files);
                         }
-                    } else {
-                        log_message('info', __FUNCTION__ . "Error file not uploaded  " . $_FILES['support_file']['tmp_name'][$i] . ", Error  " . $_FILES['support_file']['error'][$i] . ", Booking ID: " . $booking['booking_id']);
+
+                        if(!$status) {
+                            return false;
+                        }
+                    }
+                    else{
+                        log_message('info', __FUNCTION__ . "Error in Uploading File  " . $_FILES['support_file']['tmp_name'][$i] . ", Error  " . $_FILES['support_file']['error'][$i] . ", Booking ID: " . $booking['booking_id']);
                     }
                 }
             }
         }
-
-
+        
+        
         $validate_order_id = $this->validate_order_id($booking['partner_id'], $booking['booking_id'], $booking['order_id'], $booking['amount_due']);
         if ($validate_order_id || !empty($is_sf_panel)) {
             $is_dealer = $this->dealer_process($booking['city'], $booking['partner_id'], $booking['service_id'], $booking['state']);
@@ -3670,17 +3667,14 @@ class Booking extends CI_Controller {
 
     /**
      *  @desc : This function is used to upload the support file for order id to s3 and save into database
-     *  @param : $booking_id,
-     *  @param : $tmp_name,
-     *   @param : $error,
-     *  @param : $name,
+     *  @param : string $booking_primary_contact_no
      *  @return : boolean/string
      */
     function upload_orderId_support_file($booking_id, $tmp_name, $error, $name) {
 
         $support_file_name = false;
-        //UPLOAD_ERR_NO_FILE mean: No file was uploaded
-        if (($error != UPLOAD_ERR_NO_FILE) && !empty($tmp_name)) {
+
+        if (($error != 4) && !empty($tmp_name)) {
 
             $tmpFile = $tmp_name;
             $support_file_name = $booking_id . '_orderId_support_file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $name)[1];
@@ -3691,7 +3685,7 @@ class Booking extends CI_Controller {
             $upload_file_status = $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
             if($upload_file_status){
                 //Logging success for file uppload
-                //log_message('info', __METHOD__ . 'Support FILE has been uploaded sucessfully for booking_id: '.$booking_id);
+                log_message('info', __METHOD__ . 'Support FILE has been uploaded sucessfully for booking_id: '.$booking_id);
                 return $support_file_name;
             }else{
                 //Logging success for file uppload
