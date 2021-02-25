@@ -3036,6 +3036,10 @@ class Booking extends CI_Controller {
         }
         $pod = $this->input->post('pod');
         $price_tag = $this->input->post('selected_price_tags');
+        if(!empty($price_tag)){
+            $arr_price_tags = explode(",", $price_tag);
+            $price_tag = $this->booking_utilities->get_booking_request_type($arr_price_tags); 
+        }
         $booking_status = $this->input->post('booking_status');
         $partner_id = $this->input->post('partner_id');
         $user_id = $this->input->post('user_id');
@@ -6484,7 +6488,7 @@ class Booking extends CI_Controller {
                 $redirect_url = $this->agent->referrer();
             }
             // If Price Tags are not selected, Redirect to same Page            
-            if(empty($arr_post['selected_price_tags'])){
+            if(empty($arr_post['prices'])){
                 redirect($redirect_url);
             }
             else{
