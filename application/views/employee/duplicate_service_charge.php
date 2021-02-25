@@ -20,7 +20,7 @@
             <th>Flat Partner Offer Upcountry</th>
             <th>Flat Vendor Upcountry Payout</th>
             <th>Flat Customer Upcountry Charges</th>
-            <th>Partner Spare Extra Charges</th>
+            <th>Partner Spare Handling Charges</th>
             <th>Select All <input type="checkbox" id="select_all" /></th>
             <?php } ?>
             
