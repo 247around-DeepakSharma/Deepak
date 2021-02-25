@@ -49,7 +49,8 @@ define('BRAND_POSIBLE_VALUES', 'W,O,B,E,BL');
 define('FAILURE_MSG', 'The serial number looks incorrect, please verify.');
 
 //Repeat Booking Failure Massege
-define('REPEAT_BOOKING_FAILURE_MSG', 'For Repeat Booking Serial Number Should be Similar to Parent Booking. Booking Will not be Complete Until Repeat Booking Will not have correct Serial Number');
+define('REPEAT_BOOKING_FAILURE_MSG', 'For Repeat Booking Serial Number and Model Number Should be Similar to Parent Booking. Booking Will not be Complete Until Repeat Booking Will not have correct Serial Number & Model');
+define('PARENT_BOOKING_SERIAL_NUMBER_FAILURE_MSG', 'Serial Number not exists on Parent Booking.');
 
 //Borly SErial Number Possible Constant
 define('BURLY_CODE','29');
