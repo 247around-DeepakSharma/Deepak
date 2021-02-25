@@ -345,16 +345,17 @@ function addBookingDialog(chanel = '', check_serial_no = '0') {
                 delivered_price_tags_pod.push(pod);
              }
      });
-     $("#pod").val("0");
-     if(jQuery.inArray("1", delivered_price_tags_pod) !== -1){
-         $("#pod").val("1");
-     }
+    $("#selected_price_tags").val(delivered_price_tags.join());
+    $("#pod").val("0");
+    if(jQuery.inArray("1", delivered_price_tags_pod) !== -1){
+        $("#pod").val("1");
+    }
 
-     var pr = checkPriceTagValidation(delivered_price_tags, partner_id);
-     if(pr === false){
-         alert('Not Allow to select multiple different type of service category');
-         return false;
-     }
+    var pr = checkPriceTagValidation(delivered_price_tags, partner_id);
+    if(pr === false){
+        alert('Not Allow to select multiple different type of service category');
+        return false;
+    }
     count_number++;
     var exp1 = /^[6-9]{1}[0-9]{9}$/;
     var email_exp =  /^\b[A-Z0-9._%-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b$/i;
