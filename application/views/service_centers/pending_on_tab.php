@@ -938,7 +938,7 @@
                                     <th class="text-center" data-orderable="false">Receive</th>
                                     <th class="text-center" data-orderable="false">Send Email</th> 
                                     <th class="text-center" data-orderable="false">Contacts</th>
-                                    <th class="text-center" data-orderable="false">Update</th>
+<!--                                    <th class="text-center" data-orderable="false">Update</th>-->
                                     <th class="text-center" data-orderable="false">Cancel&nbsp;Part</th>
                                 </tr>
                             </thead>
@@ -998,17 +998,17 @@
                                         <td style="vertical-align: middle;">
                                             <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Contacts" id ="<?php echo $row['booking_id'];?>"  onclick="show_contacts(this.id,1,'<?php echo $row['partner_id']; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
-                                        <td style="vertical-align: middle;">
-                                        <?php if(($row['status'] == SPARE_PART_ON_APPROVAL && ( $row['part_warranty_status'] == SPARE_PART_IN_WARRANTY_STATUS || $row['part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS ))){ ?>
-                                             <?php if (isset($row['nrn_approved']) && $row['nrn_approved']==0) { ?>
-                                           <a class="btn btn-sm btn-primary" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_spare_parts_required/<?php echo urlencode(base64_encode($row['id'])); ?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
-                                       <?php }else{ ?>
+<!--                                        <td style="vertical-align: middle;">-->
+                                        <?php //if(($row['status'] == SPARE_PART_ON_APPROVAL && ( $row['part_warranty_status'] == SPARE_PART_IN_WARRANTY_STATUS || $row['part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS ))){ ?>
+                                             <?php //if (isset($row['nrn_approved']) && $row['nrn_approved']==0) { ?>
+<!--                                           <a class="btn btn-sm btn-primary" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_spare_parts_required/<?php echo urlencode(base64_encode($row['id'])); ?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>-->
+                                       <?php //}else{ ?>
 
-                                            <a class="btn btn-sm btn-primary disabled" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-edit' aria-hidden='true'></i></a>
+<!--                                            <a class="btn btn-sm btn-primary disabled" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-edit' aria-hidden='true'></i></a>-->
 
-                                      <?php  } ?>
-                                        <?php } ?>
-                                        </td>
+                                      <?php  //} ?>
+                                        <?php //} ?>
+                                        <!--</td>-->
                                         <td style="vertical-align: middle;">
                                         <?php if($row['status'] == SPARE_PARTS_REQUESTED || $row['status'] == SPARE_PART_ON_APPROVAL || $row['status'] == SPARE_OOW_EST_GIVEN || $row['status'] == SPARE_OOW_EST_REQUESTED){ ?>
                                            <button type="button" data-keys="spare_parts_cancel" data-booking_id="<?php echo $row['booking_id']; ?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $row['id'] . '/' . $row['booking_id'] . '/CANCEL_PARTS';  ?>" class="btn btn-sm btn-danger open-adminremarks" data-toggle="modal" data-target="#cancelSpareModal"><i class='fa fa-times' aria-hidden='true'></i></button>
