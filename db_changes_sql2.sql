@@ -2850,3 +2850,52 @@ ALTER TABLE `gstin_detail` CHANGE `company_name` `company_name` VARCHAR(255) CHA
 ALTER TABLE `gstin_detail` ADD `registration_date` DATE NULL DEFAULT NULL COMMENT 'Effective Date of registration' AFTER `nature_of_business`;
 ALTER TABLE `gstin_detail` CHANGE `nature_of_business` `constitution_of_business` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'Constitution of Business';
 ALTER TABLE `gstin_detail` ADD `address_readable` VARCHAR(1024) NOT NULL COMMENT 'Address in readable format' AFTER `address`, ADD `nature_business` VARCHAR(1024) NOT NULL COMMENT 'Nature of Business Activities' AFTER `address_readable`;
+
+
+--Anuj 24 Jan - Commit ''
+ALTER TABLE `gstin_detail` CHANGE `address` `address` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+ALTER TABLE `gstin_detail` CHANGE `address_readable` `address_readable` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+ALTER TABLE `gstin_detail` CHANGE `nature_business` `nature_business` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+ALTER TABLE `gstin_detail` CHANGE `constitution_of_business` `constitution_of_business` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT 'Constitution of Business';
+ALTER TABLE `gstin_detail` CHANGE `type` `type` VARCHAR(55) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+
+
+--Abhay 11 JAN
+ALTER TABLE `inventory_invoice_mapping` ADD `spare_id` INT NULL DEFAULT NULL AFTER `inventory_id`;
+ALTER TABLE `inventory_invoice_mapping` ADD `rate` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `spare_id`;
+--Abhay Anand 23 Feb
+INSERT INTO `variable_charges_type` (`id`, `name`, `type`, `description`, `hsn_code`, `gst_rate`, `is_fixed`, `updated_date`, `created_date`) VALUES
+(NULL, 'MSL Handling Charges', 'MSL-handling-charges', 'MSL Handling Charges', 998715, 18, 0, '2021-02-23 00:00:00', '2018-11-20 00:00:00'),
+(NULL, 'Logistic Handling Charges', 'logistic-handling-charges', 'Logistic Handling Charges', 998715, 18, 0, '2021-02-23 00:00:00', '2018-11-20 00:00:00');
+CREATE TABLE `variable_handling_invoice` (
+  `id` int NOT NULL,
+  `invoice_id` int NOT NULL,
+  `taxable_value` decimal(10,0) NOT NULL,
+  `gst_rate` decimal(10,0) NOT NULL,
+  `oninvoice` int NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `variable_handling_invoice`
+--
+ALTER TABLE `variable_handling_invoice`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `logistic_msl_handling_invoice`
+--
+ALTER TABLE `variable_handling_invoice`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+COMMIT;
+ALTER TABLE `variable_handling_invoice` ADD `entity_id` INT NOT NULL AFTER `invoice_id`;
+ALTER TABLE `variable_handling_invoice` ADD `type` INT NOT NULL COMMENT '1- Logistic' AFTER `on_month`;

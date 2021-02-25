@@ -803,7 +803,7 @@ class Invoice extends CI_Controller {
                 'accounting' => 1,
             );
 
-            $this->invoices_model->action_partner_invoice($invoice_details);
+            $invoice_p_id = $this->invoices_model->insert_new_invoice($invoice_details);
 //            $this->invoices_model->insert_new_invoice($invoice_details);
             log_message('info', __METHOD__ . "=> Insert Invoices in partner invoice table");
             //Insert invoice Breakup
@@ -896,6 +896,28 @@ class Invoice extends CI_Controller {
                     );
                     $this->invoices_model->insert_msl_packaging_data($msl_courier_data);
                 }
+            }
+            // Insert logistic handling charges into DB
+            if(!empty($misc_data['logistic_handling_charges'])){
+                $l_h_data = json_decode($misc_data['logistic_handling_charges'], true);
+                $l_d['invoice_id'] = $invoice_p_id;
+                $l_d['entity_id'] = $partner_id;
+                $l_d['taxable_value'] = $l_h_data['taxable_value'];
+                $l_d['gst_rate'] = $l_h_data['gst_rate'];
+                $l_d['on_month'] = $l_h_data['on_month'];
+                $l_d['type'] = LOGISTIC_HANDLING_TYPE;
+                $this->invoices_model->insert_billed_logistic_data($l_d);
+            }
+            // Insert MSL handling charges into DB
+            if(!empty($misc_data['msl_handling_charges'])){
+                $l_h_data = json_decode($misc_data['msl_handling_charges'], true);
+                $l_d['invoice_id'] = $invoice_p_id;
+                $l_d['entity_id'] = $partner_id;
+                $l_d['taxable_value'] = $l_h_data['taxable_value'];
+                $l_d['gst_rate'] = $l_h_data['gst_rate'];
+                $l_d['on_month'] = $l_h_data['on_month'];
+                $l_d['type'] = MSL_HANDLING_TYPE;
+                $this->invoices_model->insert_billed_logistic_data($l_d);
             }
             //Map invoice with courier
             if(!empty($misc_data['final_courier'])){
