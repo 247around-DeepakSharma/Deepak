@@ -2573,6 +2573,39 @@ $post['amount_due'] = false;
             redirect(base_url() . "partner/update_spare_parts_form/" . $booking_id);
         }
     }
+    
+     /**
+     * @desc: This function is used to upload the courier file when partner shipped spare parts on booking
+     * @params: void
+     * @return: $res
+     */
+    function upload_courier_image_file() {
+        $MB = 1048576;
+        //check if upload file is empty or not
+        if (!empty($_FILES['courier_image']['name'])) {
+            //check upload file size. it should not be greater than 2mb in size
+            if ($_FILES['courier_image']['size'] <= 2 * $MB) {
+                $allowed = array('pdf', 'jpg', 'png', 'jpeg', 'JPG', 'JPEG', 'PNG', 'PDF');
+                $ext = pathinfo($_FILES['courier_image']['name'], PATHINFO_EXTENSION);
+                //check upload file type. it should be pdf.
+                if (in_array($ext, $allowed)) {
+                    $file_name = "partner_courier_image_" . $this->input->post('booking_id') . "_" . rand(10, 100) . "." . $ext;
+                    //Upload files to AWS
+                    $directory_xls = "vendor-partner-docs/" . $file_name;
+                    $this->s3->putObjectFile($_FILES['courier_image']['tmp_name'], BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $res = $_POST['courier_image'] = $file_name;
+                } else {
+                    $res['message'] = 'Upload file type not valid. Only PDF/JPG/PNG/JPEG format allow';
+                }
+            } else {
+                $res['message'] = 'Uploaded file size can not be greater than 2 mb';
+            }
+        } else {
+            $res['message'] = 'Couries Image is required';
+        }
+
+        return $res;
+    }
 
     function inset_new_spare_request($booking_id, $data, $part_details){
         $sp_details = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $booking_id));
