@@ -577,7 +577,7 @@ class Miscelleneous {
         $data_vendor['cancellation_reason'] = $data['cancellation_reason'];
         
         $data_vendor['current_status'] = SF_BOOKING_INPROCESS_STATUS;
-        if (($this->My_CI->session->userdata['user_group'] == _247AROUND_CLOSURE) 
+        if (($this->My_CI->session->userdata('user_group') == _247AROUND_CLOSURE) 
                 || $cancellation_reason == UPCOUNTRY_CHARGES_NOT_APPROVED_CANCELLATION_ID) {
             $data['closed_date'] = date("Y-m-d H:i:s");
             $data['current_status'] = _247AROUND_CANCELLED;
@@ -612,7 +612,8 @@ class Miscelleneous {
         $data_vendor['internal_status'] = _247AROUND_CANCELLED;
         log_message('info', __FUNCTION__ . " Update Service center action table  " . print_r($data_vendor, true));
         $this->My_CI->vendor_model->update_service_center_action($booking_id, $data_vendor);
-        if ($this->My_CI->session->userdata['user_group'] == _247AROUND_CLOSURE) {
+        if (($this->My_CI->session->userdata('user_group') == _247AROUND_CLOSURE) 
+                || $cancellation_reason == UPCOUNTRY_CHARGES_NOT_APPROVED_CANCELLATION_ID) {
             $this->update_price_while_cancel_booking($booking_id, $agent_id, $cancelled_by);
         }
         //Update Engineer table while booking cancelled
@@ -1550,7 +1551,7 @@ class Miscelleneous {
             
             //Get Partner invoice amout
             $invoice_where = "vendor_partner = 'partner' AND vendor_partner_id = " . $partner_id . 
-                    " AND sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_NEW_PART_RETURN."' ) ";
+                    " AND sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_NEW_PART_RETURN."', '".MSL_SECURITY_AMOUNT."' ) ";
             
 //            $invoice_amount = $this->My_CI->invoices_model->get_invoices_details
 //                    (array(
@@ -1591,11 +1592,8 @@ class Miscelleneous {
             
             $misc_select = 'SUM(miscellaneous_charges.partner_charge) as misc_charge';
 
-            $misc = $this->My_CI->invoices_model->get_misc_charges_invoice_data($misc_select, 
-                    "miscellaneous_charges.partner_invoice_id IS NULL", false, FALSE, 
-                    "booking_details.partner_id", $partner_id, "partner_charge");
+            $misc = $this->My_CI->invoices_model->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.partner_invoice_id IS NULL", false, FALSE, "booking_details.partner_id", $partner_id, "partner_charge");
             $misc_charge = 0;
-            
             if(!empty($misc)){
                 $misc_charge = $misc[0]['misc_charge'];
             }
@@ -3242,8 +3240,10 @@ function generate_image($base64, $image_name,$directory){
         $where2['select'] = "wh_challan_number as challan_number";
 
         $challan_no_temp3 = $this->My_CI->partner_model->get_spare_parts_by_any($where2['select'], $where2['where']);
+        
+        $challan_no_temp4 = $this->My_CI->invoices_model->get_challan_deatils("challan_id as challan_number", array("( challan_id LIKE '%" . $challan_id_tmp . "%' )" => NULL));
 
-        $challan_no_temp = array_merge($challan_no_temp1, $challan_no_temp2, $challan_no_temp3);
+        $challan_no_temp = array_merge($challan_no_temp1, $challan_no_temp2, $challan_no_temp3, $challan_no_temp4);
         
         $challan_no = 1;
         $int_challan_no = array();

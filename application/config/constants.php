@@ -158,7 +158,7 @@ define('_247AROUND_PARTNER_DEACTIVATED','Partner_Deactivated');
 define('_247AROUND_VENDOR_SUSPENDED','Vendor Temporary OFF');
 //constant to define State for making Partner Non Suspended
 define('_247AROUND_VENDOR_NON_SUSPENDED','Vendor Temporary ON');
-
+define('GST_STATUS_SUSPENDED', 'Suspended');
 define("INSERT_NEW_BOOKING", "INSERT_NEW_BOOKING");
 
 //Constant to define groups
@@ -788,13 +788,13 @@ define('WARRANTY_ON_DOI', 2);
 
 //Partner invoice payment file type
 define('INVOICE_GST_PENALTY_FILE_TYPE','invoice_gst_penalty_file_type');
-
 define('PENALTY_THRESHOLD', 10);
 define('OW_COMPLETED_THRESHOLD', 20);
 define('CANCELLATION_THRESHOLD', 20);
 
 define('VENDOR_RESCHEDULED', "Reschedule");
 define('REQUEST_TYPE_ELS', "LO-ELS");
+define('ANNUAL_MAINTENANCE_CONTRACT', '5');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
 

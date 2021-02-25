@@ -1356,6 +1356,8 @@ class User_invoice extends CI_Controller {
         }
         $response['meta']['due_date'] = $response['meta']['invoice_date'];
         $response['meta']['invoice_detailed_excel'] = $invoice_id . '-detailed.xlsx';
+        $response['meta']['meta_id'] = "Invoice Number: ".$response['meta']['invoice_id'];
+        $response['meta']['meta_date'] = "Date: ".$response['meta']['invoice_date'];
         $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
         
         if ($status) {

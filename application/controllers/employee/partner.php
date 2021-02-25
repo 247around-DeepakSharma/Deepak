@@ -2250,10 +2250,18 @@ $post['amount_due'] = false;
             
             $challan_file = $this->input->post('challan_file'); 
             
+            $this->upload_courier_image_file();
+       
+            $billed_docket_details = $this->inventory_model->get_billed_courier_invoice_list("courier_company_invoice_details.awb_number, billed_docket.courier_id", array('courier_company_invoice_details.awb_number' => $this->input->post('awb')), '' , TRUE);
+            
+        if(empty($billed_docket_details)){
+           
             if (!empty($challan_file)) {
                     $partner_id = $this->session->userdata('partner_id');
                     $data['partner_challan_file'] = $challan_file;
                     $data['courier_name_by_partner'] = $this->input->post('courier_name');
+                    $data['courier_price_by_partner'] = $this->input->post('courier_price_by_partner');
+                    $data['courier_pic_by_partner'] = $this->input->post('courier_image');
                     $data['awb_by_partner'] = $this->input->post('awb');
                     $data['shipped_date'] = $this->input->post('shipment_date');
                     $data['partner_challan_number'] = $this->input->post('partner_challan_number');
@@ -2276,13 +2284,13 @@ $post['amount_due'] = false;
                             'awb_number' => trim($this->input->post('awb')),
                             'company_name' => trim($this->input->post('courier_name')),
                             'partner_id' => $partner_id,
-                            'courier_charge' => trim($this->input->post('approx_value')),
+                            'courier_charge' => trim($this->input->post('courier_price_by_partner')),
                             'box_count' => trim($this->input->post('defective_parts_shipped_boxes_count')), //defective_parts_shipped_boxes_count
                             'billable_weight' => trim($billable_weight),
                             'actual_weight' => trim($billable_weight),
-                            'basic_billed_charge_to_partner' => trim($this->input->post('approx_value')),
+                            'basic_billed_charge_to_partner' => trim($this->input->post('courier_price_by_partner')),
                             'booking_id' => $booking_id,
-                            'courier_invoice_file' => trim($challan_file),
+                            'courier_invoice_file' => trim($this->input->post('courier_image')),
                             'shippment_date' => trim($this->input->post('shipment_date')), //defective_part_shipped_date
                             'created_by' => 2,
                             'is_exist' => 1,
@@ -2297,11 +2305,12 @@ $post['amount_due'] = false;
                         $awb_data = array(
                             'company_name' => trim($this->input->post('courier_name')),
                             'partner_id' => $partner_id,
+                            'courier_charge' => trim($this->input->post('courier_price_by_partner')),
                             'box_count' => trim($this->input->post('defective_parts_shipped_boxes_count')), //defective_parts_shipped_boxes_count
                             'billable_weight' => trim($billable_weight),
                             'actual_weight' => trim($billable_weight),
-                            'basic_billed_charge_to_partner' => trim($this->input->post('approx_value')),
-                            'courier_invoice_file' => trim($challan_file),
+                            'basic_billed_charge_to_partner' => trim($this->input->post('courier_price_by_partner')),
+                            'courier_invoice_file' => trim($this->input->post('courier_image')),
                             'shippment_date' => trim($this->input->post('shipment_date')), //defective_part_shipped_date
                             'created_by' => 2,
                             'is_exist' => 1
@@ -2396,6 +2405,7 @@ $post['amount_due'] = false;
                                 }
 
                                 $spare_id = $this->inset_new_spare_request($booking_id, $data, $value);
+                               
                             }
 
                             if (isset($value['spare_part_warranty_status']) && $value['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
@@ -2454,6 +2464,13 @@ $post['amount_due'] = false;
                             $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                         }
                     }
+                    
+                    $select = "spare_parts_details.awb_by_partner, spare_parts_details.courier_price_by_partner";
+                    $where = array("spare_parts_details.awb_by_partner" => $this->input->post('awb'), "spare_parts_details.entity_type" => _247AROUND_PARTNER_STRING);
+                    $courier_charge_parts_data = $this->inventory_model->get_generic_table_details('spare_parts_details', $select, $where, '');
+                    //Splited courier charge to spare parts details lineitems
+                    $courier_charge_by_partner = ($this->input->post('courier_price_by_partner') / count($courier_charge_parts_data));
+                    $this->service_centers_model->update_spare_parts(array("spare_parts_details.awb_by_partner" => $this->input->post('awb')), array('spare_parts_details.courier_price_by_partner' => $courier_charge_by_partner, "spare_parts_details.courier_pic_by_partner" => trim($this->input->post('courier_image'))));
 
                     if (!empty($current_status)) {
 
@@ -2542,6 +2559,11 @@ $post['amount_due'] = false;
                 }
             } else {
                 $userSession = array('success' => 'Uploaded challan file must be Less than or equal 2MB in size.');
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "partner/update_spare_parts_form/" . $booking_id);
+            }
+            } else {
+                $userSession = array('success' => 'This AWB number is already billed.');
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "partner/update_spare_parts_form/" . $booking_id);
             }
@@ -10333,7 +10355,19 @@ $post['amount_due'] = false;
             $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $html, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
         }
     }
-
+    
+    /**
+     * This function is used to get call recordings made by agents against the Booking
+     * @param type $booking_primary_id
+     * @date : 04-02-2020
+     * @author : Deepak Sharma
+     */
+    function get_booking_recordings($booking_primary_id) { 
+        $select = "agent_outbound_call_log.create_date, agent_outbound_call_log.recording_url, employee.full_name, employee.groups";
+        $data['data'] = $this->booking_model->get_booking_recordings_by_id($booking_primary_id, $select);
+        $this->load->view('employee/show_booking_recordings', $data);
+    }
+    
     /**
      * @desc: This method loads add booking form for WalkIns / SFs
      * It gets user details(if exist), city, source, services
@@ -10789,66 +10823,6 @@ $post['amount_due'] = false;
             $data['booking_unit_details'] = $this->booking_model->get_unit_details(['booking_id' => $booking_id, 'booking_status <> "Cancelled"' => NULL]);
             $this->load->view('partner/booking_result', $data);
         }        
-    }
-    /*
-     * @Desc - This function is used to return booking history as API
-     * @param -
-     * @response - json
-     * @Author  - Ghanshyam Ji Gupta
-     */
-    function getBookingHistory() {
-        $input_d = file_get_contents('php://input');
-        $post = json_decode($input_d, TRUE);
-        $authentication = $this->checkAuthentication(true);
-        if (empty($authentication)) {
-            return $this->show_booking_insertion_failure(true, ERR_GENERIC_ERROR_CODE, ERR_INVALID_AUTH_TOKEN_MSG);
-        }else{
-            $post['partner_id'] = $authentication['id'];
-        }
-        if (empty($post['booking_id'])) {
-            return $this->show_booking_insertion_failure(true, ERR_INVALID_BOOKING_ID_CODE,ERR_INVALID_BOOKING_ID_MSG);
-        }
-        $booking_select = "booking_id,service_center_closed_date";
-        $booking_where = array("booking_id" => $post['booking_id'], "partner_id" => $post['partner_id']);
-        $booking_details = $this->engineer_model->get_booking_details($booking_select, $booking_where);
-        if (!empty($booking_details)) {
-            $bookingID_state_change = $this->booking_model->get_booking_state_change_by_id($post['booking_id'], true, true);
-            $comment_section = $this->booking_model->get_remarks(array('booking_id' => $post['booking_id'], "isActive" => 1, 'comment_type' => 1));
-            $newarray = array();
-            $newarray_comment = array();
-            if (!empty($bookingID_state_change) || !empty($comment_section)) {
-                if (!empty($bookingID_state_change)) {
-                    foreach ($bookingID_state_change as $key => $value) {
-                        $newarray[$key]['old_state'] = $value['old_state'];
-                        $newarray[$key]['new_state'] = $value['new_state'];
-                        $newarray[$key]['remarks'] = $value['remarks'];
-                        $newarray[$key]['insert_date'] = $value['create_date'];
-                        $newarray[$key]['full_name'] = $value['full_name'];
-                        $newarray[$key]['source'] = $value['source'];
-                    }
-                }
-                if (!empty($comment_section)) {
-                    foreach ($comment_section as $key => $value) {
-                        $newarray_comment[$key]['remarks'] = $value['remarks'];
-                        $newarray_comment[$key]['employee'] = $value['employee_id'];
-                        $newarray_comment[$key]['full_name'] = $value['full_name'];
-                        $newarray_comment[$key]['create_date'] = $value['create_date'];
-                    }
-                }
-                $this->jsonResponseString['code'] = SUCCESS_CODE;
-                $this->jsonResponseString['result']['history'] = $newarray;
-                $this->jsonResponseString['result']['comment'] = $newarray_comment;
-                $responseData = array("data" => $this->jsonResponseString);
-
-                header('Content-Type: application/json');
-                $response = json_encode($responseData, JSON_UNESCAPED_SLASHES);
-                echo $response;
-            } else {
-                return $this->show_booking_insertion_failure(true, ERR_INVALID_BOOKING_ID_CODE, "No history found");
-            }
-        } else {
-            return $this->show_booking_insertion_failure(true, ERR_INVALID_BOOKING_ID_CODE, ERR_INVALID_BOOKING_ID_MSG);
-        }
     }
 
 }

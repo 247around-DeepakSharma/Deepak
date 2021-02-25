@@ -133,10 +133,10 @@ class Invoice extends CI_Controller {
         
         if($msl_invoice == 1){
             //add condition in query to select MSL invoices ONLY
-            $where["sub_category like '%MSL%'"] = null;
+            $where["sub_category IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_NEW_PART_RETURN."', '".MSL_SECURITY_AMOUNT."' ) "] = null;
         }else{
             //add condition in query to exclude MSL invoices
-            $where["sub_category not like '%MSL%'"] = null;
+            $where["sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_NEW_PART_RETURN."', '".MSL_SECURITY_AMOUNT."' ) "] = null;
         }
         
         //by default, do not show fnf security invoices
@@ -3388,33 +3388,21 @@ exit();
             $tds_tax_rate = 20;
             $tds_per_rate = "20%";
         } else {
-            switch ($sc_details['company_type']) {
-                case "Individual":
+            $_4th_char = substr($sc_details['pan_no'], 3, 1);
+            
+            //Check 4th char of PAN. If it is P OR H, it means Individual
+            //or  Hindu Undivided Family (HUF).
+            //Rate for such case is 0.75% till 31st Mar, 2021.
+            //https://cleartax.in/s/tds-rate-chart
+            //https://www.incometaxindia.gov.in/Forms/tps/1.Permanent%20Account%20Number%20(PAN).pdf
+            if (strcasecmp($_4th_char, "P") == 0 || strcasecmp($_4th_char, "H") == 0) {
                     $tds = ($total_sc_charge) * .0075;
-                    $tds_tax_rate = .75;
+                    $tds_tax_rate = 0.75;
                     $tds_per_rate = "0.75%";
-                    break;
-
-                case "Partnership Firm":
-                case "Company (Pvt Ltd)":
-                case "Private Ltd Company":
-                    $_4th_char = substr($sc_details['pan_no'], 3, 1);
-                    if (strcasecmp($_4th_char, "P") == 0) {
-                            $tds = ($total_sc_charge) * .0075;
-                            $tds_tax_rate = 0.75;
-                            $tds_per_rate = "0.75%";
-                    } else {
-                        $tds = ($total_sc_charge) * .015;
-                        $tds_tax_rate = 1.5;
-                        $tds_per_rate = "1.5%";
-                    }
-                    
-                    break;
-                default :
-                    $tds = ($total_sc_charge) * .015;
-                    $tds_tax_rate = 1.5;
-                    $tds_per_rate = "1.5%";
-                    break;
+            } else {
+                $tds = ($total_sc_charge) * .015;
+                $tds_tax_rate = 1.5;
+                $tds_per_rate = "1.5%";
             }
         }
         $data['tds'] = $tds;
@@ -3511,7 +3499,7 @@ exit();
                 $sc_details['beneficiary_name'] = trim($sc['beneficiary_name']);
                 $msl_amount = $this->get_msl_summary_amount($service_center_id, $due_date);
                 $sc_details['final_amount'] = abs(sprintf("%.2f",$amount));
-                $sc_details['msl_amount'] = abs(sprintf("%.2f",$msl_amount ));
+                $sc_details['msl_amount'] = abs(sprintf("%.2f",$msl_amount['amount_summary'] ));
                 if (trim($sc['bank_name']) === ICICI_BANK_NAME) {
                     $sc_details['payment_mode'] = "I";
                 } else {
@@ -3553,7 +3541,7 @@ exit();
 
                 $sc_details['is_verified'] = ($sc['is_verified'] ==0) ? "Not Verified" : "Verified";
                 $sc_details['amount_type'] = ($amount > 0)? "CR":"DR";
-                $sc_details['msl_amount_type'] = ($msl_amount > 0)? "CR":"DR";
+                $sc_details['msl_amount_type'] = ($msl_amount['amount_summary'] > 0)? "CR":"DR";
                 $sc_details['sf_id'] = $service_center_id;
                 $sc_details['is_sf'] = ($sc['is_sf'] ==0) ? "No" : "Yes";
                 $sc_details['is_cp'] = ($sc['is_cp'] ==0) ? "No" : "Yes";
@@ -3590,6 +3578,7 @@ exit();
                 }
                
                 $sc_details['fnf_security_amount'] = $this->get_fnf_summary_amount($service_center_id, $due_date);
+                $sc_details['msl_security_amount'] = $msl_amount['security'];
                 
                 array_push($payment_data, $sc_details);
                 
@@ -3763,7 +3752,8 @@ exit();
          * */
         $msl['security'] = sprintf("%01.2f", $mslSecurityAmount);
         $msl['amount'] = sprintf("%01.2f", $mslAmount);
-        return (-$mslSecurityAmount + $mslAmount);
+        $msl['amount_summary'] = (-$mslSecurityAmount + $mslAmount);
+        return $msl;
 
     }
     
@@ -3860,6 +3850,7 @@ exit();
         $sc_details['last_payment_amount'] = "Last Payment Amount";
         $sc_details['last_payment_type'] = "Last Payment Type";
         $sc_details['fnf_security_amount'] = "FNF Security Deposit";
+        $sc_details['msl_security_amount'] = "MSL Security Deposit";
 
         return $sc_details;
     }
@@ -4619,7 +4610,7 @@ exit();
                     //this is 247around invoice thats why we are assigned true value.
                     $data[0]['gst_number'] = true;
                 }
-
+                
                 $data[0]['company_name'] = $vendor_details[0]['company_name'];
                 $data[0]['company_address'] = $vendor_details[0]['company_address'];
                 $data[0]['district'] = $vendor_details[0]['district'];
@@ -4824,7 +4815,7 @@ exit();
         $data[0]['state'] = $vendor_details[0]['state'];
         $data[0]['owner_phone_1'] = $vendor_details[0]['owner_phone_1'];
         $data[0]['inventory_id'] = $invoice_details[0]['inventory_id'];
-        $data[0]['inventory_id'] = $invoice_details[0]['spare_id'];
+        $data[0]['spare_id'] = $invoice_details[0]['spare_id'];
        
         $data[0]['qty'] = $shipped_quantity;
         $data[0]['hsn_code'] = SPARE_HSN_CODE;
@@ -5380,7 +5371,7 @@ exit();
                                 "invoice_id" => $invoice_id,
                                 "description" => $value->parts_shipped,
                                 "qty" => $shipped_quantity,
-                                "product_or_services" => "Parts",
+                                "product_or_services" => "Product",
                                 "rate" => sprintf("%.2f", ($taxable_value/$shipped_quantity)),
                                 "taxable_value" => $taxable_value,
                                 "cgst_tax_rate" => $cgst_rate,
@@ -5995,7 +5986,11 @@ exit();
      */
     function insert_invoice_breakup($invoice){
         $invoice_breakup = array();
-        foreach($invoice['booking'] as $value){
+        $to_gst_number = NULL;
+        $from_gst_number = NULL;
+        $pre_spare_id = NULL;
+        $pre_inventory_id = NULL;
+        foreach($invoice['booking'] as $key => $value){
             $invoice_details = array(
                 "invoice_id" => $invoice['meta']['invoice_id'],
                 "description" => $value['description'],
@@ -6016,32 +6011,47 @@ exit();
             );
             
             if(!empty($value['inventory_id'])){
+                
                 $invoice_details['inventory_id'] = $value['inventory_id'];
+                $pre_inventory_id = $value['inventory_id'];
+                
+            } else if(!empty($pre_inventory_id)){
+                $invoice_details['inventory_id'] = NULL;
             }
             
             if(!empty($value['is_settle'])){
                 $invoice_details['is_settle'] = $value['is_settle'];
+            } else {
+                $invoice_details['is_settle'] =0;
             }
             
             if(!empty($value['spare_id'])){
                 $invoice_details['spare_id'] = $value['spare_id'];
+                $pre_spare_id = $value['spare_id'];
+                
+            } else if(!empty($pre_spare_id)){
+                $invoice_details['spare_id'] = NULL;
             }
             
             if(!empty($value['settle_qty'])){
                 $invoice_details['settle_qty'] = $value['settle_qty'];
+            } else {
+                $invoice_details['settle_qty'] = 0;
             }
             
             if(!empty($value['from_gst_number_id'])){
-                $invoice_details['from_gst_number'] = $value['from_gst_number_id'];
+                $from_gst_number = $value['from_gst_number_id'];
             }
             
             if(!empty($value['to_gst_number_id'])){
-                $invoice_details['to_gst_number'] = $value['to_gst_number_id'];
+                $to_gst_number = $value['to_gst_number_id'];
             }
-           
+            $invoice_details['from_gst_number'] = $from_gst_number;
+            $invoice_details['to_gst_number'] = $to_gst_number;
             
             array_push($invoice_breakup, $invoice_details);
         }
+        
          $this->invoices_model->insert_invoice_breakup($invoice_breakup);
     }
     /**

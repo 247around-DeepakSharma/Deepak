@@ -6163,14 +6163,14 @@ class vendor extends CI_Controller {
     function seach_gst_number() {
         $api_response = "";
         $gstin = strtoupper(trim($this->input->post("gst_number")));
-        
+
         if (!empty($gstin)) {
             while (substr($gstin, -1) == ',') {
                 $gstin = rtrim($gstin, ",");
             }
-            
+
             $gst = explode(",", $gstin);
-            
+
             $i = 0;
             foreach ($gst as $value) {
                 $api_response = json_decode($this->invoice_lib->taxpro_gstin_checking_curl_call(trim($value)), true);
@@ -6179,57 +6179,55 @@ class vendor extends CI_Controller {
                 //$api_response = json_decode($api_response, true);
                 if (!(isset($api_response['error']))) {
                     //log_message('info', __METHOD__ . print_r($api_response, true));
-                    
+
                     $data['data'][$i]['legal_name'] = $api_response['lgnm'];
                     $data['data'][$i]['gst_number'] = $api_response['gstin'];
                     $data['data'][$i]['status'] = $api_response['sts'];
                     $data['data'][$i]['type'] = $api_response['dty'];
-                                        
+
                     $data['data'][$i]['address'] = json_encode($api_response['pradr']);
-                    
+
                     //save address in human readable format as well
                     $address = $api_response['pradr']['addr'];
                     $address_readable = '';
-                    
-                    if($address['flno'] != '')
+
+                    if ($address['flno'] != '')
                         $address_readable .= ($address['flno'] . ", ");
-                    if($address['bno'] != '')
+                    if ($address['bno'] != '')
                         $address_readable .= ($address['bno'] . ", ");
-                    if($address['bnm'] != '')
+                    if ($address['bnm'] != '')
                         $address_readable .= ($address['bnm'] . ", ");
-                    if($address['st'] != '')
+                    if ($address['st'] != '')
                         $address_readable .= ($address['st'] . ", ");
-                    if($address['loc'] != '')
+                    if ($address['loc'] != '')
                         $address_readable .= ($address['loc'] . ", ");
-                    if($address['city'] != '')
+                    if ($address['city'] != '')
                         $address_readable .= ($address['city'] . ", ");
-                    if($address['dst'] != '')
+                    if ($address['dst'] != '')
                         $address_readable .= ($address['dst'] . ", ");
-                    if($address['stcd'] != '')
+                    if ($address['stcd'] != '')
                         $address_readable .= ($address['stcd'] . ", ");
-                    if($address['pncd'] != '')
+                    if ($address['pncd'] != '')
                         $address_readable .= $address['pncd'];
-                    
+
                     $data['data'][$i]['address_readable'] = $address_readable;
-                    
+
                     //nature of business
                     $nature_business = $api_response['pradr']['ntr'];
                     $data['data'][$i]['nature_business'] = $nature_business;
-                    
+
                     //company_name is actually trade name
                     $data['data'][$i]['company_name'] = $api_response['tradeNam'];
-                    
-                    //$data['gst_cancelled_date'] = 
+
+                    //$data['gst_cancelled_date'] =
                     //convert dates
-                    $data['data'][$i]['registration_date'] = 
-                            date("Y-m-d", strtotime(str_replace('/','-', $api_response['rgdt'])));
-                    
+                    $data['data'][$i]['registration_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $api_response['rgdt'])));
+
                     //this field is populated only if GST is cancelled
                     if (isset($api_response['cxdt']) && $api_response['cxdt'] != '') {
-                        $data['data'][$i]['cancellation_date'] = 
-                                date("Y-m-d", strtotime(str_replace('/','-', $api_response['cxdt'])));
+                        $data['data'][$i]['cancellation_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $api_response['cxdt'])));
                     }
-                    
+
                     $data['data'][$i]['constitution_of_business'] = $api_response['ctb'];
                     $data['data'][$i]['create_date'] = date('Y-m-d H:i:s');
 

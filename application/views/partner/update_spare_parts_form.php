@@ -242,7 +242,7 @@
                                         if (form_error('invoice_amount')) { echo 'has-error'; } ?>">
                                         <label for="invoice_amount" class="col-md-4">Invoice Amount (including tax)</label>
                                         <div class="col-md-7">
-                                            <input type="number" class="form-control" id="<?php echo "invoiceamount_". $key; ?>" name="part[<?php echo $key; ?>][invoiceamount]" value = "" placeholder="Please Enter Invoice Amount"  required>
+                                            <input type="number" class="form-control invoice_amount" id="<?php echo "invoiceamount_". $key; ?>" name="part[<?php echo $key; ?>][invoiceamount]" value = "" placeholder="Please Enter Invoice Amount"  required>
                                             <?php echo form_error('invoice_amount'); ?>
                                         </div>
                                     </div>
@@ -438,7 +438,7 @@
                                     <div class="form-group">
                                         <label for="invoice_amount" class="col-md-4">Invoice Amount (including tax)</label>
                                         <div class="col-md-7">
-                                            <input type="number" class="form-control" id="invoiceamount"  value = "" placeholder="Please Enter Invoice Amount"  required>
+                                            <input type="number" class="form-control invoice_amount" id="invoiceamount"  value = "" placeholder="Please Enter Invoice Amount"  required>
                                         </div>
                                     </div>
                                     <?php } ?>
@@ -571,6 +571,12 @@
                                     <?php echo form_error('courier_name'); ?>
                                 </div>
                             </div>
+                            <div class="form-group">
+                                <label for="partner_challan_number" class="col-md-4">Courier Price</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control"  id="courier_price_by_partner" onblur="chkPrice($(this),2000)" name="courier_price_by_partner" placeholder="Please Enter courier price">
+                                </div>
+                            </div>
                             <!-- <div class="form-group <?php
                                 if (form_error('approx_value')) { echo 'has-error'; } ?>">
                                 <label for="approx_value" class="col-md-4">Approx Value <?php if($warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){  ?>*<?php } ?></label>
@@ -619,6 +625,12 @@
                                 </div>
                                 <?php echo form_error('courier_name'); ?>
                             </div>
+                             <div class="form-group>">
+                                <label for="co" class="col-md-4"> Courier Image </label>
+                                <div class="col-md-6">
+                                    <input type="file" class="form-control"  id="courier_image" name="courier_image" >
+                                </div>
+                            </div> 
                         </div>
                         <input type="hidden" id="courier_status" name="courier_status" value="1">
                     </div>
@@ -646,11 +658,47 @@
 
 <script type="text/javascript">
     
+   $('#courier_price_by_partner').bind('keyup paste keypress', function(){
+        this.value = this.value.replace(/[^0-9.]/g, '');
+   });
+   
+    function chkPrice(curval,maxval){
+        if(parseFloat(curval.val())<1) {
+            alert('Courier Charges cannot be less than 1.00');
+            $("#courier_price_by_partner").val('');
+            return false;
+        } else if(parseFloat(curval.val())>parseFloat(maxval)) {
+           alert('Courier Charges cannot be more than '+maxval);
+           $("#courier_price_by_partner").val('');
+           return false;
+        }
+    }
+    
+    $("#courier_image").on('change',function(){
+        var numb = $(this)[0].files[0].size/1024/1024;
+        numb = numb.toFixed(2);
+        if(numb >= 2){
+            $(this).val(''); 
+            alert('Not allow file size greater than 2MB');
+            return false;
+        } 
+
+        var allowedFiles = [".png", ".jpg",".jpeg",".pdf"];
+        var fileUpload = $(this);
+        var regex = new RegExp("([a-zA-Z0-9\s_\\.\-:()])+(" + allowedFiles.join('|') + ")$");
+        if (!regex.test(fileUpload.val().toLowerCase())) {
+            $(this).val(''); 
+            alert("Please upload files having extensions:(" + allowedFiles.join(', ') + ") only.");
+            return false;
+        }
+    });
+    
     $(".close").on("click",function(){
         <?php echo $this->session->unset_userdata('success');?>
     });
+    
     $("body").on("change", "#challan_file", function () {
-        var allowedFiles = [".gif", ".jpg",".png",".jpeg",".pdf",".zip"];
+        var allowedFiles = [".gif", ".jpg",".png",".jpeg",".pdf"];
         var fileUpload = $("#challan_file");
         var regex = new RegExp("([a-zA-Z0-9\s_\\.\-:()])+(" + allowedFiles.join('|') + ")$");
         if (!regex.test(fileUpload.val().toLowerCase())) {
@@ -671,6 +719,7 @@
         }
       });
     });
+      
      $("#awb").on({
         "click": function () {
             var awb_number = $(this).val();
@@ -787,10 +836,6 @@
                 shipment_date:"required",
                 challan_file:"required",
                 defective_parts_shipped_boxes_count:'required',
-                courier_price_by_partner:{
-                    digits:true,
-                    range:[0,2000]
-                }
                 },
                 messages: {
                 courier_name: "Please Select Courier Name",
@@ -799,10 +844,6 @@
                 shipment_date:"Please Enter Shipped date",
                 challan_file: "Please Select File",
                 defective_parts_shipped_boxes_count : "Please Select Boxes Count",
-                courier_price_by_partner:{
-                    digits: "Courier Price can only be Numeric.",
-                    range: "Courier price should be in between 0 to 2000."
-                }
                 },
                 submitHandler: function (form) {
 
@@ -895,7 +936,79 @@
         });  
         return str;  
     }
+    
        
+    $('.invoice_amount').bind('keydown', function (event) {
+        switch (event.keyCode) {
+            case 8:  // Backspace
+            case 9:  // Tab
+            case 13: // Enter
+            case 37: // Left
+            case 38: // Up
+            case 39: // Right
+            case 40: // Down
+                break;
+            default:
+                var regex = new RegExp("^[a-df-zA-DF-Z0-9,]+$");
+                var key = event.key;
+                if (!regex.test(key)) {
+                    event.preventDefault();
+                    return false;
+                }
+                break;
+        }
+    });
+    
+    
+      $(".invoice_amount").on({
+        "click": function () {
+            var amount = $(this).val();
+            if (amount < 0 || amount == 0) {
+                $(this).val('');
+                return false;
+            }
+ 
+        },
+        "keyup": function () {
+            var amount = $(this).val();
+            if (amount < 0 || amount == 0) {
+                $(this).val('');
+                return false;
+            }
+ 
+        },
+        "mouseleave": function () {
+            var amount = $(this).val();
+            if (amount < 0 || amount == 0) {
+                $(this).val('');
+                return false;
+            }
+ 
+        },
+        "mouseout": function () {
+            var amount = $(this).val();
+            if (amount < 0 || amount == 0 ) {
+                $(this).val('');
+                return false;
+            }
+        }
+    });
+    
+   
+       
+   
+ 
+        $(".invoice_id_class").keypress(function (e) {
+            var keyCode = e.keyCode || e.which;
+            var regex = /^[A-Za-z0-9-,./\|_]+$/;
+            //Validate TextBox value against the Regex.
+            var isValid = regex.test(String.fromCharCode(keyCode));
+            if (!isValid) {
+                alert("Invoice id should not be special character.");
+            }
+            return isValid;
+        });
+        
     <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
 
 //    $('.shipped_model_number_id').select2();

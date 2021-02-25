@@ -443,26 +443,26 @@
                                             </select>
                                             <label for="productorservices" class="error"></label>
                                         </td>
-                                        <td>
+                                        <td class="amount_1">
                                             <input id="hsncode" type="text"  value="" class="form-control col-md-1 allowNumericWithOutDecimal" required="" >
                                             <label for="hsncode" class="error"></label>
                                         </td>
-                                        <td>
+                                        <td class="amount_1">
                                             <input id="qty" type="number" value="" required="" >
                                             <label for="qty" class="error"></label>
                                         </td>
-                                        <td>
+                                        <td class="amount_1">
                                             <input id="rate" type="number" value="" class="form-control rate allowNumericWithDecimal padding_space" required="" >
                                             <label for="rate" class="error"></label>
                                         </td>
-                                        <td><input id="taxablevalue" type="number" value="0.00" class="form-control taxable_value allowNumericWithDecimal padding_space" readonly ></td>
-                                        <td><input id="cgsttaxrate" type="number" value="" class="form-control cgst_tax_rate allowNumericWithDecimal padding_space" readonly ></td>
-                                        <td><input id="cgsttaxamount" type="number"  value="0.00" class="form-control cgst_tax_amount allowNumericWithDecimalpadding_space" readonly ></td>
-                                        <td><input id="sgsttaxrate" type="number" value="" class="form-control sgst_tax_rate allowNumericWithDecimal padding_space" readonly ></td>
-                                        <td><input id="sgsttaxamount" type="number" value="0.00" class="form-control sgst_tax_amount allowNumericWithDecimal padding_space" readonly ></td>
-                                        <td><input id="igsttaxrate" type="number" value="" class="form-control igst_tax_rate allowNumericWithDecimal padding_space" readonly ></td>
-                                        <td><input id="igsttaxamount" type="number" value="0.00" class="form-control igst_tax_amount allowNumericWithDecimal padding_space" readonly ></td>
-                                        <td><input id="totalamount" type="number" value="0.00" class="form-control total_amount allowNumericWithDecimal padding_space" readonly></td>
+                                        <td class="amount_1"><input id="taxablevalue" type="number" value="0.00" class="form-control taxable_value allowNumericWithDecimal padding_space" readonly ></td>
+                                        <td class="amount_1"><input id="cgsttaxrate" type="number" value="" class="form-control cgst_tax_rate allowNumericWithDecimal padding_space" readonly ></td>
+                                        <td class="amount_1"><input id="cgsttaxamount" type="number"  value="0.00" class="form-control cgst_tax_amount allowNumericWithDecimalpadding_space" readonly ></td>
+                                        <td class="amount_1"><input id="sgsttaxrate" type="number" value="" class="form-control sgst_tax_rate allowNumericWithDecimal padding_space" readonly ></td>
+                                        <td class="amount_1"><input id="sgsttaxamount" type="number" value="0.00" class="form-control sgst_tax_amount allowNumericWithDecimal padding_space" readonly ></td>
+                                        <td class="amount_1"><input id="igsttaxrate" type="number" value="" class="form-control igst_tax_rate allowNumericWithDecimal padding_space" readonly ></td>
+                                        <td class="amount_1"><input id="igsttaxamount" type="number" value="0.00" class="form-control igst_tax_amount allowNumericWithDecimal padding_space" readonly ></td>
+                                        <td class="amount_1"><input id="totalamount" type="number" value="0.00" class="form-control total_amount allowNumericWithDecimal padding_space" readonly></td>
                                         <td style="text-align:center;">
                                             <input type="hidden" id="from_gst_number" >
                                             <input type="hidden" id="to_gst_number" >
@@ -568,9 +568,13 @@
 <script>
     $("#to_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
     $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: false, changeYear: false,
-
-            minDate:new Date(),
-            maxDate:new Date(),
+           minDate: function(){
+            var today = new Date();
+            var yesterday = new Date();
+            yesterday.setDate(today.getDate() - 2);
+            return yesterday;
+             }(),
+            maxDate:new Date(),//'today',
             setDate: new Date(),
             locale:{
                 format: 'yy-mm-dd'
@@ -632,7 +636,7 @@
                     //$('#to_gst_number_'+index).val('');
                 }
                 else {
-                   // $('#from_gst_number_'+index).val('');
+                    //$('#from_gst_number_'+index).val('');
                     $('#to_gst_number_'+index).val(gst_number);
                 }
             });
@@ -1010,14 +1014,14 @@
            
             document.getElementById("type_code").options[1].disabled = false;
             document.getElementById("type_code").options[2].disabled = false;
-            document.getElementById("type_code").options[3].disabled = true;
-            document.getElementById("type_code").options[4].disabled = true;
+            document.getElementById("type_code").options[3].disabled = false;
+            document.getElementById("type_code").options[4].disabled = false;
             document.getElementById("type_code").options[6].disabled = true;
                
         } else if(radioValue === 'B'){
            
-            document.getElementById("type_code").options[1].disabled = true;
-            document.getElementById("type_code").options[2].disabled = true;
+            document.getElementById("type_code").options[1].disabled = false;
+            document.getElementById("type_code").options[2].disabled = false;
             document.getElementById("type_code").options[3].disabled = false;
             document.getElementById("type_code").options[4].disabled = false;
             document.getElementById("type_code").options[6].disabled = false;
