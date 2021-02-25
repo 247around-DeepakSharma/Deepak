@@ -435,27 +435,6 @@ function addBookingDialog(chanel = '', check_serial_no = '0') {
         return false;
     }
     
-    var not_exists = 0;
-     var amc_file_count = 0;
-    $(".file_description").each( function(){
-       if($(this).val() == 5){
-           amc_file_count++;
-          var file_desc = $(this).attr('id');
-          desc_arr = file_desc.split("_");
-           support_file = $("#support_file_"+desc_arr[2]).val();
-           if(support_file == ''){
-               not_exists ++;
-           }
-       }
-    });
-    
-    
-    if(amc_file_count > 1){
-        $(".support_file").val('');
-        alert('Annual Maintenance Contract(AMC) should not be duplicate.'); 
-        return false;
-    }
-  
     if($('.support_file').length > 1) {
         var i=1;
         var count=0;
@@ -474,13 +453,7 @@ function addBookingDialog(chanel = '', check_serial_no = '0') {
             return false;
         }
     }
-    
-    
-    if(not_exists > 0){
-        alert('Annual Maintenance Contract(AMC) file should not be blank.'); 
-        return false;
-    }
-    
+
     if (service === null || service === "" || service === "Select Service") {
 
         alert('Please Select Booking Appliance');

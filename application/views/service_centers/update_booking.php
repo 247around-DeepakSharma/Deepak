@@ -223,23 +223,6 @@ $arr_partner_discount = array();
                                                 ?>
                                                 <span style="color:red;" id="error_serial_no"></span>                    
                                             </div>
-                                            
-                                             <label for="serial_number" class="col-md-4">AMC File *</label>
-                                            <div class="col-md-6">
-                                                <input type="file" class="form-control support_file" id="support_file_1"  name="support_file[]" tabindex=-1 style="margin-top:5px;">
-                                                <input type="hidden" class="form-control file_description" id="file_description_1" name="file_description[]" value="<?php  echo ANNUAL_MAINTENANCE_CONTRACT;  ?>">
-                                                <?php
-                                                if(!empty($amc_file_lists)) {
-                                                    foreach ($amc_file_lists as $file){
-                                                    $url="https://s3.amazonaws.com/". BITBUCKET_DIRECTORY.'/purchase-invoices/'.$file; ?>
-                                                    <p style="margin-top: 5px;"><a href="<?php echo $url; ?>" target="_blank">Annual Maintenance Contract File</a></p>
-                                                   <?php
-                                                        }
-                                                    }
-                                                    ?>
-                                                <span style="color:red;" id="error_serial_no"></span>                    
-                                            </div>
-                                             
                                         </div>
                                         </div>
                                                 <input type="hidden"  name="appliance_description[]" id="description_1" placeholder="Enter Description"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?>  value="<?php if(isset($unit_details[0]['description'])) { echo $unit_details[0]['description']; } ?>">
@@ -603,16 +586,6 @@ $arr_partner_discount = array();
 </div>
 <script>
 
-    $("body").on("change", ".support_file", function () {
-        var allowedFiles = [".gif", ".jpg",".png",".jpeg",".pdf"];
-        var fileUpload = $("#support_file_1");
-        var regex = new RegExp("([a-zA-Z0-9\s_\\.\-:()])+(" + allowedFiles.join('|') + ")$");
-        if (!regex.test(fileUpload.val().toLowerCase())) {
-            $("#support_file_1").val('');
-            alert("Please upload files having extensions:(" + allowedFiles.join(', ') + ") only.");
-            return false;
-        }
-    });     
    
 </script>
 <script>

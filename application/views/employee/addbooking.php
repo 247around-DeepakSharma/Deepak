@@ -206,7 +206,7 @@
                                 <div class="col-md-12">
                                     <div class='form-group'>
                                         <div class="col-md-4">
-                                            <select class="form-control file_description" id="file_description_1"  name="file_description[]" >
+                                            <select class="form-control" id="file_description_1"  name="file_description[]" >
                                                 <option selected disabled>Select File Type</option>
                                                 <?php if(!empty($file_type)) {
                                                     foreach($file_type as $val) { ?>
@@ -442,20 +442,6 @@
 </div>
 
 <script>
-    
-    $("body").on("change", ".support_file", function () {
-        var allowedFiles = [".gif", ".jpg",".png",".jpeg",".pdf"];
-        var filetype_id = $(this).attr("id");
-        fileTypeIdArr = filetype_id.split("_");
-        var fileUpload = $("#support_file_"+fileTypeIdArr[2]);
-        var regex = new RegExp("([a-zA-Z0-9\s_\\.\-:()])+(" + allowedFiles.join('|') + ")$");
-        if (!regex.test(fileUpload.val().toLowerCase())) {
-            $("#support_file_"+fileTypeIdArr[2]).val('');
-            alert("Please upload files having extensions:(" + allowedFiles.join(', ') + ") only.");
-            return false;
-        }
-    });   
-    
     $("#booking_request_symptom").select2();
     $(".select-model").select2({
         width:"239px"
