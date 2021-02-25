@@ -15,7 +15,7 @@ class Validate_serial_no {
         $access = $this->MY_CI->partner_model->get_partner_permission(array('partner_id' => $partnerID,'permission_type' => DO_NOT_CHECK_DUPLICATE_SERIAL_NUMBER, 'is_on' => 1));
         if(empty($access)){
              if(!empty($price_tags) && $price_tags != REPEAT_BOOKING_TAG){
-                 $v =$this->check_duplicate_serial_number($serialNo, $price_tags, $user_id, $booking_id);
+                 $v =$this->check_duplicate_serial_number($serialNo, $price_tags, $user_id, $booking_id, $modelNumber);
                  if(!empty($v)){
                      $flag = false;
                      return $v;
@@ -24,7 +24,7 @@ class Validate_serial_no {
         }
         //If booking is repeat then validate serial number with parent booking 
         if($price_tags == REPEAT_BOOKING_TAG){
-            $repeatResult =  $this->validate_repeat_booking_serial_number($serialNo,$booking_id);
+            $repeatResult =  $this->validate_repeat_booking_serial_number($serialNo,$booking_id,$modelNumber);
             if($repeatResult){
                 return $repeatResult;
             }
@@ -286,7 +286,7 @@ class Validate_serial_no {
      * @param String $serial_number
      * @return boolean
      */
-    function check_duplicate_serial_number($serial_number, $price_tags, $user_id, $booking_id){
+    function check_duplicate_serial_number($serial_number, $price_tags, $user_id, $booking_id, $modelNumber = NULL){
         $data = $this->MY_CI->booking_model->get_data_for_duplicate_serial_number_check($serial_number,$booking_id);
         // get booking initial date
         $arr_booking_date = $this->MY_CI->booking_model->get_booking_details("initial_booking_date, service_id, partner_id", array("booking_id"=>$booking_id));
@@ -315,6 +315,12 @@ class Validate_serial_no {
                 // Check if User is same   
                 elseif($booking_details[0]['user_id'] != $user_id){
                     $msg = "Different User already used in Booking ID - ".$value['booking_id'];
+                    $isDuplicate = TRUE;
+                    break;
+                }
+                // Check if Model is Same
+                elseif(!empty($modelNumber) && ($modelNumber != $value['sf_model_number'])){
+                    $msg = "Same Serial number is for different Model in Booking ID - ".$value['booking_id'];
                     $isDuplicate = TRUE;
                     break;
                 }
@@ -802,18 +808,23 @@ class Validate_serial_no {
          }
          return true;
     }
-    function validate_repeat_booking_serial_number($serialNo,$booking_id){
+    function validate_repeat_booking_serial_number($serialNo,$booking_id,$model_number = ""){
         $parentBookingSerialNumbers = $this->MY_CI->booking_model->get_parent_booking_serial_number($booking_id,1);
         if($parentBookingSerialNumbers){
-            foreach($parentBookingSerialNumbers as $sn){
-                if(strtoupper($sn['parent_sn']) == $serialNo){
+            foreach($parentBookingSerialNumbers as $sn){        
+                // Model should be same in case of Repeat Booking
+                $model_match = true;
+                if(!empty($model_number) && ($sn['parent_model'] != $model_number)){
+                     $model_match = false;
+                }
+                if((strtoupper($sn['parent_sn']) == strtoupper($serialNo)) && $model_match){
                      return array('code' => SUCCESS_CODE);
                 }
             }
             return array('code' => FAILURE_CODE, "message" => REPEAT_BOOKING_FAILURE_MSG);
         }
         else{
-            return false;
+            return array('code' => FAILURE_CODE, "message" => REPEAT_BOOKING_FAILURE_MSG);
         }
     }
     

@@ -2844,11 +2844,11 @@ class Booking_model extends CI_Model {
     }
     function get_parent_booking_serial_number($bookingID,$all = NULL){
       if($all){
-         $sql = "SELECT booking_unit_details.serial_number as parent_sn FROM booking_unit_details JOIN booking_details ON booking_details.parent_booking = booking_unit_details.booking_id "
+         $sql = "SELECT booking_unit_details.sf_model_number as parent_model,booking_unit_details.serial_number as parent_sn FROM booking_unit_details JOIN booking_details ON booking_details.parent_booking = booking_unit_details.booking_id "
                 . "WHERE booking_details.booking_id = '".$bookingID."' AND booking_unit_details.serial_number IS NOT NULL AND booking_unit_details.serial_number != ''";
       }
       else{
-          $sql = "SELECT booking_unit_details.serial_number as parent_sn FROM booking_unit_details JOIN booking_details ON booking_details.parent_booking = booking_unit_details.booking_id "
+          $sql = "SELECT booking_unit_details.sf_model_number as parent_model,booking_unit_details.serial_number as parent_sn FROM booking_unit_details JOIN booking_details ON booking_details.parent_booking = booking_unit_details.booking_id "
                 . "WHERE booking_details.booking_id = '".$bookingID."' GROUP BY  booking_unit_details.booking_id HAVING COUNT(booking_unit_details.booking_id) < 2 ";
       }
       $query = $this->db->query($sql);
