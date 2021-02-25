@@ -440,11 +440,11 @@ class S3 {
 	 */
 	public static function putObjectFile($file, $bucket, $uri, $acl = self::ACL_PRIVATE, $metaHeaders = array(), $contentType = null)
 	{
+
             $is_img = getimagesize($file);
             if(!empty($is_img) && isset($is_img['mime']) && strtolower($is_img['mime']) == "image/png"){
                 $contentType = "image/jpeg";
             } 
-            
 	    return self::putObject(self::inputFile($file), $bucket, $uri, $acl, $metaHeaders, $contentType);
 	}
 
