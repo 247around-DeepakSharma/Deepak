@@ -1087,7 +1087,7 @@ class Upcountry_model extends CI_Model {
                 . " AND sub_vendor_id IS NOT NULL "
                 . " AND bd.is_upcountry = '1' "
                 . " AND bd.create_date > '2018-01-01' "
-                . " AND bd.current_status IN ('"._247AROUND_COMPLETED."', '"._247AROUND_PENDING."', '".Rescheduled."') "
+                . " AND bd.current_status IN ('"._247AROUND_COMPLETED."', '"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."') "
                 . " AND bd.upcountry_paid_by_customer = 0 "
                 . " AND bd.upcountry_partner_invoice_id IS NULL "
                 . " AND bd.upcountry_partner_approved = 1 "
