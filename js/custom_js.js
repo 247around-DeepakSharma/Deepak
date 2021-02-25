@@ -1544,6 +1544,14 @@ function validateSerialNo(count = ""){
         var postData = {};
         var valid_serial_number = false;
         var booking_request_types = [];
+        if(!$(".input-model").length)
+        {
+            var model_number = $(".select-model").val();
+        }
+        else
+        {
+            var model_number = $(".input-model").val();
+        }  
         $(".price_checkbox:checked").each(function(){
             var price_tag = $(this).attr('data-price_tag');
             booking_request_types.push(price_tag);
@@ -1554,6 +1562,7 @@ function validateSerialNo(count = ""){
         postData['booking_id'] = $("#booking_id").val();
         postData['partner_id'] = $("#partner_id").val();
         postData['appliance_id'] = $('#service_id').val();
+        postData['model_number'] = model_number;
         postData['booking_request_types'] = booking_request_types;
 
         if(postData['serial_number'] !== ''){
