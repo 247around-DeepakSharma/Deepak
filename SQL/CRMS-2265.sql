@@ -1,0 +1,1 @@
+UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN (booking_details.current_status = \'Cancelled\') THEN b_cr.reason ELSE GROUP_CONCAT(DISTINCT ssba_cr.reason) END) AS \'Cancellation Remarks\'' WHERE `partner_summary_report_mapping`.`id` = 37;
