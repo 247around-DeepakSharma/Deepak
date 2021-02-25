@@ -2831,8 +2831,11 @@ class Booking extends CI_Controller {
             // save SF and Admin amount mismatch (if any) in booking_amount_differences table
             $sf_filled_amount = !empty($service_center_details[0]['amount_paid']) ? $service_center_details[0]['amount_paid'] : 0;
             $this->miscelleneous->save_booking_amount_history($booking_primary_id, $sf_filled_amount, $total_amount_paid);
-
-            $spare_check = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, spare_parts_details.entity_type, spare_parts_details.partner_id, requested_inventory_id, spare_lost, spare_parts_details.parts_shipped ,spare_parts_details.defective_part_shipped, spare_parts_details.consumed_part_status_id, spare_parts_details.defective_part_required ", array('booking_id' => $booking_id, 'status NOT IN ("Cancelled")' => NULL, 'parts_shipped IS NOT NULL ' => NULL, 'part_warranty_status' => 1), false);
+            // Update spare handling charges only for central warehouse
+            $spare_check = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, spare_parts_details.entity_type, spare_parts_details.partner_id, "
+                    . "requested_inventory_id, spare_lost, spare_parts_details.parts_shipped ,spare_parts_details.defective_part_shipped, spare_parts_details.consumed_part_status_id, "
+                    . "spare_parts_details.defective_part_required ", array('booking_id' => $booking_id, 'status NOT IN ("Cancelled")' => NULL, 'parts_shipped IS NOT NULL ' => NULL, 
+                        'part_warranty_status' => 1, 'is_micro_wh' => 2), false);
             if (!empty($spare_check)) {
                 $this->check_and_update_partner_extra_spare($booking_id);
             }

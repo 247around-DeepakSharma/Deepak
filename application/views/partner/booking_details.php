@@ -236,7 +236,7 @@
                                                 <?php } ?>
                                                     <th>Total Amount Paid</th>
                                                 <?php } ?>
-                                            <th>Partner Spare Extra Charges</th>
+                                            <th>Partner Spare Handling Charges</th>
                                             <th>Booking Status</th>
                                                 <?php if ($booking_history[0]['current_status'] === 'Completed') { ?>
                                                 <th>Invoice ID</th>

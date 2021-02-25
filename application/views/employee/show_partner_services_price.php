@@ -154,7 +154,7 @@
             <th>Customer Net Payable <span style="color: red;">*</span> Including GST</th>
             <th>Vendor Total <span style="color: red;">*</span> Including GST</th>
             <th>Vendor Basic Percentage</th>
-            <th>Partner Spare Extra Charges</th>
+            <th>Partner Spare Handling Charges</th>
             <th>POD</th>
             <th>Upcountry</th>
             </thead>

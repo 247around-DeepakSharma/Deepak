@@ -2317,9 +2317,10 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     </div>    
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="validity" class="col-md-4">Fixed Charge*</label>
+                                            <label for="validity" class="col-md-4"><span id="f_p_charges">Fixed Charge</span> * <b><i  data-toggle="tooltip" title="Percentage will be apply on Basic Charge only for Logistic & MSL Handling Charges" class="fa fa-info-circle" aria-hidden="true"></i></b></label>
                                             <div class="col-md-6">
-                                                <input type="number" name="fixed_charges" id="fixed_charges" class="form-control input-contact-name" value="" placeholder="Enter fixed charge amount" required>
+                                                <input type="number" name="fixed_charges" id="fixed_charges" class="form-control input-contact-name" value="" placeholder="Enter fixed/Percentage" required>
+                                                
                                             </div>
                                         </div>
                                     </div>    
@@ -2347,7 +2348,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                         <tr>
                             <th>S. No.</th>
                             <th>Description</th>
-                            <th>Fixed Charges</th>
+                            <th>Fixed Charges/Percentage Charge(%)</th>
                             <th>HSN Code</th>
                             <th>GST Rate</th>
                             <th style="display:none">Charge Type</th>
@@ -5090,10 +5091,19 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
     
     function variable_charges_change(select){
         if($('option:selected', select).attr('data-charge-type') == 'annual-charges'){
+            $("#f_p_charges").text("Fixed Charge");
             $("#validity_section").show();
             $("#validity").attr('required', true);
+        } else if( ($('option:selected', select).attr('data-charge-type') == '<?php echo LOGISTIC_HANDLING_CHARGES;?>') || 
+                $('option:selected', select).attr('data-charge-type') == '<?php echo MSL_HANDLING_CHARGES;?>'){
+            $("#f_p_charges").text("Percentage %");
+            $("#validity_section").hide();
+            $("#validity").val(null);
+            $("#validity").attr('required', false);
+            
         }
         else{
+            $("#f_p_charges").text("Fixed Charge");
             $("#validity_section").hide();
             $("#validity").val(null);
             $("#validity").attr('required', false);
