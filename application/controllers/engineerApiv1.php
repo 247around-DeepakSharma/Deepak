@@ -3641,11 +3641,11 @@ class engineerApiv1 extends CI_Controller {
                 $response['spare_parts'] = $can_edit_serial_number;
             }
 
-            /*$response['amc_file'] = "";
-            $amc_support_file = $this->booking_model->get_booking_files(array('booking_id' => $requestData['booking_id'],'file_description_id' => 5));
+            $response['amc_file'] = "";
+            $amc_support_file = $this->booking_model->get_booking_files(array('booking_id' => $requestData['booking_id'],'file_description_id' => ANNUAL_MAINTENANCE_CONTRACT));
             if(!empty($amc_support_file)){
                 $response['amc_file'] = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/purchase-invoices/".$amc_support_file[0]['file_name'];
-            }*/
+            }
             
             // Do not change the request type if invoiced to partner //
             $response['partner_invoiced'] = $this->checkBookingActionrequired($requestData['booking_id']);
@@ -3791,6 +3791,22 @@ class engineerApiv1 extends CI_Controller {
                     }
                 }
             }
+            //update AMC file if submitted from App
+            if (isset($serial_number_array['amc_pic_exist']) && !empty($serial_number_array['amc_pic_exist'])) {
+                $amc_pic = $requestData['booking_id']."_amc_pic_" . date("YmdHis") . ".png";
+                $file_upload_status = $this->miscelleneous->generate_image($serial_number_array['amc_pic_exist'], $amc_pic, 'purchase-invoices');
+                $booking_files['file_name'] = $amc_pic;
+                $support_files = $this->booking_model->get_booking_files(array("booking_files.file_description_id" => ANNUAL_MAINTENANCE_CONTRACT, "booking_files.booking_id" => $requestData['booking_id']));
+                if (!empty($support_files)) {
+                    $status = $this->booking_model->update_booking_file($booking_files, array("booking_files.file_description_id" => ANNUAL_MAINTENANCE_CONTRACT , "booking_files.booking_id" => $requestData['booking_id']));
+                } else {
+                    $booking_files['file_description_id'] = ANNUAL_MAINTENANCE_CONTRACT;
+                    $booking_files['file_type'] = 'image/png';
+                    $booking_files['booking_id'] = $requestData['booking_id'];
+                    $status = $this->booking_model->insert_booking_file($booking_files);
+                }
+            }
+
             //If Serial Number is entered then serail number image is mandatory and vice-a-versa - Start
             if(!empty($serial_number_img_submit) && empty($serial_number)){
                 $response_new['warranty_flag'] = 1;
@@ -3804,6 +3820,7 @@ class engineerApiv1 extends CI_Controller {
                 $this->sendJsonResponse(array('0055', "Serial Image is Required."));
                 exit;
             }
+            
             //If serial Number is entered then serial number image is mandatory and vice-a-versa - End
 
             $unit_detail['serial_number'] = $requestData['serial_number'];
