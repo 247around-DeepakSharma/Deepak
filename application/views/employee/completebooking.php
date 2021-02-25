@@ -87,7 +87,9 @@
         
         
         <div class="panel panel-info" style="margin-top:20px;">
-            <div class="panel-heading">Complete Booking <span class="pull-right"><input id="enable_change_unit" type="checkbox" onchange="update_brand_details()" name="enable_change_unit"> <span>Change Brand Details</span></span></div>
+            <div class="panel-heading">Complete Booking 
+                <!--<span class="pull-right"><input id="enable_change_unit" type="checkbox" onchange="update_brand_details()" name="enable_change_unit"> <span>Change Brand Details</span></span>-->
+            </div>
             <div class="panel-body">
                 <?php if(!in_array($this->session->userdata('user_group'), [_247AROUND_ADMIN, _247AROUND_CLOSURE, _247AROUND_RM])) { ?>
                 <div class="alert alert-warning">
@@ -961,7 +963,7 @@
                     flag = 1;
                 }
                 if($('#sno_required').val() === '1' && !$('#sn_remarks').val()){
-                     alert('Please Correct Serial Number or Entered Remarks, Why We Should go With Wrong Serial Number');
+                     alert('Please Enter Serial Number Remarks');
                      flag = 1;
                      $('#submitform').css("pointer-events", "auto");
                      $('#submitform').css("opacity", "1");
