@@ -2250,18 +2250,10 @@ $post['amount_due'] = false;
             
             $challan_file = $this->input->post('challan_file'); 
             
-            $this->upload_courier_image_file();
-       
-            $billed_docket_details = $this->inventory_model->get_billed_courier_invoice_list("courier_company_invoice_details.awb_number, billed_docket.courier_id", array('courier_company_invoice_details.awb_number' => $this->input->post('awb')), '' , TRUE);
-            
-        if(empty($billed_docket_details)){
-           
             if (!empty($challan_file)) {
                     $partner_id = $this->session->userdata('partner_id');
                     $data['partner_challan_file'] = $challan_file;
                     $data['courier_name_by_partner'] = $this->input->post('courier_name');
-                    $data['courier_price_by_partner'] = $this->input->post('courier_price_by_partner');
-                    $data['courier_pic_by_partner'] = $this->input->post('courier_image');
                     $data['awb_by_partner'] = $this->input->post('awb');
                     $data['shipped_date'] = $this->input->post('shipment_date');
                     $data['partner_challan_number'] = $this->input->post('partner_challan_number');
@@ -2284,13 +2276,13 @@ $post['amount_due'] = false;
                             'awb_number' => trim($this->input->post('awb')),
                             'company_name' => trim($this->input->post('courier_name')),
                             'partner_id' => $partner_id,
-                            'courier_charge' => trim($this->input->post('courier_price_by_partner')),
+                            'courier_charge' => trim($this->input->post('approx_value')),
                             'box_count' => trim($this->input->post('defective_parts_shipped_boxes_count')), //defective_parts_shipped_boxes_count
                             'billable_weight' => trim($billable_weight),
                             'actual_weight' => trim($billable_weight),
-                            'basic_billed_charge_to_partner' => trim($this->input->post('courier_price_by_partner')),
+                            'basic_billed_charge_to_partner' => trim($this->input->post('approx_value')),
                             'booking_id' => $booking_id,
-                            'courier_invoice_file' => trim($this->input->post('courier_image')),
+                            'courier_invoice_file' => trim($challan_file),
                             'shippment_date' => trim($this->input->post('shipment_date')), //defective_part_shipped_date
                             'created_by' => 2,
                             'is_exist' => 1,
@@ -2305,12 +2297,11 @@ $post['amount_due'] = false;
                         $awb_data = array(
                             'company_name' => trim($this->input->post('courier_name')),
                             'partner_id' => $partner_id,
-                            'courier_charge' => trim($this->input->post('courier_price_by_partner')),
                             'box_count' => trim($this->input->post('defective_parts_shipped_boxes_count')), //defective_parts_shipped_boxes_count
                             'billable_weight' => trim($billable_weight),
                             'actual_weight' => trim($billable_weight),
-                            'basic_billed_charge_to_partner' => trim($this->input->post('courier_price_by_partner')),
-                            'courier_invoice_file' => trim($this->input->post('courier_image')),
+                            'basic_billed_charge_to_partner' => trim($this->input->post('approx_value')),
+                            'courier_invoice_file' => trim($challan_file),
                             'shippment_date' => trim($this->input->post('shipment_date')), //defective_part_shipped_date
                             'created_by' => 2,
                             'is_exist' => 1
@@ -2405,7 +2396,6 @@ $post['amount_due'] = false;
                                 }
 
                                 $spare_id = $this->inset_new_spare_request($booking_id, $data, $value);
-                               
                             }
 
                             if (isset($value['spare_part_warranty_status']) && $value['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
@@ -2424,7 +2414,6 @@ $post['amount_due'] = false;
                               $internal_status = SPARE_OOW_SHIPPED;
                               } else {
                               $internal_status = SPARE_PARTS_SHIPPED;
-
                               }
                              */
 
@@ -2464,13 +2453,6 @@ $post['amount_due'] = false;
                             $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                         }
                     }
-                    
-                    $select = "spare_parts_details.awb_by_partner, spare_parts_details.courier_price_by_partner";
-                    $where = array("spare_parts_details.awb_by_partner" => $this->input->post('awb'), "spare_parts_details.entity_type" => _247AROUND_PARTNER_STRING);
-                    $courier_charge_parts_data = $this->inventory_model->get_generic_table_details('spare_parts_details', $select, $where, '');
-                    //Splited courier charge to spare parts details lineitems
-                    $courier_charge_by_partner = ($this->input->post('courier_price_by_partner') / count($courier_charge_parts_data));
-                    $this->service_centers_model->update_spare_parts(array("spare_parts_details.awb_by_partner" => $this->input->post('awb')), array('spare_parts_details.courier_price_by_partner' => $courier_charge_by_partner, "spare_parts_details.courier_pic_by_partner" => trim($this->input->post('courier_image'))));
 
                     if (!empty($current_status)) {
 
@@ -2480,7 +2462,6 @@ $post['amount_due'] = false;
                           $sc_data['internal_status'] = SPARE_OOW_SHIPPED;
                           } else {
                           $sc_data['internal_status'] = $internal_status;
-
                           } */
 
                         if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
@@ -2562,11 +2543,6 @@ $post['amount_due'] = false;
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "partner/update_spare_parts_form/" . $booking_id);
             }
-            } else {
-                $userSession = array('success' => 'This AWB number is already billed.');
-                $this->session->set_userdata($userSession);
-                redirect(base_url() . "partner/update_spare_parts_form/" . $booking_id);
-            }
         } else {
             $userSession = array('success' => 'Challan number should not be empty.');
             $this->session->set_userdata($userSession);
@@ -2574,39 +2550,6 @@ $post['amount_due'] = false;
         }
     }
     
-     /**
-     * @desc: This function is used to upload the courier file when partner shipped spare parts on booking
-     * @params: void
-     * @return: $res
-     */
-    function upload_courier_image_file() {
-        $MB = 1048576;
-        //check if upload file is empty or not
-        if (!empty($_FILES['courier_image']['name'])) {
-            //check upload file size. it should not be greater than 2mb in size
-            if ($_FILES['courier_image']['size'] <= 2 * $MB) {
-                $allowed = array('pdf', 'jpg', 'png', 'jpeg', 'JPG', 'JPEG', 'PNG', 'PDF');
-                $ext = pathinfo($_FILES['courier_image']['name'], PATHINFO_EXTENSION);
-                //check upload file type. it should be pdf.
-                if (in_array($ext, $allowed)) {
-                    $file_name = "partner_courier_image_" . $this->input->post('booking_id') . "_" . rand(10, 100) . "." . $ext;
-                    //Upload files to AWS
-                    $directory_xls = "vendor-partner-docs/" . $file_name;
-                    $this->s3->putObjectFile($_FILES['courier_image']['tmp_name'], BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $res = $_POST['courier_image'] = $file_name;
-                } else {
-                    $res['message'] = 'Upload file type not valid. Only PDF/JPG/PNG/JPEG format allow';
-                }
-            } else {
-                $res['message'] = 'Uploaded file size can not be greater than 2 mb';
-            }
-        } else {
-            $res['message'] = 'Couries Image is required';
-        }
-
-        return $res;
-    }
-
     function inset_new_spare_request($booking_id, $data, $part_details){
         $sp_details = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $booking_id));
         $data['entity_type'] =_247AROUND_PARTNER_STRING;
