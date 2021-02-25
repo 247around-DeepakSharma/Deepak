@@ -7169,6 +7169,7 @@ class Service_centers extends CI_Controller {
                     $spare_parts['part_number'] = $value['part_number'];
                     $spare_parts['inventory_id'] = $value['shipped_inventory_id'];
                     $spare_parts['consumption'] = $value['consumed_status']; 
+                    $spare_parts['gst_rate'] = $value['gst_rate'];
                 //}
                 $spare_details[][] = $spare_parts;
             }
