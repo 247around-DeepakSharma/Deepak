@@ -39,7 +39,7 @@
     <?php if ($this->session->userdata('is_prepaid') == 1) { ?>
     <a href="<?php echo base_url();?>payment/details" target="_blank">
         <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count" style="width: 14%;">
-            <span class="count_top">Prepaid Amount ( Rs.)</span>
+            <span class="count_top">Balance Amount</span>
             <div class="count" style="text-decoration: underline;color:red;"><?php echo $prepaid_amount['prepaid_amount'];?></div>
         </div>
         </a>

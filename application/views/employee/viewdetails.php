@@ -421,7 +421,7 @@
                                 <th>Paid Upcountry Charges</th>
                                 <th>Total Amount Paid</th>
                                 <?php } ?>
-                                <th>Partner Spare Extra Charges</th>
+                                <th>Partner Spare Handling Charges</th>
                                 <th>Booking Status</th>
                                 <th>Vendor Cash Invoice ID</th>
                                 <th>Vendor Foc Invoice ID</th>

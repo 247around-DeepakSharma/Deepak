@@ -170,4 +170,12 @@ define('BULK_DEBIT_NOTE_TAG', 'BULK_DEBIT_NOTE_TAG');
 define('TCS_TAX_RATE', 0.075);
 //GST Numbers
 define('GST_NUMBERS_LIST', array("5" => '5', "12" => '12', "18" => '18', "28" => '28'));
+// Logistic Handling Charges
+define('LOGISTIC_HANDLING_CHARGES', 'logistic-handling-charges');
+// MSL Handling Charges
+define('MSL_HANDLING_CHARGES', 'msl-handling-charges');
+// Logistic Handling Charges TYPE
+define('LOGISTIC_HANDLING_TYPE', 1);
+// MSL Handling Charges
+define('MSL_HANDLING_TYPE', 2);
 ?>

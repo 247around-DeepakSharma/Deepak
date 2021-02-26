@@ -2804,3 +2804,42 @@ ALTER TABLE `gstin_detail` CHANGE `nature_business` `nature_business` TEXT CHARA
 ALTER TABLE `gstin_detail` CHANGE `constitution_of_business` `constitution_of_business` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT 'Constitution of Business';
 ALTER TABLE `gstin_detail` CHANGE `type` `type` VARCHAR(55) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
 
+
+--Abhay Anand 23 Feb
+INSERT INTO `variable_charges_type` (`id`, `name`, `type`, `description`, `hsn_code`, `gst_rate`, `is_fixed`, `updated_date`, `created_date`) VALUES
+(NULL, 'MSL Handling Charges', 'MSL-handling-charges', 'MSL Handling Charges', 998715, 18, 0, '2021-02-23 00:00:00', '2018-11-20 00:00:00'),
+(NULL, 'Logistic Handling Charges', 'logistic-handling-charges', 'Logistic Handling Charges', 998715, 18, 0, '2021-02-23 00:00:00', '2018-11-20 00:00:00');
+CREATE TABLE `variable_handling_invoice` (
+  `id` int NOT NULL,
+  `invoice_id` int NOT NULL,
+  `taxable_value` decimal(10,0) NOT NULL,
+  `gst_rate` decimal(10,0) NOT NULL,
+  `oninvoice` int NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `variable_handling_invoice`
+--
+ALTER TABLE `variable_handling_invoice`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `logistic_msl_handling_invoice`
+--
+ALTER TABLE `variable_handling_invoice`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+COMMIT;
+ALTER TABLE `variable_handling_invoice` ADD `entity_id` INT NOT NULL AFTER `invoice_id`;
+ALTER TABLE `variable_handling_invoice` ADD `type` INT NOT NULL COMMENT '1- Logistic' AFTER `on_month`;
+
+
