@@ -62,7 +62,7 @@ class Booking extends CI_Controller {
         $this->load->dbutil();
         
         // Mention those functions whom you want to skip from employee specific validations
-        $arr_functions_skip_from_validation = ['get_appliances', 'update_booking_by_sf','getPricesForCategoryCapacity','get_booking_upcountry_details', 'Api_getAllBookingInput', 'getCategoryCapacityForModel','get_posible_parent_id','getBrandForService','get_warranty_data'];
+        $arr_functions_skip_from_validation = ['get_appliances', 'update_booking_by_sf','getPricesForCategoryCapacity','get_booking_upcountry_details', 'Api_getAllBookingInput', 'getCategoryCapacityForModel','get_posible_parent_id','getBrandForService','get_warranty_data','get_city_from_pincode'];
         $arr_url_segments = $this->uri->segments; 
         $allowedForSF = 0;
         if(!empty(array_intersect($arr_functions_skip_from_validation, $arr_url_segments))){        
@@ -7197,7 +7197,7 @@ class Booking extends CI_Controller {
             if($ow_completed_percentage < OW_COMPLETED_THRESHOLD){
                 $str = "<span style='color:red;margin-left:5px;font-weight:bold' data-toggle='tooltip' title='The SF OW booking completion is below 20%, in last 60 days.'>O</span>";
             }
-            echo $str." (O=> ".$ow_completed_percentage."%)";
+            echo $str;
         }
         else
         {
@@ -7223,7 +7223,7 @@ class Booking extends CI_Controller {
             if($cancelled_percentage > CANCELLATION_THRESHOLD){
                 $str = "<span style='color:red;margin-left:5px;font-weight:bold' data-toggle='tooltip' title='The SF Booking Cancellation % is greater than 20%, in last 60 days.'>C</span>";
             }
-            echo $str." (C=> ".$cancelled_percentage."%)";
+            echo $str;
         }
         else
         {
