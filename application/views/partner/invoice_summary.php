@@ -20,18 +20,19 @@
                     
                     <div class="col-md-4">
                         <span style="font-size: 16px;">
-                            <b>Un-Billed Amount</b>
+                            <b>Blocked Amount </b>
                         </span><br/>
                        <span data-toggle="modal" data-target="#myModal2" style="color:red; font-size: 16px; cursor: pointer;">
                             <b>Rs. <?php echo round($unbilled_amount,0);?> 
-                                <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                <i  data-toggle="tooltip" title="Unbilled Bookings for which CRM has Blocked Service Charges + Upcountry Amount." class="fa fa-info-circle" aria-hidden="true"></i>
                             </b>
                        </span>
                     </div>
                     
                     <div class="col-md-4">
                         <span style="font-size: 16px;">
-                            <b><?php if($invoice_amount['final_amount'] > 0){ echo "Un-Settle Amount";} else { echo "Balanced Amount";}?></b>
+<!--                            <b><?php// if($invoice_amount['final_amount'] > 0){ echo "Remaining Balanace";} else { echo "Balanced Amount";}?></b>-->
+                            <b>Remaining Balanace</b>
                         </span><br/>
                         <span style="<?php if($invoice_amount['final_amount'] > 0){ echo "color:red;";} else { echo "color:green;";}?> font-size: 16px;">
                             <b>Rs.<?php echo abs(round($invoice_amount['final_amount'],0));?></b>
@@ -103,7 +104,7 @@
          <div class="modal-content">
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal">&times;</button>
-               <h4 class="modal-title" id="modal-title">Unbilled Booking</h4>
+               <h4 class="modal-title" id="modal-title">Amount Blocked for Unbilled Bookings</h4>
                <h6>Note: Upcountry Charges are not included in the below booking</h6>
             </div>
             <div class="modal-body">
