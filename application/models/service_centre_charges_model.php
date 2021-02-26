@@ -541,20 +541,16 @@ class service_centre_charges_model extends CI_Model {
      * @params: Array $data
      * @params: $id
      * @return: true if updated
-     * 
      */
-        function update_appliance_name($id, $data) {
+    function update_appliance_name($id, $data) {
         $this->db->where('id', $id);
         $this->db->update('services', $data);
-     
         
         if ($this->db->affected_rows() > 0) {
-                return true;
-            
+            return true;            
         } else {
             return false;
-        }    
-        
+        }         
     }
      /**
      * @desc: This function is used to insert service category data into request_type table
