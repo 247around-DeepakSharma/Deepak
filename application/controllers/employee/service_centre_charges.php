@@ -2036,11 +2036,16 @@ class service_centre_charges extends CI_Controller {
         $this->form_validation->set_rules('appliance', 'appliance', 'required');
         $this->form_validation->set_rules('rowid', 'rowid', 'required');
 
-
         if ($this->form_validation->run() == TRUE) {
             $id = $this->input->post('rowid');
+            $walk_in = 0;
+            $appliance = trim($this->input->post('appliance'));
+            if(!empty($this->input->post('walk_in'))){
+                $walk_in = $this->input->post('walk_in');
+            }
             $data = array(
-                'services' => trim($this->input->post('appliance')),
+                'services' => $appliance,
+                'walk_in' => $walk_in
             );
 
             $status = $this->service_centre_charges_model->update_appliance_name($id, $data);
@@ -2050,7 +2055,6 @@ class service_centre_charges extends CI_Controller {
                 $this->session->set_userdata('success', 'Data Updated');
                 redirect(base_url() . 'employee/service_centre_charges/appliance_list');
             } else {
-
 
                 log_message("info", __METHOD__ . " Data Already Exists");
                 $this->session->set_userdata('failed', 'Data Already Exists');
