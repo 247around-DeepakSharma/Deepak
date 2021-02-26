@@ -95,8 +95,8 @@
                 <td style="text-align: center"><b>SGST Rate</b></td>
                 <td  style="text-align: center"><b>SGST Amount</b></td>
            <?php  } else { ?>
-                <td  style="text-align: center"><b>CGST Rate</b></td>
-                <td  style="text-align: center"><b>CGST Amount</b></td>
+                <td  style="text-align: center"><b>IGST Rate</b></td>
+                <td  style="text-align: center"><b>IGST Amount</b></td>
            <?php } ?>
            <td style="text-align: center"><b>Total Amount</b></td>
         </tr>
