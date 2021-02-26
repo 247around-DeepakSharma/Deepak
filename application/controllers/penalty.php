@@ -317,7 +317,7 @@ class Penalty extends CI_Controller {
             if($penalty_percentage > PENALTY_THRESHOLD){
                 $str = "<i class='fa fa-circle' style='color:red;margin-left:5px;' data-toggle='tooltip' title='The SF has penalty percentage of more then 10%, in last 60 days.'></i>";
             }
-            echo $str." (".$penalty_percentage."%)";
+            echo $str;
         }
         else
         {
