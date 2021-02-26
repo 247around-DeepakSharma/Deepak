@@ -306,7 +306,7 @@ class invoices_model extends CI_Model {
     function get_summary_invoice_amount($vendor_partner, $vendor_partner_id, $otherWhere =""){
             if($vendor_partner ==  _247AROUND_SF_STRING){
                 $s = " SUM( CASE WHEN (amount_collected_paid > 0) THEN COALESCE((`amount_collected_paid` - amount_paid ),0) ELSE COALESCE((`amount_collected_paid` + amount_paid ),0) END ) as amount_collected_paid ";
-                $w = "AND settle_amount = 0 AND sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_SECURITY_AMOUNT."', '".MSL_NEW_PART_RETURN."', '".FNF."' ) ";
+                $w = "AND settle_amount = 0 AND sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_SECURITY_AMOUNT."', '".MSL_NEW_PART_RETURN."', '".FNF."', '".MSL_SECURITY_AMOUNT."' ) ";
             } else {
                 $s = " COALESCE(SUM(`amount_collected_paid` ),0) as amount_collected_paid ";
                 $w = " AND sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_SECURITY_AMOUNT."', '".MSL_NEW_PART_RETURN."', '".FNF."' ) ";
@@ -1420,6 +1420,10 @@ class invoices_model extends CI_Model {
                 if(isset($value['from_gst_number_id'])){
                     $result[$key]['from_gst_number_id'] = $value['from_gst_number_id'];
                 }
+                
+                if(isset($value['spare_id'])){
+                    $result[$key]['spare_id'] = $value['spare_id'];
+                }
             }
             $meta['parts_count'] = $parts_count;
             $meta['service_count'] = $service_count;
@@ -1912,10 +1916,10 @@ class invoices_model extends CI_Model {
 //            }
             // we have no gst number then we generte bill of supply.
             // If we have gst number but gst status is cancelled then we are not generating invoice
-            if (!empty($result['booking'][0]['gst_number']) 
+            
+if (!empty($result['booking'][0]['gst_number']) 
                     && !empty($result['booking'][0]['gst_status']) 
                     && !($result['booking'][0]['gst_status'] == _247AROUND_CANCELLED || $result['booking'][0]['gst_status'] == GST_STATUS_SUSPENDED)) {
-            
                 return $result;
                
             } else {
@@ -3768,7 +3772,7 @@ class invoices_model extends CI_Model {
      * @date : 28-02-2020
      */
     function insert_open_cell_data($data){
-        $this->db->insert_ignore_duplicate_batch('bill_to_partner_opencell', $data);
+        $this->db->insert('bill_to_partner_opencell', $data);
     }
     
     
@@ -3957,15 +3961,6 @@ class invoices_model extends CI_Model {
     }
     
     /**
-     *  @desc : This function is used to save challan data
-     *  @param : Array $challan_details
-     *  @author Ankit Bhatt
-     *  @date : 28-04-2020
-     */
-    function insert_challan_breakup($challan_details){
-        return $this->db->insert_batch("challan_item_details", $challan_details);
-    }
-    /**
      * @Desc: This function is to get out of warranty revenue report model
      * @params: none
      * @return: array
@@ -4076,4 +4071,21 @@ class invoices_model extends CI_Model {
         return $query1->result_array();
     }
     
+    function get_challan_deatils($select, $where){
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get('challan_details');
+        return $query->result_array();
+    }
+    
+    function insert_challan_details($data){
+        $this->db->insert('challan_details', $data);
+        return $this->db->insert_id();
+    }
+    
+    function insert_challan_breakup($challan_details){
+        //return $this->db->insert_batch("challan_items_details", $challan_details);
+        $this->db->insert('challan_items_details', $challan_details);
+        return $this->db->insert_id();
+    }
 }

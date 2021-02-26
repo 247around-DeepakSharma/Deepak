@@ -1566,7 +1566,7 @@ class Booking extends CI_Controller {
         $this->initialized_variable->fetch_partner_data($partner_id);
         
         $partner_data = $this->initialized_variable->get_partner_data();
-
+                
         if ($partner_type == OEM) {
             $result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $brand,$add_booking);
         } else {
@@ -1631,10 +1631,10 @@ class Booking extends CI_Controller {
                 }
                 else
                 {
-                    // Subtract Partner Discount and 247around discount from customer net Payable for selected service categories
+                    // Subtract Partner Discount and 247around discount from customer net Payable for selected service categories                    
                     $html .= "<td style='display:none;'>" . $ct . "</td>";
                     $html .= "<td>" . $customer_net_payable . "<input  type='hidden' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $partner_net_payable . "' placeholder='Enter discount' readonly onblur='chkPrice($(this),". $ct.")'/><input  type='hidden' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $around_net_payable."' placeholder='Enter discount' readonly></td>";
-                        }                        
+                }
                 
                 if(!$is_sf_panel)
                 {

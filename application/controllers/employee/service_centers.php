@@ -52,6 +52,8 @@ class Service_centers extends CI_Controller {
         $this->load->helper('url'); 
     }
 
+
+
     /**
      * @desc: This is used to load vendor Login Page
      *
@@ -4388,7 +4390,7 @@ class Service_centers extends CI_Controller {
                                 $vendor_details = $this->vendor_model->getVendorDetails("service_centres.id, service_centres.pincode", array("service_centres.id" => $value['assigned_vendor_id']), 'name', array(), array(), array());
                                 if (!empty($vendor_details)) {
 
-                                    $serviceable_area = $this->inventory_model->get_generic_table_details("courier_serviceable_area", "courier_serviceable_area.courier_company_name", array("courier_serviceable_area.pincode" => $vendor_details[0]['pincode'], "courier_serviceable_area.status"=> 1), array());
+                                    $serviceable_area = $this->inventory_model->get_generic_table_details("courier_serviceable_area", "courier_serviceable_area.courier_company_name", array("courier_serviceable_area.pincode" => $vendor_details[0]['pincode'], "courier_serviceable_area.status" => 1), array());
                                     if (!empty($serviceable_area)) {
                                         $couriers_name = implode(', ', array_map(function ($entry) {
                                                     return $entry['courier_company_name'];
@@ -4453,14 +4455,14 @@ class Service_centers extends CI_Controller {
                 if (!empty($sf_details)) {
                     $data['partner_challan_number'] = $this->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code'], true);
                     $sf_details[0]['address'] = $sf_details[0]['address'] . ", " . $sf_details[0]['district'] . ", " . $sf_details[0]['state'] . ", Pincode -" . $sf_details[0]['pincode'];
-
-					$contact_number_array = array($sf_details[0]['contact_number'],$sf_details[0]['contact_number_2'],$sf_details[0]['contact_number_3'],$sf_details[0]['contact_number_4']);
+                   
+                    $contact_number_array = array($sf_details[0]['contact_number'],$sf_details[0]['contact_number_2'],$sf_details[0]['contact_number_3'],$sf_details[0]['contact_number_4']);
                     $contact_number_string = implode(', ',array_unique(array_filter($contact_number_array))); 
                      $sf_details[0]['contact_number'] = $contact_number_string;
                 }
 
                 if (!empty($spare_details)) {
-                    $data['partner_challan_file'] = $this->invoice_lib->process_create_sf_challan_file($sf_details, $partner_details, $data['partner_challan_number'], $spare_details,'','',false,true,false);
+                    $data['partner_challan_file'] = $this->invoice_lib->process_create_sf_challan_file($sf_details, $partner_details, $data['partner_challan_number'], $spare_details, '', '', false, true, false);
                     array_push($delivery_challan_file_name_array, $data['partner_challan_file']);
                     if (!empty($data['partner_challan_file'])) {
                         if (!empty($spare_details)) {
@@ -6486,7 +6488,6 @@ class Service_centers extends CI_Controller {
             $where = array(
                 "spare_parts_details.defective_part_required" => 1,
                 "approved_defective_parts_by_admin" => 1,
-                "(defective_return_to_entity_id = $sf_id or consumed_part_status_id = 1)" =>null,
                 "(spare_lost is null or spare_lost = 0)" => NULL,
                 "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
                 "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "','" . OK_PARTS_SHIPPED . "','" . DAMAGE_PARTS_SHIPPED . "')" => NULL,
@@ -6504,15 +6505,14 @@ class Service_centers extends CI_Controller {
         
         $select = "spare_parts_details.id,defective_part_shipped,spare_parts_details.defective_part_rejected_by_partner, spare_parts_details.shipped_quantity,spare_parts_details.id, spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, spare_consumption_status.reason_text,spare_parts_details.defective_return_to_entity_id, "
                 . " spare_parts_details.booking_id, users.name as 'user_name', courier_name_by_sf, awb_by_sf,defective_part_shipped_date,"
-                . "remarks_defective_part_by_sf,booking_details.partner_id,service_centres.name as 'sf_name',service_centres.district as 'sf_city',s.part_number, spare_parts_details.defactive_part_received_date_by_courier_api, spare_parts_details.defective_part_rejected_by_wh, spare_parts_details.status";
-
+                . "remarks_defective_part_by_sf,booking_details.partner_id,service_centres.name as 'sf_name',service_centres.district as 'sf_city',s.part_number, spare_parts_details.defactive_part_received_date_by_courier_api, spare_parts_details.status, spare_parts_details.defective_part_rejected_by_wh";
         $group_by = "spare_parts_details.id";
         $limit = $post['length'];
         $offset = $post['start'];
         $post['column_search'] = array('spare_parts_details.booking_id', 'spare_parts_details.awb_by_sf','service_centres.name');
         $order_by = "spare_parts_details.defective_part_shipped_date DESC, spare_parts_details.booking_id";
         $list = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $limit, 0, NULL, $post);
-  
+        
         $no = $post['start'];
         $data=array();
         //$no =0;
@@ -6535,7 +6535,7 @@ class Service_centers extends CI_Controller {
                    $whare_house_name_array[$wh_id] = $warehouse_name;
                 }
             }
-            $row = $this->defective_parts_shipped_by_sf_table_data($spare_list, $no, $warehouse_name);
+            $row = $this->defective_parts_shipped_by_sf_table_data($spare_list, $no, $warehouse_name, $sf_id);
             $data[] = $row;
         }
 
@@ -6988,6 +6988,7 @@ class Service_centers extends CI_Controller {
                                 $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                             }
                         }
+                        $data['quantity'] = $part_details['quantity'];
 
                         //$this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $sf_id, $part_details['requested_inventory_id'], -$data['quantity']);
                     } else if ($part_details['shippingStatus'] == -1) {
@@ -7842,55 +7843,55 @@ class Service_centers extends CI_Controller {
      * @desc: This method is used to display list of booking which received by Partner
      * @param Integer $offset
      */
-    function get_approved_defective_parts_booking_by_warehouse($offset = 0) {
-        $this->check_WH_UserSession();
-        log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
-
-        //check if call from form submission or direct url
-        //used to filter the page by partner id
-
-        $config['per_page'] = 500;
-        $config['uri_segment'] = 3;
-        $config['first_link'] = 'First';
-        $config['last_link'] = 'Last';
-
-        if ($this->input->post('partner_id')) {
-
-            $partner_id = $this->input->post('partner_id');
-            $data['filtered_partner'] = $this->input->post('partner_id');
-            $sf_id = $this->session->userdata('service_center_id');
-
-            $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
-                    . " AND defective_part_required = '1' AND status IN ('" . _247AROUND_COMPLETED . "') ";
-
-
-            $where .= " AND booking_details.partner_id = " . $partner_id;
-            $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
-            $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
-        } else {
-
-            $data['spare_parts'] = array();
-            $total_rows = array(array("total_rows" => 0));
-        }
-
-        $config['base_url'] = base_url() . 'service_center/approved_defective_parts_booking_by_warehouse';
-
-        $config['total_rows'] = $total_rows[0]['total_rows'];
-
-
-        $this->pagination->initialize($config);
-        $data['links'] = $this->pagination->create_links();
-
-        $data['count'] = $config['total_rows'];
-
-
-        if (empty($this->input->post('is_ajax'))) {
-            $this->load->view('service_centers/header');
-            $this->load->view('service_centers/approved_defective_parts_by_warehouse', $data);
-        } else {
-            $this->load->view('service_centers/approved_defective_parts_by_warehouse', $data);
-        }
-    }
+//    function get_approved_defective_parts_booking_by_warehouse($offset = 0) {
+//        $this->check_WH_UserSession();
+//        log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
+//
+//        //check if call from form submission or direct url
+//        //used to filter the page by partner id
+//
+//        $config['per_page'] = 500;
+//        $config['uri_segment'] = 3;
+//        $config['first_link'] = 'First';
+//        $config['last_link'] = 'Last';
+//
+//        if ($this->input->post('partner_id')) {
+//
+//            $partner_id = $this->input->post('partner_id');
+//            $data['filtered_partner'] = $this->input->post('partner_id');
+//            $sf_id = $this->session->userdata('service_center_id');
+//
+//            $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
+//                    . " AND defective_part_required = '1' AND status IN ('" . _247AROUND_COMPLETED . "') ";
+//
+//
+//            $where .= " AND booking_details.partner_id = " . $partner_id;
+//            $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
+//            $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
+//        } else {
+//
+//            $data['spare_parts'] = array();
+//            $total_rows = array(array("total_rows" => 0));
+//        }
+//
+//        $config['base_url'] = base_url() . 'service_center/approved_defective_parts_booking_by_warehouse';
+//
+//        $config['total_rows'] = $total_rows[0]['total_rows'];
+//
+//
+//        $this->pagination->initialize($config);
+//        $data['links'] = $this->pagination->create_links();
+//
+//        $data['count'] = $config['total_rows'];
+//
+//
+//        if (empty($this->input->post('is_ajax'))) {
+//            $this->load->view('service_centers/header');
+//            $this->load->view('service_centers/approved_defective_parts_by_warehouse', $data);
+//        } else {
+//            $this->load->view('service_centers/approved_defective_parts_by_warehouse', $data);
+//        }
+//    }
 
     function warehouse_ack_partner_list() {
         if(!empty($this->session->userdata('warehouse_id'))) {
@@ -7996,7 +7997,7 @@ class Service_centers extends CI_Controller {
             
             $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
                     . " AND defective_part_required = '1' AND reverse_purchase_invoice_id IS NULL AND status IN ('" . _247AROUND_COMPLETED . "','" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "', '".Ok_PARTS_RECEIVED_BY_WAREHOUSE."') AND spare_parts_details.is_micro_wh IN (1,2) AND spare_parts_details.awb_by_wh IS NULL AND spare_parts_details.consumed_part_status_id IN (".PART_CONSUMED_STATUS_ID.") ";
-            $where .= " AND booking_details.partner_id = " . $partner_id . " AND booking_details.current_status = '"._247AROUND_COMPLETED."'";
+            $where .= " AND booking_details.partner_id = " . $partner_id . " AND booking_details.current_status = '"._247AROUND_COMPLETED."' AND spare_parts_details.wh_challan_number IS NULL ";
 
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, '', true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
 
@@ -8008,7 +8009,6 @@ class Service_centers extends CI_Controller {
         } else {
             $data['spare_parts'] = array();
         }
-        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         $gst_where = array(
             "entity_type" => _247AROUND_PARTNER_STRING,
             "entity_id" => _247AROUND,
@@ -8551,11 +8551,11 @@ class Service_centers extends CI_Controller {
      */
     function process_update_spare_courier_details($id) {
         log_message('info', __METHOD__ . ' update spare courier details of spare id ' . $id);
-        $this->form_validation->set_rules('shipped_parts', 'shipped_parts', 'trim|required');
+        //$this->form_validation->set_rules('shipped_parts', 'shipped_parts', 'trim|required');
         $this->form_validation->set_rules('courier_name', 'courier_name', 'trim|required');
         $this->form_validation->set_rules('awb', 'awb', 'required');
         $this->form_validation->set_rules('courier_charge', 'courier_charge', 'trim|required');
-        $this->form_validation->set_rules('shipped_date', 'shipped_date', 'required');
+        //$this->form_validation->set_rules('shipped_date', 'shipped_date', 'required');
         $this->form_validation->set_rules('remarks_by_sf', 'remarks_by_sf', 'trim|required');
         if ($this->form_validation->run() == TRUE) {
             $booking_id = $this->input->post('booking_id');
@@ -8707,6 +8707,7 @@ class Service_centers extends CI_Controller {
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/dashboard', $data);
     }
+
 
     /**
      * msl summary details -> page to show MSL Security deposits of SF till now

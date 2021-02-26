@@ -268,8 +268,6 @@
                 }
             });
     }
-    
-    
     var time = moment().format('D-MMM-YYYY');
     
     get_hsn_code_details();

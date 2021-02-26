@@ -107,7 +107,7 @@
                                     </td>
 
                                     <td>
-                                        <?php if(!is_null($row['defective_part_shipped_date'])){  echo date("d/m/Y",strtotime($row['defective_part_shipped_date'])); }  ?>
+                                        <?php if(!is_null($row['defective_part_shipped_date'])){  echo date("d-M-Y",strtotime($row['defective_part_shipped_date'])); }  ?>
                                     </td>
                                     <td>
                                         <?php echo $row['vendor_name']; ?>
@@ -123,10 +123,11 @@
                                      </td>
 
                                      <td><?php echo $row['shipped_quantity']?>
-                                     	
+                                        
                                      <input type="hidden" readonly="readonly" min="1" value="<?php echo $row['shipped_quantity']?>" data-shipping_quantity="<?php echo $row['shipped_quantity']?>" id="spare<?php echo $row['id']?>" name="shipping_quantity">
 
                                      </td>
+                                     
                                     <td>
                                         
                                         <input type="checkbox" class="check_single_row" data-is_micro_wh ="<?php echo $row['is_micro_wh'];?>" data-defective_return_to_entity_type ="<?php echo $row['defective_return_to_entity_type']; ?>" data-defective_return_to_entity_id="<?php echo $row['defective_return_to_entity_id'];?>" data-entity_type ="<?php echo $row['entity_type']; ?>" data-service_center_id ="<?php echo $row['service_center_id']; ?>" data-part_name ="<?php echo $row['defective_part_shipped']; ?>" data-model="<?php echo $row['model_number_shipped']; ?>" data-shipped_inventory_id = "<?php echo $row['shipped_inventory_id']?>" data-booking_id ="<?php echo $row['booking_id']?>" data-partner_id = "<?php echo $row['partner_id']?>" data-spare_id = "<?php echo $row['id']?>" data-booking_partner_id = "<?php echo $row['booking_partner_id']?>">
@@ -159,102 +160,10 @@
               <div class="modal-content">
                 <div class="modal-header">
                   <button type="button" class="close" data-dismiss="modal">&times;</button>
-                  <h4 class="modal-title">Please Provide Courier Details</h4>
+                  <h4 class="modal-title">Select GST Number Details</h4>
                 </div>
                 <div class="modal-body">
                     <form class="form-horizontal" id="courier_model_form" method="post" novalidate="novalidate">
-                        <div class='row'>
-                            <div class="col-md-6">
-                                <div class='form-group'>
-                                    <label for="awb_by_wh" class="col-md-4">AWB *</label>
-                                    <div class="col-md-8">
-                                        <input type="text" onblur="check_awb_exist()" class="form-control"  id="awb_by_wh" name="awb_by_wh" placeholder="Please Enter AWB" required>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class='form-group'>
-                                    <?php  if (form_error('courier_name')) {echo 'has-error';} ?>
-                                    <label for="courier_name_by_wh" class="col-md-4">Courier Name *</label>
-                                    <div class="col-md-8">
-                                        <select class="form-control" id="courier_name_by_wh" name="courier_name_by_wh" required="">
-                                            <option selected="" disabled="" value="">Select Courier Name</option>
-                                            <?php foreach ($courier_details as $value1) { ?> 
-                                                <option value="<?php echo $value1['courier_code']; ?>"><?php echo $value1['courier_name']; ?></option>
-                                            <?php } ?>
-                                        </select>
-                                        <?php echo form_error('courier_name'); ?>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class='row'>
-                            <div class="col-md-6">
-                                <div class='form-group'>
-                                    <label for="courier_price_by_wh" class="col-md-4">Courier Price *</label>
-                                    <div class="col-md-8">
-                                        <input type="number" class="form-control"  id="courier_price_by_wh" name="courier_price_by_wh" placeholder="Please Enter Courier Price" required>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class='form-group'>
-                                    <label for="defective_parts_shippped_date_by_wh" class="col-md-4">Courier Shipped Date *</label>
-                                    <div class="col-md-8">
-                                        <input type="text" class="form-control"  id="defective_parts_shippped_date_by_wh" name="defective_parts_shippped_date_by_wh" placeholder="Please enter Shipped Date" required="true" readonly="">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class='form-group'>
-                                    <label for="defective_parts_shippped_courier_pic_by_wh" class="col-md-4">Large Box Count</label>
-                                    <div class="col-md-8">
-                                        <select class="form-control" id="shipped_spare_parts_boxes_count" name="shipped_spare_parts_boxes_count"  required="">
-                                            <option selected="" value="">Select Boxes</option>
-                                            <?php for ($i = 1; $i < 31; $i++) { ?>
-                                                <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
-                                            <?php } ?>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class='form-group'>
-                                    <label for="shipped_spare_parts_boxes_count" class="col-md-4">Small Box Count</label>
-                                    <div class="col-md-8">
-                                        <select class="form-control" id="shipped_spare_parts_small_boxes_count" name="shipped_spare_parts_small_boxes_count"  required>
-                                            <option selected="" value="">Select Small Boxes</option>
-                                            <?php for ($i = 1; $i < 31; $i++) { ?>
-                                            <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
-                                            <?php } ?>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class='form-group'>
-                                    <label for="defective_parts_shippped_courier_pic_by_wh" class="col-md-4">Weight *</label>
-                                    <div class="col-md-8">
-                                        <input type="text" class="form-control" style="width: 25%; display: inline-block;" id="shipped_spare_parts_weight_in_kg" name="spare_parts_shipped_kg" value="" placeholder="Weight" required=""> <strong> in KG</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <input type="text" class="form-control" style="width: 25%; display: inline-block;" id="shipped_spare_parts_weight_in_gram"   value=""   name="spare_parts_shipped_gram" placeholder="Weight" required="">&nbsp;<strong>in Gram </strong> 
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class='form-group'>
-                                    <label for="defective_parts_shippped_courier_pic_by_wh" class="col-md-4">Courier Pic *</label>
-                                    <div class="col-md-8">
-                                        <input type="hidden" class="form-control"  id="exist_courier_image" name="exist_courier_image" >
-                                        <input type="file" class="form-control"  id="defective_parts_shippped_courier_pic_by_wh" name="defective_parts_shippped_courier_pic_by_wh" required>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                        </div>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class='form-group'>
@@ -293,42 +202,7 @@
                                 </div>
                             </div>
                         </div>
-                        <br>
-                        <h4 class="modal-title">E-Way Bill Details</h4>
-                        <hr>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class='form-group'>
-                                    <label for="eway_vehicle_number" class="col-md-4">Vehicle Number</label>
-                                    <div class="col-md-8">
-                                        <input type="text" class="form-control"  id="eway_vehicle_number" name="eway_vehicle_number" placeholder="Please Enter Vehicle Number" required>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class='form-group'>
-                                    <label for="eway_bill_by_wh" class="col-md-4">E-Way Bill Number </label>
-                                    <div class="col-md-8">
-                                        <input type="text" class="form-control"  id="eway_bill_by_wh" name="eway_bill_by_wh" placeholder="Please Enter E-Way Bill Number" required>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class='form-group'>
-                                    <label for="defective_parts_shippped_ewaybill_pic_by_wh" class="col-md-4">E-Way Bill File </label>
-                                    <div class="col-md-8">
-                                        <input type="hidden" class="form-control"  id="exist_ewaybill_image" name="exist_ewaybill_image" >
-                                        <input type="file" class="form-control"  id="defective_parts_shippped_ewaybill_pic_by_wh" name="defective_parts_shippped_ewaybill_pic_by_wh" required>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </form>
-                    <div class="text-center">
-                            <span id="same_awb" style="display:none">This AWB already used same price will be added</span>
-                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-success" id="submit_courier_form">Submit</button>
@@ -486,7 +360,7 @@
         postData['data'] = JSON.stringify(tmp_arr);
         postData['sender_entity_id'] =  '<?php echo $sf_id?>';
         postData['sender_entity_type'] = '<?php echo _247AROUND_SF_STRING; ?>';
-        postData['wh_name'] = '<?php echo $this->session->userdata('wh_name')?>';
+        postData['wh_name'] = '<?php echo $this->session->userdata('wh_name'); ?>';
         postData['receiver_partner_id'] = $("#partner_id_send_to_partner").val();
         
         if(flag){
@@ -504,74 +378,17 @@
         $(".check_single_row").prop('checked', false);
         $("#send_spare_to_partner").attr('disabled',true);
         $('#submit_courier_form').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
-        postData['awb_by_wh'] = $('#awb_by_wh').val();
-        postData['courier_name_by_wh'] = $('#courier_name_by_wh').val();
-        postData['courier_price_by_wh'] = $('#courier_price_by_wh').val();
-        postData['defective_parts_shippped_date_by_wh'] = $('#defective_parts_shippped_date_by_wh').val().split("/").reverse().join("-");
-        postData['exist_courier_image'] = $('#exist_courier_image').val();
         postData['from_gst_number'] = $('#from_gst_number').val();
         postData['to_gst_number'] = $('#to_gst_number').val();
-        postData['eway_bill_by_wh'] = $('#eway_bill_by_wh').val();
-        postData['eway_vehicle_number'] = $('#eway_vehicle_number').val();
-        postData['shipped_spare_parts_boxes_count'] = $('#shipped_spare_parts_boxes_count').val() || 0;
-        postData['shipped_spare_parts_small_boxes_count'] = $('#shipped_spare_parts_small_boxes_count').val() || 0;
-        var total_boxes = postData['shipped_spare_parts_boxes_count']+postData['shipped_spare_parts_small_boxes_count'];
-        postData['shipped_spare_parts_weight_in_kg'] = $('#shipped_spare_parts_weight_in_kg').val();
-        postData['shipped_spare_parts_weight_in_gram'] = $('#shipped_spare_parts_weight_in_gram').val();
-        var exist_courier_image = $("#exist_courier_image").val();       
-        
+          
         //Declaring new Form Data Instance  
         var formData = new FormData();
-                
-        //Getting Files Collection
-        var files = $("#defective_parts_shippped_courier_pic_by_wh")[0].files;
-        
-        var eway_files = $("#defective_parts_shippped_ewaybill_pic_by_wh")[0].files;
-        
-        //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
-        for (var i = 0; i < files.length; i++) {
-            formData.append('file', files[i]);
-        }
-        
-        //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
-        for (var i = 0; i < eway_files.length; i++) {
-            formData.append('eway_file', eway_files[i]);
-        }
-        
-        var is_exist_file = false;
-        if(exist_courier_image){
-            is_exist_file = true;
-        }
-        
-        if(files.length >= 1){
-            is_exist_file = true;
-        }
         //Now Looping the parameters for all form input fields and assigning them as Name Value pairs. 
         $.each(postData, function(index, element) {
             formData.append(index, element);
         });
-        if(!/^\d+(\.\d+)?$/g.test(postData['courier_price_by_wh'])){              //should be number only with one decimal 
-            $('#submit_courier_form').html("Submit").attr('disabled',false);
-            alert("Courier price should be numerical and should not contain alphabets and special characters except decimal.")
-            return false;
-        }
 
-
-        let kg = $("#shipped_spare_parts_weight_in_kg").val();
-        let gm = $("#shipped_spare_parts_weight_in_gram").val();
-        let total = parseInt(kg)+parseInt(gm);
-        if(!total){
-        swal("Error !", "Sum of weight in KG and GM must be greater than 0");
-        return false;
-        }
-
-        var courier_price= parseFloat(postData['courier_price_by_wh']);
-        if(courier_price<0 || courier_price>2000){                              //should be in between 0 and 2000
-            $('#submit_courier_form').html("Submit").attr('disabled',false);
-            alert('Courier price should be in between 0 and 2000.');
-            return false;
-        }
-        if(postData['awb_by_wh'] && postData['courier_name_by_wh'] && postData['courier_price_by_wh'] && postData['defective_parts_shippped_date_by_wh'] && is_exist_file && postData['from_gst_number'] && postData['to_gst_number'] && total_boxes > 0 && postData['shipped_spare_parts_weight_in_kg']  && postData['shipped_spare_parts_weight_in_gram']){
+        if(postData['from_gst_number'] && postData['to_gst_number']){
             $.ajax({
                 method:'POST',
                 url:'<?php echo base_url(); ?>employee/inventory/send_defective_parts_to_partner_from_wh',

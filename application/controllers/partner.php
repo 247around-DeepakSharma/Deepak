@@ -215,6 +215,11 @@ class Partner extends CI_Controller {
                                 if (stristr($prod, "Stove")) {
                                     $lead_details['Product'] = 'Gas Stove';
                                 }
+
+                               if (stristr($prod, "Audio System")) {
+                                    $lead_details['Product'] = 'Audio System (Home Visit)';
+                                }
+
                                 
                                 if (stristr($prod, "Mixer Grinder") || stristr($prod, "Juicer Mixer Grinder") 
                                     || stristr($prod, "Juicer Mixer Grinder") 

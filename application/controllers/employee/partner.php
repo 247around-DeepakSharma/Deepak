@@ -2414,7 +2414,6 @@ $post['amount_due'] = false;
                               $internal_status = SPARE_OOW_SHIPPED;
                               } else {
                               $internal_status = SPARE_PARTS_SHIPPED;
-
                               }
                              */
 
@@ -2463,7 +2462,6 @@ $post['amount_due'] = false;
                           $sc_data['internal_status'] = SPARE_OOW_SHIPPED;
                           } else {
                           $sc_data['internal_status'] = $internal_status;
-
                           } */
 
                         if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
@@ -2551,7 +2549,7 @@ $post['amount_due'] = false;
             redirect(base_url() . "partner/update_spare_parts_form/" . $booking_id);
         }
     }
-
+    
     function inset_new_spare_request($booking_id, $data, $part_details){
         $sp_details = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $booking_id));
         $data['entity_type'] =_247AROUND_PARTNER_STRING;
@@ -10333,7 +10331,19 @@ $post['amount_due'] = false;
             $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $html, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
         }
     }
-
+    
+    /**
+     * This function is used to get call recordings made by agents against the Booking
+     * @param type $booking_primary_id
+     * @date : 04-02-2020
+     * @author : Deepak Sharma
+     */
+    function get_booking_recordings($booking_primary_id) { 
+        $select = "agent_outbound_call_log.create_date, agent_outbound_call_log.recording_url, employee.full_name, employee.groups";
+        $data['data'] = $this->booking_model->get_booking_recordings_by_id($booking_primary_id, $select);
+        $this->load->view('employee/show_booking_recordings', $data);
+    }
+    
     /**
      * @desc: This method loads add booking form for WalkIns / SFs
      * It gets user details(if exist), city, source, services
@@ -10789,66 +10799,6 @@ $post['amount_due'] = false;
             $data['booking_unit_details'] = $this->booking_model->get_unit_details(['booking_id' => $booking_id, 'booking_status <> "Cancelled"' => NULL]);
             $this->load->view('partner/booking_result', $data);
         }        
-    }
-    /*
-     * @Desc - This function is used to return booking history as API
-     * @param -
-     * @response - json
-     * @Author  - Ghanshyam Ji Gupta
-     */
-    function getBookingHistory() {
-        $input_d = file_get_contents('php://input');
-        $post = json_decode($input_d, TRUE);
-        $authentication = $this->checkAuthentication(true);
-        if (empty($authentication)) {
-            return $this->show_booking_insertion_failure(true, ERR_GENERIC_ERROR_CODE, ERR_INVALID_AUTH_TOKEN_MSG);
-        }else{
-            $post['partner_id'] = $authentication['id'];
-        }
-        if (empty($post['booking_id'])) {
-            return $this->show_booking_insertion_failure(true, ERR_INVALID_BOOKING_ID_CODE,ERR_INVALID_BOOKING_ID_MSG);
-        }
-        $booking_select = "booking_id,service_center_closed_date";
-        $booking_where = array("booking_id" => $post['booking_id'], "partner_id" => $post['partner_id']);
-        $booking_details = $this->engineer_model->get_booking_details($booking_select, $booking_where);
-        if (!empty($booking_details)) {
-            $bookingID_state_change = $this->booking_model->get_booking_state_change_by_id($post['booking_id'], true, true);
-            $comment_section = $this->booking_model->get_remarks(array('booking_id' => $post['booking_id'], "isActive" => 1, 'comment_type' => 1));
-            $newarray = array();
-            $newarray_comment = array();
-            if (!empty($bookingID_state_change) || !empty($comment_section)) {
-                if (!empty($bookingID_state_change)) {
-                    foreach ($bookingID_state_change as $key => $value) {
-                        $newarray[$key]['old_state'] = $value['old_state'];
-                        $newarray[$key]['new_state'] = $value['new_state'];
-                        $newarray[$key]['remarks'] = $value['remarks'];
-                        $newarray[$key]['insert_date'] = $value['create_date'];
-                        $newarray[$key]['full_name'] = $value['full_name'];
-                        $newarray[$key]['source'] = $value['source'];
-                    }
-                }
-                if (!empty($comment_section)) {
-                    foreach ($comment_section as $key => $value) {
-                        $newarray_comment[$key]['remarks'] = $value['remarks'];
-                        $newarray_comment[$key]['employee'] = $value['employee_id'];
-                        $newarray_comment[$key]['full_name'] = $value['full_name'];
-                        $newarray_comment[$key]['create_date'] = $value['create_date'];
-                    }
-                }
-                $this->jsonResponseString['code'] = SUCCESS_CODE;
-                $this->jsonResponseString['result']['history'] = $newarray;
-                $this->jsonResponseString['result']['comment'] = $newarray_comment;
-                $responseData = array("data" => $this->jsonResponseString);
-
-                header('Content-Type: application/json');
-                $response = json_encode($responseData, JSON_UNESCAPED_SLASHES);
-                echo $response;
-            } else {
-                return $this->show_booking_insertion_failure(true, ERR_INVALID_BOOKING_ID_CODE, "No history found");
-            }
-        } else {
-            return $this->show_booking_insertion_failure(true, ERR_INVALID_BOOKING_ID_CODE, ERR_INVALID_BOOKING_ID_MSG);
-        }
     }
 
 }
