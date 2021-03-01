@@ -17,6 +17,10 @@ function handleShutdown() {
         }
         //$msg = $buffer;
         $CI = get_instance();
+        if(empty($CI->email)){
+            // Email class is not loaded
+            exit();
+        }
         $CI->email->clear(TRUE);
         $CI->email->from(SYS_HEALTH_EMAIL, SYS_HEALTH_NAME);
         $CI->email->to(FATAL_ERROR_EMAIL);

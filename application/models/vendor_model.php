@@ -617,7 +617,8 @@ class vendor_model extends CI_Model {
      *  @return : array of districts
      */
     function getDistrict_from_india_pincode($state = "", $pincode ="") {
-        $this->db->select('district,state');
+        $this->db->distinct();
+        $this->db->select('district');
         if ($state != "") {
             $this->db->where('LOWER(state)', strtolower($state));
         }
@@ -625,7 +626,26 @@ class vendor_model extends CI_Model {
         if($pincode != ""){
             $this->db->where('pincode', trim($pincode));
         }
-        $this->db->group_by('district');
+        $this->db->order_by('district');
+        $query = $this->db->get('india_pincode');
+
+        return $query->result_array();
+    }
+    
+    /**
+     *  @desc : This function is to select district from India pincode
+     *
+     *  All the distinct districts of India(if state is given then according to state)
+     *
+     *  @param : $state
+     *  @return : array of districts
+     */
+    function getDistrict_State_from_india_pincode($pincode ="") {
+        $this->db->distinct();
+        $this->db->select('district, state');
+        if($pincode != ""){
+            $this->db->where('pincode', trim($pincode));
+        }
         $this->db->order_by('district');
         $query = $this->db->get('india_pincode');
 
