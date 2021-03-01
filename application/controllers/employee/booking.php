@@ -6870,6 +6870,15 @@ class Booking extends CI_Controller {
         $this->load->view('employee/courier_lost_parts', $data);
     }
     
+    function get_city_state_from_pincode() {
+        $post_data = $this->input->post();
+        $data = array();
+        if (!empty($post_data['booking_pincode'])) {
+            $data = $this->vendor_model->getDistrict_State_from_india_pincode($post_data['booking_pincode']);
+        }
+        echo json_encode($data);
+    }
+    
     /**
      * @desc this is used to get review questionnaire for the given form
      * @param int $panel_id, int $form_id, int $service_id, varchar $request_type
