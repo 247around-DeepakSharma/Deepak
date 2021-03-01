@@ -379,7 +379,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="x in completedBookingByRM | orderBy:'TAT_16'">
+                        <tr ng-repeat="x in completedBookingByRM.TAT | orderBy:'TAT_16'">
                            <td>{{$index+1}}</td>
 <!--                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}">{{x.entity}}</a></td>-->
                            <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
@@ -654,7 +654,7 @@
         $.each(obj, function (index,val) {
             table_body_html += '<tr>';
             table_body_html += '<td>' + (Number(index)+1) +'</td>';
-            table_body_html += '<td><a href="">' +val['public_name'] +'</a></td>';
+            table_body_html += '<td>' +val['public_name'] +'</td>';
             table_body_html += "<td>" +val['out_of_tat_part_count'] +"</td>";
             table_body_html += "<td> Rs. " +val['out_of_tat_amount'] +"</td>";
             table_body_html += '</tr>';
@@ -685,7 +685,7 @@
         $.each(obj, function (index,val) {
             table_body_html += '<tr>';
             table_body_html += '<td>' + (Number(index)+1) +'</td>';
-            table_body_html += '<td><a href="">' +val['public_name'] +'</a></td>';
+            table_body_html += '<td>' +val['public_name'] +'</td>';
             table_body_html += "<td>" +val['in_transit_part_count'] +"</td>";
             table_body_html += "<td> Rs. " +val['in_transit_amount'] +"</td>";
             table_body_html += '</tr>';
@@ -716,9 +716,11 @@
         $.each(obj, function (index,val) {
             table_body_html += '<tr>';
             table_body_html += '<td>' + (Number(index)+1) +'</td>';
-            table_body_html += '<td><a href="">' +val['public_name'] +'</a></td>';
-            table_body_html += "<td>" +val['in_transit_part_count'] +"</td>";
-            table_body_html += "<td> Rs. " +val['in_transit_amount'] +"</td>";
+            table_body_html += '<td>' +val['manager_name'] +'</td>';
+            table_body_html += "<td>" +val['agent_name'] +"</td>";
+            table_body_html += "<td>" +val['sf_name'] +"</td>";
+            table_body_html += "<td>" +val['out_tat_part_count'] +"</td>";
+            table_body_html += "<td>" +val['out_tat_amount'] +"</td>";
             table_body_html += '</tr>';
         });
         $('#rm_wise_tat_report_table_data').html(table_body_html);
@@ -749,7 +751,7 @@
             table_body_html += '<td>' + (Number(index)+1) +'</td>';
             table_body_html += "<td>" +val['state'] +"</td>";
             table_body_html += "<td>" +val['district'] +"</td>";
-            table_body_html += '<td><a href="">' +val['sf_name'] +'</a></td>';
+            table_body_html += '<td>' +val['sf_name'] +'</td>';
             table_body_html += "<td>" +val['partner_name'] +"</td>";
             table_body_html += "<td> Rs. " +val['parts_count_to_shipped'] +"</td>";
             table_body_html += "<td> Rs. " +val['parts_charge'] +"</td>";
