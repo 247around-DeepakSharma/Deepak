@@ -1455,15 +1455,18 @@ class Invoice_lib {
         $html_table = $this->ci->table->generate();
 
         $email_template = $this->ci->booking_model->get_booking_email_template("spare_invoice_not_found");
-        $subject = $email_template[4];
-        $message = vsprintf($email_template[0], array($html_table,json_encode($data, true)));
-        $email_from = $email_template[2];
+        if(!empty($email_template)){
+            $subject = $email_template[4];
+            $message = vsprintf($email_template[0], array($html_table,json_encode($data, true)));
+            $email_from = $email_template[2];
 
-        $to = $email_template[1];
-        $cc = $email_template[3];
-        $bcc = $email_template[5];
+            $to = $email_template[1];
+            $cc = $email_template[3];
+            $bcc = $email_template[5];
 
-        $this->ci->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, "", 'spare_invoice_not_found');
+            $this->ci->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, "", 'spare_invoice_not_found');
+        }
+        
     }
     
     /**

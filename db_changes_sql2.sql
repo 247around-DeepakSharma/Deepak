@@ -2842,4 +2842,7 @@ COMMIT;
 ALTER TABLE `variable_handling_invoice` ADD `entity_id` INT NOT NULL AFTER `invoice_id`;
 ALTER TABLE `variable_handling_invoice` ADD `type` INT NOT NULL COMMENT '1- Logistic' AFTER `on_month`;
 
+--Abhay Anand 2 March
+ALTER TABLE `vendor_partner_invoices` CHANGE `tcs_rate` `tcs_rate` DECIMAL(10,3) NOT NULL DEFAULT '0.00';
+
 
