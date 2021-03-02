@@ -5439,6 +5439,14 @@ class vendor extends CI_Controller {
                 $rm_email = $this->input->post('rm_email');
                 $poc_email = $this->input->post('poc_email');
                 $owner_email = $this->input->post('owner_email');
+                $aemail = $this->session->userdata('official_email');
+                $asm_details = $this->vendor_model->get_asm_contact_details_by_sf_id($entity_id);
+                if (!empty($asm_details[0]['official_email'])) {
+                    if($asm_details[0]['official_email'] != $this->session->userdata('official_email')){
+                        $aemail .= ", ".$asm_details[0]['official_email'];
+                    }
+                } 
+                
                 //send email to sf and rm
                 $template = $this->booking_model->get_booking_email_template("bank_details_verification_email");
                 if (!empty($template) && (!empty($poc_email) || !empty($owner_email))) {
@@ -5448,7 +5456,8 @@ class vendor extends CI_Controller {
                     $emailBody = $template[0];
                     $subject['sf_name'] = $this->input->post('sf_name');
                     $subjectBody = vsprintf($template[4], $subject);
-                    $this->notify->sendEmail($from, $to, $this->session->userdata('official_email') . ",".$template[3].','.$rm_email , '', $subjectBody, $emailBody, "",'bank_details_verification_email');
+                    $cc = $template[3] . "," . $aemail;
+                    $this->notify->sendEmail($from, $to, $cc . "," . $template[3] . ',' . $rm_email, '', $subjectBody, $emailBody, "", 'bank_details_verification_email');
                 }
             }
             echo "success";
