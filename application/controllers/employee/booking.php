@@ -2453,7 +2453,7 @@ class Booking extends CI_Controller {
         $employeeID = $this->session->userdata('employee_id');
         $id = $this->session->userdata('id');
         $this->miscelleneous->approved_rescheduled_bookings($reschedule_booking_id,$reschedule_booking_date,$reschedule_reason,$partner_id_array,$id,$employeeID);
-         redirect(base_url() . "employee/booking/review_bookings");
+        redirect(base_url() . "employee/booking/review_bookings");
     }
 
     /**
