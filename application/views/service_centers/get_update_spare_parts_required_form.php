@@ -29,7 +29,7 @@
                                         <label for="model_number" class="col-md-4">Model Number *</label>
                                         <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                         <div class="col-md-6">
-                                            <select class="form-control spare_parts" id="model_number_id" name="model_number_id">
+                                            <select class="form-control spare_parts" id="model_number_id" name="model_number_id" tabindex="-1">
                                                 <option value="" disabled="" selected="">Select Model Number</option>
                                                 <?php foreach ($inventory_details as $key => $value) { ?> 
                                                 <option <?php if($value['model_number'] == $spare_parts_details['model_number']){ echo 'selected';} ?> value="<?php echo $value['id']; ?>"><?php echo $value['model_number']; ?></option>
@@ -50,8 +50,8 @@
                                         <label for="dop" class="col-md-4">Date of Purchase *</label>
                                         <div class="col-md-6">
                                             <div class="input-group input-append date">
-                                                <input id="dop" class="form-control" placeholder="Select Date" name="dop" type="text" value="<?php echo $spare_parts_details['date_of_purchase']; ?>" autocomplete='off' onkeypress="return false;">
-                                                <span class="input-group-addon add-on" onclick="dop_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
+                                                <input id="dop" class="form-control" tabindex="-1" placeholder="Select Date" name="dop" type="text" value="<?php echo $spare_parts_details['date_of_purchase']; ?>" autocomplete='off' onkeypress="return false;" style="<?php if(!empty($approval_flag)){ echo 'cursor: not-allowed; pointer-events: none; background: rgb(238, 238, 238);'; } ?>">
+                                                <span class="input-group-addon add-on" id="dop_calendar_id" onclick="dop_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                         </div>
                                     </div>
@@ -62,7 +62,7 @@
                                     <div class="form-group">
                                         <label for="serial_number" class="col-md-4">Serial Number *</label>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control spare_parts" id="serial_number" name="serial_number"  value="<?php echo $spare_parts_details['serial_number']; ?>" placeholder="Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8">
+                                            <input type="text" class="form-control spare_parts" id="serial_number" name="serial_number"  value="<?php echo $spare_parts_details['serial_number']; ?>" placeholder="Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" style="<?php if(!empty($approval_flag)){ echo 'cursor: not-allowed; pointer-events: none; background: rgb(238, 238, 238);'; } ?>">
                                         </div>
                                     </div>
                                 </div>
@@ -70,7 +70,7 @@
                                     <div class="form-group">
                                         <label for="serial_number_pic" class="col-md-4">Serial Number Picture *</label>
                                         <div class="col-md-6">
-                                            <input type="file" class="form-control spare_parts" id="serial_number_pic" name="serial_number_pic" >
+                                            <input type="file" class="form-control spare_parts" tabindex="-1" id="serial_number_pic" name="serial_number_pic" style="<?php if(!empty($approval_flag)){ echo 'cursor: not-allowed; pointer-events: none; background: rgb(238, 238, 238);'; } ?>">
                                             <input type="hidden" class="form-control spare_parts" id="old_serial_number_pic" name="old_serial_number_pic" value="<?php echo $spare_parts_details['serial_number_pic']; ?>">
                                         </div>
                                         <?php if(!empty($spare_parts_details['serial_number_pic'])){ ?>
@@ -85,7 +85,7 @@
                                     <div class="form-group">
                                         <label for="invoice_pic" class="col-md-4">Invoice Picture</label>
                                         <div class="col-md-6">
-                                            <input type="file" class="form-control spare_parts" id="invoice_pic" name="invoice_image">
+                                            <input type="file" class="form-control spare_parts" tabindex="-1" id="invoice_pic" name="invoice_image" style="<?php if(!empty($approval_flag)){ echo 'cursor: not-allowed; pointer-events: none; background: rgb(238, 238, 238);'; } ?>">
                                             <input type="hidden" class="form-control spare_parts" id="old_invoice_image" name="old_invoice_image" value="<?php echo $spare_parts_details['invoice_pic']; ?>">
                                         </div>
                                         <?php if(!empty($spare_parts_details['serial_number_pic'])){ ?>
@@ -302,7 +302,7 @@ $(document).ready(function(){
 </script>
 <?php } ?>
 <?php if(!empty($inventory_details)){ ?>
-<script>
+<script>    
 $('#model_number_id').select2();
 $('#parts_name').select2().change();
 $(document).ready(function(){    
@@ -618,6 +618,12 @@ function get_inventory_id(id){
 
         }
        });
+       
+    <?php if(!empty($approval_flag)){ ?> 
+        $("#model_number_id").select2('destroy');
+        $("#model_number_id").css({'cursor': 'not-allowed', 'pointer-events': 'none', 'background': 'rgb(238, 238, 238)'});
+        $("#dop_calendar_id").attr("onclick","");
+    <?php } ?>
     
 </script>
 <style type="text/css">

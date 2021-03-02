@@ -1915,13 +1915,22 @@ class Service_centers extends CI_Controller {
         $this->checkUserSession();
         $spare_id = base64_decode(urldecode($code));
         $where = array('spare_parts_details.id' => $spare_id);
-        $select = 'spare_parts_details.id,spare_parts_details.defect_pic,spare_parts_details.spare_request_symptom,spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.date_of_purchase,spare_parts_details.model_number,'
+        $select = 'spare_parts_details.id,spare_parts_details.booking_id,spare_parts_details.defect_pic,spare_parts_details.spare_request_symptom,spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.date_of_purchase,spare_parts_details.model_number,'
                 . 'spare_parts_details.serial_number,spare_parts_details.serial_number_pic,spare_parts_details.invoice_pic,'
                 . 'spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.invoice_pic,spare_parts_details.part_warranty_status,'
                 . 'spare_parts_details.defective_parts_pic,spare_parts_details.defective_back_parts_pic,spare_parts_details.requested_inventory_id,spare_parts_details.serial_number_pic,spare_parts_details.remarks_by_sc,'
                 . 'booking_details.service_id,booking_details.partner_id as booking_partner_id, spare_parts_details.quantity, booking_details.assigned_vendor_id';
 
         $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, TRUE, false);
+
+        $spare_on_approval = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id,spare_parts_details.booking_id,spare_parts_details.status", array('spare_parts_details.booking_id' => $spare_parts_details[0]['booking_id'], 'spare_parts_details.status NOT IN("' . SPARE_PART_ON_APPROVAL . '","' . SPARE_PARTS_CANCELLED . '")' => null));
+        
+        if (!empty($spare_on_approval)) {
+            $data['approval_flag'] = TRUE;
+        } else {
+            $data['approval_flag'] = false;
+        }
+
         $data['spare_parts_details'] = $spare_parts_details[0];
         $where1 = array('entity_id' => $spare_parts_details[0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $spare_parts_details[0]['service_id'], 'inventory_model_mapping.active' => 1, 'appliance_model_details.active' => 1);
         $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where1);
@@ -3350,7 +3359,7 @@ class Service_centers extends CI_Controller {
                 . " sf_challan_file as challan_file, "
                 . " remarks_defective_part_by_partner, "
                 . " remarks_by_partner, spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.defective_return_to_entity_id,spare_parts_details.entity_type,"
-                . " spare_parts_details.id,spare_parts_details.shipped_quantity,spare_parts_details.challan_approx_value,spare_parts_details.remarks_defective_part_by_wh ,i.part_number, spare_consumption_status.consumed_status,  spare_consumption_status.is_consumed";
+                . " spare_parts_details.id,spare_parts_details.shipped_quantity,spare_parts_details.challan_approx_value,spare_parts_details.remarks_defective_part_by_wh,spare_parts_details.rejected_defective_part_pic_by_wh ,i.part_number, spare_consumption_status.consumed_status,  spare_consumption_status.is_consumed";
 
         $group_by = "spare_parts_details.id";
         $order_by = "status = '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', spare_parts_details.booking_id ASC";
@@ -6451,7 +6460,7 @@ class Service_centers extends CI_Controller {
             );
         }
         
-        $select = "defective_part_shipped,spare_parts_details.defective_part_rejected_by_partner, spare_parts_details.shipped_quantity,spare_parts_details.id, spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, spare_consumption_status.reason_text,spare_parts_details.defective_return_to_entity_id, "
+        $select = "spare_parts_details.id,defective_part_shipped,spare_parts_details.defective_part_rejected_by_partner, spare_parts_details.shipped_quantity,spare_parts_details.id, spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, spare_consumption_status.reason_text,spare_parts_details.defective_return_to_entity_id, "
                 . " spare_parts_details.booking_id, users.name as 'user_name', courier_name_by_sf, awb_by_sf,defective_part_shipped_date,"
                 . "remarks_defective_part_by_sf,booking_details.partner_id,service_centres.name as 'sf_name',service_centres.district as 'sf_city',s.part_number, spare_parts_details.defactive_part_received_date_by_courier_api, spare_parts_details.defective_part_rejected_by_wh, spare_parts_details.status";
 
@@ -6521,7 +6530,8 @@ class Service_centers extends CI_Controller {
             $row[] = "<a href='" . base_url() . "service_center/booking_details/" . urlencode(base64_encode($spare_list['booking_id'])) . "'target='_blank'>" . $spare_list['booking_id'] . "</a>";
         } else if ($this->session->userdata('id')) {
             $row[] = "<a href='" . base_url() . "employee/booking/viewdetails/" . $spare_list['booking_id'] . "'target='_blank'>" . $spare_list['booking_id'] . "</a>";
-        }        
+        } 
+        $row[] = "<span class='".$color_class."'>". $spare_list['id'] ."</span>";
 
         
         
