@@ -10,6 +10,7 @@ if ($this->uri->segment(3)) {
         <div class="row" >
             <div class="col-md-12">
                 <div class="panel panel-default">
+                    <h4  style='color:red;font-weight: 500;padding-top: 15px;text-align:right'>* Bookings highlighted in Red are Rejected by Warehouse.</h4>
                     <div class="panel-body" > 
                         <form target="_blank"  action="<?php echo base_url(); ?>employee/service_centers/print_partner_address_challan_file" name="fileinfo1"  method="POST" enctype="multipart/form-data">
                         <table id="estimate_cost_given_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
@@ -17,15 +18,16 @@ if ($this->uri->segment(3)) {
                                     <tr>
                                         <th class="text-center">No</th>
                                         <th class="text-center">Booking Id</th>
-                                        <th class="text-center">User Name</th>
+                                        <th class="text-center">Customer Name</th>
                                         <th class="text-center">Age of Pending</th>
                                         <th class="text-center">Parts Received</th>
                                         <th class="text-center">Parts Code </th>
                                         <th class="text-center">Quantity</th>
                                         <th class="text-center">Amount</th>
-                                        <th class="text-center">Rejection Reason</th>
-                                        <th class="text-center">Consumption</th>
-                                        <th class="text-center">Consumption Reason</th>
+                                        <th class="text-center">Warehouse<br>Rejection Reason</th>
+                                        <th class="text-center">Warehouse<br>Rejection File</th>
+                                        <th class="text-center">SF Spare<br>Consumption</th>
+                                        <th class="text-center">SF Consumption<br>Reason</th>
                                         <th class="text-center" >Spare Tag/Address<br><input type="checkbox" id="selectall_spare_tag" > </th>
                                         <th class="text-center" >Challan<br><input type="checkbox" id="selectall_challan_file" > </th>   
                                         <th class="text-center" >Bulk Send<br><input type="checkbox" id="selectall_send_courier" > </th>                          
@@ -79,6 +81,11 @@ if ($this->uri->segment(3)) {
                                             </td>
                                             <td>
                                                 <?php echo $row['remarks_defective_part_by_wh']; ?>
+                                            </td>
+                                            <td>
+                                               <?php if(!empty($row['rejected_defective_part_pic_by_wh'])){ ?>
+                                                <a class="btn btn-success" href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $row['rejected_defective_part_pic_by_wh']; ?>" target="_blank"><i class="fa fa-eye" aria-hidden="true"></i></a>  
+                                               <?php } ?>
                                             </td>
                                            
                                             <td><?php if ($row['is_consumed'] == 1) {
