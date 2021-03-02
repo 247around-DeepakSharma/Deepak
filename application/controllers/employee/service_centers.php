@@ -10513,8 +10513,12 @@ function do_delivered_spare_transfer() {
             $partner_id = $engg_completed_booking->partner_id;
             $closed_date = $engg_completed_booking->closed_date;
             $internal_status_engg = $engg_completed_booking->internal_status;
+            $sf_booking_status = SF_BOOKING_COMPLETE_STATUS;
+            if($engg_completed_booking->internal_status == _247AROUND_CANCELLED){
+                $sf_booking_status = SF_BOOKING_CANCELLED_STATUS;
+            }
             // Update Booking Statuses
-            $this->update_booking_internal_status($booking_id, SF_BOOKING_COMPLETE_STATUS, $partner_id);
+            $this->update_booking_internal_status($booking_id, $sf_booking_status, $partner_id);
             // Update SF Closed date
             $this->booking_model->update_booking($booking_id, ['service_center_closed_date' => $closed_date]);
             
@@ -10539,7 +10543,7 @@ function do_delivered_spare_transfer() {
                 'service_center_remarks' => $engg_completed_booking->closing_remark,                
                 'cancellation_reason' => $engg_completed_booking->cancellation_reason,                
                 'current_status' => SF_BOOKING_INPROCESS_STATUS,
-                'internal_status' => _247AROUND_COMPLETED,                
+                'internal_status' => $engg_completed_booking->internal_status,                
                 'mismatch_pincode' => $engg_completed_booking->mismatch_pincode,
                 'closed_date' => $closed_date,
                 'serial_number_pic' => $engg_completed_booking->serial_number_pic,                
@@ -10553,10 +10557,10 @@ function do_delivered_spare_transfer() {
             $this->vendor_model->update_service_center_action($booking_id, $ssba_data);
             
             // Update Statuses in engineer_booking_action
-            $this->engineer_model->update_engineer_table(array("current_status" => _247AROUND_COMPLETED, "internal_status" => _247AROUND_COMPLETED), ['booking_id' => $booking_id]);
+            $this->engineer_model->update_engineer_table(array("current_status" => $engg_completed_booking->internal_status, "internal_status" => $engg_completed_booking->internal_status), ['booking_id' => $booking_id]);
             
             // Insert data into booking state change
-            $this->insert_details_in_state_change($booking_id, SF_BOOKING_COMPLETE_STATUS, "Booking Auto Approved", "247Around", "Review the Booking");
+            $this->insert_details_in_state_change($booking_id, $sf_booking_status, "Booking Auto Approved", "247Around", "Review the Booking");
             //Update spare consumption as entered by engineer Booking Completed
             if ($internal_status_engg == _247AROUND_COMPLETED) {
                 $spare_Consumption_details = $this->service_centers_model->get_engineer_consumed_details('*', array('booking_id' => $booking_id));
