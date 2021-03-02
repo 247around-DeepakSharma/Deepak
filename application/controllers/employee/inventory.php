@@ -1736,82 +1736,89 @@ class Inventory extends CI_Controller {
         }
         $booking_details = $this->booking_model->get_bookings_by_status($where, "users.name, services, order_id, booking_details.partner_id", $sfIDArray);
 
-        $partner_data = $this->partner_model->getpartner_details("company_name, address, state, district, pincode, public_name ", array("partners.id" => $booking_details[0]->partner_id));
-        $data['name'] = $booking_details[0]->name;
-        $data['booking_id'] = $booking_id;
-        $data['services'] = $booking_details[0]->services;
-        $data['category'] = $unit_details[0]['appliance_category'];
-        $data['capacity'] = $unit_details[0]['appliance_capacity'];
-        $data['remarks'] = $this->input->post("estimate_remarks");
-        $data['order_id'] = $booking_details[0]->order_id;
-        $data['date'] = date("jS M, Y");
-        $data['company_name'] = $partner_data[0]['company_name'];
-        $data['company_address'] = $partner_data[0]['address'] . ", " . $partner_data[0]['district'] . ", Pincode " . $partner_data[0]['state'];
+        $partner_data = $this->partner_model->getpartner_details("company_name, gst_number, address, state, district, pincode, public_name ", array("partners.id" => $booking_details[0]->partner_id));
+        $meta['name'] = $booking_details[0]->name;
+        $meta['booking_id'] = $booking_id;
+        $meta['services'] = $booking_details[0]->services;
+        $meta['category'] = $unit_details[0]['appliance_category'];
+        $meta['capacity'] = $unit_details[0]['appliance_capacity'];
+        $meta['remarks'] = $this->input->post("estimate_remarks");
+        $meta['order_id'] = $booking_details[0]->order_id;
+        $meta['date'] = date("d-M-Y");
+        $meta['company_name'] = $partner_data[0]['company_name'];
+        $meta['company_gst_number'] = $partner_data[0]['gst_number'];
+        $meta['company_address'] = $partner_data[0]['address'] . ", " . $partner_data[0]['district'] . ", Pincode " . $partner_data[0]['state'];
 
         $l_data = array();
 
-        $total_igst_tax_amount = $total_amount = 0;
+        $total_gst_tax_amount = $total_amount = $total_taxable_value = 0;
         if ($formdata["service_charge"] > 0) {
-            $data1 = array();
-            $data1['brand'] = $unit_details[0]['appliance_brand'];
-            $data1['model_number'] = $unit_details[0]['model_number'];
-            $data1['service_type'] = "Service Charge";
-            $data1['taxable_value'] = $formdata["service_charge"];
-            $data1['igst_rate'] = DEFAULT_TAX_RATE;
-            $data1['igst_tax_amount'] = ($formdata["service_charge"] * DEFAULT_TAX_RATE) / 100;
+            $s = array();
+            $s[0]['brand'] = $unit_details[0]['appliance_brand'];
+            $s[0]['model_number'] = $unit_details[0]['model_number'];
+            $s[0]['service_type'] = "Service";
+            $s[0]['taxable_value'] = $formdata["total_service_charges"];
+            $s[0]['gst_rate'] = DEFAULT_TAX_RATE;
+            $s[0]['gst_tax_amount'] = ($formdata["service_charge"] * DEFAULT_TAX_RATE) / 100;
 
-            $total_igst_tax_amount = $total_igst_tax_amount + $data1['igst_tax_amount'];
-            $data1['total_amount'] = sprintf("%1\$.2f", ( $data1['igst_tax_amount'] + $formdata["service_charge"]));
-            $total_amount = $total_amount + $data1['total_amount'];
-            array_push($l_data, $data1);
+            $total_gst_tax_amount = $s[0]['gst_tax_amount'];
+            $s[0]['total_amount'] = sprintf("%1\$.2f", ( $s[0]['gst_tax_amount'] + $formdata["total_service_charges"]));
+            $total_amount = $s[0]['total_amount'];
+            $total_taxable_value = $s[0]['taxable_value'];
+            $l_data = array_merge($l_data, $s);
+        }
+        
+        if ($formdata["part_estimate_given"] > 0) {
+            $p = array();
+            $p[0]['brand'] = $unit_details[0]['appliance_brand'];
+            $p[0]['model_number'] = $unit_details[0]['model_number'];
+            $p[0]['service_type'] = "Product";
+            $p[0]['taxable_value'] = $formdata["total_parts_charges"];
+            $p[0]['gst_rate'] = DEFAULT_TAX_RATE;
+            $p[0]['gst_tax_amount'] = (($formdata["total_parts_charges"]) * DEFAULT_TAX_RATE) / 100;
+
+            $total_gst_tax_amount = $total_gst_tax_amount + $p[0]['gst_tax_amount'];
+            $p[0]['total_amount'] = sprintf("%1\$.2f", ($p[0]['gst_tax_amount'] + $formdata["total_parts_charges"]));
+            $total_amount += $p[0]['total_amount'];
+            $total_taxable_value += $p[0]['taxable_value'];
+            $l_data = array_merge($l_data, $p);
         }
 
         if ($formdata["transport_charge"] > 0) {
-            $data1 = array();
-            $data1['brand'] = $unit_details[0]['appliance_brand'];
-            $data1['model_number'] = $unit_details[0]['model_number'];
-            $data1['service_type'] = "Transport Charge";
-            $data1['taxable_value'] = $formdata["transport_charge"];
-            $data1['igst_rate'] = DEFAULT_TAX_RATE;
-            $data1['igst_tax_amount'] = ($formdata["transport_charge"] * DEFAULT_TAX_RATE) / 100;
-            $total_igst_tax_amount = $total_igst_tax_amount + $data1['igst_tax_amount'];
-            $data1['total_amount'] = sprintf("%1\$.2f", ($data1['igst_tax_amount'] + $formdata["transport_charge"]));
-            $total_amount = $total_amount + $data1['total_amount'];
-            array_push($l_data, $data1);
+            $t = array();
+            $t[0]['brand'] = $unit_details[0]['appliance_brand'];
+            $t[0]['model_number'] = $unit_details[0]['model_number'];
+            $t[0]['service_type'] = "Transport Charge";
+            $t[0]['taxable_value'] = $formdata["transport_charge"];
+            $t[0]['gst_rate'] = DEFAULT_TAX_RATE;
+            $t[0]['gst_tax_amount'] = ($formdata["total_transport_charges"] * DEFAULT_TAX_RATE) / 100;
+            $total_gst_tax_amount = $total_gst_tax_amount + $t[0]['gst_tax_amount'];
+            $t[0]['total_amount'] = sprintf("%1\$.2f", ($t[0]['gst_tax_amount'] + $formdata["total_transport_charges"]));
+            $total_amount = $total_amount + $t[0]['total_amount'];
+            $total_taxable_value += $t[0]['taxable_value'];
+            $l_data = array_merge($l_data, $t);
         }
         if ($formdata["courier_charge"] > 0) {
-            $data1 = array();
-            $data1['brand'] = $unit_details[0]['appliance_brand'];
-            $data1['model_number'] = $unit_details[0]['model_number'];
-            $data1['service_type'] = "Courier Charge";
-            $data1['taxable_value'] = $formdata["courier_charge"];
-            $data1['igst_rate'] = DEFAULT_TAX_RATE;
-            $data1['igst_tax_amount'] = ($formdata["courier_charge"] * DEFAULT_TAX_RATE) / 100;
+            $c = array();
+            $c[0]['brand'] = $unit_details[0]['appliance_brand'];
+            $c[0]['model_number'] = $unit_details[0]['model_number'];
+            $c[0]['service_type'] = "Courier Charge";
+            $c[0]['taxable_value'] = $formdata["total_courier_charges"];
+            $c[0]['gst_rate'] = DEFAULT_TAX_RATE;
+            $c[0]['gst_tax_amount'] = ($formdata["total_courier_charges"] * DEFAULT_TAX_RATE) / 100;
 
-            $total_igst_tax_amount = $total_igst_tax_amount + $data1['igst_tax_amount'];
-            $data1['total_amount'] = sprintf("%1\$.2f", ($data1['igst_tax_amount'] + $formdata["courier_charge"]));
-            $total_amount += $data1['total_amount'];
-            array_push($l_data, $data1);
+            $total_gst_tax_amount = $total_gst_tax_amount + $c[0]['gst_tax_amount'];
+            $c[0]['total_amount'] = sprintf("%1\$.2f", ($c[0]['gst_tax_amount'] + $formdata["total_courier_charges"]));
+            $total_amount += $c[0]['total_amount'];
+            $total_taxable_value += $c[0]['taxable_value'];
+            $l_data = array_merge($l_data, $c);
         }
 
-        if ($formdata["part_estimate_given"] > 0) {
-            $data1 = array();
-            $data1['brand'] = $unit_details[0]['appliance_brand'];
-            $data1['model_number'] = $unit_details[0]['model_number'];
-            $data1['service_type'] = "Part Charge";
-            $data1['taxable_value'] = $formdata["part_estimate_given"] + $formdata['around_part_commission'];
-            $data1['igst_rate'] = DEFAULT_TAX_RATE;
-            $data1['igst_tax_amount'] = (($formdata["part_estimate_given"] + $formdata['around_part_commission']) * DEFAULT_TAX_RATE) / 100;
-
-            $total_igst_tax_amount = $total_igst_tax_amount + $data1['igst_tax_amount'];
-            $data1['total_amount'] = sprintf("%1\$.2f", ($data1['igst_tax_amount'] + $formdata["part_estimate_given"] + $formdata['around_part_commission']));
-            $total_amount += $data1['total_amount'];
-            array_push($l_data, $data1);
-        }
-        $data['price_inword'] = convert_number_to_words(round($total_amount, 0));
-        $data['taxable_value'] = sprintf("%1\$.2f", ($unit_details[0]['customer_total']));
-        $data['igst_tax_amount'] = sprintf("%1\$.2f", ($total_igst_tax_amount));
-        $data['total_amount'] = sprintf("%1\$.2f", ($total_amount));
+        
+        $meta['price_inword'] = convert_number_to_words($total_amount);
+        $meta['total_taxable_value'] = sprintf("%1\$.2f", ($total_taxable_value));
+        $meta['total_gst_tax_amount'] = sprintf("%1\$.2f", ($total_gst_tax_amount));
+        $meta['total_amount_with_gst'] = sprintf("%1\$.2f", ($total_amount));
         $template = 'Estimate_Sheet.xlsx';
         // directory
         $templateDir = __DIR__ . "/../excel-templates/";
@@ -1829,9 +1836,9 @@ class Inventory extends CI_Controller {
 
         $R->load(array(
             array(
-                'id' => 'estimate',
+                'id' => 'meta',
                 'repeat' => false,
-                'data' => $data,
+                'data' => $meta,
                 'format' => array(
                     'date' => array('datetime' => 'd/M/Y')
                 )
@@ -1849,13 +1856,14 @@ class Inventory extends CI_Controller {
 
         $output_file_excel = "Estimate_" . $booking_id . ".xlsx";
         $R->render('excel', TMP_FOLDER . $output_file_excel);
-
+        $output_file_pdf = "Estimate_" . $booking_id . ".pdf";
         $emailtemplate = $this->booking_model->get_booking_email_template("zopper_estimate_send");
         if (!empty($template)) {
 
-            $subject = vsprintf($emailtemplate[4], array($partner_data[0]['public_name'], $data['name']));
+            $subject = vsprintf($emailtemplate[4], array($partner_data[0]['public_name'], $meta['name']));
             //  $emailBody = vsprintf($emailtemplate[0], $estimate_cost);
-            $json_result = $this->miscelleneous->convert_excel_to_pdf(TMP_FOLDER . $output_file_excel, $booking_id, "jobcards-pdf");
+            $html = $this->load->view('templates/estimate_sheet', array("meta"=>$meta,'estimate' => $l_data),true);
+            $json_result = $this->miscelleneous->convert_html_to_pdf($html,$booking_id,$output_file_pdf,"jobcards-pdf");
             $pdf_response = json_decode($json_result, TRUE);
             $output_pdf_file_name = $output_file_excel;
             $attachement_url = TMP_FOLDER . $output_file_excel;
