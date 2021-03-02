@@ -1488,7 +1488,7 @@ class invoices_model extends CI_Model {
             $meta['parts_count'] = $parts_count;
             $meta['service_count'] = $service_count;
             $meta['total_taxable_value'] = sprintf("%.2f",$meta['total_taxable_value']);
-            $meta['sub_total_amount'] = round($meta['sub_total_amount'],0);
+            $meta['sub_total_amount'] = sprintf("%.2f",$meta['sub_total_amount']);
             $meta['igst_total_tax_amount'] = sprintf("%.2f",$meta['igst_total_tax_amount']);
             $meta['cgst_total_tax_amount'] = sprintf("%.2f",$meta['cgst_total_tax_amount']);
             $meta['sgst_total_tax_amount'] = sprintf("%.2f",$meta['sgst_total_tax_amount']);
@@ -1510,7 +1510,7 @@ class invoices_model extends CI_Model {
             $meta['tds_amount'] = "";
             $meta['tcs_amount'] = "";
            
-            $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
+            $meta['price_inword'] = convert_number_to_words($meta['sub_total_amount']);
             if($result[0]['description'] == QC_INVOICE_DESCRIPTION){
                 $meta['sd'] =  "";
                 $meta['ed'] = "";
@@ -1656,7 +1656,7 @@ class invoices_model extends CI_Model {
             $meta['sgst_total_tax_amount'] = sprintf("%.2f",$meta['sgst_total_tax_amount']);
             $meta['cgst_total_tax_amount'] = sprintf("%.2f",$meta['cgst_total_tax_amount']);
             $meta['igst_total_tax_amount'] = sprintf("%.2f",$meta['igst_total_tax_amount']);
-            $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
+            $meta['price_inword'] = convert_number_to_words($meta['sub_total_amount']);
             $meta['sd'] = date("d-M-Y", strtotime($from_date));
             $meta['ed'] = date("d-M-Y", strtotime($to_date_temp));
             $meta['invoice_date'] = date("d-M-Y");
@@ -2122,10 +2122,10 @@ class invoices_model extends CI_Model {
             $meta['service_count'] = $service_count;
             $meta['reverse_charge'] = 0;
             $meta['reverse_charge_type'] = 'N';
-            $meta['total_taxable_value'] = sprintf("%1\$.2f",$meta['total_taxable_value']);
-            $meta['cgst_total_tax_amount'] = sprintf("%1\$.2f",$meta['cgst_total_tax_amount']);
-            $meta['sgst_total_tax_amount'] = sprintf("%1\$.2f",$meta['sgst_total_tax_amount']);
-            $meta['igst_total_tax_amount'] = sprintf("%1\$.2f",$meta['igst_total_tax_amount']);
+            $meta['total_taxable_value'] = sprintf("%.2f",$meta['total_taxable_value']);
+            $meta['cgst_total_tax_amount'] = sprintf("%.2f",$meta['cgst_total_tax_amount']);
+            $meta['sgst_total_tax_amount'] = sprintf("%.2f",$meta['sgst_total_tax_amount']);
+            $meta['igst_total_tax_amount'] = sprintf("%.2f",$meta['igst_total_tax_amount']);
             $meta['sub_total_amount'] = sprintf("%.2f",$meta['sub_total_amount']);
             $meta['sd'] = date("d-M-Y", strtotime($from_date));
             $meta['ed'] = date("d-M-Y", strtotime($to_date_tmp));
@@ -2172,7 +2172,7 @@ class invoices_model extends CI_Model {
            
             if ($meta['sub_total_amount'] >= 0) {
                
-                $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
+                $meta['price_inword'] = convert_number_to_words($meta['sub_total_amount']);
             }
             
             $data['meta'] = $meta;
@@ -2345,7 +2345,7 @@ class invoices_model extends CI_Model {
                 $meta['sub_total_amount'] = sprintf("%.2f",$commission_charge[0]['total_amount']);
                 $meta['total_amount_with_tax'] = $meta['sub_total_amount'];
             
-                $meta['price_inword'] = convert_number_to_words(round($meta['total_amount_with_tax'],0));
+                $meta['price_inword'] = convert_number_to_words($meta['total_amount_with_tax']);
                 $meta['sd'] = date("d-M-Y", strtotime($from_date));
                 $meta['ed'] = date('jS M, Y', strtotime($to_date_tmp));
                 $meta['invoice_date'] = date("d-M-Y");
@@ -2438,7 +2438,7 @@ class invoices_model extends CI_Model {
                 
             }
             
-            $meta['sub_total_amount'] = round(sprintf("%.2f",$meta['sub_total_amount']),0);
+            $meta['sub_total_amount'] = sprintf("%.2f",$meta['sub_total_amount']);
             
             $meta['total_taxable_value'] = sprintf("%1\$.2f",$meta['total_taxable_value']);
             $meta['cgst_total_tax_amount'] = sprintf("%1\$.2f",$meta['cgst_total_tax_amount']);
@@ -2450,7 +2450,7 @@ class invoices_model extends CI_Model {
             $meta['ed'] = date('jS M, Y', strtotime($to_date_tmp));
             $meta['invoice_date'] = date("d-M-Y");
             $meta['reference_invoice_id'] = "";
-            $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
+            $meta['price_inword'] = convert_number_to_words($meta['sub_total_amount']);
             $meta['company_name'] = $commission_charge[0]['company_name'];
             $meta['company_address'] = $commission_charge[0]['company_address'];
             $meta['state'] = $commission_charge[0]['state'];
