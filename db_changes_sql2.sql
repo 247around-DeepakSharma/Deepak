@@ -2909,6 +2909,7 @@ ALTER TABLE `variable_handling_invoice` ADD `type` INT NOT NULL COMMENT '1- Logi
 
 --Abhay Anand 2 March
 ALTER TABLE `vendor_partner_invoices` CHANGE `tcs_rate` `tcs_rate` DECIMAL(10,3) NOT NULL DEFAULT '0.00';
+<<<<<<< HEAD
 
 
 --Abhay 12 March
@@ -2943,3 +2944,5 @@ ALTER TABLE `part_invoice_opening_balance`
 ALTER TABLE `part_invoice_opening_balance`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
 COMMIT;
+=======
+>>>>>>> 5a13c89d3... TCS rate rounded .08 instead of 0.075 #CRMS-2280
