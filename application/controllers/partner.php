@@ -2073,7 +2073,7 @@ class Partner extends CI_Controller {
 
         //Save header / ip address in DB
         $h = $this->getallheaders();
-        if ($h === FALSE) {
+        if ($h === FALSE || empty($h['Authorization'])) {
             $this->sendJsonResponse(array(ERR_GENERIC_ERROR_CODE, ERR_GENERIC_ERROR_MSG));
         } else {
             $this->header = json_encode($h);
@@ -2749,12 +2749,13 @@ exit();
         $post = json_decode($input_d, TRUE);
         $authentication = $this->checkAuthentication(true);
         if (empty($authentication)) {
-            $this->sendJsonResponse(array(ERR_GENERIC_ERROR_CODE, ERR_INVALID_AUTH_TOKEN_MSG));
+            exit;
         } else {
             $post['partner_id'] = $authentication['id'];
         }
         if (empty($post['booking_id'])) {
             $this->sendJsonResponse(array(ERR_INVALID_BOOKING_ID_CODE, ERR_INVALID_BOOKING_ID_MSG));
+            exit;
         }
         $booking_select = "booking_id,service_center_closed_date";
         $booking_where = array("booking_id" => $post['booking_id'], "partner_id" => $post['partner_id']);
@@ -2781,6 +2782,42 @@ exit();
         } else {
             $this->sendJsonResponse(array(ERR_INVALID_BOOKING_ID_CODE, ERR_INVALID_BOOKING_ID_MSG));
         }
+    }
+    /*
+     * @Desc - This function is used to return booking history by Mobile number
+     * @request - {"mobile":"9650905305"}
+     * @response - json 
+     * @Author  - Ghanshyam Ji Gupta
+     * @Date - 02-03-2021
+     */
+    function GetBookingHistoryMobile() {
+        $input_d = file_get_contents('php://input');
+        $post = json_decode($input_d, TRUE);
+        $authentication = $this->checkAuthentication(true);
+        if (empty($authentication)) {
+            exit;
+        }
+        if (empty($post['mobile'])) {
+            $this->sendJsonResponse(array(ERR_MOBILE_NUM_MISSING_CODE, ERR_MOBILE_NUM_MISSING_MSG));
+            exit;
+        }
+        $mobile_number = $post['mobile'];
+        if (!preg_match('/^\d{10}$/', $mobile_number)) {
+            $this->sendJsonResponse(array(ERR_MOBILE_NUM_MISSING_CODE, ERR_MOBILE_NUM_MISSING_MSG));
+            exit;
+        }
+        $partner_id = $authentication['id'];
+        $partner_name = $authentication['public_name'];
+        $select_string = "bd.booking_id as complain_number,bd.request_type as complain_type, services.services as product, "
+                . "bd.partner_internal_status as current_status,bd.service_center_closed_date as closed_date, '" . $partner_name . "' as brand,bd.booking_date,bd.order_id";
+        $booking_details = $this->user_model->search_user($mobile_number, "", "", false, $partner_id, $select_string);
+        if (empty($booking_details)) {
+            $this->sendJsonResponse(array(ERR_GENERIC_ERROR_CODE , "No Data found."));
+            exit;
+        }
+
+        $this->jsonResponseString['response'] = array('booking_details' => $booking_details);
+        $this->sendJsonResponse(array(SUCCESS_CODE, SUCCESS_MSG));
     }
 
 }

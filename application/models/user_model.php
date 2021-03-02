@@ -131,16 +131,22 @@ class User_model extends CI_Model {
         $this->db->update('handyman', $update);
     }
 
-    function search_user($phone_number, $start ="", $end = "", $is_object = false) {
+    function search_user($phone_number, $start ="", $end = "", $is_object = false,$partner_id = "", $select_string = "") {
         $limit = "";
         if($start !=""){
             $limit = " LIMIT $start, $end ";
         }
-        $sql = "SELECT u.name,u.name as customername, u.pincode,u.city, u.state, u.user_email, bd.user_id, bd.*, "
-                . "u.phone_number,home_address,u.alternate_phone_number, services.services "
-                . " FROM users as u LEFT JOIN booking_details as bd ON (bd.user_id = u.user_id) LEFT JOIN services ON (bd.service_id = services.id) "
+        $where_partner = "";
+        if(!empty($partner_id)){
+            $where_partner = " and bd.partner_id = ".$partner_id;
+        }
+        if(empty($select_string)){
+          $select_string ="u.name,u.name as customername, u.pincode,u.city, u.state, u.user_email, bd.user_id, bd.*, "
+                        . "u.phone_number,home_address,u.alternate_phone_number, services.services";  
+        }
+        $sql = "SELECT ".$select_string." FROM users as u LEFT JOIN booking_details as bd ON (bd.user_id = u.user_id) LEFT JOIN services ON (bd.service_id = services.id) "
                 . " WHERE (bd.booking_primary_contact_no = '$phone_number' OR bd.booking_alternate_contact_no = '$phone_number' OR u.phone_number = '$phone_number')"
-                . "  ORDER BY bd.create_date desc $limit ";
+                . " $where_partner ORDER BY bd.create_date desc $limit ";
 //        $sql = "SELECT u.name,u.pincode,u.city, u.state, u.user_email, "
 //                . " bd.user_id, bd.*, "
 //                . " u.phone_number,home_address,u.alternate_phone_number, services.services FROM booking_details as bd, users as u, services "
