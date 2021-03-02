@@ -2119,6 +2119,18 @@ class User_invoice extends CI_Controller {
             $agent_type = _247AROUND_SF_STRING;
         }
 
+        if (!empty($this->session->userdata('warehouse_id'))) {
+
+            $warehouse_id = $this->session->userdata('warehouse_id');
+            $agent_id = $this->session->userdata('id');
+            $agent_type =_247AROUND_EMPLOYEE_STRING;
+        } else if (!empty($this->session->userdata('service_center_id'))) {
+            
+            $warehouse_id = $this->session->userdata('service_center_id');
+            $agent_id = $this->session->userdata("service_center_agent_id");
+            $agent_type = _247AROUND_SF_STRING;
+        }
+
         $postData = json_decode($return_data['inventory_data'], TRUE);
         $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData, $from_gst_id, $to_gst_id);
         if (empty($invoiceData['processData'])) {
@@ -2184,6 +2196,7 @@ class User_invoice extends CI_Controller {
                 $p = $this->table->generate();
                 list($response, $output_file, $output_file_main) = $this->generate_new_return_inventory($invoices, "", $sd, $ed, $invoice_date, $key, $invoiceValue, $partner_id);
                 //print_r($response);
+
                 $pdf_attachement = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_file_main;
                 $email_template = $this->booking_model->get_booking_email_template(MSL_SEND_BY_WH_TO_PARTNER);
                 $wh_incharge_id = $this->reusable_model->get_search_result_data("entity_role", "id", array("entity_type" => _247AROUND_PARTNER_STRING, 'role' => WAREHOUSE_INCHARCGE_CONSTANT), NULL, NULL, NULL, NULL, NULL, array());

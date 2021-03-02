@@ -780,7 +780,7 @@ class invoices_model extends CI_Model {
                         ."on (bd.booking_id = spd.booking_id) left join bill_to_partner_opencell as btpo on(bd.id = btpo.booking_id) "
                         ."WHERE spd.parts_requested_type = '".LED_BAR."' and spd.part_warranty_status = 1 and spd.status != 'Cancelled' "
                         . "AND bd.current_status = '"._247AROUND_COMPLETED."' and spd.shipped_date is not null and bd.partner_id = '".$partner_id."' "
-                        . "and bd.closed_date >= '".$from_date."' and bd.closed_date < '".$to_date."' and btpo.invoice_id is null and spd.consumed_part_status_id = 1 Group by spd.booking_id ;";
+                        . "And bd.closed_date >= '".$from_date."' and bd.closed_date < '".$to_date."' and btpo.invoice_id is null and spd.consumed_part_status_id = 1 Group by spd.booking_id ;";
                 $led_data = $this->db->query($spare_parts_select);
 
                 $spare_parts_led_bar_data = $led_data->result_array();
@@ -1190,7 +1190,7 @@ class invoices_model extends CI_Model {
                     . "on (bd.booking_id = spd.booking_id) left join bill_to_partner_opencell as btpo on(bd.id = btpo.booking_id) "
                     . "WHERE spd.parts_requested_type = '" . OPEN_CELL_PART_TYPE . "' and spd.part_warranty_status = 1 and spd.status != 'Cancelled' "
                     . "AND bd.current_status = '" . _247AROUND_COMPLETED . "' and spd.shipped_date is not null and bd.partner_id = '" . $partner_id . "' "
-                    . "and bd.closed_date >= '" . $from_date . "' and bd.closed_date < '" . $to_date . "' and btpo.invoice_id is null and spd.consumed_part_status_id = 1 Group by spd.booking_id ;";
+                    . "and bd.closed_date >= '" . $from_date . "' and bd.closed_date < '" . $to_date . "' and btpo.invoice_id is null and spd.consumed_part_status_id = 1  Group by spd.booking_id ;";
             $query = $this->db->query($spare_parts_select);
             $data = $query->result_array();
             
@@ -1248,7 +1248,7 @@ class invoices_model extends CI_Model {
      * @return Array
      */
     function generate_partner_courier_invoice($partner_id, $from_date_tmp, $to_date_tmp, $default = 1, $booking_id = "") {
-        $from_date = date('Y-m-d', strtotime('-20 months', strtotime($from_date_tmp)));
+        $from_date = date('Y-m-d', strtotime('-3 months', strtotime($from_date_tmp)));
         if($default == 1){
             $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         } else {
@@ -1314,7 +1314,7 @@ class invoices_model extends CI_Model {
      * @return Array
      */
     function generate_partner_invoice($partner_id, $from_date_tmp, $to_date_tmp, $booking_id = "") {
-        $from_date = date('Y-m-d', strtotime('-2 months', strtotime($from_date_tmp)));
+        $from_date = date('Y-m-d', strtotime('-3 months', strtotime($from_date_tmp)));
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         log_message("info", $from_date . "- " . $to_date);
         $result_data = $this->get_partner_invoice_data($partner_id, $from_date, $to_date, $from_date_tmp, $booking_id);
@@ -1703,7 +1703,7 @@ class invoices_model extends CI_Model {
      * @return : array
      */
     function generate_vendor_foc_detailed_invoices($vendor_id, $from_date_tmp, $to_date_tmp, $is_regenerate) {
-        $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
+        $from_date = date('Y-m-d', strtotime('-3 months', strtotime($from_date_tmp)));
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
        
         $is_invoice_null = "";
@@ -1747,7 +1747,7 @@ class invoices_model extends CI_Model {
     }
     
     function get_foc_invoice_data($vendor_id, $from_date_tmp, $to_date, $is_regenerate) {
-        $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
+        $from_date = date('Y-m-d', strtotime('-3 months', strtotime($from_date_tmp)));
         $is_invoice_null = "";
         if ($is_regenerate == 0) {
             $is_invoice_null = " AND vendor_foc_invoice_id IS NULL ";
