@@ -1871,7 +1871,7 @@ class Inventory extends CI_Controller {
         }
 
         
-        $meta['price_inword'] = convert_number_to_words(round($total_amount, 0));
+        $meta['price_inword'] = convert_number_to_words($total_amount);
         $meta['total_taxable_value'] = sprintf("%1\$.2f", ($total_taxable_value));
         $meta['total_gst_tax_amount'] = sprintf("%1\$.2f", ($total_gst_tax_amount));
         $meta['total_amount_with_gst'] = sprintf("%1\$.2f", ($total_amount));
