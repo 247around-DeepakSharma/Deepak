@@ -443,7 +443,7 @@ if ($this->uri->segment(3)) {
     if($('#selectall_challan').is(':checked') == true){
         var i = 1;
         $(".checkbox_challan").each(function(){
-           if(i <= 30){
+           if(i <= 200){
                i++;
                $(this).attr("disabled", false);
                $(this).prop("checked", true);
@@ -455,7 +455,7 @@ if ($this->uri->segment(3)) {
     } else {
         var i = 1;
         $(".checkbox_challan").each(function(){
-           if(i <= 30){
+           if(i <= 200){
                i++;
                $(this).prop("checked", false);
            }else{
@@ -467,7 +467,7 @@ if ($this->uri->segment(3)) {
     });
 
     $(".checkbox_challan").change(function(){        
-        if(($('.checkbox_challan:checked').length) == 30 ){
+        if(($('.checkbox_challan:checked').length) == 200 ){
             $(".checkbox_challan:checkbox:not(:checked)").each(function () {
                 $(this).attr("disabled", true);
             });

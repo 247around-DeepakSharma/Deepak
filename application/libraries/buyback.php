@@ -74,7 +74,7 @@ class Buyback {
                 }
             }
 
-            if (count($b_charges) == 1) {
+            if (count($bb_charges) == 1) {
                 $cp_id = $b_charges[0]['cp_id'];
                 $service_id = $b_charges[0]['service_id'];
             } else {

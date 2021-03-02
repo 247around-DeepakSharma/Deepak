@@ -511,8 +511,8 @@
                                     <tr>
                                         <td colspan="11"></td>
                                         <td>(+) TCS Rate % </td>
-                                        <td class="amount_1"><input id="tcs_rate" type="number" onblur="calculate_total()" value="<?php if(isset($invoice_details[0]['tcs_rate'])){ echo $invoice_details[0]['tcs_rate']; }?>" name="tcs_rate" class="form-control padding_space" ></td>
-                                        <td class="amount_1"><input id="tcs_amount" type="number" value="<?php if(isset($invoice_details[0]['tcs_amount'])){ echo $invoice_details[0]['tcs_amount']; } ?>" name="tcs_amount" class="form-control padding_space taxable_value" ></td>
+                                        <td class="amount_1"><input id="tcs_rate" step="any" type="number" onblur="calculate_total()" value="<?php if(isset($invoice_details[0]['tcs_rate'])){ echo $invoice_details[0]['tcs_rate']; }?>" name="tcs_rate" class="form-control padding_space" ></td>
+                                        <td class="amount_1"><input id="tcs_amount" step="any" type="number" value="<?php if(isset($invoice_details[0]['tcs_amount'])){ echo $invoice_details[0]['tcs_amount']; } ?>" name="tcs_amount" class="form-control padding_space taxable_value" ></td>
                                         
                                         
                                         <td colspan="2"></td>
