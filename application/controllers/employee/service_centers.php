@@ -10599,7 +10599,7 @@ class Service_centers extends CI_Controller {
             $ud_data = [
                 'sf_model_number' => $engg_completed_booking->model_number,
                 'serial_number' => $engg_completed_booking->serial_number,
-                'serial_number' => $engg_completed_booking->serial_number_pic,
+                'serial_number_pic' => $engg_completed_booking->serial_number_pic,
                 'sf_purchase_date' => $engg_completed_booking->sf_purchase_date,
             ];
             $this->booking_model->update_booking_unit_details($booking_id, $ud_data);
