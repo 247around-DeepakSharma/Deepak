@@ -38,7 +38,7 @@
                <form name="myForm" class="form-horizontal" id ="pincode_form" action="<?php echo base_url()?>employee/vendor/add_new_pincode"  method="POST" enctype="multipart/form-data">
                    <div class="container">
                     <div class="form-group">
-                            <label for="pincode" class="col-md-4">Pincode*</label>
+                           <label for="pincode" class="col-md-4">Pincode*</label>
                             <div class="col-md-6">
                                 <input type="text" class="form-control" id="pincode" name="pincode" onkeyup="return get_city_based_on_pincode();" <?php if (!empty($pincode)) { echo "value =".$pincode." readonly='' required";   } else{}?>>
                             </div>
@@ -84,7 +84,7 @@
 <script type="text/javascript">
     $("#city").select2();
     $("#states").select2();
-    
+
     function savePincode(){  
         var  stateValue  = $("#states").val();
         var  pincode  = $("#pincode").val();
@@ -97,7 +97,7 @@
             alert("Enter Valid Pincode");
             return false;
         }
-    
+        
         if(stateValue && pincode && city){
            document.getElementById("pincode_form").submit();
         }
@@ -105,7 +105,7 @@
             alert("Please Select All Fields");
         }
     }
-
+    
     function get_city_based_on_pincode() {
         var postData = {};
         var  pincode  = $("#pincode").val();
@@ -118,7 +118,7 @@
                 data: {
                     booking_pincode : pincode,
                 },
-                url:"<?php echo base_url(); ?>employee/booking/get_city_from_pincode/1",
+                url:"<?php echo base_url(); ?>employee/booking/get_city_state_from_pincode",
                 type: 'post',
                 success:function(data){
                     var data1 = jQuery.parseJSON(data);
@@ -146,4 +146,5 @@
             });
         }
     }
+
 </script>

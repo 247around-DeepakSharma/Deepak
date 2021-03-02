@@ -5795,24 +5795,26 @@ class Booking extends CI_Controller {
 			$post['unit_not_required'] = true;
             // Select Statement
             
-            $select = " booking_details.booking_id as 'Booking ID', booking_details.create_date as 'Create Date', partners.public_name as Partner, "
-                    . "employee_am.full_name as AM, users.name as 'Customer Name',booking_details.booking_pincode as 'Pincode',booking_details.city as 'City'"
-                    . ",booking_details.state as 'State',booking_details.booking_address as 'Booking Address', users.phone_number as 'Phone',"
-                    . "CASE WHEN booking_details.is_upcountry = 1 THEN 'YES' ELSE 'No' END AS 'Is Upcountry'"
-                    . ",booking_details.upcountry_distance as 'Upcountry Distance',service_centres.name as 'Service Center',"
-                    . "service_centres.primary_contact_name as 'SF Primary Contact Name'"
-                    . ",service_centres.primary_contact_phone_1 as 'SF Primary Contact No',engineer_details.name as 'Engineer Name',employee.full_name as 'RM'"
-                    . ",emp_asm.full_name  as  'ASM', services.services as 'Product', spare_parts_details.model_number as 'Model',"
-                    . "booking_details.request_type as 'Service Type', booking_details.initial_booking_date as 'First Booking Date',"
-                    . "booking_details.booking_date as 'Current Booking Date', booking_details.booking_remarks as 'Booking Remarks', booking_details.reschedule_reason as 'Reschedule Remarks',"
-                    . "booking_details.partner_internal_status as 'Final Status Level 2',"
-                    . "booking_details.current_status as 'Final Status Level 1', booking_details.actor as 'Dependency On',"
+            $select = " booking_details.booking_id as 'Booking ID', "
                     . "DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) as Ageing,"
-                    . "CASE WHEN spare_parts_details.parts_requested != '' THEN 'YES' ELSE 'No' END AS 'Is Part Involved', REPLACE(group_concat(in_req.part_number),trim(','),' | ') as 'Requested Part Code', REPLACE(group_concat(spare_parts_details.parts_requested),trim(','),' | ') as 'Requested Part Name',"
-                    . "REPLACE(group_concat(spare_parts_details.parts_requested_type),trim(','),' | ') as 'Requested Part Type',spare_parts_details.date_of_request as 'Part Requested Date'"
-                    . ",REPLACE(group_concat(in_sh.part_number),trim(','),' | ')  as 'Shipped Part Code', REPLACE(group_concat(spare_parts_details.parts_shipped),trim(','),' | ') as 'Shipped Part Name',REPLACE(group_concat(spare_parts_details.shipped_parts_type),trim(','),' | ') as 'Shipped Part Type'"
-                    . ",spare_parts_details.shipped_date as 'Part Shipped Date',max(spare_parts_details.acknowledge_date) as 'SF Acknowledged Date'"
-                    . ",CASE WHEN (spare_parts_details.auto_acknowledeged = 1 or spare_parts_details.auto_acknowledeged = 2) THEN 'YES' ELSE 'No' END AS 'Is auto Acknowledge',penalty_on_booking.active as 'Penalty Active'";
+                    . "partners.public_name as Partner, "
+                    . "employee_am.full_name as AM,emp_asm.full_name  as  'ASM',service_centres.name as 'Service Center',"
+                    . "services.services as 'Product',booking_details.request_type as 'Service Type',booking_details.partner_internal_status as 'Final Status Level 2',"
+                    . "users.name as 'Customer Name',users.phone_number as 'Phone',booking_details.booking_pincode as 'Pincode',booking_details.city as 'City',"
+                    . "CASE WHEN booking_details.is_upcountry = 1 THEN 'YES' ELSE 'No' END AS 'Is Upcountry',booking_details.upcountry_distance as 'Upcountry Distance',"
+                    . "CASE WHEN spare_parts_details.parts_requested != '' THEN 'YES' ELSE 'No' END AS 'Is Part Involved',CASE WHEN (spare_parts_details.auto_acknowledeged = 1 or spare_parts_details.auto_acknowledeged = 2) THEN 'YES' ELSE 'No' END AS 'Is auto Acknowledge',"
+                    . "spare_parts_details.shipped_date as 'Part Shipped Date',max(spare_parts_details.acknowledge_date) as 'SF Acknowledged Date',"
+                    . "REPLACE(group_concat(spare_parts_details.shipped_parts_type),trim(','),' | ') as 'Shipped Part Type',"
+                    . "spare_parts_details.model_number as 'Model',"                                        
+                    . "booking_details.state as 'State',booking_details.booking_address as 'Booking Address',"
+                    . "service_centres.primary_contact_name as 'SF Primary Contact Name',"
+                    . "service_centres.primary_contact_phone_1 as 'SF Primary Contact No',engineer_details.name as 'Engineer Name',booking_details.create_date as 'Create Date',booking_details.initial_booking_date as 'First Booking Date',booking_details.booking_date as 'Current Booking Date',"
+                    . "booking_details.booking_remarks as 'Booking Remarks', booking_details.reschedule_reason as 'Reschedule Remarks',"
+                    . "booking_details.current_status as 'Final Status Level 1', booking_details.actor as 'Dependency On',"
+                    . "REPLACE(group_concat(in_req.part_number),trim(','),' | ') as 'Requested Part Code', REPLACE(group_concat(spare_parts_details.parts_requested),trim(','),' | ') as 'Requested Part Name',"
+                    . "REPLACE(group_concat(spare_parts_details.parts_requested_type),trim(','),' | ') as 'Requested Part Type',spare_parts_details.date_of_request as 'Part Requested Date',"
+                    . "REPLACE(group_concat(in_sh.part_number),trim(','),' | ')  as 'Shipped Part Code', REPLACE(group_concat(spare_parts_details.parts_shipped),trim(','),' | ') as 'Shipped Part Name',"                                   
+                    . "penalty_on_booking.active as 'Penalty Active',employee.full_name as 'RM'";
             // Show Distinct Bookings
             $group_by = 'booking_details.booking_id';
             
@@ -6867,14 +6869,20 @@ class Booking extends CI_Controller {
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/courier_lost_parts', $data);
     }
-    function get_city_from_pincode($show_all_cities = '') {
+    function get_city_from_pincode() {
         $post_data = $this->input->post();
         $data = array();
         if (!empty($post_data['booking_pincode'])) {
             $data = $this->vendor_model->getDistrict_from_india_pincode('', $post_data['booking_pincode']);
         }
-        if(!empty($show_all_cities) && empty($data)){
-            $data = $this->vendor_model->getDistrict_from_india_pincode();
+        echo json_encode($data);
+    }
+    
+    function get_city_state_from_pincode() {
+        $post_data = $this->input->post();
+        $data = array();
+        if (!empty($post_data['booking_pincode'])) {
+            $data = $this->vendor_model->getDistrict_State_from_india_pincode($post_data['booking_pincode']);
         }
         echo json_encode($data);
     }

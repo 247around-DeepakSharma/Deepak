@@ -3397,7 +3397,7 @@ class Service_centers extends CI_Controller {
                 . " sf_challan_file as challan_file, "
                 . " remarks_defective_part_by_partner, "
                 . " remarks_by_partner, spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.defective_return_to_entity_id,spare_parts_details.entity_type,"
-                . " spare_parts_details.id,spare_parts_details.shipped_quantity,spare_parts_details.challan_approx_value,spare_parts_details.remarks_defective_part_by_wh ,i.part_number, spare_consumption_status.consumed_status,  spare_consumption_status.is_consumed";
+                . " spare_parts_details.id,spare_parts_details.shipped_quantity,spare_parts_details.challan_approx_value,spare_parts_details.remarks_defective_part_by_wh,spare_parts_details.rejected_defective_part_pic_by_wh ,i.part_number, spare_consumption_status.consumed_status,  spare_consumption_status.is_consumed";
 
         $group_by = "spare_parts_details.id";
         $order_by = "status = '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', spare_parts_details.booking_id ASC";
@@ -6591,7 +6591,7 @@ class Service_centers extends CI_Controller {
         if(empty($warehouse_name)){
         $row[] = "<span class='".$color_class."'>". $spare_list['defective_part_shipped'] ."</span>";
         }else{
-        $row[] = "<span class='".$color_class."'>". $spare_list['defective_part_shipped'] ." ($warehouse_name)</span>";   
+        $row[] = "<span class='".$color_class."'>". $spare_list['defective_part_shipped'] ."<br>($warehouse_name)</span>";   
         }
         $row[] = "<span class='".$color_class."'>". $spare_list['shipped_quantity'] ."</span>";
         $row[] = "<span class='".$color_class."'>". $spare_list['part_number'] ."</span>";
@@ -6615,7 +6615,7 @@ class Service_centers extends CI_Controller {
 
         $row[] = "<span class='".$color_class."'>". $spare_list['reason_text'] ."</span>";
 
-
+        //If Defective part is already shipped or Different warehouse search data then disable receive button
         if (!empty($spare_list['defective_part_shipped']) && $sf_id == $spare_list['defective_return_to_entity_id']) {
 
             $a = "<a href='javascript:void(0);' id='defective_parts_' class='btn btn-sm btn-primary recieve_defective' onclick='";

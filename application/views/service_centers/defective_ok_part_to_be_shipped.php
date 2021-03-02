@@ -23,6 +23,7 @@ if ($this->uri->segment(3)) {
                                         <th class="text-center">Parts Code </th>
                                         <th class="text-center">Quantity</th>
                                         <th class="text-center">Amount</th>
+                                        <th class="text-center">Rejection Reason</th>
                                         <th class="text-center">Consumption</th>
                                         <th class="text-center">Consumption Reason</th>
                                         <th class="text-center" >Spare Tag/Address<br><input type="checkbox" id="selectall_spare_tag" > </th>
@@ -77,7 +78,9 @@ if ($this->uri->segment(3)) {
                                             <td>
                                                 <?php echo $row['challan_approx_value']; ?>
                                             </td>
-
+                                            <td>
+                                                <?php echo $row['remarks_defective_part_by_wh']; ?>
+                                            </td>
                                            
                                             <td><?php if ($row['is_consumed'] == 1) {
                                                     echo 'Yes';
