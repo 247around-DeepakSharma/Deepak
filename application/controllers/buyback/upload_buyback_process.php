@@ -135,7 +135,7 @@ class Upload_buyback_process extends CI_Controller {
         } else {
            
             $to = empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?ANUJ_EMAIL_ID:$this->session->userdata('official_email') . ", " . ANUJ_EMAIL_ID):$this->email_send_to;
-            $cc = NITS_EMAIL_ID;
+            $cc = NITS_EMAIL_ID.", sauravc@247around.com, ashum@247around.com";
 
             $message = "";
             $agent_name = !empty($this->session->userdata('emp_name'))? $this->session->userdata('emp_name'): _247AROUND_DEFAULT_AGENT_NAME;

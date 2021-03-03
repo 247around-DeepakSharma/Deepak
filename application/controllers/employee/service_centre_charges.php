@@ -1555,7 +1555,7 @@ class service_centre_charges extends CI_Controller {
     function validate_approval_misc_charges_file() {
       
         if (!empty($_FILES['approval_misc_charges_file']['tmp_name'])) {
-            $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+            $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf", "zip", "ZIP");
             $booking_id = $this->input->post("booking_id");
             $defective_courier_receipt = $this->miscelleneous->upload_file_to_s3($_FILES["approval_misc_charges_file"], 
                     "approval_file", $allowedExts, $booking_id, "misc-images", "approval_file");
@@ -1590,7 +1590,7 @@ class service_centre_charges extends CI_Controller {
 
     function validate_purchase_invoice_file() {
         if (!empty($_FILES['purchase_invoice_file']['tmp_name'])) {
-            $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+            $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf","zip", "ZIP");
             $booking_id = $this->input->post("booking_id");
             $purchase_invoice_file = $this->miscelleneous->upload_file_to_s3($_FILES["purchase_invoice_file"], 
                     "file_purchase_invoice", $allowedExts, $booking_id, "purchase-invoices", "file_purchase_invoice");

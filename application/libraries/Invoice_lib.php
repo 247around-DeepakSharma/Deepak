@@ -1479,12 +1479,8 @@ class Invoice_lib {
         $a = array();
         foreach ($response['booking'] as $value) {
             $invoice = array();
-            if(isset($value['invoice_id'])){
-                $invoice['invoice_id'] = $value['invoice_id'];
-            } else {
-                $invoice['invoice_id'] = $response['meta']['invoice_id'];
-            }
-            
+        
+            $invoice['invoice_id'] = $response['meta']['invoice_id'];
             $invoice['description'] = $value['description'];
             $invoice['product_or_services'] = "Product";
             $invoice['hsn_code'] = $value['hsn_code'];
