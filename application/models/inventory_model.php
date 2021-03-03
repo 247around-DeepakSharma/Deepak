@@ -4508,4 +4508,23 @@ class Inventory_model extends CI_Model {
         return $query->result_array();
     }
 
+    
+    /*
+     * @desc: This function is used to get existing inventory part type
+     * @params: $select
+     * @params: $where
+     * @return: Array
+     */
+
+    function get_exists_inventory_parts($select, $where) {
+        $this->db->select($select);
+        $this->db->from('inventory_parts_type');
+        $this->db->join('services', 'services.id = inventory_parts_type.service_id');
+
+        if (!empty($where)) {
+            $this->db->where($where);
+        }
+        $query = $this->db->get();
+        return $query->result_array();
+    }
 }
