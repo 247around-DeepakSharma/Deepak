@@ -2505,7 +2505,7 @@ class engineerApi extends CI_Controller {
                 $this->jsonResponseString['response'] = $response;
                 $this->sendJsonResponse(array('0000', 'success'));
             } else {
-                log_message("info", __METHOD__ . "Engineer Profile not found - " . $requestData["engineer_id"]);
+                log_message("info", __METHOD__ . "Engineer Profile not found  ");
                 $this->sendJsonResponse(array('0030', 'Engineer Profile not found'));
             }
         } else {
