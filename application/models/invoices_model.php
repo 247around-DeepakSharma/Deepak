@@ -1441,8 +1441,9 @@ class invoices_model extends CI_Model {
             $meta['invoice_type'] = $invoice_type;
             $meta['tcs_rate'] = "";
             $meta['tcs_rate_text'] = "";
-            $meta['tds_amount'] = "";
             $meta['tcs_amount'] = "";
+            $meta['tds_amount'] = "";
+            $meta['tds_text'] = "";
            
             $meta['price_inword'] = convert_number_to_words($meta['sub_total_amount']);
             if($result[0]['description'] == QC_INVOICE_DESCRIPTION){
