@@ -3883,7 +3883,7 @@ exit();
      * @param String $type_code
      * @param String $type
      */
-    function fetch_invoice_id($vendor_partner_id, $vendor_partner_type, $type_code, $type) {
+    function fetch_invoice_id($vendor_partner_id, $vendor_partner_type, $type_code, $type, $state_code) {
         $entity_details = array();
 
         if (!empty($vendor_partner_id) && !empty($type_code) && !empty($type)) {
@@ -3893,7 +3893,7 @@ exit();
                     if($type == DEBIT_NOTE){
                         echo $this->create_invoice_id_to_insert("ARD-DN");
                     } else {
-                        echo $this->create_invoice_id_to_insert("ARD-9");
+                        echo $this->create_invoice_id_to_insert("ARD-".$state_code);
                     }
 
                     break;
@@ -3907,7 +3907,7 @@ exit();
                         echo $this->create_invoice_id_to_insert($entity_details[0]['sc_code']);
                        
                     } else {
-                        echo $this->create_invoice_id_to_insert("ARD-9");
+                        echo $this->create_invoice_id_to_insert("ARD-".$state_code);
                     }
                 
                     
