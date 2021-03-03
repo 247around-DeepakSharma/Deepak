@@ -140,7 +140,9 @@ class File_upload extends CI_Controller {
                     
                     //send email
                     $this->send_email($data, $response);
-                    $redirect_to = $response['redirect_to'];
+                    if (isset($response['redirect_to'])) {
+                        $redirect_to = $response['redirect_to'];
+                    }
                     if (isset($response['status']) && ($response['status'])) {
                         
                         if ($this->input->post("transfered_by") == MSL_TRANSFERED_BY_WAREHOUSE) {
@@ -350,12 +352,12 @@ class File_upload extends CI_Controller {
         $header_column_need_to_be_present = array('part_name', 'part_number', 'part_type', 'basic_price', 'hsn_code', 'gst_rate', $around_margin, 'vendor_margin', 'is_defective_required');
         //check if required column is present in upload file header
         $check_header = $this->check_column_exist($header_column_need_to_be_present, $data['header_data']);
-
+        
         if ($check_header['status']) {
             $invalid_data = array();
             $flag = 1;
             $valid_flage = 1;
-            $gst_error =TRUE;
+            $error =TRUE;
             $msg = "";
             //get file data to process
             for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
@@ -370,82 +372,91 @@ class File_upload extends CI_Controller {
                         $margin = $rowData['around_margin'];
                     }
 
-                    if (in_array($rowData['gst_rate'], GST_NUMBERS_LIST)) {
+                    /* Check part type from database, if part type not exists in our system then required to add new part type */
+                    $part_type_details = $this->inventory_model->get_exists_inventory_parts("inventory_parts_type.part_type, services.services", array("services.id" => $service_id, "inventory_parts_type.part_type" => $rowData['part_type']));
 
-                        if (!empty($rowData['appliance']) && !empty($rowData['part_name']) && !empty($rowData['part_number']) &&
-                                !empty($rowData['part_type']) && !empty($rowData['basic_price']) && ($rowData['basic_price'] > 0) &&
-                                (!is_null($margin) && !empty($rowData['is_defective_required']) && ((isset($data['saas_module']) && ($data['saas_module'] == 1)) ? ($margin >= 0) : ($margin > 0)) && $margin <= 30 ) &&
-                                (!is_null($rowData['vendor_margin']) && ((isset($data['saas_module']) && ($data['saas_module'] == 1)) ? ($rowData['vendor_margin'] >= 0) : ($rowData['vendor_margin'] > 0)) && $rowData['vendor_margin'] <= 15 ) &&
-                                ((isset($data['saas_module']) && ($data['saas_module'] == 1)) ? ($margin >= $rowData['vendor_margin'] || ($margin <= $rowData['vendor_margin'])) : ($margin >= $rowData['vendor_margin']))) {
+                    if (!empty($part_type_details)) {
 
-                            $where['hsn_code'] = trim($rowData['hsn_code']);
+                        if (in_array($rowData['gst_rate'], GST_NUMBERS_LIST)) {
 
-                            $hsncode_data = $this->invoices_model->get_hsncode_details('id,hsn_code,gst_rate', $where);
+                            if (!empty($rowData['appliance']) && !empty($rowData['part_name']) && !empty($rowData['part_number']) &&
+                                    !empty($rowData['part_type']) && !empty($rowData['basic_price']) && ($rowData['basic_price'] > 0) &&
+                                    (!is_null($margin) && !empty($rowData['is_defective_required']) && ((isset($data['saas_module']) && ($data['saas_module'] == 1)) ? ($margin >= 0) : ($margin > 0)) && $margin <= 30 ) &&
+                                    (!is_null($rowData['vendor_margin']) && ((isset($data['saas_module']) && ($data['saas_module'] == 1)) ? ($rowData['vendor_margin'] >= 0) : ($rowData['vendor_margin'] > 0)) && $rowData['vendor_margin'] <= 15 ) &&
+                                    ((isset($data['saas_module']) && ($data['saas_module'] == 1)) ? ($margin >= $rowData['vendor_margin'] || ($margin <= $rowData['vendor_margin'])) : ($margin >= $rowData['vendor_margin']))) {
 
-                            if (empty($hsncode_data)) {
-                                $hsn_data['hsn_code'] = $rowData['hsn_code'];
-                                $hsn_data['gst_rate'] = $rowData['gst_rate'];
-                                if ($this->session->userdata("userType") == _247AROUND_PARTNER_STRING) {
-                                    $hsn_data['agent_id'] = $this->session->userdata('agent_id');
+                                $where['hsn_code'] = trim($rowData['hsn_code']);
+
+                                $hsncode_data = $this->invoices_model->get_hsncode_details('id,hsn_code,gst_rate', $where);
+
+                                if (empty($hsncode_data)) {
+                                    $hsn_data['hsn_code'] = $rowData['hsn_code'];
+                                    $hsn_data['gst_rate'] = $rowData['gst_rate'];
+                                    if ($this->session->userdata("userType") == _247AROUND_PARTNER_STRING) {
+                                        $hsn_data['agent_id'] = $this->session->userdata('agent_id');
+                                    } else {
+                                        $hsn_data['agent_id'] = $this->session->userdata('id');
+                                    }
+
+                                    $hsn_code_details_id = $this->inventory_model->insert_hsn_code_details($hsn_data);
                                 } else {
-                                    $hsn_data['agent_id'] = $this->session->userdata('id');
+                                    $hsn_code_details_id = $hsncode_data[0]['id'];
                                 }
 
-                                $hsn_code_details_id = $this->inventory_model->insert_hsn_code_details($hsn_data);
-                            } else {
-                                $hsn_code_details_id = $hsncode_data[0]['id'];
-                            }
+                                if (!empty($service_id) && !empty($rowData['part_type'])) {
+                                    $parts_type_details = $this->inventory_model->get_inventory_parts_type_details('*', array('inventory_parts_type.service_id' => $service_id, 'part_type' => strtoupper($rowData['part_type'])), false);
+                                    if (empty($parts_type_details)) {
+                                        $parts_data['service_id'] = $service_id;
+                                        $parts_data['part_type'] = strtoupper($rowData['part_type']);
+                                        $parts_data['hsn_code_details_id'] = $hsn_code_details_id;
+                                        if (!empty($parts_data)) {
+                                            $this->inventory_model->insert_inventory_parts_type($parts_data);
+                                        }
+                                    }
+                                    /*
+                                      if ($rowData['gst_rate'] != $hsncode_data[0]['gst_rate']) {
+                                      $flag = 0;
+                                      $msg = "GST Rate of HSN Code (" . $rowData['hsn_code'] . ") should be " . $hsncode_data[0]['gst_rate'];
+                                      break;
+                                      } */
+                                } else {
+                                    $flag = 0;
+                                    $msg = "Around & Vendor Margin % should be greater than zero";
+                                    break;
+                                }
 
-                            if (!empty($service_id) && !empty($rowData['part_type'])) {
-                                $parts_type_details = $this->inventory_model->get_inventory_parts_type_details('*', array('inventory_parts_type.service_id' => $service_id, 'part_type' => strtoupper($rowData['part_type'])), false);
-                                if (empty($parts_type_details)) {
-                                    $parts_data['service_id'] = $service_id;
-                                    $parts_data['part_type'] = strtoupper($rowData['part_type']);
-                                    $parts_data['hsn_code_details_id'] = $hsn_code_details_id;
-                                    if (!empty($parts_data)) {
-                                        $this->inventory_model->insert_inventory_parts_type($parts_data);
+                                if ($flag == 1) {
+                                    $rowData['service_id'] = $service_id;
+                                    //array_push($file_appliance_arr, $rowData['appliance']);
+                                    /*                                     * check if part_number value is present or not
+                                     * if its value is not presnet then create new part number
+                                     * based on partner_id,service_id and unique number
+                                     */
+
+                                    if (!empty($rowData['hsn_code']) && !empty($rowData['basic_price']) && ((isset($data['saas_module']) && ($data['saas_module'] == 1)) ? ($rowData['around_margin'] >= 0) : ($rowData['around_margin'] > 0)) && ((isset($data['saas_module']) && ($data['saas_module'] == 1)) ? ($rowData['vendor_margin'] >= 0) : ($rowData['vendor_margin'] > 0))) {
+                                        if (empty($rowData['part_number'])) {
+                                            $new_part_number = $this->create_inventory_part_number($partner_id, $service_id, $rowData);
+                                            $rowData['part_number'] = $new_part_number;
+                                        }
+
+                                        $subArray = $this->get_sub_array($rowData, array('appliance', 'service_id', 'part_name', 'part_number'));
+                                        array_push($sheetUniqueRowData, implode('_join_', $subArray));
+                                        $this->sanitize_inventory_data_to_insert($rowData);
+                                    } else {
+                                        array_push($invalid_data, array('part_name' => $rowData['part_name'], 'part_number' => $rowData['part_number'], 'hsn_code' => $rowData['hsn_code'], 'basic_price' => $rowData['basic_price']));
                                     }
                                 }
-                                /*
-                                  if ($rowData['gst_rate'] != $hsncode_data[0]['gst_rate']) {
-                                  $flag = 0;
-                                  $msg = "GST Rate of HSN Code (" . $rowData['hsn_code'] . ") should be " . $hsncode_data[0]['gst_rate'];
-                                  break;
-                                  } */
                             } else {
-                                $flag = 0;
-                                $msg = "Around & Vendor Margin % should be greater than zero";
+                                $valid_flage = 0;
                                 break;
                             }
-
-                            if ($flag == 1) {
-                                $rowData['service_id'] = $service_id;
-                                //array_push($file_appliance_arr, $rowData['appliance']);
-                                /*                                 * check if part_number value is present or not
-                                 * if its value is not presnet then create new part number
-                                 * based on partner_id,service_id and unique number
-                                 */
-
-                                if (!empty($rowData['hsn_code']) && !empty($rowData['basic_price']) && ((isset($data['saas_module']) && ($data['saas_module'] == 1)) ? ($rowData['around_margin'] >= 0) : ($rowData['around_margin'] > 0)) && ((isset($data['saas_module']) && ($data['saas_module'] == 1)) ? ($rowData['vendor_margin'] >= 0) : ($rowData['vendor_margin'] > 0))) {
-                                    if (empty($rowData['part_number'])) {
-                                        $new_part_number = $this->create_inventory_part_number($partner_id, $service_id, $rowData);
-                                        $rowData['part_number'] = $new_part_number;
-                                    }
-
-                                    $subArray = $this->get_sub_array($rowData, array('appliance', 'service_id', 'part_name', 'part_number'));
-                                    array_push($sheetUniqueRowData, implode('_join_', $subArray));
-                                    $this->sanitize_inventory_data_to_insert($rowData);
-                                } else {
-                                    array_push($invalid_data, array('part_name' => $rowData['part_name'], 'part_number' => $rowData['part_number'], 'hsn_code' => $rowData['hsn_code'], 'basic_price' => $rowData['basic_price']));
-                                }
-                            }
                         } else {
-                            $valid_flage = 0;
-                            break;
+                            $error = false;
+                            $error_message = "GST rate mismatch according to slab.";
                         }
                     } else {
-                        $gst_error = false;
-                        $gst_error = "GST rate mismatch according to slab.";
+                        $error = false;
+                        $error_message = "Part type does not exist in our system, please add this part type first.";
                     }
                 }
             }
@@ -453,7 +464,7 @@ class File_upload extends CI_Controller {
 
             if ($flag == 1) {
 
-                if (!empty($gst_error)) {
+                if (!empty($error)) {
 
                     if ($valid_flage == 1) {
                         $is_file_contains_unique_data = $this->check_unique_in_array_data($sheetUniqueRowData);
@@ -558,7 +569,7 @@ class File_upload extends CI_Controller {
                     }
                 } else {
                    $response['status'] = false;
-                   $response['message'] = $gst_error; 
+                   $response['message'] = $error_message; 
                 }
             } else {
                 $response['status'] = FALSE;

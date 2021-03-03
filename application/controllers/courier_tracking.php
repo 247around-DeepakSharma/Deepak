@@ -1571,6 +1571,7 @@ class Courier_tracking extends CI_Controller {
     
     function update_delivered_spare_pod() {
         $select = " DISTINCT(spare_parts_details.awb_by_partner) as awb_number,  spare_parts_details.courier_name_by_partner as couriercode";
+        $where = array("spare_parts_details.auto_acknowledeged" => 1, "spare_parts_details.consumed_part_status_id != 1 AND spare_parts_details.shipped_date < '2020-11-15' AND spare_parts_details.shipped_date > '2020-09-23'  AND spare_parts_details.status IN('Ok Part To Be Shipped By SF','Spare Parts Delivered to SF','Defective Part To Be Shipped By SF','Courier Lost Approval Pending','Defective Part Rejected By Warehouse','Defective Part Received By Warehouse','Ok Part Rejected By Warehouse','Ok Part Received By Warehouse','Ok Part Shipped By SF','Defective Part Shipped By SF')" => NULL);
         $spare_parts_data = $this->inventory_model->get_generic_table_details('spare_parts_details', $select, $where, '');
         $awb_array = array();
         foreach ($spare_parts_data as $value) {
