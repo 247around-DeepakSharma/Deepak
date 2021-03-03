@@ -2812,7 +2812,7 @@ exit();
         }
         $partner_id = $authentication['id'];
         $partner_name = $authentication['public_name'];
-        $select_string = "bd.booking_id as complain_number,bd.request_type as complain_type, services.services as product, "
+        $select_string = "bd.booking_id as complaint_number,bd.request_type as complaint_type, services.services as product, "
                 . "bd.partner_internal_status as current_status,bd.service_center_closed_date as closed_date, '" . $partner_name . "' as brand,bd.booking_date,bd.order_id";
         $booking_details = $this->user_model->search_user($mobile_number, "", "", false, $partner_id, $select_string);
         if (empty($booking_details)) {
