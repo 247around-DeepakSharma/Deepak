@@ -30,8 +30,8 @@
                 <?php if($meta['main_company_logo']){ ?>
                 <img style="padding: 5px;" src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_logo']; ?>"></td>
                 <?php } ?>
-                <td colspan="7"  align="center" style="border:hidden;padding-right: 15%; "><?php echo $meta['main_company_address']; ?>,
-                    <br><?php echo $meta['main_company_state'].", ".$meta['main_company_pincode']; ?>
+                <td colspan="7"  align="center" style="border:hidden;padding-right: 15%; "><?php echo $meta['main_company_address']." Pincode: ".$meta['main_company_pincode']; ?>,
+                    <br><?php echo $meta['main_company_state']; ?>
                     <br>Email: <?php echo $meta['main_company_email']; ?>
                     <br><br>
                     <b>GSTIN: <?php echo $meta['main_company_gst_number']; ?></b>
@@ -45,7 +45,7 @@
             <tr style="text-align: center; height: 50px; font-size: 40px;background-color: rgb(211,211,211);">	
                 <td colspan="10" style="border-right: 0px solid;" align="center"><b><?php echo $meta['invoice_type']; ?></b></td>
             </tr>
-            <tr><td colspan="3">Invoice No:<?php echo $meta['invoice_id']; ?></td>		
+            <tr><td colspan="3">Invoice No: <?php echo $meta['invoice_id']; ?></td>		
                 <td colspan="7" style="border-right: 2px solid;">Reference No: </td>
             </tr>
             <tr><td colspan="3">Date: <?php echo date("d-M-Y", strtotime($meta['invoice_date'])); ?></td>	
@@ -61,7 +61,7 @@
             <tr><td colspan="10" style="border-right: 2px solid;">Address:  <?php echo $meta['company_address']; ?></td></tr>
             <tr><td colspan="2">GSTIN: <?php echo $meta['gst_number']; ?></td>
                 <td colspan="6">Place of Supply: <?php echo $meta['state']; ?></td>	
-                <td colspan="2" style="border-right: 2px solid;">Code:<?php echo $meta['state_code']; ?></td></tr>
+                <td colspan="2" style="border-right: 2px solid;">Code: <?php echo $meta['state_code']; ?></td></tr>
 
             <tr style="text-align: center;background-color: rgb(211,211,211);">
                 <td rowspan="2"  style="font-size: 14px;"><b>Product Description</td>
@@ -116,12 +116,12 @@
             </tr>
 
             <tr >
-                <td colspan="4" align="center"><b>Total Invoice amount in words</b></td>
+                <td colspan="4" align="center"><b>Total amount in words</b></td>
                 <td colspan="5"><b>Total Amt before Tax</td>
                 <td colspan="1" align="center" style="border-right: 2px solid;"><?php echo $meta['total_taxable_value']; ?></td>
             </tr>
             <tr>
-                <td colspan="4" rowspan="<?php  if(!empty($meta['tcs_rate'])){ echo "4"; } else { echo "3";}?>" style="padding: 2%; text-align: center;"><?php echo $meta['price_inword']; ?></td>
+                <td colspan="4" rowspan="<?php if(!empty($meta['tds_amount']) && !empty($meta['tcs_rate'])){ echo "5"; } else if(!empty($meta['tcs_rate']) || !empty($meta['tds_amount']) ){ echo "4"; } else { echo "3";}?>" style="padding: 2%; text-align: center;"><?php echo $meta['price_inword']; ?></td>
                 <td colspan="5"><b>Add: CGST</td>
                 <td colspan="1" align="center" style="border-right: 2px solid;"><?php echo $meta['cgst_total_tax_amount'];; ?></td>
             <tr >
@@ -131,7 +131,13 @@
             <?php  if(!empty($meta['tcs_rate'])){ ?>
             <tr >
                 <td colspan="5" style="font-weight: bold;"><b>Add: TCS <?php echo TCS_TAX_RATE;?></td>
-                <td colspan="1" align="center" style="border-right: 2px solid;"><?php echo $meta['tcs_amount'];; ?></td>
+                <td colspan="1" align="center" style="border-right: 2px solid;"><?php echo $meta['tcs_amount']; ?></td>
+            </tr>
+            <?php } ?>
+            <?php  if(!empty($meta['tds_amount'])){ ?>
+            <tr style="text-align: left;">
+                <td colspan="5"  style="font-weight: bold;"><?php echo $meta['tds_text'];?></td>
+                <td colspan="1" align="center" style="border-right: 2px solid;"><?php echo $meta['tds_amount'];?></td>
             </tr>
             <?php } ?>
             <tr ><td colspan="5" style="font-weight: bold;">Total Amount</td>
