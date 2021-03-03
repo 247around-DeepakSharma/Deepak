@@ -110,7 +110,7 @@
              foreach($main_nav['parents'] as $index =>$p_id){
                 $link='';
                 if($main_nav['navData']["id_".$p_id]['link'] !=''){
-                    if($main_nav['navData']["id_".$p_id]['id'] == '258') {
+                    if(strpos($main_nav['navData']["id_".$p_id]['link'],'google.com') || strpos($main_nav['navData']["id_".$p_id]['link'],'youtube.com')) {
                         $link =  $main_nav['navData']["id_".$p_id]['link'];
                     } else {
                         $link =  base_url().$main_nav['navData']["id_".$p_id]['link'];
@@ -130,7 +130,7 @@
                      foreach($main_nav['navFlow']["id_".$p_id] as $childID){
                          $childLink='';
                             if($main_nav['navData']["id_".$childID]['link'] !=''){
-                                if($main_nav['navData']["id_".$childID]['id'] == '258') {
+                                if(strpos($main_nav['navData']["id_".$childID]['link'],'google.com') || strpos($main_nav['navData']["id_".$childID]['link'],'youtube.com')) {
                                     $childLink =  $main_nav['navData']["id_".$childID]['link'];
                                 } else {
                                     $childLink =  base_url().$main_nav['navData']["id_".$childID]['link'];
@@ -151,7 +151,7 @@
                                  foreach($main_nav['navFlow']["id_".$childID] as $subchildID){
                                     $subChildLink='';
                                     if( $main_nav['navData']["id_".$subchildID]['link'] !=''){
-                                        if($main_nav['navData']["id_".$subchildID]['id'] == '258') {
+                                        if(strpos($main_nav['navData']["id_".$subchildID]['link'],'google.com') || strpos($main_nav['navData']["id_".$subchildID]['link'],'youtube.com')) {
                                             $subChildLink =  $main_nav['navData']["id_".$subchildID]['link'];
                                         } else {
                                             $subChildLink =  base_url(). $main_nav['navData']["id_".$subchildID]['link'];
