@@ -253,7 +253,7 @@ class Warranty_utilities {
         $booking_request_type = $this->My_CI->booking_utilities->get_booking_request_type($selected_booking_request_types); 
         $booking_id = $arrBookings[0]['booking_id'];
         $arr_warranty_status = [
-            'IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation', 'PDI', 'Demo', 'Tech Visit', 'Replacement', 'Spare Cannibalization', 'Handling Charges'],
+            'IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation', 'PDI', 'Demo', 'Tech Visit', 'Replacement', 'Spare Cannibalization', 'Handling Charges', 'Dead after Purchase (DaP)', 'Dead On Arrival (DOA)'],
             'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat', 'PDI', 'Tech Visit', 'Spare Cannibalization', 'Handling Charges'],
             'EW' => ['Extended', 'AMC', 'Repeat', 'PDI', 'Tech Visit', 'Spare Cannibalization', 'Handling Charges']
         ];
