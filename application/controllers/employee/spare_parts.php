@@ -5256,11 +5256,6 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         
         /* get spare part detail of $spare_id */ 
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $data['spare_id']], NULL, NULL, NULL, NULL, NULL)[0];
-<<<<<<< HEAD
-        if(empty($spare_part_detail['awb_by_partner'])){
-            echo "<div class='alert alert-warning'>AWB Number not found for this booking, you cannot mark RTO for this booking.</div>";
-            exit;
-=======
 		if(empty($spare_part_detail['awb_by_partner'])){
 			echo "<div class='alert alert-warning'>AWB Number not found for this booking, you cannot mark RTO for this booking.</div>";
 			exit;
@@ -5275,7 +5270,6 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                 exit;
             }
             }
->>>>>>> c945c899a... CRMS-2163 Do not allow to mark RTO on same awb by partner when status is Defective Ok Part Shipped By SF
         }
         if (!empty($post_data['rto'])) {
             // upload rto document.
