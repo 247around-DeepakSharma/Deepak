@@ -2939,8 +2939,7 @@ exit();
             $this->sendJsonResponse(array(ERR_INVALID_BOOKING_ID_CODE, ERR_INVALID_BOOKING_ID_MSG));
         }
     }
-<<<<<<< HEAD
-=======
+
     /*
      * @Desc - This function is used to return booking history by Mobile number
      * @request - {"mobile":"9650905305"}
@@ -2978,5 +2977,5 @@ exit();
         $this->sendJsonResponse(array(SUCCESS_CODE, SUCCESS_MSG));
     }
 
->>>>>>> d740a3833... CRMS-2282 Api to get booking History from Mobile number
+
 }
