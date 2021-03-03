@@ -2073,9 +2073,12 @@ class Partner extends CI_Controller {
 
         //Save header / ip address in DB
         $h = $this->getallheaders();
-        if ($h === FALSE || empty($h['Authorization'])) {
+        if ($h === FALSE) {
             $this->sendJsonResponse(array(ERR_GENERIC_ERROR_CODE, ERR_GENERIC_ERROR_MSG));
         } else {
+            if(empty($h['Authorization'])){
+                $this->sendJsonResponse(array(ERR_INVALID_PARTNER_NAME_CODE, ERR_INVALID_PARTNER_NAME_MSG));
+            }else{
             $this->header = json_encode($h);
             $this->token = $h['Authorization'];
 
@@ -2093,6 +2096,7 @@ class Partner extends CI_Controller {
                 //invalid token
                 $this->jsonResponseString['response'] = NULL;
                 $this->sendJsonResponse(array(ERR_INVALID_AUTH_TOKEN_CODE, ERR_INVALID_AUTH_TOKEN_MSG));
+            }
             }
         }
     }
