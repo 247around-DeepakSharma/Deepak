@@ -967,6 +967,7 @@
         var vendor_partner_id =  $("#vendor_partner_id").val();
         var type_code = $("input[name='around_type']:checked").val();
         var type = $("#type_code option:selected").val();
+        var state_code = $("#gst_number").find(':selected').attr('data-state_code')
 
         if(gst_number === null){ 
             alert("Please Select 247around GST Number");
@@ -987,7 +988,7 @@
             $("#fetch_invoice_id").text("Fetching..");
             $.ajax({
             type: 'POST',
-            url: '<?php echo base_url(); ?>employee/invoice/fetch_invoice_id/' + vendor_partner_id + '/' + vendor_partner_type + '/' + type_code+"/"+type,
+            url: '<?php echo base_url(); ?>employee/invoice/fetch_invoice_id/' + vendor_partner_id + '/' + vendor_partner_type + '/' + type_code+"/"+type+"/"+state_code,
                 success: function (data) {
                     alert(data);
                     $("#fetch_invoice_id").text("Fetch Invoice ID");
