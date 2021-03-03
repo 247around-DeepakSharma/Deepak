@@ -2662,6 +2662,14 @@ class Miscelleneous {
     function fake_reschedule_handling($userPhone,$id,$employeeID,$remarks,$bookingID=NULL){
         $isEscalationDone = TRUE;
         log_message('info', __METHOD__.' Function Start');
+        
+        // Check If Booking is already Approved / Rejected
+        $booking_data = $this->My_CI->booking_model->review_reschedule_bookings_request(NULL, ['booking_details.booking_id' => $booking_id], NULL); 
+        if(empty($booking_data)){
+            log_message('info', 'Rescheduled Error (Already Rescheduled/Rejected) - Booking id: ' . $booking_id);
+            return FALSE;
+        }
+        
         $already_rescheduled =0;
         $whereArray['service_center_booking_action.internal_status IN ("'.VENDOR_RESCHEDULED.'", "'.ENGINEER_ON_ROUTE.'", "'.CUSTOMER_NOT_REACHABLE.'", "'.CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER.'") '] = NULL; 
         $bookingDetails = $this->get_fake_reschedule_booking_details($userPhone,$bookingID,$whereArray);
@@ -2737,7 +2745,7 @@ class Miscelleneous {
     function reject_reschedule_request($booking_id,$escalation_reason_id,$remarks,$id,$employeeID){
         log_message('info', __METHOD__.' Function Start');
         //Change Booking Status Back to Pending
-       $affectedRows = $this->My_CI->reusable_model->update_table("service_center_booking_action",array("current_status"=>"Pending","internal_status"=>"Pending"),
+        $affectedRows = $this->My_CI->reusable_model->update_table("service_center_booking_action",array("current_status"=>"Pending","internal_status"=>"Pending"),
                 array("booking_id"=>$booking_id));
         if($affectedRows>0){
             //State Change
@@ -2924,6 +2932,12 @@ class Miscelleneous {
     function approved_rescheduled_bookings($reschedule_booking_id,$reschedule_booking_date,$reschedule_reason,$partner_id_array,$id,$employeeID){
          log_message('info', __FUNCTION__);
          foreach ($reschedule_booking_id as $booking_id) {
+            // Check If Booking is already Approved / Rejected
+            $booking_data = $this->My_CI->booking_model->review_reschedule_bookings_request(NULL, ['booking_details.booking_id' => $booking_id], NULL); 
+            if(empty($booking_data)){
+                log_message('info', 'Rescheduled Error (Already Rescheduled/Rejected) - Booking id: ' . $booking_id);
+                continue;
+            }
             $partner_id = $partner_id_array[$booking_id];
             if(!empty($reschedule_booking_date[$booking_id])){
                 $booking['booking_date'] = date('Y-m-d', strtotime($reschedule_booking_date[$booking_id]));
