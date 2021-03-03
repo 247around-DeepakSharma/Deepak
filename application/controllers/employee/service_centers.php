@@ -10503,6 +10503,8 @@ class Service_centers extends CI_Controller {
     * @create_date 12-02-2021
     */
     function auto_approve_engineer_bookings(){
+        
+
         $this->db->_protect_identifiers = FALSE;
         // Fetch all Bookings that are completed by Engineer
         $where['where'] =   array(
@@ -10576,14 +10578,24 @@ class Service_centers extends CI_Controller {
             $this->insert_details_in_state_change($booking_id, $sf_booking_status, "Booking Auto Approved", "247Around", "Review the Booking");
             //Update spare consumption as entered by engineer Booking Completed
             if ($internal_status_engg == _247AROUND_COMPLETED) {
-                $spare_Consumption_details = $this->service_centers_model->get_engineer_consumed_details('*', array('booking_id' => $booking_id));
+                $update_consumption = false;
+                $spare_Consumption_details = $this->service_centers_model->get_engineer_consumed_details('*', array('booking_id' => $booking_id), array('coloum' => 'engineer_consumed_spare_details.id', 'order' => 'ASC'));
                 if (!empty($spare_Consumption_details)) {
                     $array_consumption = array();
                     foreach ($spare_Consumption_details as $key => $value) {
-                        $array_consumption['spare_consumption_status'][$value['spare_id']] = $value['consumed_part_status_id'];
-                        $array_consumption['consumption_remarks'][$value['spare_id']] = $value['remarks'];
+                        $spare_select = 'spare_parts_details.*';
+                        $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('spare_parts_details.id' => $key, 'status !=' => _247AROUND_CANCELLED));
+                        if (!empty($spare_details)) {
+                            if (($spare_details[0]['consumed_part_status_id'] == OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID || empty($spare_details[0]['consumed_part_status_id'])) && empty($spare_details[0]['defective_part_shipped_date'])) {
+                                $array_consumption['spare_consumption_status'][$value['spare_id']] = $value['consumed_part_status_id'];
+                                $array_consumption['consumption_remarks'][$value['spare_id']] = $value['remarks'];
+                                $update_consumption = true;
+                            }
+                        }
                     }
-                    $is_update_spare_parts = $this->miscelleneous->update_spare_consumption_status($array_consumption, $booking_id);
+                    if (!empty($update_consumption)) {
+                        $is_update_spare_parts = $this->miscelleneous->update_spare_consumption_status($array_consumption, $booking_id);
+                    }
                 }
             }
         }
