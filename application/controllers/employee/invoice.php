@@ -4107,13 +4107,17 @@ exit();
         $data['credit_debit'] = $this->input->post("credit_debit");
         $data['bankname'] = $this->input->post("bankname");
         $data['transaction_date'] = date("Y-m-d", strtotime($this->input->post("tdate")));
+        $data['tds_amount'] = $this->input->post('tds_amount');
+        $amount = $this->input->post("amount");
         if(!empty($this->input->post('tds_rate'))) {
             $data['tds_rate'] = $this->input->post('tds_rate');
+        } else if($data['tds_amount'] > 0){
+            $data['tds_rate'] = ($data['tds_amount'] *100)/$amount;
         } else {
             $data['tds_rate'] = 0;
         }
-        $data['tds_amount'] = $this->input->post('tds_amount');
-        $amount = $this->input->post("amount");
+        
+        
         if ($data['credit_debit'] == "Credit") {
             $data['credit_amount'] = $amount -  $data['tds_amount'];
             
@@ -4243,10 +4247,11 @@ exit();
                     $data['tds_amount'] = $tds;
                     $data['tds_rate'] = $tds_rate;
                 }
+                
                 $data['type'] = PARTNER_VOUCHER;
                 $response = $this->generate_partner_additional_invoice($entity[0], PARTNER_ADVANCE_DESCRIPTION,
                         $amount, $data['invoice_id'], $date,  $date,  $date, HSN_CODE, "Receipt Voucher", 
-                        ADVANCE_RECEIPT_EMAIL_TAG, 1, DEFAULT_TAX_RATE);
+                        ADVANCE_RECEIPT_EMAIL_TAG, 1, DEFAULT_TAX_RATE, $tds, $tds_rate);
                 
                 $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = $response['meta']['cgst_total_tax_amount'];
                 $data['igst_tax_amount'] = $response['meta']['igst_total_tax_amount'];
@@ -4332,7 +4337,7 @@ exit();
      * @return Array
      */
     function generate_partner_additional_invoice($partner_data, $description,
-            $amount, $invoice_id, $sd, $ed, $invoice_date, $hsn_code, $invoice_type, $email_tag, $qty, $gst_rate){
+            $amount, $invoice_id, $sd, $ed, $invoice_date, $hsn_code, $invoice_type, $email_tag, $qty, $gst_rate, $tds_amount =0, $tds_rate =0){
         log_message("info", __METHOD__." Partner ID ".$invoice_id);
         $data = array();
         $data[0]['description'] =  $description;
@@ -4361,9 +4366,18 @@ exit();
         if($invoice_type == "Receipt Voucher"){
             $response['meta']['sd'] = "";
             $response['meta']['ed'] = "";
+            $response['booking'][0]['qty'] = "";
+            $response['meta']['total_qty'] = "";
+            if($tds_amount > 0){
+                $response['meta']['tds_amount'] = $tds_amount;
+                $response['meta']['tds_text'] = "Less: TDS deducted (".$tds_rate."%)";
+                $response['meta']['sub_total_amount'] = $response['meta']['sub_total_amount'] - $tds_amount;
+                $response['meta']['price_inword'] = convert_number_to_words($response['meta']['sub_total_amount']);
+            }
+            
         }
        
-        $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
+        $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final"); 
         if($status){
             log_message("info", __METHOD__." Partner Advance Excel generated ".$invoice_id);
             
