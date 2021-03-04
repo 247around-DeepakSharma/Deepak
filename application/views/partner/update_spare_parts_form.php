@@ -537,27 +537,27 @@
             <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2>Update Challan Details</h2>
+                        <h2>Update Challan / Courier Details</h2>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
                         <div class="col-md-6">
                             <div class="form-group <?php
-                                if (form_error('awb')) { echo 'has-error'; } ?>">
-                                <label for="awb" class="col-md-4">AWB *</label>
+                                if (form_error('partner_challan_number')) { echo 'has-error'; } ?>">
+                                <label for="partner_challan_number" class="col-md-4">Challan Number *</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control" id="awb" name="awb" value = "" placeholder="Please Enter AWB"  required>
-                                    <?php echo form_error('awb'); ?>
+                                    <input type="text" class="form-control" id="partner_challan_number" name="partner_challan_number" value = "" placeholder="Please Enter challan Number">
+                                    <?php echo form_error('partner_challan_number'); ?>
                                 </div>
                             </div>
-                            <div class="form-group <?php
-                                if (form_error('shipment_date')) { echo 'has-error';} ?>">
-                                <label for="shipment_date" class="col-md-4">Shipment Date *</label>
+<!--                            <div class="form-group <?php
+                                if (form_error('approx_value')) { echo 'has-error'; } ?>">
+                                <label for="approx_value" class="col-md-4">Approx Value <?php if($warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){  ?>*<?php } ?></label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control" readonly  style="background-color:#FFF; cursor: pointer;" id="shipment_date" name="shipment_date"  value = "<?php echo  date("Y-m-d", strtotime("+0 day")); ?>"  required>
-                                    <?php echo form_error('shipment_date'); ?>
+                                    <input type="text" class="form-control" id="approx_value" name="approx_value" max="100000" value = "" placeholder="Please Enter approx value"  <?php if(isset($spare_parts[0]->part_warranty_status) && ($spare_parts[0]->part_warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS)){  ?> required  <?php } ?>>
+                                    <?php echo form_error('approx_value'); ?>
                                 </div>
-                            </div>
+                            </div>-->
                             <div class="form-group <?php
                                 if (form_error('courier_name')) {echo 'has-error';} ?>">
                                 <label for="courier" class="col-md-4">Courier Name *</label>
@@ -571,20 +571,51 @@
                                     <?php echo form_error('courier_name'); ?>
                                 </div>
                             </div>
+                                <div class="form-group <?php if (form_error('shipment_date')) { echo 'has-error'; } ?>">
+                                    <label for="shipment_date" class="col-md-4">Shipment Date *</label>
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control" readonly  style="background-color:#FFF; cursor: pointer;" id="shipment_date" name="shipment_date"  value = "<?php echo date("Y-m-d", strtotime("+0 day")); ?>"  required>
+                                    <?php echo form_error('shipment_date'); ?>
+                                    </div>
+                                </div>
+                                
+                         
+                                                        
                             <div class="form-group">
                                 <label for="partner_challan_number" class="col-md-4">Courier Price</label>
                                 <div class="col-md-6">
                                     <input type="text" class="form-control"  id="courier_price_by_partner" onblur="chkPrice($(this),2000)" name="courier_price_by_partner" placeholder="Please Enter courier price">
                                 </div>
                             </div>
-                            <!-- <div class="form-group <?php
-                                if (form_error('approx_value')) { echo 'has-error'; } ?>">
-                                <label for="approx_value" class="col-md-4">Approx Value <?php if($warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){  ?>*<?php } ?></label>
+                            
+                            <div class="form-group <?php
+                                if (form_error('courier_name')) {echo 'has-error';} ?>">
+                                <label for="courier" class="col-md-4">Weight *</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control" id="approx_value" name="approx_value" max="100000" value = "" placeholder="Please Enter approx value"  <?php if(isset($spare_parts[0]->part_warranty_status) && ($spare_parts[0]->part_warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS)){  ?> required  <?php } ?>>
-                                    <?php echo form_error('approx_value'); ?>
+                                    <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="defective_parts_shipped_weight_in_kg" name="defective_parts_shipped_kg" value="" placeholder="Weight" required=""> <strong> in KG</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="defective_parts_shipped_weight_in_gram"   value=""   name="defective_parts_shipped_gram" placeholder="Weight" required="">&nbsp;<strong>in Gram </strong>                                       
                                 </div>
-                            </div>-->
+                                <?php echo form_error('courier_name'); ?>
+                            </div>
+                        </div>
+                        <div class="col-md-6">                           
+                            <div class="form-group <?php
+                                if (form_error('challan_file')) { echo 'has-error'; } ?>">
+                                <label for="challan_file" class="col-md-4">Challan File *</label>
+                                <div class="col-md-6">
+                                    <input type="file" class="form-control" id="challan_file" name="challan_file">
+                                    <?php echo form_error('challan_file'); ?>
+                                </div>
+                            </div>
+                            <div class="form-group <?php
+                                if (form_error('awb')) { echo 'has-error'; } ?>">
+                                <label for="awb" class="col-md-4">AWB *</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" id="awb" name="awb" value = "" placeholder="Please Enter AWB"  required>
+                                    <?php echo form_error('awb'); ?>
+                                </div>
+                            </div>
+                            
                             <div class="form-group <?php
                                 if (form_error('awb')) { echo 'has-error'; } ?>">
                                 <label for="defectivePartsShippedBoxesCount" class="col-md-4">No Of Boxes *</label>
@@ -597,33 +628,6 @@
                                     </select>
                                 </div>
                                 <?php echo form_error('awb'); ?>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group <?php
-                                if (form_error('partner_challan_number')) { echo 'has-error'; } ?>">
-                                <label for="partner_challan_number" class="col-md-4">Challan Number *</label>
-                                <div class="col-md-6">
-                                    <input type="text" class="form-control" id="partner_challan_number" name="partner_challan_number" value = "" placeholder="Please Enter challan Number">
-                                    <?php echo form_error('partner_challan_number'); ?>
-                                </div>
-                            </div>
-                            <div class="form-group <?php
-                                if (form_error('challan_file')) { echo 'has-error'; } ?>">
-                                <label for="challan_file" class="col-md-4">Challan File *</label>
-                                <div class="col-md-6">
-                                    <input type="file" class="form-control" id="challan_file" name="challan_file">
-                                    <?php echo form_error('challan_file'); ?>
-                                </div>
-                            </div>
-                            <div class="form-group <?php
-                                if (form_error('courier_name')) {echo 'has-error';} ?>">
-                                <label for="courier" class="col-md-4">Weight *</label>
-                                <div class="col-md-6">
-                                    <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="defective_parts_shipped_weight_in_kg" name="defective_parts_shipped_kg" value="" placeholder="Weight" required=""> <strong> in KG</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="defective_parts_shipped_weight_in_gram"   value=""   name="defective_parts_shipped_gram" placeholder="Weight" required="">&nbsp;<strong>in Gram </strong>                                       
-                                </div>
-                                <?php echo form_error('courier_name'); ?>
                             </div>
                              <div class="form-group>">
                                 <label for="co" class="col-md-4"> Courier Image </label>
