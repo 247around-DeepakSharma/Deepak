@@ -10719,6 +10719,11 @@ class Inventory extends CI_Controller {
         echo json_encode($output);
     }
     
+    /*
+     *  @desc : This function is used to get the listing of oow spare
+     *  @param : void
+     *  @return : Array
+     */
     
        function get_oow_spare_invoice_list_data() {
         $post = $this->get_post_data();
@@ -10750,6 +10755,12 @@ class Inventory extends CI_Controller {
         );
     }
 
+    /*
+     *  @desc : This function is used to create table of the records
+     *  @param : $invoice_list, $no
+     *  @return : Array
+     */
+    
     function get_inventory_spare_invoice_list_table($invoice_list, $no) {
         $row = array();
 
