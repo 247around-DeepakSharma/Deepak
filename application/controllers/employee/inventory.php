@@ -4516,7 +4516,7 @@ class Inventory extends CI_Controller {
                             $total_basic_amount = 0;
                             $total_cgst_tax_amount = $total_sgst_tax_amount = $total_igst_tax_amount = 0;
                             $invoice = array();
-
+                            $invoicebreakup = array();
                             //update courier details
                             $courier_data = array();
                             $courier_data['sender_entity_id'] = $sender_enity_id;
@@ -4607,11 +4607,12 @@ class Inventory extends CI_Controller {
                                             $this->inventory_model->update_inventory_master_list_data(array('inventory_id' => $value['inventory_id']), array('price' => $invoice_annexure['rate'], 'hsn_code' => $value['hsn_code'], 'gst_rate' => $value['gst_rate'], 'is_invoice' => '1'));
                                         }
                                         $to_gst_number = $invoice_annexure['to_gst_number'];
+                                        array_push($invoicebreakup, $invoice_annexure);
+                                        $invoice_annexure['booking_id'] = trim($value['booking_id']);
                                         array_push($invoice, $invoice_annexure);
-
                                         unset($invoice_annexure['from_gst_number']);
                                         unset($invoice_annexure['to_gst_number']);
-
+                                        unset($invoice_annexure['booking_id']); 
 
                                         $total_basic_amount += $invoice_annexure['taxable_value'];
                                         $total_cgst_tax_amount += $invoice_annexure['cgst_tax_amount'];
@@ -4668,7 +4669,7 @@ class Inventory extends CI_Controller {
                                 if ($transfered_by == MSL_TRANSFERED_BY_PARTNER) {
                                     $this->insert_inventory_main_invoice($invoice_id, $partner_id, $booking_id_array, $tqty, str_replace('/', '-', $invoice_dated), $total_basic_amount, $total_cgst_tax_amount, $total_sgst_tax_amount, $total_igst_tax_amount, $invoice_file['message'], $wh_id);
 
-                                    $this->invoices_model->insert_invoice_breakup($invoice);
+                                    $this->invoices_model->insert_invoice_breakup($invoicebreakup);
                                 } else {
                                     // $this->remove_inventory_from_warehouse($invoice, $sender_enity_id, $wh_id, $action_agent_id);
                                 }
@@ -4678,7 +4679,6 @@ class Inventory extends CI_Controller {
                                 If ($is_wh_micro == 2) {
                                     $not_updated_data = $this->generate_micro_warehouse_invoice($invoice, $wh_id, $tqty, $partner_id, $to_gst_number, $sender_enity_id, $sender_entity_type, $agent_id, $agent_type, $courier_company_details_id, $action_agent_id);
                                 }
-
                                 //send email to 247around warehouse incharge
                                 $email_template = $this->booking_model->get_booking_email_template("spare_send_by_partner_to_wh");
                                 $wh_incharge_id = $this->reusable_model->get_search_result_data("entity_role", "id", array("entity_type" => _247AROUND_SF_STRING, 'role' => WAREHOUSE_INCHARCGE_CONSTANT), NULL, NULL, NULL, NULL, NULL, array());
@@ -10720,6 +10720,11 @@ class Inventory extends CI_Controller {
         echo json_encode($output);
     }
     
+    /*
+     *  @desc : This function is used to get the listing of oow spare
+     *  @param : void
+     *  @return : Array
+     */
     
        function get_oow_spare_invoice_list_data() {
         $post = $this->get_post_data();
@@ -10751,6 +10756,12 @@ class Inventory extends CI_Controller {
         );
     }
 
+    /*
+     *  @desc : This function is used to create table of the records
+     *  @param : $invoice_list, $no
+     *  @return : Array
+     */
+    
     function get_inventory_spare_invoice_list_table($invoice_list, $no) {
         $row = array();
 
