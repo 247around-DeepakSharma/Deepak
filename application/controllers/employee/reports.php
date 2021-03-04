@@ -75,6 +75,7 @@ class reports extends CI_Controller {
     
     /** Desc- This function is used to download Custom Report dynamically.
     */
+
     function download_custom_report($tag, $period = "") {
         $arr_date_filter = array();
         if(!empty($period)){
