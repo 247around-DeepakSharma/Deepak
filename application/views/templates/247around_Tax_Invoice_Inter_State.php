@@ -34,7 +34,7 @@
                     <img style="padding: 5px; height: 110px; width: 101px;" src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_logo']; ?>">
                     <?php } ?>
                 </td>
-                <td colspan="5" align="center" style="border:hidden;"><?php echo $meta['main_company_address'].", ".$meta['main_company_state'].", ".$meta['main_company_pincode']; ?><br>Email: <?php echo $meta['main_company_email']; ?><br><br><b>GSTIN: <?php echo $meta['main_company_gst_number']; ?></b></td>
+                <td colspan="5" align="center" style="border:hidden;"><?php echo $meta['main_company_address']." Pincode: ".$meta['main_company_pincode'].", ".$meta['main_company_state']; ?><br>Email: <?php echo $meta['main_company_email']; ?><br><br><b>GSTIN: <?php echo $meta['main_company_gst_number']; ?></b></td>
                 <td colspan="2" style="text-align: right;  border-left: hidden;"><b>(<?php echo $meta['recipient_type'];?>)</td>
             </tr>
 <!--            <tr style="text-align: center; height: 50px; font-size: 40px;background-color: rgb(211,211,211);">
@@ -44,8 +44,8 @@
                  <td colspan="8"  align="center"><b><?php echo $meta['invoice_type']; ?></b>
              </tr>
             <tr>
-                <td colspan="3">Invoice No:<?php echo $meta['invoice_id'];?></td>
-                <td colspan="5">Reference No: 	<?php echo $meta['reference_invoice_id'];?></td>
+                <td colspan="3">Invoice No: <?php echo $meta['invoice_id'];?></td>
+                <td colspan="5">Reference No: <?php echo $meta['reference_invoice_id'];?></td>
             </tr>
     
             <tr>
@@ -110,12 +110,12 @@
             </tr>
             
             <tr align="left" >
-                <td width="60%" colspan="4" align="center"><b>Total Invoice amount in words</b></td>
+                <td width="60%" colspan="4" align="center"><b>Total amount in words</b></td>
                 <td width="30%" colspan="3"><b>Total Amt before Tax</td>
                 <td width="10%" colspan="1"><?php echo $meta['total_taxable_value']; ?></td>
             </tr>
             <tr align="left">
-                <td colspan="4" rowspan="<?php  if(!empty($meta['tcs_rate'])){ echo "3"; } else { echo "2";}?>" style="padding: 2%" align="center"><?php echo $meta['price_inword'];?></td>
+                <td colspan="4" rowspan="<?php if(!empty($meta['tds_amount']) && !empty($meta['tcs_rate'])){ echo "4"; } else if(!empty($meta['tcs_rate']) || !empty($meta['tds_amount']) ){ echo "3"; } else { echo "2";}?>" style="padding: 2%" align="center"><?php echo $meta['price_inword'];?></td>
                 <td colspan="3"><b>Add: IGST</td>
                 <td colspan="1"><?php echo $meta['igst_total_tax_amount'];?></td>
             </tr>
@@ -123,6 +123,12 @@
             <tr style="text-align: left;">
                 <td colspan="3" style="font-weight: bold;">Add: TCS <?php echo TCS_TAX_RATE." %";?></td>
                 <td colspan="1"><?php echo $meta['tcs_amount'];?></td>
+            </tr>
+            <?php } ?>
+            <?php  if(!empty($meta['tds_amount'])){ ?>
+            <tr style="text-align: left;">
+                <td colspan="3" style="font-weight: bold;"><?php echo $meta['tds_text'];?></td>
+                <td colspan="1"><?php echo $meta['tds_amount'];?></td>
             </tr>
             <?php } ?>
             <tr style="text-align: left;">

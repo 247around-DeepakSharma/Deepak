@@ -8652,9 +8652,9 @@ class Inventory extends CI_Controller {
         if ($this->session->userdata('userType') == 'service_center') {
             $where['state_code.state'] = ucwords(strtolower($state_vendor[0]['state']));
         }
-        $gst_numbers = $this->inventory_model->get_entity_gst_data("entity_gst_details.id as id, gst_number, state_code.state as state", $where);
+        $gst_numbers = $this->inventory_model->get_entity_gst_data("entity_gst_details.id as id, entity_gst_details.state as state_code, gst_number, state_code.state as state", $where);
         foreach ($gst_numbers as $key => $value) {
-            $html .= "<option value='" . $value['id'] . "'>" . $value['state'] . " - " . $value['gst_number'] . "</option>";
+            $html .= "<option data-state_code =  '".$value['state_code']."' value='" . $value['id'] . "'>" . $value['state'] . " - " . $value['gst_number'] . "</option>";
         }
         echo $html;
     }
