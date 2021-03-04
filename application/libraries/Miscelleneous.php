@@ -5572,7 +5572,7 @@ function generate_image($base64, $image_name,$directory){
      * @param int $service_center_id
      */
     function fnf_security_details($vendor_id) {
-        $select = "total_amount_collected,(total_amount_collected-amount_paid) as 'amount'";
+        $select = "IFNULL(sum(total_amount_collected-amount_paid),0) as 'amount'";
         $fnf = $this->My_CI->reusable_model->get_search_result_data(
                 'vendor_partner_invoices', $select, array(
             "vendor_partner" => "vendor",
