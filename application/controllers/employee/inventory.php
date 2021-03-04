@@ -3680,75 +3680,39 @@ class Inventory extends CI_Controller {
 
     private function get_inventory_stocks_details_table($inventory_list, $sn, $return_new_part_flag) {
         $row = array();
+       ///echo $return_new_part_flag;
         $row[] = $sn;
         $row[] = '<span id="services_' . $inventory_list->inventory_id . '">' . $inventory_list->services . '</span>';
         $row[] = '<span id="type_' . $inventory_list->inventory_id . '">' . $inventory_list->type . '</span>';
         $row[] = '<span id="part_name_' . $inventory_list->inventory_id . '" style="word-break: break-all;">' . $inventory_list->part_name . '</span>';
         $row[] = '<span id="part_number_' . $inventory_list->inventory_id . '" style="word-break: break-all;">' . $inventory_list->part_number . '</span>';
-        $row[] = $inventory_list->description;
+        $row[] = '<span style="word-break: break-all;">' . $inventory_list->description . '</span>';
         $row[] = '<a href="' . base_url() . 'employee/inventory/show_inventory_ledger_list/0/' . $inventory_list->receiver_entity_type . '/' . $inventory_list->receiver_entity_id . '/' . $inventory_list->inventory_id . '" target="_blank" title="Get Ledger Details">' . $inventory_list->stock . '<a>';
-         $row[] = $inventory_list->pending_request_count;
-
-        $repair_oow_around_percentage = REPAIR_OOW_AROUND_PERCENTAGE;
-        if ($inventory_list->oow_around_margin > 0) {
-            $repair_oow_around_percentage = $inventory_list->oow_around_margin / 100;
-        }
-
-        $repair_oow_around_percentage_vendor = 0;
-        $sfbaseprice = 0;
-        $repair_oow_around_percentage_vendor = $inventory_list->oow_around_margin / 100;
-
+        $row[] = $inventory_list->pending_request_count;
 
         if ($this->session->userdata('userType') == 'service_center' || $this->session->userdata('userType') == "employee") {
-            if ($return_new_part_flag == 1) {
-                $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . number_format(($inventory_list->price), 2) . '</span>';
-            } else {
-                $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . number_format(($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor)), 2) . '</span>';
-            }
+            $sfbaseprice =  ($inventory_list->price * ( 1 + $inventory_list->oow_around_margin/100));
+            $sf_buying_price = $sfbaseprice *(1 + $inventory_list->gst_rate/100);
+            $cbasic = ($inventory_list->price * ( 1 + ($inventory_list->oow_around_margin + $inventory_list->oow_vendor_margin)/100));
+            $ctotal = $cbasic *(1 + $inventory_list->gst_rate/100);
+        
+            $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' .  sprintf("%.2f",$sfbaseprice). '</span>';
+            $row[] = '<span id="gst_rate_' . $inventory_list->inventory_id . '">' . $inventory_list->gst_rate . '</span>';
+            $row[] =  '<span id="total_amount_' . $inventory_list->inventory_id . '">'. sprintf("%.2f",$sf_buying_price). '</span>';
+            $row[] = sprintf("%.2f",$ctotal);
+            
         } else {
-
             $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . sprintf("%.2f", $inventory_list->price) . '</span>';
+            $row[] = '<span id="gst_rate_' . $inventory_list->inventory_id . '">' . $inventory_list->gst_rate . '</span>';
+            $row[] =  '<span id="total_amount_' . $inventory_list->inventory_id . '">'. sprintf("%.2f", $inventory_list->price *(1 + $inventory_list->gst_rate/100)). '</span>';
         }
+        
 
-        $row[] = '<span id="gst_rate_' . $inventory_list->inventory_id . '">' . $inventory_list->gst_rate . '</span>';
-
-        if ($this->session->userdata('userType') == 'service_center' || $this->session->userdata('userType') == "employee") {
-
-            $repair_oow_around_percentage_vendor = $inventory_list->oow_around_margin / 100;
-
-            if ($return_new_part_flag == 1) {
-                $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) sprintf("%.2f", ($inventory_list->price) + (($inventory_list->price) * ($inventory_list->gst_rate / 100))), 2, '.', '') . "</span>";
-            } else {
-                $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) (sprintf("%.2f", $inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor)) + (sprintf("%.2f", $inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor)) * ($inventory_list->gst_rate / 100))), 2, '.', '') . "</span>";
-            }
-        } else {
-
-            $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) ($inventory_list->price + ($inventory_list->price * ($inventory_list->gst_rate / 100))), 2, '.', '') . "</span>";
-
-        }
-
-        if ($this->session->userdata('userType') == 'service_center') {
-
-            $repair_oow_around_percentage_vendor1 = ($inventory_list->oow_vendor_margin + $inventory_list->oow_vendor_margin) / 100;
-            $c_b = sprintf("%.2f", $inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor1));
-
-            $totalpriceforc = $c_b * (1 + $inventory_list->gst_rate / 100);
-
-            $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . sprintf("%.2f", $totalpriceforc) . "</span>";
-        } else {
-
-            $totalpricepartner = number_format((float) ($inventory_list->price + ($inventory_list->price * ($inventory_list->gst_rate / 100))), 2, '.', '');
-            $repair_oow_around_percentage_vendor2 = $inventory_list->oow_vendor_margin + $inventory_list->oow_around_margin;
-            $totpartner = $totalpricepartner + ($totalpricepartner * $repair_oow_around_percentage_vendor2 / 100);
-
-            $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) ($totpartner), 2, '.', '') . "</span>";
-        }
-
-       
         if ($this->session->userdata('userType') == "employee") {
             $row[] = '<input style="max-width: 87px;" readonly type="number" name="quantity[' . $inventory_list->inventory_id . '][]" class="form-control" id="qty_' . $inventory_list->inventory_id . '" />';
             $row[] = '<a href="javascript:void(0)" class="btn btn-primary btn-md add_inventory_to_return" onclick="addnewpart(' . $inventory_list->inventory_id . ', ' . $inventory_list->stock . ' )">ADD</a>';
         }
+        
 
         if ($this->session->userdata('userType') == 'service_center') {
             $row[] = '<a href="' . base_url() . 'service_center/inventory/alternate_inventory_list/' . $inventory_list->entity_id . '/' . $inventory_list->inventory_id . '/' . $inventory_list->service_id . '" target="_blank" class="btn btn-info">View</a>';
