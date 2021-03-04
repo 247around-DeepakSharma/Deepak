@@ -2268,11 +2268,11 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
 
                 if ($spare_update_flag) {
                     $data['status'] = SPARE_PARTS_REQUESTED;
-                    $data['spare_cancellation_reason'] = SPARE_PARTS_REQUESTED;
+                    $data['spare_cancellation_reason'] = NULL;
                 }
 
-                if ($data['is_micro_wh']==1 || $data['is_micro_wh']==2){
-                     $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['partner_id'], $data['requested_inventory_id'],$req_quantity);
+                if ($data['is_micro_wh'] == 1 || $data['is_micro_wh'] == 2) {
+                    $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['partner_id'], $data['requested_inventory_id'], $req_quantity);
                 }
                
                 if (!empty($spare_parts_id)) {
