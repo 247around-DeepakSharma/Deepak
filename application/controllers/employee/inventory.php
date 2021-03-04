@@ -3707,7 +3707,7 @@ class Inventory extends CI_Controller {
             }
         } else {
 
-            $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . round($inventory_list->price, 2) . '</span>';
+            $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . sprintf("%.2f", $inventory_list->price) . '</span>';
         }
 
         $row[] = '<span id="gst_rate_' . $inventory_list->inventory_id . '">' . $inventory_list->gst_rate . '</span>';
@@ -3717,9 +3717,9 @@ class Inventory extends CI_Controller {
             $repair_oow_around_percentage_vendor = $inventory_list->oow_around_margin / 100;
 
             if ($return_new_part_flag == 1) {
-                $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) round(($inventory_list->price) + (($inventory_list->price) * ($inventory_list->gst_rate / 100)), 2), 2, '.', '') . "</span>";
+                $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) sprintf("%.2f", ($inventory_list->price) + (($inventory_list->price) * ($inventory_list->gst_rate / 100))), 2, '.', '') . "</span>";
             } else {
-                $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) (round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor), 0) + (round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor), 0) * ($inventory_list->gst_rate / 100))), 2, '.', '') . "</span>";
+                $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) (sprintf("%.2f", $inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor)) + (sprintf("%.2f", $inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor)) * ($inventory_list->gst_rate / 100))), 2, '.', '') . "</span>";
             }
         } else {
 
@@ -3729,11 +3729,12 @@ class Inventory extends CI_Controller {
 
         if ($this->session->userdata('userType') == 'service_center') {
 
-            $repair_oow_around_percentage_vendor1 = $inventory_list->oow_vendor_margin / 100;
+            $repair_oow_around_percentage_vendor1 = ($inventory_list->oow_vendor_margin + $inventory_list->oow_vendor_margin) / 100;
+            $c_b = sprintf("%.2f", $inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor1));
 
-            $totalpriceforsf = number_format((float) (round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor1), 0) + (round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor1), 0) * ($inventory_list->gst_rate / 100))), 2, '.', '');
+            $totalpriceforc = $c_b * (1 + $inventory_list->gst_rate / 100);
 
-            $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) (round($totalpriceforsf * ( 1 + $repair_oow_around_percentage), 0) + (round($totalpriceforsf * ( 1 + $repair_oow_around_percentage), 0) * ($repair_oow_around_percentage / 100))), 2, '.', '') . "</span>";
+            $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . sprintf("%.2f", $totalpriceforc) . "</span>";
         } else {
 
             $totalpricepartner = number_format((float) ($inventory_list->price + ($inventory_list->price * ($inventory_list->gst_rate / 100))), 2, '.', '');
