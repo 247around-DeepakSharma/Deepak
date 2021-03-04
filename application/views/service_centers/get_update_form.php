@@ -77,7 +77,7 @@
                     <input type="hidden" class="form-control"  name="partner_id" value = "<?php if (isset($bookinghistory[0]['partner_id'])) {echo $bookinghistory[0]['partner_id']; }?>">
                     <input type="hidden" class="form-control"  name="price_tags" value = "<?php if (isset($price_tags)) {echo $price_tags; }?>">                   
                     <input type="hidden" class="form-control"  name="is_serial_number_required" value = "<?php echo $is_serial_number_required; ?>">
-                    <input type="hidden" class="form-control"  name="is_invoice_required" value = "<?php echo $is_invoice_required; ?>">
+                    <input type="hidden" class="form-control"  name="is_invoice_required" id="is_invoice_required" value = "<?php echo $is_invoice_required; ?>">
                     <input type="hidden" class="form-control" id="partner_flag" name="partner_flag" value="0" />
                     <input type="hidden" name="spare_shipped" value="<?php echo $spare_shipped; ?>" />
                     <div class="form-group ">
@@ -1187,7 +1187,12 @@
                 }
             });
         <?php if(empty($invoice_file)) { ?>
-            var invoice_pic = $("#invoice_pic").val();    
+            var invoice_pic = $("#invoice_pic").val(); 
+            if(($('#is_invoice_required').val() == 1) && (invoice_pic == '' || invoice_pic == null)){
+                alert('Please Upload Invoice Picture.');    
+                checkbox_value = 0;
+                return false;
+            }
             $('.part_in_warranty_status').each(function() {
                 var id = $(this).attr('id');
                 if(id !== "part_in_warranty_status"){
@@ -1195,10 +1200,6 @@
                         alert('Please Select Part Warranty Status');    
                         checkbox_value = 0;
                        return false;
-                    }else if((($(this).val() == 1) || ($('#is_invoice_required').val() == 1)) && (invoice_pic =='' || invoice_pic == null)){
-                        alert('Please Upload Invoice Picture.');    
-                        checkbox_value = 0;
-                        return false;
                     }
                 }
             });
