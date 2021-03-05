@@ -10365,4 +10365,108 @@ function do_delivered_spare_transfer() {
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/add_booking_walkin', $data);
     }
+	 /**
+    * This function is used to auto-approve engineer completed bookings
+    * This function is called from CRON
+    * @author Prity Sharma
+    * @create_date 12-02-2021
+    */
+    function auto_approve_engineer_bookings(){
+        
+
+        $this->db->_protect_identifiers = FALSE;
+        // Fetch all Bookings that are completed by Engineer
+        $where['where'] =   array(
+                                "engineer_booking_action.current_status" => "InProcess",
+                                "DATEDIFF(CURDATE(), engineer_booking_action.closed_date) > 2" => NULL,
+                                "engineer_booking_action.internal_status IN ('"._247AROUND_CANCELLED."', '"._247AROUND_COMPLETED."')" => NULL,
+                                 "booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."')" => NULL
+                            );
+        $select = 'engineer_booking_action.*,'
+                . 'engineer_table_sign.upcountry_charges,'
+                . 'engineer_table_sign.cancellation_reason,'
+                . 'engineer_table_sign.mismatch_pincode,'
+                . 'DATEDIFF(CURDATE(), engineer_booking_action.closed_date) as days_diff,'
+                . ' booking_details.partner_id';
+        $engg_bookings = $this->engineer_model->get_engineer_action_table_list($where, $select);
+        if(empty($engg_bookings)){
+            return ;
+        } 
+        foreach ($engg_bookings as $engg_completed_booking) {
+            $booking_id = $engg_completed_booking->booking_id;
+            $partner_id = $engg_completed_booking->partner_id;
+            $closed_date = $engg_completed_booking->closed_date;
+            $internal_status_engg = $engg_completed_booking->internal_status;
+            $sf_booking_status = SF_BOOKING_COMPLETE_STATUS;
+            if($engg_completed_booking->internal_status == _247AROUND_CANCELLED){
+                $sf_booking_status = SF_BOOKING_CANCELLED_STATUS;
+            }
+            // Update Booking Statuses
+            $this->update_booking_internal_status($booking_id, $sf_booking_status, $partner_id);
+            // Update SF Closed date
+            $this->booking_model->update_booking($booking_id, ['service_center_closed_date' => $closed_date]);
+            
+            // Update Model , Serial & DOP details in booking_unit_details
+            $ud_data = [
+                'sf_model_number' => $engg_completed_booking->model_number,
+                'serial_number' => $engg_completed_booking->serial_number,
+                'serial_number_pic' => $engg_completed_booking->serial_number_pic,
+                'sf_purchase_date' => $engg_completed_booking->sf_purchase_date,
+            ];
+            $this->booking_model->update_booking_unit_details($booking_id, $ud_data);
+            
+            // Update Charges in service_center_booking_action
+            $ssba_data = [
+                'service_charge' => $engg_completed_booking->service_charge,
+                'additional_service_charge' => $engg_completed_booking->additional_service_charge,                
+                'parts_cost' => $engg_completed_booking->parts_cost,                
+                'upcountry_charges' => $engg_completed_booking->upcountry_charges,                
+                'serial_number' => $engg_completed_booking->serial_number,
+                'model_number' => $engg_completed_booking->model_number,                
+                'amount_paid' => $engg_completed_booking->amount_paid,                
+                'service_center_remarks' => $engg_completed_booking->closing_remark,                
+                'cancellation_reason' => $engg_completed_booking->cancellation_reason,                
+                'current_status' => SF_BOOKING_INPROCESS_STATUS,
+                'internal_status' => $engg_completed_booking->internal_status,                
+                'mismatch_pincode' => $engg_completed_booking->mismatch_pincode,
+                'closed_date' => $closed_date,
+                'serial_number_pic' => $engg_completed_booking->serial_number_pic,                
+                'is_broken' => $engg_completed_booking->is_broken,
+                'sf_purchase_date' => $engg_completed_booking->sf_purchase_date,
+                'sf_purchase_invoice' => $engg_completed_booking->purchase_invoice,                
+                'technical_solution' => $engg_completed_booking->solution,
+                'technical_problem' => $engg_completed_booking->defect,                
+                
+            ];
+            $this->vendor_model->update_service_center_action($booking_id, $ssba_data);
+            
+            // Update Statuses in engineer_booking_action
+            $this->engineer_model->update_engineer_table(array("current_status" => $engg_completed_booking->internal_status, "internal_status" => $engg_completed_booking->internal_status), ['booking_id' => $booking_id]);
+            
+            // Insert data into booking state change
+            $this->insert_details_in_state_change($booking_id, $sf_booking_status, "Booking Auto Approved", "247Around", "Review the Booking");
+            //Update spare consumption as entered by engineer Booking Completed
+            if ($internal_status_engg == _247AROUND_COMPLETED) {
+                $update_consumption = false;
+                $spare_Consumption_details = $this->service_centers_model->get_engineer_consumed_details('*', array('booking_id' => $booking_id), array('coloum' => 'engineer_consumed_spare_details.id', 'order' => 'ASC'));
+                if (!empty($spare_Consumption_details)) {
+                    $array_consumption = array();
+                    foreach ($spare_Consumption_details as $key => $value) {
+                        $spare_select = 'spare_parts_details.*';
+                        $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('spare_parts_details.id' => $value['spare_id'], 'status !=' => _247AROUND_CANCELLED));
+                        if (!empty($spare_details)) {
+                            if (($spare_details[0]['consumed_part_status_id'] == OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID || empty($spare_details[0]['consumed_part_status_id'])) && empty($spare_details[0]['defective_part_shipped_date'])) {
+                                $array_consumption['spare_consumption_status'][$value['spare_id']] = $value['consumed_part_status_id'];
+                                $array_consumption['consumption_remarks'][$value['spare_id']] = $value['remarks'];
+                                $update_consumption = true;
+                            }
+                        }
+                    }
+                    if (!empty($update_consumption)) {
+                        $is_update_spare_parts = $this->miscelleneous->update_spare_consumption_status($array_consumption, $booking_id);
+                    }
+                }
+            }
+        }
+    }
 }
