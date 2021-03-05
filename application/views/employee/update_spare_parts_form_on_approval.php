@@ -343,7 +343,7 @@ $(document).ready(function(){
 <?php } ?>
 <?php if(!empty($inventory_details)){ ?>
 <script>
-    
+ var max_date = "<?php echo date("d-m-Y", strtotime($bookinghistory[0]['initial_booking_date']))?>";
 <?php if(empty($disable_model_number)) { ?>
     $('#model_number_id').select2();
 <?php } ?>
@@ -360,8 +360,8 @@ $(document).ready(function(){
             load_parts_type(part_type);           
         });
         
-        $("#purchase_date").datepicker({dateFormat: 'dd-mm-yy', changeMonth: true,changeYear: true,maxDate:0});
         
+        $("#purchase_date").datepicker({dateFormat: 'dd-mm-yy', changeMonth: true,changeYear: true,maxDate: max_date});
         $("#serial_number_pic").on('change',function(){
             var serial_number_pic = $("#serial_number_pic").val();
             if(serial_number_pic!=''){
