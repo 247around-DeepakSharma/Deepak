@@ -1646,7 +1646,7 @@ class Partner extends CI_Controller {
             
             $partner_details = $this->dealer_model->entity_login(array('agent_id' => $this->session->userdata('agent_id')))[0];                
             if(!$this->input->post("call_from_api")){
-                $escalation['agent_id'] = $partner_details['entity_id'];
+                $escalation['agent_id'] = $this->session->userdata('agent_id');
                 $escalation['escalation_source'] = 'partner';
             }
             else{
