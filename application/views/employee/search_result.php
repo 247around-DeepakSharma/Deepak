@@ -247,7 +247,7 @@
                 <?php
                     $actor = "SF";
                     if(empty($Bookings[0]->edit_by_sf)){
-                        $actor =  "Admin";
+                        $actor =  "Admin/Partner";
                     }
                     if(isset($booking_status) && $booking_status === 0){
                         echo "<small class='text-danger'>(Booking Cancelled By $actor)</small>";
