@@ -1470,12 +1470,13 @@
                 $(".unit_purchase_invoice_"+div+"_"+i).val(purchase_invoice_value);
          }
     }
+    var max_date = "<?php echo date("d-m-Y", strtotime($booking_history[0]['initial_booking_date']))?>";
       function dop_calendar(id){
          $("#"+id).datepicker({
              dateFormat: 'dd-mm-yy', 
              changeMonth: true,
              changeYear: true,
-             maxDate:0
+             maxDate: max_date
          }).datepicker('show');
     }
     
