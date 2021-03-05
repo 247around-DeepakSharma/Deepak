@@ -10571,7 +10571,7 @@ function do_delivered_spare_transfer() {
                     $array_consumption = array();
                     foreach ($spare_Consumption_details as $key => $value) {
                         $spare_select = 'spare_parts_details.*';
-                        $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('spare_parts_details.id' => $key, 'status !=' => _247AROUND_CANCELLED));
+                        $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('spare_parts_details.id' => $value['spare_id'], 'status !=' => _247AROUND_CANCELLED));
                         if (!empty($spare_details)) {
                             if (($spare_details[0]['consumed_part_status_id'] == OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID || empty($spare_details[0]['consumed_part_status_id'])) && empty($spare_details[0]['defective_part_shipped_date'])) {
                                 $array_consumption['spare_consumption_status'][$value['spare_id']] = $value['consumed_part_status_id'];
