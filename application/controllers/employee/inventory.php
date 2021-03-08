@@ -1275,7 +1275,7 @@ class Inventory extends CI_Controller {
                         $old_state = OK_PARTS_SHIPPED;
                     }                    
                     
-                    $data = array("approved_defective_parts_by_admin" => 0, 'status' => $spare_status,'remarks_defective_part_by_sf' => $remarks);
+                    $data = array("approved_defective_parts_by_admin" => 0, 'status' => $spare_status,'defective_part_shipped_date' => NULL, 'spare_parts_details.courier_rejection_remarks' => $remarks);
                     $track_status = $new_state = "Courier Invoice Rejected By Admin";
                     break;
                 case 'APPROVE_COURIER_INVOICE':
@@ -7521,7 +7521,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
                 . "spare_parts_details.defective_part_received_date_by_wh as 'Defective Received Date By Warehouse',(CASE WHEN spare_parts_details.auto_acknowledeged = 1 THEN 'Auto' WHEN spare_parts_details.auto_acknowledeged = 2 THEN 'Courier API' WHEN spare_parts_details.auto_acknowledeged = 0 and acknowledge_date is not null THEN 'Self'  ELSE '' END)  as 'Is Spare Auto Acknowledge',"
                 . "spare_parts_details.defective_part_shipped as 'Part Shipped By SF',challan_approx_value As 'Challan Charge (With Margin & TAX)', "
                 . " (CASE WHEN spare_parts_details.defective_part_required = 1 THEN 'Yes' ELSE 'NO' END) AS 'Defective Part Required', cci.billable_weight as 'Defective Packet Weight ', cci.box_count as 'Defective Packet Count',"
-                . "remarks_defective_part_by_sf as 'Defective Parts Remarks By SF', DATE_FORMAT(defective_part_shipped_date,'%d-%b-%Y') as 'Defective Parts Shipped Date', DATE_FORMAT(received_defective_part_date,'%d-%b-%Y') as 'Partner Received Defective Parts Date', "
+                . "remarks_defective_part_by_sf as 'Defective Parts Remarks By SF', spare_parts_details.courier_rejection_remarks as 'Courier Rejection Remarks',DATE_FORMAT(defective_part_shipped_date,'%d-%b-%Y') as 'Defective Parts Shipped Date', DATE_FORMAT(received_defective_part_date,'%d-%b-%Y') as 'Partner Received Defective Parts Date', "
                 . " (CASE WHEN spare_consumption_status.is_consumed = 1 THEN 'Yes' ELSE 'NO' END) as Consumption, spare_consumption_status.consumed_status as 'Consumption Reason', spare_parts_details.awb_by_wh as 'AWB Number Warehouse Dispatch Defective To Partner',spare_parts_details.courier_name_by_wh as 'Warehouse Dispatch Defective To Partner Courier Name', spare_parts_details.courier_price_by_wh as 'Warehouse Dispatch Defective To Partner Courier Price', spare_parts_details.wh_challan_number AS 'Warehouse Dispatch Defective To Partner Challan Number', DATE_FORMAT(spare_parts_details.wh_to_partner_defective_shipped_date,'%d-%b-%Y') as 'Warehouse Dispatch Defective Shipped Date To Partner',"
                 . "if(spare_parts_details.reverse_sale_invoice_id is null,'',spare_parts_details.reverse_sale_invoice_id) as 'Reverse Sale Invoice', "
                 . "if(spare_parts_details.reverse_purchase_invoice_id is null,'',spare_parts_details.reverse_purchase_invoice_id) as 'Reverse Purchased Invoice', "
