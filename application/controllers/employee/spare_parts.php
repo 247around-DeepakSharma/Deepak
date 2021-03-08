@@ -5165,8 +5165,7 @@ class Spare_parts extends CI_Controller {
         if(!empty($spare_part_details)){
             foreach($spare_part_details as $keysc => $valuesc){
             if(!in_array($valuesc['status'],array(DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE,OK_PARTS_REJECTED_BY_WAREHOUSE)) && !empty($valuesc['defective_part_shipped_date'])){
-                echo "<div class='alert alert-warning'>Defective part already shipped for booking ID ".$valuesc['booking_id'].". You can not mark RTO.</div>";
-                echo $valuesc['status'];
+                echo "<div class='alert alert-warning'>Defective / OK part already shipped for booking ID ".$valuesc['booking_id'].". You can not mark RTO.</div>";
                 exit;
             }
             }
