@@ -3379,6 +3379,7 @@ class Around_scheduler extends CI_Controller {
     function Send_notification_for_non_engineer_SF(){
         $list = $result = $this->inventory_model->call_procedure('non_engineer_sf_list','');
         //non_engineer_sf_email
+        if(!empty($list)){
         $table = "<table style='width:100%'  border='1'>";
         $count = 1;
         $table .= "<tr><th>Sn</th>"
@@ -3404,6 +3405,7 @@ class Around_scheduler extends CI_Controller {
             $emailBody = vsprintf($template[0], array($table));
             $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $emailBody, "",'non_engineer_sf_email');
             }
+        }
             
     }
 }
