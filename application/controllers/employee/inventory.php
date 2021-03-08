@@ -5079,15 +5079,14 @@ class Inventory extends CI_Controller {
                 $ledger_data['quantity'] = $value['qty'];
                 $ledger_data['agent_id'] = $agent_id;
                 $ledger_data['agent_type'] = $agent_type;
-<<<<<<< HEAD
-                $ledger_data['booking_id'] = "";
-                $pin= $this->input->post('invoice_id');
-                if(!empty($pin)){
-=======
-                $ledger_data['booking_id'] = $value['booking_id'];
+                if(isset($value['booking_id'])){
+                    $ledger_data['booking_id'] = $value['booking_id'];
+                } else {
+                    $ledger_data['booking_id'] = NULL;
+                }
+                
                 $pin = $this->input->post('invoice_id');
                 if (!empty($pin)) {
->>>>>>> da39423f4... Allow msl on booking for partner to send part to microwarehouse #CRMS-2191
                     $ledger_data['invoice_id'] = $this->input->post('invoice_id');
                 } else {
                     $ledger_data['invoice_id'] = NULL;
@@ -5107,16 +5106,10 @@ class Inventory extends CI_Controller {
                     log_message("info", "Ledger details added successfully");
                     // Don't uncomment below line
                     //$this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, 2, $action_agent_id);
-<<<<<<< HEAD
-                    $stock = "stock - '" . $value['qty'] . "'";
-                    $this->inventory_model->update_inventory_stock(array('entity_id' => $sender_enity_id, 'inventory_id' => $value['inventory_id']), $stock);
-                    
-=======
                     if($sender_entity_type == _247AROUND_SF_STRING){
                         $stock = "stock - '" . $value['qty'] . "'";
                         $this->inventory_model->update_inventory_stock(array('entity_id' => $sender_enity_id, 'inventory_id' => $value['inventory_id']), $stock);
                     }
->>>>>>> da39423f4... Allow msl on booking for partner to send part to microwarehouse #CRMS-2191
                 } else {
                     array_push($not_updated_data, $value['part_number']);
                     log_message("info", "error in adding inventory ledger details data: " . print_r($ledger_data, TRUE));
@@ -7514,12 +7507,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
                 }
             }
 
-            
             if (!empty($sc_close_date[0]['service_center_closed_date'])) {
-<<<<<<< HEAD
-               echo json_encode(array('code' => -247, "data" => "Booking already closed. Part shipping not allowed"));
-            }else{
-=======
                 echo json_encode(array('code' => -247, "data" => "Booking already closed. Part shipping not allowed"));
                 
             } else if($is_micro == 2 && $sc_close_date[0]['assigned_vendor_id'] != $vendor_id){
@@ -7527,18 +7515,17 @@ function get_bom_list_by_inventory_id($inventory_id) {
                 echo json_encode(array('code' => -247, "data" => "Booking assigned another Warehouse. Part shipping not allowed"));
                 
             } else {
->>>>>>> da39423f4... Allow msl on booking for partner to send part to microwarehouse #CRMS-2191
 
                 $where = array('status' => SPARE_PARTS_REQUESTED,
-                'spare_parts_details.entity_type' => _247AROUND_PARTNER_STRING,
-                'spare_parts_details.booking_id' => $booking_id);
-            if ($this->session->userdata('partner_id')) {
-                $where['spare_parts_details.partner_id'] = $this->session->userdata('partner_id');
-            }
-            $data['data'] = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id,spare_parts_details.quantity, spare_parts_details.requested_inventory_id, booking_details.partner_id,"
-                    . "spare_parts_details.booking_id, booking_details.service_id,spare_parts_details.model_number,booking_details.request_type,spare_parts_details.part_warranty_status", $where, true);
-            
-            if (!empty($data['data'])) {
+                    'spare_parts_details.entity_type' => _247AROUND_PARTNER_STRING,
+                    'spare_parts_details.booking_id' => $booking_id);
+                if ($this->session->userdata('partner_id')) {
+                    $where['spare_parts_details.partner_id'] = $this->session->userdata('partner_id');
+                }
+                $data['data'] = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id,spare_parts_details.quantity, spare_parts_details.requested_inventory_id, booking_details.partner_id,"
+                        . "spare_parts_details.booking_id, booking_details.service_id,spare_parts_details.model_number,booking_details.request_type,spare_parts_details.part_warranty_status", $where, true);
+
+                if (!empty($data['data'])) {
                     $data['count'] = $count;
                     $data['inventory_master_list'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.inventory_id,inventory_master_list.part_name,inventory_master_list.part_number, '
                             . 'inventory_master_list.gst_rate, inventory_master_list.hsn_code, inventory_master_list.price, inventory_master_list.type', array('inventory_model_mapping.active' => 1, 'appliance_model_details.model_number' => $data['data'][0]['model_number'], 'inventory_master_list.service_id' => $data['data'][0]['service_id']));
@@ -7551,7 +7538,6 @@ function get_bom_list_by_inventory_id($inventory_id) {
                     echo json_encode(array('code' => -247, "data" => "There is no any spare requested for this booking."));
                 }
             }
-
         } else {
             echo json_encode(array('code' => -247, "data" => "Please attach Valid Booking ID"));
         }
