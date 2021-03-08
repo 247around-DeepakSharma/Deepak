@@ -1474,7 +1474,7 @@ class User_invoice extends CI_Controller {
                     && !empty($entity_details[0]['gst_status']) 
                     && !($entity_details[0]['gst_status'] == _247AROUND_CANCELLED || $entity_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
                 
-                        $gst_number = $entity_details[0]['gst_no'];
+                        $gst_number = $entity_details[0]['gst_number'];
                         $invoice_id = $this->invoice_lib->create_invoice_id($entity_details[0]['sc_code']);
                         $in_type = "Tax Invoice";
                         $type = "Parts";
