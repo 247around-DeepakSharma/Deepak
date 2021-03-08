@@ -24,6 +24,7 @@ if ($this->uri->segment(3)) {
                                         <th class="text-center">Parts Code </th>
                                         <th class="text-center">Quantity</th>
                                         <th class="text-center">Amount</th>
+                                        <th class="text-center" style="word-break:inherit;">Courier Rejection Remarks</th>
                                         <th class="text-center">Warehouse<br>Rejection Reason</th>
                                         <th class="text-center">Warehouse<br>Rejection File</th>
                                         <th class="text-center">SF Spare<br>Consumption</th>
@@ -78,6 +79,9 @@ if ($this->uri->segment(3)) {
                                             </td>
                                             <td>
                                                 <?php echo $row['challan_approx_value']; ?>
+                                            </td>
+                                             <td>
+                                                <?php echo $row['courier_rejection_remarks']; ?>
                                             </td>
                                             <td>
                                                 <?php echo $row['remarks_defective_part_by_wh']; ?>
