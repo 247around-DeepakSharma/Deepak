@@ -3396,6 +3396,7 @@ class Around_scheduler extends CI_Controller {
         $table .= "</table>";
         
             $template = $this->booking_model->get_booking_email_template("non_engineer_sf_email");
+            if(!empty($template)){
             $body = $template[0];
             $to = $template[1];
             $from = $template[2];
@@ -3404,6 +3405,7 @@ class Around_scheduler extends CI_Controller {
             $bcc = '';
             $emailBody = vsprintf($template[0], array($table));
             $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $emailBody, "",'non_engineer_sf_email');
+            }
             
     }
 }
