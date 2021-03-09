@@ -45,6 +45,7 @@ class Partner extends CI_Controller {
         $this->load->library('form_validation');
         $this->load->library('PHPReport');
         $this->load->library('push_notification_lib');
+        $this->load->library('around_generic_lib');
         $this->load->model('service_centre_charges_model');
         // $this->load->library('push_inbuilt_function_lib');
     }
@@ -2822,6 +2823,108 @@ exit();
 
         $this->jsonResponseString['response'] = array('booking_details' => $booking_details);
         $this->sendJsonResponse(array(SUCCESS_CODE, SUCCESS_MSG));
+    }
+    /*
+     * @Desc - This function is used to return escalation reason with ID
+     * @request - 
+     * @response - json 
+     * @Author  - Ghanshyam Ji Gupta
+     * @Date - 05-03-2021
+     */
+    function getEscalationReason() {
+        $response = $this->around_generic_lib->getEscalationReason(_247AROUND_EMPLOYEE_STRING);
+        $this->jsonResponseString['response'] = $response;
+        $this->sendJsonResponse(array(SUCCESS_CODE, SUCCESS_MSG));
+    }
+    /*
+     * @Desc - This function is used to submit booking Escalation
+     * @request - 
+     * @response - json 
+     * @Author  - Ghanshyam Ji Gupta
+     * @Date - 05-03-2021
+     */
+    function submitEscalation() {
+        $input_d = file_get_contents('php://input');
+        $post = json_decode($input_d, TRUE);
+        $authentication = $this->checkAuthentication(true);
+        if (empty($authentication)) {
+            exit;
+        }
+        $partner_id = $authentication['id'];
+        
+        if (empty($post['booking_id'])) {
+            $this->sendJsonResponse(array(-1000, 'Invalid Booking ID'));
+            exit;
+        }
+        if (empty($post['escalation_id'])) {
+            $this->sendJsonResponse(array(-1000, 'Invalid escalation ID'));
+            exit;
+        }
+        if (empty($post['escalation_remark'])) {
+            $this->sendJsonResponse(array(-1000, 'Invalid escalation remarks'));
+            exit;
+        }
+        $response = $this->around_generic_lib->getEscalationReason(_247AROUND_EMPLOYEE_STRING);
+
+        $booking_select = "booking_id,service_center_closed_date";
+        $booking_where = array("booking_id" => $post['booking_id'], "partner_id" => $partner_id);
+        $booking_details = $this->engineer_model->get_booking_details($booking_select, $booking_where);
+        if (empty($booking_details)) {
+            $this->sendJsonResponse(array(-1000, 'Invalid Booking ID 1'));
+            exit;
+        }
+        $agent_id = 0;
+        $agent_id_array = $this->dealer_model->entity_login(array('entity_id' => $partner_id, 'entity' => 'partner', 'active' => 1));
+        if (!empty($agent_id_array)) {
+            $agent_id = $agent_id_array[0]['agent_id'];
+        }
+
+        $select = "services.services, service_centres.name as service_centre_name,
+            service_centres.primary_contact_phone_1, service_centres.primary_contact_name,
+            users.phone_number, users.name as customername,booking_details.type,
+            users.phone_number, booking_details.*,penalty_on_booking.active as penalty_active, users.user_id,booking_unit_details.*, booking_details.id as booking_primary_id";
+
+        $post['search_value'] = $post['booking_id'];
+        $post['column_search'] = array('booking_details.booking_id');
+        $post['order'] = array(array('column' => 0, 'dir' => 'asc'));
+        $post['order_performed_on_count'] = TRUE;
+        $post['column_order'] = array('booking_details.booking_id');
+        $post['length'] = -1;
+
+        $Bookings = $this->booking_model->get_bookings_by_status($post, $select);
+        $data = search_for_key($Bookings);
+        if ((isset($data['FollowUp']) || isset($data['Pending'])) && empty($Bookings[0]->nrn_approved)) {
+            $where = array("booking_id" => $post['booking_id'], "escalation_reason" => $post['escalation_id'],
+                "create_date >=  curdate() " => NULL, "create_date  between (now() - interval " . PARTNER_PENALTY_NOT_APPLIED_WITH_IN . " minute) and now()" => NULL);
+            $data = $this->vendor_model->getvendor_escalation_log($where, "*");
+            if (!empty($data)) {
+                $this->sendJsonResponse(array(-1000, 'This booking Already Escalated'));
+                exit;
+            }
+            $postData = array(
+                "escalation_reason_id" => $post['escalation_id'],
+                "escalation_remarks" => $post['escalation_remark'],
+                "booking_id" => $post['booking_id'],
+                "call_from_api" => true,
+                "dealer_agent_id" => $agent_id,
+                "dealer_agent_type" => 'partner'
+            );
+            //Call curl for updating booking 
+            $url = base_url() . "employee/partner/process_escalation/".$post['booking_id'];
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_HEADER, false);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+            $curl_response = curl_exec($ch);
+            curl_close($ch);  
+            $this->sendJsonResponse(array(SUCCESS_CODE, SUCCESS_MSG));
+        } else {
+            $this->sendJsonResponse(array(-1000, 'This booking cant be escalated'));
+            exit;
+        }
     }
 
 }

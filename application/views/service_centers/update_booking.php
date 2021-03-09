@@ -205,7 +205,7 @@ $arr_partner_discount = array();
                                                     $serial_number_pic = !empty($unit_details[0]['quantity'][0]['serial_number_pic']) ? $unit_details[0]['quantity'][0]['serial_number_pic'] : ""; 
                                                     $pod = !empty($unit_details[0]['quantity'][0]['pod']) ? $unit_details[0]['quantity'][0]['pod'] : ""; 
                                                 ?>
-                                                <input type="text" style="text-transform: uppercase;<?= $str_disabled?>" class="form-control" id="serial_number" name="serial_number"  value="<?php echo $serial_number; ?>"  placeholder = "Enter Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" tabindex=-1/>
+                                                <input type="text" style="<?= $str_disabled?>" class="form-control" id="serial_number" name="serial_number"  value="<?php echo $serial_number; ?>"  placeholder = "Enter Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" tabindex=-1/>
                                                 <input type="hidden" class="form-control" id="serial_number_pic" name="serial_number_pic"  value="<?php echo $serial_number_pic; ?>"  />
                                                 <input type="hidden" id="pod" class="form-control" name="pod" value="<?php echo $pod; ?>"   />
                                                 <input type="hidden" id="sno_required" class="form-control" name="is_sn_file" value="0"   />
@@ -220,11 +220,12 @@ $arr_partner_discount = array();
                                                     <p style="margin-top: 5px;"><a href="<?php echo $url; ?>" target="_blank">SF Serial Number Pic</a></p>
                                                      <?php
                                                 }
-                                                ?>
-                                                <span style="color:red;" id="error_serial_no"></span>                    
+                                                ?>                                                                  
                                             </div>
-                                            
-                                             <label for="serial_number" class="col-md-4">AMC File *</label>
+                                            <div class="col-md-10">
+                                                <span style="color:red;" id="error_serial_no"></span>  
+                                            </div>
+                                            <label for="serial_number" class="col-md-4">AMC File *</label>
                                             <div class="col-md-6">
                                                 <input type="file" class="form-control support_file" id="support_file_1"  name="support_file[]" tabindex=-1 style="margin-top:5px;">
                                                 <input type="hidden" class="form-control file_description" id="file_description_1" name="file_description[]" value="<?php  echo ANNUAL_MAINTENANCE_CONTRACT;  ?>">
@@ -788,14 +789,13 @@ $arr_partner_discount = array();
     });
    
 });
-max_date = "<?php echo  $booking_history[0]['initial_booking_date'];?>".split('-');
-new_max_date = max_date[2] + '-' + max_date[1] + '-' + max_date[0].trim();
+var max_date = "<?php echo date("d-m-Y", strtotime($booking_history[0]['initial_booking_date']))?>";
   $("#purchase_date").datepicker({dateFormat: 'dd-mm-yy', changeYear: true, changeMonth: true});
   $('.purchase_date').each(function () {
     if ($(this).hasClass('hasDatepicker')) {
         $(this).removeClass('hasDatepicker');
     } 
-    $(this).datepicker({dateFormat: 'dd-mm-yy', maxDate: new_max_date , changeYear: true, changeMonth: true});
+    $(this).datepicker({dateFormat: 'dd-mm-yy', maxDate: max_date , changeYear: true, changeMonth: true});
  });
   
   function readonly_select(objs, action) {
@@ -875,16 +875,24 @@ function delete_supporting_file(id){
 }
 function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_already_repeat,initial_booking_date){
         if(isChecked){
+            if(!$(".input-model").length)
+            {
+                var model_number = $(".select-model").val();
+            }
+            else
+            {
+                var model_number = $(".input-model").val();
+            } 
             var parent_booking_id = $('#parent_id_temp').val();
             if(!is_already_repeat){
               $.ajax({
                       type: 'POST',
                       url: '<?php echo base_url(); ?>employee/booking/get_posible_parent_id',
-                      data: {contact: contactNumber, service_id: serviceID,partnerID:partnerID,day_diff:<?php echo _247AROUND_REPEAT_BOOKING_ALLOWED_DAYS; ?>,initial_booking_date:initial_booking_date},
+                      data: {contact: contactNumber, service_id: serviceID,partnerID:partnerID,day_diff:<?php echo _247AROUND_REPEAT_BOOKING_ALLOWED_DAYS; ?>,initial_booking_date:initial_booking_date,model_number:model_number},
                       success: function(response) {
                           obj = JSON.parse(response);
                           if(obj.status  == <?Php echo _NO_REPEAT_BOOKING_FLAG; ?>){
-                              alert("There is not any Possible Parent booking for this booking, It can not be a repeat booking");
+                              $("#repeat_booking_body").html("<p style='padding:10px;'>There is not any Possible Parent booking for this booking, It can not be a repeat booking</p>");
                               $('.repeat_Service:checked').prop('checked', false);
                               $('.repeat_Service').prop('disabled', true);
                               $("#repeat_reason_holder").hide();
@@ -898,6 +906,8 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
                              $("#is_repeat").val("1");
                              $("#repeat_reason_holder").show();
                              $(".cloned :input").attr("disabled", true);
+                             $('#repeat_booking_model').hide();
+                             alert("Parent Booking : "+obj.html);                             
                           }
                           else if(obj.status  == <?Php echo _MULTIPLE_REPEAT_BOOKING_FLAG; ?>){
                               $('.Service:checked').prop('checked', false);

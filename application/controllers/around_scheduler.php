@@ -192,11 +192,11 @@ class Around_scheduler extends CI_Controller {
     function send_mail_list_of_having_expired_or_no_contracts_partners(){
         $this->db->_protect_identifiers = FALSE;
         // Get All Partnners name having expired contracts
-        $query1  = " p.public_name, c.end_date FROM collateral c JOIN partners p ON c.entity_id = p.id and c.id in (SELECT max(collateral.id) id FROM collateral JOIN collateral_type ON (collateral.id = collateral_type.id) JOIN bookings_sources ON (collateral.entity_id = bookings_sources.partner_id) WHERE collateral_tag = 'Contract' AND partner_type IN ('ECOMMERCE', 'OEM', 'EXT_WARRANTY_PROVIDER') GROUP BY collateral.entity_id) and end_date < now() and p.is_active = 1";
+        $query1  = " p.public_name, c.end_date FROM collateral c JOIN partners p ON c.entity_id = p.id and c.id in (SELECT max(collateral.id) id FROM collateral JOIN collateral_type ON (collateral.collateral_id = collateral_type.id) JOIN bookings_sources ON (collateral.entity_id = bookings_sources.partner_id) WHERE collateral_tag = 'Contract' AND partner_type IN ('ECOMMERCE', 'OEM', 'EXT_WARRANTY_PROVIDER') GROUP BY collateral.entity_id) and end_date < now() and p.is_active = 1";
         $data1 = $this->partner_model->get_expired_contract_partner_list($query1);
         
         // Get All Partnners name having no contracts
-        $query2 = " public_name FROM partners WHERE id NOT IN (SELECT entity_id FROM collateral JOIN collateral_type ON (collateral.id = collateral_type.id) JOIN bookings_sources ON (collateral.entity_id = bookings_sources.partner_id) WHERE collateral_tag = 'Contract' AND partner_type IN ('ECOMMERCE', 'OEM', 'EXT_WARRANTY_PROVIDER') GROUP BY entity_id) AND is_active = 1";
+        $query2 = " public_name FROM partners WHERE id NOT IN (SELECT entity_id FROM collateral JOIN collateral_type ON (collateral.collateral_id = collateral_type.id) JOIN bookings_sources ON (collateral.entity_id = bookings_sources.partner_id) WHERE collateral_tag = 'Contract' AND partner_type IN ('ECOMMERCE', 'OEM', 'EXT_WARRANTY_PROVIDER') GROUP BY entity_id) AND is_active = 1";
         $data2 = $this->partner_model->get_expired_contract_partner_list($query2);
         $body = "";
         if(!empty($data1))
@@ -3381,6 +3381,7 @@ class Around_scheduler extends CI_Controller {
     function Send_notification_for_non_engineer_SF(){
         $list = $result = $this->inventory_model->call_procedure('non_engineer_sf_list','');
         //non_engineer_sf_email
+        if(!empty($list)){
         $table = "<table style='width:100%'  border='1'>";
         $count = 1;
         $table .= "<tr><th>Sn</th>"
@@ -3396,6 +3397,7 @@ class Around_scheduler extends CI_Controller {
         $table .= "</table>";
         
             $template = $this->booking_model->get_booking_email_template("non_engineer_sf_email");
+            if(!empty($template)){
             $body = $template[0];
             $to = $template[1];
             $from = $template[2];
@@ -3404,6 +3406,8 @@ class Around_scheduler extends CI_Controller {
             $bcc = '';
             $emailBody = vsprintf($template[0], array($table));
             $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $emailBody, "",'non_engineer_sf_email');
+            }
+        }
             
     }
 }

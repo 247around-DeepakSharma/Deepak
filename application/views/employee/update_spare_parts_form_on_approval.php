@@ -19,7 +19,7 @@
                     <div class="row">
                         <div class = 'col-md-offset-2 col-md-6'>
                             <div class="alert alert-info">
-                                Model details can not be changed as previously requested part has been already shipped.
+                                Model details can not be changed as previously requested part has been already Approved.
                             </div>
                         </div>
                     </div>
@@ -343,8 +343,7 @@ $(document).ready(function(){
 <?php } ?>
 <?php if(!empty($inventory_details)){ ?>
 <script>
-  max_date =" <?php echo $bookinghistory[0]['initial_booking_date']; ?>".split('-');
-  new_max_date = max_date[2] +'-'+ max_date[1] +'-'+ max_date[0].trim(); 
+ var max_date = "<?php echo date("d-m-Y", strtotime($bookinghistory[0]['initial_booking_date']))?>";
 <?php if(empty($disable_model_number)) { ?>
     $('#model_number_id').select2();
 <?php } ?>
@@ -361,7 +360,7 @@ $(document).ready(function(){
             load_parts_type(part_type);           
         });
         
-        $("#purchase_date").datepicker({dateFormat: 'dd-mm-yy', changeMonth: true,changeYear: true,maxDate: new_max_date});
+        $("#purchase_date").datepicker({dateFormat: 'dd-mm-yy', changeMonth: true,changeYear: true,maxDate: max_date});
         
         $("#serial_number_pic").on('change',function(){
             var serial_number_pic = $("#serial_number_pic").val();
