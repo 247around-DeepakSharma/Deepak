@@ -1562,10 +1562,18 @@ class Service_centers extends CI_Controller {
      * @param String $new_state
      * @param String $remarks
      */
-    function insert_details_in_state_change($booking_id, $new_state, $remarks, $actor, $next_action, $spare_id = NULL ) {
+    function insert_details_in_state_change($booking_id, $new_state, $remarks, $actor, $next_action, $spare_id = NULL, $is_cron = false) {
         
         //Save state change
-        if(!empty($this->session->userdata('warehouse_id'))) {
+        if($is_cron){
+            $agent_id = _247AROUND_DEFAULT_AGENT;
+            $entity_id = _247AROUND;
+            $agent_name = _247AROUND;
+            
+            $this->notify->insert_state_change($booking_id, $new_state, "", $remarks, $agent_id, $agent_name, $actor, $next_action, $entity_id, NULL, $spare_id);
+            log_message('info', __FUNCTION__ . " Auto Approve From CRON Booking ID: " . $booking_id . ' new_state: ' . $new_state . ' remarks: ' . $remarks);
+        }
+        else if(!empty($this->session->userdata('warehouse_id'))) {
             $agent_id = $this->session->userdata('id');
             $entity_id = _247AROUND;
             $agent_name = $this->session->userdata('employee_id');
@@ -10563,7 +10571,8 @@ function do_delivered_spare_transfer() {
             $this->engineer_model->update_engineer_table(array("current_status" => $engg_completed_booking->internal_status, "internal_status" => $engg_completed_booking->internal_status), ['booking_id' => $booking_id]);
             
             // Insert data into booking state change
-            $this->insert_details_in_state_change($booking_id, $sf_booking_status, "Booking Auto Approved", "247Around", "Review the Booking");
+            $this->insert_details_in_state_change($booking_id, $sf_booking_status, "Booking Auto Approved", "247Around", "Review the Booking", NULL, true);
+            
             //Update spare consumption as entered by engineer Booking Completed
             if ($internal_status_engg == _247AROUND_COMPLETED) {
                 $update_consumption = false;
