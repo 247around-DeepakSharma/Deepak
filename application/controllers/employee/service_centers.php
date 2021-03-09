@@ -3074,7 +3074,7 @@ class Service_centers extends CI_Controller {
                     $agent_id = _247AROUND_DEFAULT_AGENT;
                     $entity_id = $p_entity_id = _247AROUND;
                     $sc_entity_id = NULL;
-                    $entity_type = _247AROUND_SF_STRING;
+                    $entity_type = _247AROUND_EMPLOYEE_STRING;
                 }
                 
                 /* Insert Spare Tracking Details */
