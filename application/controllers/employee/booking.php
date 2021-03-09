@@ -62,7 +62,7 @@ class Booking extends CI_Controller {
         $this->load->dbutil();
         
         // Mention those functions whom you want to skip from employee specific validations
-        $arr_functions_skip_from_validation = ['get_appliances', 'update_booking_by_sf','getPricesForCategoryCapacity','get_booking_upcountry_details', 'Api_getAllBookingInput', 'getCategoryCapacityForModel','get_posible_parent_id','getBrandForService','get_warranty_data'];
+        $arr_functions_skip_from_validation = ['get_appliances', 'update_booking_by_sf','getPricesForCategoryCapacity','get_booking_upcountry_details', 'Api_getAllBookingInput', 'getCategoryCapacityForModel','get_posible_parent_id','getBrandForService','get_warranty_data','get_city_from_pincode'];
         $arr_url_segments = $this->uri->segments; 
         $allowedForSF = 0;
         if(!empty(array_intersect($arr_functions_skip_from_validation, $arr_url_segments))){        
@@ -1566,9 +1566,11 @@ class Booking extends CI_Controller {
         $is_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $is_sf_panel = $this->input->post('is_sf_panel');
         $unit_details = array();
+        $booking_details = array(); 
         if(!empty($this->input->post('booking_id'))){
             $booking_id = $this->input->post('booking_id');
             $unit_details = $this->booking_model->get_unit_details(['booking_id' => $booking_id, 'booking_status <> "Cancelled"' => NULL]);
+            $booking_details = $this->booking_model->get_booking_details('*', ['booking_id' => $booking_id]);
         }
         // Array of price tags selected against booking
         $arr_selected_price_tags = [];
@@ -1696,7 +1698,6 @@ class Booking extends CI_Controller {
                 if(in_array($prices['service_category'], $arr_selected_price_tags)){
                     $html .= " checked ";
                 }
-                
                 if($prices['service_category'] == REPEAT_BOOKING_TAG){
                     $html .= " onclick='check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry(), check_service_category(this.id)' value='" . $prices['id'] . "_" . intval($ct) . "_" . $i . "_" . $clone_number."' data-toggle='modal' data-target='#repeat_booking_model' data-price_tag='".$prices['service_category']."'  data-pod='".$prices['pod']."'  readonly></td><tr>";
                 }
