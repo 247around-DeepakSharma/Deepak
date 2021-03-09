@@ -1562,10 +1562,18 @@ class Service_centers extends CI_Controller {
      * @param String $new_state
      * @param String $remarks
      */
-    function insert_details_in_state_change($booking_id, $new_state, $remarks, $actor, $next_action, $spare_id = NULL ) {
+    function insert_details_in_state_change($booking_id, $new_state, $remarks, $actor, $next_action, $spare_id = NULL, $is_cron = false) {
         
         //Save state change
-        if(!empty($this->session->userdata('warehouse_id'))) {
+        if($is_cron){
+            $agent_id = _247AROUND_DEFAULT_AGENT;
+            $entity_id = _247AROUND;
+            $agent_name = _247AROUND;
+            
+            $this->notify->insert_state_change($booking_id, $new_state, "", $remarks, $agent_id, $agent_name, $actor, $next_action, $entity_id, NULL, $spare_id);
+            log_message('info', __FUNCTION__ . " Auto Approve From CRON Booking ID: " . $booking_id . ' new_state: ' . $new_state . ' remarks: ' . $remarks);
+        }
+        else if(!empty($this->session->userdata('warehouse_id'))) {
             $agent_id = $this->session->userdata('id');
             $entity_id = _247AROUND;
             $agent_name = $this->session->userdata('employee_id');
@@ -3102,7 +3110,7 @@ class Service_centers extends CI_Controller {
                     $agent_id = _247AROUND_DEFAULT_AGENT;
                     $entity_id = $p_entity_id = _247AROUND;
                     $sc_entity_id = NULL;
-                    $entity_type = _247AROUND_SF_STRING;
+                    $entity_type = _247AROUND_EMPLOYEE_STRING;
                 }
                 
                 /* Insert Spare Tracking Details */
@@ -3140,8 +3148,9 @@ class Service_centers extends CI_Controller {
                         $sc_data['update_date'] = date("Y-m-d H:i:s");
                         $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                         }
-                        
-                        $this->miscelleneous->send_spare_delivered_sms_to_customer($id, $booking_id);
+                        if (empty($autoAck)) {
+                            $this->miscelleneous->send_spare_delivered_sms_to_customer($id, $booking_id);
+                        }
                          
                         if ($this->session->userdata('service_center_id')) {
                             $userSession = array('success' => 'Booking Updated');
@@ -3396,7 +3405,7 @@ class Service_centers extends CI_Controller {
                 . " spare_parts_details.booking_id,booking_details.partner_id as booking_partner_id, users.name, "
                 . " sf_challan_file as challan_file, "
                 . " remarks_defective_part_by_partner, "
-                . " remarks_by_partner, spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.defective_return_to_entity_id,spare_parts_details.entity_type,"
+                . " remarks_by_partner, spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.defective_return_to_entity_id,spare_parts_details.entity_type,spare_parts_details.courier_rejection_remarks,"
                 . " spare_parts_details.id,spare_parts_details.shipped_quantity,spare_parts_details.challan_approx_value,spare_parts_details.remarks_defective_part_by_wh,spare_parts_details.rejected_defective_part_pic_by_wh ,i.part_number, spare_consumption_status.consumed_status,  spare_consumption_status.is_consumed";
 
         $group_by = "spare_parts_details.id";
@@ -10562,7 +10571,8 @@ function do_delivered_spare_transfer() {
             $this->engineer_model->update_engineer_table(array("current_status" => $engg_completed_booking->internal_status, "internal_status" => $engg_completed_booking->internal_status), ['booking_id' => $booking_id]);
             
             // Insert data into booking state change
-            $this->insert_details_in_state_change($booking_id, $sf_booking_status, "Booking Auto Approved", "247Around", "Review the Booking");
+            $this->insert_details_in_state_change($booking_id, $sf_booking_status, "Booking Auto Approved", "247Around", "Review the Booking", NULL, true);
+            
             //Update spare consumption as entered by engineer Booking Completed
             if ($internal_status_engg == _247AROUND_COMPLETED) {
                 $update_consumption = false;

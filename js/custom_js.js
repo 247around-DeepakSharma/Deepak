@@ -213,7 +213,7 @@ function getPricesForCategoryCapacity(div_id,add_booking) {
         postData['selected_price_tags'] = (($("#selected_price_tags").val()) ? $("#selected_price_tags").val(): "");
         postData['arr_partner_discount'] = (($("#arr_partner_discount").val()) ? $("#arr_partner_discount").val(): "");
         postData['arr_247around_discount'] = (($("#arr_247around_discount").val()) ? $("#arr_247around_discount").val(): "");
-        if(postData['is_repeat'] !== 1) {
+        if(postData['is_repeat'] !== 1 && !(postData['is_sf_panel'])) {
             console.log("is_repeat");
             $('#submitform').attr('disabled', true);
         }
@@ -378,7 +378,6 @@ function addBookingDialog(chanel = '', check_serial_no = '0') {
     var booking_type = $("#booking_type").val();
     var is_active = $("#is_active").val();
     var div_count = $('.purchase_date').length;
-
     var partner_id = $("#partner_id").val();
     var is_sf_panel = $("#is_sf_panel").val();
     var partner_source = $("#partner_source").val();
@@ -475,13 +474,41 @@ function addBookingDialog(chanel = '', check_serial_no = '0') {
             return false;
         }
     }
-    
-    
-    if(not_exists > 0){
-        alert('Annual Maintenance Contract(AMC) file should not be blank.'); 
+    var service_category = 0;   
+    $(".price_checkbox").each(function () {
+        if ($(this).attr("data-price_tag") == 'AMC (Annual Maintenance Contract)') {
+            if ($("#" + $(this).attr("id")).is(":checked") == true) {
+                service_category = 1;
+            }
+        }
+    });
+       
+    if(not_exists > 0 && service_category > 0 ){
+        alert('Please choose Annual Maintenance Contract(AMC) file.'); 
         return false;
     }
     
+    if (amc_file_count > 0) {
+        var flag = '';
+        $(".price_checkbox").each(function () {
+            if ($(this).attr("data-price_tag") == 'AMC (Annual Maintenance Contract)') {
+                if ($("#" + $(this).attr("id")).is(":checked") == false) {
+                    flag = 1;
+                }
+            }
+        });
+     
+        if (flag > 0 && amc_file_count > 0) {
+            alert("Please select AMC service category.");
+            return false;
+        }
+    }
+    
+     if(service_category > 0 && amc_file_count < 1){
+         alert('Select Annual Maintenance Contract(AMC) file type.'); 
+        return false; 
+     }   
+            
     if (service === null || service === "" || service === "Select Service") {
 
         alert('Please Select Booking Appliance');
@@ -1258,18 +1285,21 @@ function set_upcountry() {
             $.ajax({
                 type: 'POST',
                 beforeSend: function(){
+                    console.log("Checking Pincode");
                     $('#submitform').attr('disabled', true); 
                 },
                 url: baseUrl +'/employee/vendor/check_pincode_exist_in_india_pincode/'+ pincode,          
                 success: function (data) {
                   
                     if(data === "Not Exist"){
+                        console.log("Pincode Not Exist");
                         $('#submitform').attr('disabled', true); 
                         alert("Check Pincode.. Pincode Not Exist");
                          document.getElementById("error_pincode").style.borderColor = "red";
                          document.getElementById("error_pincode").innerHTML = "Check Pincode.. Pincode Not Exist";
                         return false;
                     }  else {
+                        console.log("Pincode is Valid but Issue in Serial Number");
                         if(!($("#is_sn_correct").length) || ($("#is_sn_correct").val() != '1')){
                             $('#submitform').attr('disabled', false);   
                         }
@@ -1282,6 +1312,7 @@ function set_upcountry() {
         }
         else
         {
+            console.log("Invalid PinCode");
             $('#submitform').attr('disabled', true); 
             document.getElementById("error_pincode").style.borderColor = "blue";
             document.getElementById("error_pincode").style.color = "blue";
@@ -1665,5 +1696,61 @@ function validateSerialNo(count = ""){
             return valid_request;
         }
     }
+    
+    /*
+     * Desc: It's used to checked is checked service category is AMC
+     */
+        function check_service_category(category_id) {
+            service_cate = $("#" + category_id).attr("data-price_tag");
+                if (service_cate == 'AMC (Annual Maintenance Contract)') {
+                    if($("#" + category_id).is(":checked") == true){
+                        var not_exists = '';
+                        $(".file_description").each(function () {
+                            if ($(this).val() == 5) {
+                                not_exists = 1;
+                            }
+                        });
 
+                        if (not_exists == '') {
+                            alert("Support type should be AMC.");
+                            $("#" + category_id).prop('checked', false);
+                            return false;
+                        }
+                    } else {
+                        $(".file_description").each(function () {
+                            if ($(this).val() == 5) {
+                                checkbox_id = $(this).attr("id");
+                                checkbox_id_array = checkbox_id.split("_");
+                                $("#"+checkbox_id+" option:first").prop('selected',true).trigger("change");
+                                $("#support_file_"+checkbox_id_array[2]).val("");
+                            }
+                        });
+                    }
+                }
+                
+               
+        }
+        
+        
+//        $('body').on('change', '.file_description', function() {
+//            var flag = '';         
+//            if ($(this).val() == 5) {
+//              $(".price_checkbox").each(function () {
+//                    if($(this).attr("data-price_tag") == 'AMC (Annual Maintenance Contract)'){
+//                         if($("#" + $(this).attr("id")).is(":checked") == false){
+//                             flag = 1;
+//                         }
+//                    }
+//               });
+//               
+//            }
+//           
+//           if(flag){
+//             alert("Please select AMC service category.");  
+//             return false;
+//           }
+//            
+//        });
+        
+       
 

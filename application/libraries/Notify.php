@@ -614,7 +614,7 @@ class Notify {
                         //$sms['smsData']['booking_timeslot'] = explode("-",$query1[0]['booking_timeslot'])[1];
                         $sms['smsData']['booking_id'] = $query1[0]['booking_id'];
                         $cc_number = ""; 
-                        $toll_free_number = $this->get_partner_contact_name_number($data['partner_id']);
+                        $toll_free_number = $this->get_partner_contact_name_number($query1[0]['partner_id']);
                         if (!empty($toll_free_number)) {
                             $cc_number = $toll_free_number['contact_number'];
                         } else {
@@ -1157,11 +1157,10 @@ class Notify {
     function vediocon_cancelled_booking_sms($data){
         //get partner customer care number
         $cc_number = "";
-        $cc_detail = $this->My_CI->partner_model->get_partner_additional_details("customer_care_number", array("partner_id"=>$data['partner_id'], "is_customer_care"=>1));
-        if(!empty($cc_detail)){
-            $cc_number = $cc_detail[0]['customer_care_number'];
-        }
-        else{
+        $toll_free_number = $this->get_partner_contact_name_number($data['partner_id']);
+        if (!empty($toll_free_number)) {
+            $cc_number = $toll_free_number['contact_number'];
+        } else {
             $cc_number = _247AROUND_WHATSAPP_NUMBER;
         }
         $sms['smsData']['service'] = $data['services'];
