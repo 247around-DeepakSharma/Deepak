@@ -609,7 +609,7 @@
  
                             <td style="width: 50%;">
                                 <?php if(isset($files['file_description'])) echo $files['file_description']; ?>
-                                <input type="text" id="file_description_id" class="file_type" value="<?php echo $files['file_description_id']; ?>">
+                                <input type="hidden" id="file_description_id" class="file_type" value="<?php echo $files['file_description_id']; ?>">
                             </td>
                             <td style="width: 50%;">
                                 <input type="file" id="supportfileLoader_<?=$key?>" name="files" onchange="uploadsupportingfile(this.id,'<?=$files['id']?>')" style="display:none" />
