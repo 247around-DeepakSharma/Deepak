@@ -5785,9 +5785,8 @@ class Booking extends CI_Controller {
                     . "REPLACE(group_concat(in_sh.part_number),trim(','),' | ')  as 'Shipped Part Code', REPLACE(group_concat(spare_parts_details.parts_shipped),trim(','),' | ') as 'Shipped Part Name',"                                   
                     . "penalty_on_booking.active as 'Penalty Active',employee.full_name as 'RM'";
             // Show Distinct Bookings
-            $group_by = 'booking_details.booking_id';
-            
-            $list =  $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,1,'',0,array(),array(),$group_by);
+            $post['group_by'] = 'booking_details.booking_id';
+            $list =  $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,1,'',0,array(),array(),'');
         }
         else if($booking_status == 'Completed' || $booking_status == 'Cancelled'){
             $post['where']  = array('booking_details.current_status' => $booking_status,'type' => 'Booking'); 
