@@ -213,7 +213,7 @@ function getPricesForCategoryCapacity(div_id,add_booking) {
         postData['selected_price_tags'] = (($("#selected_price_tags").val()) ? $("#selected_price_tags").val(): "");
         postData['arr_partner_discount'] = (($("#arr_partner_discount").val()) ? $("#arr_partner_discount").val(): "");
         postData['arr_247around_discount'] = (($("#arr_247around_discount").val()) ? $("#arr_247around_discount").val(): "");
-        if(postData['is_repeat'] !== 1) {
+        if(postData['is_repeat'] !== 1 && !(postData['is_sf_panel'])) {
             console.log("is_repeat");
             $('#submitform').attr('disabled', true);
         }
@@ -1230,18 +1230,21 @@ function set_upcountry() {
             $.ajax({
                 type: 'POST',
                 beforeSend: function(){
+                    console.log("Checking Pincode");
                     $('#submitform').attr('disabled', true); 
                 },
                 url: baseUrl +'/employee/vendor/check_pincode_exist_in_india_pincode/'+ pincode,          
                 success: function (data) {
                   
                     if(data === "Not Exist"){
+                        console.log("Pincode Not Exist");
                         $('#submitform').attr('disabled', true); 
                         alert("Check Pincode.. Pincode Not Exist");
                          document.getElementById("error_pincode").style.borderColor = "red";
                          document.getElementById("error_pincode").innerHTML = "Check Pincode.. Pincode Not Exist";
                         return false;
                     }  else {
+                        console.log("Pincode is Valid but Issue in Serial Number");
                         if(!($("#is_sn_correct").length) || ($("#is_sn_correct").val() != '1')){
                             $('#submitform').attr('disabled', false);   
                         }
@@ -1254,6 +1257,7 @@ function set_upcountry() {
         }
         else
         {
+            console.log("Invalid PinCode");
             $('#submitform').attr('disabled', true); 
             document.getElementById("error_pincode").style.borderColor = "blue";
             document.getElementById("error_pincode").style.color = "blue";

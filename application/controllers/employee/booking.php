@@ -1538,9 +1538,11 @@ class Booking extends CI_Controller {
         $is_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $is_sf_panel = $this->input->post('is_sf_panel');
         $unit_details = array();
+        $booking_details = array(); 
         if(!empty($this->input->post('booking_id'))){
             $booking_id = $this->input->post('booking_id');
             $unit_details = $this->booking_model->get_unit_details(['booking_id' => $booking_id, 'booking_status <> "Cancelled"' => NULL]);
+            $booking_details = $this->booking_model->get_booking_details('*', ['booking_id' => $booking_id]);
         }
         // Array of price tags selected against booking
         $arr_selected_price_tags = [];
@@ -1668,9 +1670,9 @@ class Booking extends CI_Controller {
                 if(in_array($prices['service_category'], $arr_selected_price_tags)){
                     $html .= " checked ";
                 }
-                
                 if($prices['service_category'] == REPEAT_BOOKING_TAG){
-                    $html .= " onclick='check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry()' value='" . $prices['id'] . "_" . intval($ct) . "_" . $i . "_" . $clone_number."' data-toggle='modal' data-target='#repeat_booking_model' data-price_tag='".$prices['service_category']."'  data-pod='".$prices['pod']."'  readonly></td><tr>";
+                    $tempString = $booking_details[0]['booking_primary_contact_no'].",".$booking_details[0]['service_id'].",".$booking_details[0]['partner_id'].",this.checked,false,".$booking_details[0]['initial_booking_date'];                                                                                   
+                    $html .= " onclick='check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry(), get_parent_booking(".$tempString.")' value='" . $prices['id'] . "_" . intval($ct) . "_" . $i . "_" . $clone_number."' data-toggle='modal' data-target='#repeat_booking_model' data-price_tag='".$prices['service_category']."'  data-pod='".$prices['pod']."'  readonly></td><tr>";
                 }
                 else{
                     $html .= " onclick='check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry()' value='" . $prices['id'] . "_" . intval($ct) . "_" . $i . "_" . $clone_number."' data-price_tag='".$prices['service_category']."'  data-pod='".$prices['pod']."' ></td><tr>";

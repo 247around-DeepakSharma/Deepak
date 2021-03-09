@@ -4373,12 +4373,16 @@ function generate_image($base64, $image_name,$directory){
             }
     }
     function get_posible_parent_booking(){
+        $model_number = "";
+        if(!empty($this->My_CI->input->post('model_number'))){
+            $model_number = $this->My_CI->input->post('model_number');
+        }
         $contact = $this->My_CI->input->post('contact');
         $service_id = $this->My_CI->input->post('service_id');
         $partnerID = $this->My_CI->input->post('partnerID');
         $dayDiff = $this->My_CI->input->post('day_diff');
         $initial_booking_date = !empty($this->My_CI->input->post('initial_booking_date')) ? $this->My_CI->input->post('initial_booking_date') : date('Y-m-d');
-        $bookingsArray = $this->My_CI->booking_model->get_posible_parent_booking_id($contact,$service_id,$partnerID,$dayDiff,$initial_booking_date);
+        $bookingsArray = $this->My_CI->booking_model->get_posible_parent_booking_id($contact,$service_id,$partnerID,$dayDiff,$initial_booking_date,$model_number);
         $count = count($bookingsArray);
         if($count == 1){
             $resultArray['html'] = $bookingsArray[0]['booking_id'];
