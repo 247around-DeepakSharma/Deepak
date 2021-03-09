@@ -3770,7 +3770,7 @@ class Partner extends CI_Controller {
     function search() {
         log_message('info', __FUNCTION__ . "  Partner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
-        $searched_text = trim($this->input->post('searched_text'));
+        $searched_text = trim($this->input->get('searched_text'));
         $partner_id = $this->session->userdata('partner_id');
         $data['data'] = $this->partner_model->search_booking_history(trim($searched_text), $partner_id,'booking_details.create_date desc');
 
