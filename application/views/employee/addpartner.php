@@ -1322,7 +1322,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                                 $aggrement_date = date("Y-m-d");
                                             }
                                             ?>
-                                        <input type="date" class="form-control agreement_start_date" required name="agreement_start_date[]"  id="agreement_start_date_1" >
+                                        <input type="date" class="form-control agreement_start_date" required name="agreement_start_date[]"  id="agreement_start_date" >
                                         <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                     </div>
                                     <?php echo form_error('agreement_start_date'); ?>
@@ -1334,7 +1334,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                 <label for="agreement_end_date" class="col-md-4">Partnership End Date<span class="text-danger">*</span></label>
                                 <div class="col-md-6">
                                     <div class="input-group input-append date" >
-                                        <input type="date" class="form-control agreement_end_date" required name="agreement_end_date[]" id="agreement_end_date_1" required ="true">
+                                        <input type="date" class="form-control agreement_end_date" required name="agreement_end_date[]" id="agreement_end_date" required ="true">
                                         <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                     </div>
                                     <?php echo form_error('agreement_end_date'); ?>
