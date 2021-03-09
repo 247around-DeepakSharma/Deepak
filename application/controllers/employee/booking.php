@@ -175,7 +175,7 @@ class Booking extends CI_Controller {
         //log_message('info', " Booking Insert " . $user_id . " Booking ID" . $booking_id . " Done By " . $this->session->userdata('employee_id'));
 
         $updated_unit_id = array();
-
+        
         // All brand comming in array eg-- array([0]=> LG, [1]=> BPL)
         $appliance_brand = $this->input->post('appliance_brand');
         //print_r($appliance_brand); die();
@@ -561,7 +561,7 @@ class Booking extends CI_Controller {
         }
         if($this->input->post('repeat_reason') && $booking['parent_booking'] ){
             $booking['repeat_reason'] = $this->input->post('repeat_reason');
-        }
+        }        
         $file_description_arr = $this->input->post('file_description');
         //add support file for booking id if it is uploaded
         if (!empty($_FILES['support_file']['tmp_name'])) {
@@ -577,6 +577,14 @@ class Booking extends CI_Controller {
                             $booking_files['file_name'] = $support_file;
                             $booking_files['file_type'] = $_FILES['support_file']['type'][$i];
                             $booking_files['size'] = $_FILES['support_file']['size'][$i];
+                            if (!empty($this->session->userdata('id'))) {
+                                $agent_id = $this->session->userdata('id');
+                            } else {
+                                $agent_id = $this->session->userdata('service_center_agent_id');
+                            }
+
+                            $booking_files['agent_id'] = $agent_id;
+
                             if ($booking_files['file_description_id'] == ANNUAL_MAINTENANCE_CONTRACT) {
                                 $support_files = $this->booking_model->get_booking_files(array("booking_files.file_description_id" => ANNUAL_MAINTENANCE_CONTRACT, "booking_files.booking_id" => $booking['booking_id']));
                                 if (!empty($support_files)) {
@@ -1691,10 +1699,10 @@ class Booking extends CI_Controller {
                     $html .= " checked ";
                 }
                 if($prices['service_category'] == REPEAT_BOOKING_TAG){
-                    $html .= " onclick='check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry()' value='" . $prices['id'] . "_" . intval($ct) . "_" . $i . "_" . $clone_number."' data-toggle='modal' data-target='#repeat_booking_model' data-price_tag='".$prices['service_category']."'  data-pod='".$prices['pod']."'  readonly></td><tr>";
+                    $html .= " onclick='check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry(), check_service_category(this.id)' value='" . $prices['id'] . "_" . intval($ct) . "_" . $i . "_" . $clone_number."' data-toggle='modal' data-target='#repeat_booking_model' data-price_tag='".$prices['service_category']."'  data-pod='".$prices['pod']."'  readonly></td><tr>";
                 }
                 else{
-                    $html .= " onclick='check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry()' value='" . $prices['id'] . "_" . intval($ct) . "_" . $i . "_" . $clone_number."' data-price_tag='".$prices['service_category']."'  data-pod='".$prices['pod']."' ></td><tr>";
+                    $html .= " onclick='check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry(), check_service_category(this.id)' value='" . $prices['id'] . "_" . intval($ct) . "_" . $i . "_" . $clone_number."' data-price_tag='".$prices['service_category']."'  data-pod='".$prices['pod']."' ></td><tr>";
                 }
                 $i++;
             }
