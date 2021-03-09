@@ -2842,7 +2842,7 @@ class Booking_model extends CI_Model {
         $query = $this->db->query($sql);
         return $query->result_array();
     }
-    function get_posible_parent_booking_id($contact,$service_id,$partnerID,$dayDiff,$initial_booking_date = ""){
+    function get_posible_parent_booking_id($contact,$service_id,$partnerID,$dayDiff,$initial_booking_date = "",$model_number = ""){
         $this->db->_protect_identifiers = FALSE;
         $this->db->_reserved_identifiers = array('NOT');
         $initial_booking_date = !empty($initial_booking_date) ? date("Y-m-d", strtotime($initial_booking_date)) : date("Y-m-d");
@@ -2854,6 +2854,9 @@ class Booking_model extends CI_Model {
         $where['booking_details.service_center_closed_date IS NOT NULL AND booking_details.service_center_closed_date <> "" AND booking_details.current_status <> "'._247AROUND_CANCELLED.'" AND booking_details.internal_status <> "'.SF_BOOKING_CANCELLED_STATUS.'"'] = NULL;        
         $where["request_type != '".REPEAT_BOOKING_TAG."'"] = NULL;
         $where['NOT EXISTS (SELECT 1 FROM booking_details bd WHERE bd.parent_booking = booking_details.booking_id AND bd.current_status ="Pending" LIMIT 1)'] = NULL;
+        if(!empty($model_number)){
+            $where['booking_unit_details.sf_model_number'] = $model_number;
+        }
         $this->db->select('booking_details.booking_id,booking_details.current_status,services.services,date(booking_details.closed_date) as closed_date,'
                 . 'GROUP_CONCAT(appliance_brand) as brand ,GROUP_CONCAT(appliance_capacity) as capacity');
         $this->db->from('booking_details');
