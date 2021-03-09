@@ -5580,7 +5580,6 @@ class vendor extends CI_Controller {
                 return FALSE;
             }
         }
-        $this->msme_file_upload();
         if (($_FILES['address_proof_file']['error'] != 4) && !empty($_FILES['address_proof_file']['tmp_name'])) {
             //Adding file validation
             $checkfilevalidation = 1;
