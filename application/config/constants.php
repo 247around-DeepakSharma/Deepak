@@ -653,6 +653,8 @@ define('_247AROUND_CANCELED_APPROVED','Cancelled_Approved');
 define('_247AROUND_ENGINEER_STRING','engineer');
 
 define('SF_PURCHASE_INVOICE_FILE_TYPE', '4');
+//AMC File Id
+define('ANNUAL_MAINTENANCE_CONTRACT', '5');
 define('FREE_INSTALLATION_REQUEST', 'Installation & Demo (Free)');
 define('BOOKING_PURCHASE_INVOICE_FILE_TYPE', '1');
 
