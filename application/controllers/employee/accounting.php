@@ -398,7 +398,11 @@ class Accounting extends CI_Controller {
                 $array[$value['invoice_id']]['from_gst_number'] = $value['from_gst_number'];
                 $array[$value['invoice_id']]['to_gst_number'] = $value['to_gst_number'];
                 if($payment_type == 'A'){
-                    if(empty($value['from_gst_number'])){
+                    if(empty($value['from_gst_number']) && $value['type'] == CREDIT_NOTE && $value['from_gst_number'] == _247AROUND_SF_STRING){
+                        
+                        $array[$value['invoice_id']]['to_gst_number'] = $value['gst_number'];
+                    } else if(empty($value['from_gst_number'])){
+                        
                         $array[$value['invoice_id']]['from_gst_number'] =_247_AROUND_GSTIN_UP;
                     }
                     if(empty($value['to_gst_number'])){
@@ -407,7 +411,11 @@ class Accounting extends CI_Controller {
                 }
                 
                 if($payment_type == 'B'){
-                    if(empty($value['to_gst_number'])){
+                    if(empty($value['to_gst_number']) && $value['type'] == CREDIT_NOTE && $value['vendor_partner'] == _247AROUND_SF_STRING){
+                        
+                        $array[$value['invoice_id']]['to_gst_number'] = $value['gst_number'];
+                        
+                    } else if(empty($value['to_gst_number'])){
                         $array[$value['invoice_id']]['to_gst_number'] = _247_AROUND_GSTIN_UP;
                     }
                     if(empty($value['from_gst_number'])){
