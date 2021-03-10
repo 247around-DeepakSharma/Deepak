@@ -1235,6 +1235,23 @@ class Partner extends CI_Controller {
        $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update','department'=>$departmentArray, 
            'charges_type'=>$charges_type, 'micro_wh_lists'=>$micro_wh_lists,'is_wh'=>$is_wh,'saas_flag' => $saas_flag, 'mapped_service_centers' => $mapped_service_centers, 'unmapped_service_centers' => $unmapped_service_centers));
     }
+    /**
+     * Author: Deepak Sharma
+     * @desc: This is used to get number which entity id =247001
+     * params: partner id
+     */
+    function get_gst_number($id){
+      $gst_no = $this->input->post('gst_no');
+      $select = "gst_number";
+      $where = array('entity_id' => '247001');
+      $result = $this->inventory_model->get_entity_gst_data($select,$where);
+      if($id != '247001'){
+        foreach($result as $row){
+          if($row['gst_number'] == $gst_no){ 
+          echo "true";} 
+        }
+      }
+    }
 
     /**
      * @desc: This is used to get find user form in Partner CRM
