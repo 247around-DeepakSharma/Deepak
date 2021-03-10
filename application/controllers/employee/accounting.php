@@ -362,6 +362,7 @@ class Accounting extends CI_Controller {
      */
     function _get_sales_purchase_report($data, $payment_type) {
         $array = array();
+        $header['id'] ='S.No';
         $header['invoice_id'] = 'Invoice ID';
         $header['vendor_partner'] = "Vendor/ Partner";
         $header['company_name'] = "Company Name";
@@ -392,8 +393,10 @@ class Accounting extends CI_Controller {
         $header['num_bookings'] = "Booking Qty (Pcs)";
        
 
+        $sn = 1;
         foreach ($data['invoice_data'] as $key => $value) {
             if (!array_key_exists($value['invoice_id'], $array)) {
+                $array[$value['invoice_id']]['id'] = $sn++;
                 $array[$value['invoice_id']]['invoice_id'] = $value['invoice_id'];
                 $array[$value['invoice_id']]['vendor_partner'] = $value['vendor_partner'];
                 $array[$value['invoice_id']]['from_gst_number'] = $value['from_gst_number'];
