@@ -6086,7 +6086,8 @@ class Partner extends CI_Controller {
         $CSVData = array();
                 
         $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true);
-        $headings = array("Booking ID",
+        $headings = array("Spare ID",
+            "Booking ID",
             "Customer Contact Number",
             "Dealer Name",
             "Booking Create Date",
@@ -6106,17 +6107,17 @@ class Partner extends CI_Controller {
             "SF Remarks",
             "Serial Number",
             "Requested Model Number",
+            "Requested Part Code",
             "Requested Part Name",
             "Requested Part Type",
-            "Requested Part Code",
             "Requested Quantity",
             "Requested Part Date",
             "Date Of Purchase",
             "Parts Charge",
             "Dispatched Model Number (To SF)",
+            "Dispatched Part Code (To SF)",
             "Dispatched Part Name (To SF)",
             "Dispatched Part Type (To SF)",
-            "Dispatched Part Code (To SF)",
             "Dispatched Quantity (To SF)",
             "Dispatched Part Date (To SF)",
             "Part Acknowledge Date By SF",
@@ -6143,7 +6144,8 @@ class Partner extends CI_Controller {
             );
         
         foreach($data as $sparePartBookings){
-            $tempArray = array();            
+            $tempArray = array();   
+            $tempArray[] = $sparePartBookings['id'];
             $tempArray[] = $sparePartBookings['booking_id'];
             $tempArray[] = $sparePartBookings['booking_primary_contact_no'];
             $tempArray[] = $sparePartBookings['dealer_name'];
@@ -6164,17 +6166,17 @@ class Partner extends CI_Controller {
             $tempArray[] = $sparePartBookings['remarks_by_sc'];
             $tempArray[] = $sparePartBookings['serial_number'];
             $tempArray[] = $sparePartBookings['model_number'];
+            $tempArray[] = $sparePartBookings['part_number'];
             $tempArray[] = $sparePartBookings['part_name'];
             $tempArray[] = $sparePartBookings['type'];
-            $tempArray[] = $sparePartBookings['part_number'];
             $tempArray[] = $sparePartBookings['quantity'];
             $tempArray[] = ((!empty($sparePartBookings['date_of_request']))?date("d-M-Y",strtotime($sparePartBookings['date_of_request'])):'');
             $tempArray[] = ((!empty($sparePartBookings['date_of_purchase']))?date("d-M-Y", strtotime($sparePartBookings['date_of_purchase'])):'');
             $tempArray[] = $sparePartBookings['challan_approx_value'];
             $tempArray[] = $sparePartBookings['model_number_shipped'];
+            $tempArray[] = $sparePartBookings['shipped_part_number'];
             $tempArray[] = $sparePartBookings['shipped_part_name'];
             $tempArray[] = $sparePartBookings['shipped_part_type'];
-            $tempArray[] = $sparePartBookings['shipped_part_number'];
             $tempArray[] = $sparePartBookings['shipped_quantity'];
             $tempArray[] = ((!empty($sparePartBookings['shipped_date']))?date("d-M-Y",strtotime($sparePartBookings['shipped_date'])):'');
             $tempArray[] = ((!empty($sparePartBookings['acknowledge_date']))?date("d-M-Y",strtotime($sparePartBookings['acknowledge_date'])):'');            
