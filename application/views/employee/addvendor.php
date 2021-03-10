@@ -687,16 +687,6 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     <a href="javascript:void(0)" onclick="remove_image('pan_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['pan_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 0px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
                                     <?php }?>
                                 </div>
-                                    <?php if(!$saas_module) { ?>
-                                        <div class="col-md-2">
-                                            <div class="checkbox">
-                                                <label>
-                                                <b style="font-size: 18px;">Not Available</b> 
-                                                </label>
-                                                <input type="checkbox"  value="0" id="is_pan_doc" name ="is_pan_doc" <?php if(isset($query[0]['is_pan_doc'])){ if($query[0]['is_pan_doc'] == 0){ echo "checked" ;}}?> style="margin-left:16px;zoom:1.5"> 
-                                            </div>
-                                        </div>
-                                    <?php } ?>
                                     </div>
                                 <hr style="border: 1px solid;padding: 0px;margin: 10px;border-color: #9e9da7;">
                                 <div class="col-md-12">
@@ -1000,6 +990,57 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     </div>
                                 </div>
                             </div>
+                               <hr style="border: 1px solid;padding: 0px;margin: 10px;border-color: #9e9da7;">
+                               <div class="col-md-12" style="height: 59px;">
+                                <label  for="name_on_pan"  class="col-md-1 vertical-align">MSME</label>
+                                <div class="col-md-4" style="margin-right:14px;">
+                                    <div class="form-group  <?php
+                                        if (form_error('msme_no')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <input type="text" class="form-control blockspacialchar" 
+                                               style="text-transform:uppercase" 
+                                               id="msme_no" name="msme_no" placeholder="MSME Number" value = "<?php
+                                            if (isset($query[0]['msme_no'])) {
+                                                echo $query[0]['msme_no'];
+                                            }
+                                            ?>" style="width:117%">
+                                        <span class="err1"><?php echo form_error('msme_no'); ?></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4" style="margin-left:40px;">
+                                    <div class="form-group">
+                                        <!--                                        <label  for="pan_file" class="col-md-4">PAN File :</label>-->
+                                        <input type="file" class="form-control"  id="msme_file" name="msme_file" value = "<?php
+                                            if (isset($query[0]['msme_file'])) {
+                                                echo $query[0]['msme_file'];
+                                            }
+                                            ?>">
+                                            <input type="hidden" id="pan_file_hd" name="msme_file_hd" value = "<?php
+                                                if (isset($query[0]['msme_file'])) {
+                                                    echo $query[0]['msme_file'];
+                                                }
+                                                ?>"/>
+                                        <?php echo form_error('msme_file'); ?>
+                                    </div>
+                                </div>
+                                <div class="col-md-1" style="margin-left: 20px;">
+                                    <?php
+                                        $src = base_url() . 'images/no_image.png';
+                                        $image_src = $src;
+                                        if (isset($query[0]['msme_file']) && !empty($query[0]['msme_file'])) {
+                                            //Path to be changed
+                                            $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['msme_file'];
+                                            $image_src = base_url().'images/view_image.png';
+                                        }
+                                        ?>
+                                    <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                    <?php if(isset($query[0]['msme_file']) && !empty($query[0]['msme_file'])){?>
+                                    <a href="javascript:void(0)" onclick="remove_image('msme_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['msme_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 0px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                    <?php }?>
+                                </div>
+                                </div>
                         </div>
                         </div>
             </div>
@@ -1879,81 +1920,72 @@ function manageAccountNameField(value){
 <!--page 1 validations end here-->
 <!--page 2 validations begin-->
 <script type="text/javascript">
-    var is_saas = '<?php if($saas_module) { echo '1'; } else { echo '0'; } ?>';
-    var gstRegExp = /^[0-9]{2}[a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[0-9]{1}[a-zA-Z]{1}[a-zA-Z0-9]{1}/;
-    $.validator.addMethod('gstregex', function (value, element, param) {
-                return this.optional(element) || gstRegExp.test( value);
-            }, 'Please enter Valid GST Number'); 
-     function validate_documents(){
-         
-        if(is_saas == '1') { // check all documents uploaded for kenstar.
-            var is_documents_submit = check_documents();
-            if(is_documents_submit === false) {
-                return false;
-            }
-        }
-         
-            if($('#is_pan_doc').is(":checked")){
-               if($('#pan_no').val()!== '' && $('#name_on_pan').val() != ''){
-                   alert('Please Enter PAN Details or Tick "Not Available" checkbox');
-                   return false;
-               }
-            }else{
+$(document).ready(function () {
+    $('.submit_button').click(function() {              
+                var pan_exp = /[a-zA-z]{5}\d{4}[a-zA-Z]{1}/;
+                var pan_no = $("#pan_no").val();
+                if($('#pan_no').val() != '' && !pan_no.match(pan_exp)){
+                    alert('Please enter correct Pan Number'); 
+                    return false;
+                }           
                 if($('#pan_no').val() == '' && $('#name_on_pan').val() == ''){
-                   alert('Please Enter PAN Details or Tick "Not Available" checkbox');
+                   alert('Please Enter PAN Details ');
+                   return false;}
+               //checking case when pan number is empty and pan name is enterd
+                if($('#pan_no').val() == '' && $('#name_on_pan').val() != ''){
+                   alert('Please add PAN Number along with Pan Name');
+                   return false;}
+                if($('#pan_no').val() != '' && $('#name_on_pan').val() == ''){
+                   alert('Please enter PAN Name with Pan Number');
+                   return false;}
+                if($('#pan_no').val() != ''  && $("#pan_file")[0].files.length == 0){
+                   alert('Please Enter PAN File');
+                   return false;
+                 }
+                
+                if($('#name_on_pan').val() != ''  && $("#pan_file")[0].files.length == 0){
+                   alert('Please Enter PAN File');
                    return false;
                }
-                //checking case when pan number is empty and pan name is enterd
-                else if($('#pan_no').val() == '' && $('#name_on_pan').val() != ''){
-                   alert('Please add Pan No along with Pan Name');
+   
+                if($("#pan_file")[0].files.length != '' && $('#name_on_pan').val() == 0){
+                   alert('Please Enter PAN Details');
+                   return false;}
+                if($("#pan_file")[0].files.length != '' && $('#pan_no').val() == 0){
+                   alert('Please Enter PAN Number');
                    return false;
                }
-               //checking case when pan number is less than 6 and greater than 10 and pan name is enterd
-               else if($('#pan_no').val().length !== 10 && $('#name_on_pan').val() != ''){
-                   alert('Please add valid 10 digit pan number');
-                   return false;
-               }
-               //checking case when pan number 10 and pan name is enterd but panfile is not uploaded
-               <?php if(empty($query[0]['pan_file'])){ ?>
-                           else if($('#pan_no').val().length === 10 && $('#name_on_pan').val() != '' && $('#pan_file').val()== 0){
-                           alert('Please upload pan file also');
-                   return false;
-               } <?php }?>
-            }
-            //Check for GST  no.
-            if($('#is_gst_doc').is(":checked")){ 
-               if($('#gst_no').val() != ''){
-                   alert('Please Enter valid GST Number or Tick "Not Available" checkbox');
-                   return false;
-               }
-            }else{ 
-                var is_gst_file = <?php if(isset($query[0]['gst_file']) && !empty($query[0]['gst_file'])){ echo '1';}else{echo '0';}?>;
-                if($('#gst_no').val() == ''){
-                   alert('Please Enter GST Number or Tick "Not Available" checkbox');
-                   return false;
-                }
-                else if($('#gst_no').val().length === '15'){
-                   alert('Please Enter Valid GST Number');
-                   return false;
-                }
-                else if($('#gst_type').val() == '' || $('#gst_status').val() == ''){
-                   alert('Please Enter Valid GST Number or Tick "Not Available" checkbox');
-                   return false;
-                }
-                else if($('#gst_no').val() != '' && $('#gst_file').get(0).files.length === 0 && is_gst_file === 0){
+                    var gst_exp = /[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}/;
+                    var gst_no = $('#gst_no').val();
+                if($('#gst_no').val() != '' && !gst_no.match(gst_exp)){
+                       alert('Please enter correct GST Number'); 
+                       return false;
+                   }
+  
+                if($('#gst_no').val() != '' && $("#gst_file")[0].files.length== 0){
                    alert("Please Upload GST File");
+                   return false; 
+               }  
+                if($('#gst_no').val() == '' && $("#gst_file")[0].files.length != 0){
+                   alert("Please Upload GST Number");
                    return false;
-                }
-            }
-             var is_signature_file = <?php if(isset($query[0]['signature_file']) && !empty($query[0]['signature_file'])){ echo '1';}else{echo '0';}?>;
-             if(is_signature_file == 0){
-                var is_signature_file = $('#signature_file').get(0).files.length;
-             }
-             if(!(is_signature_file) && ($('#is_gst_doc').is(":checked")) ){
-                   alert('Please Update Signature file');
+               }
+                var msme_no = $('#msme_no').val();
+                if($('#msme_no').val() != '' && !msme_no.match('^[a-zA-Z]{2}[0-9a-zA-Z]{10}$')){
+                       alert('Please enter correct MSME Number'); 
+                       return false;
+                   }
+               
+                if($('#msme_no').val() != '' && $("#msme_file")[0].files.length == 0){
+                   alert("Please Upload MSME File");
                    return false;
-    }
-    }
+               }  
+                if($('#msme_no').val() == '' && $("#msme_file")[0].files.length != 0){
+                   alert("Please Upload MSME Nuber");
+                   return false;
+               }
+   });
+   });
 </script>
 
 <!--page 2 validations end-->

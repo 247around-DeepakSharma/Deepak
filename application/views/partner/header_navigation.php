@@ -271,7 +271,7 @@
                              
 
                             <li class="col-md-4">
-                                <form method="POST" class="navbar-form navbar-left" role="search" action="<?php echo base_url(); ?>partner/search" onsubmit="return checkStringLength()">
+                                <form method="GET" class="navbar-form navbar-left" role="search" action="<?php echo base_url(); ?>partner/search" onsubmit="return checkStringLength()">
                                     <div class="form-group">
                                         <input type="text" class="form-control" id="searched_text" placeholder="Search Booking ID or Mobile" name="searched_text" style="width: 130%;border-radius:25px 25px 25px 25px">
                                     </div> 
