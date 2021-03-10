@@ -6231,14 +6231,17 @@ $(document).ready(function () {
            alert('Please Enter Correct PAN Number');
            return false;}
          else{ 
-           if(pan_no.match(pan_exp)){
-           return true;}
-          else{
-          alert('Please Enter Correct PAN Number');
-          return false;}
+           if( !pan_no.match(pan_exp)){
+            alert('Please Enter Correct PAN Number');
+            return false;
+           }
          }
-       }
-      if($("#gst_number").val() != '' && GST_file!= ''){
+       }  
+   });
+   });
+   $(document).ready(function () {
+    $('#gst_number').focusout(function() {
+    if($("#gst_number").val() != ''){ 
          var GST_no = $("#gst_number").val();
          $.ajax({
          type: 'POST',    
@@ -6254,13 +6257,10 @@ $(document).ready(function () {
             $('#gst_validate').text('');}
         
         }  
-    
-       });
- }
-   });
-   });
-   
-
+    });
+    }
+    });
+    });
 
  
 </script>
