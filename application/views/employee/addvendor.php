@@ -687,6 +687,16 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     <a href="javascript:void(0)" onclick="remove_image('pan_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['pan_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 0px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
                                     <?php }?>
                                 </div>
+                                    <?php if(!$saas_module) { ?>
+                                        <div class="col-md-2">
+                                            <div class="checkbox">
+                                                <label>
+                                                <b style="font-size: 18px;">Not Available</b> 
+                                                </label>
+                                                <input type="checkbox"  value="0" id="is_pan_doc" name ="is_pan_doc" <?php if(isset($query[0]['is_pan_doc'])){ if($query[0]['is_pan_doc'] == 0){ echo "checked" ;}}?> style="margin-left:16px;zoom:1.5"> 
+                                            </div>
+                                        </div>
+                                    <?php } ?>
                                     </div>
                                 <hr style="border: 1px solid;padding: 0px;margin: 10px;border-color: #9e9da7;">
                                 <div class="col-md-12">
