@@ -10027,7 +10027,7 @@ function do_delivered_spare_transfer() {
 
     function get_service_centers_list() {
 
-        $vendor_list = $this->vendor_model->getVendorDetails("service_centres.id, service_centres.name, service_centres.company_name", array("service_centres.active" => 1, "service_centres.is_micro_wh" => $this->input->post('is_micro_wh')));
+        $vendor_list = $this->vendor_model->getVendorDetails("service_centres.id, service_centres.name, service_centres.company_name", array("service_centres.active" => 1));
 
         $option = '<option selected="" disabled="">Select Service Centres</option>';
         foreach ($vendor_list as $value) {
