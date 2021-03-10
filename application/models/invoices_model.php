@@ -1419,8 +1419,8 @@ class invoices_model extends CI_Model {
             foreach ($result as $key => $value) {
                 if($is_customer && empty($result[0]['gst_number'])){
                   
-                    $meta['total_taxable_value'] += sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($value['gst_rate']/100))));
-                    $result[$key]['total_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($value['gst_rate']/100))));
+                    $meta['total_taxable_value'] += sprintf("%1\$.2f",($value['taxable_value']));
+                    $result[$key]['total_amount'] = sprintf("%1\$.2f",($value['taxable_value']));
                     
                     
                 } else if((empty($is_customer)) && empty($result[0]['gst_number'])){
