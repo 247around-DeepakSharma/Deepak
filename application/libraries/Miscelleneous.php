@@ -3951,14 +3951,24 @@ function generate_image($base64, $image_name,$directory){
             $tatArray['applicable_on_partner'] = $this->is_booking_valid_for_partner_panelty($values['request_type']);
             $tatArray['sf_closed_date'] = $values['sf_closed_date'];
             $tatArray['around_closed_date'] = $values['around_closed_date'];
-            if (stripos($values['request_type'], 'Repair') !== false || stripos($values['request_type'], 'Repeat') !== false) {
-                $requestType = '1';
-            }
-            else{
-                $requestType = '0';
+            if (stristr($values['request_type'], "Repair") 
+                || stristr($values['request_type'], "Repeat") 
+                || stristr($values['request_type'], "Replacement") 
+                || stristr($values['request_type'], "Dead On Arrival (DOA)")
+                || stristr($values['request_type'], "Dead after Purchase (DaP)")
+                || stristr($values['request_type'], EXTENDED_WARRANTY_TAG)
+                || stristr($values['price_tags'], PRESALE_REPAIR_TAG) 
+                || stristr($values['request_type'], GAS_RECHARGE_IN_WARRANTY) 
+                || stristr($values['request_type'], AMC_PRICE_TAGS) 
+                || stristr($values['request_type'], GAS_RECHARGE_OUT_OF_WARRANTY)) {
+                $requestType = 1;
+                
+            } else {
+                $requestType = 0;
             }
             $tatArray['request_type'] = $requestType;
             if($values['spare_id']){
+                $tatArray['request_type'] = 1;
                 $this->My_CI->reusable_model->update_table("booking_tat",$tatArray,array("booking_id"=>$booking_id,"spare_id"=>$values['spare_id']));
             }
             else{

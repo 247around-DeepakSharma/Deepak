@@ -4873,7 +4873,7 @@ exit();
                                     $data[0]['product_or_services'] = "Product";
                                     $data[0]['gst_number'] = $spare[0]['gst_number'];
                                     $data[0]['main_gst_number'] = $value['to_gst_number'];
-                                    $data[0]['from_gst_number_id'] = $value['to_gst_number_id'];
+                                    
                                     $data[0]['spare_id'] = $spare_id;
                                     $data[0]['inventory_id'] = $spare[0]['inventory_id'];
                                     $data[0]['company_name'] = $spare[0]['company_name'];
@@ -4891,11 +4891,13 @@ exit();
                                         && !($spare[0]['gst_status'] == _247AROUND_CANCELLED || $spare[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
                                         $invoice_type = "Tax Invoice";
                                         $invoice_id = $this->invoice_lib->create_invoice_id($spare[0]['sc_code']);
+                                        $data[0]['to_gst_number_id'] = $value['to_gst_number_id'];
                                             
                                     } else {
                                         $data[0]['gst_number'] = true;
                                         $invoice_type = CREDIT_NOTE;
                                         $invoice_id = $this->create_invoice_id_to_insert("ARD-CN");
+                                        $data[0]['from_gst_number_id'] = $value['to_gst_number_id'];
                                     }
                                     if($service_center_state_code ==  $value['to_state_code']){
                                         $data[0]['c_s_gst'] = TRUE;
@@ -4954,7 +4956,7 @@ exit();
     function _reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare, $sub_category, $invoice_type, $vendor_email = array()){
         $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, $invoice_type, $invoice_date);
         
-        if(isset($data[0]['from_gst_number_id']) && !empty($data[0]['from_gst_number_id'])){
+        if(isset($data[0]['to_gst_number_id']) || isset($data[0]['from_gst_number_id'])){
             $response['meta']['main_company_gst_number'] = $data[0]['main_gst_number'];
             $response['meta']['main_company_state'] = $this->invoices_model->get_state_code(array('state_code' => $data[0]['from_state_code']))[0]['state'];
             $response['meta']['main_company_state_code'] = $data[0]['from_state_code'];
