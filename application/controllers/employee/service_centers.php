@@ -10133,13 +10133,8 @@ if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file'
      */
 
     function get_service_centers_list() {
-        $rm_id = $this->input->post('rm_id');
-        if (!empty($rm_id)){
-          $vendor_list = $this->vendor_model->getVendorDetails("service_centres.id, service_centres.name, service_centres.company_name", array("rm_id" => $rm_id));   
-        }
-        else{
-         $vendor_list = $this->vendor_model->getVendorDetails("service_centres.id, service_centres.name, service_centres.company_name", array());
-        }
+
+        $vendor_list = $this->vendor_model->getVendorDetails("service_centres.id, service_centres.name, service_centres.company_name", array("service_centres.active" => 1));
         $option = '<option selected="" disabled="">Select Service Centres</option>';
         foreach ($vendor_list as $value) {
             $option .= "<option value='" . $value['id'] . "'";
