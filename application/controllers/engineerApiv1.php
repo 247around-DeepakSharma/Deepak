@@ -5058,7 +5058,7 @@ function submitPreviousPartsConsumptionData(){
             $spare_select = 'spare_parts_details.serial_number, '
                     . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/purchase-invoices/", spare_parts_details.invoice_pic) as invoice_pic, '
                     . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/' . SERIAL_NUMBER_PIC_DIR . '/", spare_parts_details.serial_number_pic) as serial_number_pic';
-            $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('booking_id' => $booking_id));
+            $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('booking_id' => $booking_id,'status !=' => _247AROUND_CANCELLED));
             $serial_number_details['serial_number'] = '';
             $serial_number_details['invoice_pic'] = '';
             $serial_number_details['serial_number_pic'] = '';
