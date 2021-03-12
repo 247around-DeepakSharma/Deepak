@@ -5123,21 +5123,25 @@ class Partner extends CI_Controller {
             
             if (!empty($_FILES['contract_file']['tmp_name'][$index]) && ($_FILES['contract_file']['error'][$index] != 4)) {
                 $tmpFile = $_FILES['contract_file']['tmp_name'][$index];
-                $contract_file = "Partner-" . str_replace(' ', '_', $partnerName) . '-Contract_' . $contract_type . "_" . date('Y-m-d') . "." . explode(".", $_FILES['contract_file']['name'][$index])[1];
-                move_uploaded_file($tmpFile, TMP_FOLDER . $contract_file);
+                $target_file = TMP_FOLDER. basename($_FILES["contract_file"]["name"][$index]);
+                $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+                if($imageFileType=='pdf'){
+                    $contract_file = "Partner-" . str_replace(' ', '_', $partnerName) . '-Contract_' . $contract_type . "_" . date('Y-m-d') . "." . explode(".", $_FILES['contract_file']['name'][$index])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER . $contract_file);
                 //Upload files to AWS
-                $bucket = BITBUCKET_DIRECTORY;
-                $directory_xls = "vendor-partner-docs/" . $contract_file;
-                $this->s3->putObjectFile(TMP_FOLDER . $contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                $attachment_contract = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $contract_file;
-                unlink(TMP_FOLDER . $contract_file);
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = "vendor-partner-docs/" . $contract_file;
+                    $this->s3->putObjectFile(TMP_FOLDER . $contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $attachment_contract = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $contract_file;
+                    unlink(TMP_FOLDER . $contract_file);
                 //Logging success for file uppload
-                log_message('info', __FUNCTION__ . ' CONTRACT FILE is being uploaded sucessfully.');
-                $insertArray = array("entity_id" => $partner_id, "entity_type" => "partner", "collateral_id" => $contract_type,
-                    "document_description" => $contract_description_array[$index], 'file' => $contract_file, "start_date" => $start_date_array[$index], 'end_date' => $end_date_array[$index]);
-                $finalInsertArray[] = $insertArray;
-                $contract_type_tag = $this->reusable_model->execute_custom_select_query("SELECT `collateral_tag`, collateral_type FROM `collateral_type` WHERE `id`='".$contract_type."'");
-                $emailArray = array("Contract_Type"=>$contract_type_tag[0]['collateral_type'], "Partnership_Start_Date"=>$start_date_array[$index], "Partnership_End_Date"=>$end_date_array[$index], "Contract_Description" => $contract_description_array[$index]);
+                    log_message('info', __FUNCTION__ . ' CONTRACT FILE is being uploaded sucessfully.');
+                    $insertArray = array("entity_id" => $partner_id, "entity_type" => "partner", "collateral_id" => $contract_type,
+                     "document_description" => $contract_description_array[$index], 'file' => $contract_file, "start_date" => $start_date_array[$index], 'end_date' => $end_date_array[$index]);
+                    $finalInsertArray[] = $insertArray;
+                    $contract_type_tag = $this->reusable_model->execute_custom_select_query("SELECT `collateral_tag`, collateral_type FROM `collateral_type` WHERE `id`='".$contract_type."'");
+                    $emailArray = array("Contract_Type"=>$contract_type_tag[0]['collateral_type'], "Partnership_Start_Date"=>$start_date_array[$index], "Partnership_End_Date"=>$end_date_array[$index], "Contract_Description" => $contract_description_array[$index]);
+                }
             }
         }
         if ($finalInsertArray) {

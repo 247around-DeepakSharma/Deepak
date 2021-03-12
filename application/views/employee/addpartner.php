@@ -1334,7 +1334,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                 <label for="agreement_end_date" class="col-md-4">Partnership End Date<span class="text-danger">*</span></label>
                                 <div class="col-md-6">
                                     <div class="input-group input-append date" >
-                                        <input type="date" class="form-control" required name="agreement_end_date[]" id="agreement_end_date">
+                                        <input type="date" class="form-control agreement_end_date" required name="agreement_end_date[]" id="agreement_end_date">
                                         <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                     </div>
                                     <?php echo form_error('agreement_end_date'); ?>
@@ -1363,7 +1363,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                 } ?>">
                                 <label for="contract_file" class="col-md-4">Contract File<span class="text-danger">*</span></label>
                                 <div class="col-md-5">
-                                    <input type="file" class="form-control"  name="contract_file[]" required="">
+                                    <input type="file" class="form-control"  name="contract_file[]" required="" accept="application/pdf">
                                     <?php echo form_error('contract_file'); ?>
                                 </div>
                                 <div class="col-md-1">
@@ -1389,7 +1389,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
 <!--                                <hr style="border: 1px solid #a1e8a1;">-->
                             </div>
                             <div class="col-md-6">
-                                <a class="hide-section form-control" title="Remove Contract" style="float:right;width:5%;display:none;"><span class="glyphicon glyphicon-minus"></span></a>
+                               <a class="hide-section form-control" title="Remove Contract" style="float:right;width:7%;display:none;"><span class="glyphicon glyphicon-minus"></span></a>
                             </div>
                         </div>
                         <div id="cloned"></div>
@@ -1401,7 +1401,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                         echo "Update Contracts";
                         } else {
                         echo "Save Contracts";
-                        } ?>" class="btn btn-primary" id="submit_contract_btn">
+                        } ?>" class="btn btn-primary" id="submit_contract_btn" onclick = " return date_validatetion();">
                         <?php echo "<a class='btn btn-small btn-primary' href=" . base_url() . "employee/partner/viewpartner>Cancel</a>"; ?>
                     </center>
                 </div>
@@ -4222,6 +4222,8 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
         
         $('#contract_holder_'+(id_number+1)).children('div').children('.hide-section').css('display', 'inline-block');
         $('#contract_holder_'+(id_number+1)).children('div').children('.hide-section').attr('onClick', 'hide_section('+(id_number+1)+')');
+        $( "#"+clone.id).find('.agreement_start_date').attr('id',"agreement_start_date_"+clone.id);
+        $( "#"+clone.id).find('.agreement_end_date').attr('id',"agreement_end_date_"+clone.id);
     }
     
     function hide_section(remove_btn_id) {
@@ -6213,5 +6215,26 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
            // $("#"+lastUrl).trigger('click');
         }
     })
+   function date_validatetion(){
+    var flag = 0;
+    $('.contract_holder').each(function(){  
+      var start_date = $(this).find('.agreement_start_date').val();
+      var end_date = $(this).find('.agreement_end_date').val();
+      if(start_date != '' && end_date != ''){
+      if(start_date > end_date){
+        flag = 1;}
+      }
+    });
+    if( flag == 1){
+        return false;
+    }
+    else{
+        return true;
+    }
+   }
+ function hide_submit_button(){
+    $("#submit_contract_btn").css("pointer-events",'none');
+    $("#submit_contract_btn").css("opacity",'.5');
+   }
 </script>
 
