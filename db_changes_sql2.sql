@@ -2834,7 +2834,7 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `booking_id`, 
 --Abhay 10 Nov
 INSERT INTO `entity_role` (`id`, `entity_type`, `department`, `role`, `is_filter_applicable`) VALUES (NULL, '247Around', 'Operations', 'inventory_manager_hod', '1');
 ALTER TABLE `bill_to_partner_opencell` ADD `booking_id` INT(11) NULL DEFAULT NULL AFTER `spare_id`;
-<<<<<<< HEAD
+
 --Abhay 10 Nov
 INSERT INTO `entity_role` (`id`, `entity_type`, `department`, `role`, `is_filter_applicable`) VALUES (NULL, '247Around', 'Operations', 'inventory_manager_hod', '1');
 ALTER TABLE `bill_to_partner_opencell` ADD `booking_id` INT(11) NULL DEFAULT NULL AFTER `spare_id`;
@@ -2867,6 +2867,7 @@ ALTER TABLE `gstin_detail` CHANGE `type` `type` VARCHAR(55) CHARACTER SET utf8 C
 --Abhay 11 JAN
 ALTER TABLE `inventory_invoice_mapping` ADD `spare_id` INT NULL DEFAULT NULL AFTER `inventory_id`;
 ALTER TABLE `inventory_invoice_mapping` ADD `rate` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `spare_id`;
+
 --Abhay Anand 23 Feb
 INSERT INTO `variable_charges_type` (`id`, `name`, `type`, `description`, `hsn_code`, `gst_rate`, `is_fixed`, `updated_date`, `created_date`) VALUES
 (NULL, 'MSL Handling Charges', 'MSL-handling-charges', 'MSL Handling Charges', 998715, 18, 0, '2021-02-23 00:00:00', '2018-11-20 00:00:00'),
@@ -2876,7 +2877,7 @@ CREATE TABLE `variable_handling_invoice` (
   `invoice_id` int NOT NULL,
   `taxable_value` decimal(10,0) NOT NULL,
   `gst_rate` decimal(10,0) NOT NULL,
-  `oninvoice` int NOT NULL,
+  `on_month` int NOT NULL,
   `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -2904,6 +2905,41 @@ COMMIT;
 ALTER TABLE `variable_handling_invoice` ADD `entity_id` INT NOT NULL AFTER `invoice_id`;
 ALTER TABLE `variable_handling_invoice` ADD `type` INT NOT NULL COMMENT '1- Logistic' AFTER `on_month`;
 
-
 --Abhay Anand 2 March
 ALTER TABLE `vendor_partner_invoices` CHANGE `tcs_rate` `tcs_rate` DECIMAL(10,3) NOT NULL DEFAULT '0.00';
+--Abhay Anand 2 March
+ALTER TABLE `vendor_partner_invoices` CHANGE `tcs_rate` `tcs_rate` DECIMAL(10,3) NOT NULL DEFAULT '0.00';
+
+
+--Abhay 12 March
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `booking_id`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'part_invoice_summary', 'Part Invoice ledger', 'Dear Team,<br/>\r\n\r\nPlease find the attached excel sheet', NULL, 'noreply@247around.com', 'abhaya@247around.com', '', '', '1', '2021-03-12 12:30:00');
+CREATE TABLE `part_invoice_opening_balance` (
+  `id` int NOT NULL,
+  `purchase_invoice` decimal(10,2) NOT NULL,
+  `sale_invoice` decimal(10,2) NOT NULL,
+  `opening_balance` decimal(10,2) NOT NULL,
+  `opening_balance_date` date NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `part_invoice_opening_balance`
+--
+ALTER TABLE `part_invoice_opening_balance`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `part_invoice_opening_balance`
+--
+ALTER TABLE `part_invoice_opening_balance`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+COMMIT;
