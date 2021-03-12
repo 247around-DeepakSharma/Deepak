@@ -469,14 +469,8 @@ class Notify {
                                 $sms['smsData']['number'] = JEEVES_CALLCENTER_NUMBER;
                                 $sms['smsData']['name'] = JEEVES_WEBSITE;
                             }else{
-                                $toll_free_number = $this->get_partner_contact_name_number($query1[0]['partner_id']);
-                                if (!empty($toll_free_number)) {
-                                    $sms['smsData']['number'] = $toll_free_number['contact_number'];
-                                    $sms['smsData']['name'] = $toll_free_number['contact_person'];
-                                } else {
-                                    $sms['smsData']['number'] = _247AROUND_CALLCENTER_NUMBER;
-                                    $sms['smsData']['name'] = _247AROUND_DEFAULT_AGENT_NAME;
-                                }
+                                $sms['smsData']['number'] = _247AROUND_CALLCENTER_NUMBER;
+                                $sms['smsData']['name'] = _247AROUND_DEFAULT_AGENT_NAME;
                             }
 
                             $this->send_sms_msg91($sms);
@@ -609,10 +603,13 @@ class Notify {
                         //$sms['smsData']['booking_timeslot'] = explode("-",$query1[0]['booking_timeslot'])[1];
                         $sms['smsData']['booking_id'] = $query1[0]['booking_id'];
                         $cc_number = ""; 
-                        $toll_free_number = $this->get_partner_contact_name_number($query1[0]['partner_id']);
-                        if (!empty($toll_free_number)) {
-                            $cc_number = $toll_free_number['contact_number'];
-                        } else {
+                        if($query1[0]['partner_id'] == VIDEOCON_ID){
+                            $cc_number = "0120-4500600";
+                        }
+                        else if($query1[0]['partner_id'] == SHARP_ID){
+                            $cc_number = SHARP_CALLCENTER_NUMBER;
+                        }
+                        else{
                             $cc_number = _247AROUND_CALLCENTER_NUMBER;
                         }
                         $sms['smsData']['cc_number'] = $cc_number;
@@ -1471,17 +1468,11 @@ class Notify {
                             }
                             if ($data['partner_id'] == JEEVES_ID) {
                                 $whatsapp_sms['smsData']['number'] = JEEVES_CALLCENTER_NUMBER;
-                                //$whatsapp_sms['smsData']['name'] = JEEVES_WEBSITE;
+                                $whatsapp_sms['smsData']['name'] = JEEVES_WEBSITE;
                             } else {
-                                $toll_free_number = $this->get_partner_contact_name_number($data['partner_id']);
-                                if (!empty($toll_free_number)) {
-                                     $whatsapp_sms['smsData']['number'] = $toll_free_number['contact_number'];
-                                }else{
-                                    $whatsapp_sms['smsData']['number'] = _247AROUND_CALLCENTER_NUMBER;
-                                    //$whatsapp_sms['smsData']['name'] = _247AROUND_DEFAULT_AGENT_NAME;
-                                }
+                                $whatsapp_sms['smsData']['number'] = _247AROUND_CALLCENTER_NUMBER;
+                                $whatsapp_sms['smsData']['name'] = _247AROUND_DEFAULT_AGENT_NAME;
                             }
-                            $whatsapp_sms['smsData']['call_center_number'] = _247AROUND_CALLCENTER_NUMBER;
                             $whatsapp_message = vsprintf($template_data['template'], $whatsapp_sms['smsData']);
                             $phone_number = '91' . $data['booking_primary_contact_no'];
 
@@ -1642,27 +1633,8 @@ class Notify {
 
 
    }
-   /**
-     * @desc: Function is used to get toll free number of booking id
-     * @parameters $phone_number,$message, $whatsapp_sms array
-     * @retun:boolean()
-     */
-   function get_partner_contact_name_number($partner_id='') {
-        $return_array = array();
-        if (!empty($partner_id)) {
-            $data = $this->My_CI->partner_model->get_tollfree_and_contact_persons($partner_id);
-            if (!empty($data)) {
-                if (empty($data[0]['paid_service_centers']) && !empty($data[0]['contact'])) {
-                    $return_array['contact_person'] = $data[0]['partner'];
-                    $return_array['contact_number'] = $data[0]['contact'];
-                }
-            }
-        }
-        if (empty($return_array)) {
-            $return_array['contact_number'] = _247AROUND_CALLCENTER_NUMBER;
-            $return_array['contact_person'] = _247AROUND_DEFAULT_AGENT_NAME;
-        }
-        return $return_array;
-    }
+
+
+
 
 }
