@@ -11,11 +11,16 @@ class File_process extends CI_Controller {
 
         $this->load->model('partner_model');
         $this->load->model('dashboard_model');
+        $this->load->model('inventory_model');
         $this->load->model('service_centers_model');
+        $this->load->model('accounting_model');
+        $this->load->model('booking_model');
         $this->load->library('PHPReport');
         $this->load->library("session");
+        $this->load->library("invoice_lib");
         $this->load->library('form_validation');
-
+        $this->load->library('notify');
+        $this->load->library('email');
         $this->load->helper(array('form', 'url', 'file', 'array'));
         $this->load->dbutil();
     }
@@ -371,6 +376,79 @@ class File_process extends CI_Controller {
         } else {
             log_message("info", __METHOD__ . " Partner ID " . $partner_id. " Data Not Found");
             echo json_encode(array("response" => "failed", "message" => "Data Not Found"));
+        }
+    }
+    /**
+     * @desc This function is used to download part invoice summary excel file.
+     */
+    function download_part_invoice_summary(){
+        $date_range = $this->input->post('date_range');
+        if(!empty($date_range)){
+           $date_array = explode('-', $date_range);
+           if(count($date_array) == 2){
+               $from_date = date("Y-m-d", strtotime($date_array[0]));  
+               $to_date = date("Y-m-d", strtotime($date_array[1].  "+1 days"));
+               
+               $c_balance = $this->inventory_model->call_procedure('part_invoice_summary',"'$from_date'");
+               $res = $this->_download_part_invoice_summary($c_balance, $from_date, $to_date);
+               echo $res;
+               
+           } else {
+               echo json_encode(array('status' => false, 'message' => 'Please Select Valid Date'), true);
+           }
+        } 
+    }
+    /**
+     * @desc This function is used to download part invoice summary excel file.
+     */
+    function _download_part_invoice_summary($c_balance, $from_date, $to_date){
+        $data = $this->inventory_model->call_procedure('part_invoice_breakup',"'$from_date', '$to_date' ");
+        $meta = array();
+        $meta['meta']['opening_balance_date'] = date("d F Y", strtotime($from_date."-1 days"));
+        $meta['meta']['opening_balance'] = $c_balance[0]['diff'];
+        $meta['meta']['file_period'] = date("d F Y", strtotime($from_date))." To ".date("d F Y", strtotime($to_date. "-1 days"));
+        $template = "Part Invoice Summary.xlsx";
+        $output_file_excel = "part_invoice_summary".date('YmdHis').".xlsx";
+        $res = $this->invoice_lib->generate_invoice_excel($template, $meta['meta'], $data, TMP_FOLDER.$output_file_excel);
+        if($res){
+            return json_encode(array('status' => true, 'message' => $output_file_excel, 'path' => base_url() . "file_process/downloadFile/" . $output_file_excel), true);
+        } else {
+            return json_encode(array('status' => false, 'message' => 'File is not creating. Please refresh & try again'), true);
+        }
+        //$this->downloadFile($output_file_excel);
+        
+    }
+    
+    function send_part_invoice_summary_to_mail(){
+        $from_date = date("Y-m-01");  
+        $to_date = date("Y-m-d", strtotime("-1 days"));
+        $fdate = date("Y-m-01", strtotime("-1 months"));
+
+        $c_balance = $this->inventory_model->call_procedure('part_invoice_summary',"'$fdate'");
+        $c = array();
+        $c['purchase_invoice'] = $c_balance[0]['purchase'];
+        $c['sale_invoice'] = $c_balance[0]['sale'];
+        $c['opening_balance'] = $c_balance[0]['diff'];
+        $c['opening_balance'] = date('Y-m-d', strtotime($fdate));
+        
+        $this->accounting_model->insert_part_invoice_opening_balance($c);
+        $res = $this->_download_part_invoice_summary($c_balance, $from_date, $to_date);
+        $s = json_decode($res, true);
+        if($s['status']){
+            $template = $this->booking_model->get_booking_email_template("part_invoice_summary");
+            if(!empty($template)){
+                $body = $template[0];
+                $to = $template[1];
+                $from = $template[2];
+                $cc = $template[3];
+                $subject = $template[4];
+
+                $bcc = $template[5];
+
+                $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $body, TMP_FOLDER.$s['message'],'part_invoice_summary');
+                echo $this->email->print_debugger();
+            }
+            
         }
     }
 
