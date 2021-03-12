@@ -2069,4 +2069,12 @@ class Accounting extends CI_Controller {
             return false;
         }    
     }
+    /**
+     * desc This function is used to load view to download part invoice summary excel
+     */
+    function get_part_invoice_summary(){
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view("employee/part_invoice");
+    }
 }
