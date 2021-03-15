@@ -117,7 +117,7 @@ foreach($booking_unit_details as $data){
     <td><p style="font-size:12px;"><b>Purchase Date</b></p></td>
     <td><p><?php if(!empty($data['purchase_date'])) { echo date("d-M-Y", strtotime($data['purchase_date'])); } else { echo '-';};?></p></td>
     <td><p style="font-size:12px;"><b>Create Date</b></p></td>
-    <td><p><?php if(!empty($booking_details[0]['create_date'])) { echo date("d-M-Y h:i:sa", strtotime($booking_details[0]['create_date'])); } else { echo '-';};?></p></td>
+    <td><p><?php if(!empty($booking_details[0]['booking_create_date'])) { echo date("d-M-Y h:i:sa", strtotime($booking_details[0]['booking_create_date'])); } else { echo '-';};?></p></td>
     <td><p><b>Total</b></p></td>
     <td><p><?php echo "Rs. ". round($booking_details[0]['amount_due'])?></p></td>
   </tr>
