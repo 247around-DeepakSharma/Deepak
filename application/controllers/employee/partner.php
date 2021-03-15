@@ -1243,7 +1243,7 @@ class Partner extends CI_Controller {
     function get_gst_number($id){
       $gst_no = $this->input->post('gst_no');
       $select = "gst_number";
-      $where = array('entity_id' => '247001');
+      $where = array('entity_id' => '_247AROUND');
       $result = $this->inventory_model->get_entity_gst_data($select,$where);
       if($id != '247001'){
         foreach($result as $row){
