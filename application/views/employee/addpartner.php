@@ -6199,9 +6199,13 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
         return true;
     }
    }
+   //Auther: Deepak Sharma
+   // this fnction use to hide submit button when you click at a time 
    function hide_submit_button(){
     $("#submit_contract_btn").css("pointer-events",'none');
     $("#submit_contract_btn").css("opacity",'.5');}
+//Author: Deepak Sharma
+// This is use to validate pan no and gst number pan no comuplsory  to select and pan file also
 $(document).ready(function () {
     $('#submit_document_btn').click(function() {// initialize the plugin
        var pan_no = $("#pan_no").val();
@@ -6239,9 +6243,11 @@ $(document).ready(function () {
        }  
    });
    });
+   // Author:Deepak Sharma 
+   // This function use to validate GST Number with 247001 partner id 
    $(document).ready(function () {
     $('#gst_number').focusout(function() {
-    if($("#gst_number").val() != ''){ 
+    if($("#submit_contract_btn").val() != ''){ 
          var GST_no = $("#gst_number").val();
          $.ajax({
          type: 'POST',    
@@ -6250,12 +6256,12 @@ $(document).ready(function () {
             'gst_no':GST_no},
          success: function(msg){
             if(msg == 'true'){
-            $('#gst_validate').text('Please Enter Correct GST Number');
-            $('#submit_document_btn').attr("disabled", true);}
-           else{
-            $('#submit_document_btn').attr("disabled", false);
-            $('#gst_validate').text('');}
-        
+              alert('Please Enter Valid GST Number ');
+              return false;
+            }
+            else{
+                return true; 
+           }
         }  
     });
     }

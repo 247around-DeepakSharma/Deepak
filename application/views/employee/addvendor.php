@@ -512,7 +512,16 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                 ?>
                                 <div class="col-md-2">
                                 <label class="checkbox-inline checkbox-inline-no-edit">
-                                    <input <?php if(empty($check_uncheck_engineer)){ ?> onclick='return false' data-toggle="tooltip" title="<?php echo $check_uncheck_message; ?>" <?php } ?>  class='checkbox_input' type="checkbox" id="is_engineer" <?php if(isset($query[0]['isEngineerApp'])) { if($query[0]['isEngineerApp'] == 1){ echo "checked";}}?> name="is_engineer" value="1" readonly><b>Engineer App</b>
+                                    <?php
+                                     $check_flag = '';
+                                       if (isset($query[0]['id'])) {
+                                         $check_flag = false;
+                                    } else{
+                                        $check_flag =  true;
+                                        
+                                    }?>
+                                        
+                                    <input <?php if(empty($check_uncheck_engineer)){ ?> onclick='return false' data-toggle="tooltip" title="<?php echo $check_uncheck_message; ?>" <?php } ?>  class='checkbox_input' type="checkbox" id="is_engineer" <?php if(isset($query[0]['isEngineerApp']) ||( !empty($check_flag))) { if((isset($query[0]['isEngineerApp']) && $query[0]['isEngineerApp'] == 1) || (!empty($check_flag))){ echo "checked";}}?> name="is_engineer" value="1" readonly ><b>Engineer App</b>
                                 </label>
 
                                 </div>
@@ -990,6 +999,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     </div>
                                 </div>
                             </div>
+                                <!-- Author Deepak Sharma  MSME field and file add -->
                                <hr style="border: 1px solid;padding: 0px;margin: 10px;border-color: #9e9da7;">
                                <div class="col-md-12" style="height: 59px;">
                                 <label  for="name_on_pan"  class="col-md-1 vertical-align">MSME</label>
@@ -1181,13 +1191,13 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                             });
                             </script>
                         <!-- stamp details end -->
-            <center><input type="Submit" onclick="return validate_documents()" value="<?php
+            <center><input type="Submit" value="<?php
                                     if (isset($selected_brands_list)) {
                                         echo "Update Documents";
                                     } else {
                                         echo "Save Documents";
                                     }
-                                    ?>" class="btn btn-primary" id="submit_btn">
+                                    ?>" class="btn btn-primary submit_button " id="submit_btn">
                             <?php echo "<a class='btn btn-small btn-primary cancel' href=" . base_url() . "employee/vendor/viewvendor>Cancel</a>"; ?>
                                 </center>
    </form>
@@ -1920,6 +1930,8 @@ function manageAccountNameField(value){
 <!--page 1 validations end here-->
 <!--page 2 validations begin-->
 <script type="text/javascript">
+//Author: Deepak Sharma
+// This function use to for validation   
 $(document).ready(function () {
     $('.submit_button').click(function() {              
                 var pan_exp = /[a-zA-z]{5}\d{4}[a-zA-Z]{1}/;
@@ -1930,36 +1942,36 @@ $(document).ready(function () {
                 }           
                 if($('#pan_no').val() == '' && $('#name_on_pan').val() == ''){
                    alert('Please Enter PAN Details ');
-                   return false;}
+                   return false;
+               }
                //checking case when pan number is empty and pan name is enterd
                 if($('#pan_no').val() == '' && $('#name_on_pan').val() != ''){
                    alert('Please add PAN Number along with Pan Name');
-                   return false;}
+                   return false;
+                }
                 if($('#pan_no').val() != '' && $('#name_on_pan').val() == ''){
                    alert('Please enter PAN Name with Pan Number');
-                   return false;}
+                   return false;
+                }
                 if($('#pan_no').val() != ''  && $("#pan_file")[0].files.length == 0){
                    alert('Please Enter PAN File');
                    return false;
-                 }
+                }
                 
                 if($('#name_on_pan').val() != ''  && $("#pan_file")[0].files.length == 0){
                    alert('Please Enter PAN File');
                    return false;
-               }
+                }
    
-                if($("#pan_file")[0].files.length != '' && $('#name_on_pan').val() == 0){
+                if($("#pan_file")[0].files.length != '' && ($('#name_on_pan').val() == 0 || $('#pan_no').val() == 0 )) {
                    alert('Please Enter PAN Details');
-                   return false;}
-                if($("#pan_file")[0].files.length != '' && $('#pan_no').val() == 0){
-                   alert('Please Enter PAN Number');
                    return false;
                }
-                    var gst_exp = /[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}/;
-                    var gst_no = $('#gst_no').val();
+                var gst_exp = /[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}/;
+                var gst_no = $('#gst_no').val();
                 if($('#gst_no').val() != '' && !gst_no.match(gst_exp)){
-                       alert('Please enter correct GST Number'); 
-                       return false;
+                    alert('Please enter correct GST Number'); 
+                    return false;
                    }
   
                 if($('#gst_no').val() != '' && $("#gst_file")[0].files.length== 0){
