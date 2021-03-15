@@ -2080,4 +2080,78 @@ class Accounting extends CI_Controller {
         $this->miscelleneous->load_nav_header();
         $this->load->view("employee/part_invoice");
     }
+    /**
+     * @desc This function is used to load view to download payment account leder
+     */
+    function get_payment_account_ledger(){
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view("employee/payment_account_ledger");
+    }
+    /**
+     * @desc this function is used to download payment account ledger
+     */
+    function download_payment_account_ledger() {
+        $vendor_id = $this->input->post('vendor_id');
+        $date_range = $this->input->post('date_range');
+        if (!empty($vendor_id)) {
+            if (!empty($date_range)) {
+                $date_array = explode('-', $date_range);
+                if (count($date_array) == 2) {
+                    $from_date = date("Y-m-d", strtotime(trim($date_array[0])));
+                    $to_date = date("Y-m-d", strtotime(trim($date_array[1]) . "+1 days"));
+
+                    $c_balance = $this->inventory_model->call_procedure('payment_account_balance', "'$vendor_id','$from_date'");
+                    $credit = (array_sum(array_column($c_balance, 'credit')));
+                    $debit = (array_sum(array_column($c_balance, 'debit')));
+                    $balance = $credit - $debit;
+                    $c[0]['date'] = date('Y-m-d', strtotime($from_date));
+                    $c[0]['vchtype'] = "Opening Balance";
+                    $c[0]['invoice_id'] = "";
+                    if($balance > 0){
+                        $c[0]['credit'] = $credit;
+                        $c[0]['debit'] = 0;
+                    } else {
+                        $c[0]['credit'] = 0;
+                        $c[0]['debit'] = $debit;
+                    }
+                    
+                    $ledger = $this->inventory_model->call_procedure('payment_account_ledger',"'$vendor_id','$from_date', '$to_date'");
+                    $merged = array_merge($c, $ledger);
+                     
+                     
+                    $entity_details = $this->vendor_model->getVendorDetails("*", array('id' => $vendor_id));
+                    $meta = array();
+                    if (!empty($entity_details[0]['gst_no']) 
+                        && !empty($entity_details[0]['gst_status']) 
+                        && !($entity_details[0]['gst_status'] == _247AROUND_CANCELLED || $entity_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
+                            $meta['gst_no'] = $entity_details[0]['gst_no'];
+                        } else {
+                            $meta['gst_no'] = "";
+                        }
+                    $meta['company_name'] =$entity_details[0]['company_name'];
+                    $meta['company_address'] = $entity_details[0]['address'] . "," 
+                        . $entity_details[0]['district']  . ", Pincode: "
+                        . $entity_details[0]['pincode']. ", ".$entity_details[0]['state'];
+                    
+                    $meta['file_period'] = date('Y/m/d', strtotime($from_date))." To ". date('Y/m/d', strtotime($date_array[1]));
+                    
+                    $template = "payment_accountledger.xlsx";
+                    $output_file_excel = "payment_accountledger".date('YmdHis').".xlsx";
+                    $res = $this->invoice_lib->generate_invoice_excel($template, $meta, $merged, TMP_FOLDER.$output_file_excel);
+                    if($res){
+                        echo json_encode(array('status' => true, 'message' => $output_file_excel, 'path' => base_url() . "file_process/downloadFile/" . $output_file_excel), true);
+                    } else {
+                        echo json_encode(array('status' => false, 'message' => "Please refresh & try again"), true);
+                    }  
+                    
+                } else {
+                    echo json_encode(array('status' => false, 'message' => 'Please Select Valid Date'), true);
+                }
+            }
+        } else {
+            echo json_encode(array('status' => false, 'message' => 'Please Select SF Name'), true);
+        }
+    }
+
 }
