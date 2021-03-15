@@ -5114,7 +5114,7 @@ class Inventory extends CI_Controller {
             $a[$key]['product_or_services'] = "Product";
             $a[$key]['hsn_code'] = $value['hsn_code'];
             $a[$key]['inventory_id'] = $value['inventory_id'];
-            $a[$key]['rate'] = $value['rate'] * ( 1 + $repair_oow_around_percentage);
+            $a[$key]['rate'] = sprintf("%.2f", $value['rate'] * ( 1 + $repair_oow_around_percentage));
             $a[$key]['qty'] = $value['qty'];
             $a[$key]['company_name'] = $entity_details[0]['company_name']." (Ph No: ".
                     $entity_details[0]['primary_contact_phone_1'].", ". 
@@ -5345,7 +5345,7 @@ class Inventory extends CI_Controller {
         $invoice['product_or_services'] = "Product";
         $invoice['hsn_code'] = $value['hsn_code'];
         $invoice['qty'] = $value['quantity'];
-        $invoice['rate'] = $value['part_total_price'] / $value['quantity'];
+        $invoice['rate'] = sprintf("%.2f",$value['part_total_price'] / $value['quantity']);
         $invoice['inventory_id'] = $value['inventory_id'];
         $invoice['taxable_value'] = sprintf("%.2f",$value['part_total_price']);
 
