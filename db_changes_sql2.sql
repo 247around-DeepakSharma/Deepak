@@ -2814,7 +2814,7 @@ CREATE TABLE `variable_handling_invoice` (
   `invoice_id` int NOT NULL,
   `taxable_value` decimal(10,0) NOT NULL,
   `gst_rate` decimal(10,0) NOT NULL,
-  `oninvoice` int NOT NULL,
+  `on_month` int NOT NULL,
   `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -2844,5 +2844,40 @@ ALTER TABLE `variable_handling_invoice` ADD `type` INT NOT NULL COMMENT '1- Logi
 
 --Abhay Anand 2 March
 ALTER TABLE `vendor_partner_invoices` CHANGE `tcs_rate` `tcs_rate` DECIMAL(10,3) NOT NULL DEFAULT '0.00';
+
+
+--Abhay 12 March
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `booking_id`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'part_invoice_summary', 'Part Invoice ledger', 'Dear Team,<br/>\r\n\r\nPlease find the attached excel sheet', NULL, 'noreply@247around.com', 'abhaya@247around.com', '', '', '1', '2021-03-12 12:30:00');
+CREATE TABLE `part_invoice_opening_balance` (
+  `id` int NOT NULL,
+  `purchase_invoice` decimal(10,2) NOT NULL,
+  `sale_invoice` decimal(10,2) NOT NULL,
+  `opening_balance` decimal(10,2) NOT NULL,
+  `opening_balance_date` date NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `part_invoice_opening_balance`
+--
+ALTER TABLE `part_invoice_opening_balance`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `part_invoice_opening_balance`
+--
+ALTER TABLE `part_invoice_opening_balance`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+COMMIT;
+
 
 
