@@ -3591,16 +3591,19 @@ class engineerApiv1 extends CI_Controller {
             }
         }
         if ($check) {
-             $model_where = array(
-                    "appliance_model_details.entity_id" => $requestData['partner_id'],
-                    "appliance_model_details.entity_type" => _247AROUND_PARTNER_STRING,
-                    "appliance_model_details.service_id" => $requestData['service_id'],
-                    "appliance_model_details.active" => 1
-                );
-            
-            $model_numbers = $this->partner_model->get_model_number("appliance_model_details.id, appliance_model_details.model_number", $model_where);
-            
-
+            $type = '';
+            if(!empty($requestData['type'])){
+                $type = $requestData['type'];
+            }
+            //For spare part request show inventory mapped mpdel, for complete booking warranty checker show model non mapped model also
+            if($type!='complete_booking'){
+                $where = array('entity_id' => $requestData['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $requestData['service_id'], 'inventory_model_mapping.active' => 1, 'appliance_model_details.active' => 1);
+                $model_numbers = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where);
+            }
+            if (empty($model_numbers) || $type=='complete_booking') {
+                $where = array('entity_id' => $requestData['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $requestData['service_id'], 'active' => 1);
+                $model_numbers = $this->inventory_model->get_appliance_model_details('id, model_number', $where);
+            }
             $response['model_number_list'] = $model_numbers;
             $booking_details = $this->booking_creation_lib->get_edit_booking_form_helper_data($requestData['booking_id'], NULL, NULL);
             $initial_booking_date  = $booking_details['booking_history'][0]['initial_booking_date'];
