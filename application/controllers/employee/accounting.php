@@ -2136,8 +2136,9 @@ class Accounting extends CI_Controller {
                     
                     $meta['file_period'] = date('Y/m/d', strtotime($from_date))." To ". date('Y/m/d', strtotime($date_array[1]));
                     
-                    $template = "payment_accountledger.xlsx";
-                    $output_file_excel = "payment_accountledger".date('YmdHis').".xlsx";
+                    $template = "AccountStatementLeadger.xlsx";
+                    $n = $res = str_replace( array( '\'', '"',  ',' , ';', '<', '>', ' ' ), '', $entity_details[0]['company_name']); 
+                    $output_file_excel = $n.date('YmdHis').".xlsx";
                     $res = $this->invoice_lib->generate_invoice_excel($template, $meta, $merged, TMP_FOLDER.$output_file_excel);
                     if($res){
                         echo json_encode(array('status' => true, 'message' => $output_file_excel, 'path' => base_url() . "file_process/downloadFile/" . $output_file_excel), true);
