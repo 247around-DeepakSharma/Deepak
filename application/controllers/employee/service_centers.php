@@ -1853,7 +1853,9 @@ class Service_centers extends CI_Controller {
                     } else if (stristr($value['price_tags'], "Repair") 
                             || stristr($value['price_tags'], "Repeat") 
                             || stristr($value['price_tags'], "Replacement") 
-                            || stristr($value['price_tags'], EXTENDED_WARRANTY_TAG) 
+                            || stristr($value['price_tags'], "Dead On Arrival (DOA)")
+                            || stristr($value['price_tags'], "Dead after Purchase (DaP)")
+                            || stristr($value['price_tags'], EXTENDED_WARRANTY_TAG)
                             || stristr($value['price_tags'], PRESALE_REPAIR_TAG) 
                             || stristr($value['price_tags'], GAS_RECHARGE_IN_WARRANTY) 
                             || stristr($value['price_tags'], AMC_PRICE_TAGS) 
@@ -7407,7 +7409,7 @@ class Service_centers extends CI_Controller {
             }
 
             // "Warehouse Received Defective Spare Parts"
-            $this->insert_details_in_state_change($booking_id, $spare_status, $post_data['remarks'], $actor, $next_action, $is_cron, $spare_id);
+            $this->insert_details_in_state_change($booking_id, $spare_status, $post_data['remarks'], $actor, $next_action, $spare_id, $is_cron);
 
             $is_oow_return = $this->partner_model->get_spare_parts_by_any("booking_unit_details_id, purchase_price, sell_price, sell_invoice_id", array('spare_parts_details.id' => $spare_id,
                 'booking_unit_details_id IS NOT NULL' => NULL,
@@ -8015,7 +8017,7 @@ class Service_centers extends CI_Controller {
             
             $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
                     . " AND defective_part_required = '1' AND reverse_purchase_invoice_id IS NULL AND status IN ('" . _247AROUND_COMPLETED . "','" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "', '".Ok_PARTS_RECEIVED_BY_WAREHOUSE."') AND spare_parts_details.is_micro_wh IN (1,2) AND spare_parts_details.awb_by_wh IS NULL AND spare_parts_details.consumed_part_status_id IN (".PART_CONSUMED_STATUS_ID.") ";
-            $where .= " AND booking_details.partner_id = " . $partner_id . " AND booking_details.current_status = '"._247AROUND_COMPLETED."' AND spare_parts_details.wh_challan_number IS NULL ";
+            $where .= " AND booking_details.partner_id = " . $partner_id . " AND spare_parts_details.wh_challan_number IS NULL ";
 
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, '', true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
 
@@ -10035,7 +10037,7 @@ function do_delivered_spare_transfer() {
 
     function get_service_centers_list() {
 
-        $vendor_list = $this->vendor_model->getVendorDetails("service_centres.id, service_centres.name, service_centres.company_name", array("service_centres.active" => 1, "service_centres.is_micro_wh" => $this->input->post('is_micro_wh')));
+        $vendor_list = $this->vendor_model->getVendorDetails("service_centres.id, service_centres.name, service_centres.company_name", array("service_centres.active" => 1));
 
         $option = '<option selected="" disabled="">Select Service Centres</option>';
         foreach ($vendor_list as $value) {

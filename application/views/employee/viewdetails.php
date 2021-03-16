@@ -607,7 +607,10 @@
                         foreach($booking_files as $key => $files) { ?>
                         <tr class="uploaded_support_file">
  
-                            <td style="width: 50%;"><?php if(isset($files['file_description'])) echo $files['file_description']; ?></td>
+                            <td style="width: 50%;">
+                                <?php if(isset($files['file_description'])) echo $files['file_description']; ?>
+                                <input type="hidden" id="file_description_id" class="file_type" value="<?php echo $files['file_description_id']; ?>">
+                            </td>
                             <td style="width: 50%;">
                                 <input type="file" id="supportfileLoader_<?=$key?>" name="files" onchange="uploadsupportingfile(this.id,'<?=$files['id']?>')" style="display:none" />
                                 <div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogress_supproting_file_".$key;?>"  role="progressbar" style="width:0%">0%</div>
@@ -626,7 +629,7 @@
                         <?php } } ?>
                         <tr class="clonedInput" id="cat<?=$count?>">
                             <td style="width: 50%;">
-                                <select class="form-control" id="file_description_<?=$count?>"  name="file_description" style="width:40%" >
+                                <select class="form-control add_new_file" id="file_description_<?=$count?>"  name="file_description" style="width:40%" >
                                     <option selected disabled>Select File Type</option>
                                     <?php if(!empty($file_type)) {
                                         foreach($file_type as $val) { ?>
@@ -3117,6 +3120,29 @@ function OpenWindowWithPost(url, windowoption, name, params)
        }
        
    });
+   
+   /*
+    * Used to check unique AMC file to attach from the view page.
+    */
+    
+    $(".add_new_file").on('change', function(){
+        var current_amc_id = $(this).val();
+        var amc_id = "<?php echo ANNUAL_MAINTENANCE_CONTRACT; ?>";
+        exist_file = 0;
+       $(".file_type").each(function(){
+           if($(this).val() == amc_id){
+             exist_file = 1;  
+           }
+       }); 
+       
+       select_file_id = $(this).attr("id");
+       if( exist_file > 0 && current_amc_id == amc_id ){
+           $("#"+select_file_id+" option:first").prop('selected',true).trigger("change");
+          alert("AMC (Annual Maintenance Contract) should no be duplicate."); 
+          return false;
+       }
+    });
+   
     </script>
     
    

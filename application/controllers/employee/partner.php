@@ -1235,6 +1235,23 @@ class Partner extends CI_Controller {
        $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update','department'=>$departmentArray, 
            'charges_type'=>$charges_type, 'micro_wh_lists'=>$micro_wh_lists,'is_wh'=>$is_wh,'saas_flag' => $saas_flag, 'mapped_service_centers' => $mapped_service_centers, 'unmapped_service_centers' => $unmapped_service_centers));
     }
+    /**
+     * Author: Deepak Sharma
+     * @desc: This is used to get number which entity id =247001
+     * params: partner id
+     */
+    function get_gst_number($id){
+      $gst_no = $this->input->post('gst_no');
+      $select = "gst_number";
+      $where = array('entity_id' => '_247AROUND');
+      $result = $this->inventory_model->get_entity_gst_data($select,$where);
+      if($id != '247001'){
+        foreach($result as $row){
+          if($row['gst_number'] == $gst_no){ 
+          echo "true";} 
+        }
+      }
+    }
 
     /**
      * @desc: This is used to get find user form in Partner CRM
@@ -3822,7 +3839,7 @@ class Partner extends CI_Controller {
     function search() {
         log_message('info', __FUNCTION__ . "  Partner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
-        $searched_text = trim($this->input->post('searched_text'));
+        $searched_text = trim($this->input->get('searched_text'));
         $partner_id = $this->session->userdata('partner_id');
         $data['data'] = $this->partner_model->search_booking_history(trim($searched_text), $partner_id,'booking_details.create_date desc');
 
@@ -6088,7 +6105,8 @@ class Partner extends CI_Controller {
         $CSVData = array();
                 
         $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true);
-        $headings = array("Booking ID",
+        $headings = array("Spare ID",
+            "Booking ID",
             "Customer Contact Number",
             "Dealer Name",
             "Booking Create Date",
@@ -6108,17 +6126,17 @@ class Partner extends CI_Controller {
             "SF Remarks",
             "Serial Number",
             "Requested Model Number",
+            "Requested Part Code",
             "Requested Part Name",
             "Requested Part Type",
-            "Requested Part Code",
             "Requested Quantity",
             "Requested Part Date",
             "Date Of Purchase",
             "Parts Charge",
             "Dispatched Model Number (To SF)",
+            "Dispatched Part Code (To SF)",
             "Dispatched Part Name (To SF)",
             "Dispatched Part Type (To SF)",
-            "Dispatched Part Code (To SF)",
             "Dispatched Quantity (To SF)",
             "Dispatched Part Date (To SF)",
             "Part Acknowledge Date By SF",
@@ -6145,7 +6163,8 @@ class Partner extends CI_Controller {
             );
         
         foreach($data as $sparePartBookings){
-            $tempArray = array();            
+            $tempArray = array();   
+            $tempArray[] = $sparePartBookings['id'];
             $tempArray[] = $sparePartBookings['booking_id'];
             $tempArray[] = $sparePartBookings['booking_primary_contact_no'];
             $tempArray[] = $sparePartBookings['dealer_name'];
@@ -6166,17 +6185,17 @@ class Partner extends CI_Controller {
             $tempArray[] = $sparePartBookings['remarks_by_sc'];
             $tempArray[] = $sparePartBookings['serial_number'];
             $tempArray[] = $sparePartBookings['model_number'];
+            $tempArray[] = $sparePartBookings['part_number'];
             $tempArray[] = $sparePartBookings['part_name'];
             $tempArray[] = $sparePartBookings['type'];
-            $tempArray[] = $sparePartBookings['part_number'];
             $tempArray[] = $sparePartBookings['quantity'];
             $tempArray[] = ((!empty($sparePartBookings['date_of_request']))?date("d-M-Y",strtotime($sparePartBookings['date_of_request'])):'');
             $tempArray[] = ((!empty($sparePartBookings['date_of_purchase']))?date("d-M-Y", strtotime($sparePartBookings['date_of_purchase'])):'');
             $tempArray[] = $sparePartBookings['challan_approx_value'];
             $tempArray[] = $sparePartBookings['model_number_shipped'];
+            $tempArray[] = $sparePartBookings['shipped_part_number'];
             $tempArray[] = $sparePartBookings['shipped_part_name'];
             $tempArray[] = $sparePartBookings['shipped_part_type'];
-            $tempArray[] = $sparePartBookings['shipped_part_number'];
             $tempArray[] = $sparePartBookings['shipped_quantity'];
             $tempArray[] = ((!empty($sparePartBookings['shipped_date']))?date("d-M-Y",strtotime($sparePartBookings['shipped_date'])):'');
             $tempArray[] = ((!empty($sparePartBookings['acknowledge_date']))?date("d-M-Y",strtotime($sparePartBookings['acknowledge_date'])):'');            

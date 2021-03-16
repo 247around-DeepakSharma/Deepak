@@ -154,7 +154,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                         <li><a id="14" href="#tabs-14"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Model Number</span></a></li>
                         <li><a id="15" href="#tabs-15"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Model Mapping</span></a></li>
                         <li><a id="16" href="#tabs-16"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Account Manager</span></a></li>
-                        <li><a id="17" href="#tabs-17"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Enable Service Center For App</span></a></li>
+<!--                        <li><a id="17" href="#tabs-17"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Enable Service Center For App</span></a></li>-->
                         <?php
                             }
                             else{
@@ -176,7 +176,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                         <li><a id="14" href="#tabs-14" onclick="load_form(this.id)" <?php if($current_tab!=14){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Model Number</span></a></li>
                         <li><a id="15" href="#tabs-15" onclick="load_form(this.id)" <?php if($current_tab!=15){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Model Mapping</span></a></li>
                         <li <?php if($saas_flag){ ?>style="display:none;" <?php } ?>><a id="16" href="#tabs-16" onclick="load_form(this.id)" <?php if($current_tab!=16){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Account Manager</span></a></li>
-                        <li><a id="17" href="#tabs-17" onclick="load_form(this.id)" <?php if($current_tab!=17){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Enable Service Center For App</span></a></li>                        
+<!--                        <li><a id="17" href="#tabs-17" onclick="load_form(this.id)" <?php if($current_tab!=17){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Enable Service Center For App</span></a></li>                        -->
                         <?php
                             }
                         ?>
@@ -1012,7 +1012,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                                 } ?>" placeholder="PAN Number">
                                         </div>
                                         <div class="col-md-4">  
-                                            <input type="file" class="form-control"  name="pan_file" <?php if (isset($query[0]['pan']) && $query[0]['pan'] != '' && $readonly) { echo 'disabled tabindex="-1"'; } ?>>
+                                            <input type="file" class="form-control" id = "pan_file_1" name="pan_file" <?php if (isset($query[0]['pan']) && $query[0]['pan'] != '' && $readonly) { echo 'disabled tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-1">
                                             <?php
@@ -1168,7 +1168,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                                 } ?>" readonly="readonly">
                                         </div>
                                         <div class="col-md-3">
-                                            <input type="file" class="form-control"  name="gst_number_file" <?php if (isset($query[0]['gst_number'])  && $readonly) { echo 'disabled tabindex="-1"'; } ?>>
+                                            <input type="file" class="form-control" id = "gst_file" name="gst_number_file" <?php if (isset($query[0]['gst_number'])  && $readonly) { echo 'disabled tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-1">
                                             <?php
@@ -1322,7 +1322,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                                 $aggrement_date = date("Y-m-d");
                                             }
                                             ?>
-                                        <input type="date" class="form-control agreement_start_date" required name="agreement_start_date[]"  id="agreement_start_date_1" >
+                                        <input type="date" class="form-control agreement_start_date" required name="agreement_start_date[]"  id="agreement_start_date" >
                                         <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                     </div>
                                     <?php echo form_error('agreement_start_date'); ?>
@@ -1334,7 +1334,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                 <label for="agreement_end_date" class="col-md-4">Partnership End Date<span class="text-danger">*</span></label>
                                 <div class="col-md-6">
                                     <div class="input-group input-append date" >
-                                        <input type="date" class="form-control agreement_end_date" required name="agreement_end_date[]" id="agreement_end_date_1" required ="true">
+                                        <input type="date" class="form-control agreement_end_date" required name="agreement_end_date[]" id="agreement_end_date" required ="true">
                                         <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                     </div>
                                     <?php echo form_error('agreement_end_date'); ?>
@@ -6199,7 +6199,74 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
         return true;
     }
    }
+   //Auther: Deepak Sharma
+   // this fnction use to hide submit button when you click at a time 
    function hide_submit_button(){
     $("#submit_contract_btn").css("pointer-events",'none');
     $("#submit_contract_btn").css("opacity",'.5');}
+//Author: Deepak Sharma
+// This is use to validate pan no and gst number pan no comuplsory  to select and pan file also
+$(document).ready(function () {
+    $('#submit_document_btn').click(function() {// initialize the plugin
+       var pan_no = $("#pan_no").val();
+       var GST_no = $("#gst_number").val();
+       var pan_file = $("#pan_file_1")[0].files.length;
+       var GST_file = $("#gst_file")[0].files.length;
+        if( pan_no == '' && pan_file != ''){
+           alert ("Please Enter  PAN number");
+           return false;}
+       if( pan_no != '' &&  pan_file == 0){
+            alert ("Please Enter PAN number file");
+           return false;}
+       if (pan_no == '' &&  pan_file == 0 ) {
+             alert ("Please Enter PAN Details");
+           return false;}
+       
+        if( GST_no != '' &&  GST_file == 0){
+            alert ("Please Enter GST number file");
+           return false;}
+        if(GST_file!= '' &&  GST_no == 0){
+            alert ("Please Enter GST number");
+           return false;}
+        if($("#pan_no").val() != ''){
+          var pan_exp = /[a-zA-z]{5}\d{4}[a-zA-Z]{1}/;
+          var pan_no = $("#pan_no").val();
+         if(pan_no.length != 10){
+           alert('Please Enter Correct PAN Number');
+           return false;}
+         else{ 
+           if( !pan_no.match(pan_exp)){
+            alert('Please Enter Correct PAN Number');
+            return false;
+           }
+         }
+       }  
+   });
+   });
+   // Author:Deepak Sharma 
+   // This function use to validate GST Number with 247001 partner id 
+   $(document).ready(function () {
+    $('#gst_number').focusout(function() {
+    if($("#submit_contract_btn").val() != ''){ 
+         var GST_no = $("#gst_number").val();
+         $.ajax({
+         type: 'POST',    
+         url:'<?php echo base_url() ?>employee/partner/get_gst_number/<?php echo $query[0]['id']?>',
+         data:{ 
+            'gst_no':GST_no},
+         success: function(msg){
+            if(msg == 'true'){
+              alert('Please Enter Valid GST Number ');
+              return false;
+            }
+            else{
+                return true; 
+           }
+        }  
+    });
+    }
+    });
+    });
+
+ 
 </script>

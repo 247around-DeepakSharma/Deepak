@@ -111,7 +111,7 @@ class Service_centers_model extends CI_Model {
                 . " bd.request_type, "
                 . " bd.internal_status, "
                 . " bd.booking_remarks, bd.service_id,"
-                . " services, booking_files.file_name as booking_files_purchase_invoice, en_vendor_brand_mapping.active as is_booking_close_by_app_active, "
+                . " services, booking_files.file_name as booking_files_purchase_invoice, s.isEngineerApp as is_booking_close_by_app_active, "
                 . " (SELECT GROUP_CONCAT(DISTINCT brand.appliance_brand) FROM booking_unit_details brand WHERE brand.booking_id = bd.booking_id GROUP BY brand.booking_id ) as appliance_brand,"
                 . " (SELECT GROUP_CONCAT(model_number) FROM booking_unit_details brand WHERE booking_id = bd.booking_id) as model_numbers,"
                  . "CASE WHEN (SELECT Distinct 1 FROM booking_unit_details as bu1 WHERE bu1.booking_id = bd.booking_id "
@@ -147,8 +147,7 @@ class Service_centers_model extends CI_Model {
                 . " JOIN services ON bd.service_id = services.id "
                 . " LEFT JOIN partners ON bd.partner_id = partners.id "     
                 . " JOIN service_centres AS s ON s.id = bd.assigned_vendor_id "
-                . " LEFT JOIN booking_files ON booking_files.id = ( SELECT booking_files.id from booking_files WHERE booking_files.booking_id = bd.booking_id AND booking_files.file_description_id = '".BOOKING_PURCHASE_INVOICE_FILE_TYPE."' LIMIT 1 )"
-                . " LEFT JOIN en_vendor_brand_mapping ON (bd.partner_id = en_vendor_brand_mapping.partner_id AND bd.assigned_vendor_id = en_vendor_brand_mapping.service_center_id)"     
+                . " LEFT JOIN booking_files ON booking_files.id = ( SELECT booking_files.id from booking_files WHERE booking_files.booking_id = bd.booking_id AND booking_files.file_description_id = '".BOOKING_PURCHASE_INVOICE_FILE_TYPE."' LIMIT 1 )"    
                 . " WHERE sc.service_center_id = '$service_center_id' "
                 . " AND bd.assigned_vendor_id = '$service_center_id' "
                 . $status

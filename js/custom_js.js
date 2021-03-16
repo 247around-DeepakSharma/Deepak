@@ -474,13 +474,41 @@ function addBookingDialog(chanel = '', check_serial_no = '0') {
             return false;
         }
     }
-    
-    
-    if(not_exists > 0){
-        alert('Annual Maintenance Contract(AMC) file should not be blank.'); 
+    var service_category = 0;   
+    $(".price_checkbox").each(function () {
+        if ($(this).attr("data-price_tag") == 'AMC (Annual Maintenance Contract)') {
+            if ($("#" + $(this).attr("id")).is(":checked") == true) {
+                service_category = 1;
+            }
+        }
+    });
+       
+    if(not_exists > 0 && service_category > 0 ){
+        alert('Please choose Annual Maintenance Contract(AMC) file.'); 
         return false;
     }
     
+    if (amc_file_count > 0) {
+        var flag = '';
+        $(".price_checkbox").each(function () {
+            if ($(this).attr("data-price_tag") == 'AMC (Annual Maintenance Contract)') {
+                if ($("#" + $(this).attr("id")).is(":checked") == false) {
+                    flag = 1;
+                }
+            }
+        });
+     
+        if (flag > 0 && amc_file_count > 0) {
+            alert("Please select AMC service category.");
+            return false;
+        }
+    }
+    
+     if(service_category > 0 && amc_file_count < 1){
+         alert('Select Annual Maintenance Contract(AMC) file type.'); 
+        return false; 
+     }   
+            
     if (service === null || service === "" || service === "Select Service") {
 
         alert('Please Select Booking Appliance');
@@ -1668,5 +1696,61 @@ function validateSerialNo(count = ""){
             return valid_request;
         }
     }
+    
+    /*
+     * Desc: It's used to checked is checked service category is AMC
+     */
+        function check_service_category(category_id) {
+            service_cate = $("#" + category_id).attr("data-price_tag");
+                if (service_cate == 'AMC (Annual Maintenance Contract)') {
+                    if($("#" + category_id).is(":checked") == true){
+                        var not_exists = '';
+                        $(".file_description").each(function () {
+                            if ($(this).val() == 5) {
+                                not_exists = 1;
+                            }
+                        });
 
+                        if (not_exists == '') {
+                            alert("Support type should be AMC.");
+                            $("#" + category_id).prop('checked', false);
+                            return false;
+                        }
+                    } else {
+                        $(".file_description").each(function () {
+                            if ($(this).val() == 5) {
+                                checkbox_id = $(this).attr("id");
+                                checkbox_id_array = checkbox_id.split("_");
+                                $("#"+checkbox_id+" option:first").prop('selected',true).trigger("change");
+                                $("#support_file_"+checkbox_id_array[2]).val("");
+                            }
+                        });
+                    }
+                }
+                
+               
+        }
+        
+        
+//        $('body').on('change', '.file_description', function() {
+//            var flag = '';         
+//            if ($(this).val() == 5) {
+//              $(".price_checkbox").each(function () {
+//                    if($(this).attr("data-price_tag") == 'AMC (Annual Maintenance Contract)'){
+//                         if($("#" + $(this).attr("id")).is(":checked") == false){
+//                             flag = 1;
+//                         }
+//                    }
+//               });
+//               
+//            }
+//           
+//           if(flag){
+//             alert("Please select AMC service category.");  
+//             return false;
+//           }
+//            
+//        });
+        
+       
 

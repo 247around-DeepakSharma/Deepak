@@ -684,6 +684,7 @@
                                 <th>Courier Charge </th>
                                 <th>Shipped date </th>
                                 <th>Remarks By SF </th>
+                                <th>Courier Rejection Remarks </th>
                                 <th>Remarks By Partner </th>
                                 <th> Received Defective Part Image </th>
                                 <th> Rejected Defective Part Image </th>
@@ -729,6 +730,7 @@
                                 <td><?php echo $sp['courier_charges_by_sf']; ?></td>
                                 <td><?php echo date('d-M-Y', strtotime($sp['defective_part_shipped_date'])); ?></td>
                                 <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
+                                <td><?php echo $sp['courier_rejection_remarks']; ?></td>
                                 <td><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
                                 <td>
                                     <?php if (!empty($sp['received_defective_part_pic_by_wh'])) { ?>

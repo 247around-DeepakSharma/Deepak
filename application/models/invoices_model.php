@@ -1074,21 +1074,22 @@ class invoices_model extends CI_Model {
             }
         }
         // We will apply msl handling charges on the basic amount of msl amount that received by central warehouse.
-            
-        if(!empty($msl_handling)){
-            $msl_handling = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
+         $msl_handling = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
             "entity_id" => $partner_id, "variable_charges_type.type" => MSL_HANDLING_CHARGES, 'fixed_charges > 0' => NULL, "vendor_partner_variable_charges.status" => 1, 
                 "vendor_partner_variable_charges.active" => 1));
+         
+        if(!empty($msl_handling)){
+           
  
             $msl_data = $this->get_invoices_details(array('vendor_partner_id' => $partner_id, 
                 'sub_category IN ("'.MSL.'", "'.IN_WARRANTY.'")' => NULL,
                 'third_party_entity_id IN ("'.AUG_WAREHOUSE_ID.'", "'.DEFAULT_WAREHOUSE_ID.'") '=> NULL,
-                'invoice_date >= "'.date('Y-m-01', strtotime($to_date)).'" ' => NULL, 
-                'invoice_date < "'.date('Y-m-01', strtotime($to_date. "+1 month")).'" ' => NULL), 'IFNULL(sum(parts_cost),0) as msl_charges');
-            
+                'invoice_date >= "'.date('Y-m-01', strtotime($tmp_from_date)).'" ' => NULL, 
+                'invoice_date < "'.date('Y-m-01', strtotime($tmp_from_date. "+1 month")).'" ' => NULL), 'IFNULL(sum(parts_cost),0) as msl_charges');
+
             if(!empty($msl_data) && $msl_data[0]['msl_charges'] > 0 ){
                 
-                $msl_h_billed = $this->get_logistic_table_data('*', array('on_month' => date('Ym', strtotime($to_date)), 'entity_id' => $partner_id, 'type' => LOGISTIC_HANDLING_TYPE));
+                $msl_h_billed = $this->get_logistic_table_data('*', array('on_month' => date('Ym', strtotime($to_date)), 'entity_id' => $partner_id, 'type' => MSL_HANDLING_TYPE));
                 if(empty($msl_h_billed)){
                     $c_data = array();
                     $c_data[0]['description'] = $msl_handling[0]['description'];
@@ -1418,8 +1419,8 @@ class invoices_model extends CI_Model {
             foreach ($result as $key => $value) {
                 if($is_customer && empty($result[0]['gst_number'])){
                   
-                    $meta['total_taxable_value'] += sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($value['gst_rate']/100))));
-                    $result[$key]['total_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($value['gst_rate']/100))));
+                    $meta['total_taxable_value'] += sprintf("%1\$.2f",($value['taxable_value']));
+                    $result[$key]['total_amount'] = sprintf("%1\$.2f",($value['taxable_value']));
                     
                     
                 } else if((empty($is_customer)) && empty($result[0]['gst_number'])){
