@@ -5424,10 +5424,10 @@ class vendor extends CI_Controller {
             $html = "<div class='table-responsive'>";
             $html .= "<table style='overflow-x:auto;' class='table  table-striped table-bordered' ><thead><tr><th>Description</th>";
             if ($is_partner) {
-                $html .= "<th>Partner Offer</th>";
+                $html .= "<th>Partner Offer<br>(Excl. GST)</th>";
             }
             if ($is_sf) {
-                $html .= "<th>SF Earning</th>";
+                $html .= "<th>SF Earning<br>(Incl. GST)</th>";
             }
 
             if ($is_partner) {
