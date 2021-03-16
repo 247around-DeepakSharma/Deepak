@@ -2123,11 +2123,11 @@ class Accounting extends CI_Controller {
                     $c[0]['vchtype'] = "Opening Balance";
                     $c[0]['invoice_id'] = "";
                     if($balance > 0){
-                        $c[0]['credit'] = $credit;
+                        $c[0]['credit'] = $balance;
                         $c[0]['debit'] = 0;
                     } else {
                         $c[0]['credit'] = 0;
-                        $c[0]['debit'] = $debit;
+                        $c[0]['debit'] = $balance;
                     }
                     
                     $ledger = $this->inventory_model->call_procedure('payment_account_ledger',"'$vendor_id','$from_date', '$to_date'");
