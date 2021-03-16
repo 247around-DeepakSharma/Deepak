@@ -85,7 +85,7 @@
         <div class="title">
             <div class="row">
                 <div class="col-md-6">
-                    <h3>Payment Account Ledger</h3>
+                    <h3>Account Ledger Statement</h3>
                 </div>
             </div>
         </div>
