@@ -61,8 +61,10 @@ define("CANCEL_PAGE_SPARE_SHIPPED", "This booking can not be cancelled since spa
 define('PARTNER_SPARE_OOT_DAYS','30');
 define('SF_SPARE_OOT_DAYS','15');
 
-//for now default warehouse id is 10 (sf = manish ji)
+//for now default warehouse id is 15 (Ghaziabad warehouse)
 define('DEFAULT_WAREHOUSE_ID',15);
+//AURANGABAD Warehouse
+define('AUG_WAREHOUSE_ID',804);
 
 define('DELIVERY_CONFIRMED_WITH_COURIER','Delivery Confirmed With Courier Company');
 

@@ -2860,6 +2860,11 @@ ALTER TABLE `gstin_detail` CHANGE `constitution_of_business` `constitution_of_bu
 ALTER TABLE `gstin_detail` CHANGE `type` `type` VARCHAR(55) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
 
 
+
+--Abhay 11 JAN
+ALTER TABLE `inventory_invoice_mapping` ADD `spare_id` INT NULL DEFAULT NULL AFTER `inventory_id`;
+ALTER TABLE `inventory_invoice_mapping` ADD `rate` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `spare_id`;
+
 --Abhay Anand 23 Feb
 INSERT INTO `variable_charges_type` (`id`, `name`, `type`, `description`, `hsn_code`, `gst_rate`, `is_fixed`, `updated_date`, `created_date`) VALUES
 (NULL, 'MSL Handling Charges', 'MSL-handling-charges', 'MSL Handling Charges', 998715, 18, 0, '2021-02-23 00:00:00', '2018-11-20 00:00:00'),
@@ -2896,6 +2901,7 @@ ALTER TABLE `variable_handling_invoice`
 COMMIT;
 ALTER TABLE `variable_handling_invoice` ADD `entity_id` INT NOT NULL AFTER `invoice_id`;
 ALTER TABLE `variable_handling_invoice` ADD `type` INT NOT NULL COMMENT '1- Logistic' AFTER `on_month`;
+<<<<<<< HEAD
 
 --Abhay Anand 2 March
 ALTER TABLE `vendor_partner_invoices` CHANGE `tcs_rate` `tcs_rate` DECIMAL(10,3) NOT NULL DEFAULT '0.00';
@@ -2934,3 +2940,5 @@ ALTER TABLE `part_invoice_opening_balance`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
 COMMIT;
 
+=======
+>>>>>>> 622aa55a9... logistic, Spare & msl handling charges #CRMS-1723

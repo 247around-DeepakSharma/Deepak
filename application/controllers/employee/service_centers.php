@@ -3074,7 +3074,7 @@ class Service_centers extends CI_Controller {
                     $agent_id = _247AROUND_DEFAULT_AGENT;
                     $entity_id = $p_entity_id = _247AROUND;
                     $sc_entity_id = NULL;
-                    $entity_type = _247AROUND_SF_STRING;
+                    $entity_type = _247AROUND_EMPLOYEE_STRING;
                 }
                 
                 /* Insert Spare Tracking Details */
@@ -7381,7 +7381,7 @@ class Service_centers extends CI_Controller {
             }
 
             // "Warehouse Received Defective Spare Parts"
-            $this->insert_details_in_state_change($booking_id, $spare_status, $post_data['remarks'], $actor, $next_action, $is_cron, $spare_id);
+            $this->insert_details_in_state_change($booking_id, $spare_status, $post_data['remarks'], $actor, $next_action, $spare_id, $is_cron);
 
             $is_oow_return = $this->partner_model->get_spare_parts_by_any("booking_unit_details_id, purchase_price, sell_price, sell_invoice_id", array('spare_parts_details.id' => $spare_id,
                 'booking_unit_details_id IS NOT NULL' => NULL,

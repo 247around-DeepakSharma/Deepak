@@ -809,6 +809,9 @@ class invoices_model extends CI_Model {
         $result['open_cell'] = array();
         $result['nrn'] = array();
         $result['all_packaging_data'] = array();
+        $result['logistic_handling_charges'] = array();
+        $result['msl_handling_charges'] = array();
+        $courier_price = 0;
         
         if(!empty($courier) && isset($courier['final_courier']) 
                 && !empty($courier['final_courier'])){
@@ -876,8 +879,8 @@ class invoices_model extends CI_Model {
             unset($packaging);
             }
         }
-       
         
+       
         $msl_large_box_packaging_charge = array();
         
         $msl_l_packaging = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
@@ -1043,7 +1046,61 @@ class invoices_model extends CI_Model {
             $nrn_data[0]['total_nrn_quantity'] = count($nrn_data);
             $result['nrn'] = $nrn_data;
         }
+        //logistic handling charges will be applicable on courier basic charges. We will get percentage from variable charges table then add it in the invoice with new line item Logistic Handling charges
+         if($courier_price > 0){
+            $c_handling = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
+            "entity_id" => $partner_id, "variable_charges_type.type" => LOGISTIC_HANDLING_CHARGES, 'fixed_charges > 0' => NULL, "vendor_partner_variable_charges.status" => 1, 
+                "vendor_partner_variable_charges.active" => 1));
+            
+            if(!empty($c_handling)){
+                $already_billed = $this->get_logistic_table_data('*', array('on_month' => date('Ym', strtotime($to_date)), 'entity_id' => $partner_id, 'type' => LOGISTIC_HANDLING_TYPE));
+                if(empty($already_billed)){
+                    $c_data = array();
+                    $c_data[0]['description'] = $c_handling[0]['description'];
+                    $c_data[0]['hsn_code'] = $c_handling[0]['hsn_code'];
+                    $c_data[0]['qty'] = '';
+                    $c_data[0]['rate'] = sprintf("%.2f",$courier_price * ($c_handling[0]['fixed_charges']/100));
+                    $c_data[0]['gst_rate'] = $c_handling[0]['gst_rate'];
+                    $c_data[0]['product_or_services'] = LOGISTIC_HANDLING_CHARGES;
+                    $c_data[0]['taxable_value'] = sprintf("%.2f",($c_data[0]['rate']));
+                    $result['result'] = array_merge($result['result'], $c_data);
 
+                    $result['logistic_handling_charges'] = json_encode(array('taxable_value' => $c_data[0]['taxable_value'], 'gst_rate' => $c_data[0]['gst_rate'], 'on_month' => date('Ym', strtotime($to_date))));
+                }
+            }
+        }
+        // We will apply msl handling charges on the basic amount of msl amount that received by central warehouse.
+         $msl_handling = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
+            "entity_id" => $partner_id, "variable_charges_type.type" => MSL_HANDLING_CHARGES, 'fixed_charges > 0' => NULL, "vendor_partner_variable_charges.status" => 1, 
+                "vendor_partner_variable_charges.active" => 1));
+         
+        if(!empty($msl_handling)){
+           
+ 
+            $msl_data = $this->get_invoices_details(array('vendor_partner_id' => $partner_id, 
+                'sub_category IN ("'.MSL.'", "'.IN_WARRANTY.'")' => NULL,
+                'third_party_entity_id IN ("'.AUG_WAREHOUSE_ID.'", "'.DEFAULT_WAREHOUSE_ID.'") '=> NULL,
+                'invoice_date >= "'.date('Y-m-01', strtotime($tmp_from_date)).'" ' => NULL, 
+                'invoice_date < "'.date('Y-m-01', strtotime($tmp_from_date. "+1 month")).'" ' => NULL), 'IFNULL(sum(parts_cost),0) as msl_charges');
+
+            if(!empty($msl_data) && $msl_data[0]['msl_charges'] > 0 ){
+                
+                $msl_h_billed = $this->get_logistic_table_data('*', array('on_month' => date('Ym', strtotime($to_date)), 'entity_id' => $partner_id, 'type' => MSL_HANDLING_TYPE));
+                if(empty($msl_h_billed)){
+                    $c_data = array();
+                    $c_data[0]['description'] = $msl_handling[0]['description'];
+                    $c_data[0]['hsn_code'] = $msl_handling[0]['hsn_code'];
+                    $c_data[0]['qty'] = '';
+                    $c_data[0]['rate'] = sprintf("%.2f",$msl_data[0]['msl_charges'] * ($msl_handling[0]['fixed_charges']/100));
+                    $c_data[0]['gst_rate'] = $msl_handling[0]['gst_rate'];
+                    $c_data[0]['product_or_services'] = MSL_HANDLING_CHARGES;
+                    $c_data[0]['taxable_value'] = sprintf("%.2f",($c_data[0]['rate']));
+                    $result['result'] = array_merge($result['result'], $c_data);
+
+                    $result['msl_handling_charges'] = json_encode(array('taxable_value' => $c_data[0]['taxable_value'], 'gst_rate' => $c_data[0]['gst_rate'], 'on_month' => date('Ym', strtotime($to_date))));
+                }
+            }
+        }
         if (!empty($result['result'])) {
 
 
@@ -1107,6 +1164,8 @@ class invoices_model extends CI_Model {
                 }
                 
             }
+            
+            
             return $result;
         } else {
             return false;
@@ -1310,6 +1369,8 @@ class invoices_model extends CI_Model {
             $data['msl'] = $result_data['msl'];
             $data['courier'] = $result_data['courier'];
             $data['final_courier'] = $result_data['final_courier'];
+            $data['logistic_handling_charges'] = $result_data['logistic_handling_charges'];
+            $data['msl_handling_charges'] = $result_data['msl_handling_charges'];
           
             return $data;
         } else {
@@ -1441,8 +1502,9 @@ class invoices_model extends CI_Model {
             $meta['invoice_type'] = $invoice_type;
             $meta['tcs_rate'] = "";
             $meta['tcs_rate_text'] = "";
-            $meta['tds_amount'] = "";
             $meta['tcs_amount'] = "";
+            $meta['tds_amount'] = "";
+            $meta['tds_text'] = "";
            
             $meta['price_inword'] = convert_number_to_words($meta['sub_total_amount']);
             if($result[0]['description'] == QC_INVOICE_DESCRIPTION){
@@ -4107,6 +4169,25 @@ class invoices_model extends CI_Model {
     function insert_challan_breakup($challan_details){
         //return $this->db->insert_batch("challan_items_details", $challan_details);
         $this->db->insert('challan_items_details', $challan_details);
+        return $this->db->insert_id();
+    }
+    /**
+     * @desc This function is used to get billed logistic data.
+     * When we billed logistic handling charges then we are inserting into logistic table.
+     */
+    function get_logistic_table_data($select, $where){
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get('variable_handling_invoice');
+        return $query->result_array();
+    }
+    /**
+     * @dec This function is used to insert billed handling charges
+     * @param Array $data
+     * @return int
+     */
+    function insert_billed_logistic_data($data){
+        $this->db->insert('variable_handling_invoice', $data);
         return $this->db->insert_id();
     }
 }
