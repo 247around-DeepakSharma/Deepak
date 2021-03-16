@@ -1913,7 +1913,15 @@ class Service_centers extends CI_Controller {
                 $data['is_invoice_required'] = $is_invoice_required;
                 $data['unit_serial_number_pic'] = $serial_number_pic;
                 $where = array('entity_id' => $data['bookinghistory'][0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['bookinghistory'][0]['service_id'], 'inventory_model_mapping.active' => 1, 'appliance_model_details.active' => 1);
-                $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where);
+
+				$model_where = array(
+                    "appliance_model_details.entity_id" => $data['bookinghistory'][0]['partner_id'],
+                    "appliance_model_details.entity_type" => _247AROUND_PARTNER_STRING,
+                    "appliance_model_details.service_id" => $data['bookinghistory'][0]['service_id'],
+                    "appliance_model_details.active" => 1
+                );
+
+                $data['inventory_details'] = $this->partner_model->get_model_number("appliance_model_details.id, appliance_model_details.model_number", $model_where);
                 $data['spare_shipped_flag'] = $spare_shipped_flag;
                 $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
                 if ($data['bookinghistory'][0]['nrn_approved'] == 1) {
