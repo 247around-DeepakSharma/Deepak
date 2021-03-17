@@ -796,7 +796,6 @@ define('CANCELLATION_THRESHOLD', 20);
 
 define('VENDOR_RESCHEDULED', "Reschedule");
 define('REQUEST_TYPE_ELS', "LO-ELS");
-define('ANNUAL_MAINTENANCE_CONTRACT', '5');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
 
