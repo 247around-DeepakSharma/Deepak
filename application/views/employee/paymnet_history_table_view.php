@@ -220,8 +220,6 @@
         <th>GST Rate</th>
         <th>TDS Rate</th>
         <th>TDS Amount</th>
-        <th>TCS Rate</th>
-        <th>TCS Amount</th>
         <th>Total Amount</th>
         <th>Amount Paid</th>
         <th>Reference Invoices</th>
@@ -262,8 +260,6 @@
                             <td><?php echo round($value['cgst_tax_rate'] + $value['sgst_tax_rate'] + $value['igst_tax_rate'],0); ?></td>
                             <td><?php echo round($value['tds_rate'],0);  ?></td>
                             <td><?php echo sprintf("%.2f", $value['tds_amount']); $total_tds_amount += $value['tds_amount']; ?></td>
-                            td><?php echo round($value['tcs_rate'],0);  ?></td>
-                            <td><?php echo sprintf("%.2f", $value['tds_amount']); $total_tcs_amount += $value['tcs_amount']; ?></td>
                             <td><?php echo sprintf("%.2f", $value['total_amount_collected'] - $value['tds_amount']); $grand_total_amount_collected += ($value['total_amount_collected'] - $value['tds_amount']);?></td>
                             <td><?php echo sprintf("%.2f", $value['amount_collected_paid'] - $value['tds_amount']); $grand_amount_collected_paid += ($value['amount_collected_paid'] - $value['tds_amount']);?></td>
                             <td><?php echo $value['reference_invoice_id']; ?></td>
@@ -299,8 +295,6 @@
                             <td></td>
                             <td></td>
                             <td><b><?php echo sprintf("%.2f", $total_tds_amount); ?></b></td>
-                            <td></td>
-                            <td><b><?php echo sprintf("%.2f", $total_tcs_amount); ?></b></td>
                             <td><b><?php echo sprintf("%.2f", $grand_total_amount_collected); ?></b></td>
                             <td><b><?php echo sprintf("%.2f", $grand_amount_collected_paid); ?></b></td>
                             <td></td>

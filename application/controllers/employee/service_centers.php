@@ -1561,10 +1561,18 @@ class Service_centers extends CI_Controller {
      * @param String $new_state
      * @param String $remarks
      */
-    function insert_details_in_state_change($booking_id, $new_state, $remarks, $actor, $next_action, $spare_id = NULL ) {
+    function insert_details_in_state_change($booking_id, $new_state, $remarks, $actor, $next_action, $spare_id = NULL, $is_cron = false) {
         
         //Save state change
-        if(!empty($this->session->userdata('warehouse_id'))) {
+        if($is_cron){
+            $agent_id = _247AROUND_DEFAULT_AGENT;
+            $entity_id = _247AROUND;
+            $agent_name = _247AROUND;
+            
+            $this->notify->insert_state_change($booking_id, $new_state, "", $remarks, $agent_id, $agent_name, $actor, $next_action, $entity_id, NULL, $spare_id);
+            log_message('info', __FUNCTION__ . " Auto Approve From CRON Booking ID: " . $booking_id . ' new_state: ' . $new_state . ' remarks: ' . $remarks);
+        }
+        else if(!empty($this->session->userdata('warehouse_id'))) {
             $agent_id = $this->session->userdata('id');
             $entity_id = _247AROUND;
             $agent_name = $this->session->userdata('employee_id');
@@ -1844,7 +1852,9 @@ class Service_centers extends CI_Controller {
                     } else if (stristr($value['price_tags'], "Repair") 
                             || stristr($value['price_tags'], "Repeat") 
                             || stristr($value['price_tags'], "Replacement") 
-                            || stristr($value['price_tags'], EXTENDED_WARRANTY_TAG) 
+                            || stristr($value['price_tags'], "Dead On Arrival (DOA)")
+                            || stristr($value['price_tags'], "Dead after Purchase (DaP)")
+                            || stristr($value['price_tags'], EXTENDED_WARRANTY_TAG)
                             || stristr($value['price_tags'], PRESALE_REPAIR_TAG) 
                             || stristr($value['price_tags'], GAS_RECHARGE_IN_WARRANTY) 
                             || stristr($value['price_tags'], AMC_PRICE_TAGS) 
@@ -3097,7 +3107,7 @@ class Service_centers extends CI_Controller {
                     $agent_id = _247AROUND_DEFAULT_AGENT;
                     $entity_id = $p_entity_id = _247AROUND;
                     $sc_entity_id = NULL;
-                    $entity_type = _247AROUND_SF_STRING;
+                    $entity_type = _247AROUND_EMPLOYEE_STRING;
                 }
                 
                 /* Insert Spare Tracking Details */
@@ -7171,7 +7181,7 @@ class Service_centers extends CI_Controller {
                     $spare_parts['challan_approx_value'] = $value['challan_approx_value'];
                     $spare_parts['part_number'] = $value['part_number'];
                     $spare_parts['inventory_id'] = $value['shipped_inventory_id'];
-                    $spare_parts['consumption'] = $value['consumed_status']; 
+                    $spare_parts['consumption'] = $value['consumed_status'];
                     $spare_parts['gst_rate'] = $value['gst_rate'];
                 //}
                 $spare_details[][] = $spare_parts;
@@ -7403,7 +7413,7 @@ class Service_centers extends CI_Controller {
             }
 
             // "Warehouse Received Defective Spare Parts"
-            $this->insert_details_in_state_change($booking_id, $spare_status, $post_data['remarks'], $actor, $next_action, $is_cron, $spare_id);
+            $this->insert_details_in_state_change($booking_id, $spare_status, $post_data['remarks'], $actor, $next_action, $spare_id, $is_cron);
 
             $is_oow_return = $this->partner_model->get_spare_parts_by_any("booking_unit_details_id, purchase_price, sell_price, sell_invoice_id", array('spare_parts_details.id' => $spare_id,
                 'booking_unit_details_id IS NOT NULL' => NULL,
@@ -7680,7 +7690,7 @@ class Service_centers extends CI_Controller {
         $declaration_detail = $this->input->post('coueriers_declaration');
         $generate_challan = $this->input->post('generate_challan');
         $assign_to_partner = $this->input->post('generate_challan_assign_to_partner');
-        
+
 
         if (!empty($booking_address)) {
 
@@ -8011,7 +8021,7 @@ class Service_centers extends CI_Controller {
             
             $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
                     . " AND defective_part_required = '1' AND reverse_purchase_invoice_id IS NULL AND status IN ('" . _247AROUND_COMPLETED . "','" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "', '".Ok_PARTS_RECEIVED_BY_WAREHOUSE."') AND spare_parts_details.is_micro_wh IN (1,2) AND spare_parts_details.awb_by_wh IS NULL AND spare_parts_details.consumed_part_status_id IN (".PART_CONSUMED_STATUS_ID.") ";
-            $where .= " AND booking_details.partner_id = " . $partner_id . " AND booking_details.current_status = '"._247AROUND_COMPLETED."' AND spare_parts_details.wh_challan_number IS NULL ";
+            $where .= " AND booking_details.partner_id = " . $partner_id . " AND spare_parts_details.wh_challan_number IS NULL ";
 
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, '', true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
 
@@ -8721,6 +8731,7 @@ class Service_centers extends CI_Controller {
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/dashboard', $data);
     }
+
 
 
     /**
@@ -10491,19 +10502,22 @@ class Service_centers extends CI_Controller {
         $this->load->view('service_centers/add_booking_walkin', $data);
     }
 
-/**
+   /**
     * This function is used to auto-approve engineer completed bookings
     * This function is called from CRON
     * @author Prity Sharma
     * @create_date 12-02-2021
     */
     function auto_approve_engineer_bookings(){
+        
+
         $this->db->_protect_identifiers = FALSE;
         // Fetch all Bookings that are completed by Engineer
         $where['where'] =   array(
                                 "engineer_booking_action.current_status" => "InProcess",
                                 "DATEDIFF(CURDATE(), engineer_booking_action.closed_date) > 2" => NULL,
-                                "engineer_booking_action.booking_id" => 'RE-5108471908171'
+                                "engineer_booking_action.internal_status IN ('"._247AROUND_CANCELLED."', '"._247AROUND_COMPLETED."')" => NULL,
+                                 "booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."')" => NULL
                             );
         $select = 'engineer_booking_action.*,'
                 . 'engineer_table_sign.upcountry_charges,'
@@ -10519,8 +10533,13 @@ class Service_centers extends CI_Controller {
             $booking_id = $engg_completed_booking->booking_id;
             $partner_id = $engg_completed_booking->partner_id;
             $closed_date = $engg_completed_booking->closed_date;
+            $internal_status_engg = $engg_completed_booking->internal_status;
+            $sf_booking_status = SF_BOOKING_COMPLETE_STATUS;
+            if($engg_completed_booking->internal_status == _247AROUND_CANCELLED){
+                $sf_booking_status = SF_BOOKING_CANCELLED_STATUS;
+            }
             // Update Booking Statuses
-            $this->update_booking_internal_status($booking_id, SF_BOOKING_COMPLETE_STATUS, $partner_id);
+            $this->update_booking_internal_status($booking_id, $sf_booking_status, $partner_id);
             // Update SF Closed date
             $this->booking_model->update_booking($booking_id, ['service_center_closed_date' => $closed_date]);
             
@@ -10528,7 +10547,7 @@ class Service_centers extends CI_Controller {
             $ud_data = [
                 'sf_model_number' => $engg_completed_booking->model_number,
                 'serial_number' => $engg_completed_booking->serial_number,
-                'serial_number' => $engg_completed_booking->serial_number_pic,
+                'serial_number_pic' => $engg_completed_booking->serial_number_pic,
                 'sf_purchase_date' => $engg_completed_booking->sf_purchase_date,
             ];
             $this->booking_model->update_booking_unit_details($booking_id, $ud_data);
@@ -10545,7 +10564,7 @@ class Service_centers extends CI_Controller {
                 'service_center_remarks' => $engg_completed_booking->closing_remark,                
                 'cancellation_reason' => $engg_completed_booking->cancellation_reason,                
                 'current_status' => SF_BOOKING_INPROCESS_STATUS,
-                'internal_status' => _247AROUND_COMPLETED,                
+                'internal_status' => $engg_completed_booking->internal_status,                
                 'mismatch_pincode' => $engg_completed_booking->mismatch_pincode,
                 'closed_date' => $closed_date,
                 'serial_number_pic' => $engg_completed_booking->serial_number_pic,                
@@ -10559,7 +10578,33 @@ class Service_centers extends CI_Controller {
             $this->vendor_model->update_service_center_action($booking_id, $ssba_data);
             
             // Update Statuses in engineer_booking_action
-            $this->engineer_model->update_engineer_table(array("current_status" => _247AROUND_COMPLETED, "internal_status" => _247AROUND_COMPLETED), ['booking_id' => $booking_id]);
-        }              
+            $this->engineer_model->update_engineer_table(array("current_status" => $engg_completed_booking->internal_status, "internal_status" => $engg_completed_booking->internal_status), ['booking_id' => $booking_id]);
+            
+            // Insert data into booking state change
+            $this->insert_details_in_state_change($booking_id, $sf_booking_status, "Booking Auto Approved", "247Around", "Review the Booking", NULL, true);
+            
+            //Update spare consumption as entered by engineer Booking Completed
+            if ($internal_status_engg == _247AROUND_COMPLETED) {
+                $update_consumption = false;
+                $spare_Consumption_details = $this->service_centers_model->get_engineer_consumed_details('*', array('booking_id' => $booking_id), array('coloum' => 'engineer_consumed_spare_details.id', 'order' => 'ASC'));
+                if (!empty($spare_Consumption_details)) {
+                    $array_consumption = array();
+                    foreach ($spare_Consumption_details as $key => $value) {
+                        $spare_select = 'spare_parts_details.*';
+                        $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('spare_parts_details.id' => $value['spare_id'], 'status !=' => _247AROUND_CANCELLED));
+                        if (!empty($spare_details)) {
+                            if (($spare_details[0]['consumed_part_status_id'] == OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID || empty($spare_details[0]['consumed_part_status_id'])) && empty($spare_details[0]['defective_part_shipped_date'])) {
+                                $array_consumption['spare_consumption_status'][$value['spare_id']] = $value['consumed_part_status_id'];
+                                $array_consumption['consumption_remarks'][$value['spare_id']] = $value['remarks'];
+                                $update_consumption = true;
+                            }
+                        }
+                    }
+                    if (!empty($update_consumption)) {
+                        $is_update_spare_parts = $this->miscelleneous->update_spare_consumption_status($array_consumption, $booking_id);
+                    }
+                }
+            }
+        }
     }
 }

@@ -2080,11 +2080,13 @@ class Partner extends CI_Controller {
 
         //Save header / ip address in DB
         $h = $this->getallheaders();
-
         if ($h === FALSE) {
             $this->sendJsonResponse(array(ERR_GENERIC_ERROR_CODE, ERR_GENERIC_ERROR_MSG));
         } else {
             $this->header = json_encode($h);
+			if(empty($h['Authorization'])){
+                $this->sendJsonResponse(array(ERR_INVALID_PARTNER_NAME_CODE, ERR_INVALID_PARTNER_NAME_MSG));
+            }else{
             $this->token = $h['Authorization'];
 
             //Validate token
@@ -2103,6 +2105,7 @@ class Partner extends CI_Controller {
                 $this->sendJsonResponse(array(ERR_INVALID_AUTH_TOKEN_CODE, ERR_INVALID_AUTH_TOKEN_MSG));
             }
         }
+		}
     }
 
     private function get_requestedData() {
@@ -2908,12 +2911,13 @@ exit();
         $post = json_decode($input_d, TRUE);
         $authentication = $this->checkAuthentication(true);
         if (empty($authentication)) {
-            $this->sendJsonResponse(array(ERR_GENERIC_ERROR_CODE, ERR_INVALID_AUTH_TOKEN_MSG));
+            exit;
         } else {
             $post['partner_id'] = $authentication['id'];
         }
         if (empty($post['booking_id'])) {
             $this->sendJsonResponse(array(ERR_INVALID_BOOKING_ID_CODE, ERR_INVALID_BOOKING_ID_MSG));
+            exit;
         }
         $booking_select = "booking_id,service_center_closed_date";
         $booking_where = array("booking_id" => $post['booking_id'], "partner_id" => $post['partner_id']);

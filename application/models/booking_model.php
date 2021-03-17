@@ -3313,5 +3313,4 @@ class Booking_model extends CI_Model {
         $result = $this->db->query($query)->result_array();
         return $result;   
     }
-    
 }

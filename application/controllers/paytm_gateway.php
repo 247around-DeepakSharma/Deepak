@@ -447,10 +447,9 @@ class Paytm_gateway extends CI_Controller {
     
     function generate_partner_payment_invoice($partner_id, $param_list, $TXNID){
         log_message("info", __METHOD__. " Partner Id ". $partner_id, " Response ". json_encode($param_list, true));
-
         // Explode order_id to extract tds rate and amount from ORDER ID.
-        $order_id = explode('_', $param_list['ORDERID']);        
-        
+        $order_id = explode('_', $param_list['ORDERID']);
+
         $postData = array(
             "partner_vendor" => "partner",
             "partner_vendor_id" => $partner_id,

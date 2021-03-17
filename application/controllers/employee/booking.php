@@ -1849,7 +1849,7 @@ class Booking extends CI_Controller {
                                 $cl = "btn-danger";
                             }
 
-                            if ($sp['is_consumed'] != 1 && $required_parts == 'NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING') {
+                            if (isset($sp['is_consumed']) && $sp['is_consumed'] != 1 && $required_parts == 'NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING') {
                                 if (empty($sp['reverse_purchase_invoice_id'])) {
                                     $query1[$key1]['btn'] = '<button type="button" disabled data-booking_id="' . $sp["booking_id"] . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $sp["id"] . '/' . $sp["booking_id"] . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';
                                 } else {
@@ -2509,9 +2509,10 @@ class Booking extends CI_Controller {
                 $data['customer_paid_extra_charges'] = $additional_charge[$unit_id];
                 $data['customer_paid_parts'] = $parts_cost[$unit_id];
                 $trimSno = "";
-                if (isset($serial_number)) {
-                    $trimSno = str_replace(' ', '', trim($serial_number));
-                    $serial_number_pic = trim($serial_number_pic);
+
+                if (isset($serial_number[$unit_id])) {
+                    $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
+                    $serial_number_pic = trim($serial_number_pic[$unit_id]);
                 }
                 //Model number Data
                 $sf_model_number = "";
@@ -2816,8 +2817,11 @@ class Booking extends CI_Controller {
             // save SF and Admin amount mismatch (if any) in booking_amount_differences table
             $sf_filled_amount = !empty($service_center_details[0]['amount_paid']) ? $service_center_details[0]['amount_paid'] : 0;
             $this->miscelleneous->save_booking_amount_history($booking_primary_id, $sf_filled_amount, $total_amount_paid);
-
-            $spare_check = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, spare_parts_details.entity_type, spare_parts_details.partner_id, requested_inventory_id, spare_lost, spare_parts_details.parts_shipped ,spare_parts_details.defective_part_shipped, spare_parts_details.consumed_part_status_id, spare_parts_details.defective_part_required ", array('booking_id' => $booking_id, 'status NOT IN ("Cancelled")' => NULL, 'parts_shipped IS NOT NULL ' => NULL, 'part_warranty_status' => 1), false);
+            // Update spare handling charges only for central warehouse
+            $spare_check = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, spare_parts_details.entity_type, spare_parts_details.partner_id, "
+                    . "requested_inventory_id, spare_lost, spare_parts_details.parts_shipped ,spare_parts_details.defective_part_shipped, spare_parts_details.consumed_part_status_id, "
+                    . "spare_parts_details.defective_part_required ", array('booking_id' => $booking_id, 'status NOT IN ("Cancelled")' => NULL, 'parts_shipped IS NOT NULL ' => NULL, 
+                        'part_warranty_status' => 1, 'is_micro_wh' => 2), false);
             if (!empty($spare_check)) {
                 $this->check_and_update_partner_extra_spare($booking_id);
             }
@@ -6009,6 +6013,7 @@ class Booking extends CI_Controller {
         }
         // Added filter for Review Range
         if(isset($min_review_age) && $min_review_age != FILTER_NOT_DEFINE && $min_review_age != '' && isset($max_review_age) && $max_review_age != FILTER_NOT_DEFINE && $max_review_age != '') {
+
            $where['(DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.service_center_closed_date,"%Y-%m-%d")) BETWEEN "'.$min_review_age.'" AND "'.$max_review_age.'") '] = NULL;
         }
         // Added Filter of Service 
@@ -6025,7 +6030,9 @@ class Booking extends CI_Controller {
             }
         }
         // Added Filter of SF
+
         if(!empty($sf_id) && $sf_id != FILTER_NOT_DEFINE ){
+
              $whereIN['booking_details.assigned_vendor_id'] = [$sf_id];
         }
         // put all selected values in array to show these filter values above filtered data
@@ -6109,8 +6116,10 @@ class Booking extends CI_Controller {
         $review_status = $post_data['review_status'];
         $is_partner = $post_data['is_partner'];
         $request_type = $post_data['request_type'];
+
         $review_age_min = !empty($post_data['review_age_min']) ? (int) $post_data['review_age_min'] : FILTER_NOT_DEFINE;
         $review_age_max = !empty($post_data['review_age_max']) ? (int) $post_data['review_age_max'] : FILTER_NOT_DEFINE;
+
         $service_id = $post_data['service_id'];
         $free_paid = $post_data['free_paid'];
         $sf_id = $post_data['sf_id'];
@@ -7230,5 +7239,4 @@ class Booking extends CI_Controller {
             echo $cancelled_percentage;
         }
     }
-        
 }

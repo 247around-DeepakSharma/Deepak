@@ -5617,11 +5617,12 @@ class vendor extends CI_Controller {
             $data = $this->booking_model->get_misc_charges_data('*', array('booking_id' => $booking_id, 'active' => 1));
             $html = "<div class='table-responsive'>";
             $html .= "<table style='overflow-x:auto;' class='table  table-striped table-bordered' ><thead><tr><th>Description</th>";
-            if($is_partner){
-               $html  .= "<th>Partner Offer</th>";
+
+            if ($is_partner) {
+                $html .= "<th>Partner Offer<br>(Excl. GST)</th>";
             }
-            if($is_sf){
-                $html  .= "<th>SF Earning</th>";
+            if ($is_sf) {
+                $html .= "<th>SF Earning<br>(Incl. GST)</th>";
             }
             
             if($is_partner){

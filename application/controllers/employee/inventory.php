@@ -1871,7 +1871,7 @@ class Inventory extends CI_Controller {
         }
 
         
-        $meta['price_inword'] = convert_number_to_words(round($total_amount, 0));
+        $meta['price_inword'] = convert_number_to_words($total_amount);
         $meta['total_taxable_value'] = sprintf("%1\$.2f", ($total_taxable_value));
         $meta['total_gst_tax_amount'] = sprintf("%1\$.2f", ($total_gst_tax_amount));
         $meta['total_amount_with_gst'] = sprintf("%1\$.2f", ($total_amount));
@@ -3754,74 +3754,39 @@ class Inventory extends CI_Controller {
 
     private function get_inventory_stocks_details_table($inventory_list, $sn, $return_new_part_flag) {
         $row = array();
+       ///echo $return_new_part_flag;
         $row[] = $sn;
         $row[] = '<span id="services_' . $inventory_list->inventory_id . '">' . $inventory_list->services . '</span>';
         $row[] = '<span id="type_' . $inventory_list->inventory_id . '">' . $inventory_list->type . '</span>';
         $row[] = '<span id="part_name_' . $inventory_list->inventory_id . '" style="word-break: break-all;">' . $inventory_list->part_name . '</span>';
         $row[] = '<span id="part_number_' . $inventory_list->inventory_id . '" style="word-break: break-all;">' . $inventory_list->part_number . '</span>';
-        $row[] = $inventory_list->description;
+        $row[] = '<span style="word-break: break-all;">' . $inventory_list->description . '</span>';
         $row[] = '<a href="' . base_url() . 'employee/inventory/show_inventory_ledger_list/0/' . $inventory_list->receiver_entity_type . '/' . $inventory_list->receiver_entity_id . '/' . $inventory_list->inventory_id . '" target="_blank" title="Get Ledger Details">' . $inventory_list->stock . '<a>';
-         $row[] = $inventory_list->pending_request_count;
-
-        $repair_oow_around_percentage = REPAIR_OOW_AROUND_PERCENTAGE;
-        if ($inventory_list->oow_around_margin > 0) {
-            $repair_oow_around_percentage = $inventory_list->oow_around_margin / 100;
-        }
-
-        $repair_oow_around_percentage_vendor = 0;
-        $sfbaseprice = 0;
-        $repair_oow_around_percentage_vendor = $inventory_list->oow_around_margin / 100;
-
+        $row[] = $inventory_list->pending_request_count;
 
         if ($this->session->userdata('userType') == 'service_center' || $this->session->userdata('userType') == "employee") {
-            if ($return_new_part_flag == 1) {
-                $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . number_format(($inventory_list->price), 2) . '</span>';
-            } else {
-                $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . number_format(($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor)), 2) . '</span>';
-            }
+            $sfbaseprice =  ($inventory_list->price * ( 1 + $inventory_list->oow_around_margin/100));
+            $sf_buying_price = $sfbaseprice *(1 + $inventory_list->gst_rate/100);
+            $cbasic = ($inventory_list->price * ( 1 + ($inventory_list->oow_around_margin + $inventory_list->oow_vendor_margin)/100));
+            $ctotal = $cbasic *(1 + $inventory_list->gst_rate/100);
+        
+            $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' .  sprintf("%.2f",$sfbaseprice). '</span>';
+            $row[] = '<span id="gst_rate_' . $inventory_list->inventory_id . '">' . $inventory_list->gst_rate . '</span>';
+            $row[] =  '<span id="total_amount_' . $inventory_list->inventory_id . '">'. sprintf("%.2f",$sf_buying_price). '</span>';
+            $row[] = sprintf("%.2f",$ctotal);
+            
         } else {
-
-            $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . round($inventory_list->price, 2) . '</span>';
+            $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . sprintf("%.2f", $inventory_list->price) . '</span>';
+            $row[] = '<span id="gst_rate_' . $inventory_list->inventory_id . '">' . $inventory_list->gst_rate . '</span>';
+            $row[] =  '<span id="total_amount_' . $inventory_list->inventory_id . '">'. sprintf("%.2f", $inventory_list->price *(1 + $inventory_list->gst_rate/100)). '</span>';
         }
+        
 
-        $row[] = '<span id="gst_rate_' . $inventory_list->inventory_id . '">' . $inventory_list->gst_rate . '</span>';
-
-        if ($this->session->userdata('userType') == 'service_center' || $this->session->userdata('userType') == "employee") {
-
-            $repair_oow_around_percentage_vendor = $inventory_list->oow_around_margin / 100;
-
-            if ($return_new_part_flag == 1) {
-                $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) round(($inventory_list->price) + (($inventory_list->price) * ($inventory_list->gst_rate / 100)), 2), 2, '.', '') . "</span>";
-            } else {
-                $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) (round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor), 0) + (round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor), 0) * ($inventory_list->gst_rate / 100))), 2, '.', '') . "</span>";
-            }
-        } else {
-
-            $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) ($inventory_list->price + ($inventory_list->price * ($inventory_list->gst_rate / 100))), 2, '.', '') . "</span>";
-
-        }
-
-        if ($this->session->userdata('userType') == 'service_center') {
-
-            $repair_oow_around_percentage_vendor1 = $inventory_list->oow_vendor_margin / 100;
-
-            $totalpriceforsf = number_format((float) (round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor1), 0) + (round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor1), 0) * ($inventory_list->gst_rate / 100))), 2, '.', '');
-
-            $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) (round($totalpriceforsf * ( 1 + $repair_oow_around_percentage), 0) + (round($totalpriceforsf * ( 1 + $repair_oow_around_percentage), 0) * ($repair_oow_around_percentage / 100))), 2, '.', '') . "</span>";
-        } else {
-
-            $totalpricepartner = number_format((float) ($inventory_list->price + ($inventory_list->price * ($inventory_list->gst_rate / 100))), 2, '.', '');
-            $repair_oow_around_percentage_vendor2 = $inventory_list->oow_vendor_margin + $inventory_list->oow_around_margin;
-            $totpartner = $totalpricepartner + ($totalpricepartner * $repair_oow_around_percentage_vendor2 / 100);
-
-            $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) ($totpartner), 2, '.', '') . "</span>";
-        }
-
-       
         if ($this->session->userdata('userType') == "employee") {
             $row[] = '<input style="max-width: 87px;" readonly type="number" name="quantity[' . $inventory_list->inventory_id . '][]" class="form-control" id="qty_' . $inventory_list->inventory_id . '" />';
             $row[] = '<a href="javascript:void(0)" class="btn btn-primary btn-md add_inventory_to_return" onclick="addnewpart(' . $inventory_list->inventory_id . ', ' . $inventory_list->stock . ' )">ADD</a>';
         }
+        
 
         if ($this->session->userdata('userType') == 'service_center') {
             $row[] = '<a href="' . base_url() . 'service_center/inventory/alternate_inventory_list/' . $inventory_list->entity_id . '/' . $inventory_list->inventory_id . '/' . $inventory_list->service_id . '" target="_blank" class="btn btn-info">View</a>';
@@ -8703,9 +8668,9 @@ function get_bom_list_by_inventory_id($inventory_id) {
         if ($this->session->userdata('userType')=='service_center') {
          $where['state_code.state']  =ucwords(strtolower($state_vendor[0]['state']));
         }
-        $gst_numbers = $this->inventory_model->get_entity_gst_data("entity_gst_details.id as id, gst_number, state_code.state as state", $where);
-        foreach($gst_numbers as $key => $value){
-            $html .= "<option value='".$value['id']."'>".$value['state']." - ".$value['gst_number']."</option>";
+        $gst_numbers = $this->inventory_model->get_entity_gst_data("entity_gst_details.id as id, entity_gst_details.state as state_code, gst_number, state_code.state as state", $where);
+        foreach ($gst_numbers as $key => $value) {
+            $html .= "<option data-state_code =  '".$value['state_code']."' value='" . $value['id'] . "'>" . $value['state'] . " - " . $value['gst_number'] . "</option>";
         }
         echo $html;
     }
@@ -9501,7 +9466,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
         if (!empty($entity_id)) {
             $post['column_order'] = array();
             $post['column_search'] = array('v.invoice_id', 'v.create_date');
-            $where = "im.entity_id = $entity_id AND im.entity_type ='" . $entity_type . "' AND  v.sub_category IN('MSL','MSL New Part Return','MSL Defective Return') ";
+            $where = "im.entity_id = $entity_id AND im.entity_type ='" . $entity_type . "' AND  v.sub_category IN('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_SECURITY_AMOUNT."', '".MSL_NEW_PART_RETURN."' ) ";
             if (!empty($service_centers_id)) {
                 $where .= " AND v.vendor_partner_id = " . $service_centers_id;
             }
@@ -9569,7 +9534,8 @@ function get_bom_list_by_inventory_id($inventory_id) {
             $select = "v.invoice_id AS 'Invoice Id', v.create_date AS 'Invoice Date', case when (v.type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'Invoice Type', im.part_number AS 'Part Number', i.description AS 'Description',sc.name as 'Service Center Name', im.hsn_code AS 'HSN Code', i.qty AS 'Quantity', i.settle_qty as 'Settled Quantity', i.rate AS 'Rate', i.taxable_value AS 'Taxable Value', (i.cgst_tax_rate + i.igst_tax_rate + i.sgst_tax_rate) AS 'GST Rate', (i.cgst_tax_amount + i.igst_tax_amount + i.sgst_tax_amount) AS 'GST Tax Amount', i.total_amount AS 'Total Amount', v.type AS 'Type', entt_gst_dtl.gst_number AS 'From GST Number', entity_gst_details.gst_number AS 'To GST Number', v.sub_category AS 'Sub Category'";
             $where["im.entity_id"] = $entity_id;
             $where["im.entity_type"] = _247AROUND_PARTNER_STRING;
-            $where["v.sub_category IN('MSL','MSL New Part Return','MSL Defective Return')"] = null;
+            $where["v.sub_category IN('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_SECURITY_AMOUNT."', '".MSL_NEW_PART_RETURN."' )"] = null;
+
             if (!empty($service_center_id)) {
                 $where["v.vendor_partner_id"] = $service_center_id;
             }

@@ -586,4 +586,14 @@ class accounting_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array(); 
     }
+
+    /**
+     * @desc This function is used to insert opening balance of part invoice
+     * @param Array $data
+     * @return int
+     */
+    function insert_part_invoice_opening_balance($data){
+        $this->db->insert('part_invoice_opening_balance', $data);
+        return $this->db->insert_id();
+    }
 }

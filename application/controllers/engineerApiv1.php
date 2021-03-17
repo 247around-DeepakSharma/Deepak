@@ -3422,7 +3422,7 @@ class engineerApiv1 extends CI_Controller {
         }
         $arrBookingsWarrantyStatus = $this->warranty_utilities->get_bookings_warranty_status($arrBookings);
         $arr_warranty_status = [
-            'IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation', 'PDI', 'Demo', 'Tech Visit', 'Replacement', 'Spare Cannibalization', 'Handling Charges'],
+            'IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation', 'PDI', 'Demo', 'Tech Visit', 'Replacement', 'Spare Cannibalization', 'Handling Charges', 'Dead after Purchase (DaP)', 'Dead On Arrival (DOA)'],
             'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat', 'PDI', 'Tech Visit', 'Spare Cannibalization', 'Handling Charges'],
             'EW' => ['Extended', 'AMC', 'Repeat', 'PDI', 'Tech Visit', 'Spare Cannibalization', 'Handling Charges']
         ];
@@ -5058,7 +5058,7 @@ function submitPreviousPartsConsumptionData(){
             $spare_select = 'spare_parts_details.serial_number, '
                     . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/purchase-invoices/", spare_parts_details.invoice_pic) as invoice_pic, '
                     . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/' . SERIAL_NUMBER_PIC_DIR . '/", spare_parts_details.serial_number_pic) as serial_number_pic';
-            $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('booking_id' => $booking_id, 'status !=' => _247AROUND_CANCELLED));
+            $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('booking_id' => $booking_id));
             $serial_number_details['serial_number'] = '';
             $serial_number_details['invoice_pic'] = '';
             $serial_number_details['serial_number_pic'] = '';

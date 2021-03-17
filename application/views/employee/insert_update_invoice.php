@@ -511,8 +511,8 @@
                                     <tr>
                                         <td colspan="11"></td>
                                         <td>(+) TCS Rate % </td>
-                                        <td class="amount_1"><input id="tcs_rate" type="number" onblur="calculate_total()" value="<?php if(isset($invoice_details[0]['tcs_rate'])){ echo $invoice_details[0]['tcs_rate']; }?>" name="tcs_rate" class="form-control padding_space" ></td>
-                                        <td class="amount_1"><input id="tcs_amount" type="number" value="<?php if(isset($invoice_details[0]['tcs_amount'])){ echo $invoice_details[0]['tcs_amount']; } ?>" name="tcs_amount" class="form-control padding_space taxable_value" ></td>
+                                        <td class="amount_1"><input id="tcs_rate" step="any" type="number" onblur="calculate_total()" value="<?php if(isset($invoice_details[0]['tcs_rate'])){ echo $invoice_details[0]['tcs_rate']; }?>" name="tcs_rate" class="form-control padding_space" ></td>
+                                        <td class="amount_1"><input id="tcs_amount" step="any" type="number" value="<?php if(isset($invoice_details[0]['tcs_amount'])){ echo $invoice_details[0]['tcs_amount']; } ?>" name="tcs_amount" class="form-control padding_space taxable_value" ></td>
                                         
                                         
                                         <td colspan="2"></td>
@@ -971,6 +971,7 @@
         var vendor_partner_id =  $("#vendor_partner_id").val();
         var type_code = $("input[name='around_type']:checked").val();
         var type = $("#type_code option:selected").val();
+        var state_code = $("#gst_number").find(':selected').attr('data-state_code')
 
         if(gst_number === null){ 
             alert("Please Select 247around GST Number");
@@ -991,7 +992,7 @@
             $("#fetch_invoice_id").text("Fetching..");
             $.ajax({
             type: 'POST',
-            url: '<?php echo base_url(); ?>employee/invoice/fetch_invoice_id/' + vendor_partner_id + '/' + vendor_partner_type + '/' + type_code+"/"+type,
+            url: '<?php echo base_url(); ?>employee/invoice/fetch_invoice_id/' + vendor_partner_id + '/' + vendor_partner_type + '/' + type_code+"/"+type+"/"+state_code,
                 success: function (data) {
                     alert(data);
                     $("#fetch_invoice_id").text("Fetch Invoice ID");

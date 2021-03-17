@@ -803,7 +803,7 @@ class Invoice extends CI_Controller {
                 'accounting' => 1,
             );
 
-            $this->invoices_model->action_partner_invoice($invoice_details);
+            $invoice_p_id = $this->invoices_model->insert_new_invoice($invoice_details);
 //            $this->invoices_model->insert_new_invoice($invoice_details);
             log_message('info', __METHOD__ . "=> Insert Invoices in partner invoice table");
             //Insert invoice Breakup
@@ -896,6 +896,28 @@ class Invoice extends CI_Controller {
                     );
                     $this->invoices_model->insert_msl_packaging_data($msl_courier_data);
                 }
+            }
+            // Insert logistic handling charges into DB
+            if(!empty($misc_data['logistic_handling_charges'])){
+                $l_h_data = json_decode($misc_data['logistic_handling_charges'], true);
+                $l_d['invoice_id'] = $invoice_p_id;
+                $l_d['entity_id'] = $partner_id;
+                $l_d['taxable_value'] = $l_h_data['taxable_value'];
+                $l_d['gst_rate'] = $l_h_data['gst_rate'];
+                $l_d['on_month'] = $l_h_data['on_month'];
+                $l_d['type'] = LOGISTIC_HANDLING_TYPE;
+                $this->invoices_model->insert_billed_logistic_data($l_d);
+            }
+            // Insert MSL handling charges into DB
+            if(!empty($misc_data['msl_handling_charges'])){
+                $l_h_data = json_decode($misc_data['msl_handling_charges'], true);
+                $l_d['invoice_id'] = $invoice_p_id;
+                $l_d['entity_id'] = $partner_id;
+                $l_d['taxable_value'] = $l_h_data['taxable_value'];
+                $l_d['gst_rate'] = $l_h_data['gst_rate'];
+                $l_d['on_month'] = $l_h_data['on_month'];
+                $l_d['type'] = MSL_HANDLING_TYPE;
+                $this->invoices_model->insert_billed_logistic_data($l_d);
             }
             //Map invoice with courier
             if(!empty($misc_data['final_courier'])){
@@ -3138,19 +3160,18 @@ exit();
                 $data['parts_count'] = $parts_count;
 
                 if ($data['vendor_partner'] == "vendor") {
-                    $entity_details = $this->vendor_model->viewvendor($data['vendor_partner_id']);                    
+
+                    $entity_details = $this->vendor_model->viewvendor($data['vendor_partner_id']);
                     
-                    if($around_type == "A"){
-                        $gst_number = true;
+                    
+                    if (!empty($entity_details[0]['gst_number']) 
+                    && !empty($entity_details[0]['gst_status']) 
+                    && !($entity_details[0]['gst_status'] == _247AROUND_CANCELLED || $entity_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
+                        $gst_number = $entity_details[0]['gst_no'];
                     } else {
-                        if (!empty($entity_details[0]['gst_number']) 
-                        && !empty($entity_details[0]['gst_status']) 
-                        && !($entity_details[0]['gst_status'] == _247AROUND_CANCELLED || $entity_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
-                            $gst_number = $entity_details[0]['gst_no'];
-                        } else {
-                            $gst_number = "";
-                        }
+                        $gst_number = "";
                     }
+                    
                     
                 } else {
                     $entity_details = $this->partner_model->getpartner_details("gst_number, state", array('partners.id' => $data['vendor_partner_id']));
@@ -3863,7 +3884,7 @@ exit();
      * @param String $type_code
      * @param String $type
      */
-    function fetch_invoice_id($vendor_partner_id, $vendor_partner_type, $type_code, $type) {
+    function fetch_invoice_id($vendor_partner_id, $vendor_partner_type, $type_code, $type, $state_code) {
         $entity_details = array();
 
         if (!empty($vendor_partner_id) && !empty($type_code) && !empty($type)) {
@@ -3873,7 +3894,7 @@ exit();
                     if($type == DEBIT_NOTE){
                         echo $this->create_invoice_id_to_insert("ARD-DN");
                     } else {
-                        echo $this->create_invoice_id_to_insert("ARD-9");
+                        echo $this->create_invoice_id_to_insert("ARD-".$state_code);
                     }
 
                     break;
@@ -3887,7 +3908,7 @@ exit();
                         echo $this->create_invoice_id_to_insert($entity_details[0]['sc_code']);
                        
                     } else {
-                        echo $this->create_invoice_id_to_insert("ARD-9");
+                        echo $this->create_invoice_id_to_insert("ARD-".$state_code);
                     }
                 
                     
@@ -4088,13 +4109,17 @@ exit();
         $data['credit_debit'] = $this->input->post("credit_debit");
         $data['bankname'] = $this->input->post("bankname");
         $data['transaction_date'] = date("Y-m-d", strtotime($this->input->post("tdate")));
+        $data['tds_amount'] = $this->input->post('tds_amount');
+        $amount = $this->input->post("amount");
         if(!empty($this->input->post('tds_rate'))) {
             $data['tds_rate'] = $this->input->post('tds_rate');
+        } else if($data['tds_amount'] > 0){
+            $data['tds_rate'] = ($data['tds_amount'] *100)/$amount;
         } else {
             $data['tds_rate'] = 0;
         }
-        $data['tds_amount'] = $this->input->post('tds_amount');
-        $amount = $this->input->post("amount");
+        
+        
         if ($data['credit_debit'] == "Credit") {
             $data['credit_amount'] = $amount -  $data['tds_amount'];
             
@@ -4224,10 +4249,11 @@ exit();
                     $data['tds_amount'] = $tds;
                     $data['tds_rate'] = $tds_rate;
                 }
+                
                 $data['type'] = PARTNER_VOUCHER;
                 $response = $this->generate_partner_additional_invoice($entity[0], PARTNER_ADVANCE_DESCRIPTION,
                         $amount, $data['invoice_id'], $date,  $date,  $date, HSN_CODE, "Receipt Voucher", 
-                        ADVANCE_RECEIPT_EMAIL_TAG, 1, DEFAULT_TAX_RATE);
+                        ADVANCE_RECEIPT_EMAIL_TAG, 1, DEFAULT_TAX_RATE, $tds, $tds_rate);
                 
                 $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = $response['meta']['cgst_total_tax_amount'];
                 $data['igst_tax_amount'] = $response['meta']['igst_total_tax_amount'];
@@ -4313,7 +4339,7 @@ exit();
      * @return Array
      */
     function generate_partner_additional_invoice($partner_data, $description,
-            $amount, $invoice_id, $sd, $ed, $invoice_date, $hsn_code, $invoice_type, $email_tag, $qty, $gst_rate){
+            $amount, $invoice_id, $sd, $ed, $invoice_date, $hsn_code, $invoice_type, $email_tag, $qty, $gst_rate, $tds_amount =0, $tds_rate =0){
         log_message("info", __METHOD__." Partner ID ".$invoice_id);
         $data = array();
         $data[0]['description'] =  $description;
@@ -4342,9 +4368,18 @@ exit();
         if($invoice_type == "Receipt Voucher"){
             $response['meta']['sd'] = "";
             $response['meta']['ed'] = "";
+            $response['booking'][0]['qty'] = "";
+            $response['meta']['total_qty'] = "";
+            if($tds_amount > 0){
+                $response['meta']['tds_amount'] = $tds_amount;
+                $response['meta']['tds_text'] = "Less: TDS deducted (".$tds_rate."%)";
+                $response['meta']['sub_total_amount'] = $response['meta']['sub_total_amount'] - $tds_amount;
+                $response['meta']['price_inword'] = convert_number_to_words($response['meta']['sub_total_amount']);
+            }
+            
         }
        
-        $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
+        $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final"); 
         if($status){
             log_message("info", __METHOD__." Partner Advance Excel generated ".$invoice_id);
             
@@ -4855,7 +4890,7 @@ exit();
         if (!empty($spare_id)) {
             $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*, booking_details.partner_id as booking_partner_id, service_centres.gst_no as gst_number,service_centres.sc_code,"
                     . "service_centres.state,service_centres.address as company_address,service_centres.company_name,"
-                    . "service_centres.district, service_centres.pincode, service_centres.is_wh, spare_parts_details.is_micro_wh,owner_phone_1, spare_parts_details.shipped_quantity as shipping_quantity, service_centres.owner_email, service_centres.primary_contact_email, service_centres.gst_status  ", array('spare_parts_details.id' => $spare_id), TRUE, TRUE);
+                    . "service_centres.district, service_centres.pincode, service_centres.is_wh, spare_parts_details.is_micro_wh,owner_phone_1, spare_parts_details.shipped_quantity as shipping_quantity, service_centres.owner_email, service_centres.primary_contact_email, service_centres.gst_status  ", array('spare_parts_details.id' => $spare_id, 'reverse_sale_invoice_id IS NULL' => NULL), TRUE, TRUE);
             if (!empty($spare)) {
                 if ($spare[0]['is_micro_wh'] == 1 && ($spare[0]['partner_id'] == $spare[0]['service_center_id'])) {
                     if (!empty($spare[0]['shipped_inventory_id'])) {
@@ -4875,7 +4910,7 @@ exit();
                                     $data[0]['product_or_services'] = "Product";
                                     $data[0]['gst_number'] = $spare[0]['gst_number'];
                                     $data[0]['main_gst_number'] = $value['to_gst_number'];
-                                    $data[0]['from_gst_number_id'] = $value['to_gst_number_id'];
+                                    
                                     $data[0]['spare_id'] = $spare_id;
                                     $data[0]['inventory_id'] = $spare[0]['inventory_id'];
                                     $data[0]['company_name'] = $spare[0]['company_name'];
@@ -4892,11 +4927,13 @@ exit();
                                         && !($spare[0]['gst_status'] == _247AROUND_CANCELLED || $spare[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
                                         $invoice_type = "Tax Invoice";
                                         $invoice_id = $this->invoice_lib->create_invoice_id($spare[0]['sc_code']);
+                                        $data[0]['to_gst_number_id'] = $value['to_gst_number_id'];
                                             
                                     } else {
                                         $data[0]['gst_number'] = true;
                                         $invoice_type = CREDIT_NOTE;
                                         $invoice_id = $this->create_invoice_id_to_insert("ARD-CN");
+                                        $data[0]['from_gst_number_id'] = $value['to_gst_number_id'];
                                     }
                                     if($service_center_state_code ==  $value['to_state_code']){
                                         $data[0]['c_s_gst'] = TRUE;
@@ -4954,8 +4991,9 @@ exit();
      */           
     function _reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare, $sub_category, $invoice_type, $vendor_email = array()){
         $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, $invoice_type, $invoice_date);
+
+        if(isset($data[0]['to_gst_number_id']) || isset($data[0]['from_gst_number_id'])){
         
-        if(isset($data[0]['from_gst_number_id']) && !empty($data[0]['from_gst_number_id'])){
             $response['meta']['main_company_gst_number'] = $data[0]['main_gst_number'];
             $response['meta']['main_company_state'] = $this->invoices_model->get_state_code(array('state_code' => $data[0]['from_state_code']))[0]['state'];
             $response['meta']['main_company_state_code'] = $data[0]['from_state_code'];
@@ -6740,11 +6778,8 @@ exit();
                     //checking if reverse sale invoice is already created or not and request for valid spare part is made  
                     foreach ($spare_lost_data as $value) {
                         if (!empty($value['sell_invoice_id']) && empty($value['reverse_sale_invoice_id'])) {
-                            $invoice_details = $this->invoices_model->get_unsettle_inventory_invoice("vendor_partner_invoices.vendor_partner_id, invoice_details.qty as parts_count, "
-                                    . "invoice_details.taxable_value as parts_cost, invoice_details.cgst_tax_rate, invoice_details.sgst_tax_rate, "
-                                    . "invoice_details.igst_tax_rate, invoice_details.invoice_id, "
-                                    . "invoice_details.cgst_tax_amount,invoice_details.sgst_tax_amount,invoice_details.igst_tax_amount ", array('invoice_details.invoice_id' => $value['sell_invoice_id'], 'invoice_details.spare_id' => $spare_id));
-                            if (!empty($invoice_details)) {
+                         $invoice_details = $this->invoices_model->get_unsettle_inventory_invoice("vendor_partner_invoices.vendor_partner_id, invoice_details.spare_id,invoice_details.qty as parts_count,invoice_details.inventory_id,invoice_details.taxable_value as parts_cost, invoice_details.cgst_tax_rate, invoice_details.sgst_tax_rate, invoice_details.igst_tax_rate, invoice_details.invoice_id", array('invoice_details.invoice_id' => $value['sell_invoice_id'], 'invoice_details.spare_id' => $spare_id));  
+                          if (!empty($invoice_details)) {
                                 //invoice details found
                                 $invoice_details[0]['booking_id'] = $value['booking_id'];
                                 $reverse_sale_invoice_id = $this->generate_reverse_sale_invoice($invoice_details, $value, SPARE_LOST_PART_RETURN);
