@@ -444,7 +444,7 @@ class invoices_model extends CI_Model {
                 . " `booking_unit_details`.appliance_capacity,`booking_unit_details`.appliance_category,`booking_unit_details`.appliance_brand, "
                 . "  booking_details.booking_primary_contact_no,  "
                 . " `services`.services, users.name, "
-                . " (partner_net_payable + partner_spare_extra_charge) as partner_net_payable,partner_spare_extra_charge, round((partner_net_payable * tax_rate)/100,2) as gst_amount,
+                . " (partner_net_payable + partner_spare_extra_charge) as partner_net_payable,partner_spare_extra_charge, round(((partner_net_payable + partner_spare_extra_charge) * tax_rate)/100,2) as gst_amount,
                     CASE WHEN (booking_details.is_upcountry = 1) THEN ('Yes') ELSE 'NO' END As upcountry,
                     (Select CASE WHEN (file_name = '' OR file_name IS NULL) THEN ('') ELSE (GROUP_CONCAT(CONCAT('".S3_WEBSITE_URL."purchase-invoices/', file_name) SEPARATOR ' , ')) END as support_file FROM booking_files WHERE booking_files.booking_id = booking_unit_details.booking_id AND (file_name != '' AND file_name IS NOT NULL)) as support_file, 
               
