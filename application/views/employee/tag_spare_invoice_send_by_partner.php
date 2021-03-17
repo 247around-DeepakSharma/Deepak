@@ -368,7 +368,7 @@
                                         <div class="form-group">
                                             <label class="col-xs-4 col-sm-2 control-label">Invoice Date*</label>
                                             <div class="col-xs-8 col-sm-4">
-                                                <input placeholder="Select Invoice Date" type="text" readonly=""  onkeydown="return false;" class="form-control" name="dated" id="on_invoice_date" required="" autocomplete="off"/>
+                                                <input placeholder="Select Invoice Date" type="text" readonly=""  onkeydown="return false;" style="background-color:#fff!important" class="form-control" name="dated" id="on_invoice_date" required="" autocomplete="off"/>
                                                 <label for="on_invoice_date" class="error"></label>
                                             </div>
                                             <label class="col-xs-2 control-label">Invoice Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Please make sure invoice number does not contain '/'. You can replace '/' with '-' "><i class="fa fa-info"></i></span></label>
@@ -1028,7 +1028,7 @@
     function get_vendor_by_booking(is_wh,partner_id) {
         $.ajax({
             type: 'POST',
-            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_details',
+            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_with_micro_wh',
             data:{is_wh:is_wh,partner_id:partner_id},
             success: function (response) {               
                 $('#on_wh_id').html(response);
@@ -1328,59 +1328,64 @@
     });
     
     function search_booking_details(count){
-        var booking_id = $("#onbookingid_" + count).val();
-        if(booking_id !== ""){
-            $.ajax({
-                method:'POST',
-                beforeSend: function(){
-    
-                    $('body').loadingModal({
-                    position: 'auto',
-                    text: 'Loading Please Wait...',
-                    color: '#fff',
-                    opacity: '0.7',
-                    backgroundColor: 'rgb(0,0,0)',
-                    animation: 'wave'
-                });
-    
-                    },
-                url:'<?php echo base_url(); ?>employee/inventory/get_spare_line_item_for_tag_spare/'+booking_id +"/" + count,
-                data:{is_ajax:true},
-                success:function(res){
-                  // console.log(res);
-                    var obj = JSON.parse(res);
-                     $('body').loadingModal('destroy');
-                    if(obj.code === 247){
-                        //onBookingIndex = (Number(count) + Number(obj.count) - 1);
-    
-                        $("#sparelineitem_"+count).html(obj.data);
-                        $(".part_name").select2();
-                        var service_id = $('#onserviceId_'+count).val();
-                        var part_name = $('#onpartName_'+count).val();
-                        if($.inArray(part_name,partArr[service_id]) > 0) {
-                            alert("Please select another part as this is already selected!!");
+        var warehouse_id = $("#on_wh_id").val();
+        if(warehouse_id !== null){
+            var is_micro = $("#on_wh_id").find(':selected').attr('data-warehose');
+            var booking_id = $("#onbookingid_" + count).val();
+            if(booking_id !== ""){
+                $.ajax({
+                    method:'POST',
+                    beforeSend: function(){
+
+                        $('body').loadingModal({
+                        position: 'auto',
+                        text: 'Loading Please Wait...',
+                        color: '#fff',
+                        opacity: '0.7',
+                        backgroundColor: 'rgb(0,0,0)',
+                        animation: 'wave'
+                    });
+
+                        },
+                    url:'<?php echo base_url(); ?>employee/inventory/get_spare_line_item_for_tag_spare/'+booking_id +"/" + count,
+                    data:{is_ajax:true, is_micro:is_micro, vendor_id: warehouse_id},
+                    success:function(res){
+                      // console.log(res);
+                        var obj = JSON.parse(res);
+                         $('body').loadingModal('destroy');
+                        if(obj.code === 247){
+                            //onBookingIndex = (Number(count) + Number(obj.count) - 1);
+
+                            $("#sparelineitem_"+count).html(obj.data);
+                            $(".part_name").select2();
+                            var service_id = $('#onserviceId_'+count).val();
+                            var part_name = $('#onpartName_'+count).val();
+                            if($.inArray(part_name,partArr[service_id]) > 0) {
+                                alert("Please select another part as this is already selected!!");
+                                return false;
+                            }
+                            if( partArr[service_id] === undefined ) {
+                                partArr[service_id] = new Array();
+                            }
+                            if(part_name !== undefined) {
+                                partArr[service_id].push(part_name);
+                            }
+                        } else {
+                            alert(obj.data);
                             return false;
                         }
-                        if( partArr[service_id] === undefined ) {
-                            partArr[service_id] = new Array();
-                        }
-                        if(part_name !== undefined) {
-                            partArr[service_id].push(part_name);
-                        }
-                    } else {
-                        alert(obj.data);
-                        return false;
+
+
                     }
-                    
-                   
-                }
-            });
+                });
+            } else {
+               alert("Please Enter Booking ID");
+
+            }
+            
         } else {
-           alert("Please Enter Booking ID");
-           
-        }
-        
-        
+           alert("Please Select Warehouse");
+        } 
     }
     
     $('#onBookingspareForm').on('click', '.onaddButton', function () {

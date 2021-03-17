@@ -6571,7 +6571,7 @@ class Service_centers extends CI_Controller {
         // $this->load->view('employee/get_spare_parts', $data);
     }
 
-    function defective_parts_shipped_by_sf_table_data($spare_list, $no, $warehouse_name = '') {
+    function defective_parts_shipped_by_sf_table_data($spare_list, $no, $warehouse_name = '', $sf_id = '') {
 
         $row = array();
 
@@ -6601,7 +6601,7 @@ class Service_centers extends CI_Controller {
         if(empty($warehouse_name)){
         $row[] = "<span class='".$color_class."'>". $spare_list['defective_part_shipped'] ."</span>";
         }else{
-        $row[] = "<span class='".$color_class."'>". $spare_list['defective_part_shipped'] ." ($warehouse_name)</span>";   
+        $row[] = "<span class='".$color_class."'>". $spare_list['defective_part_shipped'] ."<br>($warehouse_name)</span>";   
         }
         $row[] = "<span class='".$color_class."'>". $spare_list['shipped_quantity'] ."</span>";
         $row[] = "<span class='".$color_class."'>". $spare_list['part_number'] ."</span>";
@@ -6626,8 +6626,8 @@ class Service_centers extends CI_Controller {
 
         $row[] = "<span class='".$color_class."'>". $spare_list['reason_text'] ."</span>";
 
-
-        if (!empty($spare_list['defective_part_shipped'])) {
+        //If Defective part is already shipped or Different warehouse search data then disable receive button
+        if (!empty($spare_list['defective_part_shipped']) && $sf_id == $spare_list['defective_return_to_entity_id']) {
 
             $a = "<a href='javascript:void(0);' id='defective_parts_' class='btn btn-sm btn-primary recieve_defective' onclick='";
             $a .= "open_spare_consumption_model(this.id," . '"' . $spare_list['booking_id'] . '"';
@@ -10502,7 +10502,7 @@ class Service_centers extends CI_Controller {
         $this->load->view('service_centers/add_booking_walkin', $data);
     }
 
-   /**
+  /**
     * This function is used to auto-approve engineer completed bookings
     * This function is called from CRON
     * @author Prity Sharma

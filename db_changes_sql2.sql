@@ -2862,8 +2862,6 @@ ALTER TABLE `gstin_detail` CHANGE `address_readable` `address_readable` TEXT CHA
 ALTER TABLE `gstin_detail` CHANGE `nature_business` `nature_business` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
 ALTER TABLE `gstin_detail` CHANGE `constitution_of_business` `constitution_of_business` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT 'Constitution of Business';
 ALTER TABLE `gstin_detail` CHANGE `type` `type` VARCHAR(55) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
-<<<<<<< HEAD
-=======
 
 
 
@@ -2945,4 +2943,3 @@ ALTER TABLE `part_invoice_opening_balance`
 ALTER TABLE `part_invoice_opening_balance`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
 COMMIT;
-

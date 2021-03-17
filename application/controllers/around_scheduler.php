@@ -189,14 +189,16 @@ class Around_scheduler extends CI_Controller {
      */
     
     function send_mail_list_of_having_expired_or_no_contracts_partners(){
+        $this->db->_protect_identifiers = FALSE;
         // Get All Partnners name having expired contracts
-        $query1  = " p.public_name, c.end_date FROM collateral c JOIN partners p ON c.entity_id = p.id and c.id in (SELECT max(id) id FROM collateral WHERE collateral_id = 7 GROUP BY entity_id) and end_date < now() and p.is_active = 1";
+        $query1  = " p.public_name, c.end_date FROM collateral c JOIN partners p ON c.entity_id = p.id and c.id in (SELECT max(collateral.id) id FROM collateral JOIN collateral_type ON (collateral.collateral_id = collateral_type.id) WHERE collateral_tag = 'Contract' GROUP BY collateral.entity_id) JOIN bookings_sources ON (p.id = bookings_sources.partner_id) WHERE partner_type IN ('ECOMMERCE', 'OEM', 'EXT_WARRANTY_PROVIDER') AND end_date < now() and p.is_active = 1";
         $data1 = $this->partner_model->get_expired_contract_partner_list($query1);
-        
+
         // Get All Partnners name having no contracts
-        $query2 = " public_name FROM partners WHERE id not in (SELECT entity_id FROM collateral WHERE collateral_id = 7 GROUP BY entity_id) and is_active = 1";
+        $query2 = " public_name FROM partners JOIN bookings_sources ON (partners.id = bookings_sources.partner_id) WHERE partners.id NOT IN (SELECT entity_id FROM collateral JOIN collateral_type ON (collateral.collateral_id = collateral_type.id) WHERE collateral_tag = 'Contract' GROUP BY entity_id) AND partner_type IN ('ECOMMERCE', 'OEM', 'EXT_WARRANTY_PROVIDER') AND is_active = 1";
         $data2 = $this->partner_model->get_expired_contract_partner_list($query2);
         $body = "";
+
         if(!empty($data1))
         {
             foreach($data1 as $key => $value)

@@ -862,7 +862,7 @@
     function get_vendor_by_booking(is_wh,partner_id) {
         $.ajax({
             type: 'POST',
-            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_details',
+            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_with_micro_wh',
             data:{is_wh:is_wh,partner_id:partner_id},
             success: function (response) {               
                 $('#on_wh_id').html(response);

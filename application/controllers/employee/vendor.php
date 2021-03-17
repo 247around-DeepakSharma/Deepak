@@ -1379,6 +1379,14 @@ class vendor extends CI_Controller {
      * @param: void
      * @return : void
      */
+    /**
+     * @desc: This function reassigns vendor for a particular booking.
+     *
+     * This is done if the assigned vendor is not able to finish his job due to any reason
+     *
+     * @param: void
+     * @return : void
+     */
     function process_reassign_vendor_form($cron = 1) {
         log_message('info',__FUNCTION__."In asynchronously ". $cron);
         if($cron){

@@ -5178,12 +5178,13 @@ class Booking extends CI_Controller {
     }
     function get_bulk_search_result_view(){
        $receieved_Data = $this->input->post();
+       
        $bookingDetailsSelect = "booking_details.booking_id,booking_details.request_type,booking_details.order_id,booking_details.booking_primary_contact_no,bookings_sources.source,booking_details.city,"
                 . "service_centres.company_name,services.services,booking_details.current_status,booking_details.internal_status";
-        $unitDetailsSelect =", 'Not_found' as purchase_date, 'Not_found' as appliance_brand,'Not_found' as appliance_category,'Not_found' as appliance_capacity,'Not_found' as price_tags,'Not_found' as product_or_services";
+        $unitDetailsSelect =", 'Not_found' as purchase_date, 'Not_found' as appliance_brand,'Not_found' as appliance_category,'Not_found' as appliance_capacity,'Not_found' as price_tags,'Not_found' as product_or_services, 'Not_found' as partner_serial_number, 'Not Found' as serial_number, 'Not_found' as customer_total";
        if($this->input->post("is_unit_details")){
-           $unitDetailsSelect = ",  booking_unit_details.purchase_date as purchase_date, booking_unit_details.appliance_brand,booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_unit_details.price_tags,"
-         . "booking_unit_details.product_or_services";
+           $unitDetailsSelect = ",  booking_unit_details.purchase_date as purchase_date, booking_unit_details.appliance_brand,booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_unit_details.price_tags, "
+         . "booking_unit_details.product_or_services, booking_unit_details.partner_serial_number, booking_unit_details.serial_number,customer_total";
        }
        $select = $bookingDetailsSelect.$unitDetailsSelect;
        $data = $this->get_bulk_search_result_data($receieved_Data,$select);
@@ -5213,10 +5214,10 @@ class Booking extends CI_Controller {
                 . "booking_details.upcountry_distance,booking_details.is_penalty,booking_details.create_date,booking_details.update_date,"
                 . "booking_details.service_center_closed_date as service_center_closed_date, "
                 . "booking_details.closed_date as 247around_closed_date";
-        $unitDetailsSelect =", 'Not_found' as purchase_date, 'Not_found' as appliance_brand,'Not_found' as appliance_category,'Not_found' as appliance_capacity,'Not_found' as price_tags,'Not_found' as product_or_services";
+        $unitDetailsSelect =", 'Not_found' as purchase_date, 'Not_found' as appliance_brand,'Not_found' as appliance_category,'Not_found' as appliance_capacity,'Not_found' as price_tags,'Not_found' as product_or_services, 'Not_found' as partner_serial_number, 'Not Found' as serial_number, 'Not_found' as customer_total";
        if($this->input->post("is_unit_details")){
            $unitDetailsSelect = ",booking_unit_details.purchase_date as purchase_date, booking_unit_details.appliance_brand,booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_unit_details.price_tags,"
-         . "booking_unit_details.product_or_services";
+         . "booking_unit_details.product_or_services, booking_unit_details.partner_serial_number, booking_unit_details.serial_number,customer_total";
        }
        $select = $bookingDetailsSelect.$unitDetailsSelect;
        $data = $this->get_bulk_search_result_data($receieved_Data,$select);
@@ -5224,7 +5225,7 @@ class Booking extends CI_Controller {
                     "Partner Source","Partner Current Status","Partner Internal Status","Booking Address","Pincode","District","State","Primary Contact Number","Current Booking Date","First Booking Date",
                     "Age Of Booking","TAT","Booking Timeslot","Booking Remarks","Query Remarks","Cancellation Reason","Reschedule_reason","Vendor(SF)",
                     "Rating","Vendor Rating Comments","Closing Remarks","Count Reschedule","Count Escalation",
-                    "Is Upcountry","Upcountry Pincode","Upcountry Distance","IS Penalty","Create Date","Update Date","Service Center Closed Date","Closed Date", "Purchase Date", "Brand","Category","Capacity","Request Type","Product/Service");
+                    "Is Upcountry","Upcountry Pincode","Upcountry Distance","IS Penalty","Create Date","Update Date","Service Center Closed Date","Closed Date", "Purchase Date", "Brand","Category","Capacity","Request Type","Product/Service", "Partner Serial Number", "Sf Serial Number", "Call Charges");
        $this->miscelleneous->downloadCSV($data['data'],$headings,"booking_bulk_search_summary");   
        ob_end_clean();
     }
@@ -5709,10 +5710,6 @@ class Booking extends CI_Controller {
         
     }
 
-
-
-
-    
     function download_pending_bookings($status) {
         $arr_post = $this->input->post();
         $bulk_booking_id = !empty($arr_post['bookingIDString']) ? $arr_post['bookingIDString'] : "";
@@ -5754,8 +5751,8 @@ class Booking extends CI_Controller {
             $post['where']['booking_details.internal_status NOT IN ("'.SPARE_PARTS_SHIPPED.'","'.SPARE_OOW_SHIPPED.'","'.SF_BOOKING_CANCELLED_STATUS.'","'.SF_BOOKING_COMPLETE_STATUS.'","'.SPARE_PARTS_SHIPPED_BY_WAREHOUSE.'")'] = NULL; 
             // Join with employee Table to fetch AM name
 
+             
             $post['join']['spare_parts_details'] = "booking_details.booking_id  = spare_parts_details.booking_id and spare_parts_details.status!='"._247AROUND_CANCELLED."'";
-
             $post['join']['partners'] = "booking_details.partner_id  = partners.id";
             $post['join']['agent_filters'] =  "partners.id=agent_filters.entity_id AND agent_filters.state = booking_details.state AND agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."'";
             $post['join']['employee as employee_am'] = "agent_filters.agent_id = employee_am.id";
@@ -5767,37 +5764,38 @@ class Booking extends CI_Controller {
             $post['unit_not_required'] = true;
             // Select Statement
             
-
-            $select = " booking_details.booking_id as 'Booking ID', booking_details.create_date as 'Create Date', partners.public_name as Partner, "
-                    . "employee_am.full_name as AM, users.name as 'Customer Name',booking_details.booking_pincode as 'Pincode',booking_details.city as 'City'"
-                    . ",booking_details.state as 'State',booking_details.booking_address as 'Booking Address', users.phone_number as 'Phone',"
-                    . "CASE WHEN booking_details.is_upcountry = 1 THEN 'YES' ELSE 'No' END AS 'Is Upcountry'"
-                    . ",booking_details.upcountry_distance as 'Upcountry Distance',service_centres.name as 'Service Center',"
-                    . "service_centres.primary_contact_name as 'SF Primary Contact Name'"
-                    . ",service_centres.primary_contact_phone_1 as 'SF Primary Contact No',engineer_details.name as 'Engineer Name',employee.full_name as 'RM'"
-                    . ",emp_asm.full_name  as  'ASM', services.services as 'Product', spare_parts_details.model_number as 'Model',"
-                    . "booking_details.request_type as 'Service Type', booking_details.initial_booking_date as 'First Booking Date',"
-                    . "booking_details.booking_date as 'Current Booking Date', booking_details.booking_remarks as 'Booking Remarks', booking_details.reschedule_reason as 'Reschedule Remarks',"
-                    . "booking_details.partner_internal_status as 'Final Status Level 2',"
-                    . "booking_details.current_status as 'Final Status Level 1', booking_details.actor as 'Dependency On',"
+            $select = " booking_details.booking_id as 'Booking ID', "
                     . "DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) as Ageing,"
-                    . "CASE WHEN spare_parts_details.parts_requested != '' THEN 'YES' ELSE 'No' END AS 'Is Part Involved', REPLACE(group_concat(in_req.part_number),trim(','),' | ') as 'Requested Part Code', REPLACE(group_concat(spare_parts_details.parts_requested),trim(','),' | ') as 'Requested Part Name',"
-                    . "REPLACE(group_concat(spare_parts_details.parts_requested_type),trim(','),' | ') as 'Requested Part Type',spare_parts_details.date_of_request as 'Part Requested Date'"
-                    . ",REPLACE(group_concat(in_sh.part_number),trim(','),' | ')  as 'Shipped Part Code', REPLACE(group_concat(spare_parts_details.parts_shipped),trim(','),' | ') as 'Shipped Part Name',REPLACE(group_concat(spare_parts_details.shipped_parts_type),trim(','),' | ') as 'Shipped Part Type'"
-                    . ",spare_parts_details.shipped_date as 'Part Shipped Date',max(spare_parts_details.acknowledge_date) as 'SF Acknowledged Date'"
-                    . ",CASE WHEN (spare_parts_details.auto_acknowledeged = 1 or spare_parts_details.auto_acknowledeged = 2) THEN 'YES' ELSE 'No' END AS 'Is auto Acknowledge',penalty_on_booking.active as 'Penalty Active'";
+                    . "partners.public_name as Partner, "
+                    . "employee_am.full_name as AM,emp_asm.full_name  as  'ASM',service_centres.name as 'Service Center',"
+                    . "services.services as 'Product',booking_details.request_type as 'Service Type',booking_details.partner_internal_status as 'Final Status Level 2',"
+                    . "users.name as 'Customer Name',users.phone_number as 'Phone',booking_details.booking_pincode as 'Pincode',booking_details.city as 'City',"
+                    . "CASE WHEN booking_details.is_upcountry = 1 THEN 'YES' ELSE 'No' END AS 'Is Upcountry',booking_details.upcountry_distance as 'Upcountry Distance',"
+                    . "CASE WHEN spare_parts_details.parts_requested != '' THEN 'YES' ELSE 'No' END AS 'Is Part Involved',CASE WHEN (spare_parts_details.auto_acknowledeged = 1 or spare_parts_details.auto_acknowledeged = 2) THEN 'YES' ELSE 'No' END AS 'Is auto Acknowledge',"
+                    . "spare_parts_details.shipped_date as 'Part Shipped Date',max(spare_parts_details.acknowledge_date) as 'SF Acknowledged Date',"
+                    . "REPLACE(group_concat(spare_parts_details.shipped_parts_type),trim(','),' | ') as 'Shipped Part Type',"
+                    . "spare_parts_details.model_number as 'Model',"                                        
+                    . "booking_details.state as 'State',booking_details.booking_address as 'Booking Address',"
+                    . "service_centres.primary_contact_name as 'SF Primary Contact Name',"
+                    . "service_centres.primary_contact_phone_1 as 'SF Primary Contact No',engineer_details.name as 'Engineer Name',booking_details.create_date as 'Create Date',booking_details.initial_booking_date as 'First Booking Date',booking_details.booking_date as 'Current Booking Date',"
+                    . "booking_details.booking_remarks as 'Booking Remarks', booking_details.reschedule_reason as 'Reschedule Remarks',"
+                    . "booking_details.current_status as 'Final Status Level 1', booking_details.actor as 'Dependency On',"
+                    . "REPLACE(group_concat(in_req.part_number),trim(','),' | ') as 'Requested Part Code', REPLACE(group_concat(spare_parts_details.parts_requested),trim(','),' | ') as 'Requested Part Name',"
+                    . "REPLACE(group_concat(spare_parts_details.parts_requested_type),trim(','),' | ') as 'Requested Part Type',spare_parts_details.date_of_request as 'Part Requested Date',"
+                    . "REPLACE(group_concat(in_sh.part_number),trim(','),' | ')  as 'Shipped Part Code', REPLACE(group_concat(spare_parts_details.parts_shipped),trim(','),' | ') as 'Shipped Part Name',"                                   
+                    . "penalty_on_booking.active as 'Penalty Active',employee.full_name as 'RM'";
             // Show Distinct Bookings
-            $post['group_by'] = 'booking_details.booking_id';            
-            $list =  $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,1,'',0,array(),array());
-
+            $group_by = 'booking_details.booking_id';
+            
+            $list =  $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,1,'',0,array(),array(),$group_by);
         }
         else if($booking_status == 'Completed' || $booking_status == 'Cancelled'){
             $post['where']  = array('booking_details.current_status' => $booking_status,'type' => 'Booking'); 
             
-            $select = "booking_details.booking_id as 'Booking ID', users.name as CustomerName, users.phone_number as 'Phone Number', "
-                    . "services.services as Services, service_centres.name as 'Service Centre Name', "
-                    . "service_centres.district as City, service_centres.primary_contact_name as SF_POC_Name,"
-                    . " service_centres.primary_contact_phone_1 as SF_POC_NUMBER,
+            $select = "booking_details.booking_id as 'Booking ID', users.name as 'Customer Name', users.phone_number as 'Phone Number', "
+                    . "services.services as Services, service_centres.name as 'Service Center Name', "
+                    . "service_centres.district as City, service_centres.primary_contact_name as 'SF POC Name',"
+                    . " service_centres.primary_contact_phone_1 as 'SF POC NUMBER',
                         DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as booking_day,booking_details.create_date as 'Create Date',booking_details.partner_internal_status as 'Partner Internal Status',
                        DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as 'Initial Booking Date',DATEDIFF(CURRENT_TIMESTAMP , 
                        STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as 'Booking Age'";
