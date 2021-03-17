@@ -5067,12 +5067,6 @@ class Inventory extends CI_Controller {
             $response['meta']['invoice_file_main'] = $output_pdf_file_name;
             $response['meta']['copy_file'] = $convert['copy_file'];
 
-            $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], false);
-            unlink(TMP_FOLDER . $output_pdf_file_name);
-            unlink(TMP_FOLDER . $response['meta']['invoice_id'] . ".xlsx");
-            unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".xlsx");
-            unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".pdf");
-
             $invoice_details = array(
                 'invoice_id' => $response['meta']['invoice_id'],
                 'type_code' => 'A',
@@ -5111,6 +5105,12 @@ class Inventory extends CI_Controller {
             $this->invoices_model->insert_new_invoice($invoice_details);
             log_message('info', __METHOD__ . ": Invoice ID inserted");
             $this->invoice_lib->insert_def_invoice_breakup($response, 0);
+            
+            $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], false);
+            unlink(TMP_FOLDER . $output_pdf_file_name);
+            unlink(TMP_FOLDER . $response['meta']['invoice_id'] . ".xlsx");
+            unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".xlsx");
+            unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".pdf");
 
             foreach ($invoice as $key => $value) {
                 $ledger_data = array();
