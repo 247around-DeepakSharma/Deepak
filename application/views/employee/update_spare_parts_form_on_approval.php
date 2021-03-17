@@ -19,7 +19,7 @@
                     <div class="row">
                         <div class = 'col-md-offset-2 col-md-6'>
                             <div class="alert alert-info">
-                                Model details can not be changed as previously requested part has been already shipped.
+                                Model details can not be changed as previously requested part has been already Approved.
                             </div>
                         </div>
                     </div>

@@ -115,7 +115,7 @@ class vendor extends CI_Controller {
                 $vendor_data['create_date'] = date('Y-m-d H:i:s');
                 $vendor_data['sc_code'] = $this->generate_service_center_code($_POST['name'], $_POST['district']);
                 $vendor_data['agent_id'] = $agentID;
-                $vendor_data['active'] = 1;
+                $vendor_data['active'] = 0;
 
                 //if vendor do not exists, vendor is added
                 $sc_id = $this->vendor_model->add_vendor($vendor_data);
@@ -1075,8 +1075,11 @@ class vendor extends CI_Controller {
                $row[] = '<a id="edit" class="btn btn-small btn-danger disabled" href="javascript:;" >Deactivate</a>';
              }           
         } else {
-            if (empty($vendor_list['pan_no']) || empty($vendor_list['pan_file'])) {
-                $row[] = '<a class="btn btn-small btn-primary" onclick="alert("Please Enter PAN Details of Vendor to allow Activation");" title="Save PAN Details of Vendor to allow Activation">Activate</a>';
+            if(empty($vendor_list['is_approved'])){
+                $row[] = '<a class="btn btn-small btn-primary" disabled title="Approve Vendor to allow Activation">Activate</a><br/><span class="text-danger" style="font-size: 12px;"><i class="fa fa-ban"></i> Not Approved</span>';
+            }
+            else if (empty($vendor_list['pan_no']) || empty($vendor_list['pan_file'])) {
+                $row[] = '<a class="btn btn-small btn-primary" disabled title="Insert PAN Details of Vendor to allow Activation">Activate</a><br/><span class="text-danger" style="font-size: 12px;"><i class="fa fa-ban"></i> PAN not found</span>';
             } else {
                 if ($this->session->userdata('user_group') == _247AROUND_ADMIN)
                     $row[] = '<a id="edit" class="btn btn-small btn-primary" href="' . base_url() . 'employee/vendor/vendor_activate_deactivate/' . $vendor_list["id"] . '/1">Activate</a>';
@@ -6732,31 +6735,52 @@ class vendor extends CI_Controller {
         
     /*
      * Display list of unapproved SF
-     * Unaaproved SF can only approve their RM/ASM 
+     * Unaaproved SF can be approved by their RMs/ASMs only
+     * @author Prity Sharma
+     * @return HTML View
      */
     function unapprovered_service_centers() {
-        if ($this->input->post('sf_id')) {
-            $where = 'id = ' . $this->input->post('sf_id');
-            $affected_rows = $this->reusable_model->update_table('service_centres', array('is_approved' => 1), $where);
-            if ($affected_rows) {
-                echo json_encode(array('result' => 1));
-                return;
-            }
-            echo json_encode(array('result' => 0));
-            return;
-        }
-
         if (!in_array($this->session->userdata('user_group'), array(_247AROUND_ADMIN, _247AROUND_RM))) {
             redirect('employee/vendor/viewvendor');
         }
-        $id = $this->session->userdata('user_group') == _247AROUND_RM ? $this->session->userdata('id') : NULL;
-        if ($id !== NULL) {
-            $post['where'] = "rm_id = $id";
+        $id = $this->session->userdata('user_group') == _247AROUND_RM ? $this->session->userdata('id') : "";
+        $post['where']['is_approved'] = 0;
+        if (!empty($id)) {
+            $post['where']['rm_id'] = $id;
         }
         $post['length'] = -1;
         $data['records'] = $this->vendor_model->viewallvendor($post, 'service_centres.*');
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/unapproved_sf_list', $data);
+    }
+    
+    /**
+     * This function is used to approve unapproved Vendors
+     * @param sf_id (POST)
+     * @author Prity Sharma
+     * @created_on 17-02-2021
+     * @return type
+     */
+    function approve_vendor() {
+        if ($this->input->post('sf_id')) {            
+            // Check if PAN number & File is uploaded against Vendor or not
+            $id = $this->input->post('sf_id');            
+            $sf_details = $this->vendor_model->getVendorContact($id);
+            if(empty($sf_details[0]['pan_no'])){
+                echo json_encode(array('result' => 0, 'message' => 'PAN details of Vendor not found, Please add PAN details to Approve.'));
+                return;
+            }            
+            if(empty($sf_details[0]['pan_file'])){
+                echo json_encode(array('result' => 0, 'message' => 'PAN file of Vendor not found, Please add PAN file to Approve.'));
+                return;
+            }
+            // Approve Vendor
+            $vendor_data['is_approved'] = 1;
+            $vendor_data['approved_by'] = $this->session->userdata('id');
+            $this->vendor_model->edit_vendor($vendor_data, $id);
+            echo json_encode(array('result' => 1, 'message' => 'Vendor Approved Successfully'));
+            return;
+        }
     }
 
 }
