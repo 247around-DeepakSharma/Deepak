@@ -116,12 +116,18 @@ class User_invoice extends CI_Controller {
                     log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $response['meta']['invoice_id']);
                     //$convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($response['meta']['invoice_id'], "final", true, true);
                     $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final", true, true);
-                    $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], false, true);
+                    
 
                     $output_pdf_file_name = $convert['main_pdf_file_name'];
                     $copy_pdf_file_name = $convert['copy_file'];
                     //$triplicate_pdf_file_name = $convert['triplicate_file'];
-                    $pathinfo1 = pathinfo($output_pdf_file_name);
+
+                    $this->insert_payment_invoice($booking_id, $response, $data[0]->assigned_vendor_id, 
+                            $data[0]->closed_date, $agent_id, $convert, $data[0]->user_id,$preinvoice_id);
+                    
+                    $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], false, true);
+                    
+                                        $pathinfo1 = pathinfo($output_pdf_file_name);
                     if ($pathinfo1['extension'] == 'xls' || $pathinfo1['extension'] == 'xlsx') {
                         log_message("info", __METHOD__ . " SF Invoice Pdf is not generated " . $output_pdf_file_name);
                     } else {
@@ -195,11 +201,6 @@ class User_invoice extends CI_Controller {
                         }
                         $this->asynchronous_lib->do_background_process($url, $send_whatsapp);
                     }
-                    
-                    
-
-                    $this->insert_payment_invoice($booking_id, $response, $data[0]->assigned_vendor_id, 
-                            $data[0]->closed_date, $agent_id, $convert, $data[0]->user_id,$preinvoice_id);
                     
                     if(file_exists(TMP_FOLDER.$response['meta']['invoice_id'] . '.xlsx')){
                         unlink(TMP_FOLDER.$response['meta']['invoice_id']. '.xlsx');
@@ -377,18 +378,7 @@ class User_invoice extends CI_Controller {
                     log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $response['meta']['invoice_id']);
                     //$convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($response['meta']['invoice_id'], "final", TRUE, FALSE);
                     $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final", true, FALSE);
-                    $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], false, false);
-                    log_message("info", __METHOD__ . " SF Credit note uploaded to s3 for booking ID " . $booking_id . " Invoice ID " . $response['meta']['invoice_id']);
                     
-                    if(file_exists(TMP_FOLDER.$response['meta']['invoice_id'] . '.xlsx')){
-                        unlink(TMP_FOLDER.$response['meta']['invoice_id']. '.xlsx');
-                    }
-                    if(file_exists(TMP_FOLDER.$convert['triplicate_file'])){
-                        unlink(TMP_FOLDER.$convert['triplicate_file']);
-                    }
-                    if(file_exists(TMP_FOLDER.$convert['copy_file'])){
-                        unlink(TMP_FOLDER.$convert['copy_file']);
-                    }
                     //$output_pdf_file_name = $convert['main_pdf_file_name'];
 //                $email_template = $this->booking_model->get_booking_email_template("paytm_payment_voucher");
 //                $subject =  vsprintf($email_template[4], array($booking_id));
@@ -404,6 +394,18 @@ class User_invoice extends CI_Controller {
                     //$this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $pdf_attachement_url);
 
                     $this->insert_sf_credit_note($booking_id, $response, $data[0]->assigned_vendor_id, $sd, $agent_id, $convert, $txnID);
+                    $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], false, false);
+                    log_message("info", __METHOD__ . " SF Credit note uploaded to s3 for booking ID " . $booking_id . " Invoice ID " . $response['meta']['invoice_id']);
+                    
+                    if(file_exists(TMP_FOLDER.$response['meta']['invoice_id'] . '.xlsx')){
+                        unlink(TMP_FOLDER.$response['meta']['invoice_id']. '.xlsx');
+                    }
+                    if(file_exists(TMP_FOLDER.$convert['triplicate_file'])){
+                        unlink(TMP_FOLDER.$convert['triplicate_file']);
+                    }
+                    if(file_exists(TMP_FOLDER.$convert['copy_file'])){
+                        unlink(TMP_FOLDER.$convert['copy_file']);
+                    }
                     
                     if(file_exists(TMP_FOLDER.$response['meta']['invoice_id'] . '.xlsx')){
                         unlink($response['meta']['invoice_id'] . '.xlsx');
@@ -571,7 +573,7 @@ class User_invoice extends CI_Controller {
      * @param - form data
      * @return - boolean
      */
-    function process_spare_invoice(){ 
+     function process_spare_invoice() {
         $postData = json_decode($this->input->post('postData'));
         $spare_parts_detail_ids = array();
         $data = array();
@@ -585,188 +587,189 @@ class User_invoice extends CI_Controller {
         $remarks = $this->input->post('remarks');
         $sd = $ed = $invoice_date = date("Y-m-d");
         $vendor_data = $this->vendor_model->getVendorDetails("service_centres.id, gst_no, "
-                            . "state,address as company_address, owner_phone_1,"
-                            . "company_name, pincode, "
-                            . "district, owner_email as invoice_email_to, email as invoice_email_cc, primary_contact_email", array('id' => $postData[0]->service_center_ids))[0];
+                        . "state,address as company_address, owner_phone_1,"
+                        . "company_name, pincode, "
+                        . "district, owner_email as invoice_email_to, email as invoice_email_cc, primary_contact_email", array('id' => $postData[0]->service_center_ids))[0];
         $invoice_id = $this->invoice_lib->create_invoice_id("ARD-9", $invoice_date);
-        foreach ($postData as $key=>$value){
-            if($value->spare_detail_ids){
+        foreach ($postData as $key => $value) {
+            if ($value->spare_detail_ids) {
                 $spare_parts_detail_ids[] = $value->spare_detail_ids;
                 $where = array('spare_parts_details.id' => $value->spare_detail_ids);
                 $chech_spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.sell_invoice_id, spare_parts_details.is_micro_wh, booking_details.partner_id, shipped_inventory_id, parts_requested_type, booking_details.service_id, shipped_quantity', $where, true);
                 $partner_id = $chech_spare[0]['partner_id'];
-                if(!$chech_spare[0]['sell_invoice_id'] && $chech_spare[0]['is_micro_wh'] != 1){
-                        if($chech_spare[0]['is_micro_wh'] == 0){
-                            $email_parts_name_partner .= $value->spare_product_name."(".$booking_id.") ";
-                        }
-                        $email_parts_name .= $value->spare_product_name."(".$booking_id.") ";
-                        $amount = $value->confirm_prices;
-                        $inventory_id = "";
-                        $where_cond = array('part_type' => $chech_spare[0]['parts_requested_type'],'service_id' => $chech_spare[0]['service_id']);
-                        if($chech_spare[0]['shipped_inventory_id']){
-                            $inventory_id = $chech_spare[0]['shipped_inventory_id'];
-                         }
+                if (!$chech_spare[0]['sell_invoice_id'] && $chech_spare[0]['is_micro_wh'] != 1) {
+                    if ($chech_spare[0]['is_micro_wh'] == 0) {
+                        $email_parts_name_partner .= $value->spare_product_name . "(" . $booking_id . ") ";
+                    }
+                    $email_parts_name .= $value->spare_product_name . "(" . $booking_id . ") ";
+                    $amount = $value->confirm_prices;
+                    $inventory_id = "";
+                    $where_cond = array('part_type' => $chech_spare[0]['parts_requested_type'], 'service_id' => $chech_spare[0]['service_id']);
+                    if ($chech_spare[0]['shipped_inventory_id']) {
+                        $inventory_id = $chech_spare[0]['shipped_inventory_id'];
+                    }
 //                        if($inventory_id){
 //                            $inventry_amount = $this->inventory_model->get_inventory_master_list_data("price", array("inventory_id"=>$inventory_id));
 //                            $amount = $inventry_amount[0]['price'] + ($inventry_amount[0]['price']*($value->gst_rates/100));
 //                        }
-                        if(empty($inventory_id)) {
-                            $where_cond = array('part_type' => $chech_spare[0]['parts_requested_type'],'inventory_parts_type.service_id' => $chech_spare[0]['service_id']);
-                        }
-                        $margin = $this->inventory_model->get_oow_margin($inventory_id, $where_cond);
-                        $spare_oow_around_margin = $margin['oow_around_margin']/100;
-                        $total_amount = ($amount + ($amount * $spare_oow_around_margin));
-                        $hsn_code = $value->hsn_codes;
-                        $gst_rate = $value->gst_rates;
-                        $invoice_amount[$value->spare_detail_ids] = $total_amount;
-                        $reason[$value->spare_detail_ids] = $value->reasons;
-                        $data[$key]['description'] =  $value->spare_product_name."(".$booking_id.")";
-                        $tax_charge = $this->booking_model->get_calculated_tax_charge($total_amount, $gst_rate);
-                        $shipped_quantity = (!is_null($chech_spare[0]['shipped_quantity']) ? $chech_spare[0]['shipped_quantity'] : 1);
-                        $data[$key]['taxable_value'] = sprintf("%.2f", ($total_amount  - $tax_charge));
-                        $data[$key]['product_or_services'] = "Product";
-                        if(!empty($vendor_data['gst_no'])){
-                            $data[$key]['gst_number'] = $vendor_data['gst_no'];
-                        } else {
-                            $data[$key]['gst_number'] = TRUE;
-                        }
+                    if (empty($inventory_id)) {
+                        $where_cond = array('part_type' => $chech_spare[0]['parts_requested_type'], 'inventory_parts_type.service_id' => $chech_spare[0]['service_id']);
+                    }
+                    $margin = $this->inventory_model->get_oow_margin($inventory_id, $where_cond);
+                    $spare_oow_around_margin = $margin['oow_around_margin'] / 100;
+                    $total_amount = ($amount + ($amount * $spare_oow_around_margin));
+                    $hsn_code = $value->hsn_codes;
+                    $gst_rate = $value->gst_rates;
+                    $invoice_amount[$value->spare_detail_ids] = $total_amount;
+                    $reason[$value->spare_detail_ids] = $value->reasons;
+                    $data[$key]['description'] = $value->spare_product_name . "(" . $booking_id . ")";
+                    $tax_charge = $this->booking_model->get_calculated_tax_charge($total_amount, $gst_rate);
+                    $shipped_quantity = (!is_null($chech_spare[0]['shipped_quantity']) ? $chech_spare[0]['shipped_quantity'] : 1);
+                    $data[$key]['taxable_value'] = sprintf("%.2f", ($total_amount - $tax_charge));
+                    $data[$key]['product_or_services'] = "Product";
+                    if (!empty($vendor_data['gst_no'])) {
+                        $data[$key]['gst_number'] = $vendor_data['gst_no'];
+                    } else {
+                        $data[$key]['gst_number'] = TRUE;
+                    }
 
-                        $data[$key]['company_name'] = $vendor_data['company_name'];
-                        $data[$key]['company_address'] = $vendor_data['company_address'];
-                        $data[$key]['district'] = $vendor_data['district'];
-                        $data[$key]['pincode'] = $vendor_data['pincode'];
-                        $data[$key]['state'] = $vendor_data['state'];
-                        $data[$key]['rate'] = sprintf("%.2f", ($data[$key]['taxable_value']/$shipped_quantity));
-                        $data[$key]['qty'] = $shipped_quantity;
-                        $data[$key]['hsn_code'] = $hsn_code;
-                        $data[$key]['gst_rate'] = $gst_rate;
-                        $data[$key]['owner_phone_1'] = $vendor_data['owner_phone_1'];
-                        $data[$key]['inventory_id'] = $inventory_id;
-                        $data[$key]['spare_id'] = $value->spare_detail_ids;
-                        //insert entry into booking state change
-                        $booking_state_remarks = $remarks." Part Id - ".$value->spare_detail_ids."(Booking Id - ".$booking_id.")";
-                        $this->notify->insert_state_change($booking_id, $value->reasons, "", $booking_state_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, _247AROUND);
+                    $data[$key]['company_name'] = $vendor_data['company_name'];
+                    $data[$key]['company_address'] = $vendor_data['company_address'];
+                    $data[$key]['district'] = $vendor_data['district'];
+                    $data[$key]['pincode'] = $vendor_data['pincode'];
+                    $data[$key]['state'] = $vendor_data['state'];
+                    $data[$key]['rate'] = sprintf("%.2f", ($data[$key]['taxable_value'] / $shipped_quantity));
+                    $data[$key]['qty'] = $shipped_quantity;
+                    $data[$key]['hsn_code'] = $hsn_code;
+                    $data[$key]['gst_rate'] = $gst_rate;
+                    $data[$key]['owner_phone_1'] = $vendor_data['owner_phone_1'];
+                    $data[$key]['inventory_id'] = $inventory_id;
+                    $data[$key]['spare_id'] = $value->spare_detail_ids;
+                    //insert entry into booking state change
+                    $booking_state_remarks = $remarks . " Part Id - " . $value->spare_detail_ids . "(Booking Id - " . $booking_id . ")";
+                    $this->notify->insert_state_change($booking_id, $value->reasons, "", $booking_state_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, _247AROUND);
                 }
             }
         }
-        if(!empty($data)){
+        if (!empty($data)) {
             $invoice_type = "Tax Invoice";
-            $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, $invoice_type,$invoice_date);
+            $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, $invoice_type, $invoice_date);
             $response['meta']['invoice_id'] = $invoice_id;
             $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
-            if($status){
+            if ($status) {
 
                 $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final");
                 $output_pdf_file_name = $convert['main_pdf_file_name'];
                 $response['meta']['invoice_file_main'] = $output_pdf_file_name;
                 $response['meta']['copy_file'] = $convert['copy_file'];
-                $response['meta']['invoice_file_excel'] = $invoice_id.".xlsx";
+                $response['meta']['invoice_file_excel'] = $invoice_id . ".xlsx";
                 $response['meta']['invoice_detailed_excel'] = NULL;
 
-                $this->invoice_lib->upload_invoice_to_S3($invoice_id, false);
-                
-                $email_tag = DEFECTIVE_SPARE_SALE_INVOICE;    
-                $email_template = $this->booking_model->get_booking_email_template($email_tag);
-                $subject = vsprintf($email_template[4], array($booking_id));
-                $message = vsprintf($email_template[0], array($email_parts_name, $booking_id));
-                $email_from = $email_template[2];
-                $to = $vendor_data['invoice_email_to'].",".$email_template[1].",".$this->session->userdata("official_email");
-                $cc = $vendor_data['primary_contact_email'].",".$email_template[3];
-                //$to = $email_template[1];
-                //$cc = $email_template[3];
-                
-                $cmd = "curl " . S3_WEBSITE_URL . "invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER.$output_pdf_file_name;
-                exec($cmd); 
+                $response['meta']['invoice_id'] = $invoice_id;
 
-                $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, TMP_FOLDER.$output_pdf_file_name, $email_tag, "", $booking_id);
+                $invoice_tag_details = $this->invoices_model->get_invoice_tag('vertical, category, sub_category', array('tag' => PART_LOST_TAG));
 
-                unlink(TMP_FOLDER.$output_pdf_file_name);
-                unlink(TMP_FOLDER."copy_".$output_pdf_file_name);
+                if (!empty($invoice_tag_details)) {
+                    $response['meta']['vertical'] = $invoice_tag_details[0]['vertical'];
+                    $response['meta']['category'] = $invoice_tag_details[0]['category'];
+                    $response['meta']['sub_category'] = $invoice_tag_details[0]['sub_category'];
+                }
+                $response['meta']['accounting'] = 1;
+                $response['meta']['due_date'] = $response['meta']['invoice_date'];
 
-                unlink(TMP_FOLDER.$invoice_id.".xlsx");
-                unlink(TMP_FOLDER."copy_".$invoice_id.".xlsx");
+                $this->invoice_lib->insert_invoice_breackup($response);
+                $invoice_details = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", "Parts", _247AROUND_SF_STRING, $postData[0]->service_center_ids, $convert, $this->session->userdata('id'), $hsn_code);
+                $inserted_invoice = $this->invoices_model->insert_new_invoice($invoice_details);
 
-            }
-            
-            $response['meta']['invoice_id'] = $invoice_id;
-            
-            $invoice_tag_details = $this->invoices_model->get_invoice_tag('vertical, category, sub_category', array('tag' => PART_LOST_TAG));
-            
-            if(!empty($invoice_tag_details)) {
-                $response['meta']['vertical'] = $invoice_tag_details[0]['vertical'];
-                $response['meta']['category'] = $invoice_tag_details[0]['category'];
-                $response['meta']['sub_category'] = $invoice_tag_details[0]['sub_category'];
-            }
-            $response['meta']['accounting'] = 1;
-            $response['meta']['due_date'] = $response['meta']['invoice_date'];
-            
-            $this->invoice_lib->insert_invoice_breackup($response);
-            $invoice_details = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", "Parts", _247AROUND_SF_STRING, $postData[0]->service_center_ids, $convert, $this->session->userdata('id'), $hsn_code);
-            $inserted_invoice = $this->invoices_model->insert_new_invoice($invoice_details);
+                if ($inserted_invoice) {
+                    /* Send mail to partner */
+//                if($email_parts_name_partner){
+//                    $email_template = $this->booking_model->get_booking_email_template(DEFECTIVE_SPARE_SOLED_NOTIFICATION);
+//                    if(!empty($email_template)) {
+//                        $subject = vsprintf($email_template[4], array($booking_id));
+//                        $message = vsprintf($email_template[0], array($email_parts_name_partner, $booking_id)); 
+//                        $email_from = $email_template[2];
+//                        $booking_partner_where = array(
+//                            "entity_type" => _247AROUND_PARTNER_STRING,
+//                            "entity_id" => $partner_id,
+//                            "role" => 3
+//                        );
+//                        $booking_partner = $this->reusable_model->get_search_query('contact_person','official_email', $booking_partner_where, "", "", "", "", "")->result_array();
+//                        $booking_partner_email = "";
+//                        if(!empty($booking_partner)){
+//                            foreach ($booking_partner as $key => $value) {
+//                                $booking_partner_email = $value['official_email'].",";
+//                            }
+//                            $to = $booking_partner_email.$email_template[1].",".$this->session->userdata("official_email");
+//                            $cc = $email_template[3];
+//                        }
+//                        else{
+//                            $booking_partner = $this->reusable_model->get_search_query('partners','invoice_email_to, invoice_email_cc', array("id"=>$partner_id), "", "", "", "", "")->result_array();
+//                            $to = $booking_partner[0]['invoice_email_to'].",".$email_template[1].",".$this->session->userdata("official_email");
+//                            $cc = $booking_partner[0]['invoice_email_cc'].",".$email_template[3];
+//                        }
+//                        //$to = $email_template[1];
+//                        //$cc = $email_template[3];
+//                        //$this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, "", DEFECTIVE_SPARE_SOLED_NOTIFICATION, "", $booking_id);
+//                    }
+//                }
 
-            if($inserted_invoice){
-                /* Send mail to partner */
-                if($email_parts_name_partner){
-                    $email_template = $this->booking_model->get_booking_email_template(DEFECTIVE_SPARE_SOLED_NOTIFICATION);
-                    if(!empty($email_template)) {
-                        $subject = vsprintf($email_template[4], array($booking_id));
-                        $message = vsprintf($email_template[0], array($email_parts_name_partner, $booking_id)); 
-                        $email_from = $email_template[2];
-                        $booking_partner_where = array(
-                            "entity_type" => _247AROUND_PARTNER_STRING,
-                            "entity_id" => $partner_id,
-                            "role" => 3
-                        );
-                        $booking_partner = $this->reusable_model->get_search_query('contact_person','official_email', $booking_partner_where, "", "", "", "", "")->result_array();
-                        $booking_partner_email = "";
-                        if(!empty($booking_partner)){
-                            foreach ($booking_partner as $key => $value) {
-                                $booking_partner_email = $value['official_email'].",";
+                    foreach ($spare_parts_detail_ids as $spare_id) {
+                        $where_in = array('id' => $spare_id);
+                        $result = $this->inventory_model->update_bluk_spare_data($where_in, array('defective_part_required' => 0, 'sell_invoice_id' => $invoice_id, 'spare_lost' => 1, 'sell_price' => $invoice_amount[$spare_id], 'status' => $reason[$spare_id]));
+                    }
+
+                    $check_lost_part = $this->partner_model->get_spare_parts_by_any('*', array('booking_id' => $booking_id, 'status NOT IN ("' . DEFECTIVE_PARTS_RECEIVED . '", "' . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . '", "' . Ok_PARTS_RECEIVED_BY_WAREHOUSE . '", "' . Ok_PARTS_RECEIVED . '")' => NULL, 'spare_lost != 1' => NULL));
+
+                    if (count($check_lost_part) === 0) {
+                        $service_center_action = $this->booking_model->get_bookings_count_by_any('service_center_closed_date, booking_details.current_status', array('booking_id' => $booking_id));
+                        if (!empty($service_center_action[0]['service_center_closed_date']) && $service_center_action[0]['current_status'] == _247AROUND_COMPLETED) {
+                            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, DEFECTIVE_PART_LOST, $partner_id, $booking_id);
+                            if (!empty($partner_status)) {
+                                $booking['partner_current_status'] = $partner_status[0];
+                                $booking['partner_internal_status'] = $partner_status[1];
+                                $booking['actor'] = $partner_status[2];
+                                $booking['next_action'] = $partner_status[3];
+                                $this->booking_model->update_booking($booking_id, $booking);
                             }
-                            $to = $booking_partner_email.$email_template[1].",".$this->session->userdata("official_email");
-                            $cc = $email_template[3];
-                        }
-                        else{
-                            $booking_partner = $this->reusable_model->get_search_query('partners','invoice_email_to, invoice_email_cc', array("id"=>$partner_id), "", "", "", "", "")->result_array();
-                            $to = $booking_partner[0]['invoice_email_to'].",".$email_template[1].",".$this->session->userdata("official_email");
-                            $cc = $booking_partner[0]['invoice_email_cc'].",".$email_template[3];
-                        }
-                        //$to = $email_template[1];
-                        //$cc = $email_template[3];
-                        //$this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, "", DEFECTIVE_SPARE_SOLED_NOTIFICATION, "", $booking_id);
-                    }
-                }
-                
-                foreach($spare_parts_detail_ids as $spare_id) {
-                    $where_in = array('id' => $spare_id);
-                    $result  = $this->inventory_model->update_bluk_spare_data($where_in,array('defective_part_required'=>0, 'sell_invoice_id'=>$invoice_id, 'spare_lost'=>1, 'sell_price'=>$invoice_amount[$spare_id], 'status'=>$reason[$spare_id]));
-                }
-                
-                $check_lost_part = $this->partner_model->get_spare_parts_by_any('*', array('booking_id' => $booking_id, 'status NOT IN ("'.DEFECTIVE_PARTS_RECEIVED.'", "'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.Ok_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.Ok_PARTS_RECEIVED.'")' => NULL, 'spare_lost != 1' => NULL));
-                
-                if(count($check_lost_part) === 0) {
-                    $service_center_action = $this->booking_model->get_bookings_count_by_any('service_center_closed_date, booking_details.current_status', array('booking_id'=>$booking_id));
-                    if(!empty($service_center_action[0]['service_center_closed_date']) && $service_center_action[0]['current_status'] == _247AROUND_COMPLETED) {
-                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, DEFECTIVE_PART_LOST, $partner_id, $booking_id);
-                        if (!empty($partner_status)) {               
-                            $booking['partner_current_status'] = $partner_status[0];
-                            $booking['partner_internal_status'] = $partner_status[1];
-                            $booking['actor'] = $partner_status[2];
-                            $booking['next_action'] = $partner_status[3];
-                            $this->booking_model->update_booking($booking_id, $booking);
                         }
                     }
+
+
+
+                    $this->invoice_lib->upload_invoice_to_S3($invoice_id, false);
+
+                    $email_tag = DEFECTIVE_SPARE_SALE_INVOICE;
+                    $email_template = $this->booking_model->get_booking_email_template($email_tag);
+                    $subject = vsprintf($email_template[4], array($booking_id));
+                    $message = vsprintf($email_template[0], array($email_parts_name, $booking_id));
+                    $email_from = $email_template[2];
+                    $to = $vendor_data['invoice_email_to'] . "," . $email_template[1] . "," . $this->session->userdata("official_email");
+                    $cc = $vendor_data['primary_contact_email'] . "," . $email_template[3];
+                    //$to = $email_template[1];
+                    //$cc = $email_template[3];
+
+                    $cmd = "curl " . S3_WEBSITE_URL . "invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER . $output_pdf_file_name;
+                    exec($cmd);
+
+                    $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, TMP_FOLDER . $output_pdf_file_name, $email_tag, "", $booking_id);
+
+                    unlink(TMP_FOLDER . $output_pdf_file_name);
+                    unlink(TMP_FOLDER . "copy_" . $output_pdf_file_name);
+
+                    unlink(TMP_FOLDER . $invoice_id . ".xlsx");
+                    unlink(TMP_FOLDER . "copy_" . $invoice_id . ".xlsx");
                 }
-                
             }
+
+
 
             echo $result;
-        }
-        else{
+        } else {
             echo false;
         }
     }
-    
+
     /* 
      * @desc - this function is used to load view for partner refuse to paty form
      * @param - void
@@ -975,7 +978,7 @@ class User_invoice extends CI_Controller {
                     $response['meta']['copy_file'] = $convert['copy_file'];
                     $response['meta']['invoice_file_excel'] = $vendor_invoice_id . ".xlsx";
                     $response['meta']['invoice_detailed_excel'] = NULL;
-                    $this->invoice_lib->upload_invoice_to_S3($vendor_invoice_id, false);
+                    
 
                     /* Send DN mail to vendor */
                     $email_tag = DEBIT_NOTE_ON_REFUSE_TO_PAY;
@@ -993,10 +996,6 @@ class User_invoice extends CI_Controller {
                     }
                    
                    
-                    unlink(TMP_FOLDER.$output_pdf_file_name);
-                    unlink(TMP_FOLDER."copy_".$output_pdf_file_name);
-                    unlink(TMP_FOLDER . $vendor_invoice_id . ".xlsx");
-                    unlink(TMP_FOLDER . "copy_" . $vendor_invoice_id . ".xlsx");
 
                     $vendor_reference_invoice_id = "";
                     $vendor_reference_array = array_unique($vendor_reference_invoice);
@@ -1017,6 +1016,11 @@ class User_invoice extends CI_Controller {
                     $this->invoice_lib->insert_invoice_breackup($response);
                     $vendor_invoice = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", DEBIT_NOTE, "vendor", $booking_data[0]['assigned_vendor_id'], $convert, $this->session->userdata('id'), HSN_CODE);
                     $last_invoice_id = $this->invoices_model->insert_new_invoice($vendor_invoice);
+                    $this->invoice_lib->upload_invoice_to_S3($vendor_invoice_id, false);
+                    unlink(TMP_FOLDER.$output_pdf_file_name);
+                    unlink(TMP_FOLDER."copy_".$output_pdf_file_name);
+                    unlink(TMP_FOLDER . $vendor_invoice_id . ".xlsx");
+                    unlink(TMP_FOLDER . "copy_" . $vendor_invoice_id . ".xlsx");
                     if ($last_invoice_id) {
                         $i = 0;
                         foreach ($postData as $key => $value) {
@@ -1379,13 +1383,13 @@ class User_invoice extends CI_Controller {
             $output_file = $response['meta']['invoice_id'] . "-detailed.xlsx";
             $this->invoice_lib->generate_invoice_excel($ftemplate, $response['meta'], $invoiceValue['data'], TMP_FOLDER . $output_file);//$invoiceData['processData']
 
-            $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], true, false);
-
             $invoice_details = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", "Parts", "partner", $partner_id, $convert, $this->session->userdata('id'));
 
             $this->invoices_model->insert_new_invoice($invoice_details);
 
             $this->invoice_lib->insert_def_invoice_breakup($response, 1);
+            
+            $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], true, false);
         }
         return array($response,$output_file,$output_file_main);
     }
@@ -1575,13 +1579,15 @@ class User_invoice extends CI_Controller {
                 $output_file = $response['meta']['invoice_id'] . "-detailed.xlsx";
                 $this->invoice_lib->generate_invoice_excel($template, $response['meta'], $invoiceValue['data'], TMP_FOLDER . $output_file);//$invoiceData['processData']
 
-                $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], true, false);
+                
 
                 $invoice_details = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "B", $type, "vendor", $wh_id, $convert, $this->session->userdata('id'));
 
                 $this->invoices_model->insert_new_invoice($invoice_details);
 
                 $this->invoice_lib->insert_def_invoice_breakup($response, 1);
+                
+                $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], true, false);
 
                 $email_tag = (($receiver_entity_type == _247AROUND_PARTNER_STRING) ? MSL_SEND_BY_MICROWH_TO_PARTNER : MSL_SEND_BY_MICROWH_TO_WH);
 
@@ -1795,7 +1801,7 @@ class User_invoice extends CI_Controller {
                 $response['meta']['invoice_file_excel'] = $invoice_id.".xlsx";
                 $response['meta']['invoice_detailed_excel'] = NULL;
 
-                $this->invoice_lib->upload_invoice_to_S3($invoice_id, false);
+                
                 
                 $email_tag = DEFECTIVE_SPARE_SALE_INVOICE; 
                 $vendor_email_parts_name = rtrim($vendor_email_parts_name)."(".$booking_id.")";
@@ -1812,12 +1818,7 @@ class User_invoice extends CI_Controller {
                 exec($cmd); 
 
 //                $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, TMP_FOLDER.$output_pdf_file_name, $email_tag, "", $booking_id);
-
-                unlink(TMP_FOLDER.$output_pdf_file_name);
-                unlink(TMP_FOLDER."copy_".$output_pdf_file_name);
-
-                unlink(TMP_FOLDER.$invoice_id.".xlsx");
-                unlink(TMP_FOLDER."copy_".$invoice_id.".xlsx");
+               
 
             }
             $response['meta']['invoice_id'] = $invoice_id;
@@ -1835,6 +1836,14 @@ class User_invoice extends CI_Controller {
             $this->invoice_lib->insert_invoice_breackup($response);
             $invoice_details = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", "Parts", _247AROUND_SF_STRING, $postData[0]->service_center_ids, $convert, $this->session->userdata('id'), $hsn_code);
             $inserted_invoice = $this->invoices_model->insert_new_invoice($invoice_details);
+            $this->invoice_lib->upload_invoice_to_S3($invoice_id, false);
+            unlink(TMP_FOLDER.$output_pdf_file_name);
+            unlink(TMP_FOLDER."copy_".$output_pdf_file_name);
+
+            unlink(TMP_FOLDER.$invoice_id.".xlsx");
+            unlink(TMP_FOLDER."copy_".$invoice_id.".xlsx");
+            
+            
             if($inserted_invoice){
                 /* Send mail to partner */
                 if($email_parts_name_partner){
@@ -2079,13 +2088,15 @@ class User_invoice extends CI_Controller {
 
             $output_file = $response['meta']['invoice_id'] . "-detailed.xlsx";
             $this->invoice_lib->generate_invoice_excel($template, $response['meta'], $invoiceValue, TMP_FOLDER . $output_file);
-            $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], true, false);
+            
 
             $invoice_details = $this->invoice_lib->insert_vendor_partner_main_invoice($response, $type_code, $invoice_type, "vendor", $wh_id, $convert, $this->session->userdata('id'));
 
             $this->invoices_model->insert_new_invoice($invoice_details);
 
             $this->invoice_lib->insert_def_invoice_breakup($response, 1);
+            
+            $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], true, false);
 
             unlink(TMP_FOLDER . $output_file);
             unlink(TMP_FOLDER . $output_file_main);

@@ -5695,7 +5695,6 @@ exit();
                         $response['meta']['copy_file'] = $convert['copy_file'];
                         $response['meta']['invoice_file_excel'] = $invoice_id . ".xlsx";
 
-                        $this->upload_invoice_to_S3($invoice_id, false);
                         $file = $this->upload_create_update_invoice_to_s3($invoice_id);
                         if (isset($file['invoice_detailed_excel'])) {
                             $data['invoice_detailed_excel'] = $file['invoice_detailed_excel'];
@@ -5750,6 +5749,8 @@ exit();
 //                        );
                         //Insert invoice Breakup
                         $this->insert_invoice_breakup($response);
+                        
+                        $this->upload_invoice_to_S3($invoice_id, false);
                 
                         if (!empty($status)) {
                             log_message("info", __METHOD__ . " Invoice Inserted ");
