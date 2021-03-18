@@ -2635,13 +2635,7 @@ class engineerApiv1 extends CI_Controller {
         $validation = $this->validateSparePartsOrderRequest($requestData);
         if ($validation['status']) {
             /** Check serial number validation * */
-            $booking_history = $this->booking_model->getbooking_history($requestData['booking_id']);
-            $check_serial = $this->checkVaidationOnSerialNumber($booking_history[0]['partner_id'], $requestData['serial_number'], $requestData['price_tags'], $booking_history[0]['user_id'], $requestData['booking_id'], $booking_history[0]['service_id'], $requestData['model_number']);
-            if (!$check_serial['status']) {
-                if ($check_serial['code'] != DUPLICATE_SERIAL_NO_CODE) {
-                    $check_serial['status'] = TRUE;
-                }
-            }
+            $check_serial['status'] = TRUE;
             $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $requestData['booking_id']));
             $spare_part_can_requested = false;
             foreach ($unit_details as $value) {
