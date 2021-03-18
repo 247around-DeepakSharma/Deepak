@@ -4593,6 +4593,12 @@ class Inventory extends CI_Controller {
                                         $to_gst_number = $invoice_annexure['to_gst_number'];
                                         array_push($invoicebreakup, $invoice_annexure);
                                         $invoice_annexure['booking_id'] = trim($value['booking_id']);
+
+                                        if(isset($value['spare_id'])){
+                                            $invoice_annexure['spare_id'] = $value['spare_id'];
+                                        }
+        
+        
                                         array_push($invoice, $invoice_annexure);
                                         unset($invoice_annexure['from_gst_number']);
                                         unset($invoice_annexure['to_gst_number']);
@@ -5284,12 +5290,7 @@ class Inventory extends CI_Controller {
         $invoice['rate'] = sprintf("%.2f",$value['part_total_price'] / $value['quantity']);
         $invoice['inventory_id'] = $value['inventory_id'];
         $invoice['taxable_value'] = sprintf("%.2f",$value['part_total_price']);
-        if(isset($value['spare_id'])){
-            $invoice['spare_id'] = $value['spare_id'];
-        }
-        if(isset($value['booking_id']) & !empty($value['booking_id'])){
-            $invoice['booking_id'] = $value['booking_id'];
-        }
+        
         if (!empty($value['gst_rate'])) {
             $gst_amount = $invoice['taxable_value'] * ($value['gst_rate'] / 100 );
         } else {
