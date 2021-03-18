@@ -77,10 +77,7 @@ class engineerApi extends CI_Controller {
             $this->token = $requestData['token'];
             /// checkif Engineer is Active for every API hit ///
 			
-			if(empty($requestData["package_name"]) ){
-              $this->sendJsonResponse(array('00102', 'This app is discontinued, Download the new app from Playstore. In case of difficulties kindly contact RM/ASM'));
-			  exit;
-            }
+			
 
             if(isset($requestData["engineer_id"])  && !empty($requestData["engineer_id"]) ){
             /*  Getting Eng Details with Active Flag */
@@ -4608,6 +4605,10 @@ function check_for_upgrade(){
 
         log_message("info", __METHOD__ . " Entering..in upgrade");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        if(empty($requestData["package_name"]) ){
+            $this->sendJsonResponse(array('00102', 'This app is discontinued, Download the new app from Playstore. In case of difficulties kindly contact RM/ASM'));
+            exit;
+        }
         $validation = $this->validateKeys(array("app_version"), $requestData);
         $response = $this->engineer_model->get_engineer_config(FORCE_UPGRADE);
         if ($requestData['app_version'] != $response[0]->app_version) { //APP_VERSION
