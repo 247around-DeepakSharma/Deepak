@@ -10059,7 +10059,7 @@ class Partner extends CI_Controller {
         // Return CSV of generated report
         else
         {
-            $newCSVFileName = "escalated_bookings_report_" . date('Y-m-d').($partner_id+211).rand(10,100000000). ".csv";
+            $newCSVFileName = "escalated_bookings_report_" . date('Y-m-d').(is_numeric($partner_id)+211).rand(10,100000000). ".csv";
             $csv = TMP_FOLDER . $newCSVFileName;
         
             $delimiter = ",";
