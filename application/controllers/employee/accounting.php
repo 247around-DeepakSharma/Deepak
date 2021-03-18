@@ -1500,23 +1500,28 @@ class Accounting extends CI_Controller {
      * @return view
      */
     function show_gst_report(){
-        $current_month = date('m');
-        if ($current_month > 3) {
-            $financial_year = date('Y');
-        } else {
-            $financial_year = (date('Y') - 1);
-        }
-        $data = array();
-        $select = 'vendor_partner_id, service_centres.name as "name", service_centres.owner_name, service_centres.primary_contact_name, service_centres.owner_phone_1, service_centres.primary_contact_phone_1, CASE WHEN service_centres.active = "1" THEN "Active" ELSE "Inactive" END as "status", SUM(CASE WHEN to_date <= "'.$financial_year.'-03-31"'
-                . 'THEN amount_collected_paid ELSE 0 END) as fy_amount, SUM(amount_collected_paid) as total_amount';
-        $post['group_by'] = 'vendor_partner_id';
-        $post['where'] = array('vendor_partner'=>'vendor', 'invoice_id like "%Around-GST-CN%" OR invoice_id like "%Around-GST-DN%"'=>NULL);
-        $post['length'] = -1;
-        $post['order_by'] = array('fy_amount'=>'desc');
-        $data['data'] = $this->invoices_model->searchInvoicesdata($select, $post);
+        $data['summary'] = $this->inventory_model->call_procedure('gst_credit_debit_summary', "");
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/gst_report', $data); 
-    }
+        $this->load->view('employee/gst_report_summary', $data); 
+     }
+//    function show_gst_report(){
+//        $current_month = date('m');
+//        if ($current_month > 3) {
+//            $financial_year = date('Y');
+//        } else {
+//            $financial_year = (date('Y') - 1);
+//        }
+//        $data = array();
+//        $select = 'vendor_partner_id, service_centres.name as "name", service_centres.owner_name, service_centres.primary_contact_name, service_centres.owner_phone_1, service_centres.primary_contact_phone_1, CASE WHEN service_centres.active = "1" THEN "Active" ELSE "Inactive" END as "status", SUM(CASE WHEN to_date <= "'.$financial_year.'-03-31"'
+//                . 'THEN amount_collected_paid ELSE 0 END) as fy_amount, SUM(amount_collected_paid) as total_amount';
+//        $post['group_by'] = 'vendor_partner_id';
+//        $post['where'] = array('vendor_partner'=>'vendor', '(invoice_id like "%Around-GST-CN%" OR invoice_id like "%Around-GST-DN%")'=>NULL);
+//        $post['length'] = -1;
+//        $post['order_by'] = array('fy_amount'=>'desc');
+//        $data['data'] = $this->invoices_model->searchInvoicesdata($select, $post);
+//        $this->miscelleneous->load_nav_header();
+//        $this->load->view('employee/gst_report', $data); 
+//    }
     
      /**
      * @desc This is used show fixed variable charges for vendor partner
