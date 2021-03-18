@@ -76,6 +76,12 @@ class engineerApi extends CI_Controller {
 
             $this->token = $requestData['token'];
             /// checkif Engineer is Active for every API hit ///
+			
+			if(empty($requestData["package_name"]) ){
+              $this->sendJsonResponse(array('00102', 'This app is discontinued, Download the new app from Playstore. In case of difficulties kindly contact RM/ASM'));
+			  exit;
+            }
+
             if(isset($requestData["engineer_id"])  && !empty($requestData["engineer_id"]) ){
             /*  Getting Eng Details with Active Flag */
             $engineer = $this->engineer_model->get_engineers_details(array("id" => $requestData["engineer_id"], "active" => 1), "service_center_id, name");
