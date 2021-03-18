@@ -424,7 +424,8 @@ class Warranty_model extends CI_Model {
         $this->db->insert_batch('warranty_plan_part_type_mapping', $data);
         return $this->db->insert_id();
     }
-       /**
+    
+    /**
      *  Author:Deepak Sharma
      *  @desc : This function is used get part type list
      *  @param : $plan_id

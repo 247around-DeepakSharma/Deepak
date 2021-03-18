@@ -245,6 +245,15 @@ class Bulkupload extends CI_Controller {
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/bulk_upload_add_warranty');
     }
+    
+    /** @desc: This function is used to upload part type warranty plans
+    *  @param: void
+    *  @return void
+    */
+    function add_part_type_warranty() {
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/bulk_upload_part_warranty');
+    }
 
     function add_warranty_data() {     
         ini_set('display_errors', '1');
