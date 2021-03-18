@@ -249,16 +249,16 @@
         if(status == 1)
         {
             var url = '<?php echo base_url(); ?>employee/warranty/activate_plan';
-            temp[8] = 'Active';
-            temp[9] = "<button class='btn btn-warning btn-sm' onclick='change_warranty_plan_status("+ id +",0,"+row_index+")'>Inactive</button>";
+            temp[9] = 'Active';
+            temp[10] = "<button class='btn btn-warning btn-sm' onclick='change_warranty_plan_status("+ id +",0,"+row_index+")'>Inactive</button>";
             var success_msg = "Warranty plan activated successfully!";
             var error_msg = "Something went wrong while activating warranty plan!";
         }
         else
         {
             var url = '<?php echo base_url(); ?>employee/warranty/deactivate_plan';
-            temp[8] = 'Inactive';
-            temp[9] = "<button class='btn btn-success btn-sm' onclick='change_warranty_plan_status("+ id +",1,"+row_index+")'>Active</button>";
+            temp[9] = 'Inactive';
+            temp[10] = "<button class='btn btn-success btn-sm' onclick='change_warranty_plan_status("+ id +",1,"+row_index+")'>Active</button>";
             var success_msg = "Warranty plan deactivated successfully!";
             var error_msg = "Something went wrong while deactivating warranty plan!";
         }    
