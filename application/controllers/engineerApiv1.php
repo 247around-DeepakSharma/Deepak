@@ -5058,7 +5058,7 @@ function submitPreviousPartsConsumptionData(){
             $spare_select = 'spare_parts_details.serial_number, '
                     . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/purchase-invoices/", spare_parts_details.invoice_pic) as invoice_pic, '
                     . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/' . SERIAL_NUMBER_PIC_DIR . '/", spare_parts_details.serial_number_pic) as serial_number_pic';
-            $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('booking_id' => $booking_id));
+            $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('booking_id' => $booking_id,'status !=' => _247AROUND_CANCELLED));
             $serial_number_details['serial_number'] = '';
             $serial_number_details['invoice_pic'] = '';
             $serial_number_details['serial_number_pic'] = '';
@@ -5078,11 +5078,12 @@ function submitPreviousPartsConsumptionData(){
                 'status !=' => _247AROUND_CANCELLED
             );
             $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
-            if (empty($spare_details) && !empty($unit_details) && !empty($unit_details[0]['serial_number_pic'])) {
+			$spares = $spare_details;
+            if (empty($spares) && !empty($unit_details) && !empty($unit_details[0]['serial_number_pic']) && empty($autofill)) {
                 $serial_number_details['serial_number'] = $unit_details[0]['serial_number'];
                 $serial_number_details['serial_number_pic'] = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/" . SERIAL_NUMBER_PIC_DIR . "/" . $unit_details[0]['serial_number_pic'];
             }
-            $spares = $this->engineer_model->get_spare_details("id", $where);
+            
             if (!empty($serial_number_details['serial_number']) && !empty($spares)) {
                 $serial_number_details['can_edit_serial_number'] = '0';
             }
