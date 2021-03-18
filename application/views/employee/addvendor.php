@@ -306,7 +306,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label for="state" class="col-md-3 vertical-align">District*</label>
                                         <div class="col-md-8">
-                                            <select id="district_option" class="district form-control" name ="district" onChange="getPincode()">
+                                            <select id="district_option" class="district form-control" name ="district" onChange="getPincode()" disabled="true">
                                                 <option selected disabled>Select District</option>
                                                 <option <?php
                                                     if (isset($query[0]['district'])) {
@@ -328,7 +328,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     <div class="form-group ">
                                         <label for="state" class="col-md-3 vertical-align">Pincode*</label>
                                         <div class="col-md-8">
-                                            <select class="pincode form-control" id="pincode" name ="pincode" required="true" >
+                                            <select class="pincode form-control" id="pincode" name ="pincode" required="true" disabled="true">
                                                 <option selected disabled>Select Pincode</option>
                                                 <option <?php
                                                     if (isset($query[0]['pincode'])) {
@@ -2495,7 +2495,21 @@ function check_mobile(id)
   if(mobile.charAt(0)==0){
           alert("Do not enter first digit 0");
       }
-}       
+}
+//Author:Deepak 
+//This function use for ,you can't select district without select state first
+$('#state').change(function (){
+    if($("#state").val() != null) {
+         $("#district_option").attr('disabled',false);
+    }  
+});
+//Author:Deepak 
+//This function use for ,you can't select pincode without select district first
+$('#district_option').change(function (){
+    if($("#district_option").val() != null) {
+         $("#pincode").attr('disabled',false);
+    }    
+});
 </script>
 <!--Validations here-->
 <?php if($this->session->userdata('checkbox')){$this->session->unset_userdata('checkbox');}?>
