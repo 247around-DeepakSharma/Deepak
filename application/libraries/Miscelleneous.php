@@ -2745,7 +2745,7 @@ class Miscelleneous {
     function reject_reschedule_request($booking_id,$escalation_reason_id,$remarks,$id,$employeeID){
         log_message('info', __METHOD__.' Function Start');
         //Change Booking Status Back to Pending
-        $affectedRows = $this->My_CI->reusable_model->update_table("service_center_booking_action",array("current_status"=>"Pending","internal_status"=>"Pending"),
+        $affectedRows = $this->My_CI->reusable_model->update_table("service_center_booking_action",array("current_status"=>_247AROUND_PENDING,"internal_status"=>_247AROUND_PENDING),
                 array("booking_id"=>$booking_id));
         if($affectedRows>0){
             //State Change
