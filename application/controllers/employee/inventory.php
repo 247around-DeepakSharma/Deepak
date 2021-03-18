@@ -4793,15 +4793,19 @@ class Inventory extends CI_Controller {
         }
         if (!empty($ledger['booking_id'])) {
             if (isset($fomData['spare_id']) && $fomData['spare_id'] != 'new_spare_id') {
-
+                if ($is_wh_micro == 1) {
+                   $is_wh = 2;
+                } else {
+                    $is_wh = 1;
+                }
                 $a = array('entity_type' => _247AROUND_SF_STRING, 'partner_id' => $wh_id,
                     'wh_ack_received_part' => 0, 'purchase_invoice_id' => $ledger['invoice_id'],
                     'sell_invoice_id' => (isset($ledger['micro_invoice_id'])? $ledger['micro_invoice_id'] : NULL),
                     'requested_inventory_id' => $ledger['inventory_id'],
                     'shipped_quantity'=>$ledger['quantity'],
                     'inventory_invoice_on_booking' => 1, 'defective_return_to_entity_id' => $wh_id,
-                    'defective_return_to_entity_type' => _247AROUND_SF_STRING, 'is_micro_wh' => $is_wh_micro);
-                
+                    'defective_return_to_entity_type' => _247AROUND_SF_STRING, 'is_micro_wh' => $is_wh);
+
                 $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $fomData['spare_id']), $a);
 
                 /* Insert Spare Tracking Details */
@@ -5068,6 +5072,7 @@ class Inventory extends CI_Controller {
             $margin_total = $value['taxable_value'] * ( 1 + $repair_oow_around_percentage);
             $a[$key]['taxable_value'] = $margin_total;
             $a[$key]['from_gst_number_id'] = $value['to_gst_number'];
+            
         }
         $response = $this->invoices_model->_set_partner_excel_invoice_data($a, $invoice_date, $invoice_date, "Tax Invoice", $invoice_date);
         $response['meta']['main_company_gst_number'] = $around_gst[0]['gst_number'];
@@ -5151,7 +5156,6 @@ class Inventory extends CI_Controller {
                 $ledger_data['quantity'] = $value['qty'];
                 $ledger_data['agent_id'] = $agent_id;
                 $ledger_data['agent_type'] = $agent_type;
-                $ledger_data['booking_id'] = $value['booking_id'];
                 $pin = $this->input->post('invoice_id');
                 if (!empty($pin)) {
 
@@ -5164,16 +5168,24 @@ class Inventory extends CI_Controller {
                 $ledger_data['is_wh_ack'] = 0;
                 $ledger_data['courier_id'] = $courier_id;
                 $ledger_data['is_wh_micro'] = 2;
-                if(!empty($value['spare_id'])) {
-                    $ledger_data['spare_id'] = $value['spare_id'];
+                if(isset($value['booking_id']) && !empty($value['booking_id'])){
+                    $ledger_data['booking_id'] = $value['booking_id'];
                 }
+                if(!empty($value['spare_id']) && $value['spare_id'] != "new_spare_id") {
+                    $ledger_data['spare_id'] = $value['spare_id'];
+                    
+                }
+                
                 $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
                 $ledger_data['is_defective_part_return_wh'] = trim($this->input->post('is_defective_part_return_wh'));
                 
                 if ($insert_id) {
                     log_message("info", "Ledger details added successfully");
-                    // Don't uncomment below line
-                    //$this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, 2, $action_agent_id);
+                    if(!empty($value['spare_id'])) {
+                         $ledger_data['spare_id'] = $value['spare_id'];
+                    
+                    }
+                    $this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, 2, $action_agent_id);
                     if($sender_entity_type == _247AROUND_SF_STRING){
                         $stock = "stock - '" . $value['qty'] . "'";
                         $this->inventory_model->update_inventory_stock(array('entity_id' => $sender_enity_id, 'inventory_id' => $value['inventory_id']), $stock);
@@ -5272,6 +5284,12 @@ class Inventory extends CI_Controller {
         $invoice['rate'] = sprintf("%.2f",$value['part_total_price'] / $value['quantity']);
         $invoice['inventory_id'] = $value['inventory_id'];
         $invoice['taxable_value'] = sprintf("%.2f",$value['part_total_price']);
+        if(isset($value['spare_id'])){
+            $invoice['spare_id'] = $value['spare_id'];
+        }
+        if(isset($value['booking_id']) & !empty($value['booking_id'])){
+            $invoice['booking_id'] = $value['booking_id'];
+        }
         if (!empty($value['gst_rate'])) {
             $gst_amount = $invoice['taxable_value'] * ($value['gst_rate'] / 100 );
         } else {
