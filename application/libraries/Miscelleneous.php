@@ -5218,8 +5218,12 @@ function generate_image($base64, $image_name,$directory){
                         if(!empty($this->My_CI->session->userdata('service_center_id'))) {
                             $this->My_CI->invoice_lib->generate_challan_file($spare_id, $this->My_CI->session->userdata('service_center_id'),'',true);
                         } else {
-                            if(empty($spare_part_detail['sf_challan_file']) && !empty($service_center_details)){
-                                $this->My_CI->invoice_lib->generate_challan_file($spare_id, $service_center_details[0]['service_center_id'],'',true);
+                            if (empty($spare_part_detail['sf_challan_file'])) {
+                                if (!empty($service_center_details)) {
+                                    $this->My_CI->invoice_lib->generate_challan_file($spare_id, $service_center_details[0]['service_center_id'], '', true);
+                                } else {
+                                    $this->My_CI->invoice_lib->generate_challan_file($spare_id, $spare_part_detail['service_center_id'], '', true);
+                                }
                             }
                         }
                     }
