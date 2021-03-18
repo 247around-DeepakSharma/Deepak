@@ -213,6 +213,8 @@ define('_247AROUND_VENDOR_PINCODE','Vendor-Pincode');
 define('_247AROUND_SF_PRICE_LIST','SF-Price-List');
 //Define Constant for Partner Appliance Details
 define('_247AROUND_PARTNER_APPLIANCE_DETAILS','Partner-Appliance-Details');
+//Define Constant for Part Warranty Details
+define('PART_WARRANTY_DETAILS','Part-Warranty-Details');
 //Define Partner Type
 define('OEM', "OEM");
 define('EXTWARRANTYPROVIDERTYPE', "EXT_WARRANTY_PROVIDER");
