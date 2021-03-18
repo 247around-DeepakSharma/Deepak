@@ -2,7 +2,7 @@
     <div class="col-md-12 col-sm12 col-xs-12">
         <div class="x_title">
             <div class="col-xs-4 col-sm-4 pull-right">
-                <button type="button" class="btn btn-default pull-right onspareaddButton" data-count='<?php echo $count;?>' <?php if($add_more == 1){ echo "disabled"; } ?> >Add More Spare Item</button>
+<!--                <button type="button" class="btn btn-default pull-right onspareaddButton" data-count='<?php //echo $count;?>' <?php //if($add_more == 1){ echo "disabled"; } ?> >Add More Spare Item</button>-->
             </div>
             <div class="clearfix"></div>
         </div>
