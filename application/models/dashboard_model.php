@@ -1169,11 +1169,13 @@ class dashboard_model extends CI_Model {
                     (CASE WHEN vendor_escalation_log.escalation_source = '"._247AROUND_EMPLOYEE_STRING."' THEN employee_agent.full_name ELSE entity_login_table.agent_name END) as 'Agent Name',
                     vendor_escalation_log.escalation_source as Source ";
         
-        // set where condition
-        $where =    "booking_details.partner_id =  '$partner_id'
-                    AND date(vendor_escalation_log.create_date) >= '$startDate'
-                    AND date(vendor_escalation_log.create_date) < '$endDate'";
-        
+         // set where condition when Partner id  is null
+        $where = "date(vendor_escalation_log.create_date) >= '$startDate'
+              AND date(vendor_escalation_log.create_date) < '$endDate'";
+         // set where condition when Partner id  is not null
+        if(!empty($partner_id)){
+           $where .= " and booking_details.partner_id =  '$partner_id'";
+         } 
         // Query here
         $this->db->select($select);
         $this->db->from('vendor_escalation_log');
