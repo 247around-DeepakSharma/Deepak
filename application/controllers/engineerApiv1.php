@@ -2639,7 +2639,7 @@ class engineerApiv1 extends CI_Controller {
             $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $requestData['booking_id']));
             $spare_part_can_requested = false;
             foreach ($unit_details as $value) {
-                if (stristr($value['price_tags'], "Repair") || stristr($value['price_tags'], "Repeat") || stristr($value['price_tags'], "Replacement") || stristr($value['price_tags'], EXTENDED_WARRANTY_TAG) || stristr($value['price_tags'], PRESALE_REPAIR_TAG) || stristr($value['price_tags'], GAS_RECHARGE_IN_WARRANTY) || stristr($value['price_tags'], AMC_PRICE_TAGS) || stristr($value['price_tags'], GAS_RECHARGE_OUT_OF_WARRANTY)) {
+                if (stristr($value['price_tags'], "Repair") || stristr($value['price_tags'], "Repeat") || stristr($value['price_tags'], "Replacement") || stristr($value['price_tags'], EXTENDED_WARRANTY_TAG) || stristr($value['price_tags'], PRESALE_REPAIR_TAG) || stristr($value['price_tags'], GAS_RECHARGE_IN_WARRANTY) || stristr($value['price_tags'], AMC_PRICE_TAGS) || stristr($value['price_tags'], GAS_RECHARGE_OUT_OF_WARRANTY) || stristr($value['price_tags'], "Dead On Arrival (DOA)") || stristr($value['price_tags'], "Dead after Purchase (DaP)")) {
 
                     $spare_part_can_requested = true;
                 }
