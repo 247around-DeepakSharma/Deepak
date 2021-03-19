@@ -5539,7 +5539,8 @@ function generate_image($base64, $image_name,$directory){
                 MSL_NEW_PART_RETURN,
                 MSL_DEFECTIVE_RETURN,
                 MSL_Debit_Note,
-                MSL_Credit_Note
+                MSL_Credit_Note,
+                IN_WARRANTY
             )
                 ), NULL, array()
         );
@@ -5551,7 +5552,7 @@ function generate_image($base64, $image_name,$directory){
                 $mslSecurityAmount += floatval($row['amount']);
             } else if (!empty($row['sub_category']) && ($row['sub_category'] == MSL_DEFECTIVE_RETURN || $row['sub_category'] == MSL_NEW_PART_RETURN || $row['sub_category'] == MSL_Credit_Note)) {
                 $mslAmount -= floatval($row['amount']);
-            } else if ($row['sub_category'] == MSL || $row['sub_category'] == MSL_Debit_Note) {
+            } else if ($row['sub_category'] == MSL || $row['sub_category'] == MSL_Debit_Note || $row['sub_category'] == IN_WARRANTY) {
                 $mslAmount += floatval($row['amount']);
             }
         }
