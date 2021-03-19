@@ -698,11 +698,6 @@
 
     function validate_serial_number_and_warranty()
     {
-        // Validate Serial Number in case of Spare Request page
-        var reason = $("input[name='reason']:checked"). val();
-        if(reason !== "<?php echo SPARE_PARTS_REQUIRED;?>" && reason !== "<?php echo SPARE_OOW_EST_REQUESTED;?>"){
-            return true;
-        }
         var postData = {};
         var valid_serial_number = false;
         var UrlValidateSerialNumber = '<?php echo base_url(); ?>employee/service_centers/validate_booking_serial_number';
@@ -1263,23 +1258,32 @@
             $('#submitform').val("Update Booking");
             return false;
           
-        } else if(checkbox_value === 1){          
-            if(confirm("Validating Serial Number & Booking Warranty Status, Click OK to continue.")){
-                $("#submitform").prop("disabled", true);
-                $("#submitform").attr('value', 'Validating Data...');
-                setTimeout(function(){ 
-                    var is_correct = validate_serial_number_and_warranty();
-                    if(is_correct){
-                        $("#requested_parts").submit();
-                        return true;
-                    }
-                    else{                        
-                        $("#submitform").attr('value', "Update Booking");
-                        $("#submitform").prop("disabled", false);
-                        return false;
-                    }
-                }, 3000);                
-            }          
+        } else if(checkbox_value === 1){      
+            // Validate Serial Number in case of Spare Request page
+            var reason = $("input[name='reason']:checked"). val();
+            if(reason !== "<?php echo SPARE_PARTS_REQUIRED;?>"){
+                $("#requested_parts").submit();
+                return true;
+            }
+            else
+            {
+                if(confirm("Validating Serial Number & Booking Warranty Status, Click OK to continue.")){
+                    $("#submitform").prop("disabled", true);
+                    $("#submitform").attr('value', 'Validating Data...');
+                    setTimeout(function(){ 
+                        var is_correct = validate_serial_number_and_warranty();
+                        if(is_correct){
+                            $("#requested_parts").submit();
+                            return true;
+                        }
+                        else{                        
+                            $("#submitform").attr('value', "Update Booking");
+                            $("#submitform").prop("disabled", false);
+                            return false;
+                        }
+                    }, 3000);                
+                }
+            }
         }    
     }
     

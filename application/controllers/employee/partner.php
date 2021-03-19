@@ -707,7 +707,11 @@ class Partner extends CI_Controller {
                 
                 $this->partner_model->edit_partner($edit_partner_data['partner'], $partner_id);
                 //Getting Logged Employee Full Name
-                $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
+                $logged_user_name = "";
+                $arr_logged_user = $this->employee_model->getemployeefromid($this->session->userdata('id'));
+                if(!empty($arr_logged_user[0]['full_name'])){
+                   $logged_user_name = $arr_logged_user[0]['full_name']; 
+                }
                 //Logging
                 log_message('info', __FUNCTION__ . ' Partner has been Updated : ' . print_r($this->input->post(), TRUE));
                 $msg = "Partner Updated Successfully";
