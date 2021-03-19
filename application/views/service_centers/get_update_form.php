@@ -1261,7 +1261,7 @@
         } else if(checkbox_value === 1){      
             // Validate Serial Number in case of Spare Request page
             var reason = $("input[name='reason']:checked"). val();
-            if(reason !== "<?php echo SPARE_PARTS_REQUIRED;?>"){
+            if(reason !== "<?php echo SPARE_PARTS_REQUIRED;?>" && reason !== "<?php echo SPARE_OOW_EST_REQUESTED;?>"){
                 $("#requested_parts").submit();
                 return true;
             }
