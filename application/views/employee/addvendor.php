@@ -2494,10 +2494,14 @@ function check_mobile(){
   var mobile_length_2=  $("#phone_2").val().length;
   
   if(mobile_length_1 != 0 ||  mobile_length_2 != 0){
-  if($("#phone_1").val().charAt(0) === '0' ||  $("#phone_2").val().charAt(0) === '0'){
-          alert("Do not enter first digit 0 in phone number");
-          return false; 
-      }
+       if($("#phone_1").val().charAt(0) === '0' ){
+           alert("Do not enter first digit 0 in phone 1");
+           return false; 
+        }
+       if( $("#phone_2").val().charAt(0) === '0'){
+            alert("Do not enter first digit 0 in phone 2");
+            return false; 
+       }
   }
 }
 function  check_mobile_number(){
@@ -2507,10 +2511,22 @@ function  check_mobile_number(){
     var mobile_length_6 = $("#owner_phone_2").val().length;
   
     if(mobile_length_3 != 0 ||mobile_length_4 != 0 || mobile_length_5 != 0|| mobile_length_6 != 0 ){
-       if($("#primary_contact_phone_1").val().charAt(0) === '0' || $("#primary_contact_phone_2").val().charAt(0) === '0' || $("#owner_phone_1").val().charAt(0) === '0' || $("#owner_phone_2").val().charAt(0) === '0'){
-          alert("Do not enter first digit 0 in phone number");
-          return false; 
-       }
+           if($("#primary_contact_phone_1").val().charAt(0) === '0'){
+              alert("Do not enter first digit 0 in POC Details phone 1");
+              return false; 
+           }
+           if( $("#primary_contact_phone_2").val().charAt(0) === '0'){
+              alert("Do not enter first digit 0 in POC Details phone 2");
+              return false; 
+           }
+           if( $("#owner_phone_1").val().charAt(0) === '0'){
+                alert("Do not enter first digit 0 in Owner Details phone 1");
+                return false; 
+           }
+           if($("#owner_phone_2").val().charAt(0) === '0'){
+                alert("Do not enter first digit 0 in Owner Details phone 2");
+                return false; 
+           }
   }
 }
 //Author:Deepak 
