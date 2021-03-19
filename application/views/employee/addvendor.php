@@ -300,7 +300,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label for="state" class="col-md-3 vertical-align">District*</label>
                                         <div class="col-md-8">
-                                            <select id="district_option" class="district form-control" name ="district" onChange="getPincode()">
+                                            <select id="district_option" class="district form-control" name ="district" onChange="getPincode()" disabled="true">
                                                 <option selected disabled>Select District</option>
                                                 <option <?php
                                                     if (isset($query[0]['district'])) {
@@ -322,7 +322,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     <div class="form-group ">
                                         <label for="state" class="col-md-3 vertical-align">Pincode*</label>
                                         <div class="col-md-8">
-                                            <select class="pincode form-control" id="pincode" name ="pincode" required="true" >
+                                            <select class="pincode form-control" id="pincode" name ="pincode" required="true" disabled="true">
                                                 <option selected disabled>Select Pincode</option>
                                                 <option <?php
                                                     if (isset($query[0]['pincode'])) {
@@ -386,7 +386,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                                 if (isset($query[0]['phone_1'])) {
                                                     echo $query[0]['phone_1'];
                                                 }
-                                                ?>"  onkeyup="check_mobile(this.id)" required="true">
+                                                ?>"  required="true">
                                             <?php echo form_error('phone_1'); ?>
                                         </div>
                                     </div>
@@ -399,7 +399,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label  for="phone_2" class="col-md-3 vertical-align">Phone 2</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control" id="phone_2" name="phone_2" onkeyup=" check_mobile(this.id)"   value = "<?php
+                                            <input type="text" class="form-control" id="phone_2" name="phone_2"   value = "<?php
                                                 if (isset($query[0]['phone_2'])) {
                                                     echo $query[0]['phone_2'];
                                                 }
@@ -588,7 +588,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                         } else {
                             echo "Save Basic Details";
                         }
-                        ?>" class="btn btn-primary" id="submit_btn">
+                        ?>" class="btn btn-primary" id="submit_btn" onclick="return check_mobile();">
                         <?php echo "<a class='btn btn-small btn-primary cancel' href=" . base_url() . "employee/vendor/viewvendor>Cancel</a>"; ?>
                         </center>
 <!--                    </div>-->
@@ -1309,7 +1309,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label for="primary_contact_phone_1" class="col-md-3 vertical-align">Phone 1*</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control" id="primary_contact_phone_1" onkeyup="check_mobile(this.id)"name="primary_contact_phone_1" value = "<?php
+                                            <input type="text" class="form-control" id="primary_contact_phone_1" name="primary_contact_phone_1" value = "<?php
                                                 if (isset($query[0]['primary_contact_phone_1'])) {
                                                     echo $query[0]['primary_contact_phone_1'];
                                                 }
@@ -1326,7 +1326,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label for="primary_contact_phone_2" class="col-md-3 vertical-align">Phone 2</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control" id="primary_contact_phone_2" name="primary_contact_phone_2" onkeyup="check_mobile(this.id)" value = "<?php
+                                            <input type="text" class="form-control" id="primary_contact_phone_2" name="primary_contact_phone_2"  value = "<?php
                                                 if (isset($query[0]['primary_contact_phone_2'])) {
                                                     echo $query[0]['primary_contact_phone_2'];
                                                 }
@@ -1386,7 +1386,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label  for="owner_phone_1" class="col-md-3 vertical-align">Phone 1*</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control" id="owner_phone_1"onkeyup="check_mobile(this.id)"name="owner_phone_1" value = "<?php
+                                            <input type="text" class="form-control" id="owner_phone_1" name="owner_phone_1" value = "<?php
                                                 if (isset($query[0]['owner_phone_1'])) {
                                                     echo $query[0]['owner_phone_1'];
                                                 }
@@ -1403,7 +1403,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label for="owner_phone_2" class="col-md-3 vertical-align">Phone 2</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control" id="owner_phone_2" name="owner_phone_2" onkeyup="check_mobile(this.id)" value = "<?php
+                                            <input type="text" class="form-control" id="owner_phone_2" name="owner_phone_2" value = "<?php
                                                 if (isset($query[0]['owner_phone_2'])) {
                                                     echo $query[0]['owner_phone_2'];
                                                 }
@@ -1494,7 +1494,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     } else {
                                         echo "Save Contact Person";
                                     }
-                                    ?>" class="btn btn-primary" id="submit_btn">
+                                    ?>" class="btn btn-primary" id="submit_btn" onclick ="return check_mobile_number()">
                             <?php echo "<a class='btn btn-small btn-primary cancel' href=" . base_url() . "employee/vendor/viewvendor>Cancel</a>"; ?>
                                 </center>
             </div>    
@@ -2437,13 +2437,60 @@ $(document).ready(function(){
     $('[data-toggle="tooltip"]').tooltip();
 });
 
-function check_mobile(id)
-{  
-  var mobile = document.getElementById(id).value;
-  if(mobile.charAt(0)==0){
-          alert("Do not enter first digit 0");
-      }
-}       
+function check_mobile(){    
+  var mobile_length_1 = $("#phone_1").val().length;
+  var mobile_length_2=  $("#phone_2").val().length;
+  
+  if(mobile_length_1 != 0 ||  mobile_length_2 != 0){
+       if($("#phone_1").val().charAt(0) === '0' ){
+           alert("Do not enter first digit 0 in phone 1");
+           return false; 
+        }
+       if( $("#phone_2").val().charAt(0) === '0'){
+            alert("Do not enter first digit 0 in phone 2");
+            return false; 
+       }
+  }
+}
+function  check_mobile_number(){
+    var mobile_length_3 = $("#primary_contact_phone_1").val().length;
+    var mobile_length_4 = $("#primary_contact_phone_2").val().length;
+    var mobile_length_5 = $("#owner_phone_1").val().length;
+    var mobile_length_6 = $("#owner_phone_2").val().length;
+
+    if(mobile_length_3 != 0 ||mobile_length_4 != 0 || mobile_length_5 != 0|| mobile_length_6 != 0 ){
+           if($("#primary_contact_phone_1").val().charAt(0) === '0'){
+              alert("Do not enter first digit 0 in POC Details phone 1");
+              return false; 
+           }
+           if( $("#primary_contact_phone_2").val().charAt(0) === '0'){
+              alert("Do not enter first digit 0 in POC Details phone 2");
+              return false; 
+           }
+           if( $("#owner_phone_1").val().charAt(0) === '0'){
+                alert("Do not enter first digit 0 in Owner Details phone 1");
+                return false; 
+           }
+           if($("#owner_phone_2").val().charAt(0) === '0'){
+                alert("Do not enter first digit 0 in Owner Details phone 2");
+                return false; 
+           }
+  }
+}
+//Author:Deepak 
+//This function use for ,you can't select district without select state first
+$('#state').change(function (){
+    if($("#state").val() != null) {
+         $("#district_option").attr('disabled',false);
+    }  
+});
+//Author:Deepak 
+//This function use for ,you can't select pincode without select district first
+$('#district_option').change(function (){
+    if($("#district_option").val() != null) {
+         $("#pincode").attr('disabled',false);
+    }    
+});     
 </script>
 <!--Validations here-->
 <?php if($this->session->userdata('checkbox')){$this->session->unset_userdata('checkbox');}?>
