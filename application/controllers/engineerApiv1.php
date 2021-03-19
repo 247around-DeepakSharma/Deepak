@@ -3889,7 +3889,11 @@ class engineerApiv1 extends CI_Controller {
                 $curl_data['booking_alternate_contact_no'] = $booking_details['booking_history'][0]['booking_alternate_contact_no'];
                 $curl_data['source_code'] = $booking_details['booking_history'][0]['partner_id'];
                 $curl_data['partner_source'] = $booking_details['booking_history'][0]['partner_source'];
-                $curl_data['parent_id'] = $booking_details['booking_history'][0]['parent_booking'];
+                if(empty($booking_details['booking_history'][0]['parent_booking'])){
+					$curl_data['parent_id'] = null;
+				}else{
+					$curl_data['parent_id'] = $booking_details['booking_history'][0]['parent_booking'];
+				}
                 $curl_data['dealer_name'] = "";
                 $curl_data['type'] = $booking_details['booking_history'][0]['type'];
                 $curl_data['dealer_name'] = "";
