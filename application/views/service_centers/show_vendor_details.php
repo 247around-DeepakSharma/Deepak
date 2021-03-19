@@ -372,7 +372,7 @@
                     </div>
                 </div>
             </div>
-            <div  class = "panel panel-info" style="border-bottom:none;">
+            <div  class = "panel panel-info">
                 <div class="panel-heading"><b>Registration Details</b></div>
                 <div class="panel-body form-horizontal">
                  <div class="row">
@@ -380,7 +380,7 @@
                         <div class="col-md-4" style="margin-right:21px;">
                             <div class="form-group">
                                 <label  for="name_on_pan" class="col-md-4">PAN </label>
-                                <div class="col-md-7" style="margin-left:-35px;">
+                                <div class="col-md-7">
                                     <input placeholder="Name on PAN CARD" type="text" class="form-control"  id="name_on_pan" name="name_on_pan" value = "<?php
                                     if (isset($query[0]['name_on_pan'])) {
                                         echo $query[0]['name_on_pan'];
@@ -390,7 +390,7 @@
 
                             </div>
                         </div>
-                        <div class="col-md-3" style="margin-left:-60px;">
+                        <div class="col-md-3" style="margin-right:14px;">
                             <div class="form-group">
                                 <input type="text" class="form-control"  id="pan_no" name="pan_no" placeholder="PAN Number" value = "<?php
                                 if (isset($query[0]['pan_no'])) {
@@ -401,7 +401,9 @@
                             </div>
                         </div>
 
+
                         <div class="col-md-1" style="display:none">
+
                             <div class="form-group">
 
                                 <input type="file" class="form-control"  name="pan_file" style="display: none;">
@@ -612,7 +614,7 @@
                             </div>
                         </div>-->
                         
-                    <div class="row">
+                     <div class="row">
                         <div class="col-md-12">
                             <div class="col-md-4" style='margin-right: 8px;'>
                                 <div class="form-group">
@@ -626,6 +628,8 @@
                                     </div>
                                 </div>
                             </div>
+                           
+                            <div class="col-md-4" >
                                 <div class="form-group">
                                     <label for="service_tax_no" class="col-md-4">GST File</label>
                                     <div class="col-md-7">
@@ -636,7 +640,7 @@
                                         }
                                         ?> -->
                                     </div>
-                                    <div class="col-md-6" style="margin-left:-5px">
+                                    <div class="col-md-6">
                                         <?php
                                         if (isset($query[0]['gst_file']) && !empty($query[0]['gst_file'])) {
                                             $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$query[0]['gst_file'];
@@ -675,7 +679,7 @@
                     <div class="col-md-4" style='margin-right: 8px;'>
 
                         <div class="form-group">
-                            <label  for="contract_file" class="col-md-3">Contract File</label>
+                            <label  for="contract_file" class="col-md-4">Contract File</label>
                             <div class="col-md-6">
                                 <input type="file" class="form-control"  name="contract_file" style="display: none;" >
                                 <!-- <?php
@@ -686,6 +690,7 @@
                             </div>
 
                             <div class="col-md-6" >
+
 
                                 <?php
                                 if (isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])) {
@@ -712,7 +717,7 @@
                                 if (isset($query[0]['address_proof_file']) && !empty($query[0]['address_proof_file'])) {
                                     $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['address_proof_file'];
                                     ?>
-                                    <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo base_url().'images/view_image.png'; ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" title="Click to view" /></a>
+                                    <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo base_url().'images/view_image.png'; ?>" width="35px" height="35px" style="border:1px solid black;" title="Click to view" /></a>
                                     <?php
                                 } else {
                                     $src = base_url() . 'images/no_image.png';
@@ -735,7 +740,7 @@
                                                 </div> 
 
 
-                                                <div class="col-md-6" style="margin-left: -30px">
+                                                <div class="col-md-6">
                                                     <?php
                                                     $src = base_url() . 'images/no_image.png';
                                                     $image_src = $src;
@@ -830,7 +835,7 @@
                                         }
                                         ?>
  -->                                    </div>
-                                    <div class="col-md-1" style="margin-left: -227px">
+                                    <div class="col-md-1">
                                         <?php
                                         if (isset($query[0]['cancelled_cheque_file']) && !empty($query[0]['cancelled_cheque_file'])) {
                                             $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['cancelled_cheque_file'];
