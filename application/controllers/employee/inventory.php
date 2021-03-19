@@ -4508,6 +4508,11 @@ class Inventory extends CI_Controller {
 
                             if (!empty($exist_courier_details)) {
                                 $courier_company_details_id = trim($exist_courier_details[0]['id']);
+                                $awb_data = array(
+                                    'awb_number' => $courier_company_details_id[0]['awb_number'],
+                                    'company_name' => $courier_company_details_id[0]['company_name'],
+                                    'courier_invoice_file' => $courier_company_details_id[0]['courier_invoice_file']
+                                );
                                
                                 //$awb_by_wh = trim($exist_courier_details[0]['awb_number']);
                                 //$courier_name_by_wh = trim($exist_courier_details[0]['company_name']);
@@ -4616,7 +4621,7 @@ class Inventory extends CI_Controller {
 
                                             if ($insert_id) {
                                                 log_message("info", "Ledger details added successfully");
-                                                $this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, $is_wh_micro, $action_agent_id);
+                                                $this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, $is_wh_micro, $action_agent_id, $awb_data, $sender_entity_type, $sender_enity_id);
                                             } else {
                                                 array_push($not_updated_data, $value['part_number']);
                                                 log_message("info", "error in adding inventory ledger details data: " . print_r($ledger_data, TRUE));
@@ -4646,7 +4651,9 @@ class Inventory extends CI_Controller {
 
                                 // 2 Means - this part send to Micro Warehouse And 1 means sent to warehouse
                                 If ($is_wh_micro == 2) {
-                                    $not_updated_data = $this->generate_micro_warehouse_invoice($invoice, $wh_id, $tqty, $partner_id, $to_gst_number, $sender_enity_id, $sender_entity_type, $agent_id, $agent_type, $courier_company_details_id, $action_agent_id);
+                                    $not_updated_data = $this->generate_micro_warehouse_invoice($invoice, $wh_id, $tqty, $partner_id, 
+                                            $to_gst_number, $sender_enity_id, $sender_entity_type, $agent_id, $agent_type, 
+                                            $courier_company_details_id, $action_agent_id, $awb_data);
                                 }
                                 //send email to 247around warehouse incharge
                                 $email_template = $this->booking_model->get_booking_email_template("spare_send_by_partner_to_wh");
@@ -4757,13 +4764,15 @@ class Inventory extends CI_Controller {
      * @param Array $ledger
      * @param int $wh_id
      */
-    function move_inventory_to_warehouse($ledger, $fomData, $wh_id, $is_wh_micro, $action_agent_id) {
+    function move_inventory_to_warehouse($ledger, $fomData, $wh_id, $is_wh_micro, $action_agent_id, $awb, $sender_entity_type, $sender_enity_id ) {
         log_message('info', __METHOD__ . " warehouse id " . $wh_id . " ledger " . json_encode($ledger, true) . " Form data " . json_encode($fomData) . " WH id " . $wh_id, true);
         $access = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $transfered_by = $this->input->post('transfered_by');
+        
         if ($this->session->userdata("partner_id")) {
             $s_partner_id = $this->session->userdata("partner_id");
             $track_entity_type = _247AROUND_PARTNER_STRING;
+
         } else if ($this->session->userdata("service_center_id")) {
             $s_partner_id = $this->session->userdata("service_center_id");
             $track_entity_type = _247AROUND_SF_STRING;
@@ -4771,6 +4780,16 @@ class Inventory extends CI_Controller {
             $s_partner_id = _247AROUND;
             $track_entity_type = _247AROUND_EMPLOYEE_STRING;
         }
+        
+        if($sender_entity_type == _247AROUND_PARTNER_STRING){
+            
+            $status = SPARE_SHIPPED_BY_PARTNER;
+            $d_id = DEFAULT_WAREHOUSE_ID;
+        } else {
+            $status = SPARE_PARTS_SHIPPED_BY_WAREHOUSE;
+            $d_id = $sender_enity_id;
+        }
+        
         if (!empty($ledger['booking_id'])) {
             if (isset($fomData['spare_id']) && $fomData['spare_id'] != 'new_spare_id') {
                 if ($is_wh_micro == 1) {
@@ -4781,30 +4800,55 @@ class Inventory extends CI_Controller {
                 $a = array('entity_type' => _247AROUND_SF_STRING, 'partner_id' => $wh_id,
                     'wh_ack_received_part' => 0, 'purchase_invoice_id' => $ledger['invoice_id'],
                     'sell_invoice_id' => (isset($ledger['micro_invoice_id']) ? $ledger['micro_invoice_id'] : NULL),
-                    'requested_inventory_id' => $ledger['inventory_id'],
                     'shipped_quantity' => $ledger['quantity'],
-                    'inventory_invoice_on_booking' => 1, 'defective_return_to_entity_id' => $wh_id,
+                    'inventory_invoice_on_booking' => 1, 'defective_return_to_entity_id' => $d_id,
                     'defective_return_to_entity_type' => _247AROUND_SF_STRING, 'is_micro_wh' => $is_wh);
+                if($is_wh ==1){
+                    $spareD = $this->partner_model->get_spare_parts_by_any("spare_parts_details.model_number", array('spare_parts_details.id' => $fomData['spare_id']));
+                    $master = $this->inventory_model->get_inventory_master_list_data('oow_around_margin, inventory_master_list.gst_rate,inventory_master_list.type,inventory_master_list.part_name,inventory_master_list.price, inventory_master_list.gst_rate, inventory_master_list.oow_around_margin', array('inventory_master_list.inventory_id' => $ledger['inventory_id']));
+                    
+                    $a['model_number_shipped'] = $spareD[0]['model_number'];
+                    $a['parts_shipped'] = $master[0]['part_name'];
+                    $a['shipped_parts_type'] = $master[0]['type'];
+                    $a['shipped_inventory_id'] = $ledger['inventory_id'];
+                    $a['shipped_date'] = date('Y-m-d');
+                    $a['status'] = $status;
+                    $a['awb_by_partner'] = $awb['awb_number'];
+                    $a['courier_name_by_partner'] = $awb['company_name'];
+                    $a['courier_price_by_partner'] = 0;
+                    $a['courier_pic_by_partner'] = $awb['courier_invoice_file'];
+                    
+                    $challan_estimate =  sprintf("%.2f", $master[0]['price'] * ( 1 + $master[0]['gst_rate'] / 100));
+                    $c = sprintf("%.2f", $challan_estimate * ( 1 + $master[0]['oow_around_margin'] / 100));
+                    $a['challan_approx_value'] = sprintf("%.2f", $c *  $ledger['quantity']);
+                    
+                    
+                    $action = SPARE_SHIPPED_BY_PARTNER;
+
+                } else {
+                    $a['requested_inventory_id'] = $ledger['inventory_id'];
+                    $action = SPARE_SHIPPED_TO_WAREHOUSE;
+                }
 
                 $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $fomData['spare_id']), $a);
                 /* Insert Spare Tracking Details */
                 if (!empty($fomData['spare_id'])) {
-                    $tracking_details = array('spare_id' => $fomData['spare_id'], 'action' => SPARE_SHIPPED_TO_WAREHOUSE, 'remarks' => '', 'agent_id' => $action_agent_id, 'entity_id' => $s_partner_id, 'entity_type' => $track_entity_type);
+                    $tracking_details = array('spare_id' => $fomData['spare_id'], 'action' => $action, 'remarks' => '', 'agent_id' => $action_agent_id, 'entity_id' => $s_partner_id, 'entity_type' => $track_entity_type);
                     $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                 }
                 if ($update_spare_part) {
                     $actor = $next_action = NULL;
-                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SPARE_SHIPPED_TO_WAREHOUSE, _247AROUND, $ledger['booking_id']);
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $action, _247AROUND, $ledger['booking_id']);
                     if (!empty($partner_status)) {
                         $booking['partner_current_status'] = $partner_status[0];
-                        $booking['internal_status'] = SPARE_SHIPPED_TO_WAREHOUSE;
+                        $booking['internal_status'] = $action;
                         $booking['partner_internal_status'] = $partner_status[1];
                         $actor = $booking['actor'] = $partner_status[2];
                         $next_action = $booking['next_action'] = $partner_status[3];
 
                         $this->booking_model->update_booking($ledger['booking_id'], $booking);
                     }
-                    $this->notify->insert_state_change($ledger['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE . " with invoice id " . $ledger['invoice_id'], $action_agent_id, $action_agent_id, $actor, $next_action, $s_partner_id, NULL, $fomData['spare_id']);
+                    $this->notify->insert_state_change($ledger['booking_id'], $action, "", $action . " with invoice id " . $ledger['invoice_id'], $action_agent_id, $action_agent_id, $actor, $next_action, $s_partner_id, NULL, $fomData['spare_id']);
                     log_message('info', ' Spare mapped to warehouse successfully for booking id ' . trim($fomData['booking_id']) . " Spare ID " . $fomData['spare_id']);
                 } else {
                     log_message('info', ' error in updating spare details');
@@ -4990,7 +5034,8 @@ class Inventory extends CI_Controller {
      * @param int $tqty
      * @param int $partner_id
      */
-    function generate_micro_warehouse_invoice($invoice, $wh_id, $tqty, $partner_id, $from_gst_number, $sender_enity_id, $sender_entity_type, $agent_id, $agent_type, $courier_id, $action_agent_id) {
+    function generate_micro_warehouse_invoice($invoice, $wh_id, $tqty, $partner_id, $from_gst_number, $sender_enity_id, 
+            $sender_entity_type, $agent_id, $agent_type, $courier_id, $action_agent_id, $awb_data) {
         log_message('info', __METHOD__);
         $invoice_date = date('Y-m-d'); 
         $entity_details = $this->vendor_model->getVendorDetails("gst_no as gst_number, sc_code,"
@@ -5164,7 +5209,7 @@ class Inventory extends CI_Controller {
                          $ledger_data['spare_id'] = $value['spare_id'];
                     
                     }
-                    $this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, 2, $action_agent_id);
+                    $this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, 2, $action_agent_id, $awb_data, $sender_entity_type, $sender_enity_id);
                     if($sender_entity_type == _247AROUND_SF_STRING){
                         $stock = "stock - '" . $value['qty'] . "'";
                         $this->inventory_model->update_inventory_stock(array('entity_id' => $sender_enity_id, 'inventory_id' => $value['inventory_id']), $stock);
@@ -5724,26 +5769,27 @@ class Inventory extends CI_Controller {
         $where = array(
             'spare_parts_details.entity_type' => _247AROUND_SF_STRING,
             'spare_parts_details.partner_id' => $receiver_entity_id,
-            'wh_ack_received_part' => 0,
-            'requested_inventory_id' => $data->inventory_id
+            'wh_ack_received_part' => 0
         );
         // 1 Means CWH & 2 Means MWH
         if ($data->is_wh_micro == 1) {
             $where['purchase_invoice_id'] = $data->invoice_id;
             $where['status'] = SPARE_PARTS_REQUESTED;
+            $where['requested_inventory_id'] = $data->inventory_id;
         }
         
         if ($data->is_wh_micro == 2) {
             $where['sell_invoice_id'] = $data->invoice_id;
-            $where['status IN ("' . SPARE_PARTS_SHIPPED . '","' . SPARE_SHIPPED_BY_PARTNER . '","' . SPARE_OOW_SHIPPED . '", "'.SPARE_PARTS_SHIPPED_BY_WAREHOUSE.'")'] = NULL;
+            $where['shipped_inventory_id'] = $data->inventory_id;
+            $where['status IN ("' . SPARE_SHIPPED_BY_PARTNER . '","' . SPARE_OOW_SHIPPED . '", "'.SPARE_PARTS_SHIPPED_BY_WAREHOUSE.'")'] = NULL;
         }
 
         $update = array();
         $update['wh_ack_received_part'] = 1;
         $status = WAREHOUSE_ACKNOWLEDGED_TO_RECEIVE_PARTS;
         if ($data->is_wh_micro == 2) {
-            $update['status'] = SPARE_DELIVERED_TO_SF;  /// update deliver date also
-            $update['acknowledge_date'] = date('Y-m-d');
+            //$update['status'] = SPARE_DELIVERED_TO_SF;  /// update deliver date also
+            //$update['acknowledge_date'] = date('Y-m-d');
             $status = SPARE_DELIVERED_TO_SF;
             // $sc_data['current_status'] = _247AROUND_PENDING;
             // $sc_data['internal_status'] = SPARE_DELIVERED_TO_SF;
@@ -5761,7 +5807,10 @@ class Inventory extends CI_Controller {
             /// in micro reduce stock ///
             if ($data->is_wh_micro == 2) {
                 $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $receiver_entity_id, $data->inventory_id, -$data->quantity);
-                $spare_booking = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.booking_id, spare_parts_details.status, spare_parts_details.entity_type,spare_parts_details.quantity ,spare_parts_details.partner_id, requested_inventory_id", $where, false);
+                
+                $where['wh_ack_received_part'] = 1;
+                $spare_booking = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.booking_id, spare_parts_details.status, spare_parts_details.entity_type,spare_parts_details.quantity ,spare_parts_details.partner_id, requested_inventory_id, shipped_inventory_id", $where, false);
+                
                 foreach ($spare_booking as $spare_booking_value) {
                     //  reduce stock //
                     $in['receiver_entity_id'] = $receiver_entity_id;
@@ -5777,7 +5826,12 @@ class Inventory extends CI_Controller {
                     }
                     $in['agent_type'] = _247AROUND_SF_STRING;
                     $in['is_wh'] = TRUE;
-                    $in['inventory_id'] = $data->inventory_id;
+                    if(!empty($data->shipped_inventory_id)){
+                        $in['inventory_id'] = $data->shipped_inventory_id;
+                    } else {
+                        $in['inventory_id'] = $data->inventory_id;
+                    }
+                    
                     $in['spare_id'] = $spare_booking_value['id'];
                     $this->miscelleneous->process_inventory_stocks($in);
                     $pcb = array();
