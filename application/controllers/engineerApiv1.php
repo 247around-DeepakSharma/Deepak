@@ -3322,7 +3322,8 @@ class engineerApiv1 extends CI_Controller {
 
     function checkVaidationOnSerialNumber($partner_id, $serial_number, $price_tags, $user_id, $booking_id, $appliance_id, $model_number) {
         $response = array();
-        if (!ctype_alnum($serial_number)) {
+		$validate_special_character = false;
+        if (!ctype_alnum($serial_number) && !empty($validate_special_character)) {
             log_message('info', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
             $response['status'] = false;
             $response['code'] = DUPLICATE_SERIAL_NO_CODE;
