@@ -3394,7 +3394,7 @@ class engineerApi extends CI_Controller {
         }
         $arrBookingsWarrantyStatus = $this->warranty_utilities->get_bookings_warranty_status($arrBookings);
         $arr_warranty_status = [
-            'IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation', 'PDI', 'Demo', 'Tech Visit', 'Replacement', 'Spare Cannibalization', 'Handling Charges', 'Dead after Purchase (DaP)', 'Dead On Arrival (DOA)'],
+            'IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation', 'PDI', 'Demo', 'Tech Visit', 'Replacement', 'Spare Cannibalization', 'Handling Charges', 'Dead after Purchase (DaP)', 'Dead On Arrival (DOA)', 'Video Trouble Shooting', 'Service With 2 Free Filter Change', 'AC PowerJet Wet Service'],
             'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat', 'PDI', 'Tech Visit', 'Spare Cannibalization', 'Handling Charges'],
             'EW' => ['Extended', 'AMC', 'Repeat', 'PDI', 'Tech Visit', 'Spare Cannibalization', 'Handling Charges']
         ];
@@ -3486,7 +3486,7 @@ class engineerApi extends CI_Controller {
                         } else {
                             $est_approved_msg = "Spare estimate cost given. Please update Approved by customer and then order spare part";
                         }
-                    } else if (stristr($value['price_tags'], "Repair") || stristr($value['price_tags'], "Repeat") || stristr($value['price_tags'], EXTENDED_WARRANTY_TAG) || stristr($value['price_tags'], PRESALE_REPAIR_TAG) || stristr($value['price_tags'], GAS_RECHARGE_IN_WARRANTY) || stristr($value['price_tags'], AMC_PRICE_TAGS) || stristr($value['price_tags'], GAS_RECHARGE_OUT_OF_WARRANTY) || stristr($value['price_tags'], "Replacement") || stristr($value['price_tags'], "Dead On Arrival (DOA)") || stristr($value['price_tags'], "Dead after Purchase (DaP)")) {
+                    } else if (stristr($value['price_tags'], "Repair") || stristr($value['price_tags'], "Repeat") || stristr($value['price_tags'], EXTENDED_WARRANTY_TAG) || stristr($value['price_tags'], PRESALE_REPAIR_TAG) || stristr($value['price_tags'], GAS_RECHARGE_IN_WARRANTY) || stristr($value['price_tags'], AMC_PRICE_TAGS) || stristr($value['price_tags'], GAS_RECHARGE_OUT_OF_WARRANTY) || stristr($value['price_tags'], "Replacement") || stristr($value['price_tags'], "Dead On Arrival (DOA)") || stristr($value['price_tags'], "Dead after Purchase (DaP)")  || stristr($value['price_tags'], "Video Trouble Shooting")  || stristr($value['price_tags'], "Service With 2 Free Filter Change")  || stristr($value['price_tags'], "AC PowerJet Wet Service")) {
 
                         $check_spare_flag = true;
                     }
