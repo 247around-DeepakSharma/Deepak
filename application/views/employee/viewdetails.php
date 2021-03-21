@@ -2456,6 +2456,8 @@ function uploadfile(){
             directory_name = 'courier-pod';
         }else if(spareFileColumn=='invoice_pic'){
             directory_name = 'purchase-invoices';
+        }else if(spareFileColumn=='serial_number_pic'){
+            directory_name = 'serial_number_pic';
         }else{
             directory_name = '';
         }
@@ -2520,6 +2522,9 @@ function uploadfile(){
                         }
                         else if(spareFileColumn=='invoice_pic'){
                             $("#a_"+ spareFileColumn +"_" + spareID).attr("href", "<?php echo S3_WEBSITE_URL;?>purchase-invoices/" + obj.name);   
+                        }
+						else if(spareFileColumn=='serial_number_pic'){
+                            $("#a_"+ spareFileColumn +"_" + spareID).attr("href", "<?php echo S3_WEBSITE_URL;?>serial_number_pic/" + obj.name);   
                         }
                         }else{
                          $("#a_"+ spareFileColumn +"_" + spareID).attr("href", "<?php echo S3_WEBSITE_URL;?>misc-images/" + obj.name);   
