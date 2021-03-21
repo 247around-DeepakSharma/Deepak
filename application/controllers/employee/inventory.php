@@ -4177,6 +4177,8 @@ class Inventory extends CI_Controller {
             $file_dir = "courier-pod";
         }else if (!empty($this->input->post('directory_name')) && $this->input->post('directory_name') == 'purchase-invoices') {
             $file_dir = "purchase-invoices";
+        }else if (!empty($this->input->post('directory_name')) && $this->input->post('directory_name') == 'serial_number_pic') {
+            $file_dir = "serial_number_pic";
         }else if (!empty($this->input->post('directory_name'))) {
             $file_dir = "vendor-partner-docs";
         } else {
