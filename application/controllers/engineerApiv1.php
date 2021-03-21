@@ -3872,7 +3872,7 @@ class engineerApiv1 extends CI_Controller {
                 $curl_data['is_repeat'] = $booking_details['is_repeat'];
                 $curl_data['upcountry_data'] = "";
                 $curl_data['user_name'] = $booking_details['booking_history'][0]['name'];
-                $curl_data['is_repeat'] = $booking_details['partner_type'];
+                $curl_data['partner_type'] = $booking_details['partner_type'];
                 $curl_data['is_active'] = $booking_details['booking_history'][0]['is_active'];
                 $curl_data['booking_type'] = $booking_details['booking_history'][0]['type'];
                 $curl_data['partner_id'] = $booking_details['booking_history'][0]['partner_id'];
