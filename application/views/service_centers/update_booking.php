@@ -141,7 +141,7 @@ $arr_partner_discount = array();
                                             <label for="type" class="col-md-4">Appliance Model* </label>
                                             <div class="col-md-6">
                                                 <?php if(empty($model[0])) { ?>
-                                                    <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" style="<?= $str_disabled?>" value = "<?php if(isset($unit_details[0]['model_number'])) { echo $unit_details[0]['model_number']; } ?>" placeholder="Enter Model"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> <?php if($is_repeat){ echo 'readonly="readonly"'; } ?> required onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">
+                                                    <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" style="<?= $str_disabled?>" value = "<?php echo $booking_model_number; ?>" placeholder="Enter Model"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> <?php if($is_repeat){ echo 'readonly="readonly"'; } ?> required onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">
                                                 <?php } else { ?>
                                                     <select class="form-control select-model"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="model_number_1" name="model_number[]" required onchange="getCapacityCategoryForModel(this.value, this.id);" style="<?= $str_disabled?>">
                                                         <option selected disabled value="">Select Appliance Model</option>
