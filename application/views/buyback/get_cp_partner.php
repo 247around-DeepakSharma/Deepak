@@ -46,6 +46,9 @@
                                         <th>Pincode</th>
                                         <th>City/Region</th>
                                         <th>Action</th>
+                                        <th>Last OTP Received</th>
+                                        <th>Last OTP Received Date</th>
+                                        <th>View All OTP</th>
                                         <th>View History</th>
                                         <th>
                                             <i class="fa fa-download" title="Download Price List"></i>
