@@ -5089,16 +5089,16 @@ function submitPreviousPartsConsumptionData(){
             );
             $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
 			$spares = $spare_details;
-            if (empty($spares) && !empty($unit_details) && !empty($unit_details[0]['serial_number_pic']) && empty($autofill)) {
+            if (empty($spares) && !empty($unit_details) && !empty($unit_details[0]['serial_number_pic'])) {
                 $serial_number_details['serial_number'] = $unit_details[0]['serial_number'];
                 $serial_number_details['serial_number_pic'] = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/" . SERIAL_NUMBER_PIC_DIR . "/" . $unit_details[0]['serial_number_pic'];
             }
 			
-			if(empty($serial_number_details['serial_number']) && !empty($unit_details[0]['serial_number']) && empty($autofill)){
+			if(empty($serial_number_details['serial_number']) && !empty($unit_details[0]['serial_number'])){
 				$serial_number_details['serial_number'] = $unit_details[0]['serial_number'];
 			}
 
-			if(empty($serial_number_details['serial_number_pic']) && !empty($unit_details[0]['serial_number_pic']) && empty($autofill)){
+			if(empty($serial_number_details['serial_number_pic']) && !empty($unit_details[0]['serial_number_pic'])){
 				$serial_number_details['serial_number_pic'] = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/" . SERIAL_NUMBER_PIC_DIR . "/" . $unit_details[0]['serial_number_pic'];
 			}
 			
