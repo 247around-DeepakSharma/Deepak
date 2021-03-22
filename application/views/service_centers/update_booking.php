@@ -225,20 +225,23 @@ $arr_partner_discount = array();
                                             <div class="col-md-10">
                                                 <span style="color:red;" id="error_serial_no"></span>  
                                             </div>
-                                            <label for="serial_number" class="col-md-4">AMC File *</label>
-                                            <div class="col-md-6">
-                                                <input type="file" class="form-control support_file" id="support_file_1"  name="support_file[]" tabindex=-1 style="margin-top:5px;">
-                                                <input type="hidden" class="form-control file_description" id="file_description_1" name="file_description[]" value="<?php  echo ANNUAL_MAINTENANCE_CONTRACT;  ?>">
-                                                <?php
-                                                if(!empty($amc_file_lists)) {
-                                                    foreach ($amc_file_lists as $file){
-                                                    $url="https://s3.amazonaws.com/". BITBUCKET_DIRECTORY.'/purchase-invoices/'.$file; ?>
-                                                    <p style="margin-top: 5px;"><a href="<?php echo $url; ?>" target="_blank">Annual Maintenance Contract File</a></p>
-                                                   <?php
+                                            <div style="display: <?php if(!empty($amc_warranty_tag)){ echo 'block'; }else{ echo 'none'; } ?>" id="amc_file_section">
+                                                <label for="serial_number" class="col-md-4">AMC File *</label>
+                                                <div class="col-md-6">
+                                                    <input type="file" class="form-control support_file" id="support_file_1"  name="support_file[]" tabindex=-1 style="margin-top:5px;">
+                                                    <input type="hidden" class="form-control file_description" id="file_description_1" name="file_description[]" value="<?php echo ANNUAL_MAINTENANCE_CONTRACT; ?>">
+                                                    <?php
+                                                    if (!empty($amc_file_lists)) {
+                                                        foreach ($amc_file_lists as $file) {
+                                                            $url = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . '/purchase-invoices/' . $file;
+                                                            ?>
+                                                            <p style="margin-top: 5px;"><a href="<?php echo $url; ?>" target="_blank">Annual Maintenance Contract File</a></p>
+                                                            <?php
                                                         }
                                                     }
                                                     ?>
-                                                <span style="color:red;" id="error_serial_no"></span>                    
+                                                    <span style="color:red;" id="error_serial_no"></span>                    
+                                                </div>
                                             </div>
                                              
                                         </div>
@@ -613,8 +616,8 @@ $arr_partner_discount = array();
             alert("Please upload files having extensions:(" + allowedFiles.join(', ') + ") only.");
             return false;
         }
-    });     
-   
+    });    
+    
 </script>
 <script>
     check_pincode();
