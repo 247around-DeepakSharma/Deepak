@@ -4479,7 +4479,7 @@ class Service_centers extends CI_Controller {
                 }
                 
                 if (!empty($spare_details)) {
-                    $data['partner_challan_file'] = $this->invoice_lib->process_create_sf_challan_file($sf_details, $partner_details, $data['partner_challan_number'], $spare_details, '', '', false, true, false);
+                    $data['partner_challan_file'] = $this->invoice_lib->process_create_sf_challan_file($sf_details, $partner_details, $data['partner_challan_number'], $spare_details, '', '', false, true, true);
                     array_push($delivery_challan_file_name_array, $data['partner_challan_file']);
                     if (!empty($data['partner_challan_file'])) {
                         if (!empty($spare_details)) {
@@ -4783,8 +4783,19 @@ class Service_centers extends CI_Controller {
      */
     public function view_delivered_bb_order_details() {
         $this->check_BB_UserSession();
+	$cp_id = $this->session->userdata('service_center_id');
+        $post['where']['cp_id'] = $cp_id;
+        $post['order']['column'] = 'id';
+        $post['order']['order_by'] = 'desc';
+        $post['length'] = 1;
+        $post['start'] = 0;
+        $otp_detail = $this->bb_model->fetch_buyback_otp($post);
+        $data = array();
+        if(!empty($otp_detail)){
+          $data['otp'] =  $otp_detail[0]['otp'];
+        }
         $this->load->view('service_centers/header');
-        $this->load->view('service_centers/bb_order_details');
+        $this->load->view('service_centers/bb_order_details',$data);
     }
 
     /**
@@ -8791,7 +8802,7 @@ class Service_centers extends CI_Controller {
         foreach ($spareData['payload'] as $key => $spare) {
             $data[$key] = array();
             $amount = 0;
-            if ($spare['sub_category'] == MSL || $spare['sub_category'] == MSL_Debit_Note ) {
+            if ($spare['sub_category'] == MSL || $spare['sub_category'] == MSL_Debit_Note || $spare['sub_category'] == IN_WARRANTY ) {
                 if ($spare['amount'] == 0) {
                     $amount = $spare['amount'];
                 } else {
@@ -10608,5 +10619,25 @@ function do_delivered_spare_transfer() {
                 }
             }
         }
+    }
+    function bb_otp_list($cp_id = ''){
+
+		if ($this->session->userdata('service_center_id')) {
+			$this->check_BB_UserSession();
+			$cp_id = $this->session->userdata('service_center_id');
+		}else{
+		}
+		$data = array();
+        $post['where']['cp_id'] = $cp_id;
+        $post['order']['column'] = 'id';
+        $post['order']['order_by'] = 'desc';
+        $post['length'] = -1;
+        $post['start'] = 0;
+        $otp_detail = $this->bb_model->fetch_buyback_otp($post);
+        if(!empty($otp_detail)){
+            $data['otp_detail'] = $otp_detail;
+        }    
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/bb_otp_list',$data);
     }
 }

@@ -1516,7 +1516,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         $this->db->from('vendor_partner_invoices');
         $this->db->where('vendor_partner', 'vendor');
         $this->db->where('vendor_partner_id', $serviceCenterID);
-        $this->db->where_in('sub_category', array(MSL, MSL_NEW_PART_RETURN, MSL_DEFECTIVE_RETURN, MSL_Credit_Note, MSL_Debit_Note));
+        $this->db->where_in('sub_category', array(MSL, MSL_NEW_PART_RETURN, MSL_DEFECTIVE_RETURN, MSL_Credit_Note, MSL_Debit_Note, IN_WARRANTY));
         $res['error'] = false;
         if($countOnly){
             $res['payload'] = $this->db->get()->row_array();

@@ -42,8 +42,19 @@
 </div>
 <div class="bb_order_details right_col" style="margin: 20px 20px 10px 10px;">
     
-    
-    <h3>Order Details</h3>
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Order Details</h3>
+        </div>
+        <div class="col-md-6 text-right">
+            <?php
+            if(!empty($otp)){
+            ?>
+            <h3>Last OTP - <b><?php echo $otp; ?></b></h3>
+            <a href='<?php echo base_url(); ?>service_center/buyback/bb_otp_list' target='_blanck'>Show Previous OTP</a>
+            <?php } ?>
+        </div>
+    </div>
     
     <?php
                 if ($this->session->userdata('success')) {
