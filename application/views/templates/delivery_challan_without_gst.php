@@ -123,7 +123,7 @@
             <td ></td>
             <td colspan="3" style="border-left: hidden; text-align: center"><b>Total Qty</b></td>
             <td colspan="1" style="text-align: center;width: 50px;"><b><?php echo $total_qty; ?></b></td>
-            <td colspan="3" style="text-align: center"><b>Total Amount </b></td>
+            <td colspan="2" style="text-align: center"><b>Total Amount </b></td>
             <td colspan="7" style="text-align: center"><b><?php echo $total_value; ?></b></td>
         </tr>
         <tr>
