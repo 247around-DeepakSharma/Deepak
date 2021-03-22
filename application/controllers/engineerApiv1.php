@@ -5068,13 +5068,18 @@ function submitPreviousPartsConsumptionData(){
             $serial_number_details['is_serial_number_required'] = '1';
             $serial_number_details['is_invoice_pic_required'] = '1';
             if (!empty($spare_details)) {
-				$serial_number_details['serial_number'] = $spare_details[0]['serial_number'];
-				if(!empty($spare_details[0]['serial_number_pic'])){
-					$serial_number_details['serial_number_pic'] = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/" . SERIAL_NUMBER_PIC_DIR . "/" .$spare_details[0]['serial_number_pic'];
+				foreach($spare_details as $key => $value){
+				if(!empty($spare_details[$key]['serial_number'])){
+					$serial_number_details['serial_number'] = $spare_details[$key]['serial_number'];
 				}
-				if(!empty($spare_details[0]['invoice_pic'])){
-					$serial_number_details['invoice_pic'] = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/purchase-invoices/" .$spare_details[0]['invoice_pic'];
+				if(!empty($spare_details[$key]['serial_number_pic'])){
+					$serial_number_details['serial_number_pic'] = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/" . SERIAL_NUMBER_PIC_DIR . "/" .$spare_details[$key]['serial_number_pic'];
 				}
+				if(!empty($spare_details[$key]['invoice_pic'])){
+					$serial_number_details['invoice_pic'] = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/purchase-invoices/" .$spare_details[$key]['invoice_pic'];
+				}
+				}
+
             }
             $serial_number_details['can_edit_serial_number'] = '1';
             $serial_number_details['can_edit_invoice_pic'] = '1';
