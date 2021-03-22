@@ -5088,6 +5088,16 @@ function submitPreviousPartsConsumptionData(){
                 $serial_number_details['serial_number'] = $unit_details[0]['serial_number'];
                 $serial_number_details['serial_number_pic'] = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/" . SERIAL_NUMBER_PIC_DIR . "/" . $unit_details[0]['serial_number_pic'];
             }
+			
+			if(empty($serial_number_details['serial_number']) && !empty($unit_details[0]['serial_number']) && empty($autofill)){
+				$serial_number_details['serial_number'] = $unit_details[0]['serial_number'];
+			}
+
+			if(empty($serial_number_details['serial_number_pic']) && !empty($unit_details[0]['serial_number_pic']) && empty($autofill)){
+				$serial_number_details['serial_number'] = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/" . SERIAL_NUMBER_PIC_DIR . "/" . $unit_details[0]['serial_number_pic'];
+			}
+			
+
             
             if (!empty($serial_number_details['serial_number']) && !empty($spares)) {
                 $serial_number_details['can_edit_serial_number'] = '0';
