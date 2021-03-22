@@ -5094,7 +5094,7 @@ function submitPreviousPartsConsumptionData(){
 			}
 
 			if(empty($serial_number_details['serial_number_pic']) && !empty($unit_details[0]['serial_number_pic']) && empty($autofill)){
-				$serial_number_details['serial_number'] = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/" . SERIAL_NUMBER_PIC_DIR . "/" . $unit_details[0]['serial_number_pic'];
+				$serial_number_details['serial_number_pic'] = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/" . SERIAL_NUMBER_PIC_DIR . "/" . $unit_details[0]['serial_number_pic'];
 			}
 			
 
