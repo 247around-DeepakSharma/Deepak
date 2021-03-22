@@ -469,7 +469,7 @@
                     <div class="col-md-12 col-sm-12 col-xs-12" id="booking_duplicate">
                         <div class="x_panel">
                             <div class="x_title">
-                                <h2>Enter Booking ID</h2>
+                                <h2>Enter Booking ID (Out Of Warranty not allow for Micro Warehouse)</h2>
                                 <div class="clearfix"></div>
                             </div>
                             <div class="x_content">
