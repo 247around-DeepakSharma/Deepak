@@ -2744,7 +2744,7 @@ class engineerApiv1 extends CI_Controller {
                   }
                  */ 
 		}else{
-		log_message("info", __METHOD__ . "Duplicate Part Request");
+		log_message("info", __METHOD__ . "Duplicate Part Type (".$duplicate_part['parts_requested_type'].") Request.");
                 $this->sendJsonResponse(array('0077','Not Available'));			
 		}					
 				 		 
@@ -2772,18 +2772,20 @@ class engineerApiv1 extends CI_Controller {
      */
     function is_part_already_requested($parts_requested,$booking_id) {
         $array = array();
-        // foreach ($parts_requested as $value) {
-        //     if (isset($value['parts_type'])) {
-        //         $data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.parts_requested_type", array("booking_id" => $booking_id,
-        //             "status IN ('" . SPARE_PART_ON_APPROVAL . "','" . SPARE_PARTS_REQUESTED . "', '" . SPARE_OOW_EST_REQUESTED . "', '" . SPARE_OOW_EST_GIVEN . "') " => NULL,
-        //             "parts_requested_type" => $value['parts_type']));
-        //         if (!empty($data)) {
-        //             $array = array("status" => false, "parts_requested_type" => $value['parts_type']);
-        //             break;
-        //         }
-        //     }
-        // }
+        foreach ($parts_requested as $value) {
+             if (isset($value['parts_type'])) {
+                 $data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.parts_requested_type", array("booking_id" => $booking_id,
+                     "status IN ('" . SPARE_PART_ON_APPROVAL . "','" . SPARE_PARTS_REQUESTED . "', '" . SPARE_OOW_EST_REQUESTED . "', '" . SPARE_OOW_EST_GIVEN . "') " => NULL,
+                     "parts_requested_type" => $value['parts_type']));
+                 if (!empty($data)) {
+                     $array = array("status" => false, "parts_requested_type" => $value['parts_type']);
+                     break;
+                 }
+             }
+         }
+         if(empty($array)){
         $array = array("status" => true);
+         }
         return $array;
     }
 
