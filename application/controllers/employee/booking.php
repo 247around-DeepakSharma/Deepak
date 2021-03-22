@@ -1681,7 +1681,7 @@ class Booking extends CI_Controller {
                         $html .= "<td><input  type='hidden' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $around_net_payable ."' placeholder='Enter discount' readonly></td>";
                     }
                 }
-                $html .= "<td><input type='hidden'name ='is_up_val'  data-customer_price = '".$prices['upcountry_customer_price']."' data-flat_upcountry = '".$prices['flat_upcountry']."' id='is_up_val_" . $i . "_" . $clone_number . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox $checkboxClass'";
+                $html .= "<td><input type='hidden'name ='is_up_val'  data-customer_price = '".$prices['upcountry_customer_price']."' data-flat_upcountry = '".$prices['flat_upcountry']."' id='is_up_val_" . $i . "_" . $clone_number . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox check_is_amc $checkboxClass'";
                 if($is_repeat) {
                     if($prices['service_category'] == REPEAT_BOOKING_TAG) {
                         $html .= " checked ";
@@ -6741,15 +6741,14 @@ class Booking extends CI_Controller {
         $this->load->view('employee/wrong_spare_part', $data);
     }
     
-    function get_edit_request_type_form($booking_id, $redirect_url = null)
-    {
+    function get_edit_request_type_form($booking_id, $redirect_url = null) {
         $this->checkUserSession();
         log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
         $booking_id = base64_decode(urldecode($booking_id));
         $redirect_url = !empty($redirect_url) ? base64_decode(urldecode($redirect_url)) : "";
-        $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,NULL,NULL,true);        
-        if($booking){
-            $booking['booking_history']['redirect_url'] = $redirect_url;        
+        $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id, NULL, NULL, true);
+        if ($booking) {
+            $booking['booking_history']['redirect_url'] = $redirect_url;
             if (isset($booking['booking_files'])) {
                 $amc_file_array = array();
                 foreach ($booking['booking_files'] as $value) {
@@ -6759,21 +6758,28 @@ class Booking extends CI_Controller {
                 }
                 $booking['amc_file_lists'] = $amc_file_array;
             }
-        
+
             $is_spare_requested = $this->booking_utilities->is_spare_requested($booking);
-            $booking['booking_history']['is_spare_requested'] = $is_spare_requested; 
+            $booking['booking_history']['is_spare_requested'] = $is_spare_requested;
             // Check if any line item against booking is invoiced to partner or not
             $arr_booking_unit_details = !empty($booking['unit_details'][0]['quantity']) ? $booking['unit_details'][0]['quantity'] : [];
-            $booking['booking_history']['is_partner_invoiced'] = $this->booking_utilities->is_partner_invoiced($arr_booking_unit_details);           
+            $booking['booking_history']['is_partner_invoiced'] = $this->booking_utilities->is_partner_invoiced($arr_booking_unit_details);
             $booking['allow_skip_validations'] = 1;
             $this->miscelleneous->load_nav_header();
-            $this->load->view('service_centers/update_booking', $booking);    
-        }
-        else{
+            // check is booking warranty type
+            foreach ($booking["unit_details"][0]['quantity'] as $val) {
+                if ($val['price_tags'] == AMC_PRICE_TAGS) {
+                    $booking['amc_warranty_tag'] = TRUE;
+                } else {
+                    $booking['amc_warranty_tag'] = FALSE;
+                }
+            }
+            $this->load->view('service_centers/update_booking', $booking);
+        } else {
             echo "<p style='text-align: center;font: 20px sans-serif;background: #df6666; padding: 10px;color: #fff;'>Booking Id Not Exist</p>";
         }
     }
-    
+
     /**
      * Method shows the view of combined booking & spare report.
      * @author Ankit Rajvanshi

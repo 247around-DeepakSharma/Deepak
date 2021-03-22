@@ -1707,6 +1707,7 @@ function validateSerialNo(count = ""){
                         var not_exists = '';
                         $(".file_description").each(function () {
                             if ($(this).val() == 5) {
+                                $("#amc_file_section").css('display','block');
                                 not_exists = 1;
                             }
                         });
@@ -1717,6 +1718,7 @@ function validateSerialNo(count = ""){
                             return false;
                         }
                     } else {
+                        $("#amc_file_section").css('display','none'); 
                         $(".file_description").each(function () {
                             if ($(this).val() == 5) {
                                 checkbox_id = $(this).attr("id");
@@ -1726,8 +1728,8 @@ function validateSerialNo(count = ""){
                             }
                         });
                     }
-                }
-                
+                       }
+                   
                
         }
         

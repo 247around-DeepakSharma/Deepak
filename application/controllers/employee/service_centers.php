@@ -9496,6 +9496,16 @@ class Service_centers extends CI_Controller {
                     }
                     $booking['amc_file_lists'] = $amc_file_array;
                 }
+                
+                // check is booking warranty type
+                foreach ($booking["unit_details"][0]['quantity'] as $val) {
+                    if ($val['price_tags'] == AMC_PRICE_TAGS) {
+                        $booking['amc_warranty_tag'] = TRUE;
+                    } else {
+                        $booking['amc_warranty_tag'] = FALSE;
+                    }
+                }
+
                 $this->load->view('service_centers/update_booking', $booking);
             } else {
                 echo "<p style='text-align: center;font: 20px sans-serif;background: #df6666; padding: 10px;color: #fff;'>Booking Id Not Exist</p>";
