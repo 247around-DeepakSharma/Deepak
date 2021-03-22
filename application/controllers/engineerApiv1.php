@@ -420,6 +420,11 @@ class engineerApiv1 extends CI_Controller {
                 $this->getWarrantyCheckerAndCallTypeData();
                 break;
 
+			case 'warrantyCheckerAndCallTypeDataonModelNumber':
+				$this->warrantyCheckerAndCallTypeDataonModelNumber();
+				break;
+			
+
             case 'submitWarrantyCheckerAndEditCallType':
                 $this->submitWarrantyCheckerAndEditCallType();
                 break;
@@ -5127,5 +5132,54 @@ function submitPreviousPartsConsumptionData(){
             }
             return $serial_number_details;
         }
+		/*
+		Bring call type on basis of model number
+		Ghanshyamjigupta
+		22-03-2021
+		*/
+		function warrantyCheckerAndCallTypeDataonModelNumber() {
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $booking_id = $requestData['booking_id'];
+        $partner_id = $requestData['partner_id'];
+        $service_id = $requestData['service_id'];
+        $model_number = $requestData['model_number'];
+
+        $model_details = $this->partner_model->get_model_number('category, capacity, partner_appliance_details.brand', array('appliance_model_details.model_number' => $model_number, 'appliance_model_details.entity_id' => $partner_id, 'appliance_model_details.active' => 1, 'partner_appliance_details.active' => 1));
+        $new_category = $new_capacity = $new_brand = '';
+        if (!empty($model_details)) {
+            $new_category = $model_details[0]['category'];
+            $new_capacity = $model_details[0]['capacity'];
+            $new_brand = $model_details[0]['brand'];
+            $isWbrand = "";
+            $booking['unit_details'] = $this->booking_model->getunit_details($booking_id, "");
+            $prepaid = $this->miscelleneous->get_partner_prepaid_amount($partner_id);
+            $booking['active'] = $prepaid['active'];
+            $booking['partner_type'] = $prepaid["partner_type"];
+            foreach ($booking['unit_details'] as $key => $value) {
+                $isWbrand = "";
+                if ($booking['partner_type'] == OEM) {
+                    $isWbrand = $value['brand'];
+                } else {
+                    $whiteListBrand = $this->partner_model->get_partner_blocklist_brand(array("partner_id" => $partner_id, "brand" => $value['brand'],
+                        "service_id" => $service_id, "whitelist" => 1), "*");
+                    if (!empty($whiteListBrand)) {
+                        $isWbrand = $value['brand'];
+                    }
+                }
+			}
+			$prices = $this->booking_model->getPricesForCategoryCapacity($service_id, $new_category, $new_capacity, $partner_id, $isWbrand);
+			if (!empty($prices)) {
+				$this->jsonResponseString['response']['prices'] = $prices; // All Data in response//
+				$this->sendJsonResponse(array('0000', 'success')); // send success response //
+			} else {
+				$this->sendJsonResponse(array("0053", "No Price tag found."));
+				exit;
+			}
+            
+        } else {
+            $this->sendJsonResponse(array("0053", "No Category found."));
+            exit;
+        }
+    }
 
 }
