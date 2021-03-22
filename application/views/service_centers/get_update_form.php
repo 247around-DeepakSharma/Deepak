@@ -798,6 +798,7 @@
         $('#model_number_id').select2();
         <?php } else { ?>
             $("#model_number_id").css({"cursor" : "not-allowed", "pointer-events" : "none", "background" : "#eee" });
+            $("#model_number").css({"cursor" : "not-allowed", "pointer-events" : "none", "background" : "#eee" });
         <?php } ?>
         $('#parts_name_0').select2({
             placeholder: "Select Part Name",
@@ -960,6 +961,7 @@
                         $('#model_number_id').select2();
                         <?php } else { ?>
                             $("#model_number_id").css({"cursor" : "not-allowed", "pointer-events" : "none", "background" : "#eee" });
+                            $("#model_number").css({"cursor" : "not-allowed", "pointer-events" : "none", "background" : "#eee" });
                         <?php } ?>
                         var model_number = "<?php echo $unit_model_number; ?>";
                         $('#model_number_id option').map(function() {
