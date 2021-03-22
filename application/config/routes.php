@@ -132,6 +132,8 @@ $route['service_center/msl_security_details'] = "employee/service_centers/msl_se
 $route['service_center/msl_spare_details'] = "employee/service_centers/msl_spare_details";
 
 $route['service_center/buyback/bb_order_details'] = 'employee/service_centers/view_delivered_bb_order_details';
+$route['service_center/buyback/bb_otp_list'] = 'employee/service_centers/bb_otp_list';
+$route['service_center/buyback/bb_otp_list/(:any)'] = 'employee/service_centers/bb_otp_list/$1';
 $route['service_center/buyback/update_order_details/(:any)/(:any)/(:any)/(:any)'] = 'employee/service_centers/update_bb_report_issue_order_details/$1/$2/$3/$4/$5';
 $route['process_report_issue_bb_order_details'] = 'employee/service_centers/process_report_issue_bb_order_details';
 $route['service_center/buyback/update_received_bb_order/(:any)/(:any)/(:any)'] = 'employee/service_centers/update_received_bb_order/$1/$2/$3/$4';

@@ -78,6 +78,22 @@ class Collection_partner extends CI_Controller {
             } else {
                  $row[] = "<div  class='btn btn-sm btn-success' onclick='activate_deactivate($cp_address->id,1)' >Activate</div>";
             }
+            $cp_id = $cp_address->cp_id;
+            $post_cp['where']['cp_id'] = $cp_id;
+            $post_cp['order']['column'] = 'id';
+            $post_cp['order']['order_by'] = 'desc';
+            $post_cp['length'] = 1;
+            $post_cp['start'] = 0;
+            $otp_detail = $this->bb_model->fetch_buyback_otp($post_cp);
+            if (!empty($otp_detail)) {
+                $row[] = $otp_detail[0]['otp'];
+                $row[] = $otp_detail[0]['create_date'];
+                $row[] = "<a href='" . base_url() . "service_center/buyback/bb_otp_list/" . $cp_id . "' class='btn btn-info btn-sm' target='_blank'><span><i class='fa fa-eye'></i></span></a>";
+            } else {
+                $row[] = "";
+                $row[] = "";
+                $row[] = "";
+            }
             $row[] = $a;
             if($cp_address->active == 1){
                 $disabled_option = "class='download_single_cp_price'";
@@ -90,6 +106,9 @@ class Collection_partner extends CI_Controller {
             $data[] = $row;
         }
         
+        $last_row[] = "";
+        $last_row[] = "";
+        $last_row[] = "";
         $last_row[] = "";
         $last_row[] = "";
         $last_row[] = "";
