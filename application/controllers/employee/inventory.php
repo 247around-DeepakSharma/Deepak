@@ -7665,6 +7665,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
 
                 $where = array('status' => SPARE_PARTS_REQUESTED,
                     'spare_parts_details.entity_type' => _247AROUND_PARTNER_STRING,
+                     'spare_parts_details.part_warranty_status' => 1,
                     'spare_parts_details.booking_id' => $booking_id);
                 if ($this->session->userdata('partner_id')) {
                     $where['spare_parts_details.partner_id'] = $this->session->userdata('partner_id');
