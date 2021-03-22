@@ -569,4 +569,39 @@ class Bb_model extends CI_Model {
         
         return $this->db->query($sql)->result_array();
     }
+    /**
+     * @Desc: This function is to used to ferch data from bb OTP
+     * @params: void
+     * @return: NULL
+     * @author Ghanshyam
+     * @date : 12-03-2021
+     */
+    public function fetch_buyback_otp($post = '') {
+        if (!empty($post['where'])) {
+            $this->db->where($post['where']);
+        }
+        if (isset($post['length'])) {
+            if ($post['length'] != -1) {
+                $this->db->limit($post['length'], $post['start']);
+            }
+        }
+        if (isset($post['order']) && !empty($post['order']['column']) && !empty($post['order']['order_by'])) {
+            $this->db->order_by($post['order']['column'], $post['order']['order_by']);
+        }
+
+        $result = $this->db->get('bb_otp');
+        return $result->result_array();
+    }
+    /**
+     * @Desc: This function is to used to insert data in bb OTP
+     * @params: void
+     * @return: NULL
+     * @author Ghanshyam
+     * @date : 12-03-2021
+     */
+    public function insert_buyback_otp($data) {
+        if(!empty($data)){
+            $this->db->insert('bb_otp', $data);
+        }
+    }
 }
