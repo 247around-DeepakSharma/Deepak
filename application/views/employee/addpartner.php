@@ -2302,10 +2302,10 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                         <div class="panel-body">
                             <div class="row">
                                 <div class="col-md-12">
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="annual_amount" class="col-md-4">Charge Type *</label>
-                                            <div class="col-md-6">
+                                            <div class="col-md-4">
                                                 <select class="form-control input-contact-name"  name="charges_type" onchange="variable_charges_change(this)" id="charges_type" required>
                                                     <option value="" selected disabled>Select Charge Type</option>
                                                     <?php if(!empty($charges_type)) { foreach ($charges_type as $charges){ ?> 
@@ -2315,15 +2315,24 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                             </div>
                                         </div>
                                     </div>    
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="validity" class="col-md-4"><span id="f_p_charges">Fixed Charge</span> * <b><i  data-toggle="tooltip" title="Percentage will be apply on Basic Charge only for Logistic & MSL Handling Charges" class="fa fa-info-circle" aria-hidden="true"></i></b></label>
-                                            <div class="col-md-6">
+                                            <div class="col-md-4">
                                                 <input type="number" name="fixed_charges" id="fixed_charges" class="form-control input-contact-name" value="" placeholder="Enter fixed/Percentage" required>
                                                 
                                             </div>
                                         </div>
-                                    </div>    
+                                    </div> 
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="Approval File" class="col-md-4">Approval File *</label>
+                                            <div class="col-md-4">
+                                                <input type="file" name="approval_file" id="approval_file" class="form-control input-contact-name" value="" placeholder="Upload File Upload" required>
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="col-md-12" id="validity_section" style="display:none">
                                      <div class="col-md-6">
@@ -2353,6 +2362,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                             <th>GST Rate</th>
                             <th style="display:none">Charge Type</th>
                             <th style="display:none">Validity</th>
+                            <th>Approval File</th>
                             <th>Current Status</th>
                             <th>Action</th>
                         </tr>
@@ -2373,6 +2383,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                             <td><?php echo $variable_charges['gst_rate']; ?></td>
                             <td style="display:none"><?php echo $variable_charges['type']; ?> </td> 
                             <td style="display:none"><?php echo $variable_charges['validity_in_month']; ?></td> 
+                            <td><?php if(!empty($variable_charges['approval_file'])) { ?><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/variable-charges-approval-file/<?php echo $variable_charges['approval_file']; ?>" target="_blank">Link Here<a><?php  } ?></td>
                             <td><?php if($variable_charges['status'] == 1){ echo "Active"; }else{ echo "Inactive"; }; ?></td>
                             <td>
                                 <button type="button" class="btn btn-info btn-xs" onclick="update_variable_charge(<?php echo $variable_charges['partner_charge_id']; ?>, this)">Update</button>
@@ -3421,7 +3432,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
         <div class="modal-content">
             <div class="modal-header well" style="    background-color: #164f4e;color: #Fff;text-align: center;margin: 0px;border-color: #164f4e;">
                 <button type="button" class="close btn-primary well" style="color:#fff;" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Micro Warehouse History Details</h4>
+                <h4 class="modal-title">Variable Charges</h4>
             </div>
             <form >
             <div class="modal-body">               
@@ -3443,6 +3454,14 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                 <label for="validity" class="col-md-4">Fixed Charge*</label>
                                 <div class="col-md-6">
                                     <input type="number" name="fixed_charges" id="edit_fixed_charges" class="form-control input-contact-name" value="" placeholder="Enter fixed charge amount" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="validity" class="col-md-4">Approval File</label>
+                                <div class="col-md-6">
+                                    <input type="file" name="approval_file" id="edit_approval_file" class="form-control input-contact-name" value="" placeholder="Upload Approval File" >
                                 </div>
                             </div>
                         </div>    
@@ -5390,10 +5409,25 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
     }
     
     function update_variable_charges(){
+        var files = $("#edit_approval_file")[0].files;
+        var fd = new FormData();
+        
+        if(files.length > 0 ){
+            
+            fd.append('approval_file',files[0]);
+        }
+        fd.append('partner_id',$("#partner_id").val());
+        fd.append('fixed_charges',$("#edit_fixed_charges").val());
+        fd.append('charges_type',$("#edit_charges_type").val());
+        fd.append('validity',$("#edit_validity").val());
+        fd.append('variable_charges_id',$("#variable_charges_id").val());
+
         $.ajax({
             type: 'POST',
+            contentType: false,
+            processData: false,
             url: '<?php echo base_url(); ?>employee/accounting/edit_partner_variable_charges',
-            data: {partner_id:$("#partner_id").val(), fixed_charges:$("#edit_fixed_charges").val(), charges_type:$("#edit_charges_type").val(), validity:$("#edit_validity").val(), variable_charges_id:$("#variable_charges_id").val()},
+            data: fd,
             success: function (response) {
                 if(response){
                    alert("Variable Charges Updated Successfully");

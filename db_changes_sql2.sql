@@ -2943,3 +2943,9 @@ ALTER TABLE `part_invoice_opening_balance`
 ALTER TABLE `part_invoice_opening_balance`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
 COMMIT;
+
+
+--Abhay 22 March 2021
+INSERT INTO `variable_charges_type` (`id`, `name`, `type`, `description`, `hsn_code`, `gst_rate`, `is_fixed`, `updated_date`, `created_date`) VALUES (NULL, 'Monthly Management Charges', 'monthly-management-charges', 'monthly-management-charges', '998715', '18', '1', '2021-02-23 00:00:00', '2018-11-20 00:00:00');
+ALTER TABLE `vendor_partner_variable_charges` ADD `approval_file` VARCHAR(64) NULL DEFAULT NULL AFTER `fixed_charges`;
+
