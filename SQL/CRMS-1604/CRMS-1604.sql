@@ -1,0 +1,1 @@
+UPDATE `service_centres` SET `on_off`= 1 WHERE `active`=0
