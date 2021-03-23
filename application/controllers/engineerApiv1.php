@@ -2750,7 +2750,7 @@ class engineerApiv1 extends CI_Controller {
                  */ 
 		}else{
 		log_message("info", __METHOD__ . "Duplicate Part Type (".$duplicate_part['parts_requested_type'].") Request.");
-                $this->sendJsonResponse(array('0077','Not Available'));			
+                $this->sendJsonResponse(array('0077',"Duplicate Part Type (".$duplicate_part['parts_requested_type'].") Request."));			
 		}					
 				 		 
             } else {
