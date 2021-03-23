@@ -154,7 +154,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                         <li><a id="14" href="#tabs-14"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Model Number</span></a></li>
                         <li><a id="15" href="#tabs-15"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Model Mapping</span></a></li>
                         <li><a id="16" href="#tabs-16"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Account Manager</span></a></li>
-<!--                        <li><a id="17" href="#tabs-17"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Enable Service Center For App</span></a></li>-->
+                        <li><a id="17" href="#tabs-17"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Enable Service Center For App</span></a></li>
                         <?php
                             }
                             else{
@@ -176,7 +176,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                         <li><a id="14" href="#tabs-14" onclick="load_form(this.id)" <?php if($current_tab!=14){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Model Number</span></a></li>
                         <li><a id="15" href="#tabs-15" onclick="load_form(this.id)" <?php if($current_tab!=15){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Model Mapping</span></a></li>
                         <li <?php if($saas_flag){ ?>style="display:none;" <?php } ?>><a id="16" href="#tabs-16" onclick="load_form(this.id)" <?php if($current_tab!=16){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Account Manager</span></a></li>
-<!--                        <li><a id="17" href="#tabs-17" onclick="load_form(this.id)" <?php if($current_tab!=17){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Enable Service Center For App</span></a></li>                        -->
+                        <li><a id="17" href="#tabs-17" onclick="load_form(this.id)" <?php if($current_tab!=17){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Enable Service Center For App</span></a></li>        
                         <?php
                             }
                         ?>

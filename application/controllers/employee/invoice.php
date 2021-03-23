@@ -4885,16 +4885,16 @@ exit();
      * @desc This function is used to generate Micro Spare purchase invoice  
      * @param int $spare_id
      */
-    function generate_micro_reverse_sale_invoice($spare_id) {
+function generate_micro_reverse_sale_invoice($spare_id) {
         log_message('info', __METHOD__ . " Spare ID " . $spare_id);
         if (!empty($spare_id)) {
             $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*, booking_details.partner_id as booking_partner_id, service_centres.gst_no as gst_number,service_centres.sc_code,"
                     . "service_centres.state,service_centres.address as company_address,service_centres.company_name,"
-                    . "service_centres.district, service_centres.pincode, service_centres.is_wh, spare_parts_details.is_micro_wh,owner_phone_1, spare_parts_details.shipped_quantity as shipping_quantity, service_centres.owner_email, service_centres.primary_contact_email, service_centres.gst_status  ", array('spare_parts_details.id' => $spare_id), TRUE, TRUE);
+                    . "service_centres.district, service_centres.pincode, service_centres.is_wh, spare_parts_details.is_micro_wh,owner_phone_1, spare_parts_details.shipped_quantity as shipping_quantity, service_centres.owner_email, service_centres.primary_contact_email, service_centres.gst_status  ", array('spare_parts_details.id' => $spare_id, 'reverse_sale_invoice_id IS NULL' => NULL), TRUE, TRUE);
             if (!empty($spare)) {
                 if ($spare[0]['is_micro_wh'] == 1 && ($spare[0]['partner_id'] == $spare[0]['service_center_id'])) {
                     if (!empty($spare[0]['shipped_inventory_id'])) {
-
+                        
                         $spare[0]['spare_id'] = $spare_id;
                         $spare[0]['inventory_id'] = $spare[0]['shipped_inventory_id'];
                         $spare[0]['booking_partner_id'] = $spare[0]['service_center_id'];
@@ -4919,7 +4919,6 @@ exit();
                                     $data[0]['district'] = $spare[0]['district'];
                                     $data[0]['pincode'] = $spare[0]['pincode'];
                                     $data[0]['state'] = $spare[0]['state'];
-
                                     $data[0]['taxable_value'] = $value['rate'] * $value['qty'];
                                     $data[0]['rate'] = $value['rate'];
                                     
@@ -4953,7 +4952,7 @@ exit();
                                     $data[0]['from_pincode'] = $value['to_pincode'];
                                     $data[0]['from_city'] = $value['to_city'];
                                     $email_array = array($spare[0]['owner_email'], $spare[0]['primary_contact_email']);
-                                    $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare, MSL_DEFECTIVE_RETURN, $email_array);
+                                    $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare, MSL_DEFECTIVE_RETURN, $invoice_type, $email_array);
                                     if ($a) {
                                         
                                     } else {
@@ -4979,8 +4978,7 @@ exit();
         } else {
             log_message('info', __METHOD__ . " Empty Spare ");
         }
-    }
-    /**
+    }    /**
      * @desc This function is used to insert sale invoice and mail with invoice file
      * @param String $invoice_id
      * @param Array $data
@@ -4990,7 +4988,7 @@ exit();
      * @param Array $spare
      * @return boolean
      */           
-    function _reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare, $sub_category, $invoice_type, $vendor_email = array()){
+function _reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare, $sub_category, $invoice_type, $vendor_email = array()){
         $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, $invoice_type, $invoice_date);
         
         if(isset($data[0]['to_gst_number_id']) || isset($data[0]['from_gst_number_id'])){
@@ -5130,8 +5128,7 @@ exit();
         } else {
             return false;
         }
-    }
-    /**
+    }    /**
      * @desc This function is used create Micro invoice, sale to Partner 
      * @param String $spare_id
      */

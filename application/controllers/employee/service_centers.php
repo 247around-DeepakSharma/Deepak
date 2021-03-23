@@ -6044,7 +6044,7 @@ class Service_centers extends CI_Controller {
                     }
                     if (!empty($is_warehouse)) {
 
-                        $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $value->original_inventory_id, 'state' => $sf_state[0]['state'], 'service_center_id' => $service_center_id, 'model_number' => $value->model_number), $partner_id);
+                        $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $value->requested_inventory_id, 'state' => $sf_state[0]['state'], 'service_center_id' => $service_center_id, 'model_number' => $value->model_number), $partner_id);
                         if (!empty($warehouse_details) && $warehouse_details['stock'] >= $spare_data['quantity']) {
                             $data['partner_id'] = $warehouse_details['entity_id'];
                             $data['entity_type'] = $warehouse_details['entity_type'];
