@@ -4886,7 +4886,7 @@ exit();
      * @desc This function is used to generate Micro Spare purchase invoice  
      * @param int $spare_id
      */
-    function generate_micro_reverse_sale_invoice($spare_id) {
+function generate_micro_reverse_sale_invoice($spare_id) {
         log_message('info', __METHOD__ . " Spare ID " . $spare_id);
         if (!empty($spare_id)) {
             $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*, booking_details.partner_id as booking_partner_id, service_centres.gst_no as gst_number,service_centres.sc_code,"
@@ -4979,8 +4979,7 @@ exit();
         } else {
             log_message('info', __METHOD__ . " Empty Spare ");
         }
-    }
-    /**
+    }    /**
      * @desc This function is used to insert sale invoice and mail with invoice file
      * @param String $invoice_id
      * @param Array $data
@@ -4990,7 +4989,7 @@ exit();
      * @param Array $spare
      * @return boolean
      */           
-    function _reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare, $sub_category, $invoice_type, $vendor_email = array()){
+function _reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare, $sub_category, $invoice_type, $vendor_email = array()){
         $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, $invoice_type, $invoice_date);
 
         if(isset($data[0]['to_gst_number_id']) || isset($data[0]['from_gst_number_id'])){
@@ -5131,8 +5130,7 @@ exit();
         } else {
             return false;
         }
-    }
-    /**
+    }    /**
      * @desc This function is used create Micro invoice, sale to Partner 
      * @param String $spare_id
      */
