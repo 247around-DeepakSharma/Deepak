@@ -5169,7 +5169,7 @@ function submitPreviousPartsConsumptionData(){
 			}
 			$prices = $this->booking_model->getPricesForCategoryCapacity($service_id, $new_category, $new_capacity, $partner_id, $isWbrand);
 			if (!empty($prices)) {
-				$this->jsonResponseString['response']['prices'] = $prices; // All Data in response//
+				$this->jsonResponseString['response']['prices'] = array($prices); // All Data in response//
 				$this->sendJsonResponse(array('0000', 'success')); // send success response //
 			} else {
 				$this->sendJsonResponse(array("0053", "No Price tag found."));
