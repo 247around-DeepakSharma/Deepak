@@ -3618,5 +3618,108 @@ class Around_scheduler extends CI_Controller {
             }
         }
     }
+     /**
+     * @desc     Get fetch_otp_from_amazon_for_buyback
+      * Ghanshyam Ji Gupta (22-03-2021)
+     * @param    void()
+     * @return   void()
+     */
+    function fetch_otp_for_buyback() {
+        $mail_server = SMS_DEACTIVATION_MAIL_SERVER;
+        $email = QC_BALANCE_READ_EMAIL;
+        $password = QC_BALANCE_READ_EMAIL_PASSWORD;
+        $conn = $this->email_data_reader->create_email_connection($mail_server, $email, $password);
+        $buyback_condition = 'SINCE "' . date("d M Y", strtotime(date("Y-m-d"))) . '" SUBJECT "Out for Delivery at"';
+        $buyback_data = $this->email_data_reader->get_emails($buyback_condition);		
+        if (!empty($buyback_data)) {
+			$buyback_data = array_reverse($buyback_data);
+            foreach ($buyback_data as $key => $value) {
+                $email_no = $value['email_no'];
+                $post_cp['where']['email_no'] = $email_no;
+                $post_cp['order']['column'] = 'id';
+                $post_cp['order']['order_by'] = 'desc';
+                $post_cp['length'] = 1;
+                $post_cp['start'] = 0;
+                $otp_detail = $this->bb_model->fetch_buyback_otp($post_cp);
+                if (empty($otp_detail)) {
+                    $subject = $value['subject'];
+                    $body = $value['body'];
+                    if (preg_match_all('/\d{2}\/\d{2}\/\d{4}/', $subject, $matches)) {
+                        $date = "";
+                        if (!empty($matches)) {
+                            $date = $matches[0][0];
+                        }
+                    }
+                    $phonenumber = '';
+                    if (preg_match_all('/[\+][0-9]{12}+/', $body, $matches)) {
+                        $phonenumber = $matches[0][0];
+                    }
+
+                    $string = ' ' . $body;
+                    $ini = strpos($string, 'OTP ');
+                    if ($ini == 0)
+                        return '';
+                    $ini += strlen('OTP ');
+                    $len = strpos($string, ' ', $ini) - $ini;
+                    $len = $len - 1;
+                    $otp = substr($string, $ini, $len);
+
+
+                    $string = ' ' . $body;
+                    $ini = strpos($string, '(');
+                    if ($ini == 0)
+                        return '';
+                    $ini += strlen('(');
+                    $len = strpos($string, ': +91', $ini) - $ini;
+                    $name = substr($string, $ini, $len);
+
+                    $string = ' ' . $subject;
+                    $ini = strpos($string, $date);
+                    if ($ini == 0)
+                        return '';
+                    $ini += strlen($date);
+                    $len = strpos($string, ')', $ini) - $ini;
+                    $time = substr($string, $ini, $len);
+
+
+                    $string = ' ' . $body;
+                    $ini = strpos($string, 'shop located at ');
+                    if ($ini == 0)
+                        return '';
+                    $ini += strlen('shop located at ');
+                    $len = strpos($string, '.', $ini) - $ini;
+                    $location_pincode = substr($string, $ini, $len);
+
+                    $location_array = explode('_', $location_pincode);
+
+                    $city = $location_array[0];
+                    $pincode = $location_array[1];
+                    
+                    $select = "service_centres.id";
+                    $post_city['where']['(service_centres.is_cp = 1)'] = null;
+                    $post_city['where']['service_centres.active'] = 1;
+                    $post_city['where']['service_centres.district'] = $city;
+                    $post_city['length'] = -1;
+                    $post_city['start'] = 0;
+                    $list = $this->vendor_model->viewallvendor($post_city, $select);
+                    
+                    $date = str_replace('/', '-', $date);
+                    foreach ($list as $key_list => $value_list) {
+                        $cpid = $value_list['id'];
+                        $array_bb_data['agent_name'] = $name;
+                        $array_bb_data['agent_phone'] = $phonenumber;
+                        $array_bb_data['city'] = $city;
+                        $array_bb_data['pincode'] = $pincode;
+                        $array_bb_data['date'] = date('Y-m-d', strtotime($date));
+                        $array_bb_data['time'] = $time;
+                        $array_bb_data['otp'] = $otp;
+                        $array_bb_data['cp_id'] = $cpid;
+                        $array_bb_data['email_no'] = $email_no;
+                        $this->bb_model->insert_buyback_otp($array_bb_data);
+                    }
+                }
+            }
+        }
+    }
 
 }
