@@ -541,7 +541,7 @@ class accounting_model extends CI_Model {
             $this->db->where($where);
         }
         $this->db->from('variable_charges_type');
-
+        $this->db->order_by('variable_charges_type.name', 'asc');
         $query = $this->db->get();
         return $query->result_array(); 
     }
@@ -570,6 +570,7 @@ class accounting_model extends CI_Model {
         }
         if($join == true){
             $this->db->join('variable_charges_type', 'variable_charges_type.id = vendor_partner_variable_charges.charges_type');
+            $this->db->order_by('variable_charges_type.name', 'asc');
         }
         $this->db->from('vendor_partner_variable_charges');
 

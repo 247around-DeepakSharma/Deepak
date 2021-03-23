@@ -1957,38 +1957,66 @@ class Accounting extends CI_Controller {
      * @param -  get form
      * @render on same page
      */ 
-    function process_partner_variable_charges(){
-            $data = array();
-            $data['entity_type'] = _247AROUND_PARTNER_STRING;
-            $data['entity_id'] = $this->input->post('partner_id');
-            $data['fixed_charges'] = $this->input->post('fixed_charges');
-            $data['charges_type'] = $this->input->post('charges_type');
-            $data['validity_in_month'] = $this->input->post('validity');
-            $variable_charge_detail = $this->accounting_model->get_vendor_partner_variable_charges("id", array('charges_type'=>$this->input->post('charges_type'), 'entity_type'=>_247AROUND_PARTNER_STRING, 'entity_id'=>$this->input->post('partner_id')));
-            if((!empty($variable_charge_detail && $variable_charge_detail[0]['id'] == $this->input->post('variable_charges_id'))) || empty($variable_charge_detail)){
-                if(!empty($this->input->post('variable_charges_id')) && $this->input->post('variable_charges_id') > 0){
-                   $data['update_date'] = date("Y-m-d H:i:s");
-                   $result = $this->invoices_model->update_into_variable_charge(array('id'=>$this->input->post('variable_charges_id')), $data); 
-                   $this->session->set_userdata('success', 'Data Updated Successfully');
-                }else{
-                   $data['create_date'] = date("Y-m-d H:i:s");
-                   $result = $this->invoices_model->insert_into_variable_charge($data);
-                   $this->session->set_userdata('success', 'Data Entered Successfully');
+    function process_partner_variable_charges() {
+        $data = array();
+        $data['entity_type'] = _247AROUND_PARTNER_STRING;
+        $data['entity_id'] = $this->input->post('partner_id');
+        $data['fixed_charges'] = $this->input->post('fixed_charges');
+        $data['charges_type'] = $this->input->post('charges_type');
+        $data['validity_in_month'] = $this->input->post('validity');
+        $approval_file = $this->upload_variable_charges_approval_file();
+        $variable_charge_detail = $this->accounting_model->get_vendor_partner_variable_charges("id", array('charges_type' => $this->input->post('charges_type'), 'entity_type' => _247AROUND_PARTNER_STRING, 'entity_id' => $this->input->post('partner_id')));
+        if ((!empty($variable_charge_detail && $variable_charge_detail[0]['id'] == $this->input->post('variable_charges_id'))) || empty($variable_charge_detail)) {
+            if (!empty($this->input->post('variable_charges_id')) && $this->input->post('variable_charges_id') > 0) {
+                $data['update_date'] = date("Y-m-d H:i:s");
+                if($approval_file){
+                    $data['approval_file'] = $approval_file;
                 }
-                if($result){
-                    $this->session->set_userdata('success', 'Data Saved Successfully');
-                    redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
-                } else {
-                    $this->session->set_userdata('error', 'Data can not be inserted. Please Try Again...');
-                    redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
-                }
-            }
-            else{
-                $this->session->set_userdata('error', 'Charge Type Already Exist.');
+                $result = $this->invoices_model->update_into_variable_charge(array('id' => $this->input->post('variable_charges_id')), $data);
+                $this->session->set_userdata('success', 'Data Updated Successfully');
+            } else if ($approval_file) {
+                $data['create_date'] = date("Y-m-d H:i:s");
+                $data['approval_file'] = $approval_file;
+                $result = $this->invoices_model->insert_into_variable_charge($data);
+                $this->session->set_userdata('success', 'Data Entered Successfully');
+            } else {
+                $result = false;
+                $this->session->set_userdata('error', 'Please Upload Correct Variable Charges Approval File');
                 redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
             }
+            if ($result) {
+                $this->session->set_userdata('success', 'Data Saved Successfully');
+                redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
+            } else {
+
+                redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
+            }
+        } else {
+            $this->session->set_userdata('error', 'Charge Type Already Exist.');
+            redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
+        }
     }
-    
+
+    /**
+     * @desc This function is used to upload variable charges approval file.
+     * @return boolean|string
+     */
+    function upload_variable_charges_approval_file() {
+        if (($_FILES['approval_file']['error'] != 4) && !empty($_FILES['approval_file']['tmp_name'])) {
+
+            $tmpFile = $_FILES['approval_file']['tmp_name'];
+            $approval_file = substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['approval_file']['name'])[1];
+            //Upload files to AWS
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "variable-charges-approval-file/" . $approval_file;
+            $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+
+            return $approval_file;
+        } else {
+            return false;
+        }
+    }
+
     /*
     * @desc - This function is used to update partner's variable charges
     * @param - $partner_id, $fixed_charges, $charges_type, $validity     
@@ -2001,6 +2029,10 @@ class Accounting extends CI_Controller {
         $data['fixed_charges'] = $this->input->post('fixed_charges');
         $data['charges_type'] = $this->input->post('charges_type');
         $data['validity_in_month'] = $this->input->post('validity');
+        $approval_file = $this->upload_variable_charges_approval_file();
+        if($approval_file){
+            $data['approval_file'] = $approval_file;
+        }
         $data['update_date'] = date("Y-m-d H:i:s");
         if(!empty($this->input->post('variable_charges_id')) && $this->input->post('variable_charges_id') > 0){
             $result = $this->invoices_model->update_into_variable_charge(array('id'=>$this->input->post('variable_charges_id')), $data); 
