@@ -4476,7 +4476,7 @@ class Service_centers extends CI_Controller {
                 }
                 
                 if (!empty($spare_details)) {
-                    $data['partner_challan_file'] = $this->invoice_lib->process_create_sf_challan_file($sf_details, $partner_details, $data['partner_challan_number'], $spare_details, '', '', false, true, false);
+                    $data['partner_challan_file'] = $this->invoice_lib->process_create_sf_challan_file($sf_details, $partner_details, $data['partner_challan_number'], $spare_details, '', '', false, true, true);
                     array_push($delivery_challan_file_name_array, $data['partner_challan_file']);
                     if (!empty($data['partner_challan_file'])) {
                         if (!empty($spare_details)) {
