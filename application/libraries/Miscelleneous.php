@@ -4015,7 +4015,7 @@ function generate_image($base64, $image_name,$directory){
                 || stristr($values['request_type'], "Dead On Arrival (DOA)")
                 || stristr($values['request_type'], "Dead after Purchase (DaP)")
                 || stristr($values['request_type'], EXTENDED_WARRANTY_TAG)
-                || stristr($values['price_tags'], PRESALE_REPAIR_TAG) 
+                || stristr($values['request_type'], PRESALE_REPAIR_TAG) 
                 || stristr($values['request_type'], GAS_RECHARGE_IN_WARRANTY) 
                 || stristr($values['request_type'], AMC_PRICE_TAGS) 
                 || stristr($values['request_type'], GAS_RECHARGE_OUT_OF_WARRANTY)) {

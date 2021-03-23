@@ -17,7 +17,14 @@
         <div class="row">
             <div class="col-md-12" style='padding-bottom: 10px'>
                 <h2 class="page-header">
-                    Update Booking
+                    <?php
+                        if($spare_flag == SPARE_PARTS_REQUIRED || $spare_flag == SPARE_OOW_EST_REQUESTED){
+                            echo $spare_flag;
+                        }
+                        else {
+                            echo "Update Booking";
+                        }
+                    ?>                    
                 </h2>
                 <?php if(validation_errors()) { ?>
                 <div class=" alert alert-danger">
@@ -43,9 +50,16 @@
                                 <th>Customer Name</th>
                                 <th>Phone Number</th>
                                 <?php if(isset($saas_module) && (!$saas_module)) { ?>
-                                <th style="text-align: center;">Edit Request Type</th>
+                                <th style="text-align: center;" class="not_required">Edit Request Type</th>
                                 <?php } ?>
-                                <th style="text-align: center;">Warranty Checker</th>
+                                <th style="text-align: center;" class="not_required">Warranty Checker</th>
+                                <?php
+                                    if($spare_flag != SPARE_PART_RADIO_BUTTON_NOT_REQUIRED){
+                                        if($spare_flag == SPARE_PARTS_REQUIRED || $spare_flag == SPARE_OOW_EST_REQUESTED){ ?>
+                                            <th style="text-align: center;" class="not_required"><?php echo $spare_flag; ?></th><?php
+                                        } 
+                                    }
+                                ?>                                                                                                
                             </tr>
                             <tr>
                                 <td>
@@ -58,9 +72,9 @@
                                     <input type="text" class="form-control"   value = "<?php if (isset($bookinghistory[0]['booking_primary_contact_no'])) {echo $bookinghistory[0]['booking_primary_contact_no']; }?>"  disabled>
                                 </td>
                                 <?php if(isset($saas_module) && (!$saas_module)) { ?>
-                                       <td><center><a target="_blank" id="change_request_type" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($bookinghistory[0]['booking_id']))?>" style="height: 29px;width: 36px;" class="btn btn-sm btn-success"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a></center></td>
+                                       <td class="not_required"><center><a target="_blank" id="change_request_type" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($bookinghistory[0]['booking_id']))?>" style="height: 29px;width: 36px;" class="btn btn-sm btn-success"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a></center></td>
                                 <?php } ?>                                    
-                                <td>
+                                <td class="not_required">
                                         <?php 
                                             $partner_id = "";
                                             $service_id = "";
@@ -69,6 +83,14 @@
                                         ?>
                                         <center><a href="<?php echo base_url(); ?>service_center/warranty<?=$partner_id?><?=$service_id?>" target="_blank" class='btn btn-sm btn-success' title='Warranty Checker' style="height: 29px;width: 36px;"><i class='fa fa-certificate' aria-hidden='true'></i></a></center>
                                 </td>
+                                <?php if($spare_flag != SPARE_PART_RADIO_BUTTON_NOT_REQUIRED){ ?>
+                                <td class="not_required">
+                                    <?php
+                                        $redirect_url = base_url()."employee/service_centers/update_booking_status/".urlencode(base64_encode($bookinghistory[0]['booking_id']))."/0/1";
+                                    ?>
+                                    <center><a href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($bookinghistory[0]['booking_id']));?>/<?php echo urlencode(base64_encode($redirect_url))?>" class='btn btn-sm btn-success' title='Request Spare'><i class='fa fa-cog' aria-hidden='true'></i></a></center>
+                                </td>
+                                <?php } ?>
                             </tr>                            
                         </table>
                     </div>
@@ -79,14 +101,15 @@
                     <input type="hidden" class="form-control"  name="is_serial_number_required" value = "<?php echo $is_serial_number_required; ?>">
                     <input type="hidden" class="form-control"  name="is_invoice_required" id="is_invoice_required" value = "<?php echo $is_invoice_required; ?>">
                     <input type="hidden" class="form-control" id="partner_flag" name="partner_flag" value="0" />
-                    <input type="hidden" name="spare_shipped" value="<?php echo $spare_shipped; ?>" />
+                    <input type="hidden" class="form-control" name="spare_shipped" value="<?php echo $spare_shipped; ?>" />
+                    <input type="hidden" class="form-control" id="booking_request_type" name="booking_request_type" value="<?= $bookinghistory[0]['request_type']; ?>" />
                     <div class="form-group ">
                         <label for="reason" class="col-md-2" style="margin-top:39px;">Reason</label>
                         <div class="col-md-6" style="margin-top:39px;">
                             <!-- If status is 'InProcess' in service_center_booking_action_action table, booking can not be rescheduled -->
                             <?php if(!empty($bookinghistory['allow_reshedule']) || !empty($bookinghistory['allow_estimate_approved'])) { ?>
                             <?php foreach ($internal_status as $key => $data1) { ?>
-                            <div class="radio ">
+                            <div class="radio">
                                 <label>
                                 <input type="radio"  name="reason" id= "<?php echo "reason_id" . $key; ?>" onclick="internal_status_check(this.id)" class="internal_status" value="<?php echo $data1['status']; ?>" >
                                 <?php echo $data1['status']; ?>
@@ -95,14 +118,16 @@
                             <?php } ?>
                             <?php } ?>
                             <?php if($spare_flag != SPARE_PART_RADIO_BUTTON_NOT_REQUIRED ){ ?>
-                            <div class="radio ">
-                                <label>
-                                <input type="radio" id="spare_parts" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="<?php echo $spare_flag;?>" >
-                                <?php echo $spare_flag;?>
-                                </label>
-                            </div>
-                            <?php }?>
-                            <hr id="seperator">
+                            <?php if(isset($request_spare) && $request_spare == 1){ ?>
+                                <div class="radio ">
+                                    <label>
+                                    <input type="radio" id="spare_parts" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="<?php echo $spare_flag;?>" >
+                                    <?php echo $spare_flag;?>
+                                    </label>
+                                </div>
+                            <?php }}?>
+                            <?php if(empty($request_spare)) { ?>
+                            <!-- <hr id="seperator"> -->
                             <!-- If status is 'InProcess' in service_center_booking_action_action table, booking can not be rescheduled -->
                             <?php if(!empty($bookinghistory['allow_reshedule'])) { ?>
                             <?php if($bookinghistory[0]['is_upcountry'] == 1 ){ ?>
@@ -136,6 +161,7 @@
                             <?php } else { ?>
                                 <div class="text-warning" style="font-size:16px;"><i class="fa fa-info-circle"></i>&nbsp;Booking In-Process, can not be Rescheduled</div>
                             <?php } ?>
+                            <?php } ?>
                         </div>
                     </div>
                     <input type="hidden" name="days" value="<?php echo $days; ?>" />    
@@ -151,7 +177,7 @@
                                         <label for="model_number" class="col-md-4">Model Number *</label>
                                         <?php $is_modal_number = false;  if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                         <div class="col-md-6">
-                                            <select class="form-control spare_parts" id="model_number_id" tabindex="-1" name="model_number_id">
+                                            <select class="form-control spare_parts disable_cntrl" id="model_number_id" tabindex="-1" name="model_number_id">
                                                 <option value="" disabled="" selected="">Select Model Number <?php  //echo $unit_model_number; ?></option>
                                                 <?php foreach ($inventory_details as $key => $value) { ?> 
                                                 <option value="<?php echo $value['id']; ?>"   <?php if(trim(strtoupper($unit_model_number))==trim(strtoupper($value['model_number']))){ $is_modal_number = true; echo 'selected';} ?>   ><?php echo $value['model_number']; ?></option>
@@ -164,7 +190,7 @@
                                         <?php } else { ?> 
                                         <div class="col-md-6" id="appliance_model_div">
                                             <input type="hidden" id="model_number_id" name="model_number_id">
-                                            <input type="text" class="form-control spare_parts" id="model_number" tabindex="-1" name="model_number" value = "<?php if(isset($unit_model_number) && !empty($unit_model_number)){ $is_modal_number = TRUE; echo $unit_model_number;} ?>" placeholder="Model Number" required="" onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">
+                                            <input type="text" class="form-control spare_parts disable_cntrl" id="model_number" tabindex="-1" name="model_number" value = "<?php if(isset($unit_model_number) && !empty($unit_model_number)){ $is_modal_number = TRUE; echo $unit_model_number;} ?>" placeholder="Model Number" required="" onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">
                                         </div>
                                         <?php } ?>
                                     </div>
@@ -174,7 +200,7 @@
                                         <label for="dop" class="col-md-4" id="dat_of_puchase">Date of Purchase *</label>
                                         <div class="col-md-6">
                                             <div class="input-group input-append date">
-                                                <input id="dop" class="form-control" tabindex="-1" value="<?php if(isset($purchase_date) && (!empty($purchase_date) && $purchase_date != "0000-00-00" && $ask_purchase_date==0)){ echo date('d-m-Y', strtotime($purchase_date)); } ?>"  placeholder="Select Date" name="dop" type="text" autocomplete='off' onkeypress="return false;">
+                                                <input id="dop" class="form-control disable_cntrl" tabindex="-1" value="<?php if(isset($purchase_date) && (!empty($purchase_date) && $purchase_date != "0000-00-00" && $ask_purchase_date==0)){ echo date('d-m-Y', strtotime($purchase_date)); } ?>"  placeholder="Select Date" name="dop" type="text" autocomplete='off' onkeypress="return false;">
                                                 <span class="input-group-addon add-on" id="dop_calendar" onclick="dop_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                         </div>
@@ -186,7 +212,7 @@
                                     <div class="form-group">
                                         <label for="serial_number" class="col-md-4">Serial Number *</label>
                                         <div class="col-md-6"> 
-                                            <input type="text" class="form-control spare_parts" id="serial_number" name="serial_number"  value="<?php if(isset($unit_serial_number) && !empty($unit_serial_number)){echo $unit_serial_number;}  ?>" placeholder="Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" required="">
+                                            <input type="text" class="form-control spare_parts disable_cntrl" id="serial_number" name="serial_number"  value="<?php if(isset($unit_serial_number) && !empty($unit_serial_number)){echo $unit_serial_number;}  ?>" placeholder="Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" required="">
                                             <input type="hidden" id="is_sn_correct" name="is_sn_correct" value="">
                                             <span id="error_serial_no" class="error_serial_no text-danger"></span>
                                         </div>
@@ -695,107 +721,6 @@
        document.all ? k = e.keyCode : k = e.which;
        return ((k > 64 && k < 91) || (k > 96 && k < 123) || k == 8 || k == 32 || (k >= 48 && k <= 57) || k==189);
     }
-
-    function validate_serial_number_and_warranty()
-    {
-        // Validate Serial Number in case of Spare Request page
-        var reason = $("input[name='reason']:checked"). val();
-        if(reason !== "<?php echo SPARE_PARTS_REQUIRED;?>" && reason !== "<?php echo SPARE_OOW_EST_REQUESTED;?>"){
-            return true;
-        }
-        var postData = {};
-        var valid_serial_number = false;
-        var UrlValidateSerialNumber = '<?php echo base_url(); ?>employee/service_centers/validate_booking_serial_number';
-        postData['serial_number'] = $.trim($("#serial_number").val());
-        postData['price_tags'] = "<?= $bookinghistory[0]['request_type']?>";
-        postData['user_id'] = "<?= $bookinghistory[0]['user_id']?>";
-        postData['booking_id'] = "<?= $bookinghistory[0]['booking_id']?>";
-        postData['partner_id'] = "<?= $bookinghistory[0]['partner_id']?>";
-        postData['appliance_id'] = "<?= $bookinghistory[0]['service_id']?>";
-        if(postData['serial_number'] !== ''){
-            $.ajax({
-                type: 'POST',
-                async: false,
-                url: UrlValidateSerialNumber,
-                data:postData,
-                success: function (response) {                    
-                    console.log(response);
-                    var data = jQuery.parseJSON(response);
-                    if(data.code === 247){
-                        console.log("Correct Serial Number");
-                        $("#is_sn_correct").val("1");
-                        $(".error_serial_no").html("");
-                        valid_serial_number = check_booking_request();
-                    } else if(data.code === Number(DUPLICATE_SERIAL_NO_CODE)){
-                        console.log("Duplicate Serial Number");
-                        $("#is_sn_correct").val("0");
-                        $(".error_serial_no").html(data.message);
-                    } else {
-                        console.log("Incorrect Serial Number");
-                        $("#is_sn_correct").val("0");
-                        $(".error_serial_no").html(data.message);
-                    }
-                }
-            });
-        }        
-        else{
-            valid_serial_number = check_booking_warranty();
-        }
-        return valid_serial_number;        
-    }
-    
-    // function to cross check request type of booking with warranty status of booking 
-    function check_booking_request()
-    {
-        var model_number = $('#model_number').val();
-        var dop = $("#dop").val();
-        var serial_number = $("#serial_number").val();
-        var partner_id = "<?= $bookinghistory[0]['partner_id']?>";
-        var brand = "<?= $unit_details[0]['appliance_brand']; ?>";
-        var service_id = "<?= $bookinghistory[0]['service_id']?>";
-        var booking_id = "<?= $bookinghistory[0]['booking_id']?>";
-        var booking_request_type = "<?= $bookinghistory[0]['request_type']; ?>";  
-        var booking_create_date = "<?= $bookinghistory[0]['booking_create_date']; ?>"; 
-        var valid_request = false;
-        // Model Number & DOP/Serial number should be there for checking warranty
-        // Booking Request Type should not be AMC/repeat
-        if((model_number !== "" && model_number !== null) && (dop !== "" || serial_number != "")){                               
-            $.ajax({
-                method:'POST',
-                async: false,
-                url:"<?php echo base_url(); ?>employee/service_centers/get_warranty_data/2/1",
-                data:{
-                    'bookings_data[0]' : {
-                        'partner_id' : partner_id,
-                        'brand' : brand,
-                        'booking_id' : booking_id,
-                        'booking_create_date' : booking_create_date,
-                        'service_id' : service_id,
-                        'model_number' : model_number,
-                        'purchase_date' : dop, 
-                        'serial_number' : serial_number,
-                        'booking_request_types' : [booking_request_type]
-                    }
-                },
-                success:function(response){
-                    var returnData = JSON.parse(response);
-                    $(".errorMsg").html(returnData['message']);
-                    if(returnData['status'] == 1)
-                    {
-                        console.log("Invalid Booking Request Type");
-                    }
-                    else
-                    {                        
-                        if($("#is_sn_correct").val() == "1"){
-                            console.log("Valid Booking Request Type");
-                            valid_request = true;
-                        }
-                    }
-                }                            
-            });
-            return valid_request;
-        }
-    }
     
     <?php if(isset($inventory_details) && !empty($inventory_details)) { ?> 
         <?php if(!$is_disable) { ?>
@@ -812,36 +737,8 @@
             allowClear:true
         });
         
-//      function getPartTypes(){
-//            $('#model_number_id').on('change', function() {
-//            var model_number_id = $('#model_number_id').val();
-//            
-//            var model_number = $("#model_number_id option:selected").text();
-//            $('#spinner').addClass('fa fa-spinner').show();
-//            if(model_number){
-//                $('#model_number').val(model_number);
-//                $.ajax({
-//                    method:'POST',
-//                    url:'<?php echo base_url(); ?>employee/inventory/get_parts_type',
-//                    data: { model_number_id:model_number_id},
-//                    success:function(data){
-//                        $('.parts_type').val('val', "");
-//                        $('.parts_type').val('Select Part Type').change();
-//                        $('.parts_type').html(data);
-//                        $('.parts_name').val('val', "");
-//                        $('.parts_name').val('Select Part Type').change();
-//                        $('#spinner').removeClass('fa fa-spinner').hide();
-//                    }
-//                });
-//            }else{
-//                alert("Please Select Model Number");
-//            }
-//        });
-//      }  
-
-   
  
- function getPartType(){
+        function getPartType(){
             var model_number_id = $('#model_number_id option:selected').val();
             var model_number = $("#model_number_id option:selected").text();
             $('#spinner').addClass('fa fa-spinner').show();
@@ -960,7 +857,7 @@
                         html += "</select>";
                         html += "<input type='hidden' id='model_number' name='model_number'>";
                         $("#appliance_model_div").html(html);
-                        <?php if(!$is_disable) { ?>
+                        <?php if(!$is_disable && empty($request_spare)) { ?>
                             $('#model_number_id').select2();
                         <?php } else { ?>
                             $("#model_number_id").css({"cursor" : "not-allowed", "pointer-events" : "none", "background" : "#eee" });
@@ -992,6 +889,13 @@
             internal_status_check('spare_parts');
             $("#spare_parts").prop('checked', true);
        <?php } ?>
+           
+       <?php if(isset($request_spare) && $request_spare == 1){ ?>
+            internal_status_check('spare_parts');
+            $("#spare_parts").prop('checked', true);
+            $(".not_required").hide();
+            $(".disable_cntrl").attr("disabled", "true");
+       <?php } ?>    
     });
         
     function submitForm(){
@@ -1036,27 +940,7 @@
           if(sc_remarks === ""){
               alert("Please Enter remarks");
               checkbox_value = 0;
-          }
-         
-            // ask otp to enter.
-//            var booking_id = $('#booking_id').val();
-//            var sms_template = '';
-//
-//            // send one time password to customer and open popup.
-//            $.ajax({
-//                method : 'POST',
-//                url: 'employee/service_centers/send_otp_customer',
-//                data: {booking_id, sms_template},
-//            }).done(function(data) {
-//                response = $.trim(data);
-//                $('#verified_otp').val(data);
-//                $('#CancelBookingOtpModal').modal({backdrop: 'static', keyboard: false});
-//                // hide modal after 5 mins.
-//                setTimeout(function() {$('#CancelBookingOtpModal').modal('hide');}, 300000);
-//                $('#submitform').val('Proceed');
-//            });       
-//
-//            return false;
+          }         
       } else if(reason === "<?php echo SPARE_PARTS_REQUIRED;?>" || reason === "<?php echo SPARE_OOW_EST_REQUESTED; ?>"){
           var around_flag = $('#partner_flag').val();
           
@@ -1205,16 +1089,6 @@
             });
            
         <?php } } ?>
-            /*$('.spare_request_symptom').each(function() {
-                var id = $(this).attr('id');
-                if(id !== "spare_request_symptom"){
-                    if(!$(this).val() || $(this).val() === "undefined" ||  $(this).val() === null){
-                        alert('Please Select Technical Problem');    
-                        checkbox_value = 0;
-                       return false;
-                    }
-                }
-            });*/
               
             if(prob_des === "" || prob_des === null){
                 alert("Please Enter problem description");
@@ -1262,39 +1136,40 @@
             $('#submitform').val("Update Booking");
             return false;
           
-        } else if(checkbox_value === 1){          
-            if(confirm("Validating Serial Number & Booking Warranty Status, Click OK to continue.")){
-                $("#submitform").prop("disabled", true);
-                $("#submitform").attr('value', 'Validating Data...');
-                setTimeout(function(){ 
-                    var is_correct = validate_serial_number_and_warranty();
-                    if(is_correct){
-                        $("#requested_parts").submit();
-                        return true;
-                    }
-                    else{                        
-                        $("#submitform").attr('value', "Update Booking");
-                        $("#submitform").prop("disabled", false);
-                        return false;
-                    }
-                }, 3000);                
-            }          
-        }    
+        } else if(checkbox_value === 1){ 
+            $("#requested_parts").submit();
+            return true;
+
+// -----------  Validate Serial Number in case of Spare Request page ---------------------------------
+//            var reason = $("input[name='reason']:checked"). val();
+//            if(reason !== "<?php echo SPARE_PARTS_REQUIRED;?>" && reason !== "<?php echo SPARE_OOW_EST_REQUESTED;?>"){
+//                $("#requested_parts").submit();
+//                return true;
+//            }
+//            else
+//            {
+//                if(confirm("Validating Serial Number & Booking Warranty Status, Click OK to continue.")){
+//                    $("#submitform").prop("disabled", true);
+//                    $("#submitform").attr('value', 'Validating Data...');
+//                    setTimeout(function(){ 
+//                        var is_correct = validate_serial_number_and_warranty();
+//                        if(is_correct){
+//                            $("#requested_parts").submit();
+//                            return true;
+//                        }
+//                        else{                        
+//                            $("#submitform").attr('value', "Update Booking");
+//                            $("#submitform").prop("disabled", false);
+//                            return false;
+//                        }
+//                    }, 3000);                
+//                }          
+//            }    
+        }
     }
     
     $('#reschedule_booking_otp_btn').on('click', function() {
-        var reschedule_booking_otp = $('#reschedule_booking_otp').val();
-//        if(reschedule_booking_otp == '' || reschedule_booking_otp == null) {
-//            alert('Please enter OTP.');
-//            return false;
-//        }
-//        if(reschedule_booking_otp == response) {
-//            $('#requested_parts').submit();
-//            return true;
-//        }
-//        
-//        alert('Entered OTP is incorrect.');
-//        return false;
+        var reschedule_booking_otp = $('#reschedule_booking_otp').val()
         
         if(reschedule_booking_otp == '' || reschedule_booking_otp == null) {
             $('#requested_parts').submit();

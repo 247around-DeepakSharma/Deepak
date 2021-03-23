@@ -724,7 +724,11 @@ class Partner extends CI_Controller {
                 
                 $this->partner_model->edit_partner($edit_partner_data['partner'], $partner_id);
                 //Getting Logged Employee Full Name
-                $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
+                $logged_user_name = "";
+                $arr_logged_user = $this->employee_model->getemployeefromid($this->session->userdata('id'));
+                if(!empty($arr_logged_user[0]['full_name'])){
+                   $logged_user_name = $arr_logged_user[0]['full_name']; 
+                }
                 //Logging
                 log_message('info', __FUNCTION__ . ' Partner has been Updated : ' . print_r($this->input->post(), TRUE));
                 $msg = "Partner Updated Successfully";
@@ -1234,7 +1238,7 @@ class Partner extends CI_Controller {
 
        $is_wh = $this->reusable_model->get_search_result_data("partners","is_wh",array('id'=>$id),NULL,NULL,NULL,NULL,NULL,array());
        $results['bank_detail'] = $this->reusable_model->get_search_result_data("account_holders_bank_details", '*',array("entity_id"=>$id, "entity_type" => 'partner'),NULL, NULL, array('is_active'=>'DESC'), NULL, NULL, array()); 
-       $results['variable_charges'] = $this->accounting_model->get_vendor_partner_variable_charges("fixed_charges, vendor_partner_variable_charges.validity_in_month, vendor_partner_variable_charges.id as partner_charge_id, vendor_partner_variable_charges.status, variable_charges_type.*", array('entity_type'=>'partner', 'entity_id'=>$id), true);
+       $results['variable_charges'] = $this->accounting_model->get_vendor_partner_variable_charges("fixed_charges, vendor_partner_variable_charges.validity_in_month, vendor_partner_variable_charges.id as partner_charge_id, vendor_partner_variable_charges.status,vendor_partner_variable_charges.approval_file, variable_charges_type.*", array('entity_type'=>'partner', 'entity_id'=>$id), true);
        $charges_type = $this->accounting_model->get_variable_charge("id, type, description");
        $select = 'micro_wh_mp.id,micro_wh_mp.state, micro_wh_mp.active,micro_wh_mp.vendor_id,micro_wh_mp.id as wh_on_of_id,micro_wh_mp.update_date,service_centres.name,micro_wh_mp.id as micro_wh_mp_id,micro_wh_mp.micro_warehouse_charges';
        $micro_wh_lists = $this->inventory_model->get_micro_wh_lists_by_partner_id($select, array('micro_wh_mp.partner_id' => $id)); 
