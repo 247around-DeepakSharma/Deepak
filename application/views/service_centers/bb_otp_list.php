@@ -58,10 +58,10 @@
                 {
                     extend: 'excel',
                     text: '<span class="fa fa-file-excel-o"></span>  Export',
-                    title: 'accessories_list_<?php echo date('Ymd-His'); ?>',
+                    title: 'bb_otp_list_<?php echo date('Ymd-His'); ?>',
                     footer: true,
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7],
+                        columns: [0, 1, 2, 3, 4, 5, 6],
                         modifier: {
                             // DataTables core
                             order: 'index', // 'current', 'applied', 'index',  'original'
