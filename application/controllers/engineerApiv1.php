@@ -3727,6 +3727,16 @@ class engineerApiv1 extends CI_Controller {
                         exit;
                 }
             }
+			if((strpos(strtoupper(str_replace(" ","",$price_tag_real)), 'OUTOFWARRANTY') !== false)){
+				$IW_spare = $this->My_CI->booking_utilities->is_spare_requested_in_IW($booking_id);
+				if(!empty($IW_spare)){
+					$return = "You can not change request type to ".$price_tag_real." Spare is already Requested in In-Warranty.";
+					$response['warranty_flag'] = 1;
+					$this->jsonResponseString['response'] = $response;
+					$this->sendJsonResponse(array('0055', $return));
+					exit;
+				}
+			}
 
             $booking_details = $this->booking_creation_lib->get_edit_booking_form_helper_data($requestData['booking_id'], NULL, NULL);
             $brand_warranty = "";
