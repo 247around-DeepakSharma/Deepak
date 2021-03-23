@@ -84,6 +84,7 @@ class Service_centers_model extends CI_Model {
             $sql = " SELECT DISTINCT (sc.`booking_id`), `sc`.admin_remarks, "
                 . " bd.booking_primary_contact_no, "
                 . " users.name as customername,  "
+                . " bd.create_date,"
                 . " bd.booking_date,"
                 . " bd.partner_id,"
                 . " bd.booking_jobcard_filename,"
