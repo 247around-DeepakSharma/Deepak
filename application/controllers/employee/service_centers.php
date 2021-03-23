@@ -1728,7 +1728,7 @@ class Service_centers extends CI_Controller {
      * @desc: This is used to load update form for service center
      * @param String Base_encode form - $booking_id
      */
-    function update_booking_status($code, $flag = '') {
+    function update_booking_status($code, $flag = '', $request_spare = 0) {
         log_message('info', __FUNCTION__ . " Booking ID: " . base64_decode(urldecode($code)));
         $this->checkUserSession();
         $data = array();
@@ -1883,7 +1883,9 @@ class Service_centers extends CI_Controller {
                         }
                     }
                     if (empty($dateofpurchase)) {
-                        if (!empty($value['purchase_date'])) {
+                        if (!empty($value['sf_purchase_date'])) {
+                            $dateofpurchase = $value['sf_purchase_date'];
+                        } else if (!empty($value['purchase_date'])) {
                             $dateofpurchase = $value['purchase_date'];
                         }
                     }
@@ -1907,11 +1909,12 @@ class Service_centers extends CI_Controller {
                 $data['purchase_date'] = $dateofpurchase;
                 /*  Again Ask for purchase date to fill if no spare involved or all are cancelled */
                 $part_dependency = $this->inventory_model->get_spare_parts_details("id, status,partner_id,service_center_id,shipped_inventory_id,shipped_quantity,booking_id,parts_shipped", array("booking_id"=>$booking_id, "status != '"._247AROUND_CANCELLED."'" => NULL));
-                if(!empty($part_dependency)){   
-                 $data['ask_purchase_date'] = 0;   
-                }else{
-                   $data['ask_purchase_date'] = 1; 
-                }
+                $data['ask_purchase_date'] = 0; 
+//                if(!empty($part_dependency)){   
+//                 $data['ask_purchase_date'] = 0;   
+//                }else{
+//                   $data['ask_purchase_date'] = 1; 
+//                }
                 
                 $data['is_disable'] = $is_disable;
                 $data['is_serial_number_required'] = $is_serial_number_required;
@@ -1921,8 +1924,8 @@ class Service_centers extends CI_Controller {
                 $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where);
                 $data['spare_shipped_flag'] = $spare_shipped_flag;
                 $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-                if ($data['bookinghistory'][0]['nrn_approved'] == 1) {
-                    $data['spare_flag'] = SPARE_PART_RADIO_BUTTON_NOT_REQUIRED;
+//                $data['spare_flag'] = SPARE_PART_RADIO_BUTTON_NOT_REQUIRED;
+                if ($data['bookinghistory'][0]['nrn_approved'] == 1) {                    
                     $data['nrn_flag'] = 1;
                 }
 
@@ -1934,6 +1937,7 @@ class Service_centers extends CI_Controller {
                  $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom', array('symptom.service_id' => $data['bookinghistory'][0]['service_id'], 'symptom.active' => 1, 'symptom.partner_id' => $data['bookinghistory'][0]['partner_id']), array('request_type.service_category' => $price_tags_symptom));
                  }
 
+                $data['request_spare'] = $request_spare; 
                 $this->load->view('service_centers/header');
                 $this->load->view('service_centers/get_update_form', $data);
             } else {

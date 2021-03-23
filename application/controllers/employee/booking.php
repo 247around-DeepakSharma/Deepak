@@ -466,9 +466,11 @@ class Booking extends CI_Controller {
             }
 
             $this->booking_model->update_request_type($booking['booking_id'], $price_tag,$oldPriceTags);
-            // save serial number and serial number pic in service_center_booking_action       
+            // save serial number and serial number pic, model & DOP in service_center_booking_action       
             $ssba_details['serial_number'] = $serial_number;
             $ssba_details['serial_number_pic'] = $serial_number_pic;
+            $ssba_details['model_number'] = $services_details['model_number'] ;
+            $ssba_details['sf_purchase_date'] = $services_details['purchase_date'];
             $this->service_centers_model->update_service_centers_action_table($booking['booking_id'], $ssba_details);
             $this->engineer_model->update_engineer_table($ssba_details, ['booking_id' => $booking['booking_id']]);
             if($booking_id == INSERT_NEW_BOOKING){
