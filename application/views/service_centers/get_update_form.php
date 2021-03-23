@@ -982,9 +982,7 @@
             $('#model_number').val(model_number);
         }
         
-        <?php if(!$is_disable) { ?>
-            $('#model_number_id').select2();
-        <?php } else { ?>
+        <?php if($is_disable) { ?>
             $("#model_number_id").css({"cursor" : "not-allowed", "pointer-events" : "none", "background" : "#eee" });
             $("#model_number").css({"cursor" : "not-allowed", "pointer-events" : "none", "background" : "#eee" });
         <?php } ?>
