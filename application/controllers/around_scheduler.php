@@ -3410,4 +3410,316 @@ class Around_scheduler extends CI_Controller {
         }
             
     }
+
+    /**
+     * @desc This is used to Send Email to partner to tell about pending spare count in Requested Status
+     * @return boolean
+     * Ghanshyam
+     * 18-03-2021
+     */
+    function partner_pending_part() {
+        $partner_not_like = INTERNALTYPE;
+        $partnerType = array(OEM, EXTWARRANTYPROVIDERTYPE, ECOMMERCETYPE);
+        $active = 1;
+        $ac = 'All';
+        $query = $this->partner_model->get_partner_details_with_soucre_code($active, $partnerType, $ac, $partner_not_like, "", null);
+        $template = $this->booking_model->get_booking_email_template("partner_part_pending");
+        if (!empty($template)) {
+            $body = $template[0];
+            $from = $template[2];
+            $cc = '';
+            if (!empty($template[1])) {
+                $to = $template[1] . ",";
+            }
+            if (!empty($template[3])) {
+                $cc = $template[3] . ",";
+            }
+            $subject = $template[4];
+            $bcc = '';
+            
+            foreach ($query as $key => $value) {
+                $partner_id = $value['id'];
+                $am_details = $this->partner_model->getpartner_data("partners.public_name, agent_filters.*, employee.full_name, employee.groups,employee.official_email,employee.phone", array("partners.id" => $partner_id, "agent_filters.entity_id IS NOT NULL" => NULL), "", TRUE, 0, 1);
+
+                $CSVData = array();
+                $amemail_ids = array();
+                $am_string_array = array();
+                $am_string = "";
+                $amemail_ids_string;
+
+                foreach ($am_details as $key_am => $value_am) {
+                    if (!empty($value_am['official_email'])) {
+                        $amemail_ids[] = $value_am['official_email'];
+                    }
+                    if (!empty($value_am['phone'])) {
+                        $am_string_array[] = $value_am['full_name'] . " (" . $value_am['phone'] . ")";
+                    }
+                }
+                if (!empty($amemail_ids)) {
+                    $amemail_ids = array_unique($amemail_ids);
+                    $amemail_ids_string = implode(',', $amemail_ids);
+                    $cc = $cc . $amemail_ids_string . ",";
+                }
+                if (!empty($am_string_array)) {
+                    $am_string = implode('<br>', array_unique($am_string_array));
+                }
+                $where = "spare_parts_details.entity_type = '" . _247AROUND_PARTNER_STRING . "' and spare_parts_details.partner_id = " . $partner_id . " and spare_parts_details.status = '" . SPARE_PARTS_REQUESTED . "' ";
+                $data = $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true);
+                if (!empty($data)) {
+                    $headings = array("Spare ID",
+                        "Booking ID",
+                        "Customer Contact Number",
+                        "Dealer Name",
+                        "Booking Create Date",
+                        "Initial Booking Date",
+                        "Current Booking Date",
+                        "Booking Completion Date",
+                        "Booking Final Closing Date",
+                        "Product",
+                        "Booking Request Type",
+                        "Requested On Partner/Warehouse",
+                        "Spare Status",
+                        "Booking Status Level 1",
+                        "Booking Status Level 2",
+                        "SF Name",
+                        "SF City",
+                        "SF State",
+                        "SF Remarks",
+                        "Serial Number",
+                        "Requested Model Number",
+                        "Requested Part Code",
+                        "Requested Part Name",
+                        "Requested Part Type",
+                        "Requested Quantity",
+                        "Requested Part Date",
+                        "Date Of Purchase",
+                        "Parts Charge",
+                        "Dispatched Model Number (To SF)",
+                        "Dispatched Part Code (To SF)",
+                        "Dispatched Part Name (To SF)",
+                        "Dispatched Part Type (To SF)",
+                        "Dispatched Quantity (To SF)",
+                        "Dispatched Part Date (To SF)",
+                        "Part Acknowledge Date By SF",
+                        "Dispatched Invoice Number (To SF)",
+                        "Dispatched Challan Number",
+                        "Dispatched AWB Number (To SF)",
+                        "Courier Name (Dispatched To SF)",
+                        "Courier Price (Dispatched To SF)",
+                        "Remarks by Partner/Warehouse",
+                        "Defective Part Shipped By SF",
+                        "Defective Received Date By Partner/Warehouse",
+                        "Defective Part Shipped Date",
+                        "Defective Part Remarks by SF",
+                        "SF Challan Number",
+                        "SF AWB Number (Defective Shipped)",
+                        "AWB Number Warehouse Dispatch Defective To Partner",
+                        "Courier Name Warehouse Dispatch Defective To Partner",
+                        "Challan Number Warehouse Dispatch Defective To Partner",
+                        "Warehouse Dispatch Defective Shipped Date To Partner",
+                        "WH to Partner Reverse Purchase Invoice Id",
+                        "WH to Parnter Reverse Purchase Invoice Date",
+                        "Is Spare Auto Acknowledge By SF",
+                        "Consumption"
+                    );
+
+                    foreach ($data as $sparePartBookings) {
+                        $tempArray = array();
+                        $tempArray[] = $sparePartBookings['id'];
+                        $tempArray[] = $sparePartBookings['booking_id'];
+                        $tempArray[] = $sparePartBookings['booking_primary_contact_no'];
+                        $tempArray[] = $sparePartBookings['dealer_name'];
+                        $tempArray[] = ((!empty($sparePartBookings['create_date'])) ? date("d-M-Y", strtotime($sparePartBookings['create_date'])) : '');
+                        $tempArray[] = ((!empty($sparePartBookings['initial_booking_date'])) ? date("d-M-Y", strtotime($sparePartBookings['initial_booking_date'])) : '');
+                        $tempArray[] = ((!empty($sparePartBookings['booking_date'])) ? date("d-M-Y", strtotime($sparePartBookings['booking_date'])) : '');
+                        $tempArray[] = ((!empty($sparePartBookings['service_center_closed_date'])) ? date("d-M-Y", strtotime($sparePartBookings['service_center_closed_date'])) : '');
+                        $tempArray[] = ((!empty($sparePartBookings['closed_date'])) ? date("d-M-Y", strtotime($sparePartBookings['closed_date'])) : '');
+                        $tempArray[] = $sparePartBookings['services'];
+                        $tempArray[] = $sparePartBookings['request_type'];
+                        $tempArray[] = (($sparePartBookings['is_micro_wh'] == 0) ? "Partner" : (($sparePartBookings['is_micro_wh'] == 1) ? "Micro Warehouse - " : "") . $sparePartBookings['warehouse_name']);
+                        $tempArray[] = $sparePartBookings['status'];
+                        $tempArray[] = $sparePartBookings['partner_current_status'];
+                        $tempArray[] = $sparePartBookings['partner_internal_status'];
+                        $tempArray[] = $sparePartBookings['vendor_name'];
+                        $tempArray[] = $sparePartBookings['sf_city'];
+                        $tempArray[] = $sparePartBookings['sf_state'];
+                        $tempArray[] = $sparePartBookings['remarks_by_sc'];
+                        $tempArray[] = $sparePartBookings['serial_number'];
+                        $tempArray[] = $sparePartBookings['model_number'];
+                        $tempArray[] = $sparePartBookings['part_number'];
+                        $tempArray[] = $sparePartBookings['part_name'];
+                        $tempArray[] = $sparePartBookings['type'];
+                        $tempArray[] = $sparePartBookings['quantity'];
+                        $tempArray[] = ((!empty($sparePartBookings['date_of_request'])) ? date("d-M-Y", strtotime($sparePartBookings['date_of_request'])) : '');
+                        $tempArray[] = ((!empty($sparePartBookings['date_of_purchase'])) ? date("d-M-Y", strtotime($sparePartBookings['date_of_purchase'])) : '');
+                        $tempArray[] = $sparePartBookings['challan_approx_value'];
+                        $tempArray[] = $sparePartBookings['model_number_shipped'];
+                        $tempArray[] = $sparePartBookings['shipped_part_number'];
+                        $tempArray[] = $sparePartBookings['shipped_part_name'];
+                        $tempArray[] = $sparePartBookings['shipped_part_type'];
+                        $tempArray[] = $sparePartBookings['shipped_quantity'];
+                        $tempArray[] = ((!empty($sparePartBookings['shipped_date'])) ? date("d-M-Y", strtotime($sparePartBookings['shipped_date'])) : '');
+                        $tempArray[] = ((!empty($sparePartBookings['acknowledge_date'])) ? date("d-M-Y", strtotime($sparePartBookings['acknowledge_date'])) : '');
+                        $tempArray[] = $sparePartBookings['purchase_invoice_id'];
+                        $tempArray[] = $sparePartBookings['partner_challan_number'];
+                        $tempArray[] = $sparePartBookings['awb_by_partner'];
+                        $tempArray[] = $sparePartBookings['courier_name_by_partner'];
+                        $tempArray[] = $sparePartBookings['courier_price_by_partner'];
+                        $tempArray[] = $sparePartBookings['remarks_by_partner'];
+                        $tempArray[] = $sparePartBookings['defective_part_shipped'];
+                        $tempArray[] = ((!empty($sparePartBookings['received_defective_part_date'])) ? date("d-M-Y", strtotime($sparePartBookings['received_defective_part_date'])) : '');
+                        $tempArray[] = ((!empty($sparePartBookings['defective_part_shipped_date'])) ? date("d-M-Y", strtotime($sparePartBookings['defective_part_shipped_date'])) : '');
+                        $tempArray[] = $sparePartBookings['remarks_defective_part_by_sf'];
+                        $tempArray[] = $sparePartBookings['sf_challan_number'];
+                        $tempArray[] = $sparePartBookings['awb_by_sf'];
+                        $tempArray[] = $sparePartBookings['awb_by_wh'];
+                        $tempArray[] = $sparePartBookings['courier_name_by_wh'];
+                        $tempArray[] = $sparePartBookings['wh_challan_number'];
+                        $tempArray[] = $sparePartBookings['wh_to_partner_defective_shipped_date'];
+                        $tempArray[] = $sparePartBookings['reverse_purchase_invoice_id'];
+                        $tempArray[] = $sparePartBookings['invoice_date'];
+                        if ($sparePartBookings['auto_acknowledeged'] == 1) {
+                            $tempArray[] = "Yes";
+                        } else {
+                            $tempArray[] = "No";
+                        }
+
+                        if ($sparePartBookings['is_consumed'] == 1) {
+                            $tempArray[] = "Yes";
+                        } else {
+                            $tempArray[] = "No";
+                        }
+
+                        $CSVData[] = $tempArray;
+                    }
+
+                    $file = TMP_FOLDER . "Partner_pending_spare_" . $partner_id . "_" . date("Y-m-d") . ".csv";
+
+                    if (!empty($value['primary_contact_email'])) {
+                        $to = $to . $value['primary_contact_email'];
+                    }
+                    $cc = $cc . $value['spare_notification_email'] . "," . $value['summary_email_to'];
+
+                    $fp = fopen($file, 'w');
+                    if (!empty($headings)) {
+                        array_unshift($CSVData, $headings);
+                    }
+                    $number_of_records = count($CSVData);
+                    for ($i = 0; $i < $number_of_records; $i++) {
+                        fputcsv($fp, $CSVData[$i]);
+                    }
+                    $emailBody = vsprintf($body, array(count($data), $am_string));
+                    $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $emailBody, $file, 'partner_part_pending');
+
+                    if (file_exists($file)) {
+                        unlink($file);
+                    }
+                }
+            }
+        }
+    }
+     /**
+     * @desc     Get fetch_otp_from_amazon_for_buyback
+      * Ghanshyam Ji Gupta (22-03-2021)
+     * @param    void()
+     * @return   void()
+     */
+    function fetch_otp_for_buyback() {
+        $mail_server = SMS_DEACTIVATION_MAIL_SERVER;
+        $email = QC_BALANCE_READ_EMAIL;
+        $password = QC_BALANCE_READ_EMAIL_PASSWORD;
+        $conn = $this->email_data_reader->create_email_connection($mail_server, $email, $password);
+        $buyback_condition = 'SINCE "' . date("d M Y", strtotime(date("Y-m-d"))) . '" SUBJECT "Out for Delivery at"';
+        $buyback_data = $this->email_data_reader->get_emails($buyback_condition);		
+        if (!empty($buyback_data)) {
+			$buyback_data = array_reverse($buyback_data);
+            foreach ($buyback_data as $key => $value) {
+                $email_no = $value['email_no'];
+                $post_cp['where']['email_no'] = $email_no;
+                $post_cp['order']['column'] = 'id';
+                $post_cp['order']['order_by'] = 'desc';
+                $post_cp['length'] = 1;
+                $post_cp['start'] = 0;
+                $otp_detail = $this->bb_model->fetch_buyback_otp($post_cp);
+                if (empty($otp_detail)) {
+                    $subject = $value['subject'];
+                    $body = $value['body'];
+                    if (preg_match_all('/\d{2}\/\d{2}\/\d{4}/', $subject, $matches)) {
+                        $date = "";
+                        if (!empty($matches)) {
+                            $date = $matches[0][0];
+                        }
+                    }
+                    $phonenumber = '';
+                    if (preg_match_all('/[\+][0-9]{12}+/', $body, $matches)) {
+                        $phonenumber = $matches[0][0];
+                    }
+
+                    $string = ' ' . $body;
+                    $ini = strpos($string, 'OTP ');
+                    if ($ini == 0)
+                        return '';
+                    $ini += strlen('OTP ');
+                    $len = strpos($string, ' ', $ini) - $ini;
+                    $len = $len - 1;
+                    $otp = substr($string, $ini, $len);
+
+
+                    $string = ' ' . $body;
+                    $ini = strpos($string, '(');
+                    if ($ini == 0)
+                        return '';
+                    $ini += strlen('(');
+                    $len = strpos($string, ': +91', $ini) - $ini;
+                    $name = substr($string, $ini, $len);
+
+                    $string = ' ' . $subject;
+                    $ini = strpos($string, $date);
+                    if ($ini == 0)
+                        return '';
+                    $ini += strlen($date);
+                    $len = strpos($string, ')', $ini) - $ini;
+                    $time = substr($string, $ini, $len);
+
+
+                    $string = ' ' . $body;
+                    $ini = strpos($string, 'shop located at ');
+                    if ($ini == 0)
+                        return '';
+                    $ini += strlen('shop located at ');
+                    $len = strpos($string, '.', $ini) - $ini;
+                    $location_pincode = substr($string, $ini, $len);
+
+                    $location_array = explode('_', $location_pincode);
+
+                    $city = $location_array[0];
+                    $pincode = $location_array[1];
+                    
+                    $select = "service_centres.id";
+                    $post_city['where']['(service_centres.is_cp = 1)'] = null;
+                    $post_city['where']['service_centres.active'] = 1;
+                    $post_city['where']['service_centres.district'] = $city;
+                    $post_city['length'] = -1;
+                    $post_city['start'] = 0;
+                    $list = $this->vendor_model->viewallvendor($post_city, $select);
+                    
+                    $date = str_replace('/', '-', $date);
+                    foreach ($list as $key_list => $value_list) {
+                        $cpid = $value_list['id'];
+                        $array_bb_data['agent_name'] = $name;
+                        $array_bb_data['agent_phone'] = $phonenumber;
+                        $array_bb_data['city'] = $city;
+                        $array_bb_data['pincode'] = $pincode;
+                        $array_bb_data['date'] = date('Y-m-d', strtotime($date));
+                        $array_bb_data['time'] = $time;
+                        $array_bb_data['otp'] = $otp;
+                        $array_bb_data['cp_id'] = $cpid;
+                        $array_bb_data['email_no'] = $email_no;
+                        $this->bb_model->insert_buyback_otp($array_bb_data);
+                    }
+                }
+            }
+        }
+    }
+
 }

@@ -2750,7 +2750,7 @@ class engineerApiv1 extends CI_Controller {
                  */ 
 		}else{
 		log_message("info", __METHOD__ . "Duplicate Part Type (".$duplicate_part['parts_requested_type'].") Request.");
-                $this->sendJsonResponse(array('0077','Not Available'));			
+                $this->sendJsonResponse(array('0077',"Duplicate Part Type (".$duplicate_part['parts_requested_type'].") can not be Request."));			
 		}					
 				 		 
             } else {
@@ -3728,7 +3728,7 @@ class engineerApiv1 extends CI_Controller {
                 }
             }
 			if((strpos(strtoupper(str_replace(" ","",$price_tag_real)), 'OUTOFWARRANTY') !== false)){
-				$IW_spare = $this->My_CI->booking_utilities->is_spare_requested_in_IW($booking_id);
+				$IW_spare = $this->booking_utilities->is_spare_requested_in_IW($booking_id);
 				if(!empty($IW_spare)){
 					$return = "You can not change request type to ".$price_tag_real." Spare is already Requested in In-Warranty.";
 					$response['warranty_flag'] = 1;
