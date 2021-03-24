@@ -10079,6 +10079,9 @@ function do_delivered_spare_transfer() {
     public function get_warranty_data($case = 1, $checkInstallationDate = 0) {
         $post_data = $this->input->post();
         $arrBookings = $post_data['bookings_data'];
+        if(empty($arrBookings)){
+            return;
+        }
         $arrBookingsWarrantyStatus = $this->warranty_utilities->get_warranty_status_of_bookings($arrBookings, $checkInstallationDate);
         switch ($case) {
             case 1:
