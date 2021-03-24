@@ -54,7 +54,7 @@
                       <label for="reason" class="col-md-4"> New Booking Date</label>
                       <div class="col-md-6">
                         <div class="input-group input-append date">
-                            <input id="booking_date" class="form-control" placeholder="Select Date" name="booking_date" type="text" value = "<?php echo set_value('booking_date'); ?>" required="">
+                            <input id="booking_date" class="form-control" placeholder="Select Date" name="booking_date" type="text" value = "<?php echo set_value('booking_date'); ?>" required="" readonly="true">
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                         </div>
                             <?php echo form_error('booking_date'); ?>
