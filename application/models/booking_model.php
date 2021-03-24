@@ -3300,6 +3300,7 @@ class Booking_model extends CI_Model {
         $this->db->select($select);
         $this->db->from("agent_outbound_call_log");
         $this->db->join("employee", "agent_outbound_call_log.agent_id = employee.id");
+        $this->db->join("entity_role", "employee.role = entity_role.role",'left');
         $this->db->where(['booking_primary_id' => $booking_primary_id, 'recording_url <> ""' => NULL]);
         $query = $this->db->get();
         return $query->result_array();
