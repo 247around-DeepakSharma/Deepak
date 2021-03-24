@@ -3425,19 +3425,21 @@ class Around_scheduler extends CI_Controller {
         $query = $this->partner_model->get_partner_details_with_soucre_code($active, $partnerType, $ac, $partner_not_like, "", null);
         $template = $this->booking_model->get_booking_email_template("partner_part_pending");
         if (!empty($template)) {
-            $body = $template[0];
-            $from = $template[2];
-            $cc = '';
-            if (!empty($template[1])) {
-                $to = $template[1] . ",";
-            }
-            if (!empty($template[3])) {
-                $cc = $template[3] . ",";
-            }
-            $subject = $template[4];
-            $bcc = '';
+           
             
             foreach ($query as $key => $value) {
+
+				$body = $template[0];
+				$from = $template[2];
+				$cc = '';
+				if (!empty($template[1])) {
+					$to = $template[1] . ",";
+				}
+				if (!empty($template[3])) {
+					$cc = $template[3] . ",";
+				}
+				$subject = $template[4];
+				$bcc = '';
                 $partner_id = $value['id'];
                 $am_details = $this->partner_model->getpartner_data("partners.public_name, agent_filters.*, employee.full_name, employee.groups,employee.official_email,employee.phone", array("partners.id" => $partner_id, "agent_filters.entity_id IS NOT NULL" => NULL), "", TRUE, 0, 1);
 
