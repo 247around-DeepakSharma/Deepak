@@ -1629,13 +1629,15 @@ class Booking extends CI_Controller {
                 $partner_net_payable = $prices['partner_net_payable']; 
                 $customer_net_payable = $prices['customer_net_payable'];
                 $around_net_payable = $prices['around_net_payable'];
+                $is_partner_invoiced = '';
                 if(isset($unit_details)){
                     foreach ($unit_details as  $tags) {
                         if($tags['price_tags'] == $prices['service_category'] ){
                             $ct = $tags['customer_total'];
                             $partner_net_payable = $tags['partner_net_payable'];
                             $customer_net_payable = $tags['customer_net_payable'];
-                            $around_net_payable = $tags['around_net_payable'];  
+                            $around_net_payable = $tags['around_net_payable']; 
+                            $is_partner_invoiced = $tags['partner_invoice_id']; ;
                         }
                     }
                 }
@@ -1678,6 +1680,9 @@ class Booking extends CI_Controller {
                 // auto check price-tags that are stored in booking_unit_details table
                 if(in_array($prices['service_category'], $arr_selected_price_tags)){
                     $html .= " checked ";
+                    if(!empty($is_partner_invoiced)){
+                        $html .= " style = 'pointer-events: none;'";
+                    }
                 }
                 if($prices['service_category'] == REPEAT_BOOKING_TAG){
                     $tempString = $booking_details[0]['booking_primary_contact_no'].",".$booking_details[0]['service_id'].",".$booking_details[0]['partner_id'].",this.checked,false,".$booking_details[0]['initial_booking_date'];                                                                                   
