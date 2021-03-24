@@ -690,7 +690,7 @@ function get_inventory_id(id){
             });
         }        
         else{
-            valid_serial_number = check_booking_warranty();
+            valid_serial_number = check_booking_request();
         }
         return valid_serial_number;        
     }
@@ -701,7 +701,7 @@ function get_inventory_id(id){
         var model_number = $('#model_number').val();
         var dop = $("#purchase_date").val();
         var serial_number = $("#serial_number").val();
-        var partner_id = "<?= $spare_parts_details['partner_id']; ?>";
+        var partner_id = "<?= $unit_details[0]['partner_id']; ?>";
         var brand = "<?= $unit_details[0]['appliance_brand']; ?>";
         var service_id = "<?= $spare_parts_details['service_id']; ?>";
         var booking_id = "<?= $spare_parts_details['booking_id']; ?>";

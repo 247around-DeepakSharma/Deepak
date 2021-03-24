@@ -735,7 +735,7 @@
             });
         }        
         else{
-            valid_serial_number = check_booking_warranty();
+            valid_serial_number = check_booking_request();
         }
         return valid_serial_number;        
     }
