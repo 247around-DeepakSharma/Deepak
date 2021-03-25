@@ -896,6 +896,7 @@
     $('#update_form').on('click', '.addButton', function () {
         partIndex++;
         var model_number_id = $('#shippedmodelnumberid_0').val();
+        var part_warranty_status = $('#part_warranty_statusid_0').val();
         var $template = $('#template'),
                 $clone = $template
                 .clone()
@@ -921,7 +922,7 @@
                 .find('[id="shippedquantity"]').attr('name', 'part[' + partIndex + '][shipped_quantity]').attr('id', 'shippedquantity_' + partIndex).end()
                 .find('[id="error_span"]').addClass('hide').attr('id', 'error_span_' + partIndex).attr("required", true).end()
                 .find('[id="spare_id"]').attr('name', 'part[' + partIndex + '][spare_id]').attr('id', 'spare_id_' + partIndex).end()
-                .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').attr('id', 'part_warranty_status_' + partIndex).end();
+                .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').attr('id', 'part_warranty_status_' + partIndex).val(part_warranty_status).attr('readonly', 'readonly').attr('tabindex', '-1').css('pointer-events', 'none').end();
 
 
     })
