@@ -3066,8 +3066,9 @@ class Booking extends CI_Controller {
         $return_status = true;
         $message = "";
         if (isset($pod)) {            
-            if(!empty($serial_number)) {                
-                if (!ctype_alnum($serial_number)) {
+            if(!empty($serial_number)) {  
+                $validate_serial_number_special_char = false;
+                if (!ctype_alnum($serial_number) && !empty($validate_serial_number_special_char)) {
                     log_message('info', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
                     $this->form_validation->set_message('validate_serial_no', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
                     return FALSE;
