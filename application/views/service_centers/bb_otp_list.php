@@ -16,7 +16,8 @@
                                     <th class="text-center">City</th>
                                     <th class="text-center">Date</th>
                                     <th class="text-center">Time</th>
-                                    <th class="text-center">OTP</th>                                    
+                                    <th class="text-center">OTP</th>
+									<th class="text-center">Quantity</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -34,7 +35,8 @@
                                                 <td class="text-center"><?php echo $row['city']; ?></td>
                                                 <td class="text-center"><?php echo $row['date']; ?></td>
                                                 <td class="text-center"><?php echo $row['time']; ?></td>
-                                                <td class="text-center"><?php echo $row['otp']; ?></td>                                        
+                                                <td class="text-center"><?php echo $row['otp']; ?></td>
+												<td class="text-center"><?php echo $row['qty']; ?></td>
                                             </tr>
                                         <?php
                                     }
@@ -61,7 +63,7 @@
                     title: 'bb_otp_list_<?php echo date('Ymd-His'); ?>',
                     footer: true,
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7],
                         modifier: {
                             // DataTables core
                             order: 'index', // 'current', 'applied', 'index',  'original'
