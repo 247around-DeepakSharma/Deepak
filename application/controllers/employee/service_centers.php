@@ -1106,7 +1106,8 @@ class Service_centers extends CI_Controller {
         if(!empty($this->input->post('booking_request_types'))){
             $price_tags = $this->booking_utilities->get_booking_request_type($this->input->post('booking_request_types')); 
         }
-        if (!ctype_alnum($serial_number)) {
+        $validate_serial_number_special_char = false;
+        if (!ctype_alnum($serial_number) && !empty($validate_serial_number_special_char)) {
             $status = array('code' => '247', "message" => "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
             log_message('info', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
             echo json_encode($status, true);

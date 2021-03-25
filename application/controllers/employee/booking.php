@@ -3020,7 +3020,9 @@ class Booking extends CI_Controller {
         $booking_id = $this->input->post('booking_id');
         $partner_id = $this->input->post('partner_id');
         $appliance_id = $this->input->post('appliance_id');
-        if (!ctype_alnum($serial_number)) {
+        
+        $validate_serial_number_special_char = false;
+        if (!ctype_alnum($serial_number) && !empty($validate_serial_number_special_char)) {
             $status= array('code' => '247', "message" => "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
             log_message('info', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
             echo json_encode($status, true);
