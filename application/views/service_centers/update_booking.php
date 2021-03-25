@@ -229,7 +229,8 @@ $arr_partner_discount = array();
                                                 <label for="serial_number" class="col-md-4">AMC File *</label>
                                                 <div class="col-md-6">
                                                     <input type="file" class="form-control support_file" id="support_file_1"  name="support_file[]" tabindex=-1 style="margin-top:5px;">
-                                                    <input type="hidden" class="form-control file_description" id="file_description_1" name="file_description[]" value="<?php echo ANNUAL_MAINTENANCE_CONTRACT; ?>">
+                                                    <input type="hidden" class="form-control file_description" id="file_description_1" name="file_description[]" value="<?php if(!empty($amc_warranty_tag)){ echo ANNUAL_MAINTENANCE_CONTRACT; } ?>">
+                                                    <input type='hidden' id='amc_pre_uploaded' value="<?php if (!empty($amc_file_lists)) { echo "exist"; } ?>">
                                                     <?php
                                                     if (!empty($amc_file_lists)) {
                                                         foreach ($amc_file_lists as $file) {
