@@ -324,7 +324,7 @@ class Validate_serial_no {
                     $isDuplicate = TRUE;
                     break;
                 }
-                elseif($value['booking_status'] == _247AROUND_COMPLETED){                    
+                elseif(($value['booking_status'] == _247AROUND_COMPLETED) && ($arr_booking_date[0]['partner_id'] == $value['partner_id'])){                    
                    // calculate 30 days from service_center_closed_date and booking initial date
                    // if sf_closed_Date not found use booking closed date by admin
                     $booking_closed_date = !empty($value['service_center_closed_date']) ? $value['service_center_closed_date'] : $value['closed_date'];
@@ -337,7 +337,7 @@ class Validate_serial_no {
                         }
                     }
                 } else {
-                    if($price_tags == $value['price_tags']){
+                    if(($price_tags == $value['price_tags']) && ($arr_booking_date[0]['partner_id'] == $value['partner_id'])){
                         $msg = " Already used in Open Booking ID - ".$value['booking_id'];
                         $isDuplicate = TRUE;
                         break;

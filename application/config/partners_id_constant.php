@@ -4,7 +4,7 @@ define('_247AROUND', $db->login_partner_id);
 //Jeeves ID
 define("JEEVES_ID", 247030);
 //Wybor ID
-define("WYBOR_ID", 247010);
+define("WYBOR_ID", 247215);
 //ZOPPER ID
 define("ZOPPER_ID", 247012);
 //AKAI ID
@@ -32,7 +32,7 @@ define("MURPHY_ID", 247018 );
 //Lemon Partner ID
 define("LEMON_ID", 247080);
 //JVC Partner ID
-define("JVC_ID", 247092);
+define("JVC_ID", 247242);
 //Paytm Partner ID
 define("PAYTM_ID", 3);
 //Serial number Mendatory Partner List
