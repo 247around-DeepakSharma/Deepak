@@ -469,9 +469,11 @@ class Booking extends CI_Controller {
             }
 
             $this->booking_model->update_request_type($booking['booking_id'], $price_tag,$oldPriceTags);
-            // save serial number and serial number pic in service_center_booking_action       
+            // save serial number and serial number pic, model & DOP in service_center_booking_action       
             $ssba_details['serial_number'] = $serial_number;
             $ssba_details['serial_number_pic'] = $serial_number_pic;
+            $ssba_details['model_number'] = $services_details['model_number'] ;
+            $ssba_details['sf_purchase_date'] = $services_details['purchase_date'];
             $this->service_centers_model->update_service_centers_action_table($booking['booking_id'], $ssba_details);
             $this->engineer_model->update_engineer_table($ssba_details, ['booking_id' => $booking['booking_id']]);
             if($booking_id == INSERT_NEW_BOOKING){
@@ -1648,13 +1650,15 @@ class Booking extends CI_Controller {
                 $partner_net_payable = $prices['partner_net_payable']; 
                 $customer_net_payable = $prices['customer_net_payable'];
                 $around_net_payable = $prices['around_net_payable'];
+                $is_partner_invoiced = '';
                 if(isset($unit_details)){
                     foreach ($unit_details as  $tags) {
                         if($tags['price_tags'] == $prices['service_category'] ){
                             $ct = $tags['customer_total'];
                             $partner_net_payable = $tags['partner_net_payable'];
                             $customer_net_payable = $tags['customer_net_payable'];
-                            $around_net_payable = $tags['around_net_payable'];  
+                            $around_net_payable = $tags['around_net_payable']; 
+                            $is_partner_invoiced = $tags['partner_invoice_id']; ;
                         }
                     }
                 }
@@ -1697,6 +1701,9 @@ class Booking extends CI_Controller {
                 // auto check price-tags that are stored in booking_unit_details table
                 if(in_array($prices['service_category'], $arr_selected_price_tags)){
                     $html .= " checked ";
+                    if(!empty($is_partner_invoiced)){
+                        $html .= " style = 'pointer-events: none;'";
+                    }
                 }
                 if($prices['service_category'] == REPEAT_BOOKING_TAG){
                     $html .= " onclick='check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry(), check_service_category(this.id)' value='" . $prices['id'] . "_" . intval($ct) . "_" . $i . "_" . $clone_number."' data-toggle='modal' data-target='#repeat_booking_model' data-price_tag='".$prices['service_category']."'  data-pod='".$prices['pod']."'  readonly></td><tr>";
@@ -3021,7 +3028,9 @@ class Booking extends CI_Controller {
         $booking_id = $this->input->post('booking_id');
         $partner_id = $this->input->post('partner_id');
         $appliance_id = $this->input->post('appliance_id');
-        if (!ctype_alnum($serial_number)) {
+        
+        $validate_serial_number_special_char = false;
+        if (!ctype_alnum($serial_number) && !empty($validate_serial_number_special_char)) {
             $status= array('code' => '247', "message" => "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
             log_message('info', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
             echo json_encode($status, true);
@@ -3057,8 +3066,9 @@ class Booking extends CI_Controller {
         $return_status = true;
         $message = "";
         if (isset($pod)) {            
-            if(!empty($serial_number)) {                
-                if (!ctype_alnum($serial_number)) {
+            if(!empty($serial_number)) {  
+                $validate_serial_number_special_char = false;
+                if (!ctype_alnum($serial_number) && !empty($validate_serial_number_special_char)) {
                     log_message('info', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
                     $this->form_validation->set_message('validate_serial_no', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
                     return FALSE;

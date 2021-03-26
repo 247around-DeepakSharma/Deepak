@@ -987,11 +987,15 @@ class vendor extends CI_Controller {
             $vendor['active'] = $is_active;
             $vendor['agent_id'] = $this->session->userdata("id");
             $agent_name = $this->session->userdata('emp_name');
-            $this->vendor_model->edit_vendor($vendor, $id);
+           
             //Generate auth certificate for those SF's who was diactive and now going to activate
-            if ($is_active == 1) {
-                $this->sfauthorization_certificate->create_new_certificate($id);
+            if ($is_active == 0) {
+                 $vendor['on_off'] = 1; 
             }
+            else{
+                 $this->sfauthorization_certificate->create_new_certificate($id);  
+            }
+            $this->vendor_model->edit_vendor($vendor, $id);
             $this->vendor_model->update_service_centers_login(array('service_center_id' => $id), array('active' => $is_active));
 
             //Getting Vendor Details
@@ -3375,7 +3379,7 @@ class vendor extends CI_Controller {
     function download_sf_list_excel() {
         //Getting only Active Vendors List
         $where = array('is_CP' => '0');
-        $select = "*,e1.full_name as rm_full_name, e1.phone as rm_phone,e2.full_name as asm_full_name, e2.phone as asm_phone, (CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'In-Active' END) as active_status, (CASE WHEN service_centres.on_off = 1 THEN 'On' ELSE 'Off' END) as on_off_status";
+        $select = "*,service_centres.create_date as sf_create_date,e1.full_name as rm_full_name, e1.phone as rm_phone,e2.full_name as asm_full_name, e2.phone as asm_phone, (CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'In-Active' END) as active_status, (CASE WHEN service_centres.on_off = 1 THEN 'On' ELSE 'Off' END) as on_off_status";
         $whereIN = array();
         // In case RM/ASM login get only SFs associated with them.
         if ($this->session->userdata('user_group') == _247AROUND_RM) {

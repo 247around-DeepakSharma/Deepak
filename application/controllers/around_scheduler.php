@@ -3425,19 +3425,21 @@ class Around_scheduler extends CI_Controller {
         $query = $this->partner_model->get_partner_details_with_soucre_code($active, $partnerType, $ac, $partner_not_like, "", null);
         $template = $this->booking_model->get_booking_email_template("partner_part_pending");
         if (!empty($template)) {
-            $body = $template[0];
-            $from = $template[2];
-            $cc = '';
-            if (!empty($template[1])) {
-                $to = $template[1] . ",";
-            }
-            if (!empty($template[3])) {
-                $cc = $template[3] . ",";
-            }
-            $subject = $template[4];
-            $bcc = '';
+           
             
             foreach ($query as $key => $value) {
+
+				$body = $template[0];
+				$from = $template[2];
+				$cc = '';
+				if (!empty($template[1])) {
+					$to = $template[1] . ",";
+				}
+				if (!empty($template[3])) {
+					$cc = $template[3] . ",";
+				}
+				$subject = $template[4];
+				$bcc = '';
                 $partner_id = $value['id'];
                 $am_details = $this->partner_model->getpartner_data("partners.public_name, agent_filters.*, employee.full_name, employee.groups,employee.official_email,employee.phone", array("partners.id" => $partner_id, "agent_filters.entity_id IS NOT NULL" => NULL), "", TRUE, 0, 1);
 
@@ -3629,8 +3631,9 @@ class Around_scheduler extends CI_Controller {
         $email = QC_BALANCE_READ_EMAIL;
         $password = QC_BALANCE_READ_EMAIL_PASSWORD;
         $conn = $this->email_data_reader->create_email_connection($mail_server, $email, $password);
+		
         $buyback_condition = 'SINCE "' . date("d M Y", strtotime(date("Y-m-d"))) . '" SUBJECT "Out for Delivery at"';
-        $buyback_data = $this->email_data_reader->get_emails($buyback_condition);		
+        $buyback_data = $this->email_data_reader->get_emails($buyback_condition);
         if (!empty($buyback_data)) {
 			$buyback_data = array_reverse($buyback_data);
             foreach ($buyback_data as $key => $value) {
@@ -3694,18 +3697,24 @@ class Around_scheduler extends CI_Controller {
 
                     $city = $location_array[0];
                     $pincode = $location_array[1];
-                    
-                    $select = "service_centres.id";
-                    $post_city['where']['(service_centres.is_cp = 1)'] = null;
-                    $post_city['where']['service_centres.active'] = 1;
-                    $post_city['where']['service_centres.district'] = $city;
-                    $post_city['length'] = -1;
-                    $post_city['start'] = 0;
-                    $list = $this->vendor_model->viewallvendor($post_city, $select);
-                    
+
+
+					$string = ' ' . $body;
+                    $ini = strpos($string, 'out to deliver ');
+                    if ($ini == 0)
+                        return '';
+                    $ini += strlen('out to deliver ');
+                    $len = strpos($string, 'of your package', $ini) - $ini;
+                    $quantity_package = trim(substr($string, $ini, $len));
+					
+                    $post['length'] = -1;
+					$post['start'] = 0;
+					$post['where']['service_centres.active'] = 1; 
+					$post['where']['bb_shop_address.shop_address_pincode'] = $pincode;
+					$list = $this->cp_model->get_cp_shop_address_list($post);                    
                     $date = str_replace('/', '-', $date);
                     foreach ($list as $key_list => $value_list) {
-                        $cpid = $value_list['id'];
+                        $cpid = $value_list->cp_id;
                         $array_bb_data['agent_name'] = $name;
                         $array_bb_data['agent_phone'] = $phonenumber;
                         $array_bb_data['city'] = $city;
@@ -3715,6 +3724,7 @@ class Around_scheduler extends CI_Controller {
                         $array_bb_data['otp'] = $otp;
                         $array_bb_data['cp_id'] = $cpid;
                         $array_bb_data['email_no'] = $email_no;
+						$array_bb_data['qty'] = $quantity_package;
                         $this->bb_model->insert_buyback_otp($array_bb_data);
                     }
                 }

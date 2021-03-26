@@ -435,27 +435,9 @@ function addBookingDialog(chanel = '', check_serial_no = '0') {
         return false;
     }
     
-    var not_exists = 0;
-    var amc_file_count = 0;
-    $(".file_description").each( function(){
-       if($(this).val() == 5){
-           amc_file_count++;
-          var file_desc = $(this).attr('id');
-          desc_arr = file_desc.split("_");
-           support_file = $("#support_file_"+desc_arr[2]).val();
-           if(support_file == ''){
-               not_exists ++;
-           }
-       }
-    });
+   
     
-    
-    if(amc_file_count > 1){
-        $(".support_file").val('');
-        alert('Annual Maintenance Contract(AMC) should not be duplicate.'); 
-        return false;
-    }
-  
+   
     if($('.support_file').length > 1) {
         var i=1;
         var count=0;
@@ -482,33 +464,55 @@ function addBookingDialog(chanel = '', check_serial_no = '0') {
             }
         }
     });
-       
-    if(not_exists > 0 && service_category > 0 ){
-        alert('Please choose Annual Maintenance Contract(AMC) file.'); 
+    
+
+    if (service_category > 0) {
+        var amc_file_uploaded = 0;
+        var amc_file_count = 0;
+        $(".clonedInputSample").each(function () {
+            var amc_dropdown = $(this).find('.file_description').val();
+            if (amc_dropdown == 5) {
+               
+                if ($(this).find('.support_file').val() != '') {
+                    amc_file_uploaded = 1;
+                }
+                amc_file_count = amc_file_count + 1;
+            }
+        });
+    
+    var amc_final_uploaded = 0;
+              
+    if(($("#amc_pre_uploaded").val()!= undefined && $("#amc_pre_uploaded").val()!='') || amc_file_uploaded  == 1){
+        amc_final_uploaded = 1;
+    }
+    
+    if(amc_file_count > 1){
+        alert('Multiple AMC file not allowed.');
         return false;
     }
     
-    if (amc_file_count > 0) {
-        var flag = '';
-        $(".price_checkbox").each(function () {
-            if ($(this).attr("data-price_tag") == 'AMC (Annual Maintenance Contract)') {
-                if ($("#" + $(this).attr("id")).is(":checked") == false) {
-                    flag = 1;
-                }
-            }
-        });
-     
-        if (flag > 0 && amc_file_count > 0) {
-            alert("Please select AMC service category.");
-            return false;
-        }
+    if(amc_final_uploaded==0){
+        alert('Please upload AMC file');
+        return false;
     }
     
-     if(service_category > 0 && amc_file_count < 1){
-         alert('Select Annual Maintenance Contract(AMC) file type.'); 
-        return false; 
-     }   
-            
+    }
+    if (service_category == 0) {
+        var category_not_selected = 0;
+        $(".clonedInputSample").each(function () {
+            var amc_dropdown = $(this).find('.file_description').val();
+            if (amc_dropdown == 5) {
+                category_not_selected = 1;
+
+            }
+        });
+        
+       if(category_not_selected == 1){
+            alert('Do not need to upload AMC file when Service category is not AMC');
+            return false;
+       } 
+    }
+    
     if (service === null || service === "" || service === "Select Service") {
 
         alert('Please Select Booking Appliance');
@@ -1700,38 +1704,21 @@ function validateSerialNo(count = ""){
     /*
      * Desc: It's used to checked is checked service category is AMC
      */
-        function check_service_category(category_id) {
-            service_cate = $("#" + category_id).attr("data-price_tag");
-                if (service_cate == 'AMC (Annual Maintenance Contract)') {
-                    if($("#" + category_id).is(":checked") == true){
-                        var not_exists = '';
-                        $(".file_description").each(function () {
-                            if ($(this).val() == 5) {
-                                $("#amc_file_section").css('display','block');
-                                not_exists = 1;
-                            }
-                        });
+   function check_service_category(category_id='') {
+  
+    $("#amc_file_section").css('display', 'none');
+    $("#file_description_1").val();
+    $(".price_checkbox").each(function () {
+        service_cate = $(this).attr("data-price_tag");
+        category_id = $(this).attr("id");
 
-                        if (not_exists == '') {
-                            alert("Support type should be AMC.");
-                            $("#" + category_id).prop('checked', false);
-                            return false;
-                        }
-                    } else {
-                        $("#amc_file_section").css('display','none'); 
-                        $(".file_description").each(function () {
-                            if ($(this).val() == 5) {
-                                checkbox_id = $(this).attr("id");
-                                checkbox_id_array = checkbox_id.split("_");
-                                $("#"+checkbox_id+" option:first").prop('selected',true).trigger("change");
-                                $("#support_file_"+checkbox_id_array[2]).val("");
-                            }
-                        });
-                    }
-                       }
-                   
-               
+        if (service_cate == 'AMC (Annual Maintenance Contract)' && $('#' + category_id + ':checkbox:checked').length > 0) {
+            $("#amc_file_section").css('display', 'block');
+            $("#file_description_1").val(5);
         }
+    });
+    
+}
         
         
 //        $('body').on('change', '.file_description', function() {

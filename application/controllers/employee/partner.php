@@ -724,7 +724,11 @@ class Partner extends CI_Controller {
                 
                 $this->partner_model->edit_partner($edit_partner_data['partner'], $partner_id);
                 //Getting Logged Employee Full Name
-                $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
+                $logged_user_name = "";
+                $arr_logged_user = $this->employee_model->getemployeefromid($this->session->userdata('id'));
+                if(!empty($arr_logged_user[0]['full_name'])){
+                   $logged_user_name = $arr_logged_user[0]['full_name']; 
+                }
                 //Logging
                 log_message('info', __FUNCTION__ . ' Partner has been Updated : ' . print_r($this->input->post(), TRUE));
                 $msg = "Partner Updated Successfully";
@@ -10028,6 +10032,7 @@ class Partner extends CI_Controller {
      * @return json
      */
     function get_escalation_data($excel = true) {
+        $partner_id = 0;
         if(!empty($this->input->post('esDate')) && !empty($this->input->post('eeDate'))){
             $sDate = $this->input->post('esDate');
             $eDate = $this->input->post('eeDate');
@@ -10045,7 +10050,7 @@ class Partner extends CI_Controller {
             $partner_id = $this->input->post('partner_id');
         }
         // for Partner Panel
-        else
+        if($this->session->userdata('partner_id'))
         {
             $partner_id = $this->session->userdata('partner_id');
         }
