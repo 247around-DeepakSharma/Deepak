@@ -307,19 +307,19 @@ class Validate_serial_no {
                     break;
                 }
                 // Check if Partner is same                
-                elseif ($arr_booking_date[0]['partner_id'] != $value['partner_id']) {
-                    $msg = "Same Serial number is for different Brand in Booking ID - ".$value['booking_id'];
-                    $isDuplicate = TRUE;
-                    break;
-                }
+//                elseif ($arr_booking_date[0]['partner_id'] != $value['partner_id']) {
+//                    $msg = "Same Serial number is for different Brand in Booking ID - ".$value['booking_id'];
+//                    $isDuplicate = TRUE;
+//                    break;
+//                }
                 // Check if User is same   
-                elseif($booking_details[0]['user_id'] != $user_id){
-                    $msg = "Different User already used in Booking ID - ".$value['booking_id'];
-                    $isDuplicate = TRUE;
-                    break;
-                }
-                // Check if Model is Same
-                elseif(!empty($modelNumber) && ($modelNumber != $value['sf_model_number'])){
+//                elseif($booking_details[0]['user_id'] != $user_id){
+//                    $msg = "Different User already used in Booking ID - ".$value['booking_id'];
+//                    $isDuplicate = TRUE;
+//                    break;
+//                }
+                // Check if Model & Partner is Same 
+                elseif(!empty($modelNumber) && (($modelNumber != $value['sf_model_number']) && ($arr_booking_date[0]['partner_id'] == $value['partner_id']))){
                     $msg = "Same Serial number is for different Model in Booking ID - ".$value['booking_id'];
                     $isDuplicate = TRUE;
                     break;
