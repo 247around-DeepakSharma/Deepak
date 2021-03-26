@@ -205,7 +205,7 @@ $arr_partner_discount = array();
                                                     $serial_number_pic = !empty($unit_details[0]['quantity'][0]['serial_number_pic']) ? $unit_details[0]['quantity'][0]['serial_number_pic'] : ""; 
                                                     $pod = !empty($unit_details[0]['quantity'][0]['pod']) ? $unit_details[0]['quantity'][0]['pod'] : ""; 
                                                 ?>
-                                                <input type="text" style="<?= $str_disabled?>" class="form-control" id="serial_number" name="serial_number"  value="<?php echo $serial_number; ?>"  placeholder = "Enter Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" tabindex=-1/>
+                                                <input type="text" style="<?= $str_disabled?>" class="form-control" id="serial_number" name="serial_number"  value="<?php echo $serial_number; ?>"  placeholder = "Enter Serial Number"  tabindex=-1/>
                                                 <input type="hidden" class="form-control" id="serial_number_pic" name="serial_number_pic"  value="<?php echo $serial_number_pic; ?>"  />
                                                 <input type="hidden" id="pod" class="form-control" name="pod" value="<?php echo $pod; ?>"   />
                                                 <input type="hidden" id="sno_required" class="form-control" name="is_sn_file" value="0"   />
