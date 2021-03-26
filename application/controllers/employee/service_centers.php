@@ -10555,6 +10555,7 @@ function do_delivered_spare_transfer() {
 
             // Initially set Booking status as InProces_Cancelled, if any 1 line item is Found as Completed, Mark booking status as InProcess_Completed 
             $sf_booking_status = SF_BOOKING_CANCELLED_STATUS;
+            $booking_status = _247AROUND_CANCELLED;
             foreach ($engg_bookings as $engg_completed_booking) {
                 $booking_id = $engg_completed_booking->booking_id;
                 $partner_id = $engg_completed_booking->partner_id;
@@ -10562,6 +10563,7 @@ function do_delivered_spare_transfer() {
                 $internal_status_engg = $engg_completed_booking->internal_status;
                 if ($engg_completed_booking->internal_status == _247AROUND_COMPLETED) {
                     $sf_booking_status = SF_BOOKING_COMPLETE_STATUS;
+                    $booking_status = _247AROUND_COMPLETED;
                 }
 
                 // Update Model , Serial & DOP details in booking_unit_details
@@ -10572,8 +10574,7 @@ function do_delivered_spare_transfer() {
                     'sf_purchase_date' => $engg_completed_booking->sf_purchase_date,
                 ];
                 $where_ud = [
-                    'booking_id' => $engg_completed_booking->booking_id,
-                    'id' => $engg_completed_booking->unit_details_id
+                    'booking_id' => $engg_completed_booking->booking_id
                 ];
                 $this->booking_model->update_booking_unit_details_by_any($where_ud, $ud_data);
 
@@ -10615,7 +10616,7 @@ function do_delivered_spare_transfer() {
             $this->insert_details_in_state_change($booking_id, $sf_booking_status, "Booking Auto Approved", "247Around", "Review the Booking", NULL, true);
 
             //Update spare consumption as entered by engineer Booking Completed
-            if ($sf_booking_status == _247AROUND_COMPLETED) {
+            if ($booking_status == _247AROUND_COMPLETED) {
                 $update_consumption = false;
                 $spare_Consumption_details = $this->service_centers_model->get_engineer_consumed_details('*', array('booking_id' => $booking_id), array('coloum' => 'engineer_consumed_spare_details.id', 'order' => 'ASC'));
                 if (!empty($spare_Consumption_details)) {
