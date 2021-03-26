@@ -3417,13 +3417,28 @@ exit();
             //https://cleartax.in/s/tds-rate-chart
             //https://www.incometaxindia.gov.in/Forms/tps/1.Permanent%20Account%20Number%20(PAN).pdf
             if (strcasecmp($_4th_char, "P") == 0 || strcasecmp($_4th_char, "H") == 0) {
+                
+                if(date('Y-m-d') >= '2021-04-01'){
+                    $tds = ($total_sc_charge) * .01;
+                    $tds_tax_rate = 1;
+                    $tds_per_rate = "1%";
+                    
+                } else {
                     $tds = ($total_sc_charge) * .0075;
                     $tds_tax_rate = 0.75;
                     $tds_per_rate = "0.75%";
+                }
+                    
             } else {
-                $tds = ($total_sc_charge) * .015;
-                $tds_tax_rate = 1.5;
-                $tds_per_rate = "1.5%";
+                if(date('Y-m-d') >= '2021-04-01'){
+                    $tds = ($total_sc_charge) * .02;
+                    $tds_tax_rate = 2;
+                    $tds_per_rate = "2%";
+                } else {
+                    $tds = ($total_sc_charge) * .015;
+                    $tds_tax_rate = 1.5;
+                    $tds_per_rate = "1.5%";
+                }
             }
         }
         $data['tds'] = $tds;
