@@ -253,8 +253,8 @@ class Warranty_utilities {
         $booking_request_type = $this->My_CI->booking_utilities->get_booking_request_type($selected_booking_request_types); 
         $booking_id = $arrBookings[0]['booking_id'];
         $arr_warranty_status = [
-            'IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation', 'PDI', 'Demo', 'Tech Visit', 'Replacement', 'Spare Cannibalization', 'Free Remote Assistance', 'Handling Charges', 'Dead after Purchase (DaP)', 'Dead On Arrival (DOA)', 'Video Trouble Shooting', 'Service With 2 Free Filter Change', 'AC PowerJet Wet Service'],
-            'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat', 'PDI', 'Tech Visit', 'Spare Cannibalization', 'Free Remote Assistance', 'Handling Charges'],
+            'IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation', 'PDI', 'Demo', 'Tech Visit', 'Replacement', 'Spare Cannibalization', 'Free Remote Assistance', 'Handling Charges', 'Dead after Purchase (DaP)', 'Dead On Arrival (DOA)', 'Video Trouble Shooting', 'AC PowerJet Wet Service'],
+            'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat', 'PDI', 'Tech Visit', 'Spare Cannibalization', 'Free Remote Assistance', 'Handling Charges', 'Service With 2 Free Filter Change'],
             'EW' => ['Extended', 'AMC', 'Repeat', 'PDI', 'Tech Visit', 'Spare Cannibalization', 'Free Remote Assistance', 'Handling Charges']
         ];
         $arr_warranty_status_full_names = ['IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty'];
