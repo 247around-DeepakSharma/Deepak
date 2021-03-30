@@ -1208,7 +1208,8 @@ class Service_centers extends CI_Controller {
 
                     if (isset($correctpin) && !empty($correctpin) && $cancellation_reason == _247AROUND_WRONG_PINCODE_CANCEL_REASON_ID) {
                         $pinupdate = array(
-                            'booking_pincode' => $correctpin
+                            'booking_pincode' => $correctpin,
+                            'edit_by_sf' => 1
                         );
                         $this->booking_model->update_booking($booking_id, $pinupdate);
                         $this->initialized_variable->fetch_partner_data($partner_id);
@@ -1227,6 +1228,8 @@ class Service_centers extends CI_Controller {
                         break;
                     }
 
+                    // Add Update by SF Value
+                    $this->booking_model->update_booking($booking_id, ['edit_by_sf' => 1]);
 
                     $data['current_status'] = "InProcess";
                     $data['internal_status'] = "Cancelled";
