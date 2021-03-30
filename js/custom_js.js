@@ -192,7 +192,15 @@ function getPricesForCategoryCapacity(div_id,add_booking) {
     }
     
     $("#priceList_" + div_no[2]).html('<div class="text-center"><img src= "'+ baseUrl+'/images/loadring.gif" /></div>').delay(1200).queue(function () {
-        
+        if(!$(".input-model").length)
+        {
+            var model_number = $(".select-model").val();
+        }
+        else
+        {
+            var model_number = $(".input-model").val();
+        }
+        postData['model_number'] = model_number;
         postData['service_id'] = $("#service_id").val();
         postData['brand'] = $('#appliance_brand_' + div_no[2]).val();
         postData['category'] = $("#appliance_category_" + div_no[2]).val();
