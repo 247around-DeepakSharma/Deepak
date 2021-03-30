@@ -429,8 +429,8 @@ class File_process extends CI_Controller {
         $c['purchase_invoice'] = $c_balance[0]['purchase'];
         $c['sale_invoice'] = $c_balance[0]['sale'];
         $c['opening_balance'] = $c_balance[0]['diff'];
-        $c['opening_balance'] = date('Y-m-d', strtotime($fdate));
-        
+        //$c['opening_balance'] = date('Y-m-d', strtotime($fdate));
+        $c['opening_balance_date'] = date('Y-m-d', strtotime($fdate));
         $this->accounting_model->insert_part_invoice_opening_balance($c);
         $res = $this->_download_part_invoice_summary($c_balance, $from_date, $to_date);
         $s = json_decode($res, true);

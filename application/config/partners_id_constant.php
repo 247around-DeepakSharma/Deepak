@@ -32,7 +32,7 @@ define("MURPHY_ID", 247018 );
 //Lemon Partner ID
 define("LEMON_ID", 247080);
 //JVC Partner ID
-define("JVC_ID", 247242);
+define("JVC_ID", 247092);
 //Paytm Partner ID
 define("PAYTM_ID", 3);
 //Serial number Mendatory Partner List

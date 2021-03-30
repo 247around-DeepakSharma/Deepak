@@ -2132,7 +2132,7 @@ class Accounting extends CI_Controller {
                         $c[0]['debit'] = 0;
                     } else {
                         $c[0]['credit'] = 0;
-                        $c[0]['debit'] = $balance;
+                        $c[0]['debit'] = abs($balance);
                     }
                     
                     $ledger = $this->inventory_model->call_procedure('payment_account_ledger',"'$vendor_id','$from_date', '$to_date'");
