@@ -271,7 +271,7 @@ $route['partner/getCategoryForService'] = 'employee/NRN_TR/getCategoryForService
 $route['partner/getCapacityForCategory'] = 'employee/NRN_TR/getCapacityForCategory';
 $route['partner/getModelForService'] = 'employee/NRN_TR/getModelForService';
 $route['partner/get_appliances'] = 'employee/NRN_TR/get_appliances';
-
+$route['partner/GetBookingHistory'] = 'partner/GetBookingHistoryMobile';
 
 
 
