@@ -1547,7 +1547,7 @@ class vendor extends CI_Controller {
                         $update_spare_part = false;
                         if (!empty($spare['parts_shipped'])) {                            
                             if($spare['consumed_part_status_id']!=1 && empty($spare['defective_part_shipped_date'])){
-                            $sp['service_center_id'] = $previous_sf_id[0]['assigned_vendor_id'];
+                            //$sp['service_center_id'] = $previous_sf_id[0]['assigned_vendor_id'];
                             $sp['status'] = OK_PART_TO_BE_SHIPPED;
                             if(empty($spare['consumed_part_status_id'])){
                                 $sp['consumed_part_status_id'] = 5;
