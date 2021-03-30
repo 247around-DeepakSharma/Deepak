@@ -106,10 +106,12 @@
                                                 <input type="radio" name="tds" onClick="deduct_tds(0);">&nbsp;None
                                             </td>
                                             <td width="8%">
-                                                <input class="tds" type="radio" name="tds" onClick="deduct_tds(0.75);">&nbsp;.75%
+                                                <?php $tds_rate1 = 0.75; if(date('Y-m-d') < '2021-04-01'){ $tds_rate1 = 1;}?>
+                                                <input class="tds" type="radio" name="tds" onClick="deduct_tds(<?php echo $tds_rate1;?>);">&nbsp;<?php echo $tds_rate1." %";?>
                                             </td>
                                             <td width="8%">
-                                                <input class="tds" type="radio" name="tds" onClick="deduct_tds(1.5);">&nbsp;1.5%
+                                                <?php $tds_rate2 = 1.5; if(date('Y-m-d') < '2021-04-01'){ $tds_rate2 = 2;}?>
+                                                <input class="tds" type="radio" name="tds" onClick="deduct_tds(<?php echo $tds_rate2;?>);">&nbsp;<?php echo $tds_rate2." %";?>
                                             </td>
 <!--                                            <td width="8%">
                                                 <input class="tds" type="radio" name="tds" onClick="deduct_tds(3.75);">&nbsp;3.75%
@@ -235,6 +237,7 @@
             var tds_per = $('#apply_tds_percent').val();
             var tds_amount = ((amount/100) * tds_per).toFixed(2);
             $('#tds_deduction_amount').html(tds_amount);
+            console.log(tds_per);
             $('#apply_tds_amount').val(tds_amount);
             final_amount = amount - tds_amount;
         }else{

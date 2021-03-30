@@ -571,7 +571,7 @@
            minDate: function(){
             var today = new Date();
             var yesterday = new Date();
-            yesterday.setDate(today.getDate() - 2);
+            yesterday.setDate(today.getDate() - 3);
             return yesterday;
              }(),
             maxDate:new Date(),//'today',

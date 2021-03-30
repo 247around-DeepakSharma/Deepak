@@ -227,3 +227,29 @@ define('CHALLAN_GENERATION_STATUS', 'Reverse Part Challan to Brand Generated');
 define('MSL_DEFECTIVE_CHALLAN_TYPE', '2');
 // Action status defined when challan rejected
 define('CHALLAN_REJECTION_STATUS', 'Reverse Part Challan to Brand Rejected');
+// Courier RTO By API
+define('COURIER_RTO_BY_API', 'Courier RTO By API On Approval');
+// Courier delivered
+define('COURIER_DELIVERED', 'delivered');
+// Courier exception
+define('COURIER_EXCEPTION', 'exception');
+// Courier notfound
+define('COURIER_EXPIRED', 'expired');
+// Courier notfound
+define('COURIER_NOTFOUND', 'notfound');
+// Courier pickup
+define('COURIER_PICKUP', 'pickup');
+// Courier transit
+define('COURIER_TRANSIT', 'transit');
+// Courier undelivered
+define('COURIER_UNDELIVERED', 'undelivered');
+// Courier notfound courier status waiting days to auto delivered 
+define('NOTFOUND_AUTO_DELIVERED_DAYS', 7);
+// Courier pickup and transit  courier status waiting days to auto delivered 
+define('PICKUP_OR_INTRANSIT_AUTO_DELIVERED_DAYS', 12);
+// part not received by SF
+define('PARTS_NOT_RECEIVED_BY_SF', 'Parts Not Received By SF On Approval');
+//Auto delivered spare parts not received by sf
+define("PARTS_NOT_DELIVERED_TO_SF", "Parts not received");
+//Two (2) spare parts comments inserting in booking_comments table
+define("SPARE_PARTS_COMMENTS", 2);
