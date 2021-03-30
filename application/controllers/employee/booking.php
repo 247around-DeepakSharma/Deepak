@@ -1531,6 +1531,7 @@ class Booking extends CI_Controller {
         $phone_number = trim($this->input->post('phone_number'));
         $is_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $is_sf_panel = $this->input->post('is_sf_panel');
+        $model_number = $this->input->post('model_number');
         $unit_details = array();
         if(!empty($this->input->post('booking_id'))){
             $booking_id = $this->input->post('booking_id');
@@ -1614,7 +1615,7 @@ class Booking extends CI_Controller {
                 $around_net_payable = $prices['around_net_payable'];
                 if(isset($unit_details)){
                     foreach ($unit_details as  $tags) {
-                        if($tags['price_tags'] == $prices['service_category'] ){
+                        if(($tags['price_tags'] == $prices['service_category']) && ($tags['sf_model_number'] == $model_number)){
                             $ct = $tags['customer_total'];
                             $partner_net_payable = $tags['partner_net_payable'];
                             $customer_net_payable = $tags['customer_net_payable'];
