@@ -142,9 +142,14 @@
                         $('#loader_gif').html('');
                         $("#submitform").prop("disabled", false);
                     }
+                    else
+                    {
+                        alert("Data Not Found.");
+                        $('#loader_gif').html('');   
+                    }
                 } 
             });
         }
     }
 
-</script>
+</script>   
