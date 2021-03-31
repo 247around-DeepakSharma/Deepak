@@ -9574,11 +9574,6 @@ class Partner extends CI_Controller {
                     $sc_action['serial_number_pic']=$update_pending['serial_number_pic'];
                 }
 
-
-                if ($update_pending['entity_type']==_247AROUND_SF_STRING) {
-                    
-                    $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $update_pending['partner_id'], $update_pending['requested_inventory_id'], -$update_pending['quantity']);
-                }
                 $booking_details_unit_id = $update_pending['booking_unit_details_id'];
                     if ($booking_details_unit_id != '') {
                         $data_booking_unit_detail['booking_status'] = _247AROUND_CANCELLED;
