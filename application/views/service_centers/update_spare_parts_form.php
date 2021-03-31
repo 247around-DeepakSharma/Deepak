@@ -121,11 +121,11 @@
                 <div class="x_panel">
                     <div class="x_title">
                         <h3>Spare Part Details
-                            <?php // if(isset($spare_parts[0]->request_type) && $spare_parts[0]->request_type == REPAIR_OOW_TAG){ ?>
-                                <!--<button type="button" class="btn btn-primary pull-right" disabled="">Ship More Parts</button>-->
-                            <?php // }else{ ?> 
-                                <!--<button type="button" class="btn btn-primary pull-right addButton">Ship More Parts</button>-->
-                            <?php // } ?>
+                            <?php if(isset($spare_parts[0]->request_type) && $spare_parts[0]->request_type == REPAIR_OOW_TAG){ ?>
+                                <button type="button" class="btn btn-primary pull-right" disabled="">Ship More Parts</button>
+                            <?php }else{ ?> 
+                                <button type="button" class="btn btn-primary pull-right addButton">Ship More Parts</button>
+                            <?php } ?>
                         </h3>
                         <hr>
                         <div class="clearfix"></div>
@@ -895,6 +895,7 @@
     var partIndex = Number('<?php echo (count($spare_parts) - 1); ?>');
     $('#update_form').on('click', '.addButton', function () {
         partIndex++;
+        var model_number_id = $('#shippedmodelnumberid_0').val();
         var $template = $('#template'),
                 $clone = $template
                 .clone()
@@ -906,7 +907,7 @@
         // Update the name attributes 
         $clone
                 .find('[id="shipping_status_1"]').attr('name', 'part[' + partIndex + '][shippingStatus]').attr('id', 'shippingStatus_' + partIndex).attr("required", true).end()
-                .find('[id="shippedmodelnumberid"]').attr('name', 'part[' + partIndex + '][shipped_model_number_id]').attr("onchange", "change_shipped_model('" + partIndex + "')").attr('id', 'shippedmodelnumberid_' + partIndex).select2({placeholder: 'Select Model Number'}).end()
+                .find('[id="shippedmodelnumberid"]').attr('name', 'part[' + partIndex + '][shipped_model_number_id]').attr("onchange", "change_shipped_model('" + partIndex + "')").attr('id', 'shippedmodelnumberid_' + partIndex).val(model_number_id).attr('readonly', 'readonly').css('pointer-events', 'none').end()
                 .find('[id="requested_inventory_id"]').attr('name', 'part[' + partIndex + '][requested_inventory_id]').attr('id', 'requested_inventory_id_' + partIndex).end()
                 .find('[id="shippedmodelnumber"]').attr('name', 'part[' + partIndex + '][shipped_model_number]').attr('id', 'shippedmodelnumber_' + partIndex).end()
                 .find('[id="shippedpartsname"]').attr('name', 'part[' + partIndex + '][shipped_parts_name]').data("key", partIndex).attr("onchange", "change_parts_name('" + partIndex + "')").attr('id', 'shippedpartsname_' + partIndex).attr("required", true).select2({placeholder: 'Select Part Name'}).end()
