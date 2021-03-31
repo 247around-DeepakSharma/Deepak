@@ -53,7 +53,7 @@ class User_invoice extends CI_Controller {
         if (!empty($data)) {
             $prod = '';
             if (empty($preinvoice_id)) {
-                $invoice_id = $this->invoice_lib->create_invoice_id($data[0]->sc_code);
+                $invoice_id = $this->invoice_lib->create_invoice_id($data[0]->sc_code."-PV");
                 $unit = $this->booking_model->get_unit_details(array("booking_id" => $booking_id, "booking_status != 'Cancelled' " => NULL, 'user_invoice_id IS NULL' => NULL));
             } else {
                 $invoice_id = $preinvoice_id;
@@ -102,7 +102,7 @@ class User_invoice extends CI_Controller {
 
                 $sd = $ed = $invoice_date = $data[0]->closed_date;
 
-                $response = $this->invoices_model->_set_partner_excel_invoice_data($invoice, $sd, $ed, "Tax Invoice", $invoice_date, true, $data[0]->state);
+                $response = $this->invoices_model->_set_partner_excel_invoice_data($invoice, $sd, $ed, "Receipt Voucher", $invoice_date, true, $data[0]->state);
                 $response['meta']['customer_name'] = $data[0]->name;
                 $response['meta']['customer_address'] = $data[0]->home_address . ", " . $data[0]->city . ", Pincode - " . $data[0]->pincode . ", " . $data[0]->state;
                 $response['meta']['customer_phone_number'] = $data[0]->booking_primary_contact_no;
