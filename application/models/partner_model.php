@@ -32,7 +32,7 @@ class Partner_model extends CI_Model {
 
 	function validate_partner($auth_token) {
       //TODO: Deactivate partner account if auth token mismatch happens 3 or more times in a day
-      $this->db->select('partners.id, public_name');
+      $this->db->select('partners.id, public_name,customer_care_contact');
       $this->db->from("partners");
       $this->db->where(array("partners.auth_token" => $auth_token, "partners.is_active" => '1'));
       
@@ -1029,7 +1029,7 @@ function get_data_for_partner_callback($booking_id) {
                     . " AND ".$where . $orderBy.", spare_parts_details.create_date ASC $limit";
             }
             }
-        $query = $this->db->query($sql);       
+        $query = $this->db->query($sql);
         return $query->result_array();
     }
 
