@@ -626,12 +626,7 @@ class Miscelleneous {
                 array('booking_id' => $booking_id, 'status NOT IN ("'._247AROUND_COMPLETED.'","'._247AROUND_CANCELLED.'")' =>NULL ), 
                 false);
         foreach($spare as $sp){
-            
-
-            if($sp['status'] == SPARE_PARTS_REQUESTED && $sp['entity_type'] == _247AROUND_SF_STRING){
-                $this->My_CI->inventory_model->update_pending_inventory_stock_request($sp['entity_type'], 
-                            $sp['partner_id'], $sp['requested_inventory_id'], -1);
-            }
+           
             
             //Update Spare parts details table
             $this->My_CI->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => _247AROUND_CANCELLED));
@@ -2440,25 +2435,16 @@ class Miscelleneous {
                  * else insert into the table
                  */
                 if(isset($data['is_wh']) && !isset($data['is_cancel_part'])){
-                    $is_entity_exist = $this->My_CI->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id,inventory_stocks.stock, pending_request_count', array('entity_id' => $data['sender_entity_id'], 'entity_type' => $data['sender_entity_type'], 'inventory_id' => $is_part_exist[0]['inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
+                    $is_entity_exist = $this->My_CI->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id,inventory_stocks.stock', array('entity_id' => $data['sender_entity_id'], 'entity_type' => $data['sender_entity_type'], 'inventory_id' => $is_part_exist[0]['inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
                 }else{
-                    $is_entity_exist = $this->My_CI->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id,inventory_stocks.stock, pending_request_count', array('entity_id' => $data['receiver_entity_id'], 'entity_type' => $data['receiver_entity_type'], 'inventory_id' => $is_part_exist[0]['inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
+                    $is_entity_exist = $this->My_CI->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id,inventory_stocks.stock', array('entity_id' => $data['receiver_entity_id'], 'entity_type' => $data['receiver_entity_type'], 'inventory_id' => $is_part_exist[0]['inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
                 }
                 if (!empty($is_entity_exist)) {
                     //if stock goes negative then do not update stock
                     $updated_stock = $is_entity_exist[0]['stock'] + $data['stock'];
                     if($updated_stock >= 0){
                         $stock = "stock + '" . $data['stock'] . "'";
-                        if(isset($data['is_wh']) && !empty($requested_inventory_id)){
-                            if($is_entity_exist[0]['pending_request_count'] > 0){
-                                if(isset($data['is_cancel_part']) && $data['is_cancel_part'] == TRUE){
-                                    //Don't do any action
-                                } else {
-                                    $this->My_CI->inventory_model->update_pending_inventory_stock_request($data['sender_entity_type'], $data['sender_entity_id'], $requested_inventory_id, $data['stock']);
-                                }
-                                
-                            }
-                        }
+                        
                         $update_stocks = $this->My_CI->inventory_model->update_inventory_stock(array('id' => $is_entity_exist[0]['id']), $stock);
                         if ($update_stocks) {
                             log_message("info", __FUNCTION__ . " Stocks has been updated successfully");
@@ -3616,11 +3602,14 @@ function generate_image($base64, $image_name,$directory){
         return $data;
     }
     
-    function check_inventory_stock($inventory_id, $partner_id, $state, $assigned_vendor_id, $model_number) {
+    function check_inventory_stock($inventory_id, $partner_id, $state, $assigned_vendor_id, $model_number, $quantity =1) {
         log_message('info', __METHOD__. " Inventory ID ". $inventory_id. " Partner ID ".$partner_id. "  Assigned vendor ID ". $assigned_vendor_id. " State ".$state);
         $response = array(); 
 
-        $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number,inventory_master_list.entity_id, inventory_master_list.part_name, inventory_master_list.type, inventory_master_list.inventory_id, price, gst_rate,inventory_master_list.oow_around_margin', array('inventory_id' => $inventory_id));
+        $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number,'
+                . 'inventory_master_list.entity_id, inventory_master_list.part_name, '
+                . 'inventory_master_list.type, inventory_master_list.inventory_id, '
+                . 'price, gst_rate,inventory_master_list.oow_around_margin, is_defective_required', array('inventory_id' => $inventory_id));
         
         $partner_details = $this->My_CI->partner_model->getpartner_details("is_micro_wh,is_wh, is_defective_part_return_wh", array('partners.id' => $partner_id));
         $is_partner_wh = '';
@@ -3635,7 +3624,7 @@ function generate_image($base64, $image_name,$directory){
             if ($is_micro_wh == 1) {
 
                 //check SF inventory stock
-                $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state, $assigned_vendor_id, $model_number);              
+                $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state, $assigned_vendor_id, $model_number, $quantity);              
                 if (!empty($response)) {
                     //Defective Parts Return To
                     if($response['is_micro_wh'] == 2){
@@ -3661,7 +3650,7 @@ function generate_image($base64, $image_name,$directory){
                 
                 if (empty($response) && $is_partner_wh == 1) {
                     
-                    $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state, '', $model_number);
+                    $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state, '', $model_number, $quantity);
                     if(!empty($response)){
                         $response['defective_return_to_entity_type'] = $response['entity_type'];
                         $response['defective_return_to_entity_id'] = $response['entity_id'];
@@ -3671,7 +3660,7 @@ function generate_image($base64, $image_name,$directory){
                 
             } else if ($is_partner_wh == 1) {
                 
-                $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state, '', $model_number);
+                $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state, '', $model_number, $quantity);
                 if(!empty($response)){
 
                     $response['defective_return_to_entity_type'] = $response['entity_type'];
@@ -3725,83 +3714,92 @@ function generate_image($base64, $image_name,$directory){
         return $this->My_CI->inventory_model->get_warehouse_details($select,$where1,true);
     }
 
-
-     function _check_inventory_stock_with_micro($inventory_part_number, $state, $service_center_id= "" ,$model_number){
+    function _check_inventory_stock_with_micro($inventory_part_number, $state, $service_center_id = "", $model_number, $quantity) {
         $response = array();
         $post['length'] = -1;
-                       
-        $post['where'] = array('inventory_stocks.inventory_id' => $inventory_part_number[0]['inventory_id'],'inventory_stocks.entity_type' => _247AROUND_SF_STRING,'(inventory_stocks.stock - inventory_stocks.pending_request_count) > 0'=>NULL);
+
+        $post['where'] = array('inventory_stocks.inventory_id' => $inventory_part_number[0]['inventory_id'], 'inventory_stocks.entity_type' => _247AROUND_SF_STRING, '(inventory_stocks.stock) > 0' => NULL);
         if (!empty($service_center_id)) {
             $post['where']['inventory_stocks.entity_id'] = $service_center_id;
         } else {
             $post['where']['service_centres.is_wh'] = 1;
         }
-        $select = '(inventory_stocks.stock - pending_request_count) As stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id,inventory_master_list.type';
-        $inventory_stock_details = $this->My_CI->inventory_model->get_inventory_stock_list($post,$select,array(),FALSE);
-        
-       
+        $select = '(inventory_stocks.stock) As stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id,inventory_master_list.type, '
+                . 'inventory_master_list.part_number,inventory_master_list.part_name,  price, gst_rate,oow_around_margin';
+        $inventory_stock_details = $this->My_CI->inventory_model->get_inventory_stock_list($post, $select, array(), FALSE);
+
         if (empty($inventory_stock_details)) {
-            $alternate_inventory_stock_details = $this->My_CI->inventory_model->get_alternate_inventory_stock_list($inventory_part_number[0]['inventory_id'], $service_center_id,$model_number);
-            
+            $alternate_inventory_stock_details = $this->My_CI->inventory_model->get_alternate_inventory_stock_list($inventory_part_number[0]['inventory_id'], $service_center_id, $model_number);
+
             if (!empty($alternate_inventory_stock_details)) {
                 $inventory_stock_details = $alternate_inventory_stock_details;
             }
         }
-              
-        if(!empty($inventory_stock_details)){
-            if(!empty($service_center_id)){
-                if($inventory_part_number[0]['inventory_id'] != $inventory_stock_details[0]['inventory_id'] ){
-                    $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number,inventory_master_list.part_name, '
-                    . 'inventory_master_list.inventory_id, price, gst_rate,oow_around_margin, inventory_master_list.entity_id', array('inventory_id' => $inventory_stock_details[0]['inventory_id']));
 
-                }
+        if (!empty($inventory_stock_details)) {
+            if (!empty($service_center_id)) {
+
                 $response = array();
-                $response['stock'] = $inventory_stock_details[0]['stock'];
-                $response['entity_id'] = $service_center_id;
-                $response['entity_type'] = _247AROUND_SF_STRING;
-                $response['part_name'] = $inventory_part_number[0]['part_name'];
-                $response['type'] = $inventory_stock_details[0]['type'];
-                $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
-                $response['estimate_cost'] =round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
-                $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
-                $response['is_micro_wh'] = 1;
-                $response['challan_approx_value'] = round($response['estimate_cost'] * ( 1 + $inventory_part_number[0]['oow_around_margin'] / 100), 0);
-                
-            } else {
 
-                foreach($inventory_stock_details as $value){                    
+                $isPending = $this->My_CI->partner_model->get_spare_parts_by_any('count(spare_parts_details.id) as count', array('partner_id' => $service_center_id, 'status' => SPARE_PARTS_REQUESTED, 'requested_inventory_id' => $inventory_stock_details[0]['inventory_id']));
+                $is_stock = false;
+                if (!empty($isPending) && (($isPending[0]['count'] + $quantity) <= $inventory_stock_details[0]['stock'])) {
+                    $is_stock = true;
+                } else if ($inventory_stock_details[0]['stock'] >= $quantity) {
+                    $is_stock = true;
+                }
+
+                if ($is_stock) {
+                    $response['stock'] = $inventory_stock_details[0]['stock'];
+                    $response['entity_id'] = $service_center_id;
+                    $response['entity_type'] = _247AROUND_SF_STRING;
+                    $response['part_name'] = $inventory_stock_details[0]['part_name'];
+                    $response['type'] = $inventory_stock_details[0]['type'];
+                    $response['gst_rate'] = $inventory_stock_details[0]['gst_rate'];
+                    $response['estimate_cost'] = round($inventory_stock_details[0]['price'] * ( 1 + $inventory_stock_details[0]['gst_rate'] / 100), 0);
+                    $response['inventory_id'] = $inventory_stock_details[0]['inventory_id'];
+                    $response['is_micro_wh'] = 1;
+                    $response['challan_approx_value'] = round($response['estimate_cost'] * ( 1 + $inventory_stock_details[0]['oow_around_margin'] / 100), 0);
+                }
+            } else {
+                $is_stock = false;
+                foreach ($inventory_stock_details as $value) {
                     $warehouse_details = $this->My_CI->inventory_model->get_warehouse_details('warehouse_state_relationship.state,contact_person.entity_id',
-                            array('warehouse_state_relationship.state' => $state,'contact_person.entity_type' => _247AROUND_SF_STRING,
+                            array('warehouse_state_relationship.state' => $state, 'contact_person.entity_type' => _247AROUND_SF_STRING,
                                 'contact_person.entity_id' => $value['entity_id'], 'service_centres.is_wh' => 1,
                                 'warehouse_details.entity_id' => $inventory_part_number[0]['entity_id']), true, true, true);
-                    if(!empty($warehouse_details)){
-                        
-                        if($inventory_part_number[0]['inventory_id'] != $value['inventory_id'] ){
-                            $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number,inventory_master_list.part_name, '
-                            . 'inventory_master_list.inventory_id, price, gst_rate,oow_around_margin, inventory_master_list.entity_id', array('inventory_id' => $value['inventory_id']));
+                    if (!empty($warehouse_details)) {
 
+                        $isPending = $this->My_CI->partner_model->get_spare_parts_by_any('count(spare_parts_details.id) as count', array('partner_id' => $value['entity_id'], 'status' => SPARE_PARTS_REQUESTED, 'requested_inventory_id' => $inventory_stock_details[0]['inventory_id']));
+                        if (!empty($isPending) && (($isPending[0]['count'] + $quantity) <= $inventory_stock_details[0]['stock'])) {
+                            $is_stock = true;
+                        } else if ($inventory_stock_details[0]['stock'] >= $quantity) {
+                            $is_stock = true;
                         }
-                        $response = array();
-                        $response['stock'] = $value['stock'];
-                        $response['entity_id'] = $value['entity_id'];
-                        $response['entity_type'] = _247AROUND_SF_STRING;
-                        $response['part_name'] = $inventory_part_number[0]['part_name'];
-                        $response['type'] = $value['type'];
-                        $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
-                        $response['estimate_cost'] =round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
-                        $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
-                        $response['is_micro_wh'] = 2;
 
-                        $response['challan_approx_value'] = round($response['estimate_cost'] * ( 1 + $inventory_part_number[0]['oow_around_margin'] / 100), 0);
-                        break;
+                        if ($is_stock) {
+                            $response = array();
+                            $response['stock'] = $value['stock'];
+                            $response['entity_id'] = $value['entity_id'];
+                            $response['entity_type'] = _247AROUND_SF_STRING;
+                            $response['part_name'] = $value['part_name'];
+                            $response['type'] = $value['type'];
+                            $response['gst_rate'] = $value['gst_rate'];
+                            $response['estimate_cost'] = round($value['price'] * ( 1 + $value['gst_rate'] / 100), 0);
+                            $response['inventory_id'] = $value['inventory_id'];
+                            $response['is_micro_wh'] = 2;
+
+                            $response['challan_approx_value'] = round($response['estimate_cost'] * ( 1 + $value['oow_around_margin'] / 100), 0);
+                            break;
+                        }
                     }
                 }
             }
-        } 
-        
+        }
+
         return $response;
-            
     }
+
     function is_booking_valid_for_partner_panelty($request_type){
         $is_valid = 1;
         if(stripos($request_type, 'Out of Warranty') !== false) {
@@ -4736,15 +4734,7 @@ function generate_image($base64, $image_name,$directory){
                     $this->My_CI->inventory_model->update_spare_courier_details($spareid, $dataupdate);
                     if ($data['entity_type'] == _247AROUND_SF_STRING) {
                         $remarks = _247AROUND_TRANSFERED_TO_VENDOR;
-                        
 
-                        if ($data['is_micro_wh']==2 && ($requested_inventory!=$data['inventory_id'])) {
-                            $this->My_CI->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['entity_id'], $data['inventory_id'], $booking['quantity']);
-                           $this->My_CI->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $partner_id, $requested_inventory, -$booking['quantity']);  
-                        }else if($data['is_micro_wh']==2 && ($requested_inventory==$data['inventory_id'])){
-                           
-                            $this->My_CI->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['entity_id'], $data['inventory_id'], $booking['quantity']);
-                        }
                         /* Insert Spare Tracking Details */
                         if (!empty($spare_id)) {
                             $tracking_details = array('spare_id' => $spare_id, 'action' => $new_state, 'remarks' => trim($remarks), 'agent_id' => $agent_id, 'entity_id' => $track_partner_id, 'entity_type' => $track_entity_type);
@@ -4781,7 +4771,7 @@ function generate_image($base64, $image_name,$directory){
                             $this->My_CI->service_centers_model->insert_spare_tracking_details($tracking_details);
                         }
                         $this->My_CI->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $agentid,$agent_name, $actor, $next_action, $login_partner_id, $login_service_center_id, $spare_id);
-                        $this->My_CI->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $partner_id, $requested_inventory, -$booking['quantity']);
+                        
                     }
                     $tcount++;
                 } else {
