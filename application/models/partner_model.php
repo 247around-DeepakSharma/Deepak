@@ -1892,10 +1892,10 @@ function get_data_for_partner_callback($booking_id) {
             $where = "booking_details.current_status IN ('Cancelled')";
         }
         if(!empty($startDate) && !empty($endDate)){
-            $where = "booking_details.closed_date BETWEEN '$startDate' and '$endDate'";
+            $where.= " AND booking_details.closed_date BETWEEN '$startDate' and '$endDate' ";
         }
         if(!empty($state_code) && $state_code != "all"){
-             $where = " state_code.state_code IN ('$state_code')";
+             $where.= " AND state_code.state_code IN ('$state_code')";
         }
        return $query = $this->db->query("SELECT 
             order_id AS 'Sub Order ID',
