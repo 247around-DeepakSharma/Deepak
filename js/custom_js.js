@@ -490,7 +490,7 @@ function addBookingDialog(chanel = '', check_serial_no = '0') {
     
     var amc_final_uploaded = 0;
               
-    if(($("#amc_pre_uploaded").val()!= undefined && $("#amc_pre_uploaded").val()!='') || amc_file_uploaded  == 1){
+    if(($("#support_file_1").val()!='') || ($("#amc_pre_uploaded").val()!= undefined && $("#amc_pre_uploaded").val()!='') || (amc_file_uploaded  == 1)){
         amc_final_uploaded = 1;
     }
     
