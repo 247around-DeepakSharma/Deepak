@@ -1567,6 +1567,7 @@ class Booking extends CI_Controller {
         $phone_number = trim($this->input->post('phone_number'));
         $is_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $is_sf_panel = $this->input->post('is_sf_panel');
+        $model_number = $this->input->post('model_number');
         $unit_details = array();
         $booking_details = array(); 
         if(!empty($this->input->post('booking_id'))){
@@ -1653,7 +1654,7 @@ class Booking extends CI_Controller {
                 $is_partner_invoiced = '';
                 if(isset($unit_details)){
                     foreach ($unit_details as  $tags) {
-                        if($tags['price_tags'] == $prices['service_category'] ){
+                        if(($tags['price_tags'] == $prices['service_category']) && ($tags['sf_model_number'] == $model_number)){
                             $ct = $tags['customer_total'];
                             $partner_net_payable = $tags['partner_net_payable'];
                             $customer_net_payable = $tags['customer_net_payable'];
@@ -7069,7 +7070,7 @@ class Booking extends CI_Controller {
      * return: Array of Data for View
      */
     function get_booking_recordings($booking_primary_id) { 
-        $select = "agent_outbound_call_log.create_date, agent_outbound_call_log.recording_url, employee.full_name, employee.groups";
+        $select = "agent_outbound_call_log.create_date, agent_outbound_call_log.recording_url, employee.full_name, entity_role.display_name";
         $data['data'] = $this->booking_model->get_booking_recordings_by_id($booking_primary_id, $select);
         $this->load->view('employee/show_booking_recordings', $data);
     }  
