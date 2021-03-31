@@ -415,6 +415,23 @@ class Inventory_model extends CI_Model {
             }
             $this->db->where($like, null, false);
         }
+        
+        if (!empty($post['search_value'])) {
+            $like = "";
+            if (array_key_exists("column_search", $post)) {
+                foreach ($post['column_search'] as $key => $item) { // loop column 
+                    // if datatable send POST for search
+                    if ($key === 0) { // first loop
+                        $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                    } else {
+                        $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                    }
+                }
+                $like .= ") ";
+            }
+
+            $this->db->where($like, null, false);
+        }
 
         if (!empty($post['order'])) { // here order processing
             $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
