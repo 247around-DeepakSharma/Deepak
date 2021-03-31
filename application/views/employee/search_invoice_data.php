@@ -159,7 +159,7 @@
     $("#vendor_partner_id, #category, #sub_category, #vertical, #settle").select2();
     var invoice_table = null;
     $(document).ready(function () {
-        loaddataTable();
+       // loaddataTable();
         get_vertical('<?php echo base_url(); ?>');
         $('#get_invoice_id_data').click(function () {
             if(invoice_table == null){
