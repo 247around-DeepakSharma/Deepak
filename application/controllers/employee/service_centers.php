@@ -6815,7 +6815,7 @@ class Service_centers extends CI_Controller {
                             $data = array();
                             $data['courier_pic_by_partner'] = (!empty($courier_image['status'])) ? $courier_image['message'] : NULL;
                             $data['shipped_inventory_id'] = $part_details['inventory_id'];
-                            $data['model_number_shipped'] = $part_details['shipped_model_number'];
+                            $data['model_number_shipped'] = $part[0]['shipped_model_number'];
                             $data['shipped_parts_type'] = $part_details['shipped_part_type'];
                             $data['parts_shipped'] = $part_details['shipped_parts_name'];
                             $data['parts_shipped'] = $part_details['shipped_parts_name'];
@@ -6862,7 +6862,7 @@ class Service_centers extends CI_Controller {
                                 // $data['partner_id'] = $sf_id;
                                 // $data['defective_return_to_entity_id'] = $sf_id;
                                 $data['service_center_id'] = $service_center_id;
-                                $data['model_number'] = $part_details['shipped_model_number'];
+                                $data['model_number'] = $part[0]['shipped_model_number'];
                                 $data['serial_number'] = $sp_details[0]['serial_number'];
                                 $data['requested_inventory_id'] = $part_details['inventory_id'];
                                 $data['date_of_purchase'] = $sp_details[0]['date_of_purchase'];
