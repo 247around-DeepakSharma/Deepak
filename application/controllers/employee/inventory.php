@@ -10942,7 +10942,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
         $post = $this->get_post_data();
         $post['spare_invoice_flag'] = true;
         $post['column_order'] = array();
-        $post['column_search'] = array('spare_parts_details.booking_id, oow_spare_invoice_details.spare_id', 'oow_spare_invoice_details.invoice_id', 'oow_spare_invoice_details.services', 'oow_spare_invoice_details.id');
+        $post['column_search'] = array('spare_parts_details.booking_id');
         $post['where'] = array("spare_parts_details.part_warranty_status" => 2,
             "status != 'Cancelled'" => NULL,
             "spare_parts_details.create_date >= '2017-12-01'" => NULL,
