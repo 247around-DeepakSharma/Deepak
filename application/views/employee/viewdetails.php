@@ -610,6 +610,7 @@
                             <td style="width: 50%;">
                                 <?php if(isset($files['file_description'])) echo $files['file_description']; ?>
                                 <input type="hidden" id="file_description_id" class="file_type" value="<?php echo $files['file_description_id']; ?>">
+                                <input type="hidden" id="requeste_type_is_amc" value="<?php echo $requeste_type_is_amc; ?>">
                             </td>
                             <td style="width: 50%;">
                                 <input type="file" id="supportfileLoader_<?=$key?>" name="files" onchange="uploadsupportingfile(this.id,'<?=$files['id']?>')" style="display:none" />
@@ -623,7 +624,7 @@
                                 }
                                 ?>
                                 <a id="a_order_support_file_<?=$key?>" href="<?php  echo $src?>" target="_blank"><img id="m_order_support_file_<?=$key?>" src="<?php  echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:10px;" /></a>
-                                &nbsp;&nbsp;<button type="button" class="btn btn-sm btn-primary fa fa-pencil fa-lg" title="Update File" id="supporting_file_<?=$key?>" onclick="upload_supporting_file(this.id);" style="width:35px;height:35px;"></button>
+                                &nbsp;&nbsp;<button type="button" class="btn btn-sm btn-primary fa fa-pencil fa-lg support_file" title="Update File" id="supporting_file_<?=$key?>" onclick="upload_supporting_file(this.id);" style="width:35px;height:35px;"></button>
                             </td>
                         </tr>
                         <?php } } ?>
@@ -644,7 +645,7 @@
                                 <?php $src = base_url() . 'images/no_image.png';
                                 $image_src = $src;    ?>
                                 <a id="a_order_support_file_<?=$count?>" href="<?php  echo $src?>" target="_blank"><img id="m_order_support_file_<?=$count?>" src="<?php  echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:10px;" /></a>
-                                &nbsp;&nbsp;<button type="button" class="btn btn-sm btn-primary fa fa-plus fa-lg" title="Add File" id="supporting_file_<?=$count?>" onclick="upload_supporting_file(this.id);" style="width:35px;height:35px;"></button>
+                                &nbsp;&nbsp;<button type="button" class="btn btn-sm btn-primary fa fa-plus fa-lg support_file" title="Add File" id="supporting_file_<?=$count?>" onclick="upload_supporting_file(this.id);" style="width:35px;height:35px;"></button>
                                 &nbsp;&nbsp;<button type="button" class="btn btn-sm btn-primary" title="Remove Row" id="remove_row_<?=$count?>" onclick="remove(this.id)" style="float:right;margin-right:7px;">Remove</button>
                                 &nbsp;&nbsp;<button type="button" class="clone btn btn-sm btn-primary" title="Add Row" id="add_row_<?=$count?>" style="float:right;margin-right:5px;">Add</button>
                             </td>
@@ -2326,7 +2327,25 @@ function upload_supporting_file(id){
 
 function uploadsupportingfile(id, file_id=''){
     var key = id.split("_")[1];
-     var file = $("#supportfileLoader_"+key).val();
+    var file = $("#supportfileLoader_"+key).val();
+    var allowedFiles = [".gif", ".jpg",".png",".jpeg",".pdf"];
+    var fileUpload = $("#supporting_file_"+key);
+    var regex = new RegExp("([a-zA-Z0-9\s_\\.\-:()])+(" + allowedFiles.join('|') + ")$");
+    if (!regex.test(fileUpload.val().toLowerCase())) {
+        $("#support_file_1").val('');
+        alert("Please upload files having extensions:(" + allowedFiles.join(', ') + ") only.");
+        return false;
+    }
+    var requeste_type_is_amc = $("#requeste_type_is_amc").val();
+    var amc_id = '<?php echo ANNUAL_MAINTENANCE_CONTRACT; ?>';
+     if(requeste_type_is_amc == ''){
+        file_type_id = $("#file_description_"+key).val();
+        if(file_type_id == amc_id){
+            alert('AMC file upload is only valid for AMC call type.');
+            return false;
+        }
+     }
+     
      if (file === '') {
         alert('Please select file');
         return;
