@@ -473,23 +473,25 @@ function addBookingDialog(chanel = '', check_serial_no = '0') {
         }
     });
     
+    var booking_create_page = 0;
     if (service_category > 0) {
         var amc_file_uploaded = 0;
         var amc_file_count = 0;
         $(".clonedInputSample").each(function () {
+            booking_create_page = 1;
             var amc_dropdown = $(this).find('.file_description').val();
-            if (amc_dropdown == 5) {
-               
+            if (amc_dropdown == 5) {               
                 if ($(this).find('.support_file').val() != '') {
                     amc_file_uploaded = 1;
                 }
                 amc_file_count = amc_file_count + 1;
             }
         });
+       
     
     var amc_final_uploaded = 0;
               
-    if(($("#amc_pre_uploaded").val()!= undefined && $("#amc_pre_uploaded").val()!='') || amc_file_uploaded  == 1){
+    if(($("#support_file_1").val()!='' && booking_create_page==0) || ($("#amc_pre_uploaded").val()!= undefined && $("#amc_pre_uploaded").val()!='') || (amc_file_uploaded  == 1)){
         amc_final_uploaded = 1;
     }
     
@@ -515,7 +517,7 @@ function addBookingDialog(chanel = '', check_serial_no = '0') {
         });
         
        if(category_not_selected == 1){
-            alert('Do not need to upload AMC file when Service category is not AMC');
+            alert('When service category is not AMC then file upload is not mandatory.');
             return false;
        } 
     }

@@ -793,12 +793,14 @@ $arr_partner_discount = array();
     });
    
 });
+
+var max_date = "<?php echo date("d-m-Y", strtotime($booking_history[0]['initial_booking_date']))?>";
   $("#purchase_date").datepicker({dateFormat: 'dd-mm-yy', changeYear: true, changeMonth: true});
   $('.purchase_date').each(function () {
     if ($(this).hasClass('hasDatepicker')) {
         $(this).removeClass('hasDatepicker');
     } 
-    $(this).datepicker({dateFormat: 'dd-mm-yy', maxDate: 0, changeYear: true, changeMonth: true});
+    $(this).datepicker({dateFormat: 'dd-mm-yy', maxDate: max_date , changeYear: true, changeMonth: true});
  });
   
   function readonly_select(objs, action) {
