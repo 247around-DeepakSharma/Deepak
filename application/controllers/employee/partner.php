@@ -10152,6 +10152,7 @@ class Partner extends CI_Controller {
      * @return json
      */
     function get_escalation_data($excel = true) {
+        $partner_id = 0;
         if(!empty($this->input->post('esDate')) && !empty($this->input->post('eeDate'))){
             $sDate = $this->input->post('esDate');
             $eDate = $this->input->post('eeDate');
@@ -10165,11 +10166,11 @@ class Partner extends CI_Controller {
         }
         
         // for Admin Panel
-        if(!empty($this->input->post('partner_id'))){
+        if(!empty($this->input->post('partner_id')) && strtolower($this->input->post('partner_id')) != 'all'){
             $partner_id = $this->input->post('partner_id');
         }
         // for Partner Panel
-        else
+        if($this->session->userdata('partner_id'))
         {
             $partner_id = $this->session->userdata('partner_id');
         }
