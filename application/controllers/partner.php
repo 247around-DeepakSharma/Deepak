@@ -2771,11 +2771,13 @@ exit();
             if (!empty($bookingID_state_change)) {
                 if (!empty($bookingID_state_change)) {
                     foreach ($bookingID_state_change as $key => $value) {
-                        $newarray[$key]['old_state'] = $value['old_state'];
+                        $newarray[$key]['booking_id'] = $post['booking_id'];
                         $newarray[$key]['new_state'] = $value['new_state'];
-                        $newarray[$key]['remarks'] = $value['remarks'];
+                        $newarray[$key]['old_state'] = $value['old_state'];
                         $newarray[$key]['date'] = $value['create_date'];
+                        $newarray[$key]['partner'] = $authentication['public_name'];
                         $newarray[$key]['agent'] = $value['full_name'];
+                        $newarray[$key]['remarks'] = $value['remarks'];                      
                         $newarray[$key]['source'] = $value['source'];
                     }
                 }
@@ -2925,6 +2927,140 @@ exit();
             $this->sendJsonResponse(array(-1000, 'This booking cant be escalated'));
             exit;
         }
+    }
+    /*
+	* @Desc - This function is used to get booking various details from Booking_id
+	* @request - 
+	* @response - json 
+	* @Author  - Ghanshyam Ji Gupta
+	* @Date - 30-03-2021
+	*/
+       function getBookingData() {
+        log_message("info", __METHOD__ . " Entering..");
+        $input_d = file_get_contents('php://input');
+        $post = json_decode($input_d, TRUE);
+        //Check booking ID input
+        if (empty($post['booking_id'])) {
+            $this->sendJsonResponse(array(ERR_INVALID_BOOKING_ID_CODE, ERR_INVALID_BOOKING_ID_MSG));
+            exit;
+        }
+        $authentication = $this->checkAuthentication(true);
+        if (empty($authentication)) {
+            exit;
+        }
+        $partner_id = $authentication['id'];
+        $partner_name = $authentication['public_name'];
+        $partner_cc_number = $authentication['customer_care_contact'];
+        $booking_id = $post['booking_id'];
+        $data = array();
+        $select = "services.services, users.phone_number,users.alternate_phone_number,users.name as name, users.phone_number, users.user_email, booking_details.*,service_centres.name as service_center_name,service_centres.phone_1,service_centres.phone_2,service_centres.primary_contact_phone_1,service_centres.primary_contact_phone_2";
+        $post['length'] = -1;
+        $employee_login = true;
+        $post['where'] = array("booking_details.booking_id = '$booking_id'" => null);
+        $post['column_search'] = array('booking_details.booking_id');
+        $post['order'] = array(array('column' => 0, 'dir' => 'desc'));
+        $post['order_performed_on_count'] = TRUE;
+        $post['column_order'] = array('booking_details.id');
+        $post['unit_not_required'] = true;
+        $post['length'] = 10;
+        $post['start'] = 0;
+        $data['Bookings'] = $this->booking_model->get_bookings_by_status($post, $select, array(), 2)->result_array();
+        if (empty($data['Bookings'])) {
+            $this->sendJsonResponse(array(ERR_INVALID_BOOKING_ID_CODE, ERR_INVALID_BOOKING_ID_MSG));
+            exit;
+        }
+        $data_toll_free = $this->partner_model->get_tollfree_and_contact_persons();
+        $data_toll_free_array = array();
+        foreach ($data_toll_free as $key2 => $value2) {
+            $data_toll_free_array[strtolower($value2['partner'])]['paid_service_centers'] = $value2['paid_service_centers'];
+            $data_toll_free_array[strtolower($value2['partner'])]['contact'] = $value2['contact'];
+        }
+        $distance = "0";
+        $key = 0;
+
+        $data['Bookings'][$key]['booking_distance'] = $distance;
+        if (!empty($data['Bookings'][0]['service_center_closed_date'])) {
+            $data['Bookings'][$key]['service_center_closed_date'] = date('Y-m-d', strtotime($data['Bookings'][0]['service_center_closed_date']));
+        }
+        $unit_data = $this->booking_model->get_unit_details(array("booking_id" => $data['Bookings'][0]['booking_id']), false, "appliance_brand, appliance_category, appliance_capacity,sf_model_number,model_number,serial_number,price_tags,customer_net_payable as customer_total,appliance_description,purchase_date");
+        if (!empty($unit_data)) {
+            $data['Bookings'][$key]['appliance_brand'] = $unit_data[0]['appliance_brand'];
+            $data['Bookings'][$key]['appliance_category'] = $unit_data[0]['appliance_category'];
+            $data['Bookings'][$key]['appliance_capacity'] = $unit_data[0]['appliance_capacity'];
+        } else {
+            $data['Bookings'][$key]['appliance_brand'] = '';
+            $data['Bookings'][$key]['appliance_category'] = '';
+            $data['Bookings'][$key]['appliance_capacity'] = '';
+            //Return blank if booking not found in booking unit details
+        }
+        $data['Bookings'][$key]['service_center_name'] = $data['Bookings'][0]['service_center_name'];
+        $data['Bookings'][$key]['unit_details'] = $unit_data; // Unit Details Data
+
+        $data['Bookings'][$key]['show_red_icon'] = '0';
+        if (!empty($spares_details)) {
+            foreach ($spares_details as $key1 => $value1) {
+                if ($spares_details[$key1]['spare_cancellation_reason'] == 1016) {
+                    $data['Bookings'][$key]['show_red_icon'] = '1';
+                }
+            }
+        }
+        $partner_name = strtolower($data['Bookings'][$key]['appliance_brand']);
+        $contact_number = _247AROUND_CALLCENTER_NUMBER;
+        if (!empty($partner_name) && empty($data_toll_free_array[$partner_name]['paid_service_centers'])) {
+            if (!empty($data_toll_free_array[$partner_name]['contact'])) {
+                $contact_number = $data_toll_free_array[$partner_name]['contact'];
+            }
+        }
+        $contact_number = "$contact_number";
+
+        $data['Bookings'][$key]['contact_person'] = $data['Bookings'][$key]['appliance_brand'];
+        $data['Bookings'][$key]['contact_number'] = $contact_number;
+
+
+        $data_new = array();
+        $data_new['booking_id'] = $post['booking_id'];
+        $data_new['booking_date'] = date('Y-m-d', strtotime($data['Bookings'][0]['create_date']));
+        $data_new['mobile'] = $data['Bookings'][0]['booking_primary_contact_no'];
+        $data_new['name'] = $data['Bookings'][0]['name'];
+        $data_new['booking_address'] = $data['Bookings'][0]['booking_address'];
+        $data_new['booking_pincode'] = $data['Bookings'][0]['booking_pincode'];
+        $data_new['city'] = $data['Bookings'][0]['city'];
+        $data_new['state'] = $data['Bookings'][0]['state'];
+        $data_new['user_email'] = $data['Bookings'][0]['user_email'];
+        $data_new['brand'] = $data['Bookings'][0]['appliance_brand'];
+        $data_new['brand_contact_number'] = $partner_cc_number;
+        $data_new['service_type'] = $data['Bookings'][0]['request_type'];
+        $data_new['remarks'] = $data['Bookings'][0]['booking_remarks'];
+        $data_new['status'] = $data['Bookings'][0]['partner_current_status'];
+        $data_new['closed_date'] = $data['Bookings'][0]['service_center_closed_date'];
+        $data_new['tat'] = "";
+        if (!empty($data['Bookings'][0]['service_center_closed_date'])) {
+            $tat_startdate = strtotime($data['Bookings'][0]['booking_date']);
+            $tat_enddate = strtotime($data['Bookings'][0]['service_center_closed_date']);
+            $datediff = $tat_enddate - $tat_startdate;
+            $data_new['tat'] = round($datediff / (60 * 60 * 24));
+        }
+        $data_new['is_part_involve'] = 'No';
+        $data_new['is_upcountry'] = "No";
+        $spare_select = 'spare_parts_details.serial_number,spare_parts_details.invoice_pic,spare_parts_details.serial_number_pic';
+        $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('booking_id' => $booking_id, 'status !=' => _247AROUND_CANCELLED));
+        if (!empty($spare_details)) {
+            $data_new['is_part_involve'] = 'Yes';
+        }
+        $data_new['product_category'] = $data['Bookings'][0]['services'];
+        if ($data['Bookings'][0]['actor'] == 1) {
+            $data_new['is_upcountry'] = "Yes";
+        }
+        $data_new['dependency_on'] = $data['Bookings'][0]['actor'];
+        $data_new['amount_due'] = $data['Bookings'][0]['amount_due'];
+        $data_new['service_center_name'] = $data['Bookings'][0]['service_center_name'];
+        $data_new['booking_date'] = $data['Bookings'][0]['booking_date'];
+        $data_new['remarks'] = $data['Bookings'][0]['booking_remarks'];
+        $data_new['current_status'] = $data['Bookings'][0]['current_status'];
+        $data_new['partner_internal_status'] = $data['Bookings'][0]['partner_internal_status'];
+        $data_new['unit_details'] = $data['Bookings'][0]['unit_details'];
+        $this->jsonResponseString['response'] = $data_new;
+        $this->sendJsonResponse(array('0000', "Details found successfully"));
     }
 
 }
