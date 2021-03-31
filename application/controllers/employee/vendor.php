@@ -1391,7 +1391,7 @@ class vendor extends CI_Controller {
         $this->form_validation->set_rules('service', 'Vendor ID', 'required|trim');
         $this->form_validation->set_rules('remarks', 'Remarks', 'required|trim');
         if ($this->form_validation->run()) {
-            $spare_data = $this->inventory_model->get_spare_parts_details("id, status,partner_id,service_center_id,shipped_inventory_id,shipped_quantity,booking_id,parts_shipped", array("booking_id" => $this->input->post('booking_id'), "status != '" . _247AROUND_CANCELLED . "'" => NULL));
+            $spare_data = $this->inventory_model->get_spare_parts_details("id, status,partner_id,service_center_id,shipped_inventory_id,shipped_quantity,booking_id,parts_shipped,consumed_part_status_id,defective_part_shipped_date", array("booking_id" => $this->input->post('booking_id'), "status != '" . _247AROUND_CANCELLED . "'" => NULL));
             $booking_id = $this->input->post('booking_id');
             $service_center_id = $this->input->post('service');
             $remarks = $this->input->post('remarks');
@@ -1545,6 +1545,7 @@ class vendor extends CI_Controller {
                         $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                     } else {
                         $update_spare_part = false;
+			$ok_part_return = false;
                         if (!empty($spare['parts_shipped'])) {                            
                             if($spare['consumed_part_status_id']!=1 && empty($spare['defective_part_shipped_date'])){
                             //$sp['service_center_id'] = $previous_sf_id[0]['assigned_vendor_id'];
@@ -1555,6 +1556,7 @@ class vendor extends CI_Controller {
                             $sp['defective_part_required'] = 1;
                             $sp['consumption_remarks'] = OK_PART_TO_BE_SHIPPED;
                             $update_spare_part = true;
+                            $ok_part_return = true;
                             }
                         } else {
                             $sp['status'] = _247AROUND_CANCELLED;
@@ -1565,9 +1567,14 @@ class vendor extends CI_Controller {
                         }
                         if(!empty($update_spare_part)){
                         $this->service_centers_model->update_spare_parts(array('id' => $spare['id']), $sp);
+                        if(!empty($ok_part_return)){
                         $tracking_details = array('spare_id' => $spare['id'], 'action' => OK_PART_TO_BE_SHIPPED, 'remarks' => "Booking Reassign - " . OK_PART_TO_BE_SHIPPED, 'agent_id' => $this->session->userdata("id"), 'entity_id' => _247AROUND, 'entity_type' => _247AROUND_EMPLOYEE_STRING);
                         $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                         $this->invoice_lib->generate_challan_file($spare['id'],$spare['service_center_id'], '',true);
+                        }else{
+                            $tracking_details = array('spare_id' => $spare['id'], 'action' => _247AROUND_CANCELLED, 'remarks' => "Booking Reassign - " . _247AROUND_CANCELLED, 'agent_id' => $this->session->userdata("id"), 'entity_id' => _247AROUND, 'entity_type' => _247AROUND_EMPLOYEE_STRING);
+                            $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                        }
                         }
                     }
                 }
