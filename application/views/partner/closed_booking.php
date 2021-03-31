@@ -8,11 +8,25 @@
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2><?php echo $status." Bookings" ?></h2>
-                    <div class="right_holder" style="float:right;margin-right:10px;">
-                        <a style="float: right;background: #2a3f54;border-color: #2a3f54;margin-left: 10px;height: 32px;"type="button" class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>employee/partner/download_partner_pending_bookings/<?php echo $this->session->userdata('partner_id')?>/<?php echo $status ?>">Download</a>
-                            <lable>State</lable>
-                            <select class="form-control " id="serachInputCompleted" style="border-radius:3px;">
+                    <h2><?php echo $status." Bookings" ?></h2>  
+                </div><br>
+                <div class="x_title"  style="border: 2px solid #4b9c7a;padding: 10px 0px;">
+                     <button class="btn btn-dark"  id = "download_filer_records" style="float:right;center; border: 1px solid #2a3f54;background: #2a3f54;margin-right: 56%;margin-top:2.1%;" >Download </button>
+                <form method = "post" action ="<?php echo base_url(); ?>partner/closed_booking/<?php echo $status;?>">
+                        <div class="form-group col-md-3">
+                            <label class="control-label" for="">Completion Date</label><br>
+                            <?php
+                            if(!empty( $end_date) && !empty($start_date) ){
+                            $endDate =  $end_date;
+                            $startDate = $start_date;
+                            $dateRange = $startDate."-".$endDate;}
+                          
+                            ?>
+                            <input style="border-radius: 5px;"  type="text" placeholder="Completion Date" class="form-control"  value="<?php echo $dateRange;?>" id = "completion_date" name="completion_date"/>
+                        </div>
+                    <div class="form-group col-md-3" style="border-radius:3px;">
+                           <label class="control-label" for="daterange">State</label><br>
+                            <select class="form-control" id="serachInputCompleted" style="border-radius:3px;" name = "state">
                                 <option value="all">All</option>
                                 <?php
                                     foreach($states as $state){
@@ -25,9 +39,13 @@
                                 <?php
                                     }
                                 ?>
-                            </select>            
+                            </select>  
                     </div>
-                    <div class="clearfix"></div>
+               
+                                <div class="form-group">
+                                    <input type="submit" class="btn btn-success" style="margin-top:1.5%;margin-left:1%;float:left; border: 1px solid #2a3f54;background: #2a3f54;margin-bottom: 0px;" value="show" onclick = "return get_report();">
+                                    </div>              
+                </form>  
                 </div>
                 <div class="x_content">
                     <table class="table table-bordered table-hover table-striped" id="complete_booking_table">
@@ -166,10 +184,58 @@
         });
     }
     
-    $("#serachInputCompleted").change(function(){
-        var state = $("#serachInputCompleted").val();
-        location.href = "<?php echo base_url(); ?>partner/closed_booking/<?php echo $status; ?>/"+state+"/0/0";
-    });
+//    $("#serachInputCompleted").change(function(){
+//        var state = $("#serachInputCompleted").val();
+//        var state = $("#completion_date_detailed").val();
+//        location.href = "<?php echo base_url(); ?>partner/closed_booking/<?php echo $status; ?>/"+state+"/0/0";
+//    });
+$('input[name="create_date"], input[name="completion_date"]').daterangepicker({
+            autoUpdateInput: false,
+            locale: {
+                format: 'YYYY/MM/DD',
+                 cancelLabel: 'Clear',
+                 maxDate: 'now'
+            }
+        });
+          $('input[name="create_date"], input[name="completion_date"]').on('apply.daterangepicker', function (ev, picker) {
+            $(this).val(picker.startDate.format('YYYY/MM/DD') + ' - ' + picker.endDate.format('YYYY/MM/DD'));  
+            
+        });
+        function get_report(){
+            var dateRange = $("#completion_date").val();
+            var dateArray = dateRange.split("-");
+            var startDate = dateArray[0];
+            var endDate =   dateArray[1];
+            var startDateObj = new Date(startDate);
+            var endDateObj = new Date(endDate);
+            var timeDiff = Math.abs(endDateObj.getTime() - startDateObj.getTime());
+            var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
+            if(diffDays>91){
+                alert("Please select date range with in 90 days");
+                return false;
+            }
+        }
+
+        $(document).ready(function(){
+          $("#download_filer_records").click(function(){
+            var dateRange = $("#completion_date").val();
+            var state_code = $("#serachInputCompleted").val();
+            var dateArray = dateRange.split("-");
+            var startDate = dateArray[0];
+            var endDate =   dateArray[1];
+            var startDateObj = new Date(startDate);
+            var endDateObj = new Date(endDate);
+            var timeDiff = Math.abs(endDateObj.getTime() - startDateObj.getTime());
+            var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+            if(diffDays > 91){
+                alert("Please select date range with in 90 days");
+            }
+            else
+            {
+               location.href = "<?php echo base_url(); ?>employee/partner/download_partner_pending_bookings/<?php echo $this->session->userdata('partner_id')?>/<?php echo $status ?>?startDate="+startDate+"&endDate="+endDate+"&state_code="+state_code+"";  
+            }  
+            });
+        });
     </script>
     <style>
         .pagination{
