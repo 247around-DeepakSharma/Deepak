@@ -765,17 +765,23 @@ class Service_centers_model extends CI_Model {
      * @desc: This method returns Shipped spare part booking whose shipped date >= 7 days
      * @return Array
      */
-    function get_booking_id_to_convert_pending_for_spare_parts(){
-        $sql = "SELECT sp.id, sp.booking_id, scb.service_center_id, b.partner_id FROM `spare_parts_details` as sp, service_center_booking_action as scb, booking_details as b "
-                . " WHERE (DATEDIFF(CURRENT_TIMESTAMP , sp.`shipped_date`) >= '".AUTO_ACKNOWLEDGE_SPARE_DELIVERED_TO_SF."') "
-                . " AND sp.status IN ('".SPARE_SHIPPED_BY_PARTNER."', '". SPARE_PARTS_SHIPPED_BY_WAREHOUSE."' ) "
-                . " AND scb.booking_id = sp.booking_id "
-                . " AND sp.booking_id = b.booking_id ";
-        $query =  $this->db->query($sql);
+    function get_booking_id_to_convert_pending_for_spare_parts() {
         
+        $sql = "SELECT sp.id, sp.booking_id, scb.service_center_id, b.partner_id FROM `spare_parts_details` as sp, service_center_booking_action as scb, booking_details as b, courier_company_invoice_details"
+                . " WHERE  "
+                . " sp.status IN ('" . SPARE_OOW_SHIPPED . "','" . SPARE_SHIPPED_BY_PARTNER . "', '" . SPARE_PARTS_SHIPPED_BY_WAREHOUSE . "' ) "
+                . " AND scb.booking_id = sp.booking_id "
+                . " AND courier_company_invoice_details.awb_number = sp.awb_by_partner "
+                . " AND ((courier_company_invoice_details.tracking_status ='" . COURIER_NOTFOUND . "' "
+                . " AND (DATEDIFF(CURRENT_TIMESTAMP , sp.`shipped_date`) >= " . AUTO_ACKNOWLEDGE_SPARE_DELIVERED_TO_SF . ") "
+                . " OR (courier_company_invoice_details.tracking_status IN ('" . COURIER_PICKUP . "', '".COURIER_TRANSIT."') "
+                . " AND (DATEDIFF(CURRENT_TIMESTAMP , sp.`shipped_date`) > " . PICKUP_OR_INTRANSIT_AUTO_DELIVERED_DAYS . ") ) ) )"
+                . " AND sp.booking_id = b.booking_id ";
+        $query = $this->db->query($sql);
+       
         return $query->result_array();
     }
-    
+
     /**
      * @Desc: This function is used to get service center login details by sf id
      * @params: sf_id(INT)

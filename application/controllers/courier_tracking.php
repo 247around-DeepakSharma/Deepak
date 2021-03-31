@@ -847,15 +847,15 @@ class Courier_tracking extends CI_Controller {
      *  @author: Gorakh
      */
     function get_real_time_courier_tracking_using_rapidapi() {
-
+        
         $awb_number = $this->input->post('awb_number');
         $courier_code = $this->input->post('courier_code');
-
+        
         $data = array();
         if (!empty($courier_code) && !empty($awb_number)) {
             /* Retriev record from database */
             $courier_tracking_details = $this->get_courier_tracking_details_by_awb($courier_code, $awb_number);
-
+            
             if (!empty($courier_tracking_details)) {
                 $data['awb_details_by_db'] = $courier_tracking_details;
                 $data['awb_number'] = $awb_number;
@@ -865,9 +865,9 @@ class Courier_tracking extends CI_Controller {
                 //$json = '{"meta":{"code":200,"type":"Success","message":"Success"},"data":{"items":[{"id":"fd758b85c349d0d4e8ad454f82389f92","tracking_number":"50691944004","carrier_code":"bluedart","status":"delivered","original_country":"","itemTimeLength":3,"origin_info":{"weblink":"http:\/\/www.bluedart.com\/","phone":null,"carrier_code":"bluedart","trackinfo":[{"Date":"2020-09-28 20:19:00","StatusDescription":"Shipment Delivered","Details":"Kalol Apex\/Sfc Pud","checkpoint_status":"delivered","substatus":"delivered001"},{"Date":"2020-09-28 11:27:00","StatusDescription":"Shipment Out For Delivery","Details":"Kalol Apex\/Sfc Pud","checkpoint_status":"pickup","substatus":"pickup001"},{"Date":"2020-09-28 11:04:00","StatusDescription":"Shipment Arrived","Details":"Kalol Apex\/Sfc Pud","checkpoint_status":"transit","substatus":"transit001"},{"Date":"2020-09-28 07:22:00","StatusDescription":"Shipment Further Connected","Details":"Aslali Warehouse","checkpoint_status":"transit","substatus":"transit001"},{"Date":"2020-09-28 01:42:00","StatusDescription":"Shipment Arrived","Details":"Aslali Warehouse","checkpoint_status":"transit","substatus":"transit001"},{"Date":"2020-09-27 23:55:00","StatusDescription":"Paper Work Inscan","Details":"Aslali Warehouse","checkpoint_status":"transit","substatus":"transit001"},{"Date":"2020-09-27 08:35:00","StatusDescription":"Shipment Further Connected","Details":"Bhiwandi Hub","checkpoint_status":"transit","substatus":"transit001"},{"Date":"2020-09-26 21:33:00","StatusDescription":"Shipment Arrived","Details":"Bhiwandi Hub","checkpoint_status":"transit","substatus":"transit001"},{"Date":"2020-09-26 19:58:00","StatusDescription":"Paper Work Inscan","Details":"Bhiwandi Hub","checkpoint_status":"transit","substatus":"transit001"},{"Date":"2020-09-26 19:55:00","StatusDescription":"Shipment Further Connected","Details":"Ovali Warehouse","checkpoint_status":"transit","substatus":"transit001"},{"Date":"2020-09-26 19:04:00","StatusDescription":"Shipment Arrived","Details":"Ovali Warehouse","checkpoint_status":"transit","substatus":"transit001"},{"Date":"2020-09-26 15:45:00","StatusDescription":"Shipment Picked Up","Details":"Ovali Warehouse","checkpoint_status":"transit","substatus":"transit001","ItemNode":"ItemReceived"}]},"destination_info":null}]}}';
                 //$api_data = json_decode($json, TRUE);
                 /* Inserting data to database */
-                
+               
                                
-              if (!empty($api_data['data'])) {
+                if (!empty($api_data['data'])) {
                     $this->insert_courier_tracking_api_data($api_data['data']['items'][0]);
 
                     $select = "spare_parts_details.awb_by_partner, spare_parts_details.courier_name_by_partner, spare_parts_details.awb_by_sf, spare_parts_details.courier_name_by_sf, spare_parts_details.awb_by_wh, spare_parts_details.courier_name_by_wh";
@@ -879,7 +879,7 @@ class Courier_tracking extends CI_Controller {
 
                     /* Call this function to fetch data from database */
                     $spare_data = $this->inventory_model->get_spare_parts_details($select, $post['where'], false, false, FALSE);
-
+                    
                     if (!empty($spare_data)) {
                         if (($spare_data[0]['awb_by_partner'] == $awb_number ) && ( strtolower($spare_data[0]['courier_name_by_partner']) == strtolower($courier_code))) {
                             if (!empty($api_data['data'])) {
@@ -1015,13 +1015,11 @@ class Courier_tracking extends CI_Controller {
                 foreach ($awb_number_list->data->items as $awb_number_list_data) {
                     
                     if (!empty($awb_number_list_data)) {
-                        
+
                         //do background process on api data to save it into database
                         $this->insert_courier_tracking_api_data($awb_number_list_data);
                         //common function it's used to update the courier and spare details
-                        if ($awb_number_list_data->status == 'delivered') {
-                            $this->shipped_by_partner_internal_process($awb_number_list_data);
-                        }
+                        $this->shipped_by_partner_internal_process($awb_number_list_data);
                     }
                 }
             } else {
@@ -1042,10 +1040,10 @@ class Courier_tracking extends CI_Controller {
         //make array of all delivered data so that we can update status of that spare
         $value = json_decode(json_encode($awb_number_list, true), true);
         if (!empty($value)) {
-           
+            
             if ($value['status'] == 'delivered') {
                 /* update courier company invoice details */
-                $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $value['tracking_number'], 'delivered_date IS NULL' => NULL), array('delivered_date' => date('Y-m-d H:i:s')));
+                $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $value['tracking_number'], 'delivered_date IS NULL' => NULL, 'courier_company_invoice_details.tracking_status' => 'delivered'), array('delivered_date' => date('Y-m-d H:i:s')));
                 $this->update_pod_courier($value['tracking_number'], $value['carrier_code']);
                 //update pod file on Delivered status
                 /* process to update shipment details */
@@ -1061,6 +1059,9 @@ class Courier_tracking extends CI_Controller {
                     $this->delete_awb_data_from_api($awb_number_to_be_deleted_from_api);
                     $awb_number_to_be_deleted_from_api = array();
                 }
+            } else {
+                /* Auto-Delivery mechanism and relook at Exception cases provided by API */
+            $this->process_to_auto_delivered_courier($value, SPARE_SHIPPED_BY_PARTNER);
             }
         }
     }
@@ -1499,6 +1500,33 @@ class Courier_tracking extends CI_Controller {
             return false;
         }
     }
+    
+    /* 
+     * @desc: This function is used to update status of courier tracking
+     * @param: $tracking_data
+     * @return: void 
+     * @author:Gorakh
+     */
+    
+    function process_to_auto_delivered_courier($tracking_data, $courier_shipment_status) {
+        $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $tracking_data['tracking_number'], 'delivered_date IS NULL' => NULL), array('courier_company_invoice_details.tracking_status' => $tracking_data['status']));
+        if ($courier_shipment_status == SPARE_SHIPPED_BY_PARTNER) {
+            /* Auto-Delivery mechanism and relook at Exception cases provided by API */
+            if (in_array($tracking_data['status'], array(COURIER_EXCEPTION, COURIER_EXPIRED))) {
+
+                $spareparts_data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.auto_acknowledeged, spare_parts_details.booking_id, spare_parts_details.status", array("spare_parts_details.awb_by_partner" => $tracking_data['tracking_number'], "spare_parts_details.courier_name_by_partner" => $tracking_data['carrier_code'], 'cci_details.delivered_date IS NOT NULL' => NULL), FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE);
+                if (!empty($spareparts_data)) {
+                    /* process to update shipment details */
+                    $update_status = $this->process_to_partner_shipped_spare_rapid_auto_acknowledge_data(array("tracking_number" => $tracking_data['tracking_number'], "carrier_code" => $tracking_data['carrier_code']));
+                } else {
+                    $spare_parts_lists = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.awb_by_partner, spare_parts_details.courier_name_by_partner , spare_parts_details.status", array("spare_parts_details.awb_by_partner" => $tracking_data['tracking_number'], "spare_parts_details.courier_name_by_partner" => $tracking_data['carrier_code'], "spare_parts_details.status IN ('" . SPARE_OOW_SHIPPED . "','" . SPARE_SHIPPED_BY_PARTNER . "', '" . SPARE_PARTS_SHIPPED_BY_WAREHOUSE . "')" => NULL));
+                    foreach ($spare_parts_lists as $spare_data) {
+                        $this->service_centers_model->update_spare_parts(array('spare_parts_details.id' => $spare_data['id']), array('spare_parts_details.status' => COURIER_RTO_BY_API));
+                    }
+                }
+            }
+        }
+    }
 
     /**
      * @desc: send email to developer when RapidAPI failed or return unexpected response
@@ -1581,5 +1609,5 @@ class Courier_tracking extends CI_Controller {
         $this->send_api_failed_email(json_encode($awb_array), array("Method" => __METHOD__));
         
     }
-
+    
 }
