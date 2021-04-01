@@ -10752,6 +10752,7 @@ class Inventory extends CI_Controller {
         $post = $this->get_post_data();
         $post['spare_invoice_flag'] = true;
         $post['column_order'] = array();
+        $data = array();
         $post['column_search'] = array('spare_parts_details.booking_id');
         $post['where'] = array("spare_parts_details.part_warranty_status" => 2,
             "status != 'Cancelled'" => NULL,
