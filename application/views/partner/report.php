@@ -38,6 +38,11 @@
                                     Downloads
                                 </a>
                             </li>
+                            <li role="presentation">
+                                <a href="#tabs-5" role="tab" data-toggle="tab" aria-expanded="true">
+                                    Local / Upcountry Pincodes
+                                </a>
+                            </li>
                         </ul>
                         <div id="myTabContent" class="tab-content">
                             <div class="tab-pane" id="tabs-1">
@@ -352,6 +357,37 @@
                                     </div>
                                 </div>
                             </div>
+                            <!-- -->                           
+                            <div class="tab-pane" id="tabs-5">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                               <div class="x_panel">
+                                  <div class="x_title" style="border-bottom: none;">
+                                     <p style="font-size: 15px;padding: 5px 12px;background: #4b9c7a;color: #fff;width: 40%;border-radius: 3px;">
+                                         Please Select Appliance For  Local / Upcountry Pincode Report </p>
+                                     <form>
+                                        <div id="appliance_id_holder">
+                                           <select class="form-control" id="modal_service_id_new" name="service_id[]"   style="width:40%;"> 
+                                           <option value="">Select Appliance</option>
+                                             <?php
+                                             foreach($services as $service){
+                                             ?>
+                                                 <option value="<?php echo $service->id ?>"><?php echo $service->services ?> </option>
+                                             <?php
+                                             }
+                                             ?>
+                                             </select>
+                                        </div>
+                                        <div class="text-left" style='margin-top:5px'>                                           
+                                            <button type="button" style="background: #2a3f54;border-color: #2a3f54;" class="btn btn-success" onclick="process_pincode_report()">Export
+                                           <img id="loader_gif_title_new" src="<?php echo base_url(); ?>images/loadring.gif" style="width: 23%;display:none;"></button>
+                                           <div class="btn btn-default" data-dismiss="modal">Cancel</div>
+                                        </div>
+                                     </form>
+                                  </div>
+                               </div>
+                            </div>
+                         </div>
+                            <!-- -->
                         </div>
                     </div>
                </div>
@@ -368,6 +404,10 @@
             });
     $("#status, #status_detailed").select2(); 
     $("#modal_service_id").select2({
+                placeholder: "Select Appliance",
+                allowClear: true
+            });
+    $("#modal_service_id_new").select2({
                 placeholder: "Select Appliance",
                 allowClear: true
             });
@@ -462,6 +502,7 @@
                      alert("Please Select atleast 1 option and Appliance");
                 }
             }
+            
     function getMultipleSelectedValues(fieldName){
        fieldObj = document.getElementById(fieldName);
        var values = [];
@@ -473,7 +514,8 @@
        }
       return values.toString();
    }
-    function send_csv_request(pincode_opt,state_opt,city_opt,service_id){
+	
+function send_csv_request(pincode_opt,state_opt,city_opt,service_id){
         $("#loader_gif_title").show();
         if(!service_id){
             service_id = 'all';
@@ -674,5 +716,37 @@
             $("#esDate").val(esDate);
             $("#eeDate").val(eeDate);
     });
+    function process_pincode_report() {
+	var service_opt = 0;
+	var service_id = getMultipleSelectedValues('modal_service_id_new');
+	if (service_id) {
+            send_csv_request_new(service_id);
+	} else {
+            alert("Please Select atleast 1 option and Appliance");
+	}
+    }
+    function send_csv_request_new(service_id) {
+        $("#loader_gif_title_new").show();
+        if (!service_id) {
+                service_id = 'all';
+        }
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/partner/serviceability_list_upcountry_pincode',
+            data: {
+                appliance_opt: 1,
+                service_id: service_id
+            },
+            success: function (response) {
+                $("#loader_gif_title_new").hide();
+                var jsondata = JSON.parse(response);
+                if (jsondata['response'] === "success") {
+                        window.location.href = jsondata['path'];
+                } else {
+                        alert(jsondata['msg']);
+                }
+            }
+        });
+    }
         
 </script>
