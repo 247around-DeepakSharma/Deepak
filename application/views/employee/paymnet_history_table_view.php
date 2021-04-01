@@ -1,5 +1,5 @@
 
-<?php if ($payment_type == "A" || $payment_type == "B" ) { ?> 
+<?php if ($payment_type == "A" || $payment_type == "B" || $payment_type == "sales_hsn") { ?> 
         <table class="table table-bordered table-hover table-responsive paginated" id="payment_history_table">
             <thead>
                 <tr>
@@ -537,6 +537,7 @@
             <thead>
                 <tr>
                     <th>S.No.</th>
+                    <th>HSN Code</th>
                     <th>Invoice Id</th>
                     <th>Service/Product</th>
                     <th>Description</th>
@@ -559,6 +560,7 @@
                         ?>
                         <tr>
                             <td><?php echo $sn; ?></td>
+                            <td><?php echo $invoice['hsn_code']; ?></td>
                             <td><?php echo $invoice['invoice_id']; ?></td>
                             <td><?php echo $invoice['product_or_services']; ?></td>
                             <td><?php echo $invoice['description']; ?></td>

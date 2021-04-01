@@ -418,7 +418,9 @@ class File_process extends CI_Controller {
         //$this->downloadFile($output_file_excel);
         
     }
-    
+    /**
+     * @desc This function is used to send part invoice summary balance to Account team. 
+     */
     function send_part_invoice_summary_to_mail(){
         $from_date = date("Y-m-01");  
         $to_date = date("Y-m-d", strtotime("-1 days"));
@@ -429,8 +431,8 @@ class File_process extends CI_Controller {
         $c['purchase_invoice'] = $c_balance[0]['purchase'];
         $c['sale_invoice'] = $c_balance[0]['sale'];
         $c['opening_balance'] = $c_balance[0]['diff'];
-        //$c['opening_balance'] = date('Y-m-d', strtotime($fdate));
         $c['opening_balance_date'] = date('Y-m-d', strtotime($fdate));
+        //Insert opening blance the 
         $this->accounting_model->insert_part_invoice_opening_balance($c);
         $res = $this->_download_part_invoice_summary($c_balance, $from_date, $to_date);
         $s = json_decode($res, true);
