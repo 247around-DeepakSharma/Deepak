@@ -5700,8 +5700,13 @@ class Spare_parts extends CI_Controller {
                     }
                 }
             }
+            
+            $courier_company_data = $this->inventory_model->get_courier_company_invoice_details("id, awb_number, company_name", array("courier_company_invoice_details.awb_number" => $change_awb_number_by_sf), array(), $is_object = FALSE);
 
-            $this->inventory_model->update_courier_company_invoice_details(array('courier_company_invoice_details.awb_number' => $pre_awb_by_sf), array('courier_company_invoice_details.awb_number' => trim($change_awb_number_by_sf)));
+            if (empty($courier_company_data)) {
+                $this->inventory_model->update_courier_company_invoice_details(array('courier_company_invoice_details.awb_number' => $pre_awb_by_sf), array('courier_company_invoice_details.awb_number' => trim($change_awb_number_by_sf)));
+            }
+
             echo json_encode(array('status' => 'success'));
         }
     }
