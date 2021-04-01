@@ -52,6 +52,7 @@
                                             <option value="buyback">Buyback</option>
                                             <option value="paytm">Paytm</option>
                                             <option value="advance_voucher">Advance Voucher</option>
+                                            <option value="sales_hsn">HSN Sales</option>
                                         </select>
                                     </div>
                                     
