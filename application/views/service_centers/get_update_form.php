@@ -18,7 +18,7 @@
             <div class="col-md-12" style='padding-bottom: 10px'>
                 <h2 class="page-header">
                     <?php
-                        if($spare_flag == SPARE_PARTS_REQUIRED || $spare_flag == SPARE_OOW_EST_REQUESTED){
+                        if(isset($request_spare) && $request_spare == 1 && ($spare_flag == SPARE_PARTS_REQUIRED || $spare_flag == SPARE_OOW_EST_REQUESTED)){
                             echo $spare_flag;
                         }
                         else {
@@ -49,10 +49,12 @@
                                 <th>Booking Id</th>
                                 <th>Customer Name</th>
                                 <th>Phone Number</th>
-                                <?php if(isset($saas_module) && (!$saas_module)) { ?>
-                                <th style="text-align: center;" class="not_required">Edit Request Type</th>
+                                <?php if($spare_flag != SPARE_PARTS_REQUIRED && $spare_flag != SPARE_OOW_EST_REQUESTED){ ?> 
+                                    <?php if(isset($saas_module) && (!$saas_module)) { ?>                                
+                                    <th style="text-align: center;" class="not_required">Edit Request Type</th>
+                                    <?php } ?>
+                                    <th style="text-align: center;" class="not_required">Warranty Checker</th>
                                 <?php } ?>
-                                <th style="text-align: center;" class="not_required">Warranty Checker</th>
                                 <?php
                                     if($spare_flag != SPARE_PART_RADIO_BUTTON_NOT_REQUIRED){
                                         if($spare_flag == SPARE_PARTS_REQUIRED || $spare_flag == SPARE_OOW_EST_REQUESTED){ ?>
@@ -71,18 +73,20 @@
                                 <td>
                                     <input type="text" class="form-control"   value = "<?php if (isset($bookinghistory[0]['booking_primary_contact_no'])) {echo $bookinghistory[0]['booking_primary_contact_no']; }?>"  disabled>
                                 </td>
-                                <?php if(isset($saas_module) && (!$saas_module)) { ?>
-                                       <td class="not_required"><center><a target="_blank" id="change_request_type" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($bookinghistory[0]['booking_id']))?>" style="height: 29px;width: 36px;" class="btn btn-sm btn-success"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a></center></td>
-                                <?php } ?>                                    
-                                <td class="not_required">
-                                        <?php 
-                                            $partner_id = "";
-                                            $service_id = "";
-                                            if (isset($bookinghistory[0]['partner_id'])) {$partner_id = '/'.$bookinghistory[0]['partner_id']; };
-                                            if (!empty($partner_id) && isset($bookinghistory[0]['service_id'])) {$service_id = '/'.$bookinghistory[0]['service_id']; }
-                                        ?>
-                                        <center><a href="<?php echo base_url(); ?>service_center/warranty<?=$partner_id?><?=$service_id?>" target="_blank" class='btn btn-sm btn-success' title='Warranty Checker' style="height: 29px;width: 36px;"><i class='fa fa-certificate' aria-hidden='true'></i></a></center>
-                                </td>
+                                <?php if($spare_flag != SPARE_PARTS_REQUIRED && $spare_flag != SPARE_OOW_EST_REQUESTED){ ?> 
+                                    <?php if(isset($saas_module) && (!$saas_module)) { ?>
+                                           <td class="not_required"><center><a target="_blank" id="change_request_type" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($bookinghistory[0]['booking_id']))?>" style="height: 29px;width: 36px;" class="btn btn-sm btn-success"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a></center></td>
+                                    <?php } ?>                                    
+                                    <td class="not_required">
+                                            <?php 
+                                                $partner_id = "";
+                                                $service_id = "";
+                                                if (isset($bookinghistory[0]['partner_id'])) {$partner_id = '/'.$bookinghistory[0]['partner_id']; };
+                                                if (!empty($partner_id) && isset($bookinghistory[0]['service_id'])) {$service_id = '/'.$bookinghistory[0]['service_id']; }
+                                            ?>
+                                            <center><a href="<?php echo base_url(); ?>service_center/warranty<?=$partner_id?><?=$service_id?>" target="_blank" class='btn btn-sm btn-success' title='Warranty Checker' style="height: 29px;width: 36px;"><i class='fa fa-certificate' aria-hidden='true'></i></a></center>
+                                    </td>
+                                <?php } ?>
                                 <?php if($spare_flag != SPARE_PART_RADIO_BUTTON_NOT_REQUIRED){ ?>
                                 <td class="not_required">
                                     <?php
@@ -102,12 +106,14 @@
                     <input type="hidden" class="form-control"  name="is_invoice_required" id="is_invoice_required" value = "<?php echo $is_invoice_required; ?>">
                     <input type="hidden" class="form-control" id="partner_flag" name="partner_flag" value="0" />
                     <input type="hidden" class="form-control" name="spare_shipped" value="<?php echo $spare_shipped; ?>" />
+                    <input type="hidden" class="form-control" id="service_id" name="service_id" value="<?= $bookinghistory[0]['service_id']; ?>" />
                     <input type="hidden" class="form-control" id="booking_request_type" name="booking_request_type" value="<?= $bookinghistory[0]['request_type']; ?>" />
+                    <input type="hidden" class="form-control" id="booking_create_date" name="booking_create_date" value="<?= $bookinghistory[0]['create_date']; ?>" />
                     <div class="form-group ">
                         <label for="reason" class="col-md-2" style="margin-top:39px;">Reason</label>
                         <div class="col-md-6" style="margin-top:39px;">
                             <!-- If status is 'InProcess' in service_center_booking_action_action table, booking can not be rescheduled -->
-                            <?php if(!empty($bookinghistory['allow_reshedule']) || !empty($bookinghistory['allow_estimate_approved'])) { ?>
+                            <?php if(empty($request_spare) && (!empty($bookinghistory['allow_reshedule']) || !empty($bookinghistory['allow_estimate_approved']))) { ?>
                             <?php foreach ($internal_status as $key => $data1) { ?>
                             <div class="radio">
                                 <label>
@@ -200,6 +206,7 @@
                                         <label for="dop" class="col-md-4" id="dat_of_puchase">Date of Purchase *</label>
                                         <div class="col-md-6">
                                             <div class="input-group input-append date">
+                                                <input type="hidden" id="purchase_date" name="purchase_date" value="<?php echo $purchase_date; ?>">
                                                 <input id="dop" class="form-control disable_cntrl" tabindex="-1" value="<?php if(isset($purchase_date) && (!empty($purchase_date) && $purchase_date != "0000-00-00" && $ask_purchase_date==0)){ echo date('d-m-Y', strtotime($purchase_date)); } ?>"  placeholder="Select Date" name="dop" type="text" autocomplete='off' onkeypress="return false;">
                                                 <span class="input-group-addon add-on" id="dop_calendar" onclick="dop_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
