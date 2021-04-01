@@ -197,7 +197,7 @@ function get_data_for_partner_callback($booking_id) {
               $where .= " AND (booking_details.state = '$stateValue') ";
          }
          $orderSubQuery = "";
-         if(!empty($order)){
+         if(!empty($order['column']) && !empty($order['sorting'])){
              $orderSubQuery = " ORDER BY " .$order['column']." ".$order['sorting'];
          }
          
