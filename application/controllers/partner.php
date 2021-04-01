@@ -2074,6 +2074,7 @@ class Partner extends CI_Controller {
 
         //Save header / ip address in DB
         $h = $this->getallheaders();
+        
         if ($h === FALSE) {
             $this->sendJsonResponse(array(ERR_GENERIC_ERROR_CODE, ERR_GENERIC_ERROR_MSG));
         } else {
@@ -2956,7 +2957,7 @@ exit();
         $select = "services.services, users.phone_number,users.alternate_phone_number,users.name as name, users.phone_number, users.user_email, booking_details.*,service_centres.name as service_center_name,service_centres.phone_1,service_centres.phone_2,service_centres.primary_contact_phone_1,service_centres.primary_contact_phone_2";
         $post['length'] = -1;
         $employee_login = true;
-        $post['where'] = array("booking_details.booking_id = '$booking_id'" => null);
+        $post['where'] = array("booking_details.booking_id = '$booking_id'" => null,"booking_details.partner_id = '$partner_id'" => null);
         $post['column_search'] = array('booking_details.booking_id');
         $post['order'] = array(array('column' => 0, 'dir' => 'desc'));
         $post['order_performed_on_count'] = TRUE;
@@ -3061,6 +3062,129 @@ exit();
         $data_new['unit_details'] = $data['Bookings'][0]['unit_details'];
         $this->jsonResponseString['response'] = $data_new;
         $this->sendJsonResponse(array('0000', "Details found successfully"));
+    }
+    /*
+	* @Desc - This function is used to get booking spare part details from Booking_id
+	* @request - 
+	* @response - json 
+	* @Author  - Ghanshyam Ji Gupta
+	* @Date - 30-03-2021
+	*/
+       function getBookingSpareData() {
+        log_message("info", __METHOD__ . " Entering..");
+        $input_d = file_get_contents('php://input');
+        $post = json_decode($input_d, TRUE);
+        //Check booking ID input
+        if (empty($post['booking_id'])) {
+            $this->sendJsonResponse(array(ERR_INVALID_BOOKING_ID_CODE, ERR_INVALID_BOOKING_ID_MSG));
+            exit;
+        }
+        $authentication = $this->checkAuthentication(true);
+        if (empty($authentication)) {
+            exit;
+        }
+        $requestData['booking_id'] = $post['booking_id'];
+        $partner_id = $authentication['id'];
+        $partner_name = $authentication['public_name'];
+
+        $select = "spare_parts_details.*,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number, booking_cancellation_reasons.reason as part_cancel_reason,spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, wrong_part_shipped_details.part_name as wrong_part_name, wrong_part_shipped_details.remarks as wrong_part_remarks, sc.name AS send_defective_to, oow_spare_invoice_details.invoice_id as oow_invoice_id, oow_spare_invoice_details.invoice_date as oow_invoice_date, oow_spare_invoice_details.hsn_code as oow_hsn_code, oow_spare_invoice_details.gst_rate as oow_gst_rate, oow_spare_invoice_details.invoice_amount as oow_incoming_invoice_amount, oow_spare_invoice_details.invoice_pdf as oow_incoming_invoice_pdf, ccid.box_count as sf_box_count,ccid.billable_weight as sf_billable_weight,cc_invoice_details.box_count as wh_box_count,cc_invoice_details.billable_weight as wh_billable_weight, cci_details.box_count as p_box_count, cci_details.billable_weight as p_billable_weight";
+        $where = array('spare_parts_details.booking_id' => $requestData['booking_id'], 'booking_details.partner_id' => $partner_id);
+        $post = array();
+        $post['is_inventory'] = 1;
+        $post['is_original_inventory'] = 1;
+        $post['spare_cancel_reason'] = 1;
+        $post['wrong_part'] = 1;
+        $spare_data = $this->partner_model->get_spare_parts_by_any($select, $where, true, FALSE, FALSE, $post, TRUE, TRUE, TRUE, TRUE, TRUE, false);
+        if (empty($spare_data)) {
+            $this->sendJsonResponse(array(ERR_INVALID_BOOKING_ID_CODE, "No spare data found."));
+            exit;
+        }
+        $spare_request = array();
+        $estimate_given = false;
+        $parts_shipped = false;
+        $defective_parts_shipped = FALSE;
+        foreach ($spare_data as $key => $spare) {
+
+            if (!is_null($spare['parts_shipped'])) {
+                $parts_shipped = true;
+            } if (!empty($spare['defective_part_shipped'])) {
+                $defective_parts_shipped = TRUE;
+            }
+            if ($spare['purchase_price'] > 0) {
+                $estimate_given = TRUE;
+            }
+
+            $spare_request[$key]['id'] = $spare['id'];
+            $spare_request[$key]['entity_type'] = $spare['entity_type'];
+            $spare_request[$key]['model_number'] = $spare['model_number'];
+            $spare_request[$key]['part_number'] = $spare['part_number'];
+            $spare_request[$key]['original_parts_number'] = $spare['original_parts_number'];
+            $spare_request[$key]['parts_requested'] = $spare['parts_requested'];
+            $spare_request[$key]['parts_requested_type'] = $spare['parts_requested_type'];
+            $spare_request[$key]['parts_shipped'] = "";
+            $spare_request[$key]['shipped_part_number'] = "";
+            $spare_request[$key]['shipped_parts_type'] = "";
+            $spare_request[$key]['shipped_quantity'] = "";
+            $spare_request[$key]['shipped_part_date'] = "";
+            $spare_request[$key]['acknowledge_date'] = "";
+            if ($parts_shipped && !empty($spare['parts_shipped'])) {
+                $spare_request[$key]['parts_shipped'] = $spare['parts_shipped'];
+                $spare_request[$key]['shipped_part_number'] = $spare['shipped_part_number'];
+                $spare_request[$key]['shipped_parts_type'] = $spare['shipped_parts_type'];
+                $spare_request[$key]['shipped_quantity'] = $spare['shipped_quantity'];
+                $spare_request[$key]['shipped_part_date'] = $spare['shipped_date'];
+                $spare_request[$key]['acknowledge_date'] = $spare['acknowledge_date'];
+            }
+            $spare_request[$key]['partner_challan_number'] = $spare['partner_challan_number'];
+            $spare_request[$key]['awb_by_partner'] = $spare['awb_by_partner'];
+            $spare_request[$key]['courier_name_by_partner'] = $spare['courier_name_by_partner'];
+            $spare_request[$key]['courier_price_by_partner'] = $spare['courier_price_by_partner'];
+            $spare_request[$key]['remarks_by_partner'] = $spare['remarks_by_partner'];
+            $spare_request[$key]['defective_part_shipped'] = $spare['defective_part_shipped'];
+            $spare_request[$key]['defective_part_shipped_date'] = $spare['defective_part_shipped_date'];
+            $spare_request[$key]['remarks_defective_part_by_sf'] = $spare['remarks_defective_part_by_sf'];
+            $spare_request[$key]['courier_name_by_sf'] = $spare['courier_name_by_sf'];
+            $spare_request[$key]['awb_by_sf'] = $spare['awb_by_sf'];
+            $spare_request[$key]['sf_box_count'] = $spare['sf_box_count'];
+            $spare_request[$key]['defective_awb_by_wh'] = $spare['awb_by_wh'];
+            $spare_request[$key]['defective_courier_name_by_wh'] = $spare['courier_name_by_wh'];
+            $spare_request[$key]['defective_awb_by_wh'] = $spare['awb_by_wh'];
+            $spare_request[$key]['defective_challan_by_wh'] = $spare['wh_challan_number'];
+            $spare_request[$key]['defective_shipped_date_by_wh'] = $spare['wh_to_partner_defective_shipped_date'];
+
+            if ($spare['auto_acknowledeged'] != 0 && !empty($spare_request[$key]['acknowledge_date'])) {
+                $spare_request[$key]['is_spare_auto_acknowledege'] = 'Yes';
+            } else {
+                $spare_request[$key]['is_spare_auto_acknowledege'] = 'No';
+            }
+            if ($spare['part_warranty_status'] == 1) {
+                $spare_request[$key]['part_warranty_status'] = 'In - Warranty';
+            } else {
+                $spare_request[$key]['part_warranty_status'] = 'Out Of Warranty';
+            }
+            $spare_request[$key]['quantity'] = $spare['quantity'];
+            $spare_request[$key]['date_of_request'] = $spare['date_of_request'];
+            $spare_request[$key]['spare_approval_date'] = $spare['spare_approval_date'];
+            $spare_request[$key]['date_of_purchase'] = $spare['date_of_purchase'];
+            $spare_request[$key]['invoice_pic'] = $spare['invoice_pic'];
+            $spare_request[$key]['serial_number'] = $spare['serial_number'];
+            $spare_request[$key]['acknowledge_date'] = $spare['acknowledge_date'];
+            $spare_request[$key]['remarks_by_sc'] = $spare['remarks_by_sc'];
+            $spare_request[$key]['status'] = $spare['status'];
+            $spare_request[$key]['part_cancel_reason'] = $spare['part_cancel_reason'];
+            if ($spare['is_consumed'] == 1) {
+                $spare_request[$key]['is_consumed'] = 'Yes';
+            } else {
+                $spare_request[$key]['is_consumed'] = 'No';
+            }
+            $spare_request[$key]['consumed_status'] = $spare['consumed_status'];
+            $spare_request[$key]['consumption_remarks'] = $spare['consumption_remarks'];
+            $spare_request[$key]['consumed_status'] = $spare['consumed_status'];
+        }
+        $spare_request = array_values($spare_request);
+        $response['spare_parts_requested'] = $spare_request;
+        $this->jsonResponseString['response'] = $response;
+        $this->sendJsonResponse(array('0000', "Spare details found successfully.")); // send success response //
     }
 
 }
