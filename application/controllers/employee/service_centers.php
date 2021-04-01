@@ -2656,8 +2656,14 @@ class Service_centers extends CI_Controller {
                         $data['spare_request_symptom'] = null;
                     }
 
-                    $data['part_warranty_status'] = $value['part_warranty_status'];
-
+//                    $data['part_warranty_status'] = $value['part_warranty_status'];
+                    // ----------------- Set Part Warranty -------------------------------
+                    $arrPartWarrantyStatus = $this->get_part_warranty_data($this->input->post());
+                    $data['part_warranty_status'] = SPARE_PART_IN_OUT_OF_WARRANTY_STATUS;
+                    if(!empty($arrPartWarrantyStatus[$data['parts_requested_type']]) && ((strtoupper(trim($arrPartWarrantyStatus[$data['parts_requested_type']])) == 'IW') || (strtoupper(trim($arrPartWarrantyStatus[$data['parts_requested_type']])) == 'EW'))){
+                        $data['part_warranty_status'] = SPARE_PART_IN_WARRANTY_STATUS;
+                    }                    
+                    // -------------------------------------------------------------------
                     $data['part_requested_on_approval'] = 0;
 
                     if (isset($value['requested_inventory_id'])) {
@@ -10670,12 +10676,19 @@ function do_delivered_spare_transfer() {
         if(empty($part_types)){
             return;
         }
-        // create booking wise Array
-        $data['warranty'][$data['booking_id']]['purchase_date'] = $data['purchase_date'];
-        $data['warranty'][$data['booking_id']]['model_number'] = $data['model_number'];
-        $data['warranty'][$data['booking_id']]['partner_id'] = $data['partner_id'];
-        $data['warranty'][$data['booking_id']]['part'] = $part_types;
-        $arrBookingsWarrantyStatus = $this->warranty_utilities->get_warranty_status_of_parts($data, $part_types);
         
+        // create booking wise Array
+        $booking_id = $data['booking_id'];
+        $booking_data[$booking_id] = [
+            'booking_id' => $booking_id,
+            'purchase_date' => $data['purchase_date'],
+            'model_number' => $data['model_number'],
+            'partner_id' => $data['partner_id'],
+            'service_id' => $data['service_id'],
+            'booking_create_date' => $data['booking_create_date'],
+            'part' => $part_types
+        ];        
+        $arrBookingsWarrantyStatus = $this->warranty_utilities->get_warranty_status_of_parts($booking_data, $booking_id);
+        return $arrBookingsWarrantyStatus;
     }
 }
