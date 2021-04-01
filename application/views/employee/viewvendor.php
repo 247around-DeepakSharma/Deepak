@@ -155,12 +155,12 @@
                                 <th class="jumbotron">Add Pin Code</th>
                                 <th class="jumbotron">Resend Login Details</th>
                                 <th class="jumbotron">View Active/De-active History</th>
-                                <?php }  
+                                <?php } else {
                                  ?>
                                 <th class="jumbotron">Permanent</th>
                                 <th class="jumbotron">Add Pin Code</th>
                                 <th class="jumbotron">Resend Login Details</th>
-                                
+                                <?php }  ?>
                             </tr>
                         </thead>
                         <tbody></tbody>
