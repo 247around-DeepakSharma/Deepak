@@ -2661,8 +2661,14 @@ class Service_centers extends CI_Controller {
                         $data['spare_request_symptom'] = null;
                     }
 
-                    $data['part_warranty_status'] = $value['part_warranty_status'];
-
+//                    $data['part_warranty_status'] = $value['part_warranty_status'];
+                    // ----------------- Set Part Warranty -------------------------------
+                    $arrPartWarrantyStatus = $this->get_part_warranty_data($this->input->post());
+                    $data['part_warranty_status'] = SPARE_PART_IN_OUT_OF_WARRANTY_STATUS;
+                    if(!empty($arrPartWarrantyStatus[$data['parts_requested_type']]) && ((strtoupper(trim($arrPartWarrantyStatus[$data['parts_requested_type']])) == 'IW') || (strtoupper(trim($arrPartWarrantyStatus[$data['parts_requested_type']])) == 'EW'))){
+                        $data['part_warranty_status'] = SPARE_PART_IN_WARRANTY_STATUS;
+                    }                    
+                    // -------------------------------------------------------------------
                     $data['part_requested_on_approval'] = 0;
 
                     if (isset($value['requested_inventory_id'])) {
@@ -10767,8 +10773,7 @@ if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file'
         $part_types = array_column($data['part'], 'parts_type');
         if(empty($part_types)){
             return;
-        }
-        
+        }        
         // create booking wise Array
         $booking_id = $data['booking_id'];
         $booking_data[$booking_id] = [
@@ -10782,7 +10787,8 @@ if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file'
         ];        
         $arrBookingsWarrantyStatus = $this->warranty_utilities->get_warranty_status_of_parts($booking_data, $booking_id);
         return $arrBookingsWarrantyStatus;
-    }    
+    }
+
     /**
      * This function is used to send mail to RM/ASM/Talevar when service center request T-shirt
      * @param : Service_center_ID
@@ -10828,5 +10834,4 @@ if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file'
         $this->notify->sendEmail($from, $to, $cc, '', $subject, $body, "", 'sf_tshirt_puchase');
 
     }
-
 }

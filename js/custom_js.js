@@ -1713,6 +1713,7 @@ function validateSerialNo(count = ""){
                     }
                 },
                 success:function(response){
+                    console.log(response);
                     var returnData = JSON.parse(response);
                     $('.errorMsg').html(returnData['message']);
                     if(returnData['status'] == 1)

@@ -26,6 +26,7 @@ class Warranty_utilities {
      * @return type
      */
     function get_warranty_data($arrBookings, $is_excel = false){
+        $data = array();
         if(empty($arrBookings)){
             return array();
         }
@@ -38,6 +39,15 @@ class Warranty_utilities {
                 $purchase_date = date('Y-m-d', PHPExcel_Shared_Date::ExcelToPHP($rec_data['purchase_date']));
             }
             
+            $strPartTypeCondition = "";
+            if(!empty($rec_data['part']))
+            {
+                $strPartTypeCondition = " and inventory_parts_type.part_type IN ('".implode("','", $rec_data['part'])."') ";
+                $data["join"]["warranty_plan_part_type_mapping"] = "warranty_plans.plan_id = warranty_plan_part_type_mapping.plan_id";
+                $data["join"]["inventory_parts_type"] = "warranty_plan_part_type_mapping.part_type_id = inventory_parts_type.id";
+                $data["group_by"] = "inventory_parts_type.part_type,appliance_model_details.id,appliance_model_details.model_number,warranty_plans.period_start, warranty_plans.period_end";
+                $data["select"] = "inventory_parts_type.part_type";
+            }
             
             // Get All Valid Plans against Model, lies within Purchase Date of Product
             // get Product specific plans (for E-commerce Partners)
@@ -46,21 +56,21 @@ class Warranty_utilities {
                 if(!empty($rec_data['model_number'])){
                     //removes the single as well as double quotes from model name
                     $model_number = str_replace('"', '', str_replace("'", "", $rec_data['model_number']));
-                    $arrOrWhere["((appliance_model_details.model_number = '".$model_number."' OR (warranty_plans.service_id = '".$rec_data['service_id']."' AND warranty_plans.plan_depends_on = ". WARRANTY_PLAN_ON_PRODUCT .")) and date(warranty_plans.period_start) <= '".$purchase_date."' and date(warranty_plans.period_end) >= '".$purchase_date."' and warranty_plans.partner_id = '".$rec_data['partner_id']."')"] = null; 
+                    $arrOrWhere["((appliance_model_details.model_number = '".$model_number."' OR (warranty_plans.service_id = '".$rec_data['service_id']."' AND warranty_plans.plan_depends_on = ". WARRANTY_PLAN_ON_PRODUCT .")) and date(warranty_plans.period_start) <= '".$purchase_date."' and date(warranty_plans.period_end) >= '".$purchase_date."' and warranty_plans.partner_id = '".$rec_data['partner_id']."' $strPartTypeCondition)"] = null; 
                 }
                 else{
-                    $arrOrWhere["((warranty_plans.service_id = '".$rec_data['service_id']."' AND warranty_plans.plan_depends_on = ". WARRANTY_PLAN_ON_PRODUCT .") and date(warranty_plans.period_start) <= '".$purchase_date."' and date(warranty_plans.period_end) >= '".$purchase_date."' AND warranty_plans.partner_id = '".$rec_data['partner_id']."')"] = null;                 
+                    $arrOrWhere["((warranty_plans.service_id = '".$rec_data['service_id']."' AND warranty_plans.plan_depends_on = ". WARRANTY_PLAN_ON_PRODUCT .") and date(warranty_plans.period_start) <= '".$purchase_date."' and date(warranty_plans.period_end) >= '".$purchase_date."' AND warranty_plans.partner_id = '".$rec_data['partner_id']."' $strPartTypeCondition)"] = null;                 
                 }
             } 
             else {
                 // for Bulk checker, when we don't have service Id
                 //removes the single as well as double quotes from start and end
                 $model_number = str_replace('"', '', str_replace("'", "", $rec_data['model_number']));
-                $arrOrWhere["(appliance_model_details.model_number = '".$model_number."' and date(warranty_plans.period_start) <= '".$purchase_date."' and date(warranty_plans.period_end) >= '".$purchase_date."' and warranty_plans.partner_id = '".$rec_data['partner_id']."')"] = null; 
+                $arrOrWhere["(appliance_model_details.model_number = '".$model_number."' and date(warranty_plans.period_start) <= '".$purchase_date."' and date(warranty_plans.period_end) >= '".$purchase_date."' and warranty_plans.partner_id = '".$rec_data['partner_id']."' $strPartTypeCondition)"] = null; 
             }            
         }  
                 
-        $arrWarrantyData = $this->My_CI->warranty_model->get_warranty_data($arrOrWhere);        
+        $arrWarrantyData = $this->My_CI->warranty_model->get_warranty_data($arrOrWhere, $data);        
         return $arrWarrantyData;
     }
     
@@ -308,4 +318,48 @@ class Warranty_utilities {
         $arrReturn['message'] = $returnMessage;
         return json_encode($arrReturn);
     }
+    
+    /**
+     * This function is used to get part wise warranty data
+     * @author : Prity Sharma
+     * @created_on 24-03-2021
+     */
+    public function get_warranty_status_of_parts($arrBookings, $booking_id)
+    {
+        // Check if warranty is to be calculated on the basis of DOI od DOP
+        // If warranty is to calculated on the basis of DOI, replace DOP with DOI
+        $arrPartWarrantyStatus = array();
+        $partner_id = $arrBookings[$booking_id]['partner_id'];
+        $arr_partner_data = $this->My_CI->partner_model->getpartner($partner_id);
+        if(!empty($arr_partner_data[0]['check_warranty_from'])){
+            $checkInstallationDate = $arr_partner_data[0]['check_warranty_from'];
+        }
+        if($checkInstallationDate == WARRANTY_ON_DOI){
+            $arrInstallationData = $this->My_CI->booking_utilities->get_installation_date_of_booking($arrBookings[$booking_id]);
+            if(!empty($arrInstallationData['installation_date'])){
+                $arrBookings[$booking_id]['purchase_date'] = date("d-m-Y", strtotime($arrInstallationData['installation_date']));
+            } 
+        }
+        $arrWarrantyData = $this->get_warranty_data($arrBookings);
+        $arrPartWiseWarrantyData = $this->get_part_wise_warranty_data($arrWarrantyData); 
+        $part_types = $arrBookings[$booking_id]['part'];
+        foreach($part_types as $key => $part)
+        {
+            $arrPartWarrantyData = !empty($arrPartWiseWarrantyData[$part]) ? $arrPartWiseWarrantyData[$part] : array();            
+            $arrPartWarrantyStatus[$part] = $this->map_warranty_period_to_booking($arrBookings[$booking_id], $arrPartWarrantyData);
+        }
+        $arrPartWarrantyStatus = $this->get_bookings_warranty_status($arrPartWarrantyStatus); 
+        return $arrPartWarrantyStatus;        
+    }
+    
+    function get_part_wise_warranty_data($arrWarrantyData)
+    {
+        $arrPartWiseWarrantyData = [];
+        foreach($arrWarrantyData as $recWarrantyData)
+        {
+            $arrPartWiseWarrantyData[$recWarrantyData['part_type']][] = $recWarrantyData;
+        }
+        return $arrPartWiseWarrantyData;
+    }
+    
 }

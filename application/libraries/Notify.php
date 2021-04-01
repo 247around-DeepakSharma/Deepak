@@ -983,7 +983,7 @@ class Notify {
     function send_sms_msg91($sms) {
         $template = $this->My_CI->vendor_model->getVendorSmsTemplate($sms['tag'],false,true);	
 
-        if (!empty($template)) {
+        if (!empty($template['template_id'])) {
 			$template_id = $template['template_id'];
 			$template = $template['template'];
 
