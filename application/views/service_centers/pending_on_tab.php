@@ -14,6 +14,7 @@
                                         <th class="text-center" style="min-width:85px;" data-orderable="false">Address</th>
                                         <th class="text-center" data-orderable="false">Appliance</th>
                                         <th class="text-center" data-orderable="false">Status</th>
+                                        <th class="text-center" data-orderable="false">Booking Create Date</th>
                                         <th class="text-center" style="min-width:86px;">Booking Date</th>
                                         <th class="text-center">Age</th>
                                         <th class="text-center" data-orderable="false">Call Center Remarks</th>
@@ -97,6 +98,9 @@
                                         </td>
                                         <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
                                             <?=$row->partner_internal_status;?>
+                                        </td>
+                                         <td style="vertical-align: middle;">
+                                             <?php if(!empty($row->booking_date) &&  $row->create_date != '0000-00-00'){echo  date('d-M-Y h:i:s', strtotime($row->create_date))."<br/>"; }?> 
                                         </td>
                                         <td style="vertical-align: middle;">
                                             <?php if(!empty($row->booking_date) &&  $row->booking_date != '0000-00-00'){echo  date('d-M-Y', strtotime($row->booking_date))."<br/>"; }?> 

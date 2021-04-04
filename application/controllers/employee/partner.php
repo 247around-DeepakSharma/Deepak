@@ -122,6 +122,19 @@ class Partner extends CI_Controller {
      * @desc: this is used to display completed booking for specific service center
      */
     function closed_booking($status, $state_code="all", $offset = 0, $booking_id = "") {
+        $date = $this->input->post('completion_date');
+        $dateArray = explode('-', $date);
+        $startDate = date('y-m-d');
+        $startDate = date('Y-m-d', strtotime("-3 months", strtotime($startDate)));
+        $startDate = date('Y/m/d', strtotime($startDate));
+        $endDate =  date('y/m/d');
+        if(!empty($date)){
+         $startDate = $dateArray[0];
+         $endDate = $dateArray[1];
+        }
+        if(!empty($this ->input ->post('state'))){
+        $state_code = $this ->input ->post('state'); 
+        }
         ini_set('memory_limit', '-1');
         ini_set('max_execution_time', 36000);
         $this->checkUserSession();
@@ -132,9 +145,9 @@ class Partner extends CI_Controller {
         }
         $config['base_url'] = base_url() . 'partner/closed_booking/' . $status.'/'.$state_code;
         if (!empty($booking_id)) {
-            $config['total_rows'] = $this->partner_model->getclosed_booking("count", "", $partner_id, $status, $booking_id,$stateCity,$state_code);
+            $config['total_rows'] = $this->partner_model->getclosed_booking("count", "", $partner_id, $status, $booking_id,$stateCity,$state_code,$startDate, $endDate);
         } else {
-            $config['total_rows'] = $this->partner_model->getclosed_booking("count", "", $partner_id, $status,"",$stateCity,$state_code);
+            $config['total_rows'] = $this->partner_model->getclosed_booking("count", "", $partner_id, $status,"",$stateCity,$state_code, $startDate, $endDate);
         }
 
         $config['per_page'] = 50;
@@ -145,14 +158,16 @@ class Partner extends CI_Controller {
         $data['links'] = $this->pagination->create_links();
         $data['count'] = $config['total_rows'];
         if (!empty($booking_id)) {
-            $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $status, $booking_id,$stateCity,$state_code);
+            $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $status, $booking_id,$stateCity,$state_code,$startDate, $endDate);
         } else {
-            $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $status,"",$stateCity,$state_code);
+            $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $status,"",$stateCity,$state_code, $startDate, $endDate);
         }
 
         if ($this->session->flashdata('result') != '')
             $data['success'] = $this->session->flashdata('result');
 
+        $data['start_date'] = $startDate;
+        $data['end_date'] = $endDate;
         $data['status'] = $status;
         $data['selected_state'] = $state_code;
         $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT state_code,UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
@@ -5735,8 +5750,18 @@ class Partner extends CI_Controller {
     }
     
     function download_partner_pending_bookings($partnerID,$status){ 
+        $startDate = '';
+        $endDate = '';
+        $state_code = '';
+        if(!empty($this->input->get('startDate'))&& !empty($this->input->get('endDate'))){
+          $startDate = $this->input->get('startDate');
+          $endDate = $this->input->get('endDate');  
+        }
+        if(!empty($this->input->get('state_code'))){
+          $state_code = $this->input->get('state_code');
+        }
         ob_start();
-        $report = $this->partner_model->get_partners_pending_bookings($partnerID,0,1,$status);        
+        $report = $this->partner_model->get_partners_pending_bookings($partnerID,0,1,$status,$startDate,$endDate,$state_code);        
         $newCSVFileName = $status."_booking_" . date('j-M-Y-H-i-s') . ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
         $delimiter = ",";
@@ -9591,11 +9616,6 @@ class Partner extends CI_Controller {
                     $sc_action['serial_number_pic']=$update_pending['serial_number_pic'];
                 }
 
-
-                if ($update_pending['entity_type']==_247AROUND_SF_STRING) {
-                    
-                    $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $update_pending['partner_id'], $update_pending['requested_inventory_id'], -$update_pending['quantity']);
-                }
                 $booking_details_unit_id = $update_pending['booking_unit_details_id'];
                     if ($booking_details_unit_id != '') {
                         $data_booking_unit_detail['booking_status'] = _247AROUND_CANCELLED;
@@ -10169,6 +10189,7 @@ class Partner extends CI_Controller {
      * @return json
      */
     function get_escalation_data($excel = true) {
+        $partner_id = 0;
         if(!empty($this->input->post('esDate')) && !empty($this->input->post('eeDate'))){
             $sDate = $this->input->post('esDate');
             $eDate = $this->input->post('eeDate');
@@ -10182,11 +10203,11 @@ class Partner extends CI_Controller {
         }
         
         // for Admin Panel
-        if(!empty($this->input->post('partner_id'))){
+        if(!empty($this->input->post('partner_id')) && strtolower($this->input->post('partner_id')) != 'all'){
             $partner_id = $this->input->post('partner_id');
         }
         // for Partner Panel
-        else
+        if($this->session->userdata('partner_id'))
         {
             $partner_id = $this->session->userdata('partner_id');
         }

@@ -1560,6 +1560,7 @@ class Booking extends CI_Controller {
         $phone_number = trim($this->input->post('phone_number'));
         $is_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $is_sf_panel = $this->input->post('is_sf_panel');
+        $model_number = $this->input->post('model_number');
         $unit_details = array();
         $booking_details = array(); 
         if(!empty($this->input->post('booking_id'))){
@@ -1646,7 +1647,7 @@ class Booking extends CI_Controller {
                 $is_partner_invoiced = '';
                 if(isset($unit_details)){
                     foreach ($unit_details as  $tags) {
-                        if($tags['price_tags'] == $prices['service_category'] ){
+                        if(($tags['price_tags'] == $prices['service_category']) && ($tags['sf_model_number'] == $model_number)){
                             $ct = $tags['customer_total'];
                             $partner_net_payable = $tags['partner_net_payable'];
                             $customer_net_payable = $tags['customer_net_payable'];
@@ -2104,7 +2105,13 @@ class Booking extends CI_Controller {
             }
         }
  */
-       
+        if(!empty($data['booking_history'][0])) {
+            if ($data['booking_history'][0]['request_type'] == AMC_PRICE_TAGS) {
+                $data['requeste_type_is_amc'] = TRUE;
+            } else {
+                $data['requeste_type_is_amc'] = FALSE;
+            }
+        }
         //$data['spare_history'] = $this->partner_model->get_spare_state_change_tracking("spare_state_change_tracker.id,spare_state_change_tracker.spare_id,spare_state_change_tracker.action,spare_state_change_tracker.remarks,spare_state_change_tracker.agent_id,spare_state_change_tracker.entity_id,spare_state_change_tracker.entity_type, spare_state_change_tracker.create_date, spare_parts_details.parts_requested",array('spare_parts_details.booking_id' => $booking_id), true);
         $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
@@ -2825,7 +2832,7 @@ class Booking extends CI_Controller {
                 //Update Spare parts details table
 
                 if ($sp['status'] == SPARE_PARTS_REQUESTED && !empty($sp['requested_inventory_id']) && !empty($sp['entity']) && ($sp['entity'] == _247AROUND_SF_STRING)) {
-                    $this->inventory_model->update_pending_inventory_stock_request($sp['entity_type'], $sp['partner_id'], $sp['requested_inventory_id'], -1);
+                    
                     if (!$sp['spare_lost']) {
                         $this->service_centers_model->update_spare_parts(array('id' => $sp['id']), array('old_status' => $sp['status'], 'status' => _247AROUND_CANCELLED));
                     }
@@ -7069,7 +7076,7 @@ class Booking extends CI_Controller {
      * return: Array of Data for View
      */
     function get_booking_recordings($booking_primary_id) { 
-        $select = "agent_outbound_call_log.create_date, agent_outbound_call_log.recording_url, employee.full_name, employee.groups";
+        $select = "agent_outbound_call_log.create_date, agent_outbound_call_log.recording_url, employee.full_name, entity_role.display_name";
         $data['data'] = $this->booking_model->get_booking_recordings_by_id($booking_primary_id, $select);
         $this->load->view('employee/show_booking_recordings', $data);
     }  

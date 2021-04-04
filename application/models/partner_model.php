@@ -32,7 +32,7 @@ class Partner_model extends CI_Model {
 
 	function validate_partner($auth_token) {
       //TODO: Deactivate partner account if auth token mismatch happens 3 or more times in a day
-      $this->db->select('partners.id, public_name');
+      $this->db->select('partners.id, public_name,customer_care_contact');
       $this->db->from("partners");
       $this->db->where(array("partners.auth_token" => $auth_token, "partners.is_active" => '1'));
       
@@ -260,7 +260,7 @@ function get_data_for_partner_callback($booking_id) {
       * @param: Booking Status(Cancelled or Completed)
       * @return: Array()
       */
-      function getclosed_booking($limit, $start, $partner_id, $status, $booking_id = "",$is_agent=0,$state_code='all'){
+      function getclosed_booking($limit, $start, $partner_id, $status, $booking_id = "",$is_agent=0,$state_code='all',$startDate = '', $endDate = ''){
         if($limit!="count"){
             $this->db->limit($limit, $start);
         }
@@ -280,6 +280,9 @@ function get_data_for_partner_callback($booking_id) {
         if($is_agent == 1){
             $this->db->join('agent_filters','agent_filters.state = booking_details.state', "left");
             $this->db->where('agent_filters.agent_id', $this->session->userdata('agent_id'));
+        }
+        if(!empty($startDate) && !empty($endDate)){
+            $this->db->where('closed_date BETWEEN "'. date('Y-m-d', strtotime($startDate)). '" and "'. date('Y-m-d', strtotime($endDate)).'"');
         }
         if(!empty($state_code) && $state_code != "all"){
             $this->db->where('state_code.state_code', $state_code);
@@ -1029,7 +1032,7 @@ function get_data_for_partner_callback($booking_id) {
                     . " AND ".$where . $orderBy.", spare_parts_details.create_date ASC $limit";
             }
             }
-        $query = $this->db->query($sql);       
+        $query = $this->db->query($sql);
         return $query->result_array();
     }
 
@@ -1862,7 +1865,9 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->insert('payment_transaction', $data);
         return $this->db->insert_id();
     }
-    function get_partners_pending_bookings($partner_id,$percentageLogic=0,$allPending=0,$status){
+    function get_partners_pending_bookings($partner_id,$percentageLogic=0,$allPending=0,$status,$startDate = '',$endDate = '', $state_code = ''){       
+          $startDate = date('Y-m-d', strtotime($startDate));
+          $endDate = date('Y-m-d', strtotime($endDate));
         $agingSubQuery = "";
         if($status == 'Pending'){
             $where = "(booking_details.current_status IN ('Pending','Rescheduled')) AND booking_details.service_center_closed_date IS NULL  AND booking_details.upcountry_partner_approved ='1'";
@@ -1874,7 +1879,12 @@ function get_data_for_partner_callback($booking_id) {
         else if($status == 'Cancelled'){
             $where = "booking_details.current_status IN ('Cancelled')";
         }
-        
+        if(!empty($startDate) && !empty($endDate)){
+            $where.= " AND booking_details.closed_date BETWEEN '$startDate' and '$endDate' ";
+        }
+        if(!empty($state_code) && $state_code != "all"){
+             $where.= " AND state_code.state_code IN ('$state_code')";
+        }
         return $query = $this->db->query("SELECT 
             order_id AS 'Sub Order ID',
             booking_details.booking_id AS '247BookingID',
@@ -1912,6 +1922,7 @@ function get_data_for_partner_callback($booking_id) {
             JOIN users ON booking_details.user_id = users.user_id
             LEFT JOIN spare_parts_details ON spare_parts_details.booking_id = booking_details.booking_id
             LEFT JOIN dealer_details on dealer_details.dealer_id = booking_details.dealer_id
+            LEFT JOIN state_code on  state_code.state = booking_details.state
             WHERE (booking_details.partner_id = '$partner_id' OR booking_details.origin_partner_id = '$partner_id') AND $where GROUP BY ud.booking_id");
     }
     

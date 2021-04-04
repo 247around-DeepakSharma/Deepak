@@ -608,6 +608,7 @@
                             <td style="width: 50%;">
                                 <?php if(isset($files['file_description'])) echo $files['file_description']; ?>
                                 <input type="hidden" id="file_description_id" class="file_type" value="<?php echo $files['file_description_id']; ?>">
+                                <input type="hidden" id="requeste_type_is_amc" value="<?php echo $requeste_type_is_amc; ?>">
                             </td>
                             <td style="width: 50%;">
                                 <input type="file" id="supportfileLoader_<?=$key?>" name="files" onchange="uploadsupportingfile(this.id,'<?=$files['id']?>')" style="display:none" />
@@ -621,7 +622,7 @@
                                 }
                                 ?>
                                 <a id="a_order_support_file_<?=$key?>" href="<?php  echo $src?>" target="_blank"><img id="m_order_support_file_<?=$key?>" src="<?php  echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:10px;" /></a>
-                                &nbsp;&nbsp;<button type="button" class="btn btn-sm btn-primary fa fa-pencil fa-lg" title="Update File" id="supporting_file_<?=$key?>" onclick="upload_supporting_file(this.id);" style="width:35px;height:35px;"></button>
+                                &nbsp;&nbsp;<button type="button" class="btn btn-sm btn-primary fa fa-pencil fa-lg support_file" title="Update File" id="supporting_file_<?=$key?>" onclick="upload_supporting_file(this.id);" style="width:35px;height:35px;"></button>
                             </td>
                         </tr>
                         <?php } } ?>
@@ -642,7 +643,7 @@
                                 <?php $src = base_url() . 'images/no_image.png';
                                 $image_src = $src;    ?>
                                 <a id="a_order_support_file_<?=$count?>" href="<?php  echo $src?>" target="_blank"><img id="m_order_support_file_<?=$count?>" src="<?php  echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:10px;" /></a>
-                                &nbsp;&nbsp;<button type="button" class="btn btn-sm btn-primary fa fa-plus fa-lg" title="Add File" id="supporting_file_<?=$count?>" onclick="upload_supporting_file(this.id);" style="width:35px;height:35px;"></button>
+                                &nbsp;&nbsp;<button type="button" class="btn btn-sm btn-primary fa fa-plus fa-lg support_file" title="Add File" id="supporting_file_<?=$count?>" onclick="upload_supporting_file(this.id);" style="width:35px;height:35px;"></button>
                                 &nbsp;&nbsp;<button type="button" class="btn btn-sm btn-primary" title="Remove Row" id="remove_row_<?=$count?>" onclick="remove(this.id)" style="float:right;margin-right:7px;">Remove</button>
                                 &nbsp;&nbsp;<button type="button" class="clone btn btn-sm btn-primary" title="Add Row" id="add_row_<?=$count?>" style="float:right;margin-right:5px;">Add</button>
                             </td>
@@ -697,11 +698,8 @@
                                         <th>Consumption</th>
                                         <th>Consumption Reason</th>
                                         <th>Consumption Remarks</th>
-                                        <th>Move To Vendor</th>
-                                        <th>Move To Partner</th>
-                                        <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
-                                        <!-- <th>Copy Booking Id</th> -->
-                                        <?php  } ?>
+<!--                                        <th>Move To Vendor</th>
+                                        <th>Move To Partner</th>-->
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -800,53 +798,6 @@
                                         <td><?php if(!empty($sp['is_consumed']) && $sp['is_consumed'] == 1) { echo 'Yes';} else { echo 'No';} ?></td>
                                         <td><?php if(!empty($sp['consumed_status'])) { echo $sp['consumed_status']; } ?></td>
                                         <td><?php if(!empty($sp['consumption_remarks'])) { echo $sp['consumption_remarks']; } ?></td>
-                                     <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
-                                        <?php  if($sp['entity_type']==_247AROUND_PARTNER_STRING && $sp['status'] == SPARE_PARTS_REQUESTED){?>
-                                            <td>
-                                                <form id="move_to_update_spare_parts_<?php echo $sp['id']; ?>">
-                                                    <input type="hidden" name="spare_parts_id" id="spare_parts_id" value="<?php echo $sp['id']; ?>">
-                                                    <input type="hidden" name="booking_partner_id" id="booking_partner_id" value="<?php echo $booking_history[0]['partner_id']; ?>">
-                                                    <input type="hidden" name="entity_type" id="entity_type" value="<?php echo _247AROUND_SF_STRING; ?>">
-                                                    <input type="hidden" name="bulk_input" id="booking_id" value="<?php echo $sp['booking_id']; ?>">   
-                                                    <input type="hidden" name="requested_spare_id" id="rew_in_id" value="<?php echo $sp['requested_inventory_id']; ?>">  
-                                                    <input type="hidden" name="state" id="booking_state" value="<?php echo $booking_history[0]['state']; ?>"> 
-                                                    <input type="hidden" name="parts_requested" id="booking_state" value="<?php echo $sp['parts_requested']; ?>"> 
-                                                    <input type="hidden" name="service_center_id" id="booking_state" value="<?php echo $sp['service_center_id']; ?>">   
-                                                    <input type="hidden" name="transfer_from_view" id="transfer_from_view" value="1"> 
-                                               <a class="move_to_update btn btn-md btn-primary" id="move_to_vendor" href="javascript:void(0);" data_id="<?php echo $sp['id']; ?>">Move To Vendor</a>
-                                                 </form>
-                                            </td>
-                                        <?php } else {?> 
-                                           <td></td>   
-                                         <?php } } ?>
-
-                                        <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
-                                        <?php  if($sp['entity_type']==_247AROUND_SF_STRING && $sp['status'] == SPARE_PARTS_REQUESTED){?>
-                                            <td>
-                                                <form id="move_to_update_spare_parts_partner_<?php echo $sp['id']; ?>">
-                                                    <input type="hidden" name="spare_parts_id" id="spare_parts_id" value="<?php echo $sp['id']; ?>">
-                                                    <input type="hidden" name="booking_partner_id" id="booking_partner_id" value="<?php echo $booking_history[0]['partner_id']; ?>">
-                                                    <input type="hidden" name="entity_type" id="entity_type" value="<?php echo _247AROUND_PARTNER_STRING; ?>">
-                                                    <input type="hidden" name="bulk_input" id="booking_id" value="<?php echo $sp['booking_id']; ?>">     
-                                                    <input type="hidden" name="requested_spare_id" id="rew_in_id" value="<?php echo $sp['requested_inventory_id']; ?>"> 
-
-                                                    <input type="hidden" name="parts_requested" id="booking_state" value="<?php echo $sp['parts_requested']; ?>"> 
-                                                    <input type="hidden" name="warehouse_id" id="booking_state" value="<?php echo $sp['partner_id']; ?>"> 
-                                                    <!-- Quantity -->
-                                                    <input type="hidden" name="quantity" id="qty" value="<?php echo $sp['quantity']; ?>"> 
-                                                    <a class="move_to_update_partner btn btn-md btn-primary" id="move_to_vendor" href="javascript:void(0);" data_id="<?php echo $sp['id']; ?>">Move To Partner</a>
-
-                                                 </form>
-                                            </td>
-
-                                        <?php } else {?> 
-                                           <td></td>   
-                                         <?php } } ?>
-                                       
-                                       <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ( $sp['part_warranty_status'] == 2 )){ } else{ ?>
-                                        <td><button type="button" class="copy_booking_id hide  btn btn-info" data-toggle="modal" id="<?php echo $sp['booking_id']."_".$sp['id']; ?>" data-target="#copy_booking_id">Copy</button>
-                                       </td>                                
-                                     <?php } ?>
                                    
                                     </tr>
                                     <?php if(!is_null($sp['parts_shipped'])){ $parts_shipped = true;} if(!empty($sp['defective_part_shipped'])){
@@ -2372,7 +2323,25 @@ function upload_supporting_file(id){
 
 function uploadsupportingfile(id, file_id=''){
     var key = id.split("_")[1];
-     var file = $("#supportfileLoader_"+key).val();
+    var file = $("#supportfileLoader_"+key).val();
+    var allowedFiles = [".gif", ".jpg",".png",".jpeg",".pdf"];
+    var fileUpload = $("#supporting_file_"+key);
+    var regex = new RegExp("([a-zA-Z0-9\s_\\.\-:()])+(" + allowedFiles.join('|') + ")$");
+    if (!regex.test(fileUpload.val().toLowerCase())) {
+        $("#support_file_1").val('');
+        alert("Please upload files having extensions:(" + allowedFiles.join(', ') + ") only.");
+        return false;
+    }
+    var requeste_type_is_amc = $("#requeste_type_is_amc").val();
+    var amc_id = '<?php echo ANNUAL_MAINTENANCE_CONTRACT; ?>';
+     if(requeste_type_is_amc == ''){
+        file_type_id = $("#file_description_"+key).val();
+        if(file_type_id == amc_id){
+            alert('AMC file upload is only valid for AMC call type.');
+            return false;
+        }
+     }
+     
      if (file === '') {
         alert('Please select file');
         return;
@@ -2823,108 +2792,108 @@ function OpenWindowWithPost(url, windowoption, name, params)
             
         });
        
-       $(".move_to_update").on('click', function () { 
-                var data_id = $(this).attr('data_id');
-                swal({
-                title: "Are you sure?",
-                text: "You are going to transfer the spare part!",
-                type: "warning",
-                showCancelButton: true,
-                confirmButtonClass: "btn-danger",
-                confirmButtonText: "Yes, Transfer it!",
-                cancelButtonText: "No, cancel !",
-                closeOnConfirm: false,
-                closeOnCancel: false
-               },
-                 function(isConfirm) {
-                    if (isConfirm) {
-                        $(".loader").removeClass('hide');
-                        $.ajax({
-                        type: "POST",
-                        url: "<?php echo base_url(); ?>employee/spare_parts/bulkConversion_process",
-                        data: $("#move_to_update_spare_parts_"+data_id).serialize(),
-                        success: function (data) {
-                        console.log(data);
-                       if (data != '') {
-                        
-                        $("#entity_type_id").html("<?php echo _247AROUND_PARTNER_STRING; ?>");
-                        if(data=='success'){
-                          $(".loader").addClass('hide');
-                          swal("Transferred!", "Your spare has been transferred !.", "success");
-                          $("#move_to_vendor").hide();
-                          location.reload();
-                        }else{
-                           $(".loader").addClass('hide');
-                           swal("Failed", "Spare  transferred has been failed due to stock not available", "error");  
-                        }
-                    }else{
-                       $(".loader").addClass('hide');
-                       swal("Failed", "Spare  transferred has been failed. Requested inventory not found/mapped", "error");   
-                    }
-                    },
-                    error: function () {
-                     $(".loader").addClass('hide');
-                     swal("Error Occured", "Some error occured data not found", "error");
-                    }
-                  });
-                    } else {
-                       $(".loader").addClass('hide');
-                       swal("Cancelled", "Your Transferred has been cancelled !", "error");
-                   }
-                });
-
-        });
+//       $(".move_to_update").on('click', function () { 
+//                var data_id = $(this).attr('data_id');
+//                swal({
+//                title: "Are you sure?",
+//                text: "You are going to transfer the spare part!",
+//                type: "warning",
+//                showCancelButton: true,
+//                confirmButtonClass: "btn-danger",
+//                confirmButtonText: "Yes, Transfer it!",
+//                cancelButtonText: "No, cancel !",
+//                closeOnConfirm: false,
+//                closeOnCancel: false
+//               },
+//                 function(isConfirm) {
+//                    if (isConfirm) {
+//                        $(".loader").removeClass('hide');
+//                        $.ajax({
+//                        type: "POST",
+//                        url: "<?php echo base_url(); ?>employee/spare_parts/bulkConversion_process",
+//                        data: $("#move_to_update_spare_parts_"+data_id).serialize(),
+//                        success: function (data) {
+//                        console.log(data);
+//                       if (data != '') {
+//                        
+//                        $("#entity_type_id").html("<?php echo _247AROUND_PARTNER_STRING; ?>");
+//                        if(data=='success'){
+//                          $(".loader").addClass('hide');
+//                          swal("Transferred!", "Your spare has been transferred !.", "success");
+//                          $("#move_to_vendor").hide();
+//                          location.reload();
+//                        }else{
+//                           $(".loader").addClass('hide');
+//                           swal("Failed", "Spare  transferred has been failed due to stock not available", "error");  
+//                        }
+//                    }else{
+//                       $(".loader").addClass('hide');
+//                       swal("Failed", "Spare  transferred has been failed. Requested inventory not found/mapped", "error");   
+//                    }
+//                    },
+//                    error: function () {
+//                     $(".loader").addClass('hide');
+//                     swal("Error Occured", "Some error occured data not found", "error");
+//                    }
+//                  });
+//                    } else {
+//                       $(".loader").addClass('hide');
+//                       swal("Cancelled", "Your Transferred has been cancelled !", "error");
+//                   }
+//                });
+//
+//        });
         
-               $(".move_to_update_partner").on('click', function () { 
-               var data_id = $(this).attr('data_id');
-                swal({
-                title: "Are you sure?",
-                text: "You are going to transfer the spare part!",
-                type: "warning",
-                showCancelButton: true,
-                confirmButtonClass: "btn-danger",
-                confirmButtonText: "Yes, Transfer it!",
-                cancelButtonText: "No, cancel !",
-                closeOnConfirm: false,
-                closeOnCancel: false
-               },
-                 function(isConfirm) {
-                    if (isConfirm) {
-                        $(".loader").removeClass('hide');
-                        $.ajax({
-                        type: "POST",
-                        url: "<?php echo base_url(); ?>employee/spare_parts/move_to_update_spare_parts_details",
-                        data: $("#move_to_update_spare_parts_partner_"+data_id).serialize(),
-                        success: function (data) {
-                        console.log(data);
-                       if (data != '') {               
-                        $("#entity_type_id").html("<?php echo _247AROUND_PARTNER_STRING; ?>");
-                        if(data=='success'){
-                          $(".loader").addClass('hide');
-                          swal("Transferred!", "Your spare has been transferred to partner!.", "success");
-                          $("#move_to_vendor").hide();
-                          location.reload();
-                        }else if(data='fail_mail'){
-                          $(".loader").addClass('hide');
-                          swal("Failed", "Your Transferred has been failed. Check your mail for details!", "error"); 
-                        }else{
-                           $(".loader").addClass('hide');
-                           swal("Failed", "Your Transferred has been failed. Either  network error occured !", "error");  
-                        }
-                    }
-                    },
-                    error: function () {
-                     $(".loader").addClass('hide');
-                     swal("Error Occured", "Some error occured data not found", "error");
-                    }
-                  });
-                    } else {
-                        $(".loader").addClass('hide');
-                       swal("Cancelled", "Your Transferred has been cancelled !", "error");
-                   }
-                });
-
-        });
+//        $(".move_to_update_partner").on('click', function () { 
+//               var data_id = $(this).attr('data_id');
+//                swal({
+//                title: "Are you sure?",
+//                text: "You are going to transfer the spare part!",
+//                type: "warning",
+//                showCancelButton: true,
+//                confirmButtonClass: "btn-danger",
+//                confirmButtonText: "Yes, Transfer it!",
+//                cancelButtonText: "No, cancel !",
+//                closeOnConfirm: false,
+//                closeOnCancel: false
+//               },
+//                 function(isConfirm) {
+//                    if (isConfirm) {
+//                        $(".loader").removeClass('hide');
+//                        $.ajax({
+//                        type: "POST",
+//                        url: "<?php echo base_url(); ?>employee/spare_parts/move_to_update_spare_parts_details",
+//                        data: $("#move_to_update_spare_parts_partner_"+data_id).serialize(),
+//                        success: function (data) {
+//                        console.log(data);
+//                       if (data != '') {               
+//                        $("#entity_type_id").html("<?php echo _247AROUND_PARTNER_STRING; ?>");
+//                        if(data=='success'){
+//                          $(".loader").addClass('hide');
+//                          swal("Transferred!", "Your spare has been transferred to partner!.", "success");
+//                          $("#move_to_vendor").hide();
+//                          location.reload();
+//                        }else if(data='fail_mail'){
+//                          $(".loader").addClass('hide');
+//                          swal("Failed", "Your Transferred has been failed. Check your mail for details!", "error"); 
+//                        }else{
+//                           $(".loader").addClass('hide');
+//                           swal("Failed", "Your Transferred has been failed. Either  network error occured !", "error");  
+//                        }
+//                    }
+//                    },
+//                    error: function () {
+//                     $(".loader").addClass('hide');
+//                     swal("Error Occured", "Some error occured data not found", "error");
+//                    }
+//                  });
+//                    } else {
+//                        $(".loader").addClass('hide');
+//                       swal("Cancelled", "Your Transferred has been cancelled !", "error");
+//                   }
+//                });
+//
+//        });
         
         
         

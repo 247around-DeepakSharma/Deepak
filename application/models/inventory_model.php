@@ -415,6 +415,23 @@ class Inventory_model extends CI_Model {
             }
             $this->db->where($like, null, false);
         }
+        
+        if (!empty($post['search_value'])) {
+            $like = "";
+            if (array_key_exists("column_search", $post)) {
+                foreach ($post['column_search'] as $key => $item) { // loop column 
+                    // if datatable send POST for search
+                    if ($key === 0) { // first loop
+                        $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                    } else {
+                        $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                    }
+                }
+                $like .= ") ";
+            }
+
+            $this->db->where($like, null, false);
+        }
 
         if (!empty($post['order'])) { // here order processing
             $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
@@ -705,9 +722,10 @@ class Inventory_model extends CI_Model {
                        $where = "service_centres.is_wh = 1 ";
                    }
 
-                   $where .= " AND appliance_model_details.id ='".$model[0]['id']."' AND appliance_model_details.active = 1 AND inventory_stocks.entity_type ='" . _247AROUND_SF_STRING . "' AND (inventory_stocks.stock - inventory_stocks.pending_request_count) > 0 ";
+                   $where .= " AND appliance_model_details.id ='".$model[0]['id']."' AND appliance_model_details.active = 1 AND inventory_stocks.entity_type ='" . _247AROUND_SF_STRING . "' AND (inventory_stocks.stock) > 0 ";
                    if (!empty($inventory_ids)) {
-                       $inventory_stock_details = $this->get_inventory_stock_details('inventory_stocks.stock as stocks,(inventory_stocks.stock - inventory_stocks.pending_request_count) as stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id, inventory_master_list.part_name, inventory_master_list.type', $where, $inventory_ids);
+                       $inventory_stock_details = $this->get_inventory_stock_details('inventory_stocks.stock as stocks,(inventory_stocks.stock) as stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id, '
+                               . 'inventory_master_list.part_name, inventory_master_list.type, inventory_master_list.part_number,  price, gst_rate,oow_around_margin', $where, $inventory_ids);
                    }
                }
             }
@@ -1541,13 +1559,13 @@ class Inventory_model extends CI_Model {
         return $this->db->insert_id();
     }
     
-    function update_pending_inventory_stock_request($entity_type, $entity_id, $inventory_id, $qty){
-        $sql = "Update inventory_stocks set pending_request_count = pending_request_count+ $qty WHERE "
-                . "inventory_id = '".$inventory_id."' AND entity_type = '".$entity_type."' AND entity_id = '".$entity_id."' AND (pending_request_count+ $qty) > -1 ";
-        $result = $this->db->query($sql);
-        log_message('info', __METHOD__. " ".$this->db->last_query());
-        return $result;
-    }
+//    function update_pending_inventory_stock_request($entity_type, $entity_id, $inventory_id, $qty){
+//        $sql = "Update inventory_stocks set pending_request_count = pending_request_count+ $qty WHERE "
+//                . "inventory_id = '".$inventory_id."' AND entity_type = '".$entity_type."' AND entity_id = '".$entity_id."' AND (pending_request_count+ $qty) > -1 ";
+//        $result = $this->db->query($sql);
+//        log_message('info', __METHOD__. " ".$this->db->last_query());
+//        return $result;
+//    }
     
     /**
      * @Desc: This function is used to get data from the inventory ledger table

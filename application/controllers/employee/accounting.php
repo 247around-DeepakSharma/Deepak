@@ -341,7 +341,11 @@ class Accounting extends CI_Controller {
             $data['report_type'] = $report_type;
             if($payment_type == 'A' || $payment_type == 'B'){
                 $this->_get_sales_purchase_report($data, $payment_type);
-            } else {
+                
+            } else if($payment_type == 'sales_hsn'){
+                $this->_get_sales_purchase_report_hsn_wise($data);
+                
+            }else {
                 foreach($data['invoice_data'] as $key => $value) {
                 $data['invoice_details_data'][$key] = $this->invoices_model->get_breakup_invoice_details("invoice_id, product_or_services, description, rate, qty, taxable_value, cgst_tax_amount, sgst_tax_amount, igst_tax_amount, total_amount , from_gst_number, to_gst_number", array("invoice_id" => $value['invoice_id']));
                 
@@ -353,6 +357,26 @@ class Accounting extends CI_Controller {
         } else {
             echo "error";
         }
+    }
+    
+    function _get_sales_purchase_report_hsn_wise($data){
+        $header['id'] ='S.No';
+        $header['hsn_code'] = 'HSN Code';
+        $header['invoice_id'] = "Invoice ID";
+        $header['invoice_date'] = "Invoice Date";
+        $header['invoice_period'] = "Invoice Period";
+        $header['description'] = "Description";
+        $header['qty'] = "Quantity";
+        $header['taxable_value'] = "Taxable Value";
+        $header['gst_rate'] = "GST Rate";
+        $header['igst_tax_amount'] = "IGST";
+        $header['cgst_tax_amount'] = "CGST";
+        $header['sgst_tax_amount'] = "SGST";
+        $header['total_amount'] = "Total Amount";
+        $data['header'] = $header;
+        
+        echo $this->load->view('employee/paymnet_history_table_view', $data);
+        
     }
     /**
      * @desc In this function, we are generating sales & purchase report for the view. 
@@ -2167,7 +2191,7 @@ class Accounting extends CI_Controller {
                         $c[0]['debit'] = 0;
                     } else {
                         $c[0]['credit'] = 0;
-                        $c[0]['debit'] = $balance;
+                        $c[0]['debit'] = abs($balance);
                     }
                     
                     $ledger = $this->inventory_model->call_procedure('payment_account_ledger',"'$vendor_id','$from_date', '$to_date'");
