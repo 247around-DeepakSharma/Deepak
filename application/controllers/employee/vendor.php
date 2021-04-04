@@ -5798,6 +5798,7 @@ class vendor extends CI_Controller {
                     return FALSE;
                 }
             }
+            $this->msme_file_upload();
             if (($_FILES['address_proof_file']['error'] != 4) && !empty($_FILES['address_proof_file']['tmp_name'])) {
                 //Adding file validation
                 $checkfilevalidation = 1;
@@ -5908,6 +5909,9 @@ class vendor extends CI_Controller {
                     $vendor_data['gst_status'] = NULL;
                     $vendor_data['gst_cancelled_date'] = NULL;
                 }
+                 if (!empty($this->input->post('msme_no'))) {
+                    $vendor_data['msme_no'] = strtoupper($this->input->post('msme_no'));
+                }
                 if(!empty($this->input->post('pan_file'))){
                     $vendor_data['pan_file'] = $this->input->post('pan_file');
                 }  
@@ -5922,6 +5926,9 @@ class vendor extends CI_Controller {
                 }
                  if(!empty($this->input->post('contract_file'))){
                      $vendor_data['contract_file'] = $this->input->post('contract_file');
+                }
+                 if (!empty($this->input->post('msme_file'))) {
+                     $vendor_data['msme_file'] = $this->input->post('msme_file');
                 }
                 $vendor_data['agent_id'] = $agentID;
                 ///print_r($vendor_data);  exit;
@@ -5954,6 +5961,43 @@ class vendor extends CI_Controller {
                 // $this->session->set_usergdata('current_tab', 2);
                 redirect(base_url() . 'employee/vendor/editvendor/'.$data['id']);
             } 
+    }
+    /** Author: Deepak Sharma
+     * This function use upload MSME file 
+     */
+    function msme_file_upload(){
+        if (($_FILES['msme_file']['error'] != 4) && !empty($_FILES['msme_file']['tmp_name'])) {
+            //Adding file validation
+            $checkfilevalidation = 1;
+            if ($checkfilevalidation) {
+     
+                //Making process for file upload
+                $tmpFile = $_FILES['msme_file']['tmp_name'];
+                $msme_file = implode("", explode(" ", $this->input->post('name'))) . '_msmefile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['msme_file']['name'])[1];
+                move_uploaded_file($tmpFile, TMP_FOLDER . $msme_file);
+                //Upload files to AWS
+                $bucket = BITBUCKET_DIRECTORY;
+                $directory_xls = "vendor-partner-docs/" . $msme_file;
+                $this->s3->putObjectFile(TMP_FOLDER . $msme_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                $_POST['msme_file'] = $msme_file;
+
+                $attachment_pan = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $msme_file;
+
+                //Logging success for file uppload
+                //log_message('info',__CLASS__.' PAN FILE is being uploaded sucessfully.');
+            }
+            else {
+                //Redirect back to Form
+
+                if (!empty($_POST['id'])) {
+                    $this->editvendor($data['id']);
+                } else {
+
+                    $this->add_vendor();
+                }
+                return FALSE;
+            }
+        }
     }
        //save brand details 
     function save_vendor_brand_mapping(){

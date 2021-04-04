@@ -1012,7 +1012,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                                 } ?>" placeholder="PAN Number">
                                         </div>
                                         <div class="col-md-4">  
-                                            <input type="file" class="form-control"  name="pan_file" <?php if (isset($query[0]['pan']) && $query[0]['pan'] != '' && $readonly) { echo 'disabled tabindex="-1"'; } ?>>
+                                            <input type="file" class="form-control" id = "pan_file_1" name="pan_file" <?php if (isset($query[0]['pan']) && $query[0]['pan'] != '' && $readonly) { echo 'disabled tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-1">
                                             <?php
@@ -1168,7 +1168,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                                 } ?>" readonly="readonly">
                                         </div>
                                         <div class="col-md-3">
-                                            <input type="file" class="form-control"  name="gst_number_file" <?php if (isset($query[0]['gst_number'])  && $readonly) { echo 'disabled tabindex="-1"'; } ?>>
+                                            <input type="file" class="form-control" id = "gst_file" name="gst_number_file" <?php if (isset($query[0]['gst_number'])  && $readonly) { echo 'disabled tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-1">
                                             <?php
@@ -1288,7 +1288,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
         </div>
         <div class="clear"></div>
         <div id="container_4" style="<?php if($current_tab!=4){ ?>display:none;<?php } else { ?>display:block<?php } ?>" class="form_container">
-            <form name="document_form" class="form-horizontal" id ="document_form" action="<?php echo base_url() ?>employee/partner/process_partner_contracts" method="POST" enctype="multipart/form-data">
+            <form   onsubmit="hide_submit_button()" name="document_form" class="form-horizontal" id ="document_form" action="<?php echo base_url() ?>employee/partner/process_partner_contracts" method="POST" enctype="multipart/form-data">
                 <?php
                     if(isset($query[0]['id'])){
                         if($query[0]['id']){
@@ -2583,7 +2583,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                                     </a>
 
                                                 </td> 
-                                                <td><?php echo date("jS M, Y", strtotime($val['update_date'])); ?></td>
+                                                <td><?php echo date("d-M-Y", strtotime($val['update_date'])); ?></td>
                                                 <td>    
                                                     <?php if ($val['active'] == 1) { ?>                                                     
                                                     <button type="button" class="btn btn-default" style="background-color: #d9534f; border-color: #fff; width: 90px; color: #fff;"  id="<?php echo $val['wh_on_of_id'] . "-" . $val['micro_wh_mp_id']; ?>" onclick="remove_micro_warehose(this.id)">Deactivate</button>
@@ -6232,9 +6232,74 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
         return true;
     }
    }
- function hide_submit_button(){
+   //Auther: Deepak Sharma
+   // this fnction use to hide submit button when you click at a time 
+   function hide_submit_button(){
     $("#submit_contract_btn").css("pointer-events",'none');
-    $("#submit_contract_btn").css("opacity",'.5');
-   }
-</script>
+    $("#submit_contract_btn").css("opacity",'.5');}
+//Author: Deepak Sharma
+// This is use to validate pan no and gst number pan no comuplsory  to select and pan file also
+$(document).ready(function () {
+    $('#submit_document_btn').click(function() {// initialize the plugin
+       var pan_no = $("#pan_no").val();
+       var GST_no = $("#gst_number").val();
+       var pan_file = $("#pan_file_1")[0].files.length;
+       var GST_file = $("#gst_file")[0].files.length;
+        if( pan_no == '' && pan_file != ''){
+           alert ("Please Enter  PAN number");
+           return false;}
+       if( pan_no != '' &&  pan_file == 0){
+            alert ("Please Enter PAN number file");
+           return false;}
+       if (pan_no == '' &&  pan_file == 0 ) {
+             alert ("Please Enter PAN Details");
+           return false;}
+       
+        if( GST_no != '' &&  GST_file == 0){
+            alert ("Please Enter GST number file");
+           return false;}
+        if(GST_file!= '' &&  GST_no == 0){
+            alert ("Please Enter GST number");
+           return false;}
+        if($("#pan_no").val() != ''){
+          var pan_exp = /[a-zA-z]{5}\d{4}[a-zA-Z]{1}/;
+          var pan_no = $("#pan_no").val();
+         if(pan_no.length != 10){
+           alert('Please Enter Correct PAN Number');
+           return false;}
+         else{ 
+           if( !pan_no.match(pan_exp)){
+            alert('Please Enter Correct PAN Number');
+            return false;
+           }
+         }
+       }  
+   });
+   });
+   // Author:Deepak Sharma 
+   // This function use to validate GST Number with 247001 partner id 
+   $(document).ready(function () {
+    $('#gst_number').focusout(function() {
+    if($("#submit_contract_btn").val() != ''){ 
+         var GST_no = $("#gst_number").val();
+         $.ajax({
+         type: 'POST',    
+         url:'<?php echo base_url() ?>employee/partner/get_gst_number/<?php echo $query[0]['id']?>',
+         data:{ 
+            'gst_no':GST_no},
+         success: function(msg){
+            if(msg == 'true'){
+              alert('Please Enter Valid GST Number ');
+              return false;
+            }
+            else{
+                return true; 
+           }
+        }  
+    });
+    }
+    });
+    });
 
+ 
+</script>
