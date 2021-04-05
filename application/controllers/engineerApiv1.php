@@ -3880,8 +3880,8 @@ class engineerApiv1 extends CI_Controller {
 				$model_details_new = $this->partner_model->get_model_number('category, capacity, partner_appliance_details.brand', array('appliance_model_details.model_number' => $requestData["model_number"], 'appliance_model_details.entity_id' => $booking_details["booking_history"][0]['partner_id'], 'appliance_model_details.active' => 1, 'partner_appliance_details.active' => 1));
 				$new_category = $new_capacity = $new_brand = '';
 				if (!empty($model_details_new)) {
-					$unit_detail['appliance_capacity'] = $new_capacity;
-					$unit_detail['appliance_category'] = $new_category;
+					$unit_detail['appliance_capacity'] = $model_details_new[0]['capacity'];
+					$unit_detail['appliance_category'] = $model_details_new[0]['category'];
 				}
 
 				$unit_detail['serial_number'] = $requestData['serial_number'];
@@ -3890,6 +3890,7 @@ class engineerApiv1 extends CI_Controller {
 
 				//booking_update_data = array("sf_model_number" => $requestData["model_number"], "sf_purchase_date" => $requestData["purchase_date"]);
 				$this->booking_model->update_booking_unit_details($requestData["booking_id"], $unit_detail);
+
 				if($booking_details['unit_details']['0']['sf_model_number']!=$requestData['model_number']){
 					$model_change = true;
 				}else{
