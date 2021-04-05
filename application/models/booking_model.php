@@ -2015,7 +2015,7 @@ class Booking_model extends CI_Model {
      * return: Array of data
      *
      */
-    function get_booking_state_change_by_id($booking_id,$api=false,$internal_employee=false){
+    function get_booking_state_change_by_id($booking_id,$api=false,$internal_employee=false,$order_by='ASC'){
         $bookingIDArray[] = $booking_id;
         if (strpos($booking_id, 'Q-') === false) {
             $bookingIDArray[] = "Q-".$booking_id;
@@ -2030,7 +2030,7 @@ class Booking_model extends CI_Model {
         //$this->db->where_in('booking_state_change.booking_id', $bookingIDArray);
         $this->db->from('booking_state_change');
        
-        $this->db->order_by('booking_state_change.id');
+        $this->db->order_by('booking_state_change.id',$order_by);
         $query = $this->db->get();
         $data =  $query->result_array();
         
