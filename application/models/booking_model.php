@@ -2929,7 +2929,7 @@ class Booking_model extends CI_Model {
                         *
                 FROM
                         booking_unit_details
-                        JOIN service_center_booking_action ON (service_center_booking_action.unit_details_id = booking_unit_details.id)
+                        JOIN service_center_booking_action ON (service_center_booking_action.booking_id = booking_unit_details.booking_id AND service_center_booking_action.unit_details_id = booking_unit_details.id)
                         JOIN booking_details ON (booking_unit_details.booking_id = booking_details.booking_id)
                 WHERE
                         (booking_unit_details.serial_number = '".$serialNumber."' || service_center_booking_action.serial_number = '".$serialNumber."')
