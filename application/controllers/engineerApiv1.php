@@ -3851,11 +3851,6 @@ class engineerApiv1 extends CI_Controller {
                 $this->sendJsonResponse(array('0055', "Serial Image is Required."));
                 exit;
             }
-            
-            //If serial Number is entered then serial number image is mandatory and vice-a-versa - End
-
-            $unit_detail['serial_number'] = $requestData['serial_number'];
-            $this->booking_model->update_booking_unit_details($requestData['booking_id'], $unit_detail);
 
             if ($warranty_checker) {
                 $arrBookings[0] = array(
@@ -3880,7 +3875,29 @@ class engineerApiv1 extends CI_Controller {
                 }
             }
             $edit_call_type = true;
-            if ($edit_call_type && $response['warranty_flag']!=1) {
+			if ($edit_call_type && $response['warranty_flag']!=1) {
+				//Update serial number category Capacity based on new model start
+				$model_details_new = $this->partner_model->get_model_number('category, capacity, partner_appliance_details.brand', array('appliance_model_details.model_number' => $requestData["model_number"], 'appliance_model_details.entity_id' => $booking_history[0]['partner_id'], 'appliance_model_details.active' => 1, 'partner_appliance_details.active' => 1));
+				$new_category = $new_capacity = $new_brand = '';
+				if (!empty($model_details_new)) {
+					$unit_detail['appliance_capacity'] = $new_capacity;
+					$unit_detail['appliance_category'] = $new_category;
+				}
+
+				$unit_detail['serial_number'] = $requestData['serial_number'];
+				$unit_detail['sf_model_number'] = $requestData['model_number'];
+				$unit_detail['purchase_date'] = $requestData['purchase_date'];
+
+				//booking_update_data = array("sf_model_number" => $requestData["model_number"], "sf_purchase_date" => $requestData["purchase_date"]);
+				$this->booking_model->update_booking_unit_details($requestData["booking_id"], $unit_detail);
+				if($booking_details['unit_details']['0']['sf_model_number']!=$requestData['model_number']){
+					$model_change = true;
+				}else{
+					$model_change = false;
+				}
+				$booking_details = $this->booking_creation_lib->get_edit_booking_form_helper_data($requestData['booking_id'], NULL, NULL,NULL);
+				//Update serial number category Capacity based on new model end
+
                 if (isset($requestData['sc_agent_id'])) {
                     $curl_data['sc_agent_id'] = $requestData['sc_agent_id'];
                 }
@@ -3958,7 +3975,7 @@ class engineerApiv1 extends CI_Controller {
                         $partner_net_payable = NULL;
                         $around_net_payable = NULL;
                         foreach ($unit_details['quantity'] as $tags) {
-                            if ($tags['price_tags'] == $price['service_category']) {
+                            if($tags['price_tags'] == $price['service_category'] && empty($model_change)) {
                                 $partner_net_payable = $tags['partner_net_payable'];
                                 $around_net_payable = $tags['around_net_payable'];
                             }
@@ -4010,10 +4027,6 @@ class engineerApiv1 extends CI_Controller {
                 $curl_response = curl_exec($ch);
                 //$this->asynchronous_lib->do_background_process($url, $curl_data);
                 $this->partner_cb->partner_callback($requestData["booking_id"]);
-
-                /* Update model number and purchase date in booking unit details */
-                $booking_update_data = array("sf_model_number" => $requestData["model_number"], "sf_purchase_date" => $requestData["purchase_date"]);
-                $this->booking_model->update_booking_unit_details($requestData["booking_id"], $booking_update_data);
 
                 log_message("info", "Booking Request type hase been updated successfully");
                 if(!empty($repeat_booking_message)){
