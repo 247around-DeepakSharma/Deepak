@@ -56,6 +56,7 @@
                                             }?>
                                </select>
                            </div>
+                           <div id="loader_city_gif"></div>
                         </div> 
                         <div class="form-group">
                                 <label for="City" class="col-md-4">City*</label>
@@ -106,6 +107,14 @@
         }
     }
     
+    $("#states").change(function(){
+        $('#loader_city_gif').html("<img src='<?php echo base_url(); ?>images/loader.gif' style='width:40px'>");
+        // Fill City 
+        setTimeout(function(){
+            getDistrict();
+        }, 1000);
+    });
+    
     function get_city_based_on_pincode() {
         var postData = {};
         var  pincode  = $("#pincode").val();
@@ -127,27 +136,59 @@
                         $("#states").html('');
                         // Set Default Option for City Dropdown
                         var newOption = new Option('Select City', '', false, false);
-                        $('#city').append(newOption).trigger('change');
+                        $('#city').append(newOption);
                         // Set Default Option for State Dropdown
                         var newStateOption = new Option('Select State', '', false, false);
-                        $('#states').append(newStateOption).trigger('change');                            
+                        $('#states').append(newStateOption);                            
                         $.each(data1, function (i, item) {
-                            // Fill City as per Pincode
-                            var newOption = new Option(item.district, item.district, false, false);
-                            $('#city').append(newOption).trigger('change');
                             // Fill State as per Pincode
-                            var newStateOption = new Option(item.state, item.state, false, false);
+                            var newStateOption = new Option(item.state, item.state, true, true);
                             $('#states').append(newStateOption).trigger('change');
+                            // Fill City as per Pincode
+                            setTimeout(function(){
+                                $('#city').val(item.district).trigger('change');  
+                            }, 3000);
                         });
                         $('#loader_gif').html('');
                         $("#submitform").prop("disabled", false);
                     }
                     else
                     {
-                        alert("Data Not Found.");
+                        $("#city").html('');
+                        $("#states").html('');
+                        $("#states").trigger('change');
+                        $("#city").trigger('change');
+                        alert("Pincode Not Found.");
+                        <?php if (isset($states)){ ?>
+                            <?php foreach ($states as $key => $values) { ?>
+                                    var state_option = "<option  value='<?php echo $values['state'] ?>'> <?php echo $values['state'];?> </option>";
+                                    $('#states').append(state_option);
+                            <?php } 
+                        } ?>
                         $('#loader_gif').html('');   
                     }
                 } 
+            });
+        }
+    }
+    
+    function getDistrict() {
+        $("#city").html('');
+        $("#city").trigger('change');
+        var state = $("#states").val();
+        if(state)
+        {
+            $('#loader_city_gif').html("<img src='<?php echo base_url(); ?>images/loader.gif' style='width:40px'>");
+            $.ajax({
+                type: 'POST',
+                async: false, 
+                url: '<?php echo base_url(); ?>employee/vendor/getDistrict/1',
+                data: {state: state},
+                success: function (data) {
+                    $("#city").html(data);
+                    $('#loader_city_gif').html('');
+                    $("#submitform").prop("disabled", false);
+                }
             });
         }
     }
