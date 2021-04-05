@@ -7551,6 +7551,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
     function download_spare_consolidated_data() {
         log_message('info', __METHOD__ . ' Processing...');
         ini_set('memory_limit', -1);
+        $rm_id = $this->input->post('rm_id');
         $partner_id = $this->input->post('partner_id');
         $service_center_id = $this->input->post('service_center_id');
         $spare_part_status = $this->input->post('spare_part_status');
@@ -7590,6 +7591,9 @@ function get_bom_list_by_inventory_id($inventory_id) {
         //$where = array("spare_parts_details.status NOT IN('" . SPARE_PARTS_REQUESTED . "')" => NULL);
         $where = array();
         $group_by = "spare_parts_details.id";
+         if (!empty($rm_id) && is_numeric($rm_id)) {
+            $where['service_centres.rm_id'] = $rm_id;
+        }
         if (!empty($partner_id) && is_numeric($partner_id)) {
             $where['booking_details.partner_id'] = $partner_id;
         }
