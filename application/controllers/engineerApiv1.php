@@ -3877,7 +3877,7 @@ class engineerApiv1 extends CI_Controller {
             $edit_call_type = true;
 			if ($edit_call_type && $response['warranty_flag']!=1) {
 				//Update serial number category Capacity based on new model start
-				$model_details_new = $this->partner_model->get_model_number('category, capacity, partner_appliance_details.brand', array('appliance_model_details.model_number' => $requestData["model_number"], 'appliance_model_details.entity_id' => $booking_history[0]['partner_id'], 'appliance_model_details.active' => 1, 'partner_appliance_details.active' => 1));
+				$model_details_new = $this->partner_model->get_model_number('category, capacity, partner_appliance_details.brand', array('appliance_model_details.model_number' => $requestData["model_number"], 'appliance_model_details.entity_id' => $booking_details["booking_history"][0]['partner_id'], 'appliance_model_details.active' => 1, 'partner_appliance_details.active' => 1));
 				$new_category = $new_capacity = $new_brand = '';
 				if (!empty($model_details_new)) {
 					$unit_detail['appliance_capacity'] = $new_capacity;
