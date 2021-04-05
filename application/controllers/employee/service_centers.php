@@ -10059,9 +10059,13 @@ class Service_centers extends CI_Controller {
      */
 
     function get_service_centers_list() {
-
-        $vendor_list = $this->vendor_model->getVendorDetails("service_centres.id, service_centres.name, service_centres.company_name", array("service_centres.active" => 1, "service_centres.is_micro_wh" => $this->input->post('is_micro_wh')));
-
+        $rm_id = $this->input->post('rm_id');
+        if (!empty($rm_id)){
+          $vendor_list = $this->vendor_model->getVendorDetails("service_centres.id, service_centres.name, service_centres.company_name", array("rm_id" => $rm_id));   
+        }
+        else{
+         $vendor_list = $this->vendor_model->getVendorDetails("service_centres.id, service_centres.name, service_centres.company_name", array());
+        }
         $option = '<option selected="" disabled="">Select Service Centres</option>';
         foreach ($vendor_list as $value) {
             $option .= "<option value='" . $value['id'] . "'";
@@ -10072,6 +10076,23 @@ class Service_centers extends CI_Controller {
             }
 
             $option .= $value['name'] . "</option>";
+        }
+        echo $option;
+    }
+    //Author:Deepak Sharma 
+    //To find all Rm list
+     function get_rm_list() {
+        $rm_list = $this->employee_model->get_rm_details([_247AROUND_RM]);
+        $option = '<option selected="" disabled="">Select RM</option>';
+        foreach ($rm_list as $value) {
+            $option .= "<option value='" . $value['id'] . "'";
+            if (count($rm_list) == 1) {
+                $option .= " selected> ";
+            } else {
+                $option .= "> ";
+            }
+
+            $option .= $value['full_name'] . "</option>";
         }
         echo $option;
     }

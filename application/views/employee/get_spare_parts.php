@@ -56,19 +56,23 @@
                         <div class="col-md-2">
                             <div class="pull-right"><h2 class="panel-title">Consolidated Report</h2> </div> 
                         </div>
-                        <div class="col-md-3">
+                         <div class="col-md-2">
+                            <select class="form-control" name="rm_id"  id="rm_id" required=""></select>
+                            <p id="rm_err"></p>
+                        </div> 
+                         <div class="col-md-2">
                             <select class="form-control" name="partner_id"  id="partner_id" required=""></select>
                             <p id="partner_err"></p>
-                        </div>    
-                        <div class="col-md-3">
+                        </div> 
+                        <div class="col-md-2">
                             <select class="form-control" name="service_centers_id"  id="service_centers_id" required=""></select>
                             <p id="service_centers_id_err"></p>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2 ">
                             <select class="form-control" name="spare_part_status"  id="spare_part_status" multiple="multiple" required=""></select>
                             <p id="service_centers_id_err"></p>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-2">
                             <div class="pull-right">
                                 <a class="btn btn-success"  href="#"  id="download_spare_list">Download</a><span class="badge" title="Download all spare data as per the applied filters"><i class="fa fa-info"></i></span>
                             </div>
@@ -177,6 +181,7 @@
         spare_booking_on_tab();
         get_partner_list();
         get_service_centers_list();
+        get_rm_list();
         get_spare_parts_status_list();
     });
     
@@ -395,16 +400,18 @@
         var partner_id = $("#partner_id").val();
         var service_center_id = $("#service_centers_id").val();
         var spare_part_status = $("#spare_part_status").val();
-        if(partner_id!=null && partner_id!='' || service_center_id !=null && service_center_id !=''){
+        var rm_id = $("#rm_id").val();
+        if(partner_id!=null && partner_id!='' || service_center_id !=null && service_center_id !='' || rm_id !=null && rm_id !=''){
             
             $("#partner_err").html('');
             $("#service_centers_id_err").html('');
+            $("#rm_err").html('');
             
             $('#download_spare_list').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/inventory/download_spare_consolidated_data',
-                data: { partner_id : partner_id, service_center_id : service_center_id, spare_part_status:spare_part_status },
+                data: { partner_id : partner_id, service_center_id : service_center_id, spare_part_status:spare_part_status,rm_id:rm_id},
                 success: function (data) {
                     $('#download_spare_list').html("Download").attr('disabled',false);
                     var obj = JSON.parse(data); 
@@ -418,6 +425,7 @@
         }else{
         $("#service_centers_id_err").html("Please select Service Center.").css('color','red');
         $("#partner_err").html("Please select partner.").css('color','red');
+        $("#rm_err").html("Please select RM.").css('color','red');
         }
     });
     
@@ -540,9 +548,19 @@
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url() ?>employee/service_centers/get_service_centers_list',
-            data:{ is_micro_wh : 1 },
             success: function (response) {
                 $("#service_centers_id").html(response);                
+            }
+        });
+    }
+    //Deepak Sharma 
+    //This function use for load RM list
+     function get_rm_list(){
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url() ?>employee/service_centers/get_rm_list',
+            success: function (response) {
+                $("#rm_id").html(response);                
             }
         });
     }
@@ -562,13 +580,12 @@
     $('#partner_id').select2({
         placeholder:'Select Partner'
     });
-
-    $('#service_centers_id').select2({
-        placeholder:'Select Service Center'
-    });
     
     $('#spare_part_status').select2({
         placeholder:'Select Spare Status'
+    });
+    $('#rm_id').select2({
+        placeholder:'Select RM'
     });
     function generate_sale_invoice(reverse_sale_id){
         var flag = true;
@@ -596,7 +613,19 @@
             });
         }
     }
-   
+    //Deepak Sharma 
+    //This function use to display service center list according RM selection
+ $('#rm_id').on('change', function() {
+  var rm_id = $("#rm_id").val();
+ $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url() ?>employee/service_centers/get_service_centers_list',
+            data: { rm_id : rm_id },
+            success: function (response) {
+                $("#service_centers_id").html(response);                
+            }
+        });
+});
 </script>
 <?php 
     if ($this->session->userdata('error')) {
