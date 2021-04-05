@@ -5357,10 +5357,11 @@ class Partner extends CI_Controller {
         }
         $partner_list = $this->partner_model->get_all_partner($where);
         $option = '<option selected="" disabled="">Select Partner</option>';
+        $option = '<option value="">All</option>';
         if(!empty($this->input->post('is_all_partner'))){
           $option .= '<option value="all">All</option>';  
         }
-        $option .= "<option value='All'>All</option>";  
+        
         foreach ($partner_list as $value) {
             $option .= "<option value='" . $value['id'] . "'";
             if(count($partner_list) == 1){
