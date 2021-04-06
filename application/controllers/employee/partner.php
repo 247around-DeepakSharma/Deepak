@@ -5580,8 +5580,9 @@ $post['amount_due'] = false;
      * @return: string
      */
     function download_partner_summary_details(){
-       
-       
+        $active = $this->input->get('active');
+        $partnerType = $this->input->get('partner_type');
+        $account_manager = $this->input->get('accountManager');
         $partner_details = array();
         $select = "partners.id,public_name,company_type,primary_contact_name,"
                 . "primary_contact_email,primary_contact_phone_1,"
@@ -5590,12 +5591,23 @@ $post['amount_due'] = false;
                 . "upcountry_rate, CASE WHEN is_upcountry = 1 THEN 'Yes' ELSE 'No' END as upcountry, upcountry_max_distance_threshold, CASE WHEN upcountry_approval = 1 THEN 'Yes' ELSE 'No' END as upcountry_approval,"
                 . "upcountry_approval_email, invoice_email_to, invoice_email_cc, invoice_email_bcc,"
                 . "CASE WHEN is_prepaid = 0 THEN 'PostPaid' WHEN is_prepaid = 1 THEN 'PrePaid' ELSE ' ' END as is_prepaid, prepaid_amount_limit, prepaid_notification_amount,"
+                ." CASE WHEN  partners.is_active = '1' THEN 'ACTIVE' ELSE 'DEACTIVE'END AS Partner_Staus,partner_type,"
                 . "postpaid_credit_period, postpaid_notification_limit, postpaid_grace_period, summary_email_to,summary_email_cc,summary_email_bcc,spare_notification_email";
-        $where = array('partners.is_active' => 1);
+         $where = array();
+       if(strtolower($active) != 'all'){
+           $where['partners.is_active']=$active;
+       }
+       if(!empty($account_manager) && strtolower($account_manager) != 'all'){
+           $where['agent_filters.agent_id']=$account_manager;
+       }
         $group_by = "partners.id";
+        if(!empty($partnerType)){
+            $partnerTypeArray = explode(',',$partnerType);
+              $Where_in['bookings_sources.partner_type'] = $partnerTypeArray;
+        }
 
-        //$partner_details['excel_data_line_item'] = $this->partner_model->getpartner_details($select,$where,"",TRUE);//,TRUE
-        $partner_details['excel_data_line_item'] = $this->partner_model->getpartner_data($select, $where, "",1,1,1,$group_by);
+       //$partner_details['excel_data_line_item'] = $this->partner_model->getpartner_details($select,$where,"",TRUE);//,TRUE
+        $partner_details['excel_data_line_item'] = $this->partner_model->getpartner_data($select, $where, "",1,1,1,$group_by, $Where_in);
         $service_brands=array();
         //add appliance of partner
         foreach ($partner_details['excel_data_line_item'] as $key => $value) {

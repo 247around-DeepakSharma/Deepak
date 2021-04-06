@@ -31,7 +31,7 @@
             <h1>Partners
                 <div class="pull-right" style="margin:0px 10px 20px 0px;">
                     <a href="<?php echo base_url(); ?>employee/partner/get_add_partner_form"><input class="btn btn-sm btn-primary" type="Button" value="Add Partner"></a>
-                    <a href="<?php echo base_url(); ?>employee/partner/download_partner_summary_details" class="btn btn-sm btn-success">Download Partner List</a>
+                    <button class="btn btn-sm btn-success" onclick="get_download_history()" >Download Partner List</button>
         <!--            <a href="<?php echo base_url(); ?>employee/partner/upload_partner_brand_logo"><input class="btn btn-primary" type="Button" value="Upload Partner Brand Logo" style="margin-left:10px;"></a>-->
                 </div>
             </h1>
@@ -110,8 +110,8 @@ if ($this->session->userdata('error')) {
 <?php if ($this->session->userdata('user_group') != 'closure') { ?>
                 <?php } ?>
 
-            <table class="table table-striped table-bordered">
-
+            <table class="table table-striped table-bordered" id="partner_details">
+				<thead>
                 <tr>
                     <th class='jumbotron'>ID</th>
                     <th class='jumbotron' style="text-align: center">Company Name</th>
@@ -129,8 +129,8 @@ if ($this->session->userdata('error')) {
                     <th class='jumbotron' style="text-align: center">Summary Report<br>Send / View</th>
                     <th class='jumbotron' style="text-align: center">Activation / Deactivation<br>History</th>
                 </tr>
-
-
+				</thead>
+				<tbody>
                         <?php foreach ($query as $key => $row) { ?>
                     <tr>
                         <td><?= ($key + 1) . '.'; ?></td>
@@ -226,7 +226,7 @@ if ($this->session->userdata('error')) {
 <?php } ?>
             </table>
 
-
+		</tbody>
 
         </div>
     </div>
@@ -278,6 +278,17 @@ if ($this->session->userdata('error')) {
     $this->session->unset_userdata('error');
 } ?>
 <script>
+	var partner_details;
+		partner_details = $("#partner_details").DataTable(
+		{  
+		order:[[ 2, "desc" ]],
+		pageLength: 50,
+		"sDom": '<"row view-filter"<"col-sm-12"<"pull-left"l><"pull-right"f><"clearfix">>>t<"row view-pager"<"col-sm-12"<"text-left"ip>>>'
+
+		});
+		partner_details.draw(false);
+
+
     $(document).ready(function () {
         $("#partner_sc").select2();
         $(".select2-container--default").css("width", "auto");
@@ -342,5 +353,12 @@ if ($this->session->userdata('error')) {
         } 
     });
     
-    
+ function get_download_history() {
+       var active = $("#partner_type").val();
+       var partner_type = $("#partner_sc").val();
+       var accountManager = $("#accountManager").val();
+       location.href = "<?php echo base_url(); ?>employee/partner/download_partner_summary_details?active="+active+"&partner_type=" +partner_type+
+               "&accountManager=" + accountManager;
+    }
+ 
 </script>
