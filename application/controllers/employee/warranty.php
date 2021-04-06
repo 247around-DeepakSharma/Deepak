@@ -1268,7 +1268,7 @@ class Warranty extends CI_Controller {
                     $data['warranty_plan_state_list'] = $this->warranty_model->get_warranty_plan_state_list($data['details'][0]['plan_id']);
                     $data['warranty_plan_state_list'] = array_column($data['warranty_plan_state_list'], "state_code");
                    //get all part type list
-                    $data['part_type_list'] = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.part_type,inventory_parts_type.id',array('part_type !='=> 'other','service_id' => $data['details'][0]['service_id']));
+                    $data['part_type_list'] = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.part_type,inventory_parts_type.id',array('part_type !='=> 'other','inventory_parts_type.service_id' => $data['details'][0]['service_id']),TRUE);
                     //get list of part type name which already select
                     $data['mapped_part_type'] = $this->warranty_model->get_warranty_parts_type_list_code($data['details'][0]['plan_id']);
                     $data['mapped_part_type_list'] = array_column($data['mapped_part_type'], "part_type_id");
