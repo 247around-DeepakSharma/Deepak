@@ -10711,5 +10711,43 @@ function do_delivered_spare_transfer() {
         ];        
         $arrBookingsWarrantyStatus = $this->warranty_utilities->get_warranty_status_of_parts($booking_data, $booking_id);
         return $arrBookingsWarrantyStatus;
+    }    
+    /**
+     * This function is used to send mail to RM/ASM/Talevar when service center request T-shirt
+     * @param : Service_center_ID
+     * @author : Ghanshyam Ji Gupta
+     * @created_on 06-04-2021
+     */
+    function request_tshirt_order() {
+        $service_center_id = $this->input->post('entity_id');
+        //Fetch Service Center Details
+        $select = "id,name,primary_contact_phone_1,primary_contact_name";
+        $where = array('ID' => $service_center_id);
+        $data = $this->vendor_model->getVendorDetails($select, $where);
+        $sf_string = $data[0]['name'] . " (" . $data[0]['id'] . ")";
+        $poc_string = $data[0]['primary_contact_name'] . " (" . $data[0]['primary_contact_phone_1'] . ")";
+        //Fetch RM ASM Details
+        $arr_rm_asm_mails = $this->vendor_model->get_rm_sf_relation_by_sf_id($service_center_id);
+        $asm_mail = !empty($arr_rm_asm_mails[0]['official_email']) ? $arr_rm_asm_mails[0]['official_email'] : "";
+        $rm_mail = !empty($arr_rm_asm_mails[1]['official_email']) ? $arr_rm_asm_mails[1]['official_email'] : "";
+        //Fetch Template
+        $template = $this->booking_model->get_booking_email_template("sf_tshirt_puchase");
+        $subject = $template[4];
+        $to = $template[1];
+        $from = $template[2];
+        if (!empty($template[3])) {
+            $cc = $template[3] . ",";
+        }
+        if (!empty($rm_mail)) {
+            $cc .= $rm_mail . ",";
+        }
+        if (!empty($asm_mail)) {
+            $cc .= $asm_mail . ",";
+        }
+        $body = vsprintf($template[0], array($sf_string, $poc_string));
+        $this->session->unset_userdata('covid_popup');
+        //Send Email
+        $this->notify->sendEmail($from, $to, $cc, '', $subject, $body, "", 'sf_tshirt_puchase');
     }
+
 }
