@@ -24,6 +24,7 @@ include('around_lib_constant.php'); /// Include around generic constant file
 include('karix_constant.php');
 include('dealer_config.php'); // Deal app config and constants
 include('cancellation_reasons_constant.php');
+include('message_constant.php');
 
 
 

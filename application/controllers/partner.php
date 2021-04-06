@@ -2767,7 +2767,7 @@ exit();
         $booking_where = array("booking_id" => $post['booking_id'], "partner_id" => $post['partner_id']);
         $booking_details = $this->engineer_model->get_booking_details($booking_select, $booking_where);
         if (!empty($booking_details)) {
-            $bookingID_state_change = $this->booking_model->get_booking_state_change_by_id($post['booking_id'], true, true);
+            $bookingID_state_change = $this->booking_model->get_booking_state_change_by_id($post['booking_id'], true, true,'DESC');
             $newarray = array();
             if (!empty($bookingID_state_change)) {
                 if (!empty($bookingID_state_change)) {
@@ -3059,6 +3059,7 @@ exit();
         $data_new['remarks'] = $data['Bookings'][0]['booking_remarks'];
         $data_new['current_status'] = $data['Bookings'][0]['current_status'];
         $data_new['partner_internal_status'] = $data['Bookings'][0]['partner_internal_status'];
+		$data_new['can_booking_escalated'] = $this->can_booking_escalated($booking_id);
         $data_new['unit_details'] = $data['Bookings'][0]['unit_details'];
         $this->jsonResponseString['response'] = $data_new;
         $this->sendJsonResponse(array('0000', "Details found successfully"));
@@ -3185,6 +3186,34 @@ exit();
         $response['spare_parts_requested'] = $spare_request;
         $this->jsonResponseString['response'] = $response;
         $this->sendJsonResponse(array('0000', "Spare details found successfully.")); // send success response //
+    }
+	/*
+     * @Desc - This function is used to check wheter booking can be escalated or not (Added condition as per CRM)
+     * @param -
+     * @response - json
+     * @Author  - Ghanshyam Ji Gupta
+     */
+    function can_booking_escalated($booking_id) {
+        $select = "services.services, service_centres.name as service_centre_name,
+            service_centres.primary_contact_phone_1, service_centres.primary_contact_name,
+            users.phone_number, users.name as customername,booking_details.type,
+            users.phone_number, booking_details.*,penalty_on_booking.active as penalty_active, users.user_id,booking_unit_details.*, booking_details.id as booking_primary_id";
+
+        $post['search_value'] = $booking_id;
+        $post['column_search'] = array('booking_details.booking_id');
+        $post['order'] = array(array('column' => 0, 'dir' => 'asc'));
+        $post['order_performed_on_count'] = TRUE;
+        $post['column_order'] = array('booking_details.booking_id');
+        $post['length'] = -1;
+
+        $Bookings = $this->booking_model->get_bookings_by_status($post, $select);
+
+        $data = search_for_key($Bookings);
+        if ((isset($data['FollowUp']) || isset($data['Pending'])) && empty($Bookings[0]->nrn_approved)) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
 }

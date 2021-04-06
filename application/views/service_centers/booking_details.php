@@ -504,52 +504,7 @@
                                 } if($sp['purchase_price'] > 0){ $estimate_given = TRUE; }  } ?>
                         </tbody>
                     </table>
-                    </div>
-                <?php if(!empty($booking_history['courier_lost_spares'])) { ?>
-                <div class="row">
-                    <div class="col-md-12" >
-                        <h1 style='font-size:24px;margin-top: 40px;'>Courier Lost Part Details</h1>
-                        <div class="col-md-12" style="padding-left:1px;">
-                            <table class="table  table-striped table-bordered" >
-                                <thead>
-                                    <tr>
-                                        <th>S. No.</th>
-                                        <th>Spare Id</th>
-                                        <th>Courier POD</th>
-                                        <th>Remarks</th>
-                                        <th>Status</th>
-                                        <th>Agent</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php 
-                                        foreach($booking_history['courier_lost_spares'] as $courier_sno => $spare_part_data) { 
-                                    ?>
-                                    <tr>
-                                        <td><?php echo ++$courier_sno; ?></td>
-                                        <td><?php echo $spare_part_data['spare_id']; ?></td>
-                                        <td>
-                                            <?php 
-                                                if(!empty($spare_part_data['pod'])) {
-                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/courier-pod/".$spare_part_data['pod'];
-                                                    echo '<a href="'. $src .'" target="_blank"><small style="white-space:nowrap;"></small>View POD</a>'; 
-                                                } else {
-                                                    echo '-';
-                                                }
-                                            ?>
-                                        </td>
-                                        <td><?php echo $spare_part_data['remarks']; ?></td>
-                                        <td><?php echo ($spare_part_data['status'] == 1 ? 'Approved' : 'Rejected'); ?></td>
-                                        <td><?php echo $this->employee_model->getemployeefromid($spare_part_data['agent_id'])[0]['full_name']; ?></td>
-                                    </tr> 
-                                    <?php } ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <?php } ?>
-                
+                    </div>                
                 <?php if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['wrong_part_name'])) { ?>
                 <div class="row">
                     <div class="col-md-12" >
@@ -666,7 +621,52 @@
                     </table>
                 
           
-            <?php } if ($defective_parts_shipped) { ?>
+            <?php } ?> 
+             <?php if(!empty($booking_history['courier_lost_spares'])) { ?>
+                <div class="row">
+                    <div class="col-md-12" >
+                        <h1 style='font-size:24px;margin-top: 40px;'>Courier Lost Part Details</h1>
+                        <div class="col-md-12" style="padding-left:1px;">
+                            <table class="table  table-striped table-bordered" >
+                                <thead>
+                                    <tr>
+                                        <th>S. No.</th>
+                                        <th>Spare Id</th>
+                                        <th>Courier POD</th>
+                                        <th>Remarks</th>
+                                        <th>Status</th>
+                                        <th>Agent</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php 
+                                        foreach($booking_history['courier_lost_spares'] as $courier_sno => $spare_part_data) { 
+                                    ?>
+                                    <tr>
+                                        <td><?php echo ++$courier_sno; ?></td>
+                                        <td><?php echo $spare_part_data['spare_id']; ?></td>
+                                        <td>
+                                            <?php 
+                                                if(!empty($spare_part_data['pod'])) {
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/courier-pod/".$spare_part_data['pod'];
+                                                    echo '<a href="'. $src .'" target="_blank"><small style="white-space:nowrap;"></small>View POD</a>'; 
+                                                } else {
+                                                    echo '-';
+                                                }
+                                            ?>
+                                        </td>
+                                        <td><?php echo $spare_part_data['remarks']; ?></td>
+                                        <td><?php echo ($spare_part_data['status'] == 1 ? 'Approved' : 'Rejected'); ?></td>
+                                        <td><?php echo $this->employee_model->getemployeefromid($spare_part_data['agent_id'])[0]['full_name']; ?></td>
+                                    </tr> 
+                                    <?php } ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <?php } ?>    
+            <?php if ($defective_parts_shipped) { ?>
             <div class="col-md-12">
                 <h1 style='font-size:24px;'>Defective Spare Parts Shipped By SF</h1>
                 <div class="col-md-12" style="padding-left:1px;">

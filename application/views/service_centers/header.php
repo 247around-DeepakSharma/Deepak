@@ -24,6 +24,7 @@
         <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
         <!-- sweet Alert JS -->
         <script src="<?php echo base_url();?>js/sweetalert.min.js"></script>
+        <script src="<?php echo base_url();?>js/message_constant.js"></script>
         <!-- Datatable JS-->
         <script type="text/javascript" src="<?php echo base_url() ?>assest/DataTables/datatables.min.js"></script>
         <!-- Daterange picker-->
@@ -375,10 +376,10 @@
                             </ul>
                         </li>
                         <?php if($this->session->userdata('covid_popup')){ ?>
-                        <li><a style="color:#00ff7e;font-size:20px;font-weight:900;" data-toggle="modal" data-target="#myModal7" id="myBtncovid">COVID-19</a></li>
+                        <li><a style="color:#00ff7e;font-size:20px;font-weight:900;display:none" data-toggle="modal" data-target="#myModal7" id="myBtncovid">T-SHIRT</a></li>
                         <?php  }else{ ?>
 
-                             <li><a style="color:#00ff7e;font-size:20px;font-weight:900;" data-toggle="modal" data-target="#myModal7" >COVID-19</a></li>
+                             <li><a style="color:#00ff7e;font-size:20px;font-weight:900;display:none" data-toggle="modal" data-target="#myModal7" >T-SHIRT</a></li>
 
                         <?php  } ?>
 
@@ -529,11 +530,11 @@
   <div class="modal-content">
       <div class="modal-header">
         <button style="color:#110101;font-weight:900;" type="button" id="close_covid" class="close" data-dismiss="modal">X</button>
-        <h3 class="modal-title">Technician Safety Guidelines COVID 19 Working 20th April</h3>
+        <h3 class="modal-title">Request Your T-shirt Now</h3>
       </div>
 
       <div class="modal-body" style="font-weight:500;font-size:18px !important; ">
-<p style="margin: 0 0 17px !imporatnt;">1. Technician Temperature to be checked before issuing calls.</p>
+<!--<p style="margin: 0 0 17px !imporatnt;">1. Technician Temperature to be checked before issuing calls.</p>
 <p style="margin: 0 0 17px !imporatnt;">2. Face mask, Hand Gloves, Hand sanitizer are mandatory.</p>
 <p style="margin: 0 0 17px !imporatnt;">3. No Sign to be taken on any document.</p>
 <p style="margin: 0 0 17px !imporatnt;">4. Call Customer on phone from door. Do not use Door bell.</p>
@@ -541,10 +542,14 @@
 <p style="margin: 0 0 17px !imporatnt;">6. If customer looks unwell (Cough, fever) no work to be done just apologise and leave.</p>
 <p style="margin: 0 0 17px !imporatnt;">7. Customer to stand at a safe distance 3 feet from technician and helper.</p>
 <p style="margin: 0 0 17px !imporatnt;">8. Leave all your belongings like helmet etc outside the customer house.</p>
-<p style="margin: 0 0 17px !imporatnt;">9. Helper to follow same guidelines and technician to make sure all the above for helper.</p>
+<p style="margin: 0 0 17px !imporatnt;">9. Helper to follow same guidelines and technician to make sure all the above for helper.</p>-->
+<img src='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/crm_sf_tshirt_banner.jpg' style='width:100%'>
 
       </div>
-
+<div class="modal-footer">
+		<button type="button" class="btn btn-lg btn-success" id='tshirtlink' onclick="request_tshirt()">Request Now</button>
+        <button type="button" class="btn btn-lg btn-default" data-dismiss="modal">Close</button>
+      </div>
  
     
   </div>
@@ -871,3 +876,20 @@ if ($this->session->userdata('auth_certificate_file_name')) {
   cursor: pointer;
 }
 </style>
+<script>
+function request_tshirt(){
+	$("#tshirtlink").prop("disabled",true);
+	$("#tshirtlink").html('Requesting... <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>');
+	$.ajax({
+            type: 'POST',
+            url: '<?php echo  base_url()?>employee/service_centers/request_tshirt_order',
+            data : {entity_type : "<?php echo _247AROUND_SF_STRING; ?>", entity_id : "<?php echo $this->session->userdata('service_center_id'); ?>"},
+            success: function(response) {
+				$("#myModal7").hide();
+				alert('Your request successfully submit. 247around agent will contact you soon.');
+				$("#tshirtlink").prop("disabled",false);
+				$("#tshirtlink").html('Request Now');
+			}
+	});
+}
+</script>
