@@ -518,7 +518,7 @@ if(empty($booking_history[0]['booking_id'])){
                                             <label for="purchase_date" class="col-md-4">Purchase Date *</label>
                                             <div class="col-md-6">
                                             <div class="input-group date">
-                                                <input <?php if($is_repeat && (!empty($booking_model_purchase_date))){ echo 'readonly="readonly"'; } ?> id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "<?php if(!empty($booking_model_purchase_date)){ echo date("d-M-Y", strtotime($booking_model_purchase_date)); } elseif(isset($unit_details[0]['purchase_date']) && $unit_details[0]['purchase_date'] != '0000-00-00'){ echo date("d-M-Y", strtotime($unit_details[0]['purchase_date'])); }?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" onchange="check_booking_request()">
+                                                <input <?php if($is_repeat && (!empty($booking_model_purchase_date))){ echo 'readonly="readonly"'; } ?> id="purchase_date_1" class="form-control"  name="purchase_date[]" type="text" value = "<?php if(!empty($booking_model_purchase_date)){ echo date("d-m-Y", strtotime($booking_model_purchase_date)); } elseif(isset($unit_details[0]['purchase_date']) && $unit_details[0]['purchase_date'] != '0000-00-00'){ echo date("d-m-Y", strtotime($unit_details[0]['purchase_date'])); }?>"  autocomplete='off' onkeydown="return false" onchange="check_booking_request()">
                                                 <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                             </div>
@@ -1441,8 +1441,7 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
         
     }
 
-    $("#purchase_date_1").datepicker({dateFormat: 'YYYY-MM-DD', maxDate: 0});
-    
+   $("#purchase_date_1").datepicker({dateFormat: 'dd-mm-yy', maxDate: '<?php  echo date("d-m-Y", strtotime($booking_history[0]['create_date']))?>'});
     // function to cross check request type of booking with warranty status of booking 
     function check_booking_request()
     {
