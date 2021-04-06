@@ -5189,10 +5189,10 @@ function submitPreviousPartsConsumptionData(){
                 if ($booking['partner_type'] == OEM) {
                     $isWbrand = $new_brand;
                 } else {
-                    $whiteListBrand = $this->partner_model->get_partner_blocklist_brand(array("partner_id" => $partner_id, "brand" => $value['brand'],
+                    $whiteListBrand = $this->partner_model->get_partner_blocklist_brand(array("partner_id" => $partner_id, "brand" => $new_brand,
                         "service_id" => $service_id, "whitelist" => 1), "*");
                     if (!empty($whiteListBrand)) {
-                        $isWbrand = $new_brand;
+                        $isWbrand = $value['brand'];
                     }
                 }
 			}
