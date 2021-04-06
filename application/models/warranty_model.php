@@ -435,8 +435,11 @@ class Warranty_model extends CI_Model {
     
     function insert_part_warranty_data($data)
     {
-        $this->db->insert_batch('warranty_plan_part_type_mapping', $data);
-        return $this->db->insert_id();
+        if(!empty($data))
+        {
+            $this->db->insert_batch('warranty_plan_part_type_mapping', $data);
+            return $this->db->insert_id();
+        }
     }
     
 }
