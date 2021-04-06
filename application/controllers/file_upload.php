@@ -2915,12 +2915,24 @@ class File_upload extends CI_Controller {
                         break;
                     }
                     $part_type_id = $arr_part_type[0]['id'];
-                }  
-                array_push($data_to_be_inserted, array(
-                    'plan_id' => $plan_id,
-                    'part_type_id' => $part_type_id,
-                    'created_by' => 1
-                ));
+                    
+                    // Check if Part Type already Mapped
+                    $arr_part_type_mapping = $this->reusable_model->get_search_result_data('warranty_plan_part_type_mapping', 'id', ['part_type_id' => $part_type_id, 'plan_id' => $plan_id], NULL, NULL, NULL, NULL, NULL);
+                    if (!empty($arr_part_type_mapping[0]['id'])){
+                        continue;
+                    }
+                    
+                    // Remove 'Others' Part Type if any
+                    if(strtoupper($part_type) == 'OTHERS' || strtoupper($part_type) == 'OTHER'){
+                        continue;
+                    }
+                    
+                    array_push($data_to_be_inserted, array(
+                        'plan_id' => $plan_id,
+                        'part_type_id' => $part_type_id,
+                        'created_by' => 1
+                    ));
+                }                
             }
             if(!empty($nonValidData)){
                 $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], PART_WARRANTY_DETAILS, FILE_UPLOAD_FAILED_STATUS, "default", _247AROUND_EMPLOYEE_STRING, _247AROUND);
@@ -2932,16 +2944,12 @@ class File_upload extends CI_Controller {
                 if($insert)
                 {
                     $response['status'] = TRUE;
-                    $response['message'] = "Data Uploaded Successfully";
-
-                    $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], PART_WARRANTY_DETAILS, FILE_UPLOAD_SUCCESS_STATUS, "default", _247AROUND_EMPLOYEE_STRING, _247AROUND);
+                    $response['message'] = "Data Uploaded Successfully";                    
                 }
                 else
                 {
                     $response['status'] = TRUE;
                     $response['message'] = "Data can not be Inserted";
-
-                    $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], PART_WARRANTY_DETAILS, FILE_UPLOAD_FAILED_STATUS, "default", _247AROUND_EMPLOYEE_STRING, _247AROUND);
                 }
             }
         } else {

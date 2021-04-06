@@ -28,6 +28,7 @@
             <div class="col-lg-12">                
                 <h1 class="page-header">
                     <b> Upload File</b>
+                    <p style="float:right;color:red;font-size:14px;margin:0px;">*Note : 'Others' Part Type can not be added against Warranty Plan.</p>
                 </h1>
                 <section>
                     <div class="col-md-6">
@@ -122,7 +123,8 @@
             processData: false,
             contentType: false 
         }).done(function (data) {
-            console.log(data);
+            // Refresh Page on Successfully get response
+            window.location.href = window.location.href;
         }); 
         alert('File validation is in progress, please wait....');
         return false;
