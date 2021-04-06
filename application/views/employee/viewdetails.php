@@ -2329,7 +2329,7 @@ function uploadsupportingfile(id, file_id=''){
     var key = id.split("_")[1];
     var file = $("#supportfileLoader_"+key).val();
     var allowedFiles = [".gif", ".jpg",".png",".jpeg",".pdf"];
-    var fileUpload = $("#supporting_file_"+key);
+    var fileUpload = $("#supportfileLoader_"+key);
     var regex = new RegExp("([a-zA-Z0-9\s_\\.\-:()])+(" + allowedFiles.join('|') + ")$");
     if (!regex.test(fileUpload.val().toLowerCase())) {
         $("#support_file_1").val('');
