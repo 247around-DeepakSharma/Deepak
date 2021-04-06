@@ -10956,5 +10956,35 @@ class Inventory extends CI_Controller {
             }
         }
     }
-
+  
+    /**
+     *  Author:Deepak Sharma
+     *  @desc : This function is used save part type
+     *  @param : array
+     *  @return : void
+     */
+     function get_part_type_option_list()
+    {
+        $part_type = "other";
+        try
+        {
+            if ($this->input->is_ajax_request()) {
+                $data = '';
+                $result = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.part_type,inventory_parts_type.id', array('part_type !='=> $part_type ,'inventory_parts_type.service_id' => $this->input->post('service_id')),TRUE);
+                foreach($result as $row)
+                {
+                    $data.= "<option value='".$row['id']."'>".$row['part_type']."</option>";
+                }
+                echo $data;
+             }
+            else {
+                echo '';
+            }
+            
+        }
+        catch(Exception $ex)
+        {
+            echo '';
+        }
+    }
 }

@@ -171,8 +171,66 @@
                                 
                             </div>
                             
-                            
                             <div class="col-md-12">
+                            
+                                <div  class="form-group <?php
+                                if (form_error('part_type')) {
+                                    echo 'has-error';
+                                }
+                                ?>">
+                                    <label  for="state" class="col-md-1 vertical-align">Part Type*</label>
+                                    <div class="col-md-10">
+                                        <select id="part_type" class="form-control" name ="part_type[]" multiple>
+                                            <?php foreach ($part_type_list as $part) { ?>
+                                                <option value="<?php echo $part['id'] ?>"  
+                                                <?php
+                                                if (in_array($part['id'], $mapped_part_type_list)) {
+                                                    echo "selected";
+                                                }
+                                                ?> >
+                                                            <?php echo $part['part_type']; ?>
+                                                </option>
+                                            <?php } ?>
+                                        </select>
+                                        <?php echo form_error('part_type'); ?>
+                                        <p class="alert alert-danger error_message" id="part_error">
+
+                                        </p>
+                                    </div>
+                                </div>              
+                            </div> 
+                            <div class="col-md-12">
+                                <div  class="form-group <?php
+                                if (form_error('state')) {
+                                    echo 'has-error';
+                                }
+                                ?>">
+                                    <label  for="state" class="col-md-1 vertical-align">State*</label>
+                                    <div class="col-md-10">
+                                        <select id="state" class="form-control" name ="state[]" multiple>
+                                            <option value="0">All</option>
+                                            <?php foreach ($state_list as $states) { ?>
+                                                <option value="<?php echo $states['id'] ?>"  
+                                                <?php
+                                                if (in_array($states['id'], $warranty_plan_state_list)) {
+                                                    echo "selected";
+                                                }
+                                                ?> >
+                                                            <?php echo $states['name']; ?>
+                                                </option>
+                                            <?php } ?>
+                                        </select>
+                                        <?php echo form_error('state'); ?>
+                                        <p class="alert alert-danger error_message" id="state_error">
+
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>   
+                        </div>
+                       
+
+                        <div class="col-md-12">
                                 <div class="col-md-6">
                                  <div  class="form-group <?php
                                     if (form_error('start_date')) {
@@ -309,24 +367,20 @@
 
                             <div class="col-md-12">
                                 <div class="col-md-6">
-                                    <div  class="form-group <?php
-                                        if (form_error('state')) {
+                                    <div class="form-group <?php
+                                        if (form_error('plan_depends_on')) {
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label  for="state" class="col-md-3 vertical-align">State*</label>
+                                        <label for="state" class="col-md-3 vertical-align">Plan Depends On*</label>
                                         <div class="col-md-8">
-                                            <select id="state" class="form-control" name ="state[]" multiple>
-                                                <option value="0">All</option>
-                                                <?php foreach($state_list as $states){ ?>
-                                                <option value="<?php echo $states['id'] ?>"  
-                                                    <?php if(in_array ($states['id'], $warranty_plan_state_list)) {echo "selected";} ?> >
-                                                    <?php echo $states['name']; ?>
-                                                </option>
-                                                <?php } ?>
+                                            <select id="plan_depends_on" class="plan_depends_on form-control" name ="plan_depends_on">
+                                                <option value="1" <?php if($details[0]['plan_depends_on'] == 1) {echo "selected";} ?> >Model</option>
+                                                <option value="2" <?php if($details[0]['plan_depends_on'] == 2) {echo "selected";} ?> >Product</option>
                                             </select>
-                                            <?php echo form_error('state'); ?>
-                                            <p class="alert alert-danger error_message" id="state_error">
+                                            
+                                            <?php echo form_error('plan_depends_on'); ?>
+                                            <p class="alert alert-danger error_message" id="plan_depends_on">
                                                 
                                             </p>
                                         </div>
@@ -349,26 +403,7 @@
                                     </div>
                                 </div>
 
-                                 <div class="col-md-6">
-                                    <div class="form-group <?php
-                                        if (form_error('plan_depends_on')) {
-                                            echo 'has-error';
-                                        }
-                                        ?>">
-                                        <label for="state" class="col-md-3 vertical-align">Plan Depends On*</label>
-                                        <div class="col-md-8">
-                                            <select id="plan_depends_on" class="plan_depends_on form-control" name ="plan_depends_on">
-                                                <option value="1" <?php if($details[0]['plan_depends_on'] == 1) {echo "selected";} ?> >Model</option>
-                                                <option value="2" <?php if($details[0]['plan_depends_on'] == 2) {echo "selected";} ?> >Product</option>
-                                            </select>
-                                            
-                                            <?php echo form_error('plan_depends_on'); ?>
-                                            <p class="alert alert-danger error_message" id="plan_depends_on">
-                                                
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
+                                 
                             </div>
 
                             
@@ -400,6 +435,7 @@
     $("#partner").select2();
     $("#service").select2();
     $("#state").select2();
+    $("#part_type").select2();
     $("#start_date").datepicker({dateFormat: 'yy-mm-dd', maxDate: "<?=date('Y-m-d', strtotime('+ 10 years'));?>", changeYear: true, changeMonth: true});
     $("#end_date").datepicker({dateFormat: 'yy-mm-dd', maxDate: "<?=date('Y-m-d', strtotime('+ 10 years'));?>", changeYear: true, changeMonth: true});
     
@@ -461,6 +497,13 @@
             else
             {
                  hide_error("state_error");    
+            }
+            if (!$('#part_type').val())
+            {
+                display_error("part_error", "Please Select Part Type");
+            } else
+            {
+                hide_error("part_error");
             }
             
             
@@ -570,5 +613,19 @@ $('#partner').change(function(){
          alert("Something went wrong while loading partner service list!");
       })
 })
+$("#service").change(function(){
+var service_id = $("#service").val();
+ $.ajax({
+       type: 'POST',
+       url: '<?php echo base_url(); ?>employee/inventory/get_part_type_option_list',
+       data: {service_id:service_id}
+     })
+     .done (function(data) {
+         $('#part_type').empty().append(data);
+     })
+     .fail(function(jqXHR, textStatus, errorThrown){
+         alert("Something went wrong while loading Part Type list!");
+      })
+});
     
 </script>

@@ -590,6 +590,7 @@ class Warranty extends CI_Controller {
                 $this->form_validation->set_rules('end_date', 'plan end date', 'callback_validate_end_date['.$this->input->post("start_date", TRUE).']'); 
                 $this->form_validation->set_rules('warranty_period', 'warranty period', 'callback_validate_warranty_period'); 
                 $this->form_validation->set_rules('warranty_grace_period', 'warranty grace period', 'callback_validate_warranty_grace_period'); 
+                $this->form_validation->set_rules('part_type', 'part_type', 'callback_validate_part_type'); 
                 
                 if ($this->form_validation->run() == FALSE) { 
                     //validation fail
@@ -613,6 +614,7 @@ class Warranty extends CI_Controller {
                        $arr_data['warranty_period'] = $this->input->post('warranty_period', TRUE);
                        $arr_data['warranty_grace_period'] = $this->input->post('warranty_grace_period', TRUE);
                        $state = $this->input->post('state');
+                       $part_type = $this->input->post('part_type');
                        $arr_data['plan_description'] = trim($this->input->post('description', TRUE));
                        $arr_data['plan_depends_on'] = $this->input->post('plan_depends_on', TRUE);
                        
@@ -737,7 +739,30 @@ class Warranty extends CI_Controller {
                             
                             
                         }
-                        
+                        //Select Part Type
+                        if(!empty($part_type)){
+                            $i=0;
+                                 foreach($part_type as $part_code)
+                                 {
+                                    
+                                     $data[$i]['part_type_id']=$part_code;
+                                     $data[$i]['plan_id'] = $plan_id;
+                                     $data[$i]['create_date'] = date('Y-m-d H:i:s');
+                                     $data[$i][ 'created_by'] =$created_by_id;
+                                     $data[$i][ 'is_active'] = 1;
+                                
+                                    $i++;
+                                 }
+                                    $part_mapping_id = $this->warranty_model->insert_part_warranty_data($data);                                    
+                                    if(empty($part_mapping_id))
+                                    {
+                                        $this->db->trans_rollback();
+                                        $this->session->set_flashdata('error','Something went wrong. Please try again after sometime.');    
+                                        redirect(base_url().'employee/warranty/add_warranty_plan');
+                                        return false;
+                                    }
+                                
+                        }
                         $this->db->trans_complete();
                         if ($this->db->trans_status() === FALSE)
                         {
@@ -1242,6 +1267,11 @@ class Warranty extends CI_Controller {
                     //get list of states for plan
                     $data['warranty_plan_state_list'] = $this->warranty_model->get_warranty_plan_state_list($data['details'][0]['plan_id']);
                     $data['warranty_plan_state_list'] = array_column($data['warranty_plan_state_list'], "state_code");
+                   //get all part type list
+                    $data['part_type_list'] = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.part_type,inventory_parts_type.id',array('part_type !='=> 'other','service_id' => $data['details'][0]['service_id']));
+                    //get list of part type name which already select
+                    $data['mapped_part_type'] = $this->warranty_model->get_warranty_parts_type_list_code($data['details'][0]['plan_id']);
+                    $data['mapped_part_type_list'] = array_column($data['mapped_part_type'], "part_type_id");
                     $this->load->view("warranty/warranty_plan_details", $data);
                 }
                 else
@@ -1318,6 +1348,7 @@ class Warranty extends CI_Controller {
                                $arr_data['warranty_period'] = $this->input->post('warranty_period', TRUE);
                                $arr_data['warranty_grace_period'] = $this->input->post('warranty_grace_period', TRUE);
                                $state = $this->input->post('state');
+                               $part_type = $this->input->post('part_type');
                                $arr_data['plan_description'] = trim($this->input->post('description', TRUE));
                                 $arr_data['plan_depends_on'] = $this->input->post('plan_depends_on', TRUE);
                                
@@ -1417,10 +1448,38 @@ class Warranty extends CI_Controller {
                                         }
 
                                     }    
-
-
-                                
-
+                                        
+                                    //Select Part Type
+                                    if(!empty($part_type)){
+                                        //Update active status 0 according plan id
+                                       $this->db->where(array('plan_id'=>$plan_id));
+                                       $this->db->update('warranty_plan_part_type_mapping',array('is_active'=>0));  
+                                       foreach($part_type as $part_code)
+                                       {
+                                        $array_where['part_type_id'] = $part_code;
+                                        $array_where['plan_id'] = $plan_id;
+                                        $this->db->where($array_where);
+                                        $this->db->select('*');
+                                        $query = $this->db->get('warranty_plan_part_type_mapping');
+                                        $results = $query->result_array();
+                                        //When if we found part type which already selected then active status will be  1
+                                        if(!empty($results)){
+                                            $this->db->where($array_where);
+                                            $this->db->update('warranty_plan_part_type_mapping',array('is_active'=>1));                                            
+                                        }
+                                         //When we add new  part active status will be 1
+                                        else{  
+                                            $data = [];
+                                            $data['part_type_id']=$part_code;
+                                            $data['plan_id'] = $plan_id;
+                                            $data['create_date'] = date('Y-m-d H:i:s');
+                                            $data[ 'created_by'] =$created_by_id;
+                                            $data[ 'is_active'] = 1;
+                                            $this->db->insert('warranty_plan_part_type_mapping', $data);
+                                        }
+                                         
+                                       }
+                                }
                                 $this->db->trans_complete();
                                 if ($this->db->trans_status() === FALSE)
                                 {
