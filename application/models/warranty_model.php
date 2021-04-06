@@ -418,5 +418,23 @@ class Warranty_model extends CI_Model {
         return $results;
     }
     
-    
+
+    function insert_part_warranty_data($data)
+    {
+        $this->db->insert_batch('warranty_plan_part_type_mapping', $data);
+        return $this->db->insert_id();
+    }
+       /**
+     *  Author:Deepak Sharma
+     *  @desc : This function is used get part type list
+     *  @param : $plan_id
+     *  @return : array
+     */
+    function get_warranty_parts_type_list_code($plan_id)
+    {
+        $params = array($plan_id);
+        $query = "select distinct(part_type_id) from warranty_plan_part_type_mapping where is_active = 1 AND plan_id = ?";
+        $results = execute_paramaterised_query($query, $params);
+        return $results;
+    }
 }
