@@ -494,7 +494,7 @@ class Buyback_process extends CI_Controller {
         }
     
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
-        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','bb_order_details.current_status');
         $list = $this->bb_model->get_bb_order_list($post);
         
         $data = array();

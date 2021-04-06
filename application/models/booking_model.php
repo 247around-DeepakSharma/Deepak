@@ -2015,7 +2015,7 @@ class Booking_model extends CI_Model {
      * return: Array of data
      *
      */
-    function get_booking_state_change_by_id($booking_id,$api=false,$internal_employee=false){
+    function get_booking_state_change_by_id($booking_id,$api=false,$internal_employee=false,$order_by='ASC'){
         $bookingIDArray[] = $booking_id;
         if (strpos($booking_id, 'Q-') === false) {
             $bookingIDArray[] = "Q-".$booking_id;
@@ -2030,7 +2030,7 @@ class Booking_model extends CI_Model {
         //$this->db->where_in('booking_state_change.booking_id', $bookingIDArray);
         $this->db->from('booking_state_change');
        
-        $this->db->order_by('booking_state_change.id');
+        $this->db->order_by('booking_state_change.id',$order_by);
         $query = $this->db->get();
         $data =  $query->result_array();
         
@@ -2929,7 +2929,7 @@ class Booking_model extends CI_Model {
                         *
                 FROM
                         booking_unit_details
-                        JOIN service_center_booking_action ON (service_center_booking_action.unit_details_id = booking_unit_details.id)
+                        JOIN service_center_booking_action ON (service_center_booking_action.booking_id = booking_unit_details.booking_id AND service_center_booking_action.unit_details_id = booking_unit_details.id)
                         JOIN booking_details ON (booking_unit_details.booking_id = booking_details.booking_id)
                 WHERE
                         (booking_unit_details.serial_number = '".$serialNumber."' || service_center_booking_action.serial_number = '".$serialNumber."')
