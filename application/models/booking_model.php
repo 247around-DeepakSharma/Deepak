@@ -1666,12 +1666,13 @@ class Booking_model extends CI_Model {
         $trimed_booking_id = preg_replace("/[^0-9]/", "", $booking_id);
         if (!empty($trimed_booking_id) && strlen($trimed_booking_id) > 7) {
             $data = $this->getpricesdetails_with_tax($services_details['id'], $state);
-            $this->db->select('id, customer_total, price_tags, vendor_basic_percentage, booking_status');
+            $this->db->select('id, customer_total, price_tags, vendor_basic_percentage, booking_status, sf_model_number');
             $this->db->where('appliance_id', $services_details['appliance_id']);
             $this->db->where('price_tags', $data[0]['price_tags']);
             $this->db->where('MATCH (booking_id) AGAINST ("'.$trimed_booking_id.'")', NULL, FALSE);
             $query = $this->db->get('booking_unit_details');
             $unit_details = $query->result_array();
+            unset($services_details['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table            
             $result = array_merge($data[0], $services_details);
             
             // used for insering new price tags.
@@ -1687,7 +1688,6 @@ class Booking_model extends CI_Model {
                 }
             }
 
-            unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
             $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
             $result['partner_paid_tax'] = ($result['partner_paid_basic_charges'] * $result['tax_rate']) / 100;
 
@@ -1705,8 +1705,11 @@ class Booking_model extends CI_Model {
             log_message('info', __METHOD__ . " update booking_unit_details data " . print_r($result, true) . " Price data with tax: " . print_r($data, true));
 
             if ($query->num_rows > 0) {
-                //if found, update this entry
-
+                // If found, update this entry
+                // Update Prices Only If Model is Different
+                if (trim($unit_details['0']['sf_model_number']) == (trim($services_details['sf_model_number']))){
+                    $result = $services_details;
+                }
                 log_message('info', __METHOD__ . " update booking_unit_details ID: " . print_r($unit_details[$key]['id'], true));
                 $this->db->where('id', $unit_details[$key]['id']);                
                 $this->db->where('booking_status <> "'._247AROUND_CANCELLED.'"', NULL);
