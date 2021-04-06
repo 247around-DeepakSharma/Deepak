@@ -1931,7 +1931,9 @@ class Service_centers extends CI_Controller {
 
                 $data['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL, 'consumed_part_status_id is null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);
                 $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag', ['active' => 1], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
-
+                /*Auto delivered spare parts to SF*/
+                $data['spare_delivered_to_sf_data'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id as spare_id, spare_parts_details.booking_id, spare_parts_details.is_micro_wh, spare_parts_details.status, spare_parts_details.auto_acknowledeged, cci_details.courier_pod_file', 
+                        array('spare_parts_details.booking_id' => $booking_id,'spare_parts_details.status' => SPARE_DELIVERED_TO_SF,  'spare_parts_details.auto_acknowledeged' => AUTO_ACKNOWLEDGED_FROM_API), FALSE, FALSE, FALSE, ['is_inventory' => FALSE], false, false, false,false, true);
 /*  getting symptom */
                 if (!empty($price_tags_symptom)) {
                  $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom', array('symptom.service_id' => $data['bookinghistory'][0]['service_id'], 'symptom.active' => 1, 'symptom.partner_id' => $data['bookinghistory'][0]['partner_id']), array('request_type.service_category' => $price_tags_symptom));
@@ -10168,15 +10170,15 @@ function do_delivered_spare_transfer() {
         );
 
         $select = "booking_details.service_center_closed_date,booking_details.create_date,booking_details.booking_primary_contact_no as mobile, spare_parts_details.*, "
-                . " i.part_number, i.part_number as shipped_part_number, spare_consumption_status.consumed_status,  spare_consumption_status.is_consumed, users.name";
+                . " i.part_number, i.part_number as shipped_part_number, spare_consumption_status.consumed_status,  spare_consumption_status.is_consumed, users.name, courier_company_invoice_details.courier_pod_file";
 
         $group_by = "spare_parts_details.id";
         $order_by = "booking_details.create_date desc, spare_parts_details.booking_id ASC";
-
+       
 
         $config['base_url'] = base_url() . 'service_center/parts_delivered_to_sf';
-        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select);
-
+        
+        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select, '','', TRUE);
         $config['per_page'] = 100;
         $config['uri_segment'] = 3;
         $config['first_link'] = 'First';
@@ -10185,8 +10187,8 @@ function do_delivered_spare_transfer() {
         $data['links'] = $this->pagination->create_links();
 
         $data['count'] = $config['total_rows'];
-        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page']);
-        
+       
+        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page'], '', '','', TRUE);
         
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/delivered_parts', $data);
@@ -10712,4 +10714,109 @@ function do_delivered_spare_transfer() {
         $arrBookingsWarrantyStatus = $this->warranty_utilities->get_warranty_status_of_parts($booking_data, $booking_id);
         return $arrBookingsWarrantyStatus;
     }
+    
+    /**
+     *  @desc : This function is used to validate the data in spare parts details
+     *  @param : void
+     *  @return :json
+     */
+    
+    function validate_spare_parts_to_marked_not_received_sf() {
+        $spare_parts_data = $this->input->post("spare_parts_data");
+        $data = array();
+        if (!empty($spare_parts_data)) {
+            $data['booking_id'] = $booking_id = $spare_parts_data[0]['booking_id'];
+
+            $spare_parts_list = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id as spare_id, parts_requested, spare_parts_details.booking_id,spare_parts_details.is_micro_wh, status, auto_acknowledeged, acknowledge_date, cci_details.courier_pod_file, inventory_master_list.part_number', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.status' => SPARE_DELIVERED_TO_SF, "auto_acknowledeged" => AUTO_ACKNOWLEDGED_FROM_API, "consumed_part_status_id" => NULL), false, false, false, ['is_inventory' => true], false, false, false, false, TRUE);
+            $pod_spare_parts_list = array();
+            $non_pod_spare_parts = array();
+            $pod_flag = false;
+            foreach ($spare_parts_list as $value) {
+                if (!empty($value['courier_pod_file'])) {
+                    $pod_spare_parts_list[] = $value;
+                    $pod_flag = true;
+                } else {
+                    $non_pod_spare_parts[] = $value;
+                }
+            }
+            
+            if (!empty($pod_flag) && empty($non_pod_spare_parts)) {
+                $data['is_pod_exist'] = true;
+            } else {
+                $data['is_pod_exist'] = false;
+            }
+
+            $data['spare_parts_list'] = $non_pod_spare_parts;
+            $data['pod_spare_parts_list'] = $pod_spare_parts_list;
+        }
+        //print_r($data);
+        $this->load->view('service_centers/parts_not_received_by_sf_modal_page', $data);
+    }
+
+    /*
+    * This function is used to update service center remarks that spare part not recieved by sf but showing auto-acknowledge
+    * @params: void
+    * @author Gorakh Nath 
+    */
+    
+   function process_to_part_not_received_by_sf() {
+        $booking_id = $this->input->post("booking_id");
+        $acknowledge_spare_data = $this->input->post("acknowledge_spare_data");
+        $remarks = $this->input->post("part_not_received_remarks");
+        $error = '';
+        $old_state = '';
+        if (count($acknowledge_spare_data) > 0) {
+            if (!empty($remarks)) {
+                for ($i = 0; $i < count($acknowledge_spare_data); $i++) {
+                    $spare_data = json_decode($acknowledge_spare_data[$i], TRUE);
+                    if (!empty($spare_data)) {
+                        $spare_id = $spare_data['spare_id'];
+                        $booking_id = $spare_data['booking_id'];
+                        $internal_status = $old_state = $spare_data['status'];
+                        $spare_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status", array('spare_parts_details.id' => $spare_id, 'spare_parts_details.status' => PARTS_NOT_RECEIVED_BY_SF));
+                        if (empty($spare_details)) {
+                            $affected_id = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array("spare_parts_details.status" => PARTS_NOT_RECEIVED_BY_SF, "spare_parts_details.remarks_by_sc" => $remarks));
+                            if ($affected_id) {
+                                $status = true;
+                                $error = _247AROUND002;
+                                $tracking_details = array('spare_id' => $spare_id, 'action' => PARTS_NOT_RECEIVED_BY_SF, 'remarks' => $remarks);
+                                $tracking_details['agent_id'] = $this->session->userdata('service_center_agent_id');
+                                $tracking_details['entity_id'] = $this->session->userdata('service_center_id');
+                                $tracking_details['entity_type'] = _247AROUND_SF_STRING;
+                                $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                            } else {
+                                $status = false;
+                                $error = _247AROUND003;
+                            }
+                        } else {
+                            $status = false;
+                            $error = _247AROUND005;
+                        }
+                    } else {
+                        $status = false;
+                        $error = _247AROUND004;
+                    }
+                }
+            } else {
+                $status = false;
+                $error = _247AROUND001;
+            }
+        } else {
+            $status = false;
+            $error = _247AROUND006; 
+        }
+        
+        if ($status) {
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, PARTS_NOT_DELIVERED_TO_SF, _247AROUND, $booking_id);
+            if (!empty($partner_status)) {
+                $booking['partner_current_status'] = $partner_status[0];
+                $booking['partner_internal_status'] = $partner_status[1];
+                $actor = $partner_status[2];
+                $next_action = $partner_status[3];
+            }
+            $this->notify->insert_state_change($booking_id, PARTS_NOT_RECEIVED_BY_SF, $old_state, $remarks, $this->session->userdata('service_center_agent_id'), $this->session->userdata('service_center_name'), $actor, $next_action, NULL, $this->session->userdata('service_center_id'), '');
+        }
+        echo json_encode(array("status" => $status, "error_code" => $error));
+    }
+
 }

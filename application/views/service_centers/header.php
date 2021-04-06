@@ -24,6 +24,7 @@
         <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
         <!-- sweet Alert JS -->
         <script src="<?php echo base_url();?>js/sweetalert.min.js"></script>
+        <script src="<?php echo base_url();?>js/message_constant.js"></script>
         <!-- Datatable JS-->
         <script type="text/javascript" src="<?php echo base_url() ?>assest/DataTables/datatables.min.js"></script>
         <!-- Daterange picker-->
