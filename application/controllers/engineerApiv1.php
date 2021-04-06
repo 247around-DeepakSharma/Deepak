@@ -84,8 +84,8 @@ class engineerApiv1 extends CI_Controller {
             $engineer = $this->engineer_model->get_engineers_details(array("id" => $requestData["engineer_id"], "active" => 1), "service_center_id, name");
             if(empty($engineer)){
             log_message('info', "Inactive Error ");
-            $this->sendJsonResponse(array('00102', 'You are not active !'));
-            exit; 
+            //$this->sendJsonResponse(array('00102', 'You are not active !'));
+            //exit; 
             }
 
             }
@@ -418,6 +418,10 @@ class engineerApiv1 extends CI_Controller {
 
             case 'warrantyCheckerAndCallTypeData':
                 $this->getWarrantyCheckerAndCallTypeData();
+                break;
+
+            case 'warrantyCheckerAndCallTypeDataonModelNumber':
+                $this->warrantyCheckerAndCallTypeDataonModelNumber();
                 break;
 
             case 'submitWarrantyCheckerAndEditCallType':
@@ -3580,6 +3584,7 @@ class engineerApiv1 extends CI_Controller {
     function getWarrantyCheckerAndCallTypeData() {
         log_message("info", __METHOD__ . " Entering..");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
+		
         $missing_key = "";
         $check = true;
         $validateKeys = array("booking_id", "partner_id", "service_id","primary_contact");  /*  for parent bookings */
@@ -3595,6 +3600,24 @@ class engineerApiv1 extends CI_Controller {
             if(!empty($requestData['type'])){
                 $type = $requestData['type'];
             }
+			/////////////////////////////////////////////GET MODEL NUMBER FROM API AND CHANGE PRICE TAGS////////////////////
+			$model_number = $requestData['model_number'];
+			$partner_id = $requestData['partner_id'];
+
+			$model_details = $this->partner_model->get_model_number('category, capacity, partner_appliance_details.brand', array('appliance_model_details.model_number' => $model_number,'appliance_model_details.entity_id' => $partner_id, 'appliance_model_details.active' => 1, 'partner_appliance_details.active' => 1));
+			
+			$new_category = $new_capacity = $new_brand = '';
+			if(!empty($model_details)){
+				$new_category = $requestData['category'];
+				$new_capacity = $requestData['capacity'];
+				$new_brand = $requestData['brand'];
+			}else{
+				$this->sendJsonResponse(array("0053", "No Category found."));
+				exit;
+			}
+
+
+			////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             //For spare part request show inventory mapped mpdel, for complete booking warranty checker show model non mapped model also
             if($type!='complete_booking'){
                 $where = array('entity_id' => $requestData['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $requestData['service_id'], 'inventory_model_mapping.active' => 1, 'appliance_model_details.active' => 1);
@@ -3605,7 +3628,8 @@ class engineerApiv1 extends CI_Controller {
                 $model_numbers = $this->inventory_model->get_appliance_model_details('id, model_number', $where);
             }
             $response['model_number_list'] = $model_numbers;
-            $booking_details = $this->booking_creation_lib->get_edit_booking_form_helper_data($requestData['booking_id'], NULL, NULL);
+            $booking_details = $this->booking_creation_lib->get_edit_booking_form_helper_data($requestData['booking_id'], NULL, NULL,false,$new_category,$new_capacity,$new_brand);
+
             $initial_booking_date  = $booking_details['booking_history'][0]['initial_booking_date'];
             unset($booking_details['city']);
             unset($booking_details['sources']);
@@ -3684,6 +3708,7 @@ class engineerApiv1 extends CI_Controller {
     function submitWarrantyCheckerAndEditCallType() {
         log_message("info", __METHOD__ . " Entering..");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
+		
         $missing_key = "";
         $check = true;
         $check_request_type = array();
@@ -3839,11 +3864,27 @@ class engineerApiv1 extends CI_Controller {
                 $this->sendJsonResponse(array('0055', "Serial Image is Required."));
                 exit;
             }
-            
+
             //If serial Number is entered then serial number image is mandatory and vice-a-versa - End
+			$model_details_new = $this->partner_model->get_model_number('category, capacity, partner_appliance_details.brand', array('appliance_model_details.model_number' => $requestData["model_number"], 'appliance_model_details.entity_id' => $booking_history[0]['partner_id'], 'appliance_model_details.active' => 1, 'partner_appliance_details.active' => 1));
+			$new_category = $new_capacity = $new_brand = '';
+			if (!empty($model_details_new)) {
+				$unit_detail['appliance_capacity'] = $new_capacity;
+				$unit_detail['appliance_category'] = $new_category;
+			}
 
             $unit_detail['serial_number'] = $requestData['serial_number'];
-            $this->booking_model->update_booking_unit_details($requestData['booking_id'], $unit_detail);
+			$unit_detail['sf_model_number'] = $requestData['model_number'];
+			$unit_detail['purchase_date'] = $requestData['purchase_date'];
+			
+			//booking_update_data = array("sf_model_number" => $requestData["model_number"], "sf_purchase_date" => $requestData["purchase_date"]);
+			$this->booking_model->update_booking_unit_details($requestData["booking_id"], $unit_detail);
+			if($booking_details['unit_details']['0']['sf_model_number']!=$requestData['model_number']){
+				$model_change = true;
+			}else{
+				$model_change = false;
+			}
+			$booking_details = $this->booking_creation_lib->get_edit_booking_form_helper_data($requestData['booking_id'], NULL, NULL,NULL);
 
             if ($warranty_checker) {
                 $arrBookings[0] = array(
@@ -3937,12 +3978,13 @@ class engineerApiv1 extends CI_Controller {
                     array_push($order_item_ids, $unit_details['sub_order_id']);
                     array_push($purchase_dates, $unit_details['purchase_date']);
                     array_push($model_numbers, $unit_details['model_number']);
-
+					
+					
                     foreach ($booking_details['prices'][0] as $price) {
                         $partner_net_payable = NULL;
                         $around_net_payable = NULL;
                         foreach ($unit_details['quantity'] as $tags) {
-                            if ($tags['price_tags'] == $price['service_category']) {
+                            if ($tags['price_tags'] == $price['service_category'] && empty($model_change)) {
                                 $partner_net_payable = $tags['partner_net_payable'];
                                 $around_net_payable = $tags['around_net_payable'];
                             }
@@ -3962,7 +4004,7 @@ class engineerApiv1 extends CI_Controller {
                     $discount = array($unit_details['brand_id'] => $discount_arr);
                     $index++;
                 }
-
+				
                 $curl_data['partner_paid_basic_charges'] = $partner_paid_basic_charges;
                 $curl_data['discount'] = $discount;
                 $curl_data['prices'] = $requested_prices;
@@ -5106,5 +5148,48 @@ function submitPreviousPartsConsumptionData(){
             }
             return $serial_number_details;
         }
+	function warrantyCheckerAndCallTypeDataonModelNumber() {
+       // $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $booking_id = 'LP-228038210226320';
+        $partner_id = '247130';
+        $service_id = '46';
+        $model_number = 'AISTVVMV40HH36FN';
+
+        $model_details = $this->partner_model->get_model_number('category, capacity, partner_appliance_details.brand', array('appliance_model_details.model_number' => $model_number, 'appliance_model_details.entity_id' => $partner_id, 'appliance_model_details.active' => 1, 'partner_appliance_details.active' => 1));
+        $new_category = $new_capacity = $new_brand = '';
+        if (!empty($model_details)) {
+            $new_category = $model_details[0]['category'];
+            $new_capacity = $model_details[0]['capacity'];
+            $new_brand = '';
+            $isWbrand = "";
+            $booking['unit_details'] = $this->booking_model->getunit_details($booking_id, "");
+            $prepaid = $this->miscelleneous->get_partner_prepaid_amount($partner_id);
+            $booking['active'] = $prepaid['active'];
+            $booking['partner_type'] = $prepaid["partner_type"];
+            foreach ($booking['unit_details'] as $key => $value) {
+                $isWbrand = "";
+                if ($booking['partner_type'] == OEM) {
+                    $isWbrand = $value['brand'];
+                } else {
+                    $whiteListBrand = $this->partner_model->get_partner_blocklist_brand(array("partner_id" => $partner_id, "brand" => $value['brand'],
+                        "service_id" => $service_id, "whitelist" => 1), "*");
+                    if (!empty($whiteListBrand)) {
+                        $isWbrand = $value['brand'];
+                    }
+                }
+                $prices = $this->booking_model->getPricesForCategoryCapacity($service_id, $new_category, $new_capacity, $value['partner_id'], $isWbrand);
+                if (!empty($prices)) {
+                    $this->jsonResponseString['response']['prices'] = array($prices,'is_repeat'=>null); // All Data in response//
+                    $this->sendJsonResponse(array('0000', 'success')); // send success response //
+                } else {
+                    $this->sendJsonResponse(array("0053", "No Price tag found."));
+                    exit;
+                }
+            }
+        } else {
+            $this->sendJsonResponse(array("0053", "No Category found."));
+            exit;
+        }
+    }
 
 }
