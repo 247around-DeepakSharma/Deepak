@@ -3882,6 +3882,7 @@ class engineerApiv1 extends CI_Controller {
 				if (!empty($model_details_new)) {
 					$unit_detail['appliance_capacity'] = $model_details_new[0]['capacity'];
 					$unit_detail['appliance_category'] = $model_details_new[0]['category'];
+					$unit_detail['appliance_brand'] = $model_details_new[0]['brand'];
 				}
 
 				$unit_detail['serial_number'] = $requestData['serial_number'];
@@ -5186,12 +5187,12 @@ function submitPreviousPartsConsumptionData(){
             foreach ($booking['unit_details'] as $key => $value) {
                 $isWbrand = "";
                 if ($booking['partner_type'] == OEM) {
-                    $isWbrand = $value['brand'];
+                    $isWbrand = $new_brand;
                 } else {
                     $whiteListBrand = $this->partner_model->get_partner_blocklist_brand(array("partner_id" => $partner_id, "brand" => $value['brand'],
                         "service_id" => $service_id, "whitelist" => 1), "*");
                     if (!empty($whiteListBrand)) {
-                        $isWbrand = $value['brand'];
+                        $isWbrand = $new_brand;
                     }
                 }
 			}
