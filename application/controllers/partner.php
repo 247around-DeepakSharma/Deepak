@@ -2923,7 +2923,7 @@ exit();
         $booking_where = array("booking_id" => $post['booking_id'], "partner_id" => $post['partner_id']);
         $booking_details = $this->engineer_model->get_booking_details($booking_select, $booking_where);
         if (!empty($booking_details)) {
-            $bookingID_state_change = $this->booking_model->get_booking_state_change_by_id($post['booking_id'], true, true);
+            $bookingID_state_change = $this->booking_model->get_booking_state_change_by_id($post['booking_id'], true, true,'DESC');
             $newarray = array();
             if (!empty($bookingID_state_change)) {
                 if (!empty($bookingID_state_change)) {
