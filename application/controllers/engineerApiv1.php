@@ -3295,7 +3295,7 @@ class engineerApiv1 extends CI_Controller {
                 $response['amount'] = 0;
                 log_message("info", "Paytm transaction amount not found");
                 $this->jsonResponseString['response'] = $response;
-                $this->sendJsonResponse(array('0000', 'Amount not recieved'));
+                $this->sendJsonResponse(array('0000', 'Amount not received'));
             }
         } else {
             log_message("info", __METHOD__ . "Booking Id not found");
