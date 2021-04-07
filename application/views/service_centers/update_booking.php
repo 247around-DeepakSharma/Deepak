@@ -156,7 +156,7 @@ $arr_partner_discount = array();
                                         <div class="form-group ">
                                             <label for="dop" class="col-md-4">Purchase Date* </label>
                                             <div class="col-md-6">
-                                                <input <?php if($is_repeat && (!empty($booking_model_purchase_date))){ echo 'readonly="readonly"'; } ?> id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "<?php if(!empty($booking_model_purchase_date)){ echo $booking_model_purchase_date; }elseif(isset($unit_details[0]['purchase_date']) && $unit_details[0]['purchase_date'] != '0000-00-00'){ echo date("d-m-Y", strtotime($unit_details[0]['purchase_date'])); }?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" required style="<?= $str_disabled?>">
+                                                <input <?php if($is_repeat && (!empty($booking_model_purchase_date))){ echo 'readonly="readonly"'; } ?> id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "<?php if(!empty($booking_model_purchase_date)){ echo $booking_model_purchase_date; }elseif(isset($unit_details[0]['purchase_date']) && $unit_details[0]['purchase_date'] != '0000-00-00'){ echo date("d-m-Y", strtotime($unit_details[0]['purchase_date'])); }?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" required style="<?= $str_disabled?>" readonly="true">
                                             </div>
                                         </div> 
                                         <div class="form-group ">
