@@ -1257,7 +1257,7 @@ if(empty($booking_history[0]['booking_id'])){
     if ($(this).hasClass('hasDatepicker')) {
         $(this).removeClass('hasDatepicker');
     } 
-    $(this).datepicker({dateFormat: 'dd-mm-yy', maxDate: 0, changeYear: true, changeMonth: true});
+    $(this).datepicker({dateFormat: 'dd-mm-yy', maxDate:'<?php  echo date("d-m-Y", strtotime($booking_history[0]['create_date']))?>', changeYear: true, changeMonth: true});
  });
   
   function readonly_select(objs, action) {

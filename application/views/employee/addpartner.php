@@ -6216,6 +6216,12 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
         }
     })
     function date_validatetion(){
+        var file_name = $("#file").val();
+        var ext = file_name.split('.').pop();
+        if( file_name != '' && ext != "pdf"){    
+        alert("Upload Only PDF file");
+        return false;
+        }
     var flag = 0;
     $('.contract_holder').each(function(){  
       var start_date = $(this).find('.agreement_start_date').val();
