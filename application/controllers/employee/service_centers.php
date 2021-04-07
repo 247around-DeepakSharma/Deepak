@@ -6648,7 +6648,7 @@ class Service_centers extends CI_Controller {
         $row[] = "<span class='".$color_class."'>". $spare_list['reason_text'] ."</span>";
 
         //If Defective part is already shipped or Different warehouse search data then disable receive button
-        if (!empty($spare_list['defective_part_shipped']) && $sf_id == $spare_list['defective_return_to_entity_id']) {
+        if (!empty($spare_list['defective_part_shipped']) && ($sf_id == $spare_list['defective_return_to_entity_id'] || $spare_list['status']==DEFECTIVE_PARTS_SHIPPED)) {
 
             $a = "<a href='javascript:void(0);' id='defective_parts_' class='btn btn-sm btn-primary recieve_defective' onclick='";
             $a .= "open_spare_consumption_model(this.id," . '"' . $spare_list['booking_id'] . '"';
