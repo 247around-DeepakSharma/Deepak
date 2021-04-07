@@ -343,7 +343,7 @@ $(document).ready(function(){
 <?php } ?>
 <?php if(!empty($inventory_details)){ ?>
 <script>
- var max_date = "<?php echo date("d-m-Y", strtotime($bookinghistory[0]['initial_booking_date']))?>";
+ var max_date = "<?php echo date("d-m-Y", strtotime($spare_parts_details['booking_create_date']))?>";
 <?php if(empty($disable_model_number)) { ?>
     $('#model_number_id').select2();
 <?php } ?>
