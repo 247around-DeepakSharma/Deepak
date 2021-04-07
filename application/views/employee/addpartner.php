@@ -6179,5 +6179,36 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
            // $("#"+lastUrl).trigger('click');
         }
     })
+
+    function date_validatetion(){
+        var file_name = $("#file").val();
+        var ext = file_name.split('.').pop();
+        if( file_name != '' && ext != "pdf"){    
+        alert("Upload Only PDF file");
+        return false;
+        }
+    var flag = 0;
+    $('.contract_holder').each(function(){  
+      var start_date = $(this).find('.agreement_start_date').val();
+      var end_date = $(this).find('.agreement_end_date').val();
+      if(start_date != '' && end_date != ''){
+      if(start_date > end_date){
+        flag = 1;}
+      }
+    });
+    if( flag == 1){
+        alert("Start Date Can't Be Greater Than End Date");
+        return false;
+    }
+    else{
+        return true;
+    }
+   }
+   //Auther: Deepak Sharma
+   // this fnction use to hide submit button when you click at a time 
+   function hide_submit_button(){
+    $("#submit_contract_btn").css("pointer-events",'none');
+    $("#submit_contract_btn").css("opacity",'.5');
+   }
 </script>
 
