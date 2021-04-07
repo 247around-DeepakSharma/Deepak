@@ -885,7 +885,7 @@ function request_tshirt(){
             data : {entity_type : "<?php echo _247AROUND_SF_STRING; ?>", entity_id : "<?php echo $this->session->userdata('service_center_id'); ?>"},
             success: function(response) {
 				$("#myModal7").hide();
-				alert('Your request successfully submit. 247around agent will contact you soon.');
+				alert('Thanks for your interest in T-shirts. Our team will contact you soon. Happy Servicing.');
 				$("#tshirtlink").prop("disabled",false);
 				$("#tshirtlink").html('Request Now');
 			}

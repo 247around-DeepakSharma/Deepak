@@ -10693,11 +10693,18 @@ class Service_centers extends CI_Controller {
     function request_tshirt_order() {
         $service_center_id = $this->input->post('entity_id');
         //Fetch Service Center Details
-        $select = "id,name,primary_contact_phone_1,primary_contact_name";
+        $select = "id,name,primary_contact_phone_1,primary_contact_name,owner_name,owner_phone_1,owner_phone_2,primary_contact_phone_2";
         $where = array('ID' => $service_center_id);
         $data = $this->vendor_model->getVendorDetails($select, $where);
         $sf_string = $data[0]['name'] . " (" . $data[0]['id'] . ")";
-        $poc_string = $data[0]['primary_contact_name'] . " (" . $data[0]['primary_contact_phone_1'] . ")";
+        
+        if(!empty($data[0]['owner_name']) && (!empty($data[0]['owner_phone_1']) || !empty($data[0]['owner_phone_2']))){
+            $poc_string = "Owner:- ".$data[0]['owner_name'] . " (" . $data[0]['owner_phone_1'] . ",".$data[0]['owner_phone_2'].") <br>";
+        }
+        
+        if(!empty($data[0]['primary_contact_name']) && (!empty($data[0]['primary_contact_phone_1']) || !empty($data[0]['primary_contact_phone_2']))){
+            $poc_string = "POC:- ".$data[0]['primary_contact_name'] . " (" . $data[0]['primary_contact_phone_1'] . ")";
+        }
         //Fetch RM ASM Details
         $arr_rm_asm_mails = $this->vendor_model->get_rm_sf_relation_by_sf_id($service_center_id);
         $asm_mail = !empty($arr_rm_asm_mails[0]['official_email']) ? $arr_rm_asm_mails[0]['official_email'] : "";
