@@ -32,7 +32,7 @@ class Partner_model extends CI_Model {
 
 	function validate_partner($auth_token) {
       //TODO: Deactivate partner account if auth token mismatch happens 3 or more times in a day
-      $this->db->select('partners.id, public_name');
+      $this->db->select('partners.id, public_name,customer_care_contact');
       $this->db->from("partners");
       $this->db->where(array("partners.auth_token" => $auth_token, "partners.is_active" => '1'));
       
