@@ -1,0 +1,1 @@
+ALTER TABLE booking_details ADD COLUMN applied_warranty_plan_id INT(11) NULL DEFAULT NULL;
