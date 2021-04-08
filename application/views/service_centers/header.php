@@ -533,7 +533,7 @@
       </div>
 
       <div class="modal-body" style="font-weight:500;font-size:18px !important; ">
-<p style="margin: 0 0 17px !imporatnt;">1. Technician Temperature to be checked before issuing calls.</p>
+<!--<p style="margin: 0 0 17px !imporatnt;">1. Technician Temperature to be checked before issuing calls.</p>
 <p style="margin: 0 0 17px !imporatnt;">2. Face mask, Hand Gloves, Hand sanitizer are mandatory.</p>
 <p style="margin: 0 0 17px !imporatnt;">3. No Sign to be taken on any document.</p>
 <p style="margin: 0 0 17px !imporatnt;">4. Call Customer on phone from door. Do not use Door bell.</p>
@@ -541,11 +541,15 @@
 <p style="margin: 0 0 17px !imporatnt;">6. If customer looks unwell (Cough, fever) no work to be done just apologise and leave.</p>
 <p style="margin: 0 0 17px !imporatnt;">7. Customer to stand at a safe distance 3 feet from technician and helper.</p>
 <p style="margin: 0 0 17px !imporatnt;">8. Leave all your belongings like helmet etc outside the customer house.</p>
-<p style="margin: 0 0 17px !imporatnt;">9. Helper to follow same guidelines and technician to make sure all the above for helper.</p>
+<p style="margin: 0 0 17px !imporatnt;">9. Helper to follow same guidelines and technician to make sure all the above for helper.</p>-->
+<img src='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/crm_sf_tshirt_banner.jpg' style='width:100%'>
 
       </div>
 
- 
+ <div class="modal-footer">
+		<button type="button" class="btn btn-lg btn-success" id='tshirtlink' onclick="request_tshirt()">Request Now</button>
+        <button type="button" class="btn btn-lg btn-default" data-dismiss="modal">Close</button>
+      </div>
     
   </div>
 
@@ -871,3 +875,20 @@ if ($this->session->userdata('auth_certificate_file_name')) {
   cursor: pointer;
 }
 </style>
+<script>
+function request_tshirt(){
+	$("#tshirtlink").prop("disabled",true);
+	$("#tshirtlink").html('Requesting... <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>');
+	$.ajax({
+            type: 'POST',
+            url: '<?php echo  base_url()?>employee/service_centers/request_tshirt_order',
+            data : {entity_type : "<?php echo _247AROUND_SF_STRING; ?>", entity_id : "<?php echo $this->session->userdata('service_center_id'); ?>"},
+            success: function(response) {
+				$("#myModal7").hide();
+				alert('Thanks for your interest in T-shirts. Our team will contact you soon. Happy Servicing.');
+				$("#tshirtlink").prop("disabled",false);
+				$("#tshirtlink").html('Request Now');
+			}
+	});
+}
+</script>
