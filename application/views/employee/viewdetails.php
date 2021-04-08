@@ -63,7 +63,8 @@
 </div>
 <div class="btn-group" role="group">
     <button type="button" class="btn btn-default" onclick="sf_tab_active()" href="#upcountry" data-toggle="tab">
-        <div class="hidden-xs"><i class="fa fa-map-marker" aria-hidden="true"></i> SF / Upcountry</div>
+        <!--<div class="hidden-xs"><i class="fa fa-map-marker" aria-hidden="true"></i> SF / Upcountry</div>-->
+        <div class="hidden-xs">SF / Upcountry</div>
     </button>
 </div>
 <div class="btn-group" role="group">
@@ -83,7 +84,8 @@
 </div>
 <div class="btn-group" role="group">
     <button type="button" class="btn btn-default" href="#tab8" data-toggle="tab">
-        <div class="hidden-xs"><i class="fa fa-whatsapp" aria-hidden="true" style="color:green;"></i> Sms / Email</div>
+        <!--<div class="hidden-xs"><i class="fa fa-whatsapp" aria-hidden="true" style="color:green;"></i> SMS / Email</div>-->
+        <div class="hidden-xs">SMS / Email</div>
     </button>
 </div>
 <div class="btn-group" role="group">
@@ -100,7 +102,8 @@
     <?php }  if($booking_history[0]['current_status'] != 'Cancelled' && isset($saas_module) && !$saas_module){?>
 <div class="btn-group" role="group">
     <button type="button" class="btn btn-default" href="#tab7" data-toggle="tab">
-        <div class="hidden-xs"><span style="color:#1f004d;font-weight: bold;">pay</span><span style="color:#008ae6;font-weight: bold;">tm</span> Transactions</div>
+        <!--<div class="hidden-xs"><span style="color:#1f004d;font-weight: bold;">pay</span><span style="color:#008ae6;font-weight: bold;">tm</span> Transactions</div>-->
+        <div class="hidden-xs">Transactions</div>
     </button>
 </div>
     <?php }?>
@@ -318,6 +321,7 @@
                             </tr>
                             </thead>
                         <tbody>
+             
                             <tr>
                                 <td><?php if(isset($booking_history[0]['vendor_name'])){ ?><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?php echo $booking_history[0]['assigned_vendor_id']?>" target="_blank"><?php echo $booking_history[0]['vendor_name']?></a> <?php }?></td>
                                 <td><?php if(isset($booking_history[0]['account_manager_name'])){echo $booking_history[0]['account_manager_name'];}?></td>
@@ -1573,20 +1577,20 @@
                 <table class="table  table-striped table-bordered">
                 <thead>
                     <tr>
-                        <th>S.N</th>
+                        <th>S.No.</th>
                         <th>Paid Amount</th>
-                        <th>Txn ID</th>
+                        <th>Transaction ID</th>
                         <th>Transaction Date</th>
                         <th>Channel</th>
                         <th>Vendor<br> Invoice</th>
                         <?php
                         if($this->session->userdata('user_group') == 'admin'){
                         ?>
-                        <th>Initiate<br> Cashback</th>
+                        <th style="text-align: center;">Initiate<br> Cashback</th>
                         <?php
                             }
                         ?>
-                       <th>Cashback</th>
+                       <th style="text-align: center;">Cashback</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -1619,41 +1623,42 @@
                         <i class="fa fa-money" aria-hidden="true"></i></button></td>
                             <?php
                         }?>
-                        <td ><?php
-                $tempCashbackHolder = array();
-                if($paytm['cashback_amount']){
-                    $cashbackAmountArray = explode(",",$paytm['cashback_amount']);
-                    $cashbackReasonArray = explode(",",$paytm['cashback_reason']);
-                    $cashbackFromArray = explode(",",$paytm['cashback_from']);
-                    $cashbackDateArray = explode(",",$paytm['cashback_date']);
-                    $tempCashbackHolder[] = array_sum($cashbackAmountArray);
-                    ?>
+                <td>
+                    <?php $tempCashbackHolder = array();?>
                     <table class="table  table-striped table-bordered">
                         <tr>
-                                    <th colspan="1">S.N</th>    
-                                     <th colspan="1">Cashback Amount</th>
-                                      <th colspan="2">Cashback BY</th>
-                                      <th colspan="2">Reason</th>
-                                      <th colspan="3">Date</th>
-                                      </tr>
-                    <?php
-                    $cashbackIndex = 1;
-                    foreach($cashbackAmountArray as $index=>$value){
-                        ?>
-                        <tr>
-                            <td colspan="1"><?php echo $cashbackIndex?></td>
-                            <td colspan="1"><?php echo $cashbackAmountArray[$index]?></td>
-                            <td colspan="2"><?php echo $cashbackFromArray[$index]?></td>
-                            <td colspan="2"><?php echo $cashbackReasonArray[$index]?></td>
-                            <td colspan="3"><?php echo $cashbackDateArray[$index]?></td>
+                            <th colspan="1">S.No.</th>    
+                            <th colspan="1">Cashback Amount</th>
+                            <th colspan="2">Cashback By</th>
+                            <th colspan="2">Reason</th>
+                            <th colspan="3">Date</th>
+                        </tr>
+                        <?php if(!$paytm['cashback_amount']){
+                        $cashbackAmountArray = explode(",",$paytm['cashback_amount']);
+                        $cashbackReasonArray = explode(",",$paytm['cashback_reason']);
+                        $cashbackFromArray = explode(",",$paytm['cashback_from']);
+                        $cashbackDateArray = explode(",",$paytm['cashback_date']);
+                        $tempCashbackHolder[] = array_sum($cashbackAmountArray);
+                        $cashbackIndex = 1;
+                        foreach($cashbackAmountArray as $index=>$value){
+                            ?>
+                            <tr>
+                                <td colspan="1"><?php echo $cashbackIndex?></td>
+                                <td colspan="1"><?php echo $cashbackAmountArray[$index]?></td>
+                                <td colspan="2"><?php echo $cashbackFromArray[$index]?></td>
+                                <td colspan="2"><?php echo $cashbackReasonArray[$index]?></td>
+                                <td colspan="3"><?php echo $cashbackDateArray[$index]?></td>
                             </tr>
-                        <?php
-                        $cashbackIndex++;
-                    }
-                    ?></table>
                             <?php
-                }
-                ?></td>
+                            $cashbackIndex++;
+                        }?>
+                        <?php } else {?>
+                            <tr>
+                                <td colspan="7" style="text-align: center">No Transactions Found.</td>
+                            </tr>
+                        <?php } ?>
+                    </table>
+                </td>
                 <?php $index++;?>
                 </tr>
                     <?php
@@ -1965,6 +1970,9 @@ function sf_tab_active(){
                     url: booking_id,
                     success: function (response) {
                         $('#historyDetails').html(response);
+                        $('#historyDetails').find('.whatsapp_history_log_div').css("display", "none");
+                        $('#historyDetails').find('.email_history_log_div').css("display", "none");
+                        $('#historyDetails').find('.sms_history_log_div').css("display", "none");
                     }
                 });
                 
@@ -1972,7 +1980,7 @@ function sf_tab_active(){
                     type: 'POST',
                     url: emailsms_url,
                     success: function (response) {
-                        $('#email_and_sms_box').html(response);
+                        $('#email_and_sms_box').html(response);            
                         $('#email_and_sms_box').find('.booking_history_div').css("display", "none");
                     }
                 });
