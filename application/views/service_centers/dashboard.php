@@ -563,7 +563,7 @@
 <script>
     $(document).ready(function () {
 
-<?php if($this->session->userdata('covid_popup') && $this->session->userdata('is_wh')==0){ ?>
+<?php if($this->session->userdata('covid_popup')){ ?>
 
 $('#myModalCovid').modal({
            backdrop: 'static'
