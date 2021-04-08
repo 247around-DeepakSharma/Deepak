@@ -130,7 +130,9 @@ class Warranty_model extends CI_Model {
                     ifnull(warranty_plans.warranty_type, ".IN_WARRANTY_STATUS.") as warranty_type,
                     ifnull(warranty_plans.warranty_period, ".DEFAULT_IN_WARRANTY_PERIOD.") as warranty_period,
                     MAX(CASE WHEN ifnull(warranty_plans.warranty_type, ".IN_WARRANTY_STATUS.") = ".IN_WARRANTY_STATUS." THEN ifnull(warranty_plans.warranty_period, 12) ELSE 0 END) as in_warranty_period,
-                    MAX(CASE WHEN ifnull(warranty_plans.warranty_type, ".IN_WARRANTY_STATUS.") <> ".IN_WARRANTY_STATUS." THEN ifnull(warranty_plans.warranty_period, 0) ELSE 0 END) as extended_warranty_period";
+                    MAX(CASE WHEN ifnull(warranty_plans.warranty_type, ".IN_WARRANTY_STATUS.") <> ".IN_WARRANTY_STATUS." THEN ifnull(warranty_plans.warranty_period, 0) ELSE 0 END) as extended_warranty_period,"                . "
+                    ifnull(count(warranty_plan_part_type_mapping.id), 0) as no_of_parts,
+                    group_concat(inventory_parts_type.part_type) as parts";
         if(!empty($data['select'])){
             $strSelect .= ",".$data['select'];
         }
@@ -141,9 +143,12 @@ class Warranty_model extends CI_Model {
         $this->db->from('warranty_plans');
         $this->db->join('warranty_plan_model_mapping', ' warranty_plans.plan_id = warranty_plan_model_mapping.plan_id AND warranty_plan_model_mapping.is_active = 1', 'left');
         $this->db->join('appliance_model_details', 'warranty_plan_model_mapping.model_id = appliance_model_details.id', 'left');
+        $this->db->join('warranty_plan_part_type_mapping', 'warranty_plans.plan_id = warranty_plan_part_type_mapping.plan_id', 'left');
+        $this->db->join('inventory_parts_type', 'warranty_plan_part_type_mapping.part_type_id = inventory_parts_type.id', 'left');
+                
         if(!empty($data['join'])){
-            foreach ($data['join'] as $tableName=>$joinCondition){
-                $this->db->join($tableName,$joinCondition);
+            foreach ($data['join'] as $tableName => $joinCondition){
+                $this->db->join($tableName,$joinCondition);               
             }
         }
         
@@ -152,7 +157,7 @@ class Warranty_model extends CI_Model {
         }
         else
         {
-            $this->db->group_by('appliance_model_details.id,appliance_model_details.model_number,warranty_plans.period_start, warranty_plans.period_end');
+            $this->db->group_by('appliance_model_details.id,appliance_model_details.model_number,warranty_plans.period_start, warranty_plans.period_end, warranty_plans.plan_id');
         }
         
         $query = $this->db->get();
@@ -188,7 +193,7 @@ class Warranty_model extends CI_Model {
     }
     
     /**
-     This function returns mpodels mapped to plans
+     This function returns models mapped to plans
      * @author Prity Sharma
      * @date 31-10-2019
      * @return array 
@@ -441,14 +446,21 @@ class Warranty_model extends CI_Model {
             return $this->db->insert_id();
         }
     }
+    
     //Deepak Sharma
     // get_warranty_plan_part_type_list
     function get_warranty_parts_type_list_code($plan_id)
     {
         $params = array($plan_id);
         $query = "select distinct(part_type_id) from warranty_plan_part_type_mapping where is_active = 1 AND plan_id = ?";
-       // echo $this->db->last_query();exit;
         $results = execute_paramaterised_query($query, $params);
         return $results;
     }
+    
+    function add_warranty_plan_against_booking($plan_id, $booking_id)
+    {
+        $this->db->where('booking_id', $booking_id);
+        $this->db->update('booking_details', ['applied_warranty_plan_id' => $plan_id]);
+    }
+    
 }
