@@ -462,7 +462,7 @@ class Warranty_model extends CI_Model {
         return $results;
     }
     
-    function add_warranty_plan_against_booking($plan_id, $booking_id)
+    function add_warranty_plan_against_booking($plan_id = "", $booking_id)
     {
         $this->db->where('booking_id', $booking_id);
         $this->db->update('booking_details', ['applied_warranty_plan_id' => $plan_id]);
