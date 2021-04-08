@@ -159,13 +159,13 @@ class Warranty_utilities {
                 elseif(empty($recWarrantyData['booking_id'])):
                     $data['status'] = "Booking Id Not Valid";
                 else:
-                    // Save Applied Plan Id against Booking
-                    $this->My_CI->warranty_model->add_warranty_plan_against_booking($recWarrantyData['plan_id'], $recWarrantyData['booking_id']);
                     $data['booking_id'] = $recWarrantyData['booking_id'];
-                    $data['plan_id'] = $recWarrantyData['plan_id'];
-                    $data['no_of_parts'] = $recWarrantyData['no_of_parts'];
-                    $data['parts'] = $recWarrantyData['parts'];
+                    $data['plan_id'] = !empty($recWarrantyData['plan_id']) ? $recWarrantyData['plan_id'] : "";
+                    $data['no_of_parts'] = !empty($recWarrantyData['no_of_parts']) ? $recWarrantyData['no_of_parts'] : "";
+                    $data['parts'] = !empty($recWarrantyData['parts']) ? $recWarrantyData['parts'] : "";
                     $data['status'] = $warrantyStatus; 
+                    // Save Applied Plan Id against Booking
+                    $this->My_CI->warranty_model->add_warranty_plan_against_booking($data['plan_id'], $data['booking_id']);                    
                     if(!empty($arrInstallationData[$recWarrantyData['booking_id']]['installation_date'])){
                         $data['installation_date'] = $arrInstallationData[$recWarrantyData['booking_id']]['installation_date'];
                         $data['installation_booking'] = $arrInstallationData[$recWarrantyData['booking_id']]['installation_booking'];
