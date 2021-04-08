@@ -5247,9 +5247,9 @@ class Service_centers extends CI_Controller {
                     $gst_number = trim($this->input->post('gst_number'));
                 }
             }
-
+            $attachment_signature = $this->upload_signature_file();
             if (!empty($this->input->post('is_signature_doc'))) {
-                $gst_details['signature_file'] = trim($this->input->post('signature_file_name'));
+                $gst_details['signature_file'] = trim($attachment_signature);
                 $sc['is_signature_doc'] = 1;
                 $sc['signature_file'] = $gst_details['signature_file'];
             }
@@ -5297,6 +5297,22 @@ class Service_centers extends CI_Controller {
             }
         }
     }
+    //Upload Signature file 
+    //Deepak Sharma
+function upload_signature_file() {
+if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file']['tmp_name'])) {
+        if (isset($_POST['cropped_image']) && !empty($_POST['cropped_image'])) {
+                $bucket = BITBUCKET_DIRECTORY;
+                $signature_file = trim($_POST['cropped_image']);
+                $directory_xls = "vendor-partner-docs/" . $signature_file;
+                $this->s3->putObjectFile(TMP_FOLDER . $signature_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                $attachment_signature = $signature_file;
+                $_POST['is_signature_doc'] = 1;
+                log_message('info', __CLASS__ . ' signature file is being uploaded sucessfully.');
+                return $attachment_signature;         
+        }
+    }
+}
 
     function upload_signature() {
         $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "bmp", "BMP", "gif", "GIF", "PNG");
