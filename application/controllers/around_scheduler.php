@@ -3431,6 +3431,7 @@ class Around_scheduler extends CI_Controller {
 				$body = $template[0];
 				$from = $template[2];
 				$cc = '';
+				$to = '';
 				if (!empty($template[1])) {
 					$to = $template[1] . ",";
 				}
