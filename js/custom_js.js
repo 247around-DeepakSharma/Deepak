@@ -249,6 +249,9 @@ function getPricesForCategoryCapacity(div_id,add_booking) {
                     }
                 }
             });
+        }else{
+             $("#priceList_" + div_no[2]).html('<div class="text-center" style="font-size:27px;">Call type not available for this appliance model</div>');
+             $('#submitform').attr('disabled', true);
         }
 
 

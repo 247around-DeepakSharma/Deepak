@@ -537,7 +537,7 @@ class Service_centers extends CI_Controller {
             $old_state = $booking_state_change[count($booking_state_change) - 1]['new_state'];
             $curr_status = $booking_details['current_status'];
             // if current status of the booking is Completed or Cancelled then the booking cannot be completed again.               
-            if (!in_array($old_state, array(SF_BOOKING_COMPLETE_STATUS, _247AROUND_COMPLETED, _247AROUND_CANCELLED))) {
+            if (!in_array($old_state, array(SF_BOOKING_COMPLETE_STATUS, SF_BOOKING_CANCELLED_STATUS, _247AROUND_COMPLETED, _247AROUND_CANCELLED))) {
 
                 $is_model_drop_down = $this->input->post('is_model_dropdown');
                 $model_change = true;
@@ -713,7 +713,7 @@ class Service_centers extends CI_Controller {
                     redirect(base_url() . "service_center/pending_booking");
                 }
             } else {
-                $this->session->set_userdata('error', "You already marked this booking : $booking_id as ".$old_state);
+                $this->session->set_userdata('error', "You already marked this booking : $booking_id as ".end(explode("_",$old_state)));
                 redirect(base_url() . "service_center/pending_booking");
             }
         }
@@ -1158,9 +1158,15 @@ class Service_centers extends CI_Controller {
         $this->checkUserSession();
         $this->form_validation->set_rules('cancellation_reason', 'Cancellation Reason', 'required');
         // if current status of the booking is Completed or Cancelled then the booking cannot be cancelled again.
-        $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0]['current_status'];
-            if ($booking_details == _247AROUND_COMPLETED || $booking_details == _247AROUND_CANCELLED) {
-             $this->session->set_userdata('error', "Booking is already $booking_details. You cannot cancel the booking.");
+        $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id]);
+        $booking_current_status = $booking_details[0]['current_status'];
+        $booking_internal_status = $booking_details[0]['internal_status'];
+        if ($booking_current_status == _247AROUND_COMPLETED || $booking_internal_status == SF_BOOKING_COMPLETE_STATUS) {
+            $this->session->set_userdata('error', "Booking is already Completed. You cannot cancel the booking.");
+            redirect(base_url() . "service_center/pending_booking");
+        }
+        if ($booking_current_status == _247AROUND_CANCELLED || $booking_current_status == SF_BOOKING_CANCELLED_STATUS) {
+            $this->session->set_userdata('error', "Booking is already Cancelled. You cannot cancel the booking.");
             redirect(base_url() . "service_center/pending_booking");
         }
         if (($this->form_validation->run() == FALSE) || $booking_id == "" || $booking_id == NULL) {
@@ -5247,9 +5253,9 @@ class Service_centers extends CI_Controller {
                     $gst_number = trim($this->input->post('gst_number'));
                 }
             }
-
+            $attachment_signature = $this->upload_signature_file();
             if (!empty($this->input->post('is_signature_doc'))) {
-                $gst_details['signature_file'] = trim($this->input->post('signature_file_name'));
+                $gst_details['signature_file'] = trim($attachment_signature);
                 $sc['is_signature_doc'] = 1;
                 $sc['signature_file'] = $gst_details['signature_file'];
             }
@@ -5297,6 +5303,22 @@ class Service_centers extends CI_Controller {
             }
         }
     }
+    //Upload Signature file 
+    //Deepak Sharma
+function upload_signature_file() {
+if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file']['tmp_name'])) {
+        if (isset($_POST['cropped_image']) && !empty($_POST['cropped_image'])) {
+                $bucket = BITBUCKET_DIRECTORY;
+                $signature_file = trim($_POST['cropped_image']);
+                $directory_xls = "vendor-partner-docs/" . $signature_file;
+                $this->s3->putObjectFile(TMP_FOLDER . $signature_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                $attachment_signature = $signature_file;
+                $_POST['is_signature_doc'] = 1;
+                log_message('info', __CLASS__ . ' signature file is being uploaded sucessfully.');
+                return $attachment_signature;         
+        }
+    }
+}
 
     function upload_signature() {
         $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "bmp", "BMP", "gif", "GIF", "PNG");

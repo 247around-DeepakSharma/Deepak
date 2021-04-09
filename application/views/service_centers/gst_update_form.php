@@ -1,3 +1,8 @@
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+<!--<script src="<?php echo base_url() ?>js/custom_js.js"></script>-->
+<script src="<?php echo base_url()?>js/croppie.js"></script>
+<link rel="stylesheet" type="text/css" href="<?php echo base_url()?>css/croppie.css">
+
 <div id="page-wrapper" >
     <div class="container">
         <div class="row">
@@ -72,7 +77,8 @@
                                 <div  class="form-group <?php if( form_error('signature_file') ) { echo 'has-error';} ?>">
                                     <label  for="signature_file" class="col-md-4">Signature Image File</label>
                                     <div class="col-md-6">
-                                        <input  type="file" class="form-control" id="signature_file" name="signature_file" <?php if(isset($signature_file) && empty($signature_file)) { echo 'required';}?>>
+                                        <input  type="file"   class="form-control crop_image" id="signature_file" name="signature_file" <?php if(isset($signature_file) && empty($signature_file)) { echo 'required';}?>>
+                                        <span id = "file_format" style = "color:red">(only upload file with  "png "jpg", "jpeg", "JPG", "JPEG", "bmp", "BMP", "gif", "GIF", and "PNG" extension)</span>
                                         <?php echo form_error('signature_file'); ?>
                                     </div>
                                     <div class="col-md-2">
@@ -86,10 +92,99 @@
                                     </div>
                                 </div>
                                 Scanned Image of Signature of Authorized Signatory (required for system-generated invoices)
+                            <input type="hidden" id="cropped_image_file" name="cropped_image">
+                            <div id="uploadimageModal" class="modal" role="dialog">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                            <h4 class="modal-title">Upload & Crop Image</h4>
+                                        </div>
+
+                                        <div class="modal-body">
+                                            <div class="row">
+                                                <div class="col-md-8 text-center">
+                                                      <div id="image_demo" style="width:300px; margin-top:30px"></div>
+                                                </div>
+                                                <div class="col-md-4" style="padding-top:30px;">
+                                                    <br />
+                                                    <br />
+                                                    <br/>
+                                                      <div class="btn btn-success " id="crop_image">Crop & Upload Image</div>
+                                                
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <script>  
+                            $(document).ready(function(){
+
+                                $image_crop = $('#image_demo').croppie({
+                                enableExif: true,
+                                viewport: {
+                                  width:250,
+                                  height:100,
+                                  type:'square' 
+                                },
+                                boundary:{
+                                  width:300,
+                                  height:300
+                                }
+                              });
+
+                              $('#signature_file').on('change', function(){
+                                var reader = new FileReader();
+                                reader.onload = function (event) {
+                                  $image_crop.croppie('bind', {
+                                    url: event.target.result
+                                  })
+                                }
+                                reader.readAsDataURL(this.files[0]);
+                            
+                                var size = this.files[0].size;
+                                if (size > 5000000 || size < 10000) { 
+                                alert("File must be between the size of 10KB to 5MB");
+                                $('#signature_file').val('');
+                                return false; 
+                                                            
+                                }                                 
+                                $('#uploadimageModal').modal('show');
+                                
+                              }); 
+                    
+                             $('#crop_image').click(function(event){
+                                  $image_crop.croppie('result', {
+                                  type: 'canvas',
+                                  size: 'viewport'
+                                }).then(function(response){
+                                  $.ajax({
+                                    url:"<?php  echo base_url(); ?>employee/vendor/signature_file",
+                                    type: "POST",
+                                    data:{"image": response},
+                                    success:function(data)
+                                    {   
+                                        var tmp  = "<?php  echo TMP_FOLDER; ?>";
+                                        var data = JSON.parse(data);
+                                        $("#cropped_image_file").val(data.filename);
+                                         
+                                      $('#uploadimageModal').modal('hide');
+                                   }
+                                });
+                              });
+                            });
+                            });
+                            </script>
                                 <div  class="form-group">
                                     
                                     <div class="col-md-8 col-md-offset-6">
-                                        <input  type="submit" class="btn btn-md btn-info " >
+                                        <input  type="submit" class="btn btn-md btn-info "  id = "submit_btn">
                                     </div>
                                    
                                 </div>
@@ -178,5 +273,18 @@
                 }
             });
         });
+    });
+    //Deepak Sharma 
+    //This function use for validate file format
+    $("#submit_btn").click(function (){
+       var file = $("#signature_file").val();
+       var file_ext = file.split('.').pop();
+       if (file_ext == "png" || file_ext == "jpg" || file_ext == "jpeg" || file_ext == "JPG" || file_ext == "JPEG" || file_ext =="bmp" ||file_ext == "BMP" ||file_ext =="gif" || file_ext == "GIF" || file_ext == "PNG"){
+          return true; 
+       }
+       else{
+          $("#file_format").text("Invalid File Extension");
+          return false;
+       }
     });
     </script>
