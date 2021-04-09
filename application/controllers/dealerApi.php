@@ -2394,46 +2394,6 @@ function  getPartnerCompareTAT(){
      * @response - json
      * @Author  - Ghanshyam Ji Gupta
      */
-    function ProcessGetBookingHistory() {
-        $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        
-        $validation = $this->validateKeys(array("bookingID"), $requestData);
-        if (!empty($requestData['bookingID'])) {
-           
-        $internal_employee = false;
-        if (!empty($requestData['mobile'])) {
-           $mobile = $requestData['mobile'];
-           $employee_search = $this->employee_model->get_employee_by_group(array('phone' => $mobile));
-           if(!empty($employee_search)){
-            $internal_employee = true;   
-           }
-        }       
-            
-            
-            $bookingID = $requestData['bookingID'];
-            $bookingID_state_change = $this->booking_model->get_booking_state_change_by_id($bookingID,true,$internal_employee);
-            $comment_section = $this->booking_model->get_remarks(array('booking_id' => $bookingID, "isActive" => 1,'comment_type'=> 1));   
-            if (!empty($bookingID_state_change) || !empty( $comment_section)) {
-                $response_array = array();
-                $response_array['history'] = $bookingID_state_change;
-                $response_array['comment'] = $comment_section;
-                $this->jsonResponseString['response'] = $response_array;
-                $this->sendJsonResponse(array('0000', 'Booking History found successfully'));
-            } else {
-                $this->jsonResponseString['response'] = array();
-                $this->sendJsonResponse(array('0014', 'Booking History Not Found.'));
-            }
-        } else {
-            $this->jsonResponseString['response'] = array();
-            $this->sendJsonResponse(array('0013', 'Please enter booking ID'));
-        }
-    }
-    /*
-     * @Desc - This function is used to return booking history as CRM
-     * @param -
-     * @response - json
-     * @Author  - Ghanshyam Ji Gupta
-     */
     function ProcessSubmitBookingComment() {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if (!empty($requestData['booking_id']) && !empty($requestData['comment'])) {
@@ -2503,40 +2463,4 @@ function  getPartnerCompareTAT(){
             $this->sendJsonResponse(array('0013', 'Please enter booking ID'));
         }
     }
-    /*
-     * @Desc - This function is used to return booking history as CRM
-     * @param -
-     * @response - json
-     * @Author  - Ghanshyam Ji Gupta
-     */
-    function ProcessSubmitBookingComment() {
-        $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        if (!empty($requestData['booking_id']) && !empty($requestData['comment'])) {
-            $booking_id = $requestData['booking_id'];
-            $comment = $requestData['comment'];
-            $mobile = $requestData['mobile'];
-            $employee_login = false;
-            $employee_search = $this->employee_model->get_employee_by_group(array('phone' => $mobile));
-            if (!empty($employee_search)) {
-                $response_array = array();
-                $data['agent_id'] = $employee_search[0]['id'];
-                $data['comment_type'] = 1;
-                $data['remarks'] = $comment;
-                $data['booking_id'] = $booking_id;
-                $data['entity_id'] = _247AROUND;
-                $data['entity_type'] = '247around';
-                $data['isActive'] = 1;
-                $data['create_date'] = date("Y-m-d H:i:s");
-                $status = $this->booking_model->add_comment($data);
-                $this->sendJsonResponse(array('0000', 'Comment Added Successfully.'));
-            } else {
-                $this->jsonResponseString['response'] = array();
-                $this->sendJsonResponse(array('0014', 'User is not internal employee.'));
-            }
-        } else {
-            $this->jsonResponseString['response'] = array();
-            $this->sendJsonResponse(array('0013', 'Comment Can not be blank'));
-        }
-    }
-
 }

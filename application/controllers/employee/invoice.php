@@ -3417,13 +3417,28 @@ exit();
             //https://cleartax.in/s/tds-rate-chart
             //https://www.incometaxindia.gov.in/Forms/tps/1.Permanent%20Account%20Number%20(PAN).pdf
             if (strcasecmp($_4th_char, "P") == 0 || strcasecmp($_4th_char, "H") == 0) {
+                
+                if(date('Y-m-d') >= '2021-04-01'){
+                    $tds = ($total_sc_charge) * .01;
+                    $tds_tax_rate = 1;
+                    $tds_per_rate = "1%";
+                    
+                } else {
                     $tds = ($total_sc_charge) * .0075;
                     $tds_tax_rate = 0.75;
                     $tds_per_rate = "0.75%";
+                }
+                    
             } else {
-                $tds = ($total_sc_charge) * .015;
-                $tds_tax_rate = 1.5;
-                $tds_per_rate = "1.5%";
+                if(date('Y-m-d') >= '2021-04-01'){
+                    $tds = ($total_sc_charge) * .02;
+                    $tds_tax_rate = 2;
+                    $tds_per_rate = "2%";
+                } else {
+                    $tds = ($total_sc_charge) * .015;
+                    $tds_tax_rate = 1.5;
+                    $tds_per_rate = "1.5%";
+                }
             }
         }
         $data['tds'] = $tds;
@@ -4886,7 +4901,7 @@ exit();
      * @desc This function is used to generate Micro Spare purchase invoice  
      * @param int $spare_id
      */
-    function generate_micro_reverse_sale_invoice($spare_id) {
+function generate_micro_reverse_sale_invoice($spare_id) {
         log_message('info', __METHOD__ . " Spare ID " . $spare_id);
         if (!empty($spare_id)) {
             $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*, booking_details.partner_id as booking_partner_id, service_centres.gst_no as gst_number,service_centres.sc_code,"
@@ -4979,8 +4994,7 @@ exit();
         } else {
             log_message('info', __METHOD__ . " Empty Spare ");
         }
-    }
-    /**
+    }    /**
      * @desc This function is used to insert sale invoice and mail with invoice file
      * @param String $invoice_id
      * @param Array $data
@@ -4990,7 +5004,7 @@ exit();
      * @param Array $spare
      * @return boolean
      */           
-    function _reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare, $sub_category, $invoice_type, $vendor_email = array()){
+function _reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare, $sub_category, $invoice_type, $vendor_email = array()){
         $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, $invoice_type, $invoice_date);
 
         if(isset($data[0]['to_gst_number_id']) || isset($data[0]['from_gst_number_id'])){
@@ -5131,8 +5145,7 @@ exit();
         } else {
             return false;
         }
-    }
-    /**
+    }    /**
      * @desc This function is used create Micro invoice, sale to Partner 
      * @param String $spare_id
      */

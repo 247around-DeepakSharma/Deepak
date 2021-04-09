@@ -4,7 +4,7 @@ define('_247AROUND', $db->login_partner_id);
 //Jeeves ID
 define("JEEVES_ID", 247030);
 //Wybor ID
-define("WYBOR_ID", 247010);
+define("WYBOR_ID", 247215);
 //ZOPPER ID
 define("ZOPPER_ID", 247012);
 //AKAI ID

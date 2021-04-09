@@ -669,17 +669,21 @@ class Courier_tracking extends CI_Controller {
     }
     
     /**
-     * @Desc: This function is to fetch POD from awb_number // working for Gati, spoton & DTDC
+     * @Desc: This function is to fetch POD from awb_number // working for Gati, spoton, trackon & DTDC
      * @params: $awb_number
      * @return: NULL
      * @author Ghanshyam
      * @date : 15-04-2020
      */
-    public function update_pod_courier($awb_number = '') {
+    public function update_pod_courier($awb_number = '',$serach_by_id = false) {
         if (!empty($awb_number)) {
             $file = 0;
-
-            $courier_detail = $this->inventory_model->get_courier_company_invoice_details('id,awb_number,company_name', array('awb_number' => $awb_number));
+            if(empty($serach_by_id)){
+                $where = array('courier_company_invoice_details.awb_number' => $awb_number);
+            }else{
+                $where = array('courier_company_invoice_details.id' => $awb_number);
+            }
+            $courier_detail = $this->inventory_model->get_courier_company_invoice_details('id,awb_number,company_name', $where);
             if (!empty($courier_detail)) {
                 $company_name = strtoupper($courier_detail[0]['company_name']);
                 if (strpos($company_name, 'GATI') !== false) {
@@ -690,6 +694,11 @@ class Courier_tracking extends CI_Controller {
                 else if (strpos($company_name, 'SPOTON') !== false) {
                     $image_name = $awb_number . '_' . date('jMYHis') . '.jpg';
                     file_put_contents(TMP_FOLDER . $image_name, file_get_contents("http://spoton.co.in/SPOTTRACK/Advance/getpod.aspx?id=" . $awb_number));
+                    $file = 1;
+                }
+                else if (strpos($company_name, 'TRACKON') !== false) {
+                    $image_name = $awb_number . '_' . date('jMYHis') . '.png';
+                    file_put_contents(TMP_FOLDER . $image_name, file_get_contents("https://image.trackon.in/track2019/POD_" . $awb_number.".png"));
                     $file = 1;
                 }
                 else if (strpos($company_name, 'DTDC') !== false) {

@@ -87,9 +87,37 @@ class accounting_model extends CI_Model {
             case 'advance_voucher' :
                 $return_data = $this->get_advance_voucher_accounting_report($from_date, $to_date, $invoice_data_by, $payment_type);
                 break;
+            case 'sales_hsn' :
+                $return_data = $this->get_hsn_wise_sale_report($from_date, $to_date, $partner_vendor,$invoice_data_by);
+                break;
         }
 
         return $return_data;
+    }
+    
+    function get_hsn_wise_sale_report($from_date, $to_date, $partner_vendor,$invoice_data_by){
+        $where = "";
+        if ($invoice_data_by === 'invoice_date') {
+                $where .= " AND vpi.`invoice_date`>='$from_date'  AND vpi.`invoice_date` <'$to_date'";
+        } else if ($invoice_data_by === 'period') {
+            $where .= " AND vpi.`from_date`>='$from_date'  AND vpi.`to_date` <'$to_date'";
+        }
+        $where .= " AND vpi.vendor_partner = '".$partner_vendor."'";
+        
+        $sql = "SELECT @a:=@a+1 as id, invoice_details.hsn_code, "
+                . "(invoice_details.cgst_tax_rate + invoice_details.sgst_tax_rate + invoice_details.igst_tax_rate) as gst_rate, "
+                . "vpi.invoice_id, invoice_date, from_date, to_date, description,"
+                . " CONCAT(from_date, ' To ', to_date) as invoice_period,"
+                . "qty, taxable_value, total_amount, "
+                . "invoice_details.cgst_tax_amount, invoice_details.sgst_tax_amount, "
+                . "invoice_details.igst_tax_amount from invoice_details, "
+                . "vendor_partner_invoices as vpi join (SELECT @a:= 0) a where amount_collected_paid > 0 "
+                . "AND invoice_details.invoice_id = vpi.invoice_id "
+                . " AND sub_category !='Cancelled' $where";
+        $query = $this->db->query($sql);
+        $data = $query->result_array();
+        return $data;  
+        
     }
     
     
@@ -166,7 +194,7 @@ class accounting_model extends CI_Model {
             $g_string ="sc.gst_no as gst_number, ";
         }
 
-        $sql = "SELECT invoice_details.invoice_id, product_or_services, vendor_partner, e1.gst_number as to_gst_number, "
+        $sql = "SELECT invoice_details.invoice_id,product_or_services, vendor_partner, e1.gst_number as to_gst_number, "
                 . " e2.gst_number as from_gst_number, num_bookings,parts_count, "
                 . " IFNULL(sc.name,partners.company_name ) as company_name,  "
                 . " IFNULL(sc.address,partners.address ) as address,  "

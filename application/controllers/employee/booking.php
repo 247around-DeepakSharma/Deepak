@@ -1537,6 +1537,7 @@ class Booking extends CI_Controller {
         $phone_number = trim($this->input->post('phone_number'));
         $is_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $is_sf_panel = $this->input->post('is_sf_panel');
+        $model_number = $this->input->post('model_number');
         $unit_details = array();
         $booking_details = array(); 
         if(!empty($this->input->post('booking_id'))){
@@ -1623,7 +1624,7 @@ class Booking extends CI_Controller {
                 $is_partner_invoiced = '';
                 if(isset($unit_details)){
                     foreach ($unit_details as  $tags) {
-                        if($tags['price_tags'] == $prices['service_category'] ){
+                        if(($tags['price_tags'] == $prices['service_category']) && ($tags['sf_model_number'] == $model_number)){
                             $ct = $tags['customer_total'];
                             $partner_net_payable = $tags['partner_net_payable'];
                             $customer_net_payable = $tags['customer_net_payable'];
@@ -2833,7 +2834,7 @@ class Booking extends CI_Controller {
             $spare_check = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, spare_parts_details.entity_type, spare_parts_details.partner_id, "
                     . "requested_inventory_id, spare_lost, spare_parts_details.parts_shipped ,spare_parts_details.defective_part_shipped, spare_parts_details.consumed_part_status_id, "
                     . "spare_parts_details.defective_part_required ", array('booking_id' => $booking_id, 'status NOT IN ("Cancelled")' => NULL, 'parts_shipped IS NOT NULL ' => NULL, 
-                        'part_warranty_status' => 1, 'is_micro_wh' => 2), false);
+                        'part_warranty_status' => 1), false);
             if (!empty($spare_check)) {
                 $this->check_and_update_partner_extra_spare($booking_id);
             }
