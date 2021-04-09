@@ -10420,18 +10420,6 @@ $post['amount_due'] = false;
     }
     
     /**
-     * This function is used to get call recordings made by agents against the Booking
-     * @param type $booking_primary_id
-     * @date : 04-02-2020
-     * @author : Deepak Sharma
-     */
-    function get_booking_recordings($booking_primary_id) { 
-        $select = "agent_outbound_call_log.create_date, agent_outbound_call_log.recording_url, employee.full_name, employee.groups";
-        $data['data'] = $this->booking_model->get_booking_recordings_by_id($booking_primary_id, $select);
-        $this->load->view('employee/show_booking_recordings', $data);
-    }
-    
-    /**
      * @desc: This method loads add booking form for WalkIns / SFs
      * It gets user details(if exist), city, source, services
      * @param $sf_id Vendor Id
