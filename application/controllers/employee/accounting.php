@@ -17,6 +17,7 @@ class Accounting extends CI_Controller {
      * load list modal and helpers
      */
     function __Construct() {
+        
         parent::__Construct();
 
         $this->load->helper(array('form', 'url'));
@@ -708,7 +709,7 @@ class Accounting extends CI_Controller {
     }
     
     //Function to load add ducuments page
-   function shipped_documents(){
+    function shipped_documents(){
         //$courier_details = $this->accounting_model->get_courier_documents();
         $partner_id = $this->reusable_model->get_search_result_data("partners","*",array("is_active"=>1),NULL,NULL,NULL,NULL,NULL,array());
         $sf_id = $this->reusable_model->get_search_result_data("service_centres","*",array("active"=>1),NULL,NULL,NULL,NULL,NULL,array());
@@ -737,6 +738,7 @@ class Accounting extends CI_Controller {
     
     //save all the added document
     function save_documents(){
+        
         $this->checkUserSession();
         $tmp_courier_name = $_FILES['courier']['tmp_name'];
         $courier_name = implode("",explode(" ",$this->input->post('courier'))).'_courier_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['courier']['name'])[1];
@@ -810,15 +812,16 @@ class Accounting extends CI_Controller {
             $attachment = TMP_FOLDER.$courier_name;
             $this->notify->sendEmail($from, $to, "", "", $subject, $message, $attachment, "Courier Detail");
             /**** End ****/
-        }
-        else{ 
+        } else{ 
             $add_documents = $this->reusable_model->update_table("courier_details",$shipped_documents,array('id'=>$this->input->post('add_edit')));
         }
+        
         if(!($add_documents)){
              echo '<script language="javascript">'; echo 'alert("Error in saving document!!")'; echo '</script>';
             exit();
         }
-         redirect(base_url() . "employee/accounting/view_shipped_documents");
+
+        redirect(base_url() . "employee/accounting/view_shipped_documents");
     }
     
     /**

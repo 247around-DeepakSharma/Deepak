@@ -537,7 +537,7 @@ class Service_centers extends CI_Controller {
             $old_state = $booking_state_change[count($booking_state_change) - 1]['new_state'];
             $curr_status = $booking_details['current_status'];
             // if current status of the booking is Completed or Cancelled then the booking cannot be completed again.               
-            if (!in_array($old_state, array(SF_BOOKING_COMPLETE_STATUS, _247AROUND_COMPLETED, _247AROUND_CANCELLED))) {
+            if (!in_array($old_state, array(SF_BOOKING_COMPLETE_STATUS, SF_BOOKING_CANCELLED_STATUS, _247AROUND_COMPLETED, _247AROUND_CANCELLED))) {
 
                 $is_model_drop_down = $this->input->post('is_model_dropdown');
                 $model_change = true;
@@ -713,7 +713,7 @@ class Service_centers extends CI_Controller {
                     redirect(base_url() . "service_center/pending_booking");
                 }
             } else {
-                $this->session->set_userdata('error', "You already marked this booking : $booking_id as ".$old_state);
+                $this->session->set_userdata('error', "You already marked this booking : $booking_id as ".end(explode("_",$old_state)));
                 redirect(base_url() . "service_center/pending_booking");
             }
         }
@@ -1158,9 +1158,15 @@ class Service_centers extends CI_Controller {
         $this->checkUserSession();
         $this->form_validation->set_rules('cancellation_reason', 'Cancellation Reason', 'required');
         // if current status of the booking is Completed or Cancelled then the booking cannot be cancelled again.
-        $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0]['current_status'];
-            if ($booking_details == _247AROUND_COMPLETED || $booking_details == _247AROUND_CANCELLED) {
-             $this->session->set_userdata('error', "Booking is already $booking_details. You cannot cancel the booking.");
+        $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id]);
+        $booking_current_status = $booking_details[0]['current_status'];
+        $booking_internal_status = $booking_details[0]['internal_status'];
+        if ($booking_current_status == _247AROUND_COMPLETED || $booking_internal_status == SF_BOOKING_COMPLETE_STATUS) {
+            $this->session->set_userdata('error', "Booking is already Completed. You cannot cancel the booking.");
+            redirect(base_url() . "service_center/pending_booking");
+        }
+        if ($booking_current_status == _247AROUND_CANCELLED || $booking_current_status == SF_BOOKING_CANCELLED_STATUS) {
+            $this->session->set_userdata('error', "Booking is already Cancelled. You cannot cancel the booking.");
             redirect(base_url() . "service_center/pending_booking");
         }
         if (($this->form_validation->run() == FALSE) || $booking_id == "" || $booking_id == NULL) {
