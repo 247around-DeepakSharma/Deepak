@@ -1398,15 +1398,16 @@
                         $('body').loadingModal('destroy');
                         
                     } else {
-                        if(data.message == '<?php echo REPEAT_BOOKING_FAILURE_MSG?>'){
-                             is_block = true;
-                        }
-                        else if(data.message.indexOf('Serial Number Entered With Special Character') !== -1) {
-                            is_block = true;
-                        }
-                        else if(data.message.indexOf('Serial Number not valid') !== -1) {
-                            is_block = true;
-                        }
+//                        if(data.message == '<?php echo REPEAT_BOOKING_FAILURE_MSG?>'){
+//                             is_block = true;
+//                        }
+//                        else if(data.message.indexOf('Serial Number Entered With Special Character') !== -1) {
+//                            is_block = true;
+//                        }
+//                        else if(data.message.indexOf('Serial Number not valid') !== -1) {
+//                            is_block = true;
+//                        }
+                        is_block = true;
                         $("#sno_required"+index).val('1');
                         $("#error_serial_no" +index).html(data.message);
                        // $("#upload_serial_number_pic"+index).css('display', "block");
