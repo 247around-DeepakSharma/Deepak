@@ -4357,19 +4357,26 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         if (!empty($price_tags_symptom)) {
         $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom', array('symptom.service_id' => $data['bookinghistory'][0]['service_id'], 'symptom.active' => 1, 'symptom.partner_id' => $data['bookinghistory'][0]['partner_id']), array('request_type.service_category' => $price_tags_symptom));
         }
-
-        /**
-         * Check other spares status associated with this booking.
-         * If any spare has been shipped then model number can not be change.
-         */
-        $all_spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.booking_id' => $spare_parts_details[0]['booking_id']), TRUE, TRUE, false, $post);
-        if(!empty($all_spare_parts_details)) {
-            $check_spare_shipped = array_filter(array_column($all_spare_parts_details, 'parts_shipped'));
-            if(!empty($check_spare_shipped)) {
-                $data['disable_model_number'] = true;
-            }
+        
+//        /**
+//         * Check other spares status associated with this booking.
+//         * If any spare has been shipped then model number can not be change.
+//         */
+//        $all_spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.booking_id' => $spare_parts_details[0]['booking_id']), TRUE, TRUE, false, $post);
+//        if(!empty($all_spare_parts_details)) {
+//            $check_spare_shipped = array_filter(array_column($all_spare_parts_details, 'parts_shipped'));
+//            if(!empty($check_spare_shipped)) {
+//                $data['disable_model_number'] = true;
+//            }
+//        }
+        
+        // Check if any spare is approved on Booking, then Model can not be changed 
+        $data['disable_model_number'] = false;
+        $approved_spare_details = $this->partner_model->get_spare_parts_by_any('SUM(part_requested_on_approval) as approved_spares', ['spare_parts_details.booking_id' => $spare_parts_details[0]['booking_id']], TRUE, TRUE, FALSE, NULL);
+        if(!empty($approved_spare_details[0]['approved_spares'])){
+            $data['disable_model_number'] = true;
         }
-
+              
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/update_spare_parts_form_on_approval', $data);
     }
