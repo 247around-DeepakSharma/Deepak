@@ -1734,7 +1734,7 @@ class Booking extends CI_Controller {
             $data['upcountry_data'] = json_encode($upcountry_data, true);
             print_r(json_encode($data, true));
         } else {
-            $data['html'] = "Price Table Not Found";
+            $data['html'] ='';
             print_r(json_encode($data, true));
         }
     }
