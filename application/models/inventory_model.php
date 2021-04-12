@@ -4491,16 +4491,7 @@ class Inventory_model extends CI_Model {
         return count($query->result_array());
     }
     
-    /**
-     *  @desc : This function is used to get total oow spare parts
-     *  @param : $post string
-     *  @return: Array()
-     */
-    public function count_all_oow_spare_invoice_list($post) {
-        $this->_get_spare_parts_query($post);
-        $query = $this->db->get();
-        return count($query->result_array());
-    }
+   
           
     /*
      * @desc: This function is used to get the Bill docket details
@@ -4541,27 +4532,6 @@ class Inventory_model extends CI_Model {
         $this->_get_spare_parts_query($post);
         $query = $this->db->get();
         return count($query->result_array());
-    }
-    
-    
-       
-    /*
-     * @desc: This function is used to get the Bill docket details
-     * @params: $select
-     * @params: Array $where
-     * @return: Array
-     */
-
-    function get_billed_courier_invoice_list($select, $where) {
-        $this->db->select($select);
-        $this->db->from('courier_company_invoice_details');
-        $this->db->join('billed_docket', 'courier_company_invoice_details.id = billed_docket.courier_id');
-
-        if (!empty($where)) {
-            $this->db->where($where);
-        }
-        $query = $this->db->get();
-        return $query->result_array();
     }
 
 }
