@@ -353,6 +353,7 @@ define('ERR_LOW_BALANCE_MSG', 'Low Balance, Booking can not be Inserted');
 define('ERR_SAME_BOOKING_EXISTS_MSG', 'Same booking has already been created. Please try after some time.');
 //ICICI Bank name constant
 define('ICICI_BANK_NAME', 'ICICI Bank Ltd');
+define('HDFC_BANK_NAME', 'HDFC Bank Ltd');
 
 //Default email id for sending internal emails
 define('NOREPLY_EMAIL_ID', 'noreply@247around.com');
