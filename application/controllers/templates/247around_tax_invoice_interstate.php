@@ -127,11 +127,11 @@ include("247around_tax_invoice_variables_interstate.php");
 			<td colspan="3"><b>GST on Reverse Charge</td>
 			<td colspan="1">0</td>
 		</tr>
-		<tr><td>Bank Name: ICICI Bank</td>
+		<tr><td>Bank Name: HDFC Bank</td>
 			<td rowspan="2" colspan="4" style="padding: 2%; background-color: rgb(211,211,211);" align="center"><b>For Blackmelon Advance <br>Technology Co. Pvt. Ltd.</td>
 		</tr>
-		<tr><td>Acc No: 102405500277</td></tr>
-		<tr><td>IFSC: ICIC0001024</td>
+		<tr><td>Acc No: 50200030070899</td></tr>
+		<tr><td>IFSC: HDFC0000709</td>
 			<td rowspan="2" colspan="4">sign</td>
 		</tr>
 		<tr>
