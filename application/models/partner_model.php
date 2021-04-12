@@ -2437,9 +2437,9 @@ function get_data_for_partner_callback($booking_id) {
             $meta['main_company_pincode'] = "201301";
             $meta['main_company_email'] = "billing@247around.com";
             $meta['main_company_phone'] = "";
-            $meta['main_company_bank_name'] = "ICICI Bank";
-            $meta['main_company_bank_account'] = "102405500277";
-            $meta['main_company_ifsc_code'] = "ICIC0001024";
+            $meta['main_company_bank_name'] = HDFC_BANK_NAME;
+            $meta['main_company_bank_account'] = "50200030070899";
+            $meta['main_company_ifsc_code'] = "HDFC0000709";
             $meta['main_company_seal'] = "seal_09.jpg";
             $meta['main_company_signature'] = "anujsign.jpg";
             $meta['main_company_logo'] = "logo.jpg";
