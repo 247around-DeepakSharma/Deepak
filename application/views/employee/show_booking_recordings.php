@@ -19,7 +19,9 @@
                     <td><?php echo ($key + 1) . '.'; ?></td>                    
                     <td><?php echo date("d-M-Y", strtotime($row['create_date'])); ?></td>
                     <td><?php echo $row['full_name']; ?></td>
-                    <td><?php echo $row['display_name']; ?></td>
+                   <?php if(!empty($row['display_name'])){?>
+                     <td><?php echo $row['display_name'];?></td>
+                   <?php }?>
                     <td><a href="<?php echo $row['recording_url']; ?>" target="_blank"><span class="fa fa-microphone fa-2x" style="display: block;float:left;" ></span></a></td>                    
                 </tr>
             <?php } ?>
