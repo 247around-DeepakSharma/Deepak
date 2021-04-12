@@ -17,6 +17,15 @@
         border: 1px solid #ccc;
         border-radius: 4px;
     }
+    .comment_count {
+        position: absolute;
+        top: -7px;
+        right: -7px;
+        width: 20px;
+        height: 20px;
+        background: #df4848;
+        border-radius: 10px;
+    }
 </style>
 <div role="tabpanel" class="tab-pane" id="estimate_cost_given">
     <div class="container-fluid">
@@ -548,6 +557,7 @@
                                        <?php if ($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer" || $this->session->userdata('user_group') == "accountmanager") { ?>
                                         <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
                                         <th class="text-center" data-orderable="false">Mark Courier Lost</th>
+                                        <th class="text-center" data-orderable="false">Mark RTO Case</th>
                                         <th class="text-center" data-orderable="false">Generate Invoice</th>
                                        <?php } ?>
                                     </tr>
@@ -770,6 +780,7 @@
                                         <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
                                         <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
                                         <th class="text-center" data-orderable="false">Mark RTO Case</th>
+                                        <th class="text-center" data-orderable="false">Mark Courier Lost</th>
                                     </tr>
                                 </thead>
                             </table>
@@ -830,6 +841,29 @@
             <div class="col-md-12">
                 <div class="panel panel-default">
                     <div class="panel-body" >
+                        <div class="row">       
+                            <div class="col-md-1 pull-right">       
+                                <a class="btn btn-success" id="show_courier_lost">Show</a><span class="badge" title="show spare data"></span>     
+                                <input type="hidden" name="comment_booking_id" value="" id="comment_booking_id">
+                            </div>      
+                               
+                            <div class="col-md-5 pull-right">       
+                                <select class="form-control" name="partner_id"  id="selected_partner_id">        
+                                    <option value="" selected="selected" disabled="">Select Partner</option>       
+                                    <?php foreach ($partners as $val) { ?>      
+                                        <option value="<?php echo $val['id'] ?>"><?php echo $val['public_name'] ?></option>       
+                                    <?php } ?>      
+                                </select>       
+                            </div>   
+                            <div class="col-md-5 pull-right">       
+                                <select name="service_center_id" id="vendor_id">     
+                                    <option value="" selected="selected" disabled="">Select Service Center</option>       
+                                    <?php foreach ($vendor_list as $val) { ?>        
+                                        <option value="<?php echo $val['id']; ?>"><?php echo $val['name'] ?></option>      
+                                    <?php } ?>      
+                                </select>       
+                            </div>   
+                        </div>      
                         <hr/>
                         <table id="courier_lost_spare_parts_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                             <thead>
@@ -854,9 +888,12 @@
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <!--<th class="text-center" data-orderable="false">Warranty Status</th>-->
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
-                                    <th class="text-center" data-orderable="false">Approve</th>
-                                    <th class="text-center" data-orderable="false">Reject</th>
+                                    <!--<th class="text-center" data-orderable="false">Last Tracking Date</th>-->
+                                    <th class="text-center" data-orderable="false">Last Tracking Status/Date</th>
+                                    <th class="text-center" data-orderable="false">Mark Courier Lost</th>
+                                    <!-- <th class="text-center" data-orderable="false">Reject</th>-->
                                     <th class="text-center" data-orderable="false">Mark RTO Case</th>
+                                    <th class="text-center" data-orderable="false">Courier Comments</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -980,19 +1017,33 @@
         <div class="modal-content" >
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Approve Courier Spare Lost </h4>
+                <h3 class="modal-title"> Courier Lost Approval   </h3>
             </div>
             <div class="modal-body" >
-                <div class="row">
-                    <div class="col-md-12">
+            <form id="courier_lost_approve" enctype='multipart/form-data'>
+                <div class="row form-group">
+                    <div class="col-md-3">
+                        <label for="courier_company_approval_file">Upload Courier Company Mail<span style="color:red">*</span></label>
+                    </div>
+                    <div class="col-md-9">
+                        <input type="file" name="courier_company_approval_file" id="courier_company_approval_file" value="">
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-3">
+                        <label for="remarks">Remarks<span style="color:red">*</span></label>
+                    </div>
+                    <div class="col-md-9">
                         <textarea name="remarks" class="form-control" id="approve_courier_spare_part_remarks" rows="4" placeholder="Enter Remarks"></textarea>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-3">
-                        <input type="submit" id="approve_courier_spare_part_btn" name="approve-part" value="Approve" class="btn btn-primary form-control" style="margin-top:2px;">
+                        <input type="hidden" name="courier_lost_spare_id" id="courier_lost_spare_id" value="">
+                        <input type="submit" id="approve_courier_spare_part_btn" name="approve-part" value="Save" class="btn btn-primary form-control" style="margin-top:2px;">
                     </div>
                 </div>
+            </form>
             </div>
         </div>
     </div>
@@ -1049,6 +1100,40 @@
     </div>
 </div>
 
+    <!--Real time courier tracking view page -->
+    <div id="realtime_courier_tracking_modal_id" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" style="margin-top: -25px;">&times;</button>
+                    <h4 class="modal-title" id="realtime_modal_title"></h4>
+                </div>
+                <div class="modal-body" id="realtime_modal_body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+   <!--Real time courier tracking view page -->
+<!-- Common uses of hidden field  --->
+<div id="commentModalId" class="modal fade" role="dialog">
+    <div class="modal-dialog" style=" height: 90% !important;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <br />
+            </div>
+            <div class="modal-body">
+                <div id="commentbox_body_id"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Common uses of hidden field  --->
 <div class="loader hide"></div>
 <style>
     .loader {
@@ -1272,6 +1357,9 @@
     
     spare_parts_requested_table.draw(false);
     
+    $('#show_courier_lost').click(function(){     
+        courier_lost_spare_parts_table.ajax.reload(null, false);       
+    }); 
     
     courier_lost_spare_parts_table = $('#courier_lost_spare_parts_table').DataTable({
             processing: true, //Feature control the processing indicator.
@@ -1301,7 +1389,9 @@
                 data: function(d){
                     d.type =  '12';     
                     d.status =  '<?php echo InProcess_Courier_Lost; ?>';        
-                    d.partner_id =  '<?php echo $partner_id; ?>';       
+                    d.partner_id =  '<?php echo $partner_id; ?>'; 
+                    d.selected_partner_id =  $('#selected_partner_id').val();     
+                    d.vendor_id =  $('#vendor_id').val();  
                 },  
             },
             //Set column definition initialisation properties.
@@ -2354,6 +2444,7 @@
     var courier_lost_spare_id;
     function approve_courier_lost_spare(spare_id) {
         courier_lost_spare_id = spare_id;
+        $("#courier_lost_spare_id").val(courier_lost_spare_id);
         $('#ApproveCourierLostSparePartModal').modal({backdrop: 'static', keyboard: false});
     }
     
@@ -2371,26 +2462,59 @@
         
     }
     
-    $('#approve_courier_spare_part_btn').on('click', function(data) {
+//    $('#approve_courier_spare_part_btn').on('click', function(data) {
+//        var remarks = $('#approve_courier_spare_part_remarks').val();
+//        if(remarks == '' || remarks == null) {
+//            alert("Please enter remarks.");
+//            return false;
+//        }        
+//       
+//        $('#approve_courier_spare_part_btn').attr("disabled", true);
+//        $('#approve_courier_spare_part_btn').val("Please wait...");
+//        
+//        $.ajax({
+//            method:'POST',
+//            url:'<?php echo base_url(); ?>employee/spare_parts/approve_courier_lost_spare',
+//            data:{remarks:remarks, courier_lost_spare_id:courier_lost_spare_id}
+//        }).done(function(data){
+//            courier_lost_spare_parts_table.ajax.reload(null, false);  
+//            $('#ApproveCourierLostSparePartModal').modal('hide');
+//            $('#approve_courier_spare_part_remarks').val('');
+//            alert('Spare part has been approved successfully.');
+//        });
+//    });
+    
+    $("#courier_lost_approve").submit(function(e) {
+        e.preventDefault();
+        var formData = new FormData(this);
+        var approval_file = $("#courier_company_approval_file").val();
+        
+        if(approval_file == '' || approval_file == null) {
+            alert("Please upload courier lost approval file.");
+            return false;
+        }  
+        
         var remarks = $('#approve_courier_spare_part_remarks').val();
         if(remarks == '' || remarks == null) {
             alert("Please enter remarks.");
             return false;
-        }        
-       
-        $('#approve_courier_spare_part_btn').attr("disabled", true);
-        $('#approve_courier_spare_part_btn').val("Please wait...");
-        
+        }  
+               
         $.ajax({
-            method:'POST',
-            url:'<?php echo base_url(); ?>employee/spare_parts/approve_courier_lost_spare',
-            data:{remarks:remarks, courier_lost_spare_id:courier_lost_spare_id}
-        }).done(function(data){
+            type: "POST",
+            url: "<?php echo base_url(); ?>employee/spare_parts/approve_courier_lost_spare",
+            data: formData, 
+            cache: false,
+            contentType: false,
+            processData: false
+       }).done(function(data){
             courier_lost_spare_parts_table.ajax.reload(null, false);  
             $('#ApproveCourierLostSparePartModal').modal('hide');
             $('#approve_courier_spare_part_remarks').val('');
-            alert('Spare part has been approved successfully.');
+            $("#courier_company_approval_file").val('');
+            alert('Courier Lost approved successfully.');
         });
+
     });
     
     var rto_case_spare_part_id;
@@ -2467,8 +2591,176 @@ $(document).on('click', '.awb_number_by_sf_edit', function(){
     }
 });
     
+ $("#vendor_id").select2({
+    placeholder:'Select Service Center',
+     width: '100%'
+ });
+ 
+  $("#selected_partner_id").select2({
+    placeholder:'Select Partner',
+     width: '100%'
+ });
+ 
+   function get_awb_details(courier_code,awb_number,id){
+        if(courier_code && awb_number){
+            $('#'+id).show();
+            $.ajax({
+                method:"POST",
+                data : {courier_code: courier_code, awb_number: awb_number},
+                url:'<?php echo base_url(); ?>courier_tracking/get_real_time_courier_tracking_using_rapidapi',
+                success: function(res){
+                    courier_lost_spare_parts_table.ajax.reload(null, false);  
+                    $('#'+id).hide();
+                    $('#realtime_modal_title').html('<h3> AWB Number : ' + awb_number + '</h3>');
+                    $('#realtime_modal_body').html(res);
+                    $('#realtime_courier_tracking_modal_id').modal('toggle');
+                }
+            });
+        }else{
+            alert('Something Wrong. Please Refresh Page...');
+        }
+    }
+   
+    function save_spare_remarks(booking_id){
+        $('#comment_booking_id').val(booking_id);
+        var comment_type = '<?php echo SPARE_PARTS_COMMENTS; ?>';
+        getcommentbox(comment_type, booking_id);
+    }
     
+     function getcommentbox(type_val, booking_id){
+       $.ajax({
+            method: "POST",
+            data: {comment_type:type_val},
+            url: "<?php echo base_url(); ?>employee/booking/get_comment_section/"+booking_id+"/"+type_val,
+            success: function (response) {
+                $("#commentbox_body_id").html(response);
+                $("#commentModalId").modal();
+            }
+        });
+    }
     
+    function load_comment_area(){
+        $("#commentbox_body_id").children('form').next('div').children('#comment_section').show();
+        $("#commentbox_body_id").children('form').next('div').children('#update_section').hide();
+        $('#commnet_btn').hide();
+    }
+    
+    function addComment() {
+        var prethis = $(this);
+        var comment_type = '<?php echo SPARE_PARTS_COMMENTS; ?>';
+        var comment = $("#commentbox_body_id").children('form').next('div').children('#comment_section').children('#comment').val();
+        var booking_id = $('#comment_booking_id').val();
+        if(comment != '') {
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/booking/addComment',
+             beforeSend: function(){
+                 prethis.html('<i class="fa fa-circle-o-notch fa-lg" aria-hidden="true"></i>');
+             },
+            data: {comment_type : comment_type, comment: comment, booking_id: booking_id},
+            success: function (response) { 
+                if(response === "error"){
+                    alert('There is some issue. Please refresh and try again');
+                } else {
+                    document.getElementById("commentbox_body_id").innerHTML = response;
+                }   
+            }
+            
+        });
+        } else {
+        alert("Please enter comments");
+        }
+    }
+    
+    function editComment(key){
+        document.getElementById("comment_section").style.display='none';
+        $('#commnet_btn').hide();
+        var comment = $("#comment_text_"+key).text();
+        load_update_area(comment, key);
+    }
+    
+    function load_update_area(data="", key){
+        $("#commentbox_body_id").children('form').next('div').children('#update_section').children('#comment2').val(data);
+        $("#commentbox_body_id").children('form').next('div').children('#update_section').show();
+        $("#commentbox_body_id").children('form').next('div').children('#comment_section').hide();
+        $('#comment_id').attr("value",key);
+        $('#commnet_btn').hide();
+    }
+    
+    function updateComment() {
+        var prethis = $(this);
+        var comment_type = '<?php echo SPARE_PARTS_COMMENTS; ?>';
+        var comment = $("#commentbox_body_id").children('form').next('div').children('#update_section').children('#comment2').val();
+        var comment_id= $("#comment_id").val();
+        var booking_id= $('#comment_booking_id').val();
+         if(comment != '') {
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/booking/update_Comment',
+                 beforeSend: function(){
+                     prethis.html('<i class="fa fa-circle-o-notch fa-lg" aria-hidden="true"></i>');
+                 },
+                data: {comment: comment, comment_id: comment_id, booking_id: booking_id, comment_type: comment_type},
+                success: function (response) {
+                    if(response === "error"){
+                        alert('There is some issue. Please refresh and try again');
+                    } else {
+                       document.getElementById("commentbox_body_id").innerHTML = response;
+                    } 
+                }
+
+            });
+        } else {
+            alert("Please enter comments");
+        }
+    }
+    
+    function deleteComment(comment_id) {
+            var comment_type = '<?php echo SPARE_PARTS_COMMENTS; ?>';
+            var check = confirm("Do you want to delete this comment?");
+            if(check == true){
+                var comment_id = comment_id;
+                var booking_id= $('#comment_booking_id').val();
+                $.ajax({
+                    type: 'POST',
+                    url: '<?php echo base_url(); ?>employee/booking/deleteComment',
+                    data: {comment_id: comment_id, booking_id:booking_id ,comment_type : comment_type},
+                    success: function (response) {
+                        if(response === "error"){
+                            alert('There is some issue. Please refresh and try again');
+                        } else {
+                            document.getElementById("commentbox_body_id").innerHTML = response;
+                        } 
+                    }
+                    
+                });
+            }
+        }
+        
+        function cancel(){
+            $("#commentbox_body_id").children('form').next('div').children('#comment_section').hide();
+            $("#commentbox_body_id").children('form').next('div').children('#update_section').hide();           
+            $('#commnet_btn').show();      
+        } 
+        
+    $("body").on("change", "#courier_company_approval_file", function () {
+        var allowedFiles = [".gif", ".jpg",".png",".jpeg",".pdf"];
+        var fileUpload = $("#courier_company_approval_file");
+        var regex = new RegExp("([a-zA-Z0-9\s_\\.\-:()])+(" + allowedFiles.join('|') + ")$");
+        if (!regex.test(fileUpload.val().toLowerCase())) {
+            $("#courier_company_approval_file").val('');
+            alert("Please upload files having extensions:(" + allowedFiles.join(', ') + ") only.");
+            return false;
+        }
+        
+        var numb = $(this)[0].files[0].size/1024/1024;
+        numb = numb.toFixed(2);
+        if(numb >= 5){
+            $(this).val(''); 
+            alert('Not allow file size greater than 5MB');
+            return false;
+        } 
+    });
 </script>
 <style>
     #partner_wise_parts_requested2 .select2-container{

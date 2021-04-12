@@ -565,6 +565,25 @@ class Booking extends CI_Controller {
             $booking['repeat_reason'] = $this->input->post('repeat_reason');
         }        
         $file_description_arr = $this->input->post('file_description');
+        
+        if (!empty($this->session->userdata('id'))) {
+            $agent_id = $this->session->userdata('id');
+        } else {
+            $agent_id = $this->session->userdata('service_center_agent_id');
+        }
+        
+        if (!empty($this->input->post('exit_support_file'))) {
+            for ($j = 0; $j < count($this->input->post('exit_support_file')); $j++) {
+                $pre_file_id = $this->input->post('exit_support_file_id')[$j];
+                $file_id = $this->input->post('file_description')[$j];
+                if ($file_id != $pre_file_id) {
+                    $file_data['agent_id'] = $agent_id;
+                    $file_data['booking_files.file_description_id'] = $file_id;
+                    $this->booking_model->update_booking_file($file_data, array("booking_files.file_description_id" => $pre_file_id, "booking_files.booking_id" => $booking['booking_id']));
+                }
+            }
+        }
+
         //add support file for booking id if it is uploaded
         if (!empty($_FILES['support_file']['tmp_name'])) {
 
@@ -579,27 +598,9 @@ class Booking extends CI_Controller {
                             $booking_files['file_name'] = $support_file;
                             $booking_files['file_type'] = $_FILES['support_file']['type'][$i];
                             $booking_files['size'] = $_FILES['support_file']['size'][$i];
-                            if (!empty($this->session->userdata('id'))) {
-                                $agent_id = $this->session->userdata('id');
-                            } else {
-                                $agent_id = $this->session->userdata('service_center_agent_id');
-                            }
-
                             $booking_files['agent_id'] = $agent_id;
-
-                            if ($booking_files['file_description_id'] == ANNUAL_MAINTENANCE_CONTRACT) {
-                                $support_files = $this->booking_model->get_booking_files(array("booking_files.file_description_id" => ANNUAL_MAINTENANCE_CONTRACT, "booking_files.booking_id" => $booking['booking_id']));
-                                if (!empty($support_files)) {
-                                    $status = $this->booking_model->update_booking_file($booking_files, array("booking_files.file_description_id" => $booking_files['file_description_id'], "booking_files.booking_id" => $booking['booking_id']));
-                                } else {
-                                    $booking_files['create_date'] = date("Y-m-d H:i:s");
-                                    $status = $this->booking_model->insert_booking_file($booking_files);
-                                }
-                            } else {
-                                $booking_files['create_date'] = date("Y-m-d H:i:s");
-                                $status = $this->booking_model->insert_booking_file($booking_files);
-                            }
-
+                            $booking_files['create_date'] = date("Y-m-d H:i:s");
+                            $status = $this->booking_model->insert_booking_file($booking_files);
                             if (!$status) {
                                 return false;
                             }
@@ -611,7 +612,7 @@ class Booking extends CI_Controller {
                     }
                 }
             }
-        }
+        } 
 
 
         $validate_order_id = $this->validate_order_id($booking['partner_id'], $booking['booking_id'], $booking['order_id'], $booking['amount_due']);
@@ -1707,7 +1708,8 @@ class Booking extends CI_Controller {
                     }
                 }
                 if($prices['service_category'] == REPEAT_BOOKING_TAG){
-                    $html .= " onclick='check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry(), check_service_category(this.id)' value='" . $prices['id'] . "_" . intval($ct) . "_" . $i . "_" . $clone_number."' data-toggle='modal' data-target='#repeat_booking_model' data-price_tag='".$prices['service_category']."'  data-pod='".$prices['pod']."'  readonly></td><tr>";
+                    $tempString = $booking_details[0]['booking_primary_contact_no'].",".$booking_details[0]['service_id'].",".$booking_details[0]['partner_id'].",this.checked,false,".$booking_details[0]['initial_booking_date'];                                                                                   
+                    $html .= " onclick='check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry(), check_service_category(this.id), get_parent_booking(".$tempString.")' value='" . $prices['id'] . "_" . intval($ct) . "_" . $i . "_" . $clone_number."' data-toggle='modal' data-target='#repeat_booking_model' data-price_tag='".$prices['service_category']."'  data-pod='".$prices['pod']."'  readonly></td><tr>";
                 }
                 else{
                     $html .= " onclick='check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry(), check_service_category(this.id)' value='" . $prices['id'] . "_" . intval($ct) . "_" . $i . "_" . $clone_number."' data-price_tag='".$prices['service_category']."'  data-pod='".$prices['pod']."' ></td><tr>";
@@ -1733,7 +1735,7 @@ class Booking extends CI_Controller {
             $data['upcountry_data'] = json_encode($upcountry_data, true);
             print_r(json_encode($data, true));
         } else {
-            $data['html'] = "Price Table Not Found";
+            $data['html'] ='';
             print_r(json_encode($data, true));
         }
     }

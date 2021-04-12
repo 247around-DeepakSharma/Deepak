@@ -319,7 +319,7 @@ if(empty($booking_history[0]['booking_id'])){
                                 <div class="col-md-6" style='margin-top:10px;'>
                                     <!--<div class='form-group'>-->
                                         <div class="col-md-6">
-                                            <select class="form-control file_description" id="file_desc_<?=$key?>" >
+                                            <select class="form-control file_description" id="file_desc_<?=$key?>" name="file_description[]">
                                                 <option selected disabled>Select File Type</option>
                                                 <?php if(!empty($file_type)) {
                                                     foreach($file_type as $val) {
@@ -332,6 +332,8 @@ if(empty($booking_history[0]['booking_id'])){
                                         <div class="col-md-6">
                                             <div class="col-md-2" style="width:22%;">
                                                 <input type="file" id="supportfileLoader_<?=$key?>" onchange="uploadsupportingfile(<?=$key?>,'<?=$files['id']?>')" style="display:none" />
+                                                <input type="hidden" class="exit_support_file" name="exit_support_file[]" value="<?php echo $files['file_name']; ?>">
+                                                <input type="hidden" class="exit_support_file_id" name="exit_support_file_id[]" value="<?php echo $files['file_description_id']; ?>">
                                                 <?php $src = base_url() . 'images/no_image.png';
                                                 $image_src = $src;
                                                 if (isset($files['file_name']) && !empty($files['file_name'])) {
@@ -1255,7 +1257,7 @@ if(empty($booking_history[0]['booking_id'])){
     if ($(this).hasClass('hasDatepicker')) {
         $(this).removeClass('hasDatepicker');
     } 
-    $(this).datepicker({dateFormat: 'dd-mm-yy', maxDate: 0, changeYear: true, changeMonth: true});
+    $(this).datepicker({dateFormat: 'dd-mm-yy', maxDate:'<?php  echo date("d-m-Y", strtotime($booking_history[0]['create_date']))?>', changeYear: true, changeMonth: true});
  });
   
   function readonly_select(objs, action) {

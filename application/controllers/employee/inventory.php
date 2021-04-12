@@ -1059,6 +1059,7 @@ class Inventory extends CI_Controller {
         $data['partner_id'] = $this->input->post('partner_id');
         $data['services'] = $this->booking_model->selectservice();
         $data['partners'] = $this->partner_model->getpartner();
+        $data['vendor_list'] = $this->vendor_model->getVendorDetails("service_centres.id, service_centres.name, service_centres.company_name", array("service_centres.active" => 1));
         $this->load->view('employee/sparepart_on_tab', $data);
     }
 
@@ -7472,6 +7473,7 @@ class Inventory extends CI_Controller {
     function download_spare_consolidated_data() {
         log_message('info', __METHOD__ . ' Processing...');
         ini_set('memory_limit', -1);
+        $rm_id = $this->input->post('rm_id');
         $partner_id = $this->input->post('partner_id');
         $service_center_id = $this->input->post('service_center_id');
         $spare_part_status = $this->input->post('spare_part_status');
@@ -7507,10 +7509,14 @@ class Inventory extends CI_Controller {
                 . "if(spare_parts_details.vendor_courier_invoice_id is null,'',spare_parts_details.vendor_courier_invoice_id) as 'SF Courier Invoice', "
                 . "if(spare_parts_details.partner_warehouse_packaging_invoice_id is null,'',spare_parts_details.partner_warehouse_packaging_invoice_id) as 'Partner Warehouse Packaging Courier Invoice', (CASE WHEN spare_parts_details.spare_lost = 1 THEN 'Yes' ELSE 'NO' END) AS 'Spare Lost', spare_parts_details.quantity as 'Requested Spare Quantity', spare_parts_details.shipped_quantity as 'Shipped Spare Quantity',dealer_details.dealer_name as 'Dealer Name',"
                 . "(CASE WHEN courier_company_invoice_details.is_rto = 1 THEN 'Yes' ELSE 'No' END) as 'RTO',"
-                . "CASE WHEN booking_details.part_brought_at=1 THEN 'Customer Location'  WHEN booking_details.part_brought_at=2 THEN 'Service Center location' ELSE '' END AS 'Part brought at'";
+                . "(CASE WHEN booking_details.part_brought_at=1 THEN 'Customer Location'  WHEN booking_details.part_brought_at=2 THEN 'Service Center location' ELSE '' END) AS 'Part brought at', concat('https://s3.amazonaws.com/bookings-collateral/courier-pod/',courier_company_invoice_details.courier_pod_file) as courier_pod_file, concat('https://s3.amazonaws.com/bookings-collateral/rto-pod/',courier_company_invoice_details.rto_file) as rto_file, concat('https://s3.amazonaws.com/bookings-collateral/courier-lost/',courier_company_invoice_details.courier_lost_file) as courier_lost_file,"
+                . "(CASE WHEN courier_company_invoice_details.courier_lost = 1 THEN 'Yes' ELSE 'No' END) as 'Courier Lost'";
         //$where = array("spare_parts_details.status NOT IN('" . SPARE_PARTS_REQUESTED . "')" => NULL);
         $where = array();
         $group_by = "spare_parts_details.id";
+         if (!empty($rm_id) && is_numeric($rm_id)) {
+            $where['service_centres.rm_id'] = $rm_id;
+        }
         if (!empty($partner_id) && is_numeric($partner_id)) {
             $where['booking_details.partner_id'] = $partner_id;
         }
@@ -10952,5 +10958,35 @@ class Inventory extends CI_Controller {
             }
         }
     }
-
+  
+    /**
+     *  Author:Deepak Sharma
+     *  @desc : This function is used save part type
+     *  @param : array
+     *  @return : void
+     */
+     function get_part_type_option_list()
+    {
+        $part_type = "other";
+        try
+        {
+            if ($this->input->is_ajax_request()) {
+                $data = '';
+                $result = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.part_type,inventory_parts_type.id', array('part_type !='=> $part_type ,'inventory_parts_type.service_id' => $this->input->post('service_id')),TRUE);
+                foreach($result as $row)
+                {
+                    $data.= "<option value='".$row['id']."'>".$row['part_type']."</option>";
+                }
+                echo $data;
+             }
+            else {
+                echo '';
+            }
+            
+        }
+        catch(Exception $ex)
+        {
+            echo '';
+        }
+    }
 }

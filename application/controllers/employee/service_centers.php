@@ -537,7 +537,7 @@ class Service_centers extends CI_Controller {
             $old_state = $booking_state_change[count($booking_state_change) - 1]['new_state'];
             $curr_status = $booking_details['current_status'];
             // if current status of the booking is Completed or Cancelled then the booking cannot be completed again.               
-            if (!in_array($old_state, array(SF_BOOKING_COMPLETE_STATUS, _247AROUND_COMPLETED, _247AROUND_CANCELLED))) {
+            if (!in_array($old_state, array(SF_BOOKING_COMPLETE_STATUS, SF_BOOKING_CANCELLED_STATUS, _247AROUND_COMPLETED, _247AROUND_CANCELLED))) {
 
                 $is_model_drop_down = $this->input->post('is_model_dropdown');
                 $model_change = true;
@@ -713,7 +713,7 @@ class Service_centers extends CI_Controller {
                     redirect(base_url() . "service_center/pending_booking");
                 }
             } else {
-                $this->session->set_userdata('error', "You already marked this booking : $booking_id as ".$old_state);
+                $this->session->set_userdata('error', "You already marked this booking : $booking_id as ".end(explode("_",$old_state)));
                 redirect(base_url() . "service_center/pending_booking");
             }
         }
@@ -1158,9 +1158,15 @@ class Service_centers extends CI_Controller {
         $this->checkUserSession();
         $this->form_validation->set_rules('cancellation_reason', 'Cancellation Reason', 'required');
         // if current status of the booking is Completed or Cancelled then the booking cannot be cancelled again.
-        $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0]['current_status'];
-            if ($booking_details == _247AROUND_COMPLETED || $booking_details == _247AROUND_CANCELLED) {
-             $this->session->set_userdata('error', "Booking is already $booking_details. You cannot cancel the booking.");
+        $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id]);
+        $booking_current_status = $booking_details[0]['current_status'];
+        $booking_internal_status = $booking_details[0]['internal_status'];
+        if ($booking_current_status == _247AROUND_COMPLETED || $booking_internal_status == SF_BOOKING_COMPLETE_STATUS) {
+            $this->session->set_userdata('error', "Booking is already Completed. You cannot cancel the booking.");
+            redirect(base_url() . "service_center/pending_booking");
+        }
+        if ($booking_current_status == _247AROUND_CANCELLED || $booking_current_status == SF_BOOKING_CANCELLED_STATUS) {
+            $this->session->set_userdata('error', "Booking is already Cancelled. You cannot cancel the booking.");
             redirect(base_url() . "service_center/pending_booking");
         }
         if (($this->form_validation->run() == FALSE) || $booking_id == "" || $booking_id == NULL) {
@@ -1931,7 +1937,9 @@ class Service_centers extends CI_Controller {
 
                 $data['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL, 'consumed_part_status_id is null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);
                 $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag', ['active' => 1], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
-
+                /*Auto delivered spare parts to SF*/
+                $data['spare_delivered_to_sf_data'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id as spare_id, spare_parts_details.booking_id, spare_parts_details.is_micro_wh, spare_parts_details.status, spare_parts_details.auto_acknowledeged, cci_details.courier_pod_file', 
+                        array('spare_parts_details.booking_id' => $booking_id,'spare_parts_details.status' => SPARE_DELIVERED_TO_SF,  'spare_parts_details.auto_acknowledeged' => AUTO_ACKNOWLEDGED_FROM_API), FALSE, FALSE, FALSE, ['is_inventory' => FALSE], false, false, false,false, true);
 /*  getting symptom */
                 if (!empty($price_tags_symptom)) {
                  $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom', array('symptom.service_id' => $data['bookinghistory'][0]['service_id'], 'symptom.active' => 1, 'symptom.partner_id' => $data['bookinghistory'][0]['partner_id']), array('request_type.service_category' => $price_tags_symptom));
@@ -5245,9 +5253,9 @@ class Service_centers extends CI_Controller {
                     $gst_number = trim($this->input->post('gst_number'));
                 }
             }
-
+            $attachment_signature = $this->upload_signature_file();
             if (!empty($this->input->post('is_signature_doc'))) {
-                $gst_details['signature_file'] = trim($this->input->post('signature_file_name'));
+                $gst_details['signature_file'] = trim($attachment_signature);
                 $sc['is_signature_doc'] = 1;
                 $sc['signature_file'] = $gst_details['signature_file'];
             }
@@ -5295,6 +5303,22 @@ class Service_centers extends CI_Controller {
             }
         }
     }
+    //Upload Signature file 
+    //Deepak Sharma
+function upload_signature_file() {
+if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file']['tmp_name'])) {
+        if (isset($_POST['cropped_image']) && !empty($_POST['cropped_image'])) {
+                $bucket = BITBUCKET_DIRECTORY;
+                $signature_file = trim($_POST['cropped_image']);
+                $directory_xls = "vendor-partner-docs/" . $signature_file;
+                $this->s3->putObjectFile(TMP_FOLDER . $signature_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                $attachment_signature = $signature_file;
+                $_POST['is_signature_doc'] = 1;
+                log_message('info', __CLASS__ . ' signature file is being uploaded sucessfully.');
+                return $attachment_signature;         
+        }
+    }
+}
 
     function upload_signature() {
         $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "bmp", "BMP", "gif", "GIF", "PNG");
@@ -6646,7 +6670,7 @@ class Service_centers extends CI_Controller {
         $row[] = "<span class='".$color_class."'>". $spare_list['reason_text'] ."</span>";
 
         //If Defective part is already shipped or Different warehouse search data then disable receive button
-        if (!empty($spare_list['defective_part_shipped']) && $sf_id == $spare_list['defective_return_to_entity_id']) {
+        if (!empty($spare_list['defective_part_shipped']) && ($sf_id == $spare_list['defective_return_to_entity_id'] || $spare_list['status']==DEFECTIVE_PARTS_SHIPPED)) {
 
             $a = "<a href='javascript:void(0);' id='defective_parts_' class='btn btn-sm btn-primary recieve_defective' onclick='";
             $a .= "open_spare_consumption_model(this.id," . '"' . $spare_list['booking_id'] . '"';
@@ -10054,9 +10078,13 @@ function do_delivered_spare_transfer() {
      */
 
     function get_service_centers_list() {
-
-        $vendor_list = $this->vendor_model->getVendorDetails("service_centres.id, service_centres.name, service_centres.company_name", array("service_centres.active" => 1));
-
+        $rm_id = $this->input->post('rm_id');
+        if (!empty($rm_id)){
+          $vendor_list = $this->vendor_model->getVendorDetails("service_centres.id, service_centres.name, service_centres.company_name", array("rm_id" => $rm_id));   
+        }
+        else{
+         $vendor_list = $this->vendor_model->getVendorDetails("service_centres.id, service_centres.name, service_centres.company_name", array());
+        }
         $option = '<option selected="" disabled="">Select Service Centres</option>';
         foreach ($vendor_list as $value) {
             $option .= "<option value='" . $value['id'] . "'";
@@ -10067,6 +10095,23 @@ function do_delivered_spare_transfer() {
             }
 
             $option .= $value['name'] . "</option>";
+        }
+        echo $option;
+    }
+    //Author:Deepak Sharma 
+    //To find all Rm list
+     function get_rm_list() {
+        $rm_list = $this->employee_model->get_rm_details([_247AROUND_RM]);
+        $option = '<option selected="" disabled="">Select RM</option>';
+        foreach ($rm_list as $value) {
+            $option .= "<option value='" . $value['id'] . "'";
+            if (count($rm_list) == 1) {
+                $option .= " selected> ";
+            } else {
+                $option .= "> ";
+            }
+
+            $option .= $value['full_name'] . "</option>";
         }
         echo $option;
     }
@@ -10147,15 +10192,15 @@ function do_delivered_spare_transfer() {
         );
 
         $select = "booking_details.service_center_closed_date,booking_details.create_date,booking_details.booking_primary_contact_no as mobile, spare_parts_details.*, "
-                . " i.part_number, i.part_number as shipped_part_number, spare_consumption_status.consumed_status,  spare_consumption_status.is_consumed, users.name";
+                . " i.part_number, i.part_number as shipped_part_number, spare_consumption_status.consumed_status,  spare_consumption_status.is_consumed, users.name, courier_company_invoice_details.courier_pod_file";
 
         $group_by = "spare_parts_details.id";
         $order_by = "booking_details.create_date desc, spare_parts_details.booking_id ASC";
-
+       
 
         $config['base_url'] = base_url() . 'service_center/parts_delivered_to_sf';
-        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select);
-
+        
+        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select, '','', TRUE);
         $config['per_page'] = 100;
         $config['uri_segment'] = 3;
         $config['first_link'] = 'First';
@@ -10164,8 +10209,8 @@ function do_delivered_spare_transfer() {
         $data['links'] = $this->pagination->create_links();
 
         $data['count'] = $config['total_rows'];
-        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page']);
-        
+       
+        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page'], '', '','', TRUE);
         
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/delivered_parts', $data);
@@ -10690,5 +10735,154 @@ function do_delivered_spare_transfer() {
         ];        
         $arrBookingsWarrantyStatus = $this->warranty_utilities->get_warranty_status_of_parts($booking_data, $booking_id);
         return $arrBookingsWarrantyStatus;
+    }    
+    /**
+     * This function is used to send mail to RM/ASM/Talevar when service center request T-shirt
+     * @param : Service_center_ID
+     * @author : Ghanshyam Ji Gupta
+     * @created_on 06-04-2021
+     */
+    function request_tshirt_order() {
+        $service_center_id = $this->input->post('entity_id');
+        //Fetch Service Center Details
+        $select = "id,name,primary_contact_phone_1,primary_contact_name,owner_name,owner_phone_1,owner_phone_2,primary_contact_phone_2";
+        $where = array('ID' => $service_center_id);
+        $data = $this->vendor_model->getVendorDetails($select, $where);
+        $sf_string = $data[0]['name'] . " (" . $data[0]['id'] . ")";
+        $poc_string = "";
+        if(!empty($data[0]['owner_name']) && (!empty($data[0]['owner_phone_1']) || !empty($data[0]['owner_phone_2']))){
+            $poc_string .= "Owner:- ".$data[0]['owner_name'] . " (" . $data[0]['owner_phone_1'] . ",".$data[0]['owner_phone_2'].") <br>";
+        }
+        
+        if(!empty($data[0]['primary_contact_name']) && (!empty($data[0]['primary_contact_phone_1']) || !empty($data[0]['primary_contact_phone_2']))){
+            $poc_string .= "POC:- ".$data[0]['primary_contact_name'] . " (" . $data[0]['primary_contact_phone_1'] . ")";
+        }
+        //Fetch RM ASM Details
+        $arr_rm_asm_mails = $this->vendor_model->get_rm_sf_relation_by_sf_id($service_center_id);
+        $asm_mail = !empty($arr_rm_asm_mails[0]['official_email']) ? $arr_rm_asm_mails[0]['official_email'] : "";
+        $rm_mail = !empty($arr_rm_asm_mails[1]['official_email']) ? $arr_rm_asm_mails[1]['official_email'] : "";
+        //Fetch Template
+        $template = $this->booking_model->get_booking_email_template("sf_tshirt_puchase");
+        $subject = $template[4];
+        $to = $template[1];
+        $from = $template[2];
+        if (!empty($template[3])) {
+            $cc = $template[3] . ",";
+        }
+        if (!empty($rm_mail)) {
+            $cc .= $rm_mail . ",";
+        }
+        if (!empty($asm_mail)) {
+            $cc .= $asm_mail . ",";
+        }
+        $body = vsprintf($template[0], array($sf_string, $poc_string));
+        $this->session->unset_userdata('covid_popup');
+        //Send Email
+        $this->notify->sendEmail($from, $to, $cc, '', $subject, $body, "", 'sf_tshirt_puchase');
     }
+    
+    /**
+     *  @desc : This function is used to validate the data in spare parts details
+     *  @param : void
+     *  @return :json
+     */
+    
+    function validate_spare_parts_to_marked_not_received_sf() {
+        $spare_parts_data = $this->input->post("spare_parts_data");
+        $data = array();
+        if (!empty($spare_parts_data)) {
+            $data['booking_id'] = $booking_id = $spare_parts_data[0]['booking_id'];
+
+            $spare_parts_list = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id as spare_id, parts_requested, spare_parts_details.booking_id,spare_parts_details.is_micro_wh, status, auto_acknowledeged, acknowledge_date, cci_details.courier_pod_file, inventory_master_list.part_number', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.status' => SPARE_DELIVERED_TO_SF, "auto_acknowledeged" => AUTO_ACKNOWLEDGED_FROM_API, "consumed_part_status_id" => NULL), false, false, false, ['is_inventory' => true], false, false, false, false, TRUE);
+            $pod_spare_parts_list = array();
+            $non_pod_spare_parts = array();
+            $pod_flag = false;
+            foreach ($spare_parts_list as $value) {
+                if (!empty($value['courier_pod_file'])) {
+                    $pod_spare_parts_list[] = $value;
+                    $pod_flag = true;
+                } else {
+                    $non_pod_spare_parts[] = $value;
+                }
+            }
+            
+            if (!empty($pod_flag) && empty($non_pod_spare_parts)) {
+                $data['is_pod_exist'] = true;
+            } else {
+                $data['is_pod_exist'] = false;
+            }
+
+            $data['spare_parts_list'] = $non_pod_spare_parts;
+            $data['pod_spare_parts_list'] = $pod_spare_parts_list;
+        }
+        //print_r($data);
+        $this->load->view('service_centers/parts_not_received_by_sf_modal_page', $data);
+    }
+
+    /*
+    * This function is used to update service center remarks that spare part not recieved by sf but showing auto-acknowledge
+    * @params: void
+    * @author Gorakh Nath 
+    */
+    
+   function process_to_part_not_received_by_sf() {
+        $booking_id = $this->input->post("booking_id");
+        $acknowledge_spare_data = $this->input->post("acknowledge_spare_data");
+        $remarks = $this->input->post("part_not_received_remarks");
+        $error = '';
+        $old_state = '';
+        if (count($acknowledge_spare_data) > 0) {
+            if (!empty($remarks)) {
+                for ($i = 0; $i < count($acknowledge_spare_data); $i++) {
+                    $spare_data = json_decode($acknowledge_spare_data[$i], TRUE);
+                    if (!empty($spare_data)) {
+                        $spare_id = $spare_data['spare_id'];
+                        $booking_id = $spare_data['booking_id'];
+                        $internal_status = $old_state = $spare_data['status'];
+                        $spare_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status", array('spare_parts_details.id' => $spare_id, 'spare_parts_details.status' => PARTS_NOT_RECEIVED_BY_SF));
+                        if (empty($spare_details)) {
+                            $affected_id = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array("spare_parts_details.status" => PARTS_NOT_RECEIVED_BY_SF, "spare_parts_details.remarks_by_sc" => $remarks));
+                            if ($affected_id) {
+                                $status = true;
+                                $error = _247AROUND002;
+                                $tracking_details = array('spare_id' => $spare_id, 'action' => PARTS_NOT_RECEIVED_BY_SF, 'remarks' => $remarks);
+                                $tracking_details['agent_id'] = $this->session->userdata('service_center_agent_id');
+                                $tracking_details['entity_id'] = $this->session->userdata('service_center_id');
+                                $tracking_details['entity_type'] = _247AROUND_SF_STRING;
+                                $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                            } else {
+                                $status = false;
+                                $error = _247AROUND003;
+                            }
+                        } else {
+                            $status = false;
+                            $error = _247AROUND005;
+                        }
+                    } else {
+                        $status = false;
+                        $error = _247AROUND004;
+                    }
+                }
+            } else {
+                $status = false;
+                $error = _247AROUND001;
+            }
+        } else {
+            $status = false;
+            $error = _247AROUND006; 
+        }
+        
+        if ($status) {
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, PARTS_NOT_DELIVERED_TO_SF, _247AROUND, $booking_id);
+            if (!empty($partner_status)) {
+                $booking['partner_current_status'] = $partner_status[0];
+                $booking['partner_internal_status'] = $partner_status[1];
+                $actor = $partner_status[2];
+                $next_action = $partner_status[3];
+            }
+            $this->notify->insert_state_change($booking_id, PARTS_NOT_RECEIVED_BY_SF, $old_state, $remarks, $this->session->userdata('service_center_agent_id'), $this->session->userdata('service_center_name'), $actor, $next_action, NULL, $this->session->userdata('service_center_id'), '');
+        }
+        echo json_encode(array("status" => $status, "error_code" => $error));
+    }
+
 }

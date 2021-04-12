@@ -707,12 +707,22 @@ class Spare_parts extends CI_Controller {
         ob_clean();
         $post['select'] = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.quantity,spare_parts_details.spare_cancelled_date,spare_parts_details.part_warranty_status,spare_parts_details.model_number, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
                 . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id,spare_parts_details.part_requested_on_approval, spare_parts_details.part_warranty_status,"
-                . "defective_part_required, spare_parts_details.parts_shipped, spare_parts_details.shipped_quantity, spare_parts_details.parts_requested_type,spare_parts_details.is_micro_wh, status, inventory_master_list.part_number, booking_cancellation_reasons.reason as part_cancel_reason, booking_details.state, spare_parts_details.awb_by_partner";
+                . "defective_part_required, spare_parts_details.parts_shipped, spare_parts_details.shipped_quantity, spare_parts_details.parts_requested_type,spare_parts_details.is_micro_wh, status, inventory_master_list.part_number, booking_cancellation_reasons.reason as part_cancel_reason, booking_details.state, spare_parts_details.courier_name_by_partner, spare_parts_details.awb_by_partner, courier_company_invoice_details.update_date AS tracking_date, courier_company_invoice_details.tracking_status";
         $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'age_of_request', NULL,  NULL,  NULL);
         $post['column_search'] = array('spare_parts_details.booking_id', 'partners.public_name', 'service_centres.name',
             'parts_requested', 'users.name', 'users.phone_number', 'booking_details.request_type', 'booking_details.state', 'spare_parts_details.awb_by_partner');
-        //$post['where_in']=array('booking_details.current_status'=>array(_247AROUND_PENDING,_247AROUND_RESCHEDULED));
+       
         $post['spare_cancel_reason'] = 1;
+        $post['join_courier_company_invoice'] = 1;
+        
+        if (!empty($this->input->post("selected_partner_id"))) {
+            $post['where']['spare_parts_details.partner_id'] = $this->input->post("selected_partner_id");
+        }
+        
+        if (!empty($this->input->post("vendor_id"))) {
+            $post['where']['spare_parts_details.service_center_id'] = $this->input->post("vendor_id");
+        }      
+        
         $list = $this->inventory_model->get_spare_parts_query($post);
         $no = $post['start'];
         $data = array();
@@ -1173,9 +1183,9 @@ class Spare_parts extends CI_Controller {
             $spare_pending_on = 'Partner';
         }
         $row[] = $spare_pending_on;
-        $row[] = $spare_list->name;
+        $row[] = "<span class='line_break'>" .$spare_list->name. "</span>";
         $row[] = $spare_list->booking_primary_contact_no;
-        $row[] = $spare_list->sc_name;
+        $row[] = "<span class='line_break'>" .$spare_list->sc_name. "</span>";
         $row[] = $spare_list->source;
         $row[] = "<span class='line_break'>" . $spare_list->parts_requested . "</span>";
         $row[] = $spare_list->quantity;
@@ -1223,7 +1233,10 @@ class Spare_parts extends CI_Controller {
             $row[] = '<button type="button" onclick="handle_rto_case('.$spare_list->id.', 2)" class="btn btn-md btn-info"><span class="glyphicon glyphicon-ok-sign"></span></button>';
         } else {
             $row[] = "";
-        }        
+        }
+                
+        $row[] = '<a class="btn btn-success btn-sm approve-courier-lost-part" href="javascript:void(0);" onclick="approve_courier_lost_spare(' . $spare_list->id . ');"><span class="glyphicon glyphicon-ok"></span></a>';
+        
         return $row;
     }
 
@@ -1317,13 +1330,21 @@ class Spare_parts extends CI_Controller {
             }  else {
                 $row[] = '<button type="button" data-booking_id="' . $spare_list->booking_id . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $spare_list->id . '/' . $spare_list->booking_id . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';
             }
-            
+            /*
             if($spare_list->is_consumed != 1) {
                 $row[] = '<button type="button" data-booking_id="' . $spare_list->booking_id . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $spare_list->id . '/' . $spare_list->booking_id . '/COURIER_LOST" title="Mark Courier Lost" class="btn btn-sm btn-success courier_lost"><span class="glyphicon glyphicon-ok"></span></button>';
             }else{
                 $row[] = '';
-            }
+            }*/
             
+            $row[] = '<a class="btn btn-success btn-sm approve-courier-lost-part" href="javascript:void(0);" onclick="approve_courier_lost_spare(' . $spare_list->id . ');"><span class="glyphicon glyphicon-ok"></span></a>';
+            
+            if ($spare_list->is_micro_wh != 1 && ($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer" || $this->session->userdata('user_group') == "accountmanager")) {
+                $row[] = '<button type="button" onclick="handle_rto_case(' . $spare_list->id . ', 2)" class="btn btn-md btn-info"><span class="glyphicon glyphicon-ok-sign"></span></button>';
+            } else {
+                $row[] = "";
+            }
+
             $row[] = '<a href="' . base_url() . 'employee/spare_parts/defective_spare_invoice/' . $spare_list->booking_id . '" class="btn btn-sm btn-primary" style="margin-left:5px" target="_blank">Generate Invoice</a>';
         } 
 
@@ -1564,14 +1585,48 @@ class Spare_parts extends CI_Controller {
             }
             $row[] = "<span class='line_break'>".$part_status_text. "</span>";
             $row[] = (empty($spare_list->age_of_request)) ? '0 Days' : $spare_list->age_of_request . " Days";
+           /*
+            if (!empty($spare_list->tracking_status)) {
+                $row[] = $this->miscelleneous->get_formatted_date($spare_list->tracking_date);
+            } else {
+                $row[] = '';
+            }
+            */
+            
+            
+            $a = "<a href='javascript:void(0);' onclick='";
+            $a .= "get_awb_details(" . '"' . $spare_list->courier_name_by_partner . '"';
+            $a .= ', "' . $spare_list->awb_by_partner . '"';
+            $a .= ', "awb_loader_' . $no . '"';
+            $a .= ")'><i class='fa fa-truck' style='font-size:20px'></i></a>";
+            $a .= "<br><span id='awb_loader_$no' style='display:none;'><i class='fa fa-spinner fa-spin' style='font-size: 1em;'></i></span>";
+                
+            if (!empty($spare_list->tracking_status)) {
+                $row[] = $spare_list->tracking_status . "<br>" . $a ."<br>". $this->miscelleneous->get_formatted_date($spare_list->tracking_date);;
+            } else {
+                $row[] = $a;
+            }
+
             $row[] = '<a class="btn btn-success btn-sm approve-courier-lost-part" href="javascript:void(0);" onclick="approve_courier_lost_spare(' . $spare_list->id . ');"><span class="glyphicon glyphicon-ok"></span></a>';
-            $row[] = '<a class="btn btn-danger btn-sm reject-courier-lost-part" style="margin-top:2px;" href="javascript:void(0);" onclick="reject_courier_lost_spare(' . $spare_list->id . ');"><span class="glyphicon glyphicon-remove"></span></a>';
+            //$row[] = '<a class="btn btn-danger btn-sm reject-courier-lost-part" style="margin-top:2px;" href="javascript:void(0);" onclick="reject_courier_lost_spare(' . $spare_list->id . ');"><span class="glyphicon glyphicon-remove"></span></a>';
 
             if ($spare_list->is_micro_wh != 1 && ($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer" || $this->session->userdata('user_group') == "accountmanager")) {
                 $row[] = '<button type="button" onclick="handle_rto_case(' . $spare_list->id . ', 12)" class="btn btn-md btn-info"><span class="glyphicon glyphicon-ok-sign"></span></button>';
             } else {
                 $row[] = '';
             }
+            $comment_count = 0;
+            if (!empty($spare_list->booking_id)) {
+                $comments_array = $this->booking_model->get_remarks(array('booking_comments.booking_id' => $spare_list->booking_id, "booking_comments.isActive" => 1, 'booking_comments.comment_type' => SPARE_PARTS_COMMENTS));
+                $comment_count = count($comments_array);
+            }
+
+            $comment_link = "<a href='javascript:void(0);' class='btn btn-success btn-sm' style='margin-top:5px;position: relative;' id='comment_" . $no."' onclick='";
+            $comment_link .= "save_spare_remarks(" . '"' . $spare_list->booking_id . '"';
+            $comment_link .= ")'><i class='fa fa-comment'></i><span class='comment_count'>".$comment_count."</span></a>";
+            $comment_link .= "<br><span id='awb_loader_$no' style='display:none;'><i class='fa fa-spinner fa-spin' style='font-size: 1em;'></i></span>";
+            $row[] = $comment_link;
+            
         return $row;
     }
 
@@ -1580,7 +1635,7 @@ class Spare_parts extends CI_Controller {
      * @author Ankit Rajvanshi  
      */
     function approve_courier_lost_spare() {
-
+        
         $post_data = $this->input->post();
         $spare_id = $post_data['courier_lost_spare_id'];
         $spare_part_detail = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $spare_id), true, false)[0];
@@ -1593,7 +1648,17 @@ class Spare_parts extends CI_Controller {
         ];
         $this->service_centers_model->update_spare_parts(array('id' => $spare_id), $spare_data);
         
+        /* Upload courier lost file */
+        if (!empty($_FILES['courier_company_approval_file'])) {
+            $this->upload_courier_lost_file($_FILES);
+        }
         
+        if (!empty($spare_part_detail['awb_by_partner'])) {
+            $where = array("courier_company_invoice_details.awb_number" => $spare_part_detail['awb_by_partner']);
+            $courier_data = array("courier_company_invoice_details.courier_lost" => 1, "courier_company_invoice_details.courier_lost_file" => $this->input->post('courier_lost_file'));
+            $this->inventory_model->update_courier_company_invoice_details($where, $courier_data);
+        }
+
         /* Insert Spare Tracking Details */
         if (!empty($post_data['courier_lost_spare_id'])) {
             $tracking_details = array('spare_id' => $post_data['courier_lost_spare_id'], 'action' => COURIER_LOST, 'remarks' => $post_data['remarks'] . " " . COURIER_LOST_APPROVED_STATUS, 'agent_id' => $this->session->userdata('id'), 'entity_id' => _247AROUND, 'entity_type' => _247AROUND_EMPLOYEE_STRING);
@@ -1977,15 +2042,18 @@ class Spare_parts extends CI_Controller {
             $post['where']['status'] = $this->input->post("status");
             $post['request_type'] = SPARE_OOW_EST_REQUESTED;
         }
+            
 
-
+       
         if (!empty($this->input->post('vendor_partner'))) {
             $post['vendor_partner'] = $this->input->post('vendor_partner');
+        } else if ($this->input->post("status") == InProcess_Courier_Lost) {
+            unset($post['where']['status']);
+            $post['where']['status IN("' . InProcess_Courier_Lost . '", "' . COURIER_RTO_BY_API . '", "' . PARTS_NOT_RECEIVED_BY_SF . '")'] = NULL;
         } else {
-            
             $post['where']['status'] = $this->input->post("status");
         }
-
+        
         if ($this->session->userdata("user_group") == _247AROUND_RM) {
             $post['where']['service_centres.rm_id'] = $this->session->userdata("id");
         }
@@ -6591,4 +6659,41 @@ class Spare_parts extends CI_Controller {
         return $res;
     }
 
+    /**
+     * @param Array $ch
+     * @param boolean $is_challan
+     * @return Array
+     */
+    function upload_courier_lost_file($file){
+         log_message("info", __METHOD__);
+        $MB = 1048576;
+        //check if upload file is empty or not
+        if (!empty($file['courier_company_approval_file']['name'])) {
+            //check upload file size. it should not be greater than 2mb in size
+            if ($file['courier_company_approval_file']['size'] <= 5 * $MB) {
+                $allowed = array('pdf', 'jpg', 'png', 'jpeg', 'JPG', 'JPEG', 'PNG', 'PDF');
+                $ext = pathinfo($file['courier_company_approval_file']['name'], PATHINFO_EXTENSION);
+                //check upload file type. it should be pdf, jpg, png, JPEG.
+                if (in_array($ext, $allowed)) {
+                    $upload_file_name = str_replace(' ', '_', trim($file['courier_company_approval_file']['name']));
+                    $file_name = 'courier_lost_approval' . rand(10, 100) . '_' . $upload_file_name;
+                    //Upload files to S3
+                    $directory_xls = "courier-lost/" . $file_name;
+                    $this->s3->putObjectFile($file['courier_company_approval_file']['tmp_name'], BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $res['status'] = true;
+                    $_POST['courier_lost_file'] = $file_name;
+                } else {
+                    $res['status'] = false;
+                    $res['message'] = 'Uploaded file type not valid.';
+                }
+            } else {
+                $res['status'] = false;
+                $res['message'] = 'Uploaded file size can not be greater than 5 mb';
+            }
+        } else {
+            $res['status'] = false;
+            $res['message'] = 'Please Upload File';
+        }
+        return $res;
+    }
 }

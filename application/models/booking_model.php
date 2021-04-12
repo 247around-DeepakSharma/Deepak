@@ -864,7 +864,7 @@ class Booking_model extends CI_Model {
         $post['spare_cancel_reason']=1;
         $post['wrong_part'] = 1;
         $post['symptom'] = 1;
-        $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,symptom.symptom as symptom_text,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number, booking_cancellation_reasons.reason as part_cancel_reason,spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, wrong_part_shipped_details.part_name as wrong_part_name, wrong_part_shipped_details.remarks as wrong_part_remarks, sc.name AS send_defective_to, oow_spare_invoice_details.invoice_id as oow_invoice_id, oow_spare_invoice_details.invoice_date as oow_invoice_date, oow_spare_invoice_details.hsn_code as oow_hsn_code, oow_spare_invoice_details.gst_rate as oow_gst_rate, oow_spare_invoice_details.invoice_amount as oow_incoming_invoice_amount, oow_spare_invoice_details.invoice_pdf as oow_incoming_invoice_pdf, ccid.box_count as sf_box_count,ccid.billable_weight as sf_billable_weight,cc_invoice_details.box_count as wh_box_count,cc_invoice_details.billable_weight as wh_billable_weight, cci_details.box_count as p_box_count, cci_details.billable_weight as p_billable_weight, cci_details.courier_pod_file, cci_details.rto_file, booking_details.partner_id as booking_partner_id', array('spare_parts_details.booking_id' => $booking_id),TRUE ,false,false,$post, TRUE, TRUE, TRUE, TRUE, TRUE);
+        $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,symptom.symptom as symptom_text,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number, booking_cancellation_reasons.reason as part_cancel_reason,spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, wrong_part_shipped_details.part_name as wrong_part_name, wrong_part_shipped_details.remarks as wrong_part_remarks, sc.name AS send_defective_to, oow_spare_invoice_details.invoice_id as oow_invoice_id, oow_spare_invoice_details.invoice_date as oow_invoice_date, oow_spare_invoice_details.hsn_code as oow_hsn_code, oow_spare_invoice_details.gst_rate as oow_gst_rate, oow_spare_invoice_details.invoice_amount as oow_incoming_invoice_amount, oow_spare_invoice_details.invoice_pdf as oow_incoming_invoice_pdf, ccid.box_count as sf_box_count,ccid.billable_weight as sf_billable_weight,cc_invoice_details.box_count as wh_box_count,cc_invoice_details.billable_weight as wh_billable_weight, cci_details.box_count as p_box_count, cci_details.billable_weight as p_billable_weight, cci_details.courier_pod_file, cci_details.rto_file, cci_details.courier_lost, cci_details.courier_lost_file, booking_details.partner_id as booking_partner_id', array('spare_parts_details.booking_id' => $booking_id),TRUE ,false,false,$post, TRUE, TRUE, TRUE, TRUE, TRUE);
         if(!empty($query1)){
             $result1 = $query1;
             $result['spare_parts'] = $result1;
@@ -1666,12 +1666,13 @@ class Booking_model extends CI_Model {
         $trimed_booking_id = preg_replace("/[^0-9]/", "", $booking_id);
         if (!empty($trimed_booking_id) && strlen($trimed_booking_id) > 7) {
             $data = $this->getpricesdetails_with_tax($services_details['id'], $state);
-            $this->db->select('id, customer_total, price_tags, vendor_basic_percentage, booking_status');
+            $this->db->select('id, customer_total, price_tags, vendor_basic_percentage, booking_status, sf_model_number');
             $this->db->where('appliance_id', $services_details['appliance_id']);
             $this->db->where('price_tags', $data[0]['price_tags']);
             $this->db->where('MATCH (booking_id) AGAINST ("'.$trimed_booking_id.'")', NULL, FALSE);
             $query = $this->db->get('booking_unit_details');
             $unit_details = $query->result_array();
+            unset($services_details['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table            
             $result = array_merge($data[0], $services_details);
             
             // used for insering new price tags.
@@ -1687,7 +1688,6 @@ class Booking_model extends CI_Model {
                 }
             }
 
-            unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
             $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
             $result['partner_paid_tax'] = ($result['partner_paid_basic_charges'] * $result['tax_rate']) / 100;
 
@@ -1705,8 +1705,11 @@ class Booking_model extends CI_Model {
             log_message('info', __METHOD__ . " update booking_unit_details data " . print_r($result, true) . " Price data with tax: " . print_r($data, true));
 
             if ($query->num_rows > 0) {
-                //if found, update this entry
-
+                // If found, update this entry
+                // Update Prices Only If Model is Different
+                if (trim($unit_details['0']['sf_model_number']) == (trim($services_details['sf_model_number']))){
+                    $result = $services_details;
+                }
                 log_message('info', __METHOD__ . " update booking_unit_details ID: " . print_r($unit_details[$key]['id'], true));
                 $this->db->where('id', $unit_details[$key]['id']);                
                 $this->db->where('booking_status <> "'._247AROUND_CANCELLED.'"', NULL);
@@ -2015,7 +2018,7 @@ class Booking_model extends CI_Model {
      * return: Array of data
      *
      */
-    function get_booking_state_change_by_id($booking_id,$api=false,$internal_employee=false){
+    function get_booking_state_change_by_id($booking_id,$api=false,$internal_employee=false,$order_by='ASC'){
         $bookingIDArray[] = $booking_id;
         if (strpos($booking_id, 'Q-') === false) {
             $bookingIDArray[] = "Q-".$booking_id;
@@ -2030,7 +2033,7 @@ class Booking_model extends CI_Model {
         //$this->db->where_in('booking_state_change.booking_id', $bookingIDArray);
         $this->db->from('booking_state_change');
        
-        $this->db->order_by('booking_state_change.id');
+        $this->db->order_by('booking_state_change.id',$order_by);
         $query = $this->db->get();
         $data =  $query->result_array();
         
@@ -2929,7 +2932,7 @@ class Booking_model extends CI_Model {
                         *
                 FROM
                         booking_unit_details
-                        JOIN service_center_booking_action ON (service_center_booking_action.unit_details_id = booking_unit_details.id)
+                        JOIN service_center_booking_action ON (service_center_booking_action.booking_id = booking_unit_details.booking_id AND service_center_booking_action.unit_details_id = booking_unit_details.id)
                         JOIN booking_details ON (booking_unit_details.booking_id = booking_details.booking_id)
                 WHERE
                         (booking_unit_details.serial_number = '".$serialNumber."' || service_center_booking_action.serial_number = '".$serialNumber."')

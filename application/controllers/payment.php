@@ -93,7 +93,7 @@ class Payment extends CI_Controller {
             $resultArray[] = json_decode($this->paytm_payment_lib->check_status_from_order_id($order_id['order_id']),true);
         }
         if(empty($resultArray)){
-            $html = "<p>There is not any new transaction</p>";
+            $html = "<p>There is no new transaction.</p>";
         }
         else {
             $t =0;
@@ -108,7 +108,7 @@ class Payment extends CI_Controller {
                     $tempHtml .= "</tr>";
                 }
                 else{
-                       $html = "<p>There is not any new transaction</p>";
+                       $html = "<p>There is no new transaction.</p>";
                 }
                 if($t != 0){
                     $html = $tempHtml;

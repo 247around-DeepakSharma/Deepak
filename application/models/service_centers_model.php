@@ -494,9 +494,9 @@ class Service_centers_model extends CI_Model {
     }
 
 
-    function get_spare_parts_booking($where, $select, $group_by = false, $order_by = false, $offset = false, $limit = false,$state=0,$download=NULL,$post=array()){
-        $this->_spare_parts_booking_query($where, $select,$state);
-
+    function get_spare_parts_booking($where, $select, $group_by = false, $order_by = false, $offset = false, $limit = false,$state=0,$download=NULL,$post=array(), $join_flag = false){
+       
+        $this->_spare_parts_booking_query($where, $select,$state, $join_flag);
  
         if (!empty($post['search_value'])) {
             $like = "";
@@ -535,8 +535,8 @@ class Service_centers_model extends CI_Model {
     
 
 
-    function _spare_parts_booking_query($where, $select,$state=0){
-
+    function _spare_parts_booking_query($where, $select,$state=0, $join_flag = false){
+       
         $this->db->select($select, false);
         $this->db->from('spare_parts_details');
         $this->db->join('booking_details','booking_details.booking_id = spare_parts_details.booking_id');
@@ -554,11 +554,18 @@ class Service_centers_model extends CI_Model {
             $this->db->join('agent_filters', 'agent_filters.state =  booking_details.state', "left");
             $this->db->where($stateWhere, false);  
         }
+        
+       
+        /* Shipped spare Part By Central Warehouse or partner get courier POD file */        
+        if (!empty($join_flag)) {
+            $this->db->join('courier_company_invoice_details', 'spare_parts_details.awb_by_partner = courier_company_invoice_details.awb_number', 'left');
+        }
+        
     }
     
-    function count_spare_parts_booking($where, $select, $group_by = false,$state=0){
+    function count_spare_parts_booking($where, $select, $group_by = false,$state=0, $join_flag = false){   
         $this->db->distinct();
-        $this->_spare_parts_booking_query($where, $select,$state);
+        $this->_spare_parts_booking_query($where, $select,$state, $join_flag);
         if($group_by){
             $this->db->group_by($group_by);
         }

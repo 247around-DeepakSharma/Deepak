@@ -249,6 +249,9 @@ function getPricesForCategoryCapacity(div_id,add_booking) {
                     }
                 }
             });
+        }else{
+             $("#priceList_" + div_no[2]).html('<div class="text-center" style="font-size:27px;">Call type not available for this appliance model</div>');
+             $('#submitform').attr('disabled', true);
         }
 
 
@@ -488,6 +491,16 @@ function addBookingDialog(chanel = '', check_serial_no = '0') {
             }
         });
        
+       $(".InputSample").each(function () {
+            booking_create_page = 1;
+            var amc_dropdown = $(this).find('.file_description').val();
+            if (amc_dropdown == 5) {               
+                if ($(this).find('.exit_support_file').val() != '') {
+                    amc_file_uploaded = 1;
+                }
+                amc_file_count = amc_file_count + 1;
+            }
+        });
     
     var amc_final_uploaded = 0;
               
@@ -513,6 +526,13 @@ function addBookingDialog(chanel = '', check_serial_no = '0') {
             if (amc_dropdown == 5) {
                 category_not_selected = 1;
 
+            }
+        });
+        
+        $(".InputSample").each(function () {
+            var amc_dropdown = $(this).find('.file_description').val();
+            if (amc_dropdown == 5) {
+                category_not_selected = 1;
             }
         });
         
