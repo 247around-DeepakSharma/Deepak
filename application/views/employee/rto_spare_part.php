@@ -3,7 +3,7 @@
     <input type="hidden" name="rto" value="1"> 
     <div class="row form-group">
         <div class="col-md-3">
-            <label for="rto_file">Upload POD</label>
+            <label for="rto_file"><!--Upload POD-->Brand Approval Mail<span style="color:red">*</span></label>
         </div>
         <div class="col-md-9">
             <input type="file" name="rto_file" id="rto_file" value="">
@@ -32,12 +32,15 @@
             e.preventDefault();
             
             var file = $('#rto_file').val();
-            
+               if(file == '' || file == null) {
+                   alert('Please Upload file.');
+                   return false;
+               }
             var remarks = $('#rto_case_spare_part_remarks').val();
-            if(remarks == '' || remarks == null) {
-                alert('Please enter remarks.');
-                return false;
-            }
+                if(remarks == '' || remarks == null) {
+                    alert('Please enter remarks.');
+                    return false;
+                }
 
             $('#rto_case_spare_part_btn').attr("disabled", true);
             $('#rto_case_spare_part_btn').val("Please wait...");
@@ -72,5 +75,23 @@
         });
     });
 
+    $("body").on("change", "#rto_file", function () {
+        var allowedFiles = [".gif", ".jpg",".png",".jpeg",".pdf"];
+        var fileUpload = $("#rto_file");
+        var regex = new RegExp("([a-zA-Z0-9\s_\\.\-:()])+(" + allowedFiles.join('|') + ")$");
+        if (!regex.test(fileUpload.val().toLowerCase())) {
+            $("#rto_file").val('');
+            alert("Please upload files having extensions:(" + allowedFiles.join(', ') + ") only.");
+            return false;
+        }
+        
+        var numb = $(this)[0].files[0].size/1024/1024;
+        numb = numb.toFixed(2);
+        if(numb >= 5){
+            $(this).val(''); 
+            alert('Not allow file size greater than 5MB');
+            return false;
+        } 
+    });
 
 </script>

@@ -669,17 +669,21 @@ class Courier_tracking extends CI_Controller {
     }
     
     /**
-     * @Desc: This function is to fetch POD from awb_number // working for Gati, spoton & DTDC
+     * @Desc: This function is to fetch POD from awb_number // working for Gati, spoton, trackon & DTDC
      * @params: $awb_number
      * @return: NULL
      * @author Ghanshyam
      * @date : 15-04-2020
      */
-    public function update_pod_courier($awb_number = '') {
+    public function update_pod_courier($awb_number = '',$serach_by_id = false) {
         if (!empty($awb_number)) {
             $file = 0;
-
-            $courier_detail = $this->inventory_model->get_courier_company_invoice_details('id,awb_number,company_name', array('awb_number' => $awb_number));
+            if(empty($serach_by_id)){
+                $where = array('courier_company_invoice_details.awb_number' => $awb_number);
+            }else{
+                $where = array('courier_company_invoice_details.id' => $awb_number);
+            }
+            $courier_detail = $this->inventory_model->get_courier_company_invoice_details('id,awb_number,company_name', $where);
             if (!empty($courier_detail)) {
                 $company_name = strtoupper($courier_detail[0]['company_name']);
                 if (strpos($company_name, 'GATI') !== false) {
@@ -690,6 +694,11 @@ class Courier_tracking extends CI_Controller {
                 else if (strpos($company_name, 'SPOTON') !== false) {
                     $image_name = $awb_number . '_' . date('jMYHis') . '.jpg';
                     file_put_contents(TMP_FOLDER . $image_name, file_get_contents("http://spoton.co.in/SPOTTRACK/Advance/getpod.aspx?id=" . $awb_number));
+                    $file = 1;
+                }
+                else if (strpos($company_name, 'TRACKON') !== false) {
+                    $image_name = $awb_number . '_' . date('jMYHis') . '.png';
+                    file_put_contents(TMP_FOLDER . $image_name, file_get_contents("https://image.trackon.in/track2019/POD_" . $awb_number.".png"));
                     $file = 1;
                 }
                 else if (strpos($company_name, 'DTDC') !== false) {
@@ -1590,7 +1599,7 @@ class Courier_tracking extends CI_Controller {
     
     function update_delivered_spare_pod() {
         $select = " DISTINCT(spare_parts_details.awb_by_partner) as awb_number,  spare_parts_details.courier_name_by_partner as couriercode";
-        $where = array("spare_parts_details.auto_acknowledeged" => 1, "spare_parts_details.consumed_part_status_id != 1 AND spare_parts_details.shipped_date < '2020-11-15' AND spare_parts_details.shipped_date > '2020-09-23'  AND spare_parts_details.status IN('Ok Part To Be Shipped By SF','Spare Parts Delivered to SF','Defective Part To Be Shipped By SF','Courier Lost Approval Pending','Defective Part Rejected By Warehouse','Defective Part Received By Warehouse','Ok Part Rejected By Warehouse','Ok Part Received By Warehouse','Ok Part Shipped By SF','Defective Part Shipped By SF')" => NULL);
+        $where = array("spare_parts_details.auto_acknowledeged" => 1, "spare_parts_details.consumed_part_status_id != 1 AND spare_parts_details.shipped_date < DATE_ADD(CURRENT_TIMESTAMP(), INTERVAL 3 MONTH) AND spare_parts_details.shipped_date > CURRENT_TIMESTAMP() AND spare_parts_details.status IN('Ok Part To Be Shipped By SF','Spare Parts Delivered to SF','Defective Part To Be Shipped By SF','Courier Lost Approval Pending','Defective Part Rejected By Warehouse','Defective Part Received By Warehouse','Ok Part Rejected By Warehouse','Ok Part Received By Warehouse','Ok Part Shipped By SF','Defective Part Shipped By SF')" => NULL);
         $spare_parts_data = $this->inventory_model->get_generic_table_details('spare_parts_details', $select, $where, '');
         $awb_array = array();
         foreach ($spare_parts_data as $value) {

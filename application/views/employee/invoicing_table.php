@@ -149,10 +149,10 @@
                       </li>
                       <li class="divider"></li>
                       <li><a href="<?php echo base_url(); ?>employee/invoice/view_invoice/<?php echo $invoice['vendor_partner']; ?>/<?php echo $invoice['invoice_id']; ?>" target="_blank">View Invoice</a></li>
-                      <?php if($invoice['sub_category']==OUT_OF_WARRANTY && ($this->session->userdata('user_group') == _247AROUND_ADMIN || $this->session->userdata('user_group') == _247AROUND_ACCOUNTANT)){ ?>
+                      <?php /* if($invoice['sub_category']==OUT_OF_WARRANTY && ($this->session->userdata('user_group') == _247AROUND_ADMIN || $this->session->userdata('user_group') == _247AROUND_ACCOUNTANT)){ ?>
                       <li class="divider"></li>
                       <li><a onclick ="cancel_invoice('<?php echo $invoice['vendor_partner']; ?>','<?php echo $invoice['invoice_id']; ?>')" target="_blank">Cancel Invoice</a></li>
-                      <?php } ?>
+                      <?php } */ ?>
                     </ul>
                 </div>
             
@@ -176,10 +176,10 @@
                       <li><a href="<?php echo base_url()?>employee/invoice/sendInvoiceMail/<?php echo $invoice['invoice_id']; ?>">Resend Invoice</a></li>
                       <li class="divider"></li>
                       <li><a href="<?php echo base_url(); ?>employee/invoice/view_invoice/<?php echo $invoice['vendor_partner']; ?>/<?php echo $invoice['invoice_id']; ?>" target="_blank">View Invoice</a></li>
-                      <?php if($invoice['sub_category']==OUT_OF_WARRANTY && ($this->session->userdata('user_group') == _247AROUND_ADMIN || $this->session->userdata('user_group') == _247AROUND_ACCOUNTANT)){ ?>
+                      <?php /* if($invoice['sub_category']==OUT_OF_WARRANTY && ($this->session->userdata('user_group') == _247AROUND_ADMIN || $this->session->userdata('user_group') == _247AROUND_ACCOUNTANT)){ ?>
                       <li class="divider"></li>
                       <li><a onclick ="cancel_invoice('<?php echo $invoice['vendor_partner']; ?>','<?php echo $invoice['invoice_id']; ?>')" target="_blank">Cancel Invoice</a></li>
-                      <?php } ?>
+                      <?php }*/ ?>
                     </ul>
                 </div>
             <?php } ?>

@@ -159,7 +159,7 @@
                             <?php if(!empty($spare_shipped_flag)){ ?>
                             <div class="radio ">
                                 <label class="<?php if(!empty($nrn_flag) && $nrn_flag==1){ echo "hide"; } ?>">
-                                <input type="radio" id="spare_not_delivered" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="<?php echo SPARE_PARTS_NOT_DELIVERED_TO_SF; ?>" >
+                                <input type="radio" id="spare_not_delivered" name="reason" class="internal_status" data-courier-auto-delivered='<?php echo json_encode($spare_delivered_to_sf_data); ?>' value="<?php echo SPARE_PARTS_NOT_DELIVERED_TO_SF; ?>" >
                                 <?php echo SPARE_PARTS_NOT_DELIVERED_TO_SF. "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - Reschedule"; ?>
                                 </label>
                             </div>
@@ -719,6 +719,22 @@
         </div>
     </div>
 </div>
+
+<div id="partsNotDelivered" class="modal fade in" role="dialog" aria-hidden="false">
+    <div class="modal-backdrop"></div>
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content" style="width: 100%;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h3 class="modal-title">Part Not Received </h3>
+            </div>
+            <div class="modal-body">
+                <div id="html_body_id"></div>
+            </div>
+        </div>
+    </div>
+</div>
 <script type="text/javascript">
     $(".spare_consumption_status").select2();
     $('#symptom_0').select2();
@@ -1203,8 +1219,7 @@
             $('#submitform').val('Update Booking');
             $("#part_brought_at").show();
         } else  if(id ==="rescheduled" || id === "product_not_delivered" 
-                || id=== "reschedule_for_upcountry"
-                || id=== "spare_not_delivered"){
+                || id=== "reschedule_for_upcountry"){
             $(".spare_parts").attr("disabled", "true");
             $('#hide_spare').hide();
             $('#hide_rescheduled').show();
@@ -1437,7 +1452,79 @@
         $("#serial_number").attr('readonly', 'readonly');
         $("#serial_number").css("cursor", "not-allowed");
         $("#serial_number").css("pointer-events","none");
-    <?php } } ?>    
+    <?php } } ?> 
+        
+   /*
+    * Desc: Part not received by SF to option madal
+    */
+
+    $(document).on('click', '#spare_not_delivered', function () {
+        $("#hide_spare").hide();
+        $("#part_brought_at").hide();
+        var spare_parts_json = $(this).attr("data-courier-auto-delivered");
+        var spare_parts_obj = JSON.parse(spare_parts_json);
+        if(spare_parts_obj.length > 0){
+          $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url() ?>employee/service_centers/validate_spare_parts_to_marked_not_received_sf',
+                data: {spare_parts_data: spare_parts_obj},
+                success: function (htmlData) {
+                    $("#html_body_id").html(htmlData);
+                    $('#partsNotDelivered').modal('toggle'); 
+                }
+            });
+        }
+    });
+
+    /*
+     * Desc: This function is used to update details that spare not received by sf
+     */
+     
+    function spare_parts_not_received() {
+        event.preventDefault();
+        var formData = new FormData(document.getElementById("part_not_received"));
+        remarks = $("#part_not_received_remarks").val();
+        var checkbox_flag = '';
+        $(".auto_acknowledge_data").each(function(){
+            if($(this).is(":checked") == true){
+                checkbox_flag = 1;
+            }
+        });
+        
+        if (checkbox_flag == '') {
+           swal(messageConstant[0]['247around006']);
+           return false; 
+        }
+        
+        if (remarks != '') {
+            $("#submit_button_id").prop('disabled', true);
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url() ?>employee/service_centers/process_to_part_not_received_by_sf',
+                data: formData,
+                dataType: "json",
+                processData: false,  // tell jQuery not to process the data
+                contentType: false, 
+                success: function (response) {
+                    swal(messageConstant[0][response['error_code']]);
+                    if(response['status']){
+                        window.location.reload();
+                       $('#partsNotDelivered').modal('toggle'); 
+                    }
+                    $("#submit_button_id").prop('disabled', false);
+                }
+            });
+        } else {
+            swal(messageConstant[0]['247around001']);
+            return false;
+        }
+    }
+    
+    $(".close").click(function(){
+        $("#spare_not_delivered").prop('checked', false);
+    });
+    
+    
 </script>
 <style type="text/css">
     #hide_spare, #hide_rescheduled { display: none;}

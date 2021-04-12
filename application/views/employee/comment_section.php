@@ -20,16 +20,16 @@
     </div>
 </form>
 <div class="row">
-    <div class="col-md-6" id="comment_section" style="display:none;">
-        <textarea rows="10"  class="form-control" id="comment" name="comment" required="" placeholder="Enter comments"></textarea>
+    <div class="col-md-12" id="comment_section" style="display:none;">
+        <textarea rows="5"  class="form-control" id="comment" name="comment" required="" placeholder="Enter comments"></textarea>
         <br>
         <button type="Submit" class="btn btn-primary" id="add_btn" value="Add" onclick="addComment()" >Add</button>
         <button type="Submit" class="btn btn-primary" id="cancel_btn" value="Cancel" onclick="cancel();" >Cancel</button>
 
     </div>
 
-    <div class="col-md-6" id="update_section" style="display:none;">
-        <textarea rows="10"  class="form-control" id="comment2" name="comment2" required=""></textarea>
+    <div class="col-md-12" id="update_section" style="display:none;">
+        <textarea rows="5"  class="form-control" id="comment2" name="comment2" required=""></textarea>
         <br>
         <button type="Submit" class="btn btn-primary" id="update_btn" value="Update" onclick="updateComment()" >Update</button>
         <button type="Submit" class="btn btn-primary" id="cancel_btn" value="Cancel" onclick="cancel();" >Cancel</button>

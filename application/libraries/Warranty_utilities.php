@@ -43,8 +43,6 @@ class Warranty_utilities {
             if(!empty($rec_data['part']))
             {
                 $strPartTypeCondition = " and inventory_parts_type.part_type IN ('".implode("','", $rec_data['part'])."') ";
-                $data["join"]["warranty_plan_part_type_mapping"] = "warranty_plans.plan_id = warranty_plan_part_type_mapping.plan_id";
-                $data["join"]["inventory_parts_type"] = "warranty_plan_part_type_mapping.part_type_id = inventory_parts_type.id";
                 $data["group_by"] = "inventory_parts_type.part_type,appliance_model_details.id,appliance_model_details.model_number,warranty_plans.period_start, warranty_plans.period_end";
                 $data["select"] = "inventory_parts_type.part_type";
             }
@@ -99,21 +97,36 @@ class Warranty_utilities {
      * @return type
      */
     function map_warranty_period_to_booking($arrBooking, $arrWarrantyData){
+        $arrBooking['plan_id'] = !empty($arrBooking['plan_id']) ? $arrBooking['plan_id'] : "";
+        $arrBooking['no_of_parts'] = !empty($arrBooking['no_of_parts']) ? $arrBooking['no_of_parts'] : "";
+        $arrBooking['parts'] = !empty($arrBooking['parts']) ? $arrBooking['parts'] : "";
         $arrBooking['in_warranty_period'] = !empty($arrBooking['in_warranty_period']) ? $arrBooking['in_warranty_period'] : 0;
         $arrBooking['extended_warranty_period'] = !empty($arrBooking['extended_warranty_period']) ? $arrBooking['extended_warranty_period'] : 0;
         foreach($arrWarrantyData as $recWarrantyData)
         {
-            if((strtotime($recWarrantyData['plan_start_date']) <= strtotime($arrBooking['purchase_date'])) && (strtotime($recWarrantyData['plan_end_date']) >= strtotime($arrBooking['purchase_date']))){
-                if($recWarrantyData['in_warranty_period'] > $arrBooking['in_warranty_period'])
-                {
+            if((strtotime($recWarrantyData['plan_start_date']) <= strtotime($arrBooking['purchase_date'])) && (strtotime($recWarrantyData['plan_end_date']) >= strtotime($arrBooking['purchase_date']))){                
+                /**
+                    // Select Plan on the Basis of Maixmum Duration
+                    if($recWarrantyData['in_warranty_period'] > $arrBooking['in_warranty_period'])
+                    {
+                        $arrBooking['in_warranty_period'] = $recWarrantyData['in_warranty_period'];
+                    }
+                    if($recWarrantyData['extended_warranty_period'] > $arrBooking['extended_warranty_period'])
+                    {
+                        $arrBooking['extended_warranty_period'] = $recWarrantyData['extended_warranty_period'];
+                    }
+                */
+                
+                // Select Plan on the Basis of Maximum number of Part Types Allowed
+                if($recWarrantyData['no_of_parts'] >= $arrBooking['no_of_parts']){
+                    $arrBooking['plan_id'] = $recWarrantyData['plan_id'];
+                    $arrBooking['no_of_parts'] = $recWarrantyData['no_of_parts'];
+                    $arrBooking['parts'] = $recWarrantyData['parts'];
                     $arrBooking['in_warranty_period'] = $recWarrantyData['in_warranty_period'];
-                }
-                if($recWarrantyData['extended_warranty_period'] > $arrBooking['extended_warranty_period'])
-                {
                     $arrBooking['extended_warranty_period'] = $recWarrantyData['extended_warranty_period'];
                 }
             }
-        }
+        }        
         // If no In-warranty Plan found, set default In-warranty to 12 Months
         $arrBooking['in_warranty_period'] = !empty($arrBooking['in_warranty_period']) ? $arrBooking['in_warranty_period'] : 12;
         return $arrBooking;
@@ -126,28 +139,39 @@ class Warranty_utilities {
      * @param type $arrBookingsWarrantyData
      * @return type
      */
-    function get_bookings_warranty_status($arrBookingsWarrantyData)
+    function get_bookings_warranty_status($arrBookingsWarrantyData, $arrInstallationData = array())
     {
         $arrBookingWiseWarrantyStatus = [];                 
         if(!empty($arrBookingsWarrantyData)){
-            $arrBookingWiseWarrantyStatus = array_map(function($recWarrantyData) {
+            $arrBookingWiseWarrantyStatus = array_map(function($recWarrantyData) use ($arrInstallationData) {
                 $warranty_found = !empty($recWarrantyData['in_warranty_period']) ? true : false;
                 $in_warranty_period = !empty($recWarrantyData['in_warranty_period']) ? $recWarrantyData['in_warranty_period'] : 12;
                 $extended_warranty_period = !empty($recWarrantyData['extended_warranty_period']) ? $recWarrantyData['extended_warranty_period'] : 0;
                 $warrantyStatus = $this->get_warranty_status($in_warranty_period, $extended_warranty_period, $recWarrantyData['purchase_date'], $recWarrantyData['booking_create_date'], $warranty_found);
                 if($recWarrantyData['purchase_date'] == '1970-01-01' || empty($recWarrantyData['purchase_date'])):
-                    return "No Data Found";
+                    $data['status'] = "No Data Found";
                 elseif($recWarrantyData['booking_create_date'] == '1970-01-01'):
-                    return "Booking Create Date Not Valid";
+                    $data['status'] = "Booking Create Date Not Valid";
                 elseif(empty($recWarrantyData['service_id'])):
-                    return "Product Not Valid";
+                    $data['status'] = "Product Not Valid";
                 elseif(empty($recWarrantyData['partner_id'])):
-                    return "Partner Not Valid";
+                    $data['status'] = "Partner Not Valid";
                 elseif(empty($recWarrantyData['booking_id'])):
-                    return "Booking Id Not Valid";
+                    $data['status'] = "Booking Id Not Valid";
                 else:
-                    return $warrantyStatus;
-                endif;                
+                    $data['booking_id'] = $recWarrantyData['booking_id'];
+                    $data['plan_id'] = !empty($recWarrantyData['plan_id']) ? $recWarrantyData['plan_id'] : "";
+                    $data['no_of_parts'] = !empty($recWarrantyData['no_of_parts']) ? $recWarrantyData['no_of_parts'] : "";
+                    $data['parts'] = !empty($recWarrantyData['parts']) ? $recWarrantyData['parts'] : "";
+                    $data['status'] = $warrantyStatus; 
+                    // Save Applied Plan Id against Booking
+                    $this->My_CI->warranty_model->add_warranty_plan_against_booking($data['plan_id'], $data['booking_id']);                    
+                    if(!empty($arrInstallationData[$recWarrantyData['booking_id']]['installation_date'])){
+                        $data['installation_date'] = $arrInstallationData[$recWarrantyData['booking_id']]['installation_date'];
+                        $data['installation_booking'] = $arrInstallationData[$recWarrantyData['booking_id']]['installation_booking'];
+                    }
+                endif;
+                return $data;
             }, $arrBookingsWarrantyData);
         }  
         return $arrBookingWiseWarrantyStatus;
@@ -199,20 +223,30 @@ class Warranty_utilities {
      * @return JSON
      */
     public function get_warranty_status_of_bookings($arrBookings, $checkInstallationDate = 0){  
-        // Check if warranty is to be calculated on the basis of DOI od DOP
+        // foreach Booking , Check if warranty is to be calculated on the basis of DOI od DOP
         // If warranty is to calculated on the basis of DOI, replace DOP with DOI
-        $partner_id = $arrBookings[0]['partner_id'];
-        $arr_partner_data = $this->My_CI->partner_model->getpartner($partner_id);
-        if(!empty($arr_partner_data[0]['check_warranty_from'])){
-            $checkInstallationDate = $arr_partner_data[0]['check_warranty_from'];
+        foreach($arrBookings as $key => $arrBooking){
+            $partner_id = $arrBooking['partner_id'];
+            $booking_id = $arrBooking['booking_id'];
+            $arr_partner_data = $this->My_CI->partner_model->getpartner($partner_id);
+            
+            $arrInstallationData = array();
+            $arrBooking['checkInstallationDate'] = 0;               
+            if(!empty($arr_partner_data[0]['check_warranty_from'])){
+                $arrBooking['checkInstallationDate'] = $arr_partner_data[0]['check_warranty_from'];
+            }
+            
+            // Fetch Installation Date against each Booking
+            if($arrBooking['checkInstallationDate'] == WARRANTY_ON_DOI){
+                $arrBookingData[0] = $arrBooking;
+                $arrInstallationData[$booking_id] = $this->My_CI->booking_utilities->get_installation_date_of_booking($arrBookingData);
+                if(!empty($arrInstallationData[$booking_id]['installation_date'])){
+                    $arrBooking['purchase_date'] = date("d-m-Y", strtotime($arrInstallationData[$booking_id]['installation_date']));
+                } 
+            }
         }
-        if($checkInstallationDate == WARRANTY_ON_DOI){
-            $arrInstallationData = $this->My_CI->booking_utilities->get_installation_date_of_booking($arrBookings);
-            if(!empty($arrInstallationData['installation_date'])){
-                $arrBookings[0]['purchase_date'] = date("d-m-Y", strtotime($arrInstallationData['installation_date']));
-            } 
-        }
-        $arrWarrantyData = $this->get_warranty_data($arrBookings);  
+        
+        $arrWarrantyData = $this->get_warranty_data($arrBookings);          
         $arrModelWiseWarrantyData = $this->get_model_wise_warranty_data($arrWarrantyData);         
         foreach($arrBookings as $key => $arrBooking)
         {            
@@ -222,21 +256,17 @@ class Warranty_utilities {
                 $arrBookings[$key] = $this->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData[$model_number]);
             }
             if (!empty($arrBooking['service_id']) && !empty($arrModelWiseWarrantyData['ALL'.$arrBooking['service_id']])) {
-                $arrBookings[$key] = $this->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData['ALL'.$arrBooking['service_id']]);
+                $arrBookings[$key] = $this->map_warranty_period_to_booking($arrBookings[$key], $arrModelWiseWarrantyData['ALL'.$arrBooking['service_id']]);
             }
             $arrBookings[$arrBooking['booking_id']] = $arrBookings[$key];
             unset($arrBookings[$key]);
-        }
-        $arrBookingsWarrantyStatus = $this->get_bookings_warranty_status($arrBookings);  
-        if(!empty($checkInstallationDate) && !empty($arrInstallationData['installation_date'])){
-            $arrBookingsWarrantyStatus['installation_date'] = $arrInstallationData['installation_date'];
-            $arrBookingsWarrantyStatus['installation_booking'] = $arrInstallationData['installation_booking'];
-        }
+        }        
+        $arrBookingsWarrantyStatus = $this->get_bookings_warranty_status($arrBookings, $arrInstallationData); 
         return $arrBookingsWarrantyStatus;
     }
 
     /**
-     * This function is used to fetch all data, required to fing booking warranty status
+     * This function is used to fetch all data, required to find booking warranty status
      * @param $arrBookingIds : Array of Booking Ids
      * @author Prity Sharma
      * @date 20-08-2019
@@ -268,7 +298,7 @@ class Warranty_utilities {
             'EW' => ['Extended', 'AMC', 'Repeat', 'PDI', 'Tech Visit', 'Spare Cannibalization', 'Free Remote Assistance', 'Handling Charges']
         ];
         $arr_warranty_status_full_names = ['IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty'];
-        $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];
+        $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id]['status'];
         // If no data found against warranty, consider booking as of Out Warranty
         if($warranty_checker_status != 'IW' && $warranty_checker_status != 'EW'):
             $warranty_checker_status = "OW";
@@ -309,10 +339,10 @@ class Warranty_utilities {
                 $returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type."), Please change request type of the Booking.";
             }   
         }
-        if(!empty($arrBookingsWarrantyStatus['installation_date']) && !empty($arrBookingsWarrantyStatus['installation_booking'])){
-            $returnMessage .= " Product Installation Date : ".date('d-M-Y', strtotime($arrBookingsWarrantyStatus['installation_date'])).",  Booking : ".$arrBookingsWarrantyStatus['installation_booking'];
-            $arrReturn['installation_date'] = $arrBookingsWarrantyStatus['installation_date'];
-            $arrReturn['installation_booking'] = $arrBookingsWarrantyStatus['installation_booking'];
+        if(!empty($arrBookingsWarrantyStatus[$booking_id]['installation_date']) && !empty($arrBookingsWarrantyStatus[$booking_id]['installation_booking'])){
+            $returnMessage .= " Product Installation Date : ".date('d-M-Y', strtotime($arrBookingsWarrantyStatus[$booking_id]['installation_date'])).",  Booking : ".$arrBookingsWarrantyStatus[$booking_id]['installation_booking'];
+            $arrReturn['installation_date'] = $arrBookingsWarrantyStatus[$booking_id]['installation_date'];
+            $arrReturn['installation_booking'] = $arrBookingsWarrantyStatus[$booking_id]['installation_booking'];
         }
         $arrReturn['status'] = $warranty_mismatch;
         $arrReturn['message'] = $returnMessage;

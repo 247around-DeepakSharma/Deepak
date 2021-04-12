@@ -119,9 +119,9 @@
                                     </div>
                                 </div>
                                 
-                                
-                            </div>
-                            <div class="col-md-12">
+                               
+                                </div>
+                             <div class="col-md-12">
                                 
                                 <div class="col-md-6">
                                     <div class="form-group <?php
@@ -155,7 +155,6 @@
                                             <select id="service" class="form-control" name ="service" data-toggle="tooltip" data-placement="top" data-html="true">
                                                 <option value="0" selected>Select</option>
                                             </select>
-                                            <p>Please select product after selecting partner.</p>
                                             <?php echo form_error('service'); ?>
                                             <p class="alert alert-danger error_message" id="service_error">
                                                 
@@ -165,8 +164,43 @@
                                 </div>
                                 
                             </div>
-                            
-                            
+                            <div class="col-md-12">
+                                  <div class="col-md-6">
+                                   <div  class="form-group " <?php  if (form_error('part_type')) {
+                                             echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label  for="state" class="col-md-3" vertical-align">Part Type*</label>
+                                        <div class="col-md-8">
+                                            <select id="part_type" class="form-control" name ="part_type[]" multiple placeholder="Please Select Part Type">
+                                            </select>
+                                             <?php echo form_error('part_type'); ?>
+                                            <p class="alert alert-danger error_message" id="part_error">
+                                        </div>
+                                    </div>               
+                                </div>
+                                <div class="col-md-6">
+                                    <div  class="form-group <?php
+                                        if (form_error('state')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label  for="state" class="col-md-3 vertical-align">State*</label>
+                                        <div class="col-md-8">
+                                            <select id="state" class="form-control" name ="state[]" multiple>
+                                                <option value="0" selected>All</option>
+                                            </select>
+                                            <?php echo form_error('state'); ?>
+                                            <p class="alert alert-danger error_message" id="state_error">
+                                                
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </div>  
+                           
+                           
                             <div class="col-md-12">
                                 <div class="col-md-6">
                                  <div  class="form-group <?php
@@ -298,42 +332,7 @@
                             
                             
                             <div class="col-md-12">
-                                <div class="col-md-6">
-                                    <div  class="form-group <?php
-                                        if (form_error('state')) {
-                                            echo 'has-error';
-                                        }
-                                        ?>">
-                                        <label  for="state" class="col-md-3 vertical-align">State*</label>
-                                        <div class="col-md-8">
-                                            <select id="state" class="form-control" name ="state[]" multiple>
-                                                <option value="0" selected>All</option>
-                                            </select>
-                                            <?php echo form_error('state'); ?>
-                                            <p class="alert alert-danger error_message" id="state_error">
-                                                
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group <?php
-                                        if (form_error('description')) {
-                                            echo 'has-error';
-                                        }
-                                        ?>">
-                                        <label for="description" class="col-md-3 vertical-align">Description</label>
-                                        <div class="col-md-8"> 
-                                            <textarea class="form-control blockspacialchar" rows = "5" cols = "50" value="<?php echo set_value('description');?>" name = "description" id="description"></textarea>
-                                            <?php echo form_error('description'); ?>
-                                            <p class="alert alert-danger error_message" id="description_error">
-                                                
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-
+                                
                                 <div class="col-md-6">
                                     <div class="form-group <?php
                                         if (form_error('plan_depends_on')) {
@@ -353,11 +352,30 @@
                                         </div>
 
                             
-                        </div>
-                </div>
-                
-                    
-                
+                          </div>
+                           </div>
+               
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('description')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="description" class="col-md-3 vertical-align">Description</label>
+                                        <div class="col-md-8"> 
+                                            <textarea class="form-control blockspacialchar" rows = "5" cols = "50" value="<?php echo set_value('description');?>" name = "description" id="description"></textarea>
+                                            <?php echo form_error('description'); ?>
+                                            <p class="alert alert-danger error_message" id="description_error">
+                                                
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                                
+                                
+                                
                     <div class="clear clear_bottom">
                         <br>
                         <center><input type="submit" value="Save Plan Details" class="btn btn-primary" id="submit_btn">
@@ -381,6 +399,9 @@
     $("#partner").select2();
     $("#service").select2();
     $("#state").select2();
+   $('#part_type').select2({
+        placeholder: "Please select Part Type",
+    });
     $("#start_date").datepicker({dateFormat: 'yy-mm-dd', maxDate: "<?=date('Y-m-d', strtotime('+ 10 years'));?>", changeYear: true, changeMonth: true});
     $("#end_date").datepicker({dateFormat: 'yy-mm-dd', maxDate: "<?=date('Y-m-d', strtotime('+ 10 years'));?>", changeYear: true, changeMonth: true});
     
@@ -447,6 +468,14 @@
             else
             {
                  hide_error("state_error");    
+            }
+             if(!$('#part_type').val())
+            {
+                display_error("part_error", "Please Select Part Type");
+            }
+            else
+            {
+                 hide_error("part_error");    
             }
             
             
@@ -590,6 +619,21 @@ function get_state_list()
          alert("Something went wrong while loading state list!");
       })
 }
-
+//Deepak Sharma
+//function to get part type list in dropdown
+$("#service").change(function(){
+var service_id = $("#service").val();
+ $.ajax({
+       type: 'POST',
+       url: '<?php echo base_url(); ?>employee/inventory/get_part_type_option_list',
+       data: {service_id:service_id}
+     })
+     .done (function(data) {
+         $('#part_type').empty().append(data);
+     })
+     .fail(function(jqXHR, textStatus, errorThrown){
+         alert("Something went wrong while loading Part Type list!");
+      })
+});
     
 </script>

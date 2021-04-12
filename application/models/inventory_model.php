@@ -372,7 +372,13 @@ class Inventory_model extends CI_Model {
         if( isset($post['spare_invoice_flag']) && !empty($post['spare_invoice_flag'])){
             $this->db->join('oow_spare_invoice_details', 'spare_parts_details.id = oow_spare_invoice_details.spare_id','left');  
         }
-
+        
+         
+        /* Join to courier company invoice details table */     
+        
+        if (!empty($post['join_courier_company_invoice'])) {
+            $this->db->join('courier_company_invoice_details', 'spare_parts_details.awb_by_partner = courier_company_invoice_details.awb_number', 'left');
+        }
 
         /* JOIN with symtom to get the symptom  */ 
         if (!empty($post['symptom'])) {
