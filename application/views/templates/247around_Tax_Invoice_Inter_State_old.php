@@ -109,14 +109,14 @@
                 <td align="left" colspan="1">0</td>
             </tr>
             <tr>
-                <td width="30%">Bank Name: ICICI Bank</td>
+                <td width="30%">Bank Name: HDFC Bank</td>
                 <td rowspan="2" colspan="4" style=" background-color: rgb(211,211,211);" align="center"><b>For Blackmelon Advance <br>Technology Co. Pvt. Ltd.</td>
             </tr>
             <tr>
-                <td width="30%">Acc No: 102405500277</td>
+                <td width="30%">Acc No: 50200030070899</td>
             </tr>
             <tr>
-                <td width="30%">IFSC: ICIC0001024</td>
+                <td width="30%">IFSC: HDFC0000709</td>
                 <td rowspan="2" colspan="4" align="center"><img src="<?php echo base_url()."images/anujsign.png"; ?>" style="width: 40%;"></td>
             </tr>
             <tr>
