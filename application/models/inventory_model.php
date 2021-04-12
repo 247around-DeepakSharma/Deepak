@@ -4512,16 +4512,7 @@ class Inventory_model extends CI_Model {
         return $query->result_array();
     }
 
-    /**
-     *  @desc : This function is used to get total filtered a oow spare parts
-     *  @param : $post string
-     *  @return: Array()
-     */
-    function count_filtered_oow_spare_invoice_list($post){
-        $this->_get_spare_parts_query($post);
-        $query = $this->db->get();
-        return count($query->result_array());
-    }
+   
     
     /**
      *  @desc : This function is used to get total oow spare parts
