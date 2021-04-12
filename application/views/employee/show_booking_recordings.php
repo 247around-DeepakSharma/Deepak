@@ -21,7 +21,9 @@
                     <td><?php echo $row['full_name']; ?></td>
                    <?php if(!empty($row['display_name'])){?>
                      <td><?php echo $row['display_name'];?></td>
-                   <?php }?>
+                   <?php }else { ?>
+                       <td><?php echo $row['groups']; ?></td>
+                     <?php }?>
                     <td><a href="<?php echo $row['recording_url']; ?>" target="_blank"><span class="fa fa-microphone fa-2x" style="display: block;float:left;" ></span></a></td>                    
                 </tr>
             <?php } ?>
