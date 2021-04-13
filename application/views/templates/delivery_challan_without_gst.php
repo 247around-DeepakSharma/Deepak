@@ -79,7 +79,7 @@
             <?php } ?>
             <?php if(!empty($excel_data['show_serial_number'])){?>
             <td  style="text-align: center"><b>Model Number</b></td>
-        <td  style="text-align: center"><b>Serial Number</b></td>
+	        <td  style="text-align: center"><b>Serial Number</b></td>
             <?php } ?>
             <td style="text-align: center;"><b>Qty</b></td>
             <td style="text-align: center; ;"><b>Rate</b></td>

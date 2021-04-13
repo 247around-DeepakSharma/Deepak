@@ -2955,6 +2955,7 @@ ALTER TABLE `vendor_partner_variable_charges` ADD `approval_file` VARCHAR(64) NU
 ALTER TABLE `spare_parts_details` ADD `shipped_hsn_code` INT(11) NULL DEFAULT NULL AFTER `model_number_shipped`;
 ALTER TABLE boloaaka_spare_parts_details.`trigger_spare_parts_details` ADD `shipped_hsn_code` INT(11) NULL DEFAULT NULL AFTER `model_number_shipped`;
 ALTER TABLE `oow_spare_invoice_details` ADD `hsn_code` INT(11) NULL DEFAULT NULL AFTER `hsn_code_old`;
+
 ALTER TABLE `challan_details` ADD `challan_date` DATE NULL DEFAULT NULL AFTER `challan_id`;
 
 

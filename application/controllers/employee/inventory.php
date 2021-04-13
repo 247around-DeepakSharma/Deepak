@@ -9336,7 +9336,6 @@ function get_bom_list_by_inventory_id($inventory_id) {
                     $invoice_details[$key]['hsn_code'] = NULL;
                 }
 
-            
                 $invoice_details[$key]['gst_rate'] = $val['gst_rate'];
                 $invoice_details[$key]['invoice_pdf'] = $val['invoice_pdf'];
                 $invoice_details[$key]['invoice_amount'] = $val['total_invoice_amount'] - $tax_amount;
