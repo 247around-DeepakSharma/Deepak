@@ -2382,6 +2382,7 @@ class Partner extends CI_Controller {
                                 $status = $data['status'] = SPARE_SHIPPED_BY_PARTNER;
                             }
                             $data['parts_shipped'] = $value['shipped_parts_name'];
+                            $data['shipped_hsn_code'] = $value['hsn_code'];
                             $data['model_number_shipped'] = $value['shipped_model_number'];
                             $data['shipped_parts_type'] = $value['shipped_part_type'];
                             $margin = $this->inventory_model->get_oow_margin($value['requested_inventory_id'], array('part_type' => $value['shipped_part_type'],

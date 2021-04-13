@@ -2812,8 +2812,8 @@ INSERT INTO `variable_charges_type` (`id`, `name`, `type`, `description`, `hsn_c
 CREATE TABLE `variable_handling_invoice` (
   `id` int NOT NULL,
   `invoice_id` int NOT NULL,
-  `taxable_value` decimal(10,0) NOT NULL,
-  `gst_rate` decimal(10,0) NOT NULL,
+  `taxable_value` decimal(10,2) NOT NULL,
+  `gst_rate` decimal(10,2) NOT NULL,
   `on_month` int NOT NULL,
   `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -2884,4 +2884,8 @@ COMMIT;
 INSERT INTO `variable_charges_type` (`id`, `name`, `type`, `description`, `hsn_code`, `gst_rate`, `is_fixed`, `updated_date`, `created_date`) VALUES (NULL, 'Monthly Management Charges', 'monthly-management-charges', 'monthly-management-charges', '998715', '18', '1', '2021-02-23 00:00:00', '2018-11-20 00:00:00');
 ALTER TABLE `vendor_partner_variable_charges` ADD `approval_file` VARCHAR(64) NULL DEFAULT NULL AFTER `fixed_charges`;
 
+--Abhay 12 April 2021
+ALTER TABLE `spare_parts_details` ADD `shipped_hsn_code` INT(11) NULL DEFAULT NULL AFTER `model_number_shipped`;
+ALTER TABLE boloaaka_spare_parts_details.`trigger_spare_parts_details` ADD `shipped_hsn_code` INT(11) NULL DEFAULT NULL AFTER `model_number_shipped`;
+ALTER TABLE `oow_spare_invoice_details` ADD `hsn_code` INT(11) NULL DEFAULT NULL AFTER `hsn_code_old`;
 
