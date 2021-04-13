@@ -1416,7 +1416,7 @@ $str_disabled = ($is_spare_requested || $is_partner_invoiced) ? "pointer-events:
                 singleDatePicker: true,
                 showDropdowns: true,
                 minDate:"01-01-1998",
-                maxDate:today,
+                maxDate:'<?php  echo date("d-m-Y", strtotime($booking_history[0]['create_date']))?>',
                 locale:{
                     format: 'DD-MM-YYYY'
                 }
