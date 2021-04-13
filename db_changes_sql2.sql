@@ -2876,8 +2876,8 @@ INSERT INTO `variable_charges_type` (`id`, `name`, `type`, `description`, `hsn_c
 CREATE TABLE `variable_handling_invoice` (
   `id` int NOT NULL,
   `invoice_id` int NOT NULL,
-  `taxable_value` decimal(10,0) NOT NULL,
-  `gst_rate` decimal(10,0) NOT NULL,
+  `taxable_value` decimal(10,2) NOT NULL,
+  `gst_rate` decimal(10,2) NOT NULL,
   `on_month` int NOT NULL,
   `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -2965,4 +2965,3 @@ ALTER TABLE `challan_details` CHANGE `type` `type` INT NULL DEFAULT NULL COMMENT
 
 --Abhay 21 April2021
 ALTER TABLE `employee` ADD `call_closure` INT(1) NOT NULL AFTER `role`;
->>>>>>> c562792b1... All any user to audit booking from admin panel #CRMS-2543

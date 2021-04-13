@@ -778,25 +778,58 @@ class Invoice_lib {
         foreach ($spare_details as $value2) {
             if (!empty($value2)) {
                 $tmp_arr = array();
+                $tmp_arr['hsn_code'] = "";
+                $sp_inventory_id = 0;
+                $spare_id = 0;
+                if(isset($value2[0]['id'])){
+                    $spare_id = $value2[0]['id'];
+                } else if(isset($value2[0]['spare_id'])){
+                    $spare_id = $value2[0]['spare_id'];
+                }
+               
                 if($value2[0]['challan_approx_value'] > 1){
                     
                     $tmp_arr['value'] = $value2[0]['challan_approx_value'];
                     
                 } else if(isset($value2[0]['inventory_id'])){
+                    $sp_inventory_id = $value2[0]['inventory_id'];
                     $c_value = $this->get_challan_value($value2[0]['inventory_id'], $value2[0]['shipped_quantity']);
                     if($c_value){
                          $tmp_arr['value'] = $c_value;
-                         $spare_id = 0;
-                         if(isset($value2[0]['id'])){
-                             $spare_id = $value2[0]['id'];
-                         } else if(isset($value2[0]['spare_id'])){
-                             $spare_id = $value2[0]['spare_id'];
-                         }
+                         
                          if(!empty($spare_id)){
                              $this->ci->service_centers_model->update_spare_parts(array('id' => $spare_id), array('challan_approx_value' => $c_value));
                          }
                     }
                 }
+                
+                if(!empty($spare_id)){
+                    $sp = $this->ci->partner_model->get_spare_parts_by_any("shipped_hsn_code, "
+                            . "requested_inventory_id, shipped_inventory_id", array('spare_parts_details.id' => $spare_id));
+                    if(!empty($sp)){
+                        
+                        if(!empty($sp[0]['shipped_hsn_code'])){
+                            $hsn_code_arr = $this->ci->inventory_model->get_hsn_code_details('hsn_code_details.hsn_code', 
+                        array('hsn_code_details.id' => $sp[0]['shipped_hsn_code']));
+
+                            $tmp_arr['hsn_code'] = $hsn_code_arr['shipped_hsn_code'];
+                        } else if(!empty($sp[0]['shipped_inventory_id'])){
+                            $sp_inventory_id = $sp[0]['shipped_inventory_id'];
+                        } else {
+                            $sp_inventory_id = $sp[0]['requested_inventory_id'];
+                        }
+                    }
+                }
+                
+                if(empty($tmp_arr['hsn_code']) && isset($sp_inventory_id)){
+                    
+                    $c_s = "inventory_master_list.hsn_code";
+                    $m = $this->ci->inventory_model->get_inventory_master_list_data($c_s, array('inventory_master_list.inventory_id' => $sp_inventory_id));
+                    if(!empty($m)){
+                        $tmp_arr['hsn_code'] = $m[0]['hsn_code'];
+                    }
+                    
+                } 
                 
                 if(empty($tmp_arr['value'])){
                     $tmp_arr['value'] = $value2[0]['challan_approx_value'];
@@ -820,7 +853,7 @@ class Invoice_lib {
                     $tmp_arr['courier_name'] = 'NA';
                 }
                 
-                if(($challan_generated_by_wh == true) || $sf_details[0]['is_gst_doc'] == 1){
+                if(($challan_generated_by_wh == true) || (!empty($partner_details[0]['gst_number']))){
                     
                    $taxable_value = $tmp_arr['value']/(1 + $value2[0]['gst_rate']/100); 
                     $rate = $taxable_value/$value2[0]['shipped_quantity'];
@@ -836,19 +869,23 @@ class Invoice_lib {
                         $tmp_arr['i_gst_amount'] = ($tmp_arr['value'] - $taxable_value);
                     }
                     
+                } else {
+                    $taxable_value = $tmp_arr['value']/(1 + $value2[0]['gst_rate']/100); 
+                    $rate = $taxable_value/$value2[0]['shipped_quantity'];
+                    $tmp_arr['rate'] = $rate;
                 }
                 
                 array_push($excel_data['excel_data_line_item'], $tmp_arr);
             }
         }
         
-        if(($challan_generated_by_wh == true) || $sf_details[0]['is_gst_doc'] == 1){
+        if(($challan_generated_by_wh == true) || (!empty($partner_details[0]['gst_number'])) ){
             $template = 'delivery_challan_template';
             $excel_data['excel_data']['sf_gst'] = $sf_details[0]['gst_number'];
             $signature_file = FALSE;
         } else {
             $template = "delivery_challan_without_gst";
-            $excel_data['excel_data']['sf_gst'] = '';
+            $excel_data['excel_data']['sf_gst'] = $sf_details[0]['gst_number'];
             $excel_data['excel_data']['sf_owner_name'] = $sf_details[0]['owner_name'];
             //get signature file from s3 and save it to server
             if (!empty($sf_details[0]['signature_file'])) {
@@ -981,7 +1018,16 @@ class Invoice_lib {
             }
 
 
-            $sf_details = $this->ci->vendor_model->getVendorDetails("name as company_name,concat(service_centres.address,',', service_centres.district,',',service_centres.state,',','Pincode - ',service_centres.pincode) as address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,gst_no as gst_number, is_signature_doc,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number, state", array('id' => $service_center_id));
+            $sf_details = $this->ci->vendor_model->getVendorDetails("name as company_name,concat(service_centres.address,',', service_centres.district,',',service_centres.state,',','Pincode - ',service_centres.pincode) as address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,gst_no as gst_number, is_signature_doc,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number, state, gst_status", array('id' => $service_center_id));
+            
+            if (!empty($sf_details[0]['gst_number']) 
+                && !empty($sf_details[0]['gst_status']) 
+                && !($sf_details[0]['gst_status'] == _247AROUND_CANCELLED || 
+                        $sf_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
+                    // Valid GST
+            } else {
+                $sf_details[0]['gst_number'] = "";
+            }
             
             $select = "concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address,contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number, warehouse_state as state";
 
@@ -1080,8 +1126,16 @@ class Invoice_lib {
 
             }
 
-            $sf_details = $this->ci->vendor_model->getVendorDetails("name as company_name,concat(service_centres.address,',', service_centres.district,',',service_centres.state,',','Pincode - ',service_centres.pincode) as address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,gst_no as gst_number, is_signature_doc,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number, service_centres.state", array('id' => $service_center_id));
+            $sf_details = $this->ci->vendor_model->getVendorDetails("name as company_name,concat(service_centres.address,',', service_centres.district,',',service_centres.state,',','Pincode - ',service_centres.pincode) as address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,gst_no as gst_number, is_signature_doc,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number, service_centres.state, gst_status", array('id' => $service_center_id));
 
+            if (!empty($sf_details[0]['gst_number']) 
+                && !empty($sf_details[0]['gst_status']) 
+                && !($sf_details[0]['gst_status'] == _247AROUND_CANCELLED || 
+                        $sf_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
+                    // Valid GST
+            } else {
+                $sf_details[0]['gst_number'] = "";
+            }
 //            $select = "concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address,contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number";
 //
 //            $where = array('contact_person.entity_id' => $spare_parts_details[0][0]['defective_return_to_entity_id'],
@@ -1177,8 +1231,17 @@ class Invoice_lib {
             }
 
 
-            $sf_details = $this->ci->vendor_model->getVendorDetails("name as company_name,concat(service_centres.address,',', service_centres.district,',',service_centres.state,',','Pincode - ',service_centres.pincode) as address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,gst_no as gst_number, is_signature_doc,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number, state", array('id' => $service_center_id));
+            $sf_details = $this->ci->vendor_model->getVendorDetails("name as company_name,concat(service_centres.address,',', service_centres.district,',',service_centres.state,',','Pincode - ',service_centres.pincode) as address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,gst_no as gst_number, is_signature_doc,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number, state, gst_status", array('id' => $service_center_id));
 
+            if (!empty($sf_details[0]['gst_number']) 
+                && !empty($sf_details[0]['gst_status']) 
+                && !($sf_details[0]['gst_status'] == _247AROUND_CANCELLED || 
+                        $sf_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
+                    // Valid GST
+            } else {
+                $sf_details[0]['gst_number'] = "";
+            }
+            
             $select = "concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address,contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number, warehouse_state as state";
 
 
