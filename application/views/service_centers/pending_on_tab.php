@@ -107,6 +107,9 @@
                                                 <?= $row->partner_internal_status; ?>
                                             </td>
                                             <td style="vertical-align: middle;">
+                                             <?php if(!empty($row->booking_date) &&  $row->create_date != '0000-00-00'){echo  date('d-M-Y h:i:s', strtotime($row->create_date))."<br/>"; }?> 
+                                            </td>
+                                            <td style="vertical-align: middle;">
                                             <?php if (!empty($row->booking_date) && $row->booking_date != '0000-00-00') {
                                                 echo date('d-M-Y', strtotime($row->booking_date)) . "<br/>";
                                             } ?> 

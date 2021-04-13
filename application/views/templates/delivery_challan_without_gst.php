@@ -1,50 +1,44 @@
+
 <style type="text/css">
     #table1{
-        border:solid 2px;
-        border-collapse: collapse;
-        width: 960px;
+      border: solid 1px;
         font-family: sans-serif;
-        font-size: 100%;
+        font-size: 13px;
         margin: auto;
+        border-collapse: collapse;
 
         /*total cols=14*/
     }
+    #table1 td {
+        word-wrap: break-word;         /* All browsers since IE 5.5+ */
+        overflow-wrap: break-word;     /* Renamed property in CSS3 draft spec */
+    }
     #table1 td{
-        border: solid 1px;
+        border: solid .5px;
 
-        padding: 1%
+        padding: .5%
     }
     #table1 .blank_row td{
         border-right: hidden;
     }
 
-    #table2{
-        border:hidden;
-        width: 960px;
-        font-family: sans-serif;
-        font-size: 100%;
-        margin: auto;
-    }
-    #table2 td{
-        padding:1%;
-    }
 </style>
-<table id="table1">
+<body>
+    <table id="table1">
         <tr>
             <td colspan="2" style="border-right: hidden;">
                 <?php if($excel_data['main_company_logo']){ ?>
                 <img style="padding: 2px;height: 75px;" src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$excel_data['main_company_logo']; ?>">
                 <?php } ?>
             </td>
-            <td colspan="12"><h1>Delivery Challan</h1></td>
+            <td colspan="13"><h1>Delivery Challan</h1></td>
         </tr>
         <tr>
-            <td colspan="5" align="left" style="border-bottom: hidden;"><p>To,</p><?php echo $excel_data['sf_name']; ?></td>
-            <td style="border-bottom: hidden;border-right: hidden;"></td>
-            <td  colspan="8" align="left" style="border-bottom: hidden;"><b>Challan No: </b><?php echo $excel_data['sf_challan_no']; ?></td>
+            <td colspan="9" align="left" style="border-bottom: hidden;"><p>To,</p><?php echo $excel_data['sf_name']; ?></td>
+            <td  colspan="6" align="left" style="border-bottom: hidden;"><b>Challan No: </b><?php echo $excel_data['sf_challan_no']; ?></td>
         </tr>
         <tr>
-            <td  colspan="5" rowspan="2" align="left" style="border-bottom: hidden;"><b>Address:</b> <?php if(!empty($excel_data['sf_contact_person_name'])){ echo 'C/o '.$excel_data['sf_contact_person_name'].", ";} echo $excel_data['sf_address']; ?> 
+            <td  colspan="9" rowspan="2" align="left" style="border-bottom: hidden;"><b>Address:</b> <?php if(!empty($excel_data['sf_contact_person_name'])){ echo 'C/o '.$excel_data['sf_contact_person_name'].", ";} echo $excel_data['sf_address']; ?> 
           
             <?php
                 if (!empty($excel_data['sf_contact_number'])) {
@@ -53,94 +47,97 @@
             ?>
                             
             </td>
-            <td style="border-bottom: hidden;border-right: hidden;"></td>
-            <td colspan="8" align="left" style="border-bottom: hidden;"><b>Ref No: </b><?php echo $excel_data['partner_challan_no']; ?></td>
+            <td colspan="6" align="left" style="border-bottom: hidden;"><b>Ref No: </b><?php echo $excel_data['partner_challan_no']; ?></td>
         </tr>
         <tr>
-            <td style="border-bottom: hidden;border-right: hidden;"></td>
-            <td colspan="8" align="left" style="border-bottom: hidden;"><b>Date: </b>
-               <?php 
-                    if ($excel_data['generated_by_wh'] == 1) {
-                        echo date("j M Y");
-                    } else {
-                        echo $excel_data['date'];
-                    }
-                ?>
+            <td colspan="6" align="left" style="border-bottom: hidden;"><b>Date: </b>
+                <?php echo date("j M Y"); ?>
             </td>
         </tr>
         <tr>
-            <td  colspan="5" align="left"  style="<?php if(!empty($excel_data['courier_servicable_area'])){ ?>border-bottom: hidden;<?php } ?>"><b>GST: </b><?php echo $excel_data['sf_gst']; ?></td>
-            <td colspan="9"  style="<?php if(!empty($excel_data['courier_servicable_area'])){ ?>border-bottom: hidden;<?php } ?>"></td>
+            <td  colspan="9" align="left"  style="<?php if(!empty($excel_data['courier_servicable_area'])){ ?>border-bottom: hidden;<?php } ?>"><b>GST: </b><?php echo $excel_data['sf_gst']; ?></td>
+            <td colspan="6"  style="<?php if(!empty($excel_data['courier_servicable_area'])){ ?>border-bottom: hidden;<?php } ?>"></td>
         </tr>
         <?php
         if(!empty($excel_data['courier_servicable_area'])){
         ?>
         <tr>
-            <td  colspan="5" align="left"><b>Courier Servicable Area: </b><?php echo $excel_data['courier_servicable_area']; ?></td>
-            <td style="border-right: hidden;"></td>
-            <td colspan="8"></td>
+            <td  colspan="15" align="left"><b>Courier Servicable Area: </b><?php echo $excel_data['courier_servicable_area']; ?></td>
         </tr>
         <?php
         }
         ?>
-        <tr>
-            <td  colspan="5" align="left"><b>GST: </b><?php echo $excel_data['sf_gst']; ?></td>
-            <td style="border-right: hidden;"></td>
-            <td colspan="8"></td>
-        </tr>
-        <tr class="blank_row"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-            <td></td><td></td><td></td><td></td> <td></td><td style="border-right: solid 1px;"></td>
-        </tr>
-        <tr  style="text-align: center;width:100%;">
-            <td style="text-align: center"><b>S No</b></td>
-            <td colspan="1" style="text-align: center;"><b>Part Name</b></td>
-            <td colspan="2" style="text-align: center"><b>Part Number</b></td>
-            <td colspan="1" style="text-align: center; width: 50px;"><b>Qty</b></td>
-            <td colspan="1" style="text-align: center;"><b>Booking ID</b></td>
-            <td colspan="1" style="text-align: center;"><b>Consumption</b></td>
-            <?php
-		if(!empty($excel_data['show_serial_number'])){
-		$colspan_value_for_rs =2;
-		?>
-                <td colspan="2" style="text-align: center"><b>Model Number</b></td>
-		<td colspan="2" style="text-align: center"><b>Serial Number</b></td>
-		<?php
-		}else{
-		$colspan_value_for_rs =6;
-		}
-		?>
-		<td colspan="<?php echo $colspan_value_for_rs; ?>" style="text-align: center"><b>Value (Rs.)</b></td>
+        
+        <tr style="text-align: center;">
+            <td style="text-align: center;"><b>S No</b></td>
+            <td style="text-align: center;"><b>Part Name</b></td>
+            <td style="text-align: center;"><b>Part Number</b></td>
+            <td style="text-align: center;"><b>HSN Code</b></td>
+            <td  style="text-align: center;"><b>Booking ID</b></td>
+            <?php if(!empty($excel_data['show_consumption_reason'])){ ?>
+            <td  style="text-align: center;"><b>Consumption</b></td>
+            <?php } ?>
+            <?php if(!empty($excel_data['show_serial_number'])){?>
+            <td  style="text-align: center"><b>Model Number</b></td>
+	    <td  style="text-align: center"><b>Serial Number</b></td>
+            <?php } ?>
+            <td style="text-align: center;"><b>Qty</b></td>
+            <td style="text-align: center; ;"><b>Rate</b></td>
+            
+           <td style="text-align: center"><b>Total Amount</b></td>
         </tr>
         <?php
-        $i = 1;
+       
         $total_qty = 0;
-        $total_value = 0;
-        foreach ($excel_data_line_item as $info) {
-            $extra_td_for_serial_number = '';
-            if(!empty($excel_data['show_serial_number'])){
-                    $extra_td_for_serial_number = "<td style='font-size:13px;width:6%;padding:0px;padding-left:5px;padding-right:5px;' colspan=2>".$info['model_number_shipped']."</td><td style='font-size:13px;width:6%;padding-left:5px;padding-right:5px;' colspan=2>".$info['serial_number']."</td>";
-            }
-            echo "<tr style='width:100%;text-align:center;'>	<td style='width:6.67%;' align=" . "\"center\"" . ">" . $i++ . "
-							<td style='word-break: break-all;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['spare_desc'] . "
-                                                        <td colspan=" . "2" . " align=" . "\"center\"" . ">" . $info['part_number'] . "
-							<td colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['qty'] . "
-							<td  style='font-size:13px;padding-right: -1px !important;padding:0px;width:10%;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['booking_id'] . "
-                                                        <td style='width:0px;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['consumption'] . "
-							<td  style='font-size:13px;width:6%;'  colspan=" . $colspan_value_for_rs . " align=" . "\"center\"" . ">" . $info['value'] . "
-					</tr>";
-            $total_qty +=$info['qty'];
-            $total_value +=$info['value'];
-        }
+        $total_value = $cgst_amount = $sgst_amount = $igst_amount = 0;
+        foreach ($excel_data_line_item as $key => $info) {  ?>
+            <tr >
+                <td ><?php echo $key +1; ?></td>
+                <td ><?php echo $info['spare_desc'] ; ?></td>
+                <td ><?php echo $info['part_number'] ; ?></td>
+                 <td ><?php echo $info['hsn_code'] ; ?></td>
+                <td ><?php echo $info['booking_id'] ; ?></td>
+                <?php if(!empty($excel_data['show_consumption_reason'])){?>
+                <td>
+                    <?php if ($info['consumption'] == 'Part consumed') {
+                            $info['consumption'] = 'Defective Part';
+                      } echo $info['consumption'];  ?>
+                </td>
+                <?php  } ?>
+                <?php if(!empty($excel_data['show_serial_number'])){
+                    ?>
+                <td><?php echo $info['model_number_shipped'];?></td>
+                <td><?php echo $info['serial_number'];?></td>
+                <?php } ?>
+                <td><?php echo $info['qty'];?></td>
+                <td><?php echo sprintf("%.2f", $info['rate']);?></td>
+                
+                
+                <td><?php echo sprintf("%.2f", $info['value']); $total_qty += $info['qty']; $total_value += sprintf("%.2f", $info['value']); ?></td>
+            </tr>
+       <?php } 
         ?>
-        <tr  style="font-weight: bold;">
-            <td ></td>
-            <td colspan="3" style="border-left: hidden; text-align: center"><b>Total Qty</b></td>
-            <td colspan="1" style="text-align: center;width: 50px;"><b><?php echo $total_qty; ?></b></td>
-            <td colspan="2" style="text-align: center"><b>Total Amount </b></td>
-            <td colspan="7" style="text-align: center"><b><?php echo $total_value; ?></b></td>
-        </tr>
-        <tr>
-            <td style="text-align: right;padding-top: 3%; padding-bottom: 3%;padding-right: 3%" colspan="14">For <?php echo $excel_data['sf_name']; ?></td>
+            
+        <tr >
+            <td><b>Total</b></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <?php if(!empty($excel_data['show_consumption_reason'])){?>
+            <td>
+                
+            </td>
+            <?php  } ?>
+            <?php if(!empty($excel_data['show_serial_number'])){
+                ?>
+            <td></td>
+            <td></td>
+            <?php } ?>
+            <td><?php echo $total_qty?></td>
+            <td></td>
+
+            <td><b><?php echo sprintf("%.2f", $total_value);?></b></td>
         </tr>
         <tr>
             <td colspan="14" style="border-bottom: hidden; font-size: 15px">

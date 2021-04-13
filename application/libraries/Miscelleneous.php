@@ -3629,8 +3629,8 @@ function generate_image($base64, $image_name,$directory){
         log_message('info', __METHOD__. " Inventory ID ". $inventory_id. " Partner ID ".$partner_id. "  Assigned vendor ID ". $assigned_vendor_id. " State ".$state);
         $response = array(); 
 
-        $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number,'
-                . 'inventory_master_list.entity_id, inventory_master_list.part_name, '
+        $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number,inventory_master_list.hsn_code,'
+                . 'inventory_master_list.entity_id, inventory_master_list.part_name, inventory_master_list.service_id, '
                 . 'inventory_master_list.type, inventory_master_list.inventory_id, '
                 . 'price, gst_rate,inventory_master_list.oow_around_margin, is_defective_required', array('inventory_id' => $inventory_id));
         
@@ -3709,6 +3709,8 @@ function generate_image($base64, $image_name,$directory){
             $response['challan_approx_value'] = round($response['estimate_cost'] * ( 1 + $inventory_part_number[0]['oow_around_margin'] / 100), 0);
             $response['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
             $response['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
+            $response['service_id'] = $inventory_part_number[0]['service_id'];;
+            $response['hsn_code'] = $inventory_part_number[0]['hsn_code'];
 //            if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
 //                $wh_address_details = $this->get_247aroud_warehouse_in_sf_state($state);
 //                $response['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
@@ -3725,6 +3727,20 @@ function generate_image($base64, $image_name,$directory){
                 $response['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
                 $response['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
             }
+        }
+        
+        if(!empty($response) && isset($response['hsn_code'])){
+            $hsn_code_arr = $this->My_CI->inventory_model->get_hsn_code_details('hsn_code_details.id,hsn_code_details.hsn_code,hsn_code_details.gst_rate', 
+                    array('hsn_code_details.service_id' => $response['service_id'], 'hsn_code_details.hsn_code' => $response['hsn_code']));
+            if(!empty($hsn_code_arr)){
+                
+                $response['hsn_code_id'] = $hsn_code_arr[0]['id'];
+            } else {
+                $hid= $this->My_CI->inventory_model->insert_hsn_code_details(array('hsn_code' => $response['hsn_code'], 
+                    'service_id' => $response['service_id'], 'status' => 1, 'gst_rate' => $response['gst_rate'], 'agent_id' => _247AROUND));
+                $response['hsn_code_id'] = $hid;
+            }
+        
         }
         return $response;
     }
@@ -3748,7 +3764,7 @@ function generate_image($base64, $image_name,$directory){
             $post['where']['service_centres.is_wh'] = 1;
         }
         $select = '(inventory_stocks.stock) As stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id,inventory_master_list.type, '
-                . 'inventory_master_list.part_number,inventory_master_list.part_name,  price, gst_rate,oow_around_margin';
+                . 'inventory_master_list.part_number,inventory_master_list.part_name,  price, gst_rate,oow_around_margin, inventory_master_list.service_id, inventory_master_list.hsn_code';
         $inventory_stock_details = $this->My_CI->inventory_model->get_inventory_stock_list($post, $select, array(), FALSE);
 
         if (empty($inventory_stock_details)) {
@@ -3774,6 +3790,8 @@ function generate_image($base64, $image_name,$directory){
 
                 if ($is_stock) {
                     $response['stock'] = $inventory_stock_details[0]['stock'];
+                    $response['service_id'] = $inventory_stock_details[0]['service_id'];
+                    $response['hsn_code'] = $inventory_stock_details[0]['hsn_code'];
                     $response['entity_id'] = $service_center_id;
                     $response['entity_type'] = _247AROUND_SF_STRING;
                     $response['part_name'] = $inventory_stock_details[0]['part_name'];
@@ -3811,6 +3829,8 @@ function generate_image($base64, $image_name,$directory){
                             $response['estimate_cost'] = round($value['price'] * ( 1 + $value['gst_rate'] / 100), 0);
                             $response['inventory_id'] = $value['inventory_id'];
                             $response['is_micro_wh'] = 2;
+                            $response['service_id'] = $value['service_id'];
+                            $response['hsn_code'] = $value['hsn_code'];
 
                             $response['challan_approx_value'] = round($response['estimate_cost'] * ( 1 + $value['oow_around_margin'] / 100), 0);
                             break;
@@ -4776,6 +4796,7 @@ function generate_image($base64, $image_name,$directory){
                             $dataupdate['date_of_request']=date('Y-m-d');
                             $dataupdate['booking_id']=$booking['booking_id'];
                             $dataupdate['service_center_id']=$booking['service_center_id'];
+                            $dataupdate['shipped_hsn_code']= $data['hsn_code_id'];
                             array_push($delivered_sp,$dataupdate); 
 
                          $this->auto_delivered_for_micro_wh($delivered_sp,$partner_id);
@@ -4823,6 +4844,7 @@ function generate_image($base64, $image_name,$directory){
             $data['parts_shipped'] = $value['parts_requested'];
             $data['shipped_parts_type'] = $value['parts_requested_type'];
             $data['shipped_date'] = $value['date_of_request'];
+            $data['shipped_hsn_code'] = $value['shipped_hsn_code'];
             // $data['shipped_date'] = $value['date_of_request'];
             $data['status'] = SPARE_SHIPPED_BY_PARTNER;
             $data['shipped_inventory_id'] = $value['requested_inventory_id'];
