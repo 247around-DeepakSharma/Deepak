@@ -732,7 +732,7 @@ class Inventory_model extends CI_Model {
                    $where .= " AND appliance_model_details.id ='".$model[0]['id']."' AND appliance_model_details.active = 1 AND inventory_stocks.entity_type ='" . _247AROUND_SF_STRING . "' AND (inventory_stocks.stock) > 0 ";
                    if (!empty($inventory_ids)) {
                        $inventory_stock_details = $this->get_inventory_stock_details('inventory_stocks.stock as stocks,(inventory_stocks.stock) as stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id, '
-                               . 'inventory_master_list.part_name, inventory_master_list.type, inventory_master_list.part_number,  price, gst_rate,oow_around_margin', $where, $inventory_ids);
+                               . 'inventory_master_list.part_name, inventory_master_list.type, inventory_master_list.part_number, inventory_master_list.hsn_code, inventory_master_list.service_id,  price, gst_rate,oow_around_margin', $where, $inventory_ids);
                    }
                }
             }
