@@ -3882,7 +3882,9 @@ class engineerApiv1 extends CI_Controller {
 				if (!empty($model_details_new)) {
 					$unit_detail['appliance_capacity'] = $model_details_new[0]['capacity'];
 					$unit_detail['appliance_category'] = $model_details_new[0]['category'];
-					$unit_detail['appliance_brand'] = $model_details_new[0]['brand'];
+					if(!empty($model_details_new[0]['brand'])){
+						$unit_detail['appliance_brand'] = $model_details_new[0]['brand'];
+					}
 				}
 
 				$unit_detail['serial_number'] = $requestData['serial_number'];
