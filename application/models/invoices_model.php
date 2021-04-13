@@ -2254,7 +2254,7 @@ class invoices_model extends CI_Model {
                 $select
                 sc.gst_no as gst_number, sc.state, sc.company_name,sc.address as company_address,
                 sc.primary_contact_email, sc.owner_email, 
-                sc.owner_phone_1, sc.district, sc.pincode, sc.primary_contact_phone_1,round(tax_rate,0) as gst_rate
+                sc.owner_phone_1, sc.district, sc.pincode, sc.primary_contact_phone_1, '".DEFAULT_TAX_RATE."' as gst_rate
                 FROM  `booking_unit_details` AS ud, services, booking_details AS bd, service_centres as sc
                 WHERE ud.booking_status =  'Completed'
                 AND ud.booking_id = bd.booking_id
