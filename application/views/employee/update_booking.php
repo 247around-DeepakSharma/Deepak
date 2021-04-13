@@ -1352,16 +1352,26 @@ function delete_supporting_file(id){
 }
 function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_already_repeat,initial_booking_date){
         if(isChecked){
+            if(!$(".input-model").length)
+            {
+                var model_number = $(".select-model").val();
+            }
+            else
+            {
+                var model_number = $(".input-model").val();
+            } 
+            var parent_booking_id = $('#parent_id_temp').val();
             if(!is_already_repeat){
               $.ajax({
                       type: 'POST',
                       url: '<?php echo base_url(); ?>employee/booking/get_posible_parent_id',
-                      data: {contact: contactNumber, service_id: serviceID,partnerID:partnerID,day_diff:<?php echo _247AROUND_REPEAT_BOOKING_ALLOWED_DAYS; ?>,initial_booking_date:initial_booking_date},
+                      data: {contact: contactNumber, service_id: serviceID,partnerID:partnerID,day_diff:<?php echo _247AROUND_REPEAT_BOOKING_ALLOWED_DAYS; ?>,initial_booking_date:initial_booking_date,model_number:model_number},
                       success: function(response) {
                           obj = JSON.parse(response);
                           if(obj.status  == <?Php echo _NO_REPEAT_BOOKING_FLAG; ?>){
-                              alert("There is not any Posible Parent booking for this booking, It can not be a repeat booking");
+                              $("#repeat_booking_body").html("<p style='padding:10px;'>There is not any Possible Parent booking for this booking, It can not be a repeat booking</p>");
                               $('.repeat_Service:checked').prop('checked', false);
+                              $('.repeat_Service').prop('disabled', true);
                               $("#repeat_reason_holder").hide();
                           }
                          else if(obj.status  == <?Php echo _ONE_REPEAT_BOOKING_FLAG; ?>){
@@ -1373,6 +1383,8 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
                              $("#is_repeat").val("1");
                              $("#repeat_reason_holder").show();
                              $(".cloned :input").attr("disabled", true);
+                             $('#repeat_booking_model').hide();
+                             alert("Parent Booking : "+obj.html);                             
                           }
                           else if(obj.status  == <?Php echo _MULTIPLE_REPEAT_BOOKING_FLAG; ?>){
                               $('.Service:checked').prop('checked', false);
