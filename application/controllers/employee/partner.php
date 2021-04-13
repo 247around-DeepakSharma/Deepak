@@ -2775,7 +2775,7 @@ $post['amount_due'] = false;
      * @author : Deepak Sharma
      */
     function get_booking_recordings($booking_primary_id) {
-        $select = "agent_outbound_call_log.create_date, agent_outbound_call_log.recording_url, employee.full_name, entity_role.display_name";
+        $select = "agent_outbound_call_log.create_date, agent_outbound_call_log.recording_url, employee.full_name, entity_role.display_name, employee.groups ";
         $data['data'] = $this->booking_model->get_booking_recordings_by_id($booking_primary_id, $select);
         $this->load->view('employee/show_booking_recordings', $data);
     }
