@@ -220,22 +220,13 @@
                                         </div>
                                     </div>
                                     <?php } ?>
-                                    <?php if($value->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){ 
-                                            if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                     <div class="form-group">
                                         <label for="hsn_code" class="col-md-4">HSN Code *</label>
                                         <div class="col-md-7">
                                             <select  class="form-control hsn_code" id="<?php echo "hsn_code_" . $key; ?>" name="part[<?php echo $key; ?>][hsn_code]" required=""> </select>
                                         </div>
                                     </div>
-                                    <?php } else { ?>
-                                    <div class="form-group">
-                                        <label for="hsn_code" class="col-md-4">HSN Code *</label>
-                                        <div class="col-md-7">
-                                            <input type="text" class="form-control validate_hsn_code" id="<?php echo "hsn_code_" . $key; ?>" name="part[<?php echo $key; ?>][hsn_code]" value = "" placeholder="Please Enter HSN Code"  required>
-                                        </div>
-                                    </div> 
-                                    <?php } } ?>
+                                   
                                     
                                     <?php if(!is_null($value->estimate_cost_given_date) || $value->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){ ?>
                                     <div class="form-group <?php

@@ -2091,7 +2091,7 @@ class Service_centers extends CI_Controller {
 
             $warehouse_details = $this->miscelleneous->check_inventory_stock($data['requested_inventory_id'], $partner_id, $sf_state[0]['state'], $service_center_id, $data['model_number']);
 
-            if (!empty($warehouse_details)) {
+            if (!empty($warehouse_details) && $warehouse_details['is_micro_wh'] == 1) {
                 $data['partner_id'] = $warehouse_details['entity_id'];
                 $data['entity_type'] = $warehouse_details['entity_type'];
                 $data['defective_return_to_entity_type'] = $warehouse_details['defective_return_to_entity_type'];
@@ -2101,6 +2101,7 @@ class Service_centers extends CI_Controller {
                 $data['parts_requested'] = $warehouse_details['part_name'];
                 $data['parts_requested_type'] = $warehouse_details['type'];
                 $data['requested_inventory_id'] = $warehouse_details['inventory_id'];
+                $data['shipped_hsn_code'] = $warehouse_details['hsn_code_id'];
             } else {
                 $data['partner_id'] = $partner_id;
                 $data['entity_type'] = _247AROUND_PARTNER_STRING;
@@ -2151,6 +2152,7 @@ class Service_centers extends CI_Controller {
             $data['spare_id'] = $this->input->post('spare_id');
             $data['shipped_inventory_id'] = $data['requested_inventory_id'];
             $data['shipped_quantity'] = $data['quantity'];
+            $data['shipped_hsn_code'] = $warehouse_details['hsn_code_id'];
             array_push($delivered_sp, $data);
             unset($data['spare_id']);
         }
@@ -2717,6 +2719,7 @@ class Service_centers extends CI_Controller {
                             $data['requested_inventory_id'] = $warehouse_details['inventory_id'];
                             $data['shipped_inventory_id'] = $warehouse_details['inventory_id'];
                             $data['shipped_quantity'] = $data['quantity'];
+                            $data['shipped_hsn_code'] = $warehouse_details['hsn_code_id'];
                         } else {
                             $data['partner_id'] = $this->input->post('partner_id');
                             $data['entity_type'] = _247AROUND_PARTNER_STRING;
@@ -2774,6 +2777,7 @@ class Service_centers extends CI_Controller {
                     if ($data['is_micro_wh'] == 1) {
                         $data['spare_id'] = $spare_id;
                         $data['shipped_inventory_id'] = $data['requested_inventory_id'];
+                        $data['shipped_hsn_code'] = $warehouse_details['hsn_code_id'];
                         array_push($delivered_sp, $data);
                         array_push($delivered_sp_all, $delivered_sp);
                         unset($data['spare_id']);
@@ -2963,6 +2967,7 @@ class Service_centers extends CI_Controller {
             $data['parts_shipped'] = $value['parts_requested'];
             $data['shipped_parts_type'] = $value['parts_requested_type'];
             $data['shipped_date'] = $value['date_of_request'];
+            $data['shipped_hsn_code'] = $value['shipped_hsn_code'];
             // $data['shipped_date'] = $value['date_of_request'];
             $data['status'] = SPARE_SHIPPED_BY_PARTNER;
             $data['shipped_inventory_id'] = $value['requested_inventory_id'];
@@ -4429,7 +4434,7 @@ class Service_centers extends CI_Controller {
                 }
                 
                 
-                $sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,district, pincode, state,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name, primary_contact_phone_1 as contact_number , primary_contact_phone_2 as contact_number_2 , owner_phone_1 as contact_number_3, owner_phone_2 as contact_number_4, service_centres.gst_no as gst_number', array('id' => $service_center_id));
+                $sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,district, pincode, state,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name, primary_contact_phone_1 as contact_number , primary_contact_phone_2 as contact_number_2 , owner_phone_1 as contact_number_3, owner_phone_2 as contact_number_4, service_centres.gst_no as gst_number, gst_status', array('id' => $service_center_id));
 
 
 
@@ -4477,6 +4482,17 @@ class Service_centers extends CI_Controller {
 					$contact_number_array = array($sf_details[0]['contact_number'],$sf_details[0]['contact_number_2'],$sf_details[0]['contact_number_3'],$sf_details[0]['contact_number_4']);
                     $contact_number_string = implode(', ',array_unique(array_filter($contact_number_array))); 
                      $sf_details[0]['contact_number'] = $contact_number_string;
+                     
+                    if (!empty($sf_details[0]['gst_number']) 
+                    && !empty($sf_details[0]['gst_status']) 
+                    && !($sf_details[0]['gst_status'] == _247AROUND_CANCELLED || 
+                            $sf_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
+                        // Valid GST
+                    } else {
+                        $sf_details[0]['gst_number'] = "";
+                    }
+                     
+                     
                 }
                 
                 if (!empty($spare_details)) {
@@ -6169,6 +6185,7 @@ class Service_centers extends CI_Controller {
                             $spare_data['parts_requested'] = $data['parts_shipped'];
                             $spare_data['date_of_request'] = $data['date_of_request'];
                             $spare_data['requested_inventory_id'] = $data['requested_inventory_id'];
+                            $spare_data['shipped_hsn_code'] = $warehouse_details['requested_inventory_id'];
                             array_push($delivered_sp, $spare_data);
                             //$delivered_sp[] = $spare_data;
                             $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
@@ -6826,7 +6843,7 @@ class Service_centers extends CI_Controller {
                             $data['parts_shipped'] = $part_details['shipped_parts_name'];
                             $data['parts_shipped'] = $part_details['shipped_parts_name'];
                             $data['invoice_gst_rate'] = $part_details['gst_rate'];
-
+                            
                             /**
                              * change defective part required flag in spare part details on the basis of shipped inventory id
                              * @modifiedBy Ankit Rajvanshi
@@ -6857,6 +6874,25 @@ class Service_centers extends CI_Controller {
                             $price_with_around_margin = round($price_with_gst * ( 1 + $part_details['oow_around_margin'] / 100), 0);
                             $data['challan_approx_value'] = ($price_with_around_margin * $part_details['shipped_quantity']);
                             $data['status'] = SPARE_PARTS_SHIPPED_BY_WAREHOUSE;
+                            
+                            
+                            $inventory_master_list = $this->inventory_model->get_inventory_master_list_data('*', 
+                                    array('inventory_id' => $part_details['inventory_id']));
+
+                            
+                            $hsn_code_arr = $this->inventory_model->get_hsn_code_details('hsn_code_details.id,'
+                                    . 'hsn_code_details.hsn_code,hsn_code_details.gst_rate', 
+                                array('hsn_code_details.service_id' => $inventory_master_list[0]['service_id'], 
+                                    'hsn_code_details.hsn_code' => $inventory_master_list[0]['hsn_code']));
+                            if(!empty($hsn_code_arr)){
+
+                                $data['shipped_hsn_code'] = $hsn_code_arr[0]['id'];
+                            } else {
+                                $hid= $this->inventory_model->insert_hsn_code_details(array('hsn_code' => $inventory_master_list[0]['hsn_code'], 
+                                    'service_id' => $inventory_master_list[0]['service_id'], 'status' => 1, 'gst_rate' => $inventory_master_list[0]['gst_rate'], 'agent_id' => _247AROUND));
+                                $data['shipped_hsn_code'] = $hid;
+                            }
+                            
 
                             if ($part_details['spare_id'] == "new") {
 
@@ -7201,7 +7237,11 @@ class Service_centers extends CI_Controller {
             $service_center_id = $part_details[0]['assigned_vendor_id'];
         }
 
-        $sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,district, pincode, state,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name, primary_contact_phone_1 as contact_number, service_centres.gst_no as gst_number, state', array('id' => $service_center_id));
+        $sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,'
+                . 'district, pincode, state,sc_code,is_gst_doc,owner_name,signature_file,'
+                . 'gst_no,is_signature_doc,primary_contact_name as contact_person_name, '
+                . 'primary_contact_phone_1 as contact_number, '
+                . 'service_centres.gst_no as gst_number, state, gst_status', array('id' => $service_center_id));
 
         if (!empty($part_details)) {
             $select = "concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address,contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number,service_centres.gst_no as gst_number, warehouse_state as state";
@@ -7231,6 +7271,15 @@ class Service_centers extends CI_Controller {
         if (!empty($sf_details)) {
             $data['partner_challan_number'] = $this->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code'], true);
             $sf_details[0]['address'] = $sf_details[0]['address'] . ", " . $sf_details[0]['district'] . ", Pincode -" . $sf_details[0]['pincode'] . ", " . $sf_details[0]['state'];
+            
+            if (!empty($sf_details[0]['gst_number']) 
+                && !empty($sf_details[0]['gst_status']) 
+                && !($sf_details[0]['gst_status'] == _247AROUND_CANCELLED || 
+                        $sf_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
+                    // Valid GST
+            } else {
+                $sf_details[0]['gst_number'] = "";
+            }
         }
 
         if (!empty($spare_details)) {
