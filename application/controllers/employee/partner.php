@@ -121,17 +121,24 @@ class Partner extends CI_Controller {
     /**
      * @desc: this is used to display completed booking for specific service center
      */
-    function closed_booking($status, $state_code="all", $offset = 0, $booking_id = "") {
-        $date = $this->input->post('completion_date');
-        $dateArray = explode('-', $date);
-        $startDate = date('y-m-d');
-        $startDate = date('Y-m-d', strtotime("-3 months", strtotime($startDate)));
-        $startDate = date('Y/m/d', strtotime($startDate));
-        $endDate =  date('y/m/d');
-        if(!empty($date)){
-         $startDate = $dateArray[0];
-         $endDate = $dateArray[1];
+    function closed_booking($status,$state_code="all",$start_date1='',$end_date2='', $offset = 0, $booking_id = "") {
+ 
+        $date = $this->input->post('completion_date'); 
+        if(!empty($start_date1) && !empty($end_date2) ){
+         $startDate = $start_date1;
+         $endDate = $end_date2;  
         }
+        else if(!empty($date)){
+            $dateArray = explode('-', $date);
+            $startDate = date('Y-m-d',strtotime($dateArray[0]));
+            $endDate = date('Y-m-d',strtotime($dateArray[1]));
+        }
+        else{
+            $startDate = date('y-m-d');
+            $startDate = date('Y-m-d', strtotime("-3 months", strtotime($startDate)));
+            $endDate =  date('y-m-d');
+        }
+       
         if(!empty($this ->input ->post('state'))){
         $state_code = $this ->input ->post('state'); 
         }
@@ -143,7 +150,7 @@ class Partner extends CI_Controller {
         if($this->session->userdata('is_filter_applicable') == 1){
             $stateCity = 1;
         }
-        $config['base_url'] = base_url() . 'partner/closed_booking/' . $status.'/'.$state_code;
+        $config['base_url'] = base_url() . 'partner/closed_booking/' . $status.'/'.$state_code.'/'.$startDate.'/'.$endDate;
         if (!empty($booking_id)) {
             $config['total_rows'] = $this->partner_model->getclosed_booking("count", "", $partner_id, $status, $booking_id,$stateCity,$state_code,$startDate, $endDate);
         } else {
@@ -151,7 +158,7 @@ class Partner extends CI_Controller {
         }
 
         $config['per_page'] = 50;
-        $config['uri_segment'] = 4;
+        $config['uri_segment'] = 7;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';
         $this->pagination->initialize($config);
@@ -166,8 +173,8 @@ class Partner extends CI_Controller {
         if ($this->session->flashdata('result') != '')
             $data['success'] = $this->session->flashdata('result');
 
-        $data['start_date'] = $startDate;
-        $data['end_date'] = $endDate;
+        $data['start_date'] = date('Y/m/d', strtotime($startDate));
+        $data['end_date'] = date('Y/m/d', strtotime($endDate));
         $data['status'] = $status;
         $data['selected_state'] = $state_code;
         $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT state_code,UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
@@ -6068,9 +6075,13 @@ class Partner extends CI_Controller {
         $where = array(
             "spare_parts_details.defective_part_required" => 1,
             "approved_defective_parts_by_admin" => 1,
-            "spare_parts_details.defective_return_to_entity_id" => $partner_id,
-            "spare_parts_details.defective_return_to_entity_type" => _247AROUND_PARTNER_STRING,
-            "status IN ('".OK_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_SHIPPED."')" => NULL
+            '((spare_parts_details.defective_return_to_entity_id ="'.$partner_id.'" '
+            . 'AND spare_parts_details.defective_return_to_entity_type = "'._247AROUND_PARTNER_STRING.'" '
+            . ' AND status IN ("'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'", "'.OK_PARTS_SEND_TO_PARTNER_BY_WH.'") ) OR '
+            . '('
+            . 'spare_parts_details.defective_return_to_entity_type = "'._247AROUND_SF_STRING.'"'
+            . 'AND booking_details.partner_id = "'.$partner_id.'" '
+            . 'AND spare_parts_details.status IN ("'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'","'.OK_PARTS_SEND_TO_PARTNER_BY_WH.'")))' => NULL
         );
         if(!empty($state))
         {
@@ -6079,7 +6090,7 @@ class Partner extends CI_Controller {
         $select = "CONCAT( '', GROUP_CONCAT((defective_part_shipped ) ) , '' ) as defective_part_shipped, i.part_number as part_code, spare_parts_details.shipped_quantity as shipped_quantity,"
                 . " spare_parts_details.booking_id, users.name, courier_name_by_sf, awb_by_sf, spare_parts_details.sf_challan_number, spare_parts_details.partner_challan_number, "
                 . "defective_part_shipped_date,remarks_defective_part_by_sf";
-        $group_by = "spare_parts_details.booking_id";
+        $group_by = "spare_parts_details.id";
         $order_by = "spare_parts_details.defective_part_shipped_date DESC";
         $newCSVFileName = "Waiting_Spare_Parts_".date("Y-m-d").".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
@@ -9476,7 +9487,7 @@ class Partner extends CI_Controller {
        } 
 
        
-       if(!empty($postData['search'])){
+       if(!empty($postData['search']) && !empty($search_value)){
             $booking_id = $postData['search']['value'];
            $where = $where." AND booking_details.booking_id LIKE '%".$booking_id."%'";
            $where = $where.' AND (MATCH (booking_details.booking_id) AGAINST ("'.$search_value.'"))';

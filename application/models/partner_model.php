@@ -283,7 +283,7 @@ function get_data_for_partner_callback($booking_id) {
             $this->db->where('agent_filters.agent_id', $this->session->userdata('agent_id'));
         }
         if(!empty($startDate) && !empty($endDate)){
-            $this->db->where('closed_date BETWEEN "'. date('Y-m-d', strtotime($startDate)). '" and "'. date('Y-m-d', strtotime($endDate)).'"');
+            $this->db->where('closed_date BETWEEN "'.$startDate. '" and "'.$endDate.'"');
         }
         if(!empty($state_code) && $state_code != "all"){
             $this->db->where('state_code.state_code', $state_code);
