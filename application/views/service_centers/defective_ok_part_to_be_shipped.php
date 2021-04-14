@@ -10,18 +10,19 @@ if ($this->uri->segment(3)) {
         <div class="row" >
             <div class="col-md-12">
                 <div class="panel panel-default">
+                    <h1><a class="btn btn-primary btn-sm" href="<?php echo base_url().'service_center/get_defective_parts_pending_bookings_download/'.$offset; ?>" id="download" style="float:left;font-size:12px;color:white;margin-top:-6px;">Download List</a></h1>
                     <h4  style='color:red;font-weight: 500;padding-top: 15px;text-align:right'>* Bookings highlighted in Red are Rejected by Warehouse.</h4>
                     <div class="panel-body" > 
                         <form target="_blank"  action="<?php echo base_url(); ?>employee/service_centers/print_partner_address_challan_file" name="fileinfo1"  method="POST" enctype="multipart/form-data">
                         <table id="estimate_cost_given_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                             <thead>
                                     <tr>
-                                        <th class="text-center">No</th>
+                                        <th class="text-center">S.No.</th>
                                         <th class="text-center">Booking Id</th>
                                         <th class="text-center">Customer Name</th>
                                         <th class="text-center">Age of Pending</th>
-                                        <th class="text-center">Parts Received</th>
-                                        <th class="text-center">Parts Code </th>
+                                        <th class="text-center">Part Received</th>
+                                        <th class="text-center">Part Code </th>
                                         <th class="text-center">Quantity</th>
                                         <th class="text-center">Amount</th>
                                         <th class="text-center" style="word-break:inherit;">Courier Rejection Remarks</th>

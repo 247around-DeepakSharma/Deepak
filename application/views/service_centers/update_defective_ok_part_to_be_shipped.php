@@ -10,17 +10,18 @@ if ($this->uri->segment(3)) {
         <div class="row" >
             <div class="col-md-12">
                 <div class="panel panel-default">
-                    <div class="panel-body" > 
+                    <div class="panel-body" >
+                        <h1><a class="btn btn-primary btn-sm" href="<?php echo base_url().'employee/service_centers/update_defective_parts_pending_bookings_download'; ?>" id="download" style="float:right;font-size:12px;color:white;margin-top:-6px;">Download List</a></h1>
                         <form target="_blank"  action="<?php echo base_url(); ?>employee/service_centers/print_partner_address_challan_file" name="fileinfo1"  method="POST" enctype="multipart/form-data">
                         <table id="estimate_cost_given_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                             <thead>
                                     <tr>
-                                        <th class="text-center">No</th>
+                                        <th class="text-center">S.No.</th>
                                         <th class="text-center">Booking Id</th>
                                         <th class="text-center">User Name</th>
                                         <th class="text-center">Age of Pending</th>
-                                        <th class="text-center">Parts Received</th>
-                                        <th class="text-center">Parts Code </th>
+                                        <th class="text-center">Part Received</th>
+                                        <th class="text-center">Part Code </th>
                                         <th class="text-center">Quantity</th>
                                         <th class="text-center">Amount</th>
                                         <th class="text-center">Consumption Reason</th>

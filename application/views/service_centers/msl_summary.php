@@ -122,6 +122,25 @@
 <script>
     $(document).ready(function(){
         $("#table_msl_security").dataTable({
+            dom: 'lBfrtip',
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: '<span class="fa fa-file-excel-o"></span> Excel Export',
+                    pageSize: 'LEGAL',
+                    title: 'MSL Security Details',
+                    exportOptions: {
+                       columns: [0,1,2,3,4,5,6],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'All',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+                    }
+                    
+                }
+            ],
             "drawCallback":function(){
                 $('[data-toggle="tooltip"]').tooltip();
                 var api = this.api();
@@ -132,9 +151,29 @@
                 );
             }
         });
+        
         $("#table_msl_spare").dataTable({
             ordering: false,
             serverSide:true,
+            dom: 'lBfrtip',
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: '<span class="fa fa-file-excel-o"></span> Excel Export',
+                    pageSize: 'LEGAL',
+                    title: 'MSL Spare Details',
+                    exportOptions: {
+                       columns: [0,1,2,3,4,5,6,7],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'All',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+                    }
+                    
+                }
+            ],
             ajax:{
                 type:"POST",
                 url:'<?php echo base_url(); ?>employee/service_centers/ajax_get_msl_spare_details'
@@ -152,6 +191,25 @@
         $('#table_oow_parts').dataTable({
             ordering: false,
             serverSide: true,
+            dom: 'lBfrtip',
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: '<span class="fa fa-file-excel-o"></span> Excel Export',
+                    pageSize: 'LEGAL',
+                    title: 'OOW Consumed Parts',
+                    exportOptions: {
+                       columns: [0,1,2,3,4,5,6,7],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'All',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+                    }
+                    
+                }
+            ],
             ajax: {
                 type:"POST",
                 url:'<?php echo base_url(); ?>employee/service_centers/ajax_get_msl_parts_consumed_in_oow'
