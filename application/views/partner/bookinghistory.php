@@ -36,7 +36,7 @@
                                     <td> <?php echo $count;$count++;?>.</td>
                                     <td><?= $row['order_id']; ?></td>
                                     <td><?= $row['booking_id']; ?><script>$(document).ready(function(){check_warranty_booking('<?php echo $row['booking_id'];?>');});</script></td>
-                                    <td><?= $row['customername']; ?></td>
+                                    <td><a href="<?= base_url()."employee/partner/search?searched_text="?><?= $row['phone_number'];?>"target="_blank" style="color:blue"><?= $row['customername'];?></a></td>
                                     <td><?= $row['services']; ?></td>
                                     <td><?php if(!empty($row['booking_date']) && $row['booking_date'] != '0000-00-00'){ echo date("d-M-Y", strtotime($row['booking_date']));} ?></td>
                                     <td id='purchase_date_<?php echo $row['booking_id'];?>'></td>

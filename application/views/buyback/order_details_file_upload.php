@@ -107,7 +107,7 @@
                                     <div class="ln_solid"></div>
                                     <div class="form-group">
                                         <div class="col-md-4 col-sm-6 col-xs-12">
-                                            <button ng-click="uploadFile()" class="btn btn-success">Upload</button>
+                                            <button ng-click="uploadFile()" id="upload_order_file" class="btn btn-success">Upload</button>
                                         </div>
                                         
                                         <div class="col-md-6 col-sm-6 col-xs-12" ng-cloak="">
@@ -192,4 +192,12 @@
                 ]
             });
         });
+        $("#upload_order_file").click(function(){
+         $("#upload_order_file").attr('disabled',true);
+        })
+        $("#order_details_file").change(function(){
+           if($("#order_details_file").val() != ''){
+               $("#upload_order_file").attr('disabled',false);  
+           }
+        });  
 </script>
