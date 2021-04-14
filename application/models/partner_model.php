@@ -963,6 +963,7 @@ function get_data_for_partner_callback($booking_id) {
                 . "spare_parts_details.reverse_purchase_invoice_id," 
                 . "vendor_partner_invoices.invoice_date,"
                 . "concat('`',spare_parts_details.serial_number) as serial_number,"   
+                . "spare_consumption_status.consumed_status,"   
                 . "booking_details.booking_primary_contact_no" ;
             if($end){
                 $limit = "LIMIT $start, $end";
@@ -993,6 +994,7 @@ function get_data_for_partner_callback($booking_id) {
                     . ' LEFT JOIN spare_consumption_status ON spare_parts_details.consumed_part_status_id = spare_consumption_status.id '
                     . ' LEFT JOIN dealer_details ON booking_details.dealer_id=dealer_details.dealer_id'
                     . ' LEFT JOIN  vendor_partner_invoices ON  vendor_partner_invoices.invoice_id = spare_parts_details.reverse_purchase_invoice_id ' 
+                    . ' LEFT JOIN spare_consumption_status ON spare_parts_details.consumed_part_status_id = spare_consumption_status.id'   
                     . " WHERE $where $group_by "
                     . " ORDER BY spare_parts_details.purchase_invoice_id DESC,spare_parts_details.create_date $limit";
         }else{
