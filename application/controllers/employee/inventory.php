@@ -10908,4 +10908,101 @@ class Inventory extends CI_Controller {
             echo '';
         }
     }
+    
+    /**
+     *  @desc : This function is used to get inventory part types along with their warranty status
+     *  @param : void
+     *  @return : $res array()
+    */
+    function get_parts_type_with_warranty_status($is_sf_request = false) {
+        // Get List of Parts Covered in Warranty
+        $arr_parts_in_warranty = array();
+        if(!empty($this->input->post('warranty_plan_id'))) {
+            $warranty_plan_id = $this->input->post('warranty_plan_id');
+            $arr_parts_in_warranty = $this->warranty_model->get_warranty_parts_type_list_code($warranty_plan_id);
+            $arr_parts_in_warranty = array_column($arr_parts_in_warranty, 'part_type');
+            $arr_parts_in_warranty = array_map(function($rec_parts_in_warranty){
+                return trim(strtolower($rec_parts_in_warranty));
+            }, $arr_parts_in_warranty);
+        }
+        $model_number_id = $this->input->post('model_number_id');
+        $where = array('model_number_id' => $model_number_id, 'inventory_model_mapping.active' => 1);
+        if ($is_sf_request) {
+            $where['bom_main_part'] = 1;
+        }
+
+        $inventory_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.type,inventory_master_list.service_id', $where);
+
+        $option = '<option selected disabled>Select Part Type</option>';
+        foreach ($inventory_type as $value) {
+            $part_type = $value['type']." (OW)";
+            $part_warranty_status = 2;
+            if(in_array(trim(strtolower($value['type'])), $arr_parts_in_warranty)){
+                $part_type = $value['type']." (IW)";
+                $part_warranty_status = 1;
+            }
+            $option .= "<option data-part-warranty-status='".$part_warranty_status."' data-service_id='" . $value['service_id'] . "' value='" . $value['type'] . "'";
+            $option .=" > ";
+            $option .= $part_type . "</option>";
+        }
+
+        echo $option;
+    }
+    
+    /**
+     *  @desc : This function is used to get inventory part type along with their warranty status
+     *  @param : void
+     *  @return : $res array()
+    */
+    function get_inventory_parts_type_with_warranty_status() {
+        // Get List of Parts Covered in Warranty
+        $arr_parts_in_warranty = array();
+        if(!empty($this->input->post('warranty_plan_id'))) {
+            $warranty_plan_id = $this->input->post('warranty_plan_id');
+            $arr_parts_in_warranty = $this->warranty_model->get_warranty_parts_type_list_code($warranty_plan_id);
+            $arr_parts_in_warranty = array_column($arr_parts_in_warranty, 'part_type');
+            $arr_parts_in_warranty = array_map(function($rec_parts_in_warranty){
+                return trim(strtolower($rec_parts_in_warranty));
+            }, $arr_parts_in_warranty);
+        }
+        /* Check if any record exists in inventory_master_list table if exists then return message.*/
+        if(!empty($this->input->post('check_non_inventory'))) {
+            $inventory_master_list = $this->inventory_model->get_inventory_master_list_data('inventory_id', array('entity_id' => $this->input->post('partner_id'),'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $this->input->post('service_id')));
+            if(!empty($inventory_master_list)) {
+                $option = UPDATE_INVENTORY_MASTER_LIST_MSG;
+            } else {
+                $option = '<option selected disabled>Select Part Type</option>';
+            }
+        } else {
+            $inventory_parts_type = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.id,inventory_parts_type.service_id,inventory_parts_type.part_type,inventory_parts_type.hsn_code_details_id', array('inventory_parts_type.service_id' => $this->input->post('service_id')), TRUE);
+
+            $option = '<option selected disabled>Select Part Type</option>';
+
+            if (!empty($this->input->post('request_type'))) {
+                foreach ($inventory_parts_type as $value) {
+                    $part_type = $value['part_type']." (OW)";
+                    $part_warranty_status = 2;
+                    if(in_array(trim(strtolower($value['part_type'])), $arr_parts_in_warranty)){
+                        $part_type = $value['part_type']." (IW)";
+                        $part_warranty_status = 1;
+                    }
+                    $option .= "<option data-part-warranty-status='".$part_warranty_status."' value='" . $value['id'] . "'>";
+                    $option .= $part_type . "</option>";
+                }
+            } else {
+                foreach ($inventory_parts_type as $value) {
+                    $part_type = $value['part_type']." (OW)";
+                    $part_warranty_status = 2;
+                    if(in_array(trim(strtolower($value['part_type'])), $arr_parts_in_warranty)){
+                        $part_type = $value['part_type']." (IW)";
+                        $part_warranty_status = 1;
+                    }
+                    $option .= "<option data-part-warranty-status='".$part_warranty_status."' data-hsn-code-details='" . $value['hsn_code_details_id'] . "' value='" . $value['part_type'] . "'";
+                    $option .= " > ";
+                    $option .= $part_type . "</option>";
+                }
+            }
+        }
+        echo $option;
+    }
 }
