@@ -6221,7 +6221,8 @@ class Partner extends CI_Controller {
             "WH to Partner Reverse Purchase Invoice Id",
             "WH to Parnter Reverse Purchase Invoice Date",
             "Is Spare Auto Acknowledge By SF",
-            "Consumption"
+            "Consumption",
+            "Spare Consumption Reason"
             );
         
         foreach($data as $sparePartBookings){
@@ -6290,6 +6291,7 @@ class Partner extends CI_Controller {
              }else{
             $tempArray[] = "No";   
              }
+            $tempArray[] = $sparePartBookings['consumed_status'];
              
             $CSVData[]  = $tempArray;            
         }  
