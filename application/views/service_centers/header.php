@@ -527,9 +527,19 @@
   <!-- Modal content -->
  
   <div class="modal-content">
+		<?php
+		$show_gst = false;
+		$heading = "Request Your T-shirt Now";
+		if (date('H') >= 12) {
+			$show_gst = true;
+			$heading = "Pay GST on time";
+		}
+		?>
       <div class="modal-header">
         <button style="color:#110101;font-weight:900;" type="button" id="close_covid" class="close" data-dismiss="modal">X</button>
-        <h3 class="modal-title">Request Your T-shirt Now</h3>
+		<?php
+		?>
+        <h3 class="modal-title"><?php echo $heading; ?></h3>
       </div>
 
       <div class="modal-body" style="font-weight:500;font-size:18px !important; ">
@@ -542,14 +552,29 @@
 <p style="margin: 0 0 17px !imporatnt;">7. Customer to stand at a safe distance 3 feet from technician and helper.</p>
 <p style="margin: 0 0 17px !imporatnt;">8. Leave all your belongings like helmet etc outside the customer house.</p>
 <p style="margin: 0 0 17px !imporatnt;">9. Helper to follow same guidelines and technician to make sure all the above for helper.</p>-->
+<?php
+if(!empty($show_gst)){
+?>
+<img src='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/gst_banner.jpg' style='width:100%'>
+<?php
+}else
+{
+?>
 <img src='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/crm_sf_tshirt_banner.jpg' style='width:100%'>
-
+<?php
+}
+?>
       </div>
-
- <div class="modal-footer">
+	  <?php
+	  if(empty($show_gst)){
+	   ?>
+<div class="modal-footer">
 		<button type="button" class="btn btn-lg btn-success" id='tshirtlink' onclick="request_tshirt()">Request Now</button>
         <button type="button" class="btn btn-lg btn-default" data-dismiss="modal">Close</button>
       </div>
+	  <?php
+	  }
+	  ?>
     
   </div>
 
