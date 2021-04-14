@@ -19,6 +19,7 @@
                 <h2 class="page-header">
                     <?php
                         if(isset($request_spare) && $request_spare == 1 && ($spare_flag == SPARE_PARTS_REQUIRED || $spare_flag == SPARE_OOW_EST_REQUESTED)){
+                            $is_disable = true;
                             echo $spare_flag;
                         }
                         else {
@@ -297,14 +298,14 @@
                                             <label for="parts_type" class="col-md-4">Part Type *</label>
                                             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                             <div class="col-md-6">
-                                                <select class="form-control parts_type_check parts_type spare_parts" onchange="part_type_changes('0')" id="parts_type_0" name="part[0][parts_type]" >
+                                                <select class="form-control parts_type_check parts_type spare_parts" onchange="part_type_changes('0'),set_part_warranty_status(this, '0')" id="parts_type_0" name="part[0][parts_type]" >
                                                     <option selected disabled>Select Part Type</option>
                                                 </select>
                                                 <span id="spinner" style="display:none"></span>
                                             </div>                                            
                                             <?php } else { ?> 
                                             <div class="col-md-6">
-                                                <select class="form-control spare_parts_type" id="parts_type_0" name="part[0][parts_type]" value = "<?php echo set_value('parts_type'); ?>">
+                                                <select class="form-control spare_parts_type" id="parts_type_0" name="part[0][parts_type]" value = "<?php echo set_value('parts_type'); ?>" onchange="set_part_warranty_status(this, '0')">
                                                     <option selected disabled>Select Part Type</option>
                                                 </select>
                                             </div>
@@ -750,13 +751,14 @@
         function getPartType(){
             var model_number_id = $('#model_number_id option:selected').val();
             var model_number = $("#model_number_id option:selected").text();
+            var warranty_plan_id = "<?php echo $bookinghistory[0]['applied_warranty_plan_id']; ?>";
             $('#spinner').addClass('fa fa-spinner').show();
             if(model_number){
                 $('#model_number').val(model_number);
                 $.ajax({
                     method:'POST',
-                    url:'<?php echo base_url(); ?>employee/inventory/get_parts_type/1',
-                    data: { model_number_id:model_number_id},
+                    url:'<?php echo base_url(); ?>employee/inventory/get_parts_type_with_warranty_status/1',
+                    data: { model_number_id:model_number_id, warranty_plan_id:warranty_plan_id},
                     success:function(data){
                         $('.parts_type').val('val', "");
                         $('.parts_type').val('Select Part Type').change();
@@ -908,7 +910,6 @@
             internal_status_check('spare_parts');
             $("#spare_parts").prop('checked', true);
             $(".not_required").hide();
-            $(".disable_cntrl").attr("disabled", "true");
        <?php } ?>    
     });
         
@@ -1291,7 +1292,7 @@
                     $clone
                         .find('[id="parts_name"]').attr('name', 'part[' + partIndex + '][parts_name]').addClass('parts_name').attr('id','parts_name_'+partIndex).select2({placeholder:'Select Part Type'}).attr("required", true).end()
                         .find('[id="parts_number"]').attr('name', 'part[' + partIndex + '][parts_number]').addClass('parts_number').attr('id','parts_number_'+partIndex).select2().end()
-                        .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type parts_type_check').attr('id','parts_type_'+partIndex).attr("onchange", "part_type_changes('"+partIndex+"')").attr("required", true).select2({placeholder:'Select Part Type'}).end()
+                        .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type parts_type_check').attr('id','parts_type_'+partIndex).attr("onchange", "part_type_changes('"+partIndex+"'),set_part_warranty_status(this, '"+partIndex+"')").attr("required", true).select2({placeholder:'Select Part Type'}).end()
                         .find('[id="requested_inventory_id"]').attr('name', 'part[' + partIndex + '][requested_inventory_id]').attr('id','requested_inventory_id_'+partIndex).end()
                         .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).end()
                         .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).end()
@@ -1309,7 +1310,7 @@
             <?php } else { ?>
                 $clone
 
-                   .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type parts_type_check').attr('id','parts_type_'+partIndex).attr("required", true).select2({placeholder:'Select Part Type'}).end()
+                   .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type parts_type_check').attr('id','parts_type_'+partIndex).attr("required", true).select2({placeholder:'Select Part Type'}).attr("onchange", "set_part_warranty_status(this, '"+partIndex+"')").end()
                    .find('[id="parts_name"]').attr('name', 'part[' + partIndex + '][parts_name]').addClass('parts_name').attr('id','parts_name_'+partIndex).attr("required", true).end()
                    .find('[id="requested_inventory_id"]').attr('name', 'part[' + partIndex + '][requested_inventory_id]').attr('id','requested_inventory_id_'+partIndex).end()
                    .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).end()
@@ -1411,11 +1412,12 @@
     
     $(document).ready(function(){
         var service_id = "<?php echo $bookinghistory[0]['service_id']; ?>";
+        var warranty_plan_id = "<?php echo $bookinghistory[0]['applied_warranty_plan_id']; ?>";
         $.ajax({
             method:'POST',
-            url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
-            data: { service_id:service_id},
-            success:function(data){    
+            url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type_with_warranty_status',
+            data: { service_id:service_id, warranty_plan_id:warranty_plan_id},
+            success:function(data){                      
                 $('.spare_parts_type').html(data); 
                 $('#parts_type_0').select2();
             }
@@ -1459,7 +1461,15 @@
         $("#serial_number").attr('readonly', 'readonly');
         $("#serial_number").css("cursor", "not-allowed");
         $("#serial_number").css("pointer-events","none");
-    <?php } } ?>    
+    <?php } } ?> 
+    
+    function set_part_warranty_status(cntrl, index){
+        var part_warranty_status = 2;
+        if($(cntrl).find('option:selected').data('part-warranty-status')){
+            part_warranty_status = $(cntrl).find('option:selected').data('part-warranty-status');
+        }
+        $("input[name='part["+index+"][part_warranty_status]']").val(part_warranty_status);
+    }
 </script>
 <style type="text/css">
     #hide_spare, #hide_rescheduled { display: none;}
