@@ -31,14 +31,14 @@
                 <img style="padding: 2px;height: 75px;" src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$excel_data['main_company_logo']; ?>">
                 <?php } ?>
             </td>
-            <td colspan="12"><h1>Delivery Challan</h1></td>
+            <td colspan="13"><h1>Delivery Challan</h1></td>
         </tr>
         <tr>
-            <td colspan="8" align="left" style="border-bottom: hidden;"><p>To,</p><?php echo $excel_data['sf_name']; ?></td>
+            <td colspan="9" align="left" style="border-bottom: hidden;"><p>To,</p><?php echo $excel_data['sf_name']; ?></td>
             <td  colspan="6" align="left" style="border-bottom: hidden;"><b>Challan No: </b><?php echo $excel_data['sf_challan_no']; ?></td>
         </tr>
         <tr>
-            <td  colspan="8" rowspan="2" align="left" style="border-bottom: hidden;"><b>Address:</b> <?php if(!empty($excel_data['sf_contact_person_name'])){ echo 'C/o '.$excel_data['sf_contact_person_name'].", ";} echo $excel_data['sf_address']; ?> 
+            <td  colspan="9" rowspan="2" align="left" style="border-bottom: hidden;"><b>Address:</b> <?php if(!empty($excel_data['sf_contact_person_name'])){ echo 'C/o '.$excel_data['sf_contact_person_name'].", ";} echo $excel_data['sf_address']; ?> 
           
             <?php
                 if (!empty($excel_data['sf_contact_number'])) {
@@ -61,24 +61,25 @@
             </td>
         </tr>
         <tr>
-            <td  colspan="8" align="left"  style="<?php if(!empty($excel_data['courier_servicable_area'])){ ?>border-bottom: hidden;<?php } ?>"><b>GST: </b><?php echo $excel_data['sf_gst']; ?></td>
-            <td colspan="13"  style="<?php if(!empty($excel_data['courier_servicable_area'])){ ?>border-bottom: hidden;<?php } ?>"></td>
+            <td  colspan="9" align="left"  style="<?php if(!empty($excel_data['courier_servicable_area'])){ ?>border-bottom: hidden;<?php } ?>"><b>GST: </b><?php echo $excel_data['sf_gst']; ?></td>
+            <td colspan="6"  style="<?php if(!empty($excel_data['courier_servicable_area'])){ ?>border-bottom: hidden;<?php } ?>"></td>
         </tr>
         <?php
         if(!empty($excel_data['courier_servicable_area'])){
         ?>
         <tr>
-            <td  colspan="13" align="left"><b>Courier Servicable Area: </b><?php echo $excel_data['courier_servicable_area']; ?></td>
+            <td  colspan="15" align="left"><b>Courier Servicable Area: </b><?php echo $excel_data['courier_servicable_area']; ?></td>
         </tr>
         <?php
         }
         ?>
         
         <tr style="text-align: center;">
-            <td style="text-align: center;max-width:3px;"><b>S No</b></td>
-            <td style="text-align: center;max-width:40px;"><b>Part Name</b></td>
-            <td style="text-align: center; max-width:30px;"><b>Part Number</b></td>
-            <td  style="text-align: center; max-width:30px;"><b>Booking ID</b></td>
+            <td style="text-align: center;"><b>S No</b></td>
+            <td style="text-align: center;"><b>Part Name</b></td>
+            <td style="text-align: center;"><b>Part Number</b></td>
+            <td style="text-align: center;"><b>HSN Code</b></td>
+            <td  style="text-align: center;"><b>Booking ID</b></td>
             <?php if(!empty($excel_data['show_consumption_reason'])){ ?>
             <td  style="text-align: center;"><b>Consumption</b></td>
             <?php } ?>
@@ -86,7 +87,7 @@
             <td  style="text-align: center"><b>Model Number</b></td>
 	    <td  style="text-align: center"><b>Serial Number</b></td>
             <?php } ?>
-            <td style="text-align: center;max-width:10px;"><b>Qty</b></td>
+            <td style="text-align: center;"><b>Qty</b></td>
             <td style="text-align: center; ;"><b>Rate</b></td>
             <td style="text-align: center; ;"><b>Taxable Amount</b></td>
             <?php  if($c_s_gst){ ?>
@@ -106,10 +107,11 @@
         $total_value = $cgst_amount = $sgst_amount = $igst_amount = 0;
         foreach ($excel_data_line_item as $key => $info) {  ?>
             <tr >
-                <td style="max-width:3px;"><?php echo $key +1; ?></td>
-                <td style="max-width:40px;"><?php echo $info['spare_desc'] ; ?></td>
-                <td style="max-width:30px;"><?php echo $info['part_number'] ; ?></td>
-                <td style="max-width:30px;"><?php echo $info['booking_id'] ; ?></td>
+                <td ><?php echo $key +1; ?></td>
+                <td ><?php echo $info['spare_desc'] ; ?></td>
+                <td ><?php echo $info['part_number'] ; ?></td>
+                 <td ><?php echo $info['hsn_code'] ; ?></td>
+                <td ><?php echo $info['booking_id'] ; ?></td>
                 <?php if(!empty($excel_data['show_consumption_reason'])){?>
                 <td>
                     <?php if ($info['consumption'] == 'Part consumed') {
@@ -122,7 +124,7 @@
                 <td><?php echo $info['model_number_shipped'];?></td>
                 <td><?php echo $info['serial_number'];?></td>
                 <?php } ?>
-                <td style="max-width:10px;"><?php echo $info['qty'];?></td>
+                <td><?php echo $info['qty'];?></td>
                 <td><?php echo sprintf("%.2f", $info['rate']);?></td>
                 <td><?php echo sprintf("%.2f", $info['taxable_value']);?></td>
                 <?php  if($c_s_gst){ ?>
@@ -142,6 +144,7 @@
             
         <tr >
             <td><b>Total</b></td>
+            <td></td>
             <td></td>
             <td></td>
             <td></td>

@@ -2342,6 +2342,7 @@ class Spare_parts extends CI_Controller {
                     if (isset($data['is_micro_wh']) && $data['is_micro_wh'] == 1) {
                         $data['spare_id'] = $spare_parts_id;
                         $data['shipped_inventory_id'] = $data['requested_inventory_id'];
+                        $data['shipped_hsn_code'] = $warehouse_details['hsn_code_id'];
                         array_push($delivered_sp, $data);
                     }
 
@@ -3323,6 +3324,7 @@ class Spare_parts extends CI_Controller {
                 $data['parts_shipped'] = $value['parts_requested'];
                 $data['shipped_parts_type'] = $value['parts_requested_type'];
                 $data['shipped_date'] = $value['date_of_request'];
+                $data['shipped_hsn_code'] = $value['shipped_hsn_code'];
                 $data['status'] = SPARE_SHIPPED_BY_PARTNER;
                 $data['shipped_inventory_id'] = $value['requested_inventory_id'];
                 $data['shipped_quantity'] = $value['quantity'];
