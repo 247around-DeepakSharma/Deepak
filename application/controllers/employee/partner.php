@@ -7309,7 +7309,7 @@ class Partner extends CI_Controller {
                   $is_escalation =  '<i data-toggle="tooltip" title="Escalation" style="color:red; font-size:13px;" onclick="" class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></i>';
             } 
             $tempArray[] =  $is_escalation.$row->partner_internal_status;
-            $tempArray[] = $row->customername;
+            $tempArray[] = '<a href="'. base_url().'employee/partner/search?searched_text='. $row->phone_number.'" target="_blank" style="color:blue">'.$row->customername.'</a>';
             $tempArray[] = $row->booking_primary_contact_no;
             $tempArray[] = $row->city;
             $tempArray[] = $row->state;
