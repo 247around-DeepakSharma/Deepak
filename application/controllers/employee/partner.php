@@ -2493,7 +2493,12 @@ class Partner extends CI_Controller {
                     $where = array("spare_parts_details.awb_by_partner" => $this->input->post('awb'), "spare_parts_details.entity_type" => _247AROUND_PARTNER_STRING);
                     $courier_charge_parts_data = $this->inventory_model->get_generic_table_details('spare_parts_details', $select, $where, '');
                     //Splited courier charge to spare parts details lineitems
-                    $courier_charge_by_partner = ($this->input->post('courier_price_by_partner') / count($courier_charge_parts_data));
+                     if(!empty($courier_charge_parts_data)){
+                      $count = $courier_charge_by_partner = ($this->input->post('courier_price_by_partner') / count($courier_charge_parts_data));  
+                    }else{
+                     $courier_charge_by_partner = $this->input->post('courier_price_by_partner');
+                    }
+                    
                     $this->service_centers_model->update_spare_parts(array("spare_parts_details.awb_by_partner" => $this->input->post('awb')), array('spare_parts_details.courier_price_by_partner' => $courier_charge_by_partner, "spare_parts_details.courier_pic_by_partner" => trim($this->input->post('courier_image'))));
 
                     if (!empty($current_status)) {
