@@ -4579,6 +4579,9 @@ class Inventory extends CI_Controller {
                                 
                                 foreach ($parts_details as $key => $value) {
                                     $request_type = '';
+                                    if(!empty($value['quantity'])){
+                                        $value['quantity'] = 1;
+                                    }
                                     if (isset($value['request_type']) && !empty($value['request_type'])) {
                                         $request_type = trim($value['request_type']);
                                     } else {
@@ -4586,7 +4589,7 @@ class Inventory extends CI_Controller {
                                     }
                                     if ($value['shippingStatus'] == 1) {
                                         
-                                        if($value['spare_id'] =="new_spare_id" ){
+                                        if(isset($value['spare_id']) && $value['spare_id'] =="new_spare_id" ){
                                             
                                             $sid = $this->insert_new_spare_item($value, $wh_id, 
                                                     $action_entity_id, $action_entity_id, $is_wh_micro, $request_type);
