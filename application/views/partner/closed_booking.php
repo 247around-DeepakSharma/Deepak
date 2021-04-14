@@ -1,5 +1,5 @@
-<?php if ($this->uri->segment(5)) {
-    $count = $this->uri->segment(5) + 1;
+<?php if ($this->uri->segment(7)) {
+    $count = $this->uri->segment(7) + 1;
 } else {
     $count = 1;
 } ?>
