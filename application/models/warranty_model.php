@@ -452,7 +452,7 @@ class Warranty_model extends CI_Model {
     function get_warranty_parts_type_list_code($plan_id)
     {
         $params = array($plan_id);
-        $query = "select distinct(part_type_id) from warranty_plan_part_type_mapping where is_active = 1 AND plan_id = ?";
+        $query = "select distinct(part_type_id), part_type from warranty_plan_part_type_mapping JOIN inventory_parts_type ON (warranty_plan_part_type_mapping.part_type_id = inventory_parts_type.id) where is_active = 1 AND plan_id = ?";
         $results = execute_paramaterised_query($query, $params);
         return $results;
     }

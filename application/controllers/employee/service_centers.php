@@ -2607,14 +2607,13 @@ class Service_centers extends CI_Controller {
                 $this->booking_model->update_booking_unit_details($booking_id, $dataunit_details);
 
                 $booking_date = $this->input->post('booking_date');
-/* Reason as reason text in Android API CALL */
+                /* Reason as reason text in Android API CA-LL */
                 if (!$this->input->post("call_from_api")) {
                     $reason = $this->input->post('reason');
                 }else{
                     $reason = SPARE_PARTS_REQUIRED; //Reason should be SPARE_PARTS_REQUIRED similar to CRM reason
                 }
-                //$price_tags = $this->input->post('price_tags');
-
+                
                 $partner_id = $this->input->post('partner_id');
                 $partner_details = $this->partner_model->getpartner_details("partners.is_def_spare_required,partners.is_wh, partners.is_micro_wh, partners.is_defective_part_return_wh, partners.spare_approval_by_partner", array('partners.id' => $partner_id));
 
@@ -2666,14 +2665,7 @@ class Service_centers extends CI_Controller {
                         $data['spare_request_symptom'] = null;
                     }
 
-//                    $data['part_warranty_status'] = $value['part_warranty_status'];
-                    // ----------------- Set Part Warranty -------------------------------
-                    $arrPartWarrantyStatus = $this->get_part_warranty_data($this->input->post());
-                    $data['part_warranty_status'] = SPARE_PART_IN_OUT_OF_WARRANTY_STATUS;
-                    if(!empty($arrPartWarrantyStatus[$data['parts_requested_type']]) && ((strtoupper(trim($arrPartWarrantyStatus[$data['parts_requested_type']])) == 'IW') || (strtoupper(trim($arrPartWarrantyStatus[$data['parts_requested_type']])) == 'EW'))){
-                        $data['part_warranty_status'] = SPARE_PART_IN_WARRANTY_STATUS;
-                    }                    
-                    // -------------------------------------------------------------------
+                    $data['part_warranty_status'] = $value['part_warranty_status'];
                     $data['part_requested_on_approval'] = 0;
 
                     if (isset($value['requested_inventory_id'])) {
