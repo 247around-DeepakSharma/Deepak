@@ -192,6 +192,11 @@
                                     echo $booking_history[0]['assigned_engineer_name'] . "/5";
                                     } ?>
                                 </td>
+                            </tr>
+                            <tr>
+                                <th>SF brought appliance to workshop:</th>
+                                <td><?php if ($booking_history[0]['part_brought_at'] == 2) { echo "Yes"; } else { echo "No"; } ?></td>
+                                <td colspan="2"></td>
                             </tr> 
                         </table>
                     <table class="table  table-striped table-bordered cloned" >
