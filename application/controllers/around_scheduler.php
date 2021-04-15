@@ -3648,6 +3648,9 @@ class Around_scheduler extends CI_Controller {
                 if (empty($otp_detail)) {
                     $subject = $value['subject'];
                     $body = $value['body'];
+                    $bodyArray = explode("Dear Partner", $body);
+                    $body = $bodyArray[2];
+                    
                     if (preg_match_all('/\d{2}\/\d{2}\/\d{4}/', $subject, $matches)) {
                         $date = "";
                         if (!empty($matches)) {
@@ -3700,19 +3703,19 @@ class Around_scheduler extends CI_Controller {
                     $pincode = $location_array[1];
 
 
-					$string = ' ' . $body;
+		    $string = ' ' . $body;
                     $ini = strpos($string, 'out to deliver ');
                     if ($ini == 0)
                         return '';
                     $ini += strlen('out to deliver ');
-                    $len = strpos($string, 'of your package', $ini) - $ini;
+                    $len = strpos($string, ' ', $ini) - $ini;
                     $quantity_package = trim(substr($string, $ini, $len));
 					
                     $post['length'] = -1;
-					$post['start'] = 0;
-					$post['where']['service_centres.active'] = 1; 
-					$post['where']['bb_shop_address.shop_address_pincode'] = $pincode;
-					$list = $this->cp_model->get_cp_shop_address_list($post);                    
+                    $post['start'] = 0;
+                    $post['where']['service_centres.active'] = 1; 
+                    $post['where']['bb_shop_address.shop_address_pincode'] = $pincode;
+                    $list = $this->cp_model->get_cp_shop_address_list($post);                    
                     $date = str_replace('/', '-', $date);
                     foreach ($list as $key_list => $value_list) {
                         $cpid = $value_list->cp_id;
@@ -3725,7 +3728,7 @@ class Around_scheduler extends CI_Controller {
                         $array_bb_data['otp'] = $otp;
                         $array_bb_data['cp_id'] = $cpid;
                         $array_bb_data['email_no'] = $email_no;
-						$array_bb_data['qty'] = $quantity_package;
+			$array_bb_data['qty'] = $quantity_package;
                         $this->bb_model->insert_buyback_otp($array_bb_data);
                     }
                 }
