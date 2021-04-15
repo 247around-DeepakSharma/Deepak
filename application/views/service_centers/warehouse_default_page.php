@@ -909,7 +909,7 @@
     function get_msl_awb_details(courier_code,awb_number){
 
             if(courier_code && awb_number){
-                $('#'+id).show();
+                //$('#'+id).show();
                 $.ajax({
                     method:"POST",
                     data : {courier_code: courier_code, awb_number: awb_number},
