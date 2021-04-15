@@ -617,5 +617,14 @@
             }
         });
     }
-
+    //Deepak Sharma 
+    //This function use to allow only number and alphabets in search field
+    $("#vendor_details_filter").on('keypress', function (event) {
+    var regex = new RegExp("^[a-zA-Z0-9]+$");
+    var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+    if (!regex.test(key)) {
+       event.preventDefault();
+       return false;
+    }
+});
 </script>
