@@ -6320,7 +6320,6 @@ class Spare_parts extends CI_Controller {
                         }
                     } else {
                         $courier_id = $exist_courier_details[0]['id'];
-                        $courier_file['message'] = $courier_file["courier_invoice_file"];
                         $courier_file['status'] = true;
                     }
 
