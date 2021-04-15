@@ -115,25 +115,26 @@
                         <div class="panel panel-default" style="margin-left:10px; margin-right:10px;">
                             <div class="panel-body" >
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    <input type="hidden" name="part_warranty_status" id="part_warranty_status_0" value="<?php echo $spare_parts_details['part_warranty_status']; ?>">
+<!--                                    <div class="col-md-6" style="display:none;">
                                         <div class="form-group">
                                             <label for="part_warranty" class="col-md-4">Part Warranty*</label>
                                             <div class="col-md-6">
                                                 <?php if ($spare_parts_details['part_warranty_status'] == 1) { ?>
-                                                    <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part_warranty_status"> <!--  onchange="get_symptom(0)" -->
+                                                    <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part_warranty_status">   onchange="get_symptom(0)" 
                                                         <option selected="" disabled="">Select warranty status</option>
                                                         <option value="1"  data-request_type = "<?php echo REPAIR_IN_WARRANTY_TAG;?>" <?php if ($spare_parts_details['part_warranty_status'] == 1) { echo 'selected'; } ?>> In-Warranty </option>
                                                         <option value="2"  data-request_type = "<?php echo REPAIR_OOW_TAG;?>" <?php if ($spare_parts_details['part_warranty_status'] == 2) { echo 'selected'; } ?>> Out-Warranty </option>
                                                     </select>
                                                 <?php } else { ?>
-                                                    <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part_warranty_status"> <!--  onchange="get_symptom(0)" -->
+                                                    <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part_warranty_status">   onchange="get_symptom(0)" 
                                                         <option selected="" disabled="">Select warranty status</option>
                                                         <option value="2"  data-request_type = "<?php echo REPAIR_OOW_TAG;?>" <?php if ($spare_parts_details['part_warranty_status'] == 2) { echo 'selected'; } ?>> Out-Warranty </option>
                                                     </select>
                                                 <?php } ?>
                                             </div>                                            
                                         </div>
-                                    </div>
+                                    </div>-->
                                     <!--<div class = 'col-md-6'>
                                         <div class="form-group">
                                             <label for="Technical Issue" class="col-md-4">Technical Problem *</label>                                             
@@ -149,14 +150,14 @@
                                             <label for="parts_type" class="col-md-4">Part Type *</label>
                                             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                             <div class="col-md-6">
-                                                <select class="form-control parts_type spare_parts" id="parts_type"  name="part[0][parts_type]">
+                                                <select class="form-control parts_type spare_parts" id="parts_type"  name="part[0][parts_type]" onchange="set_part_warranty_status();">
                                                     <option selected disabled>Select Part Type</option>
                                                 </select>
                                                 <span id="spinner" style="display:none"></span>
                                             </div>
                                             <?php } else { ?> 
                                             <div class="col-md-6">                                                
-                                                <select class="form-control parts_type spare_parts" id="parts_type" name="part[0][parts_type]" value = "<?php echo set_value('parts_type'); ?>">
+                                                <select class="form-control parts_type spare_parts" id="parts_type" name="part[0][parts_type]" value = "<?php echo set_value('parts_type'); ?>" onchange="set_part_warranty_status();">
                                                     <option selected disabled>Select Part Type</option>
                                                 </select>
                                             </div>
@@ -327,8 +328,8 @@ $(document).ready(function(){
     function defults_inventory_part_type(){
         $.ajax({
                 method:'POST',
-                url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
-                data: { service_id:<?php echo $spare_parts_details['service_id']; ?>},
+                url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type_with_warranty_status',
+                data: { service_id:<?php echo $spare_parts_details['service_id']; ?>,warranty_plan_id:<?php echo $spare_parts_details['applied_warranty_plan_id']; ?>},
                 success:function(data){                       
                     $('.parts_type').html(data);
                     //$('.parts_type option[value="<?php echo $spare_parts_details['parts_requested_type']; ?>"]').attr('selected','selected');
@@ -397,13 +398,14 @@ $(document).ready(function(){
       function load_model_number(){
           var model_number_id = $('#model_number_id').val();
           var model_number = $("#model_number_id option:selected").text();
+          var warranty_plan_id = "<?php echo $spare_parts_details['applied_warranty_plan_id']; ?>";
             $('#spinner').addClass('fa fa-spinner').show();
             if(model_number){
                 $('#model_number').val(model_number);
                 $.ajax({
                     method:'POST',
-                    url:'<?php echo base_url(); ?>employee/inventory/get_parts_type/',
-                    data: { model_number_id:model_number_id},
+                    url:'<?php echo base_url(); ?>employee/inventory/get_parts_type_with_warranty_status/',
+                    data: { model_number_id:model_number_id, warranty_plan_id:warranty_plan_id},
                     success:function(data){                       
                         $('#parts_type').html(data);
                         //$('#parts_type option[value="<?php echo $spare_parts_details['parts_requested_type']; ?>"]').attr('selected','selected');
@@ -746,6 +748,14 @@ function get_inventory_id(id){
             });
             return valid_request;
         }
+    }
+    
+    function set_part_warranty_status(){
+        var part_warranty_status = 2;
+        if($("#parts_type").find('option:selected').data('part-warranty-status')){
+            part_warranty_status = $("#parts_type").find('option:selected').data('part-warranty-status');
+        }
+        $("#part_warranty_status_0").val(part_warranty_status);
     }
 </script>
 <style type="text/css">
