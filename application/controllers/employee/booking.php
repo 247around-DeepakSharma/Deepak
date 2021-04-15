@@ -6767,7 +6767,6 @@ class Booking extends CI_Controller {
         log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
         $booking_id = base64_decode(urldecode($booking_id));
         $redirect_url = !empty($redirect_url) ? base64_decode(urldecode($redirect_url)) : "";
-
         $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id, NULL, NULL, true);
         if ($booking) {
             $booking['booking_history']['redirect_url'] = $redirect_url;
@@ -6777,13 +6776,10 @@ class Booking extends CI_Controller {
                     if ($value['file_description_id'] == ANNUAL_MAINTENANCE_CONTRACT) {
                         array_push($amc_file_array, $value['file_name']);
                     }
+                }
+                $booking['amc_file_lists'] = $amc_file_array;
+            }
 
-            $booking['amc_file_lists'] = $amc_file_array;
-        }
-        
-        $booking['booking_history']['redirect_url'] = $redirect_url;
-        if($booking){
-            $booking['booking_history']['redirect_url'] = $redirect_url;
             $is_spare_requested = $this->booking_utilities->is_spare_requested($booking);
             $booking['booking_history']['is_spare_requested'] = $is_spare_requested;
             // Check if any line item against booking is invoiced to partner or not
