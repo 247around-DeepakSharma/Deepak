@@ -272,7 +272,11 @@
                             <th>Customer Dissatisfactory Reason</th>
                             <td style="max-width: 330px;"><?php echo $customer_dissatisfactory_reason;?></td>
                         </tr>
-                        
+                        <tr>
+                            <th>SF brought appliance to workshop:</th>
+                            <td><?php if ($booking_history[0]['part_brought_at'] == 2) { echo "Yes"; } else { echo "No"; } ?></td>
+                            <td colspan="2"></td>
+                        </tr>
                     </table>                    
                     <table class="table  table-striped table-bordered" >
                         <tr>

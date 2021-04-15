@@ -162,7 +162,8 @@
                                     <tr>
                                         <th>Remarks: </th>
                                         <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
-                                        <td colspan="2">&nbsp;</td>
+                                        <th>SF brought appliance to workshop: </th>
+                                        <td><?php if ($booking_history[0]['part_brought_at'] == 2) { echo "Yes"; } else { echo "No"; } ?></td>
                                     </tr>
                                 </table>
                             </div>
