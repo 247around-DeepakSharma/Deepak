@@ -121,7 +121,7 @@ class Partner extends CI_Controller {
     /**
      * @desc: this is used to display completed booking for specific service center
      */
-    function closed_booking($status,$state_code="all",$start_date1='',$end_date2='', $offset = 0, $booking_id = "") {
+    function closed_booking($status, $state_code="all", $offset = 0, $booking_id = "",$start_date1='',$end_date2='') {
  
         $date = $this->input->post('completion_date'); 
         if(!empty($start_date1) && !empty($end_date2) ){
@@ -150,7 +150,13 @@ class Partner extends CI_Controller {
         if($this->session->userdata('is_filter_applicable') == 1){
             $stateCity = 1;
         }
-        $config['base_url'] = base_url() . 'partner/closed_booking/' . $status.'/'.$state_code.'/'.$startDate.'/'.$endDate;
+        if(!empty($booking_id)){
+            $config['base_url'] = base_url() . 'partner/closed_booking/' . $status.'/'.$state_code.'/0/' .$booking_id.'/'.$startDate.'/'.$endDate;  
+        }
+        else{
+              $config['base_url'] = base_url() . 'partner/closed_booking/' . $status.'/'.$state_code.'/0/0/'.$startDate.'/'.$endDate;
+        }
+      
         if (!empty($booking_id)) {
             $config['total_rows'] = $this->partner_model->getclosed_booking("count", "", $partner_id, $status, $booking_id,$stateCity,$state_code,$startDate, $endDate);
         } else {
@@ -158,7 +164,7 @@ class Partner extends CI_Controller {
         }
 
         $config['per_page'] = 50;
-        $config['uri_segment'] = 7;
+        $config['uri_segment'] = 9;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';
         $this->pagination->initialize($config);
