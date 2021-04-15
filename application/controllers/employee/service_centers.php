@@ -6659,13 +6659,14 @@ if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file'
         $row[] = "<span class='".$color_class."'>". $spare_list['shipped_quantity'] ."</span>";
         $row[] = "<span class='".$color_class."'>". $spare_list['part_number'] ."</span>";
         $row[] = "<span class='".$color_class."'>". $spare_list['courier_name_by_sf'] ."</span>";
-
-        $c = "<a href='javascript:void(0);' onclick='";
-        $c .= "get_awb_details(" . '"' . $spare_list['courier_name_by_sf'] . '"';
-        $c .= ', "' . $spare_list['awb_by_sf'] . ',"' . $spareStatus . ',"awb_loader_"' . $no;
-        $c .= ")'>" . $spare_list['awb_by_sf'] . "</a><span id='awb_loader_" . $no . "' style='display:none;'><i class='fa fa-spinner fa-spin'></i></span>";
-
-        $row[] = $c;
+        
+        $a = "<a href='javascript:void(0);' onclick='";
+        $a .= "get_awb_details(" . '"' . $spare_list['courier_name_by_sf']  . '"';
+        $a .= ', "' . $spare_list['awb_by_sf'] . '"';
+        $a .= ', "msl_awb_loader_' . $no . '"';
+        $a .= ")'>" . $spare_list['awb_by_sf'] . "</a>";
+        $a .="<span id='awb_loader_$no' style='display:none;'><i class='fa fa-spinner fa-spin'></i></span>";
+        $row[] = $a;
 
         
         $row[] =  "<span class='".$color_class."'>". date("d-M-Y", strtotime($spare_list['defective_part_shipped_date']))."</span>";
