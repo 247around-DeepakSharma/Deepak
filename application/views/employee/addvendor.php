@@ -506,7 +506,16 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                 ?>
                                 <div class="col-md-2">
                                 <label class="checkbox-inline checkbox-inline-no-edit">
-                                    <input <?php if(empty($check_uncheck_engineer)){ ?> onclick='return false' data-toggle="tooltip" title="<?php echo $check_uncheck_message; ?>" <?php } ?>  class='checkbox_input' type="checkbox" id="is_engineer" <?php if(isset($query[0]['isEngineerApp'])) { if($query[0]['isEngineerApp'] == 1){ echo "checked";}}?> name="is_engineer" value="1" readonly><b>Engineer App</b>
+                                    <?php
+                                     $check_flag = '';
+                                       if (isset($query[0]['id'])) {
+                                         $check_flag = false;
+                                    } else{
+                                        $check_flag =  true;
+                                        
+                                    }?>
+                                        
+                                    <input <?php if(empty($check_uncheck_engineer)){ ?> onclick='return false' data-toggle="tooltip" title="<?php echo $check_uncheck_message; ?>" <?php } ?>  class='checkbox_input' type="checkbox" id="is_engineer" <?php if(isset($query[0]['isEngineerApp']) ||( !empty($check_flag))) { if((isset($query[0]['isEngineerApp']) && $query[0]['isEngineerApp'] == 1) || (!empty($check_flag))){ echo "checked";}}?> name="is_engineer" value="1" readonly ><b>Engineer App</b>
                                 </label>
 
                                 </div>
