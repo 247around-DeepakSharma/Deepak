@@ -583,23 +583,22 @@ class Miscelleneous {
             $data['current_status'] = _247AROUND_CANCELLED;
             $data_vendor['current_status']  =_247AROUND_CANCELLED;
             $s = $data_vendor['current_status'];
-           
-        } else {
             
+            if(!empty($data['internal_status'])) {
+                $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data($data_vendor['current_status'], $data['internal_status'], $partner_id, $booking_id);            
+                if (!empty($partner_status)) {
+                    $data['partner_current_status'] = $partner_status[0];
+                    $data['partner_internal_status'] = $partner_status[1];
+                    $actor = $data['actor'] = $partner_status[2];
+                    $next_action = $data['next_action'] = $partner_status[3];
+                }
+            }
+        } else {
+            $actor = $data['actor'] =  _247AROUND_EMPLOYEE_STRING;
+            $next_action = $data['next_action'] = NEXT_ACTION_CLOSURE_REVIEW;
             $s = SF_BOOKING_CANCELLED_STATUS;
         }
         
-        if(!empty($data['internal_status'])) {
-            $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data($data_vendor['current_status'], $data['internal_status'], $partner_id, $booking_id);
-            $actor = $next_action = 'not_define';
-            if (!empty($partner_status)) {
-                $data['partner_current_status'] = $partner_status[0];
-                $data['partner_internal_status'] = $partner_status[1];
-                $actor = $data['actor'] = $partner_status[2];
-                $next_action = $data['next_action'] = $partner_status[3];
-            }
-        }
-
 
         log_message('info', __FUNCTION__ . " Update booking  " . print_r($data, true));
 

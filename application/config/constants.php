@@ -799,6 +799,8 @@ define('CANCELLATION_THRESHOLD', 20);
 
 define('VENDOR_RESCHEDULED', "Reschedule");
 define('REQUEST_TYPE_ELS', "LO-ELS");
+
+define('NEXT_ACTION_CLOSURE_REVIEW', 'Closure Review');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
 
