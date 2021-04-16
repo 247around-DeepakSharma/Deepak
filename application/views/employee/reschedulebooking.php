@@ -54,10 +54,15 @@
                       <label for="reason" class="col-md-4"> New Booking Date</label>
                       <div class="col-md-6">
                         <div class="input-group input-append date">
-                            <input id="booking_date" class="form-control" placeholder="Select Date" name="booking_date" type="text" value = "<?php echo set_value('booking_date'); ?>" required="" readonly="true">
-                                    <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+                           
+                            <input id="booking_date" class="form-control" placeholder="Select Date" name="booking_date" type="text" value = "<?php echo set_value('booking_date'); ?>"readonly="">
+                                    <span class="input-group-addon add-on" ><span class="glyphicon glyphicon-calendar"></span></span>
+                                    
                         </div>
                             <?php echo form_error('booking_date'); ?>
+                          <div>
+                               <span  id="bookind_date_validate"></span>
+                          </div>
                       </div>
                     </div>
 
@@ -164,7 +169,7 @@
 
                 <div>
                   <center>
-                    <input type="submit" value="Reschedule" class="btn btn-danger">
+                      <input type="submit" value="Reschedule" class="btn btn-danger" id="reschedule_btn" onclick="return  booking_date_required_validation()">
                     <?php echo "<a id='edit' class='btn btn-small btn-primary' href='".base_url()."employee/booking/view_bookings_by_status/Pending' >Cancel</a>";?>
                     
                   </center>
@@ -197,5 +202,11 @@
         }
 
     }
-
+ function booking_date_required_validation(){
+    if($("#booking_date").val() == ''){
+        $("#bookind_date_validate").text("Please Select New Booking Date");
+        return false;  
+    }  
+ }
+  
 </script>
