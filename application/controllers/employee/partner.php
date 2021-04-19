@@ -3151,6 +3151,8 @@ class Partner extends CI_Controller {
             if(!empty($spare_id) && !empty($get_awb[0]['awb_by_wh'])){
                 
                 $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $get_awb[0]['awb_by_wh'], 'delivered_date IS NULL' => NULL), array('delivered_date' => date('Y-m-d H:i:s')));
+                $url_opd = base_url()."courier_tracking/update_pod_courier/".$get_awb[0]['awb_by_wh'];
+                $this->asynchronous_lib->do_background_process($url_opd, array());
             }
             
             $psendUrl = base_url().'employee/invoice/generate_reverse_micro_purchase_invoice/'.$spare_id;
