@@ -1802,6 +1802,7 @@ class Accounting extends CI_Controller {
             $inv_where['invoice_id like "%Around-GST-DN%"'] = NULL;
             $post['column_search'] = array('service_centres.name', 'taxpro_gstr2a_data.gst_no', 'taxpro_gstr2a_data.invoice_number');
             $post['column_order'] = 'service_centres.name';
+            $post['where']['service_centres.is_sf'] =  1;
             $select = "taxpro_gstr2a_data.*, service_centres.company_name, service_centres.name, service_centres.id as vendor_id, egd.city";
         }
         else if($post['entity_type'] == 'partner'){
