@@ -405,6 +405,7 @@
                                 <th >Date Of Purchase</th>
                                 <th >Invoice Image </th>
                                 <th >Serial Number Image </th>
+                                <th>Defect Pic</th>
                                 <th >Defective Front Part Image </th>
                                 <th >Defective Back Part Image </th>
                                 <th >Serial Number </th>
@@ -459,6 +460,9 @@
                                 <td><?php if (!is_null($sp['serial_number_pic'])) {
                                     if ($sp['serial_number_pic'] !== '0') { ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/<?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $sp['serial_number_pic']; ?> " target="_blank">Click Here</a><?php }
                                     } ?>
+                                </td>
+                                <td>
+                                    <?php if (!empty($sp['defect_pic'])) {?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $sp['defect_pic']; ?> " target="_blank">Click Here</a><?php } ?>
                                 </td>
                                 <td><?php if (!is_null($sp['defective_parts_pic'])) {
                                     if ($sp['defective_parts_pic'] !== '0') { ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $sp['defective_parts_pic']; ?> " target="_blank">Click Here</a><?php }
@@ -593,6 +597,7 @@
                                 <?php if($this->session->userdata('is_wh')) { ?> 
                                 <th>Courier File</th>
                                 <?php } ?>
+                                <th>Courier POD File </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -620,6 +625,14 @@
                                     <?php } ?>
                                     </td>
                                 <?php } ?>
+                                     <td>
+                                           <?php
+                                           if(!empty($sp['awb_by_partner']))
+                                           {
+                                           ?>                                   
+                                            <a class='courier_pod_file' href="<?php echo S3_WEBSITE_URL;?>courier-pod/<?php  if(!empty($sp['courier_pod_file'])){ echo $sp['courier_pod_file']; } ?>" target="_blank" ><?php  if(!empty($sp['courier_pod_file'])){ ?>Click Here to view <?php } ?></a> 
+                                           <?php }?>
+                                        </td>
                             </tr>
                             <?php }  } ?>
                         </tbody>

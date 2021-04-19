@@ -566,6 +566,7 @@
                                                                 <th >EDD </th>
                                                                 <th >Remarks By Partner</th>
                                                                 <th>Challan File</th>
+                                                                <th>Courier POD File</th>
                                                                 <th>Is Defective Parts Required</th>
                                                             </tr>
                                                         </thead>
@@ -635,6 +636,13 @@
                                                                             <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY ?>/vendor-partner-docs/<?php echo $sp['partner_challan_file']; ?>" target="_blank">Click Here to view</a>
                                                                         <?php } ?>
                                                                     </td>
+                                                                    <td>
+                                                                       <?php
+                                                                           if(!empty($sp['awb_by_partner']))
+                                                                           { ?>                                   
+                                                                           <a class='courier_pod_file' href="<?php echo S3_WEBSITE_URL;?>courier-pod/<?php  if(!empty($sp['courier_pod_file'])){ echo $sp['courier_pod_file']; } ?>" target="_blank" ><?php  if(!empty($sp['courier_pod_file'])){ ?>Click Here to view <?php } ?></a> 
+                                                                       <?php }?>
+                                                                </td>
                                                                     <td><?php echo $button; ?></td>
                                                                 </tr>
                                                             <?php }} ?>

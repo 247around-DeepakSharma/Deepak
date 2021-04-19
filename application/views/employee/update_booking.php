@@ -1363,6 +1363,7 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
                       success: function(response) {
                           obj = JSON.parse(response);
                           if(obj.status  == <?Php echo _NO_REPEAT_BOOKING_FLAG; ?>){
+                              alert("There is not any Possible Parent booking for this booking, It can not be a repeat booking");
                               $("#repeat_booking_body").html("<p style='padding:10px;'>There is not any Possible Parent booking for this booking, It can not be a repeat booking</p>");
                               $('.repeat_Service:checked').prop('checked', false);
                               $('.repeat_Service').prop('disabled', true);
