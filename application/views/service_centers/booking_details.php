@@ -597,6 +597,7 @@
                                 <?php if($this->session->userdata('is_wh')) { ?> 
                                 <th>Courier File</th>
                                 <?php } ?>
+                                <th>Courier POD File </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -624,6 +625,14 @@
                                     <?php } ?>
                                     </td>
                                 <?php } ?>
+                                     <td>
+                                           <?php
+                                           if(!empty($sp['awb_by_partner']))
+                                           {
+                                           ?>                                   
+                                            <a class='courier_pod_file' href="<?php echo S3_WEBSITE_URL;?>courier-pod/<?php  if(!empty($sp['courier_pod_file'])){ echo $sp['courier_pod_file']; } ?>" target="_blank" ><?php  if(!empty($sp['courier_pod_file'])){ ?>Click Here to view <?php } ?></a> 
+                                           <?php }?>
+                                        </td>
                             </tr>
                             <?php }  } ?>
                         </tbody>
