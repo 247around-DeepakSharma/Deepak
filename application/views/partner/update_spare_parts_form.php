@@ -1503,13 +1503,14 @@
 
             var model_number_id = $('#shippedmodelnumberid_' + key).val();
             var model_number = $("#shippedmodelnumberid_" + key + " option:selected").text();
+            var warranty_plan_id = "<?php echo $spare_parts[0]->applied_warranty_plan_id; ?>";
             $('#spinner_' + key).addClass('fa fa-spinner').show();
             if(model_number){
                 $('#shippedmodelnumber_' + key).val(model_number);
                 $.ajax({
                     method:'POST',
-                    url:'<?php echo base_url(); ?>employee/inventory/get_parts_type',
-                    data: {model_number_id:model_number_id },
+                    url:'<?php echo base_url(); ?>employee/inventory/get_parts_type_with_warranty_status',
+                    data: {model_number_id:model_number_id, warranty_plan_id:warranty_plan_id},
                     success:function(data){
                         //console.log(data);
                         $('#shippedparttype_' +key ).val('val', "");
@@ -1621,8 +1622,8 @@
         function get_inventory_pary_type(service_id,spare_part_type_id){
            $.ajax({
            method:'POST',
-           url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
-           data: { service_id:service_id},
+           url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type_with_warranty_status',
+           data: { service_id:service_id,warranty_plan_id:<?php echo $spare_parts[0]->applied_warranty_plan_id; ?>},
            success:function(data){                       
                $('#'+spare_part_type_id).html(data);  
                var section_length = $(".div_class").length
