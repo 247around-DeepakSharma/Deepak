@@ -5646,6 +5646,8 @@ class Inventory extends CI_Controller {
                         $courier_id = $courier_id_array['courier_id'];
                         if (!empty($courier_id)) {
                             $this->inventory_model->update_courier_company_invoice_details(array('id' => $courier_id, 'delivered_date IS NULL' => NULL), array('delivered_date' => date('Y-m-d H:i:s')));
+                            $url_opd = base_url()."courier_tracking/update_pod_courier/".$courier_id."/1";
+                            $this->asynchronous_lib->do_background_process($url_opd, array());
                         }
                     }
                 }
