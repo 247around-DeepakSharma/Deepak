@@ -2042,6 +2042,7 @@ class engineerApiv1 extends CI_Controller {
         log_message("info", __METHOD__ . " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
 
             /*  handle condition for OLD APK where device token not present  Abhishek  */ 
@@ -2198,14 +2199,17 @@ class engineerApiv1 extends CI_Controller {
                     $bookings[$key]['in_out_status'] = $this->getBookingWarrantyFlag($value['request_type']);
                     /*  Completion Allow Flag */
                     $complete_flag = $this->checkCompletionAllowed($value['booking_id']);
-                    $bookings[$key]['complete_allow'] = $complete_flag;
+                    $bookings[$key]['complete_allow'] = $complete_flag['status'];
+                    $bookings[$key]['complete_allow_msg'] = $complete_flag['message'];
 
                     /*  Reschedule Allow Flag */
                     $reschedule_flag = $this->checkRescheduleAllowed($value['booking_id']);
-                    $bookings[$key]['reschedule_allow'] = $reschedule_flag;
+                    $bookings[$key]['reschedule_allow'] = $reschedule_flag['status'];
+                    $bookings[$key]['reschedule_allow_msg'] = $reschedule_flag['message'];
                     /*  Cancel Allow Flag */
                     $cancel_flag = $this->checkCancellationAllowed($value['booking_id']);
-                    $bookings[$key]['cancel_allow'] = $cancel_flag;
+                    $bookings[$key]['cancel_allow'] = $cancel_flag['status'];
+                    $bookings[$key]['cancel_allow_msg'] = $cancel_flag['message'];
                     /*  NO Action  Flag */
                     $bookings[$key]['spare_eligibility'] = $spare_resquest['spare_flag'];
                     $bookings[$key]['message'] = $spare_resquest['message'];
@@ -2261,14 +2265,17 @@ class engineerApiv1 extends CI_Controller {
                     $missed_bookings[$key]['in_out_status'] = $this->getBookingWarrantyFlag($value['request_type']);
                     /*  Completion Allow Flag */
                     $complete_flag = $this->checkCompletionAllowed($value['booking_id']);
-                    $missed_bookings[$key]['complete_allow'] = $complete_flag;
+                    $missed_bookings[$key]['complete_allow'] = $complete_flag['status'];
+                    $missed_bookings[$key]['complete_allow_msg'] = $complete_flag['message'];
 
                     /*  Reschedule Allow Flag */
                     $reschedule_flag = $this->checkRescheduleAllowed($value['booking_id']);
-                    $missed_bookings[$key]['reschedule_allow'] = $reschedule_flag;
+                    $missed_bookings[$key]['reschedule_allow'] = $reschedule_flag['status'];
+                    $missed_bookings[$key]['reschedule_allow_msg'] = $reschedule_flag['message'];
                     /*  Cancel Allow Flag */
                     $cancel_flag = $this->checkCancellationAllowed($value['booking_id']);
-                    $missed_bookings[$key]['cancel_allow'] = $cancel_flag;
+                    $missed_bookings[$key]['cancel_allow'] = $cancel_flag['status'];
+                    $missed_bookings[$key]['cancel_allow_msg'] = $cancel_flag['message'];
                     /*  NO Action  Flag */
 
                     // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
@@ -2320,14 +2327,16 @@ class engineerApiv1 extends CI_Controller {
                     $tomorrowBooking[$key]['in_out_status'] = $this->getBookingWarrantyFlag($value['request_type']);
                     /*  Completion Allow Flag */
                     $complete_flag = $this->checkCompletionAllowed($value['booking_id']);
-                    $tomorrowBooking[$key]['complete_allow'] = $complete_flag;
-
+                    $tomorrowBooking[$key]['complete_allow'] = $complete_flag['status'];
+                    $tomorrowBooking[$key]['complete_allow_msg'] = $complete_flag['message'];
                     /*  Reschedule Allow Flag */
                     $reschedule_flag = $this->checkRescheduleAllowed($value['booking_id']);
-                    $tomorrowBooking[$key]['reschedule_allow'] = $reschedule_flag;
+                    $tomorrowBooking[$key]['reschedule_allow'] = $reschedule_flag['status'];
+                    $tomorrowBooking[$key]['reschedule_allow_msg'] = $reschedule_flag['message'];
                     /*  Cancel Allow Flag */
                     $cancel_flag = $this->checkCancellationAllowed($value['booking_id']);
-                    $tomorrowBooking[$key]['cancel_allow'] = $cancel_flag;
+                    $tomorrowBooking[$key]['cancel_allow'] = $cancel_flag['status'];
+                    $tomorrowBooking[$key]['cancel_allow_msg'] = $cancel_flag['message'];
                     /*  NO Action  Flag */
                     $tomorrowBooking[$key]['spare_eligibility'] = $spare_resquest['spare_flag'];
                     // Abhishek Check if we required the previous consumption or not return true/false
@@ -4259,14 +4268,17 @@ class engineerApiv1 extends CI_Controller {
                         $data['Bookings'][$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
                         /*  Completion Allow Flag */
                         $complete_flag = $this->checkCompletionAllowed($value['booking_id']);
-                        $data['Bookings'][$key]['complete_allow'] = $complete_flag;
+                        $data['Bookings'][$key]['complete_allow'] = $complete_flag['status'];
+                        $data['Bookings'][$key]['complete_allow_msg'] = $complete_flag['message'];
 
                         /*  Reschedule Allow Flag */
                         $reschedule_flag = $this->checkRescheduleAllowed($value['booking_id']);
-                        $data['Bookings'][$key]['reschedule_allow'] = $reschedule_flag;
+                        $data['Bookings'][$key]['reschedule_allow'] = $reschedule_flag['status'];
+                        $data['Bookings'][$key]['reschedule_allow_msg'] = $reschedule_flag['message'];
                         /*  Cancel Allow Flag */
                         $cancel_flag = $this->checkCancellationAllowed($value['booking_id']);
-                        $data['Bookings'][$key]['cancel_allow'] =  $cancel_flag;
+                        $data['Bookings'][$key]['cancel_allow'] =  $cancel_flag['status'];
+                        $data['Bookings'][$key]['cancel_allow_msg'] =  $cancel_flag['message'];
                         /*  NO Action  Flag */
                         $action_flag = $this->checkBookingActionrequired($value['booking_id']);
                         $data['Bookings'][$key]['action_flag'] =  $action_flag['action_flag'];
@@ -4361,10 +4373,10 @@ class engineerApiv1 extends CI_Controller {
      * @response - boolean
      * @Author - Abhishek Awasthi
      */
-
+    
     function checkCancellationAllowed($booking_id){
 
-        $allow = TRUE;
+        $allow = array('status' => true,'message' => '');
 /*  Check for booking cancel complete by engg */
         $booking_select = "booking_id,partner_internal_status";
         $booking_where = array(
@@ -4373,7 +4385,7 @@ class engineerApiv1 extends CI_Controller {
         );
         $booking_details = $this->engineer_model->get_booking_details($booking_select,$booking_where);
         if(!empty($booking_details)){
-                $allow = FALSE;
+                $allow = array('status' => false,'message' => 'This booking is already cancelled.');
                 return $allow;  
         }
 
@@ -4385,21 +4397,15 @@ class engineerApiv1 extends CI_Controller {
         );
         $enggbooking_details = $this->engineer_model->getengineer_action_data($enggbooking_select, $enggbooking_where);  // Vaiable mismatch passing where and select of sf status
         if (!empty($enggbooking_details)) {
-            $allow = FALSE;
-            return $allow;
+            if($enggbooking_details[0]['internal_status']==_247AROUND_CANCELLED){
+                $allow = array('status' => false, 'message' => 'This booking is already cancelled.');
+                return $allow;
+            }else{
+                $allow = array('status' => false,'message' => 'This booking is already completed. You cannot cancel this booking.');
+                return $allow;
+            }
         }
-
-        /*  Check for booking cancel complete by Engg */
-        // $sfbooking_select = "booking_id,internal_status";
-        // $sfbooking_where = array(
-        //     "booking_id"=>$booking_id,
-        //     "partner_current_status IN('".SF_BOOKING_CANCELLED_STATUS."')" => NULL
-        // );
-        // $sfbooking_details = $this->engineer_model->get_booking_details($sfbooking_select,$sfbooking_where);  
-        // if(!empty($sfbooking_details)){
-        //         $allow = FALSE;
-        //         return $allow;  
-        // }
+        return $allow;       
 
     }
 
@@ -4415,7 +4421,7 @@ class engineerApiv1 extends CI_Controller {
 
     function checkCompletionAllowed($booking_id) {
 
-        $allow = TRUE;
+        $allow = array('status' => true,'message' => '');
         $select = "*";
         $where = array(
             'booking_id' => $booking_id,
@@ -4425,7 +4431,7 @@ class engineerApiv1 extends CI_Controller {
         $spares = $this->engineer_model->get_spare_details($select, $where);
 
         if (!empty($spares)) {
-            $allow = FALSE;
+            $allow = array('status' => false,'message' => 'You can not complete this booking. Spare shipment is pending.');
             return $allow;
         }
 
@@ -4438,8 +4444,13 @@ class engineerApiv1 extends CI_Controller {
         );
         $enggbooking_details = $this->engineer_model->getengineer_action_data($enggbooking_select, $enggbooking_where);//Checking Data exist for engineer action table //
         if (!empty($enggbooking_details)) {
-            $allow = FALSE;
-            return $allow;
+            if($enggbooking_details[0]['internal_status']==_247AROUND_CANCELLED){
+                $allow = array('status' => false, 'message' => 'This booking is already cancelled. You can not complete this booking.');
+                return $allow;
+            }else{
+                $allow = array('status' => false,'message' => 'This booking is already completed.');
+                return $allow;
+            }
         }
 
 
@@ -4451,8 +4462,13 @@ class engineerApiv1 extends CI_Controller {
         );
         $booking_details = $this->engineer_model->get_booking_details($booking_select, $booking_where);
         if (!empty($booking_details)) {
-            $allow = FALSE;
-            return $allow;
+            if($booking_details[0]['partner_internal_status']==BOOKING_CANCELLED_BY_ENGINEER_STATUS){
+                $allow = array('status' => false, 'message' => 'This booking is already cancelled. You can not complete this booking.');
+                return $allow;
+            }else{
+                $allow = array('status' => false,'message' => 'This booking is already completed.');
+                return $allow;
+            }
         }
 
         /*  Check for booking cancel complete by SF */
@@ -4463,9 +4479,15 @@ class engineerApiv1 extends CI_Controller {
         );
         $sfbooking_details = $this->engineer_model->get_booking_details($sfbooking_select, $sfbooking_where);  // Vaiable mismatch passing where and select of sf status
         if (!empty($sfbooking_details)) {
-            $allow = FALSE;
-            return $allow;
+            if($sfbooking_details[0]['internal_status']==SF_BOOKING_CANCELLED_STATUS){
+                $allow = array('status' => false, 'message' => 'This booking is already cancelled. You can not complete this booking.');
+                return $allow;
+            }else{
+                $allow = array('status' => false,'message' => 'This booking is already completed.');
+                return $allow;
+            }
         }
+         return $allow;
 
 
 
@@ -4480,7 +4502,7 @@ class engineerApiv1 extends CI_Controller {
 
     function checkRescheduleAllowed($booking_id){
 
-        $allow = TRUE;
+        $allow = array('status' => true,'message' => '');
         /*  Check for booking cancel complete by Engineer in Engg Action Table */
         $enggbooking_select = "booking_id,internal_status";
         $enggbooking_where = array(
@@ -4489,8 +4511,13 @@ class engineerApiv1 extends CI_Controller {
         );
         $enggbooking_details = $this->engineer_model->getengineer_action_data($enggbooking_select, $enggbooking_where);//Checking Data exist for engineer action table //
         if (!empty($enggbooking_details)) {
-            $allow = FALSE;
-            return $allow;
+            if($enggbooking_details[0]['internal_status']==_247AROUND_CANCELLED){
+                $allow = array('status' => false, 'message' => 'This booking is already cancelled. You can not reschedule this booking.');
+                return $allow;
+            }else{
+                $allow = array('status' => false,'message' => 'This booking is already completed. You can not reschedule this booking.');
+                return $allow;
+            }
         }
 
 
@@ -4502,8 +4529,13 @@ class engineerApiv1 extends CI_Controller {
         );
         $booking_details = $this->engineer_model->get_booking_details($booking_select, $booking_where);
         if (!empty($booking_details)) {
-            $allow = FALSE;
-            return $allow;
+            if($booking_details[0]['partner_internal_status']==BOOKING_CANCELLED_BY_ENGINEER_STATUS){
+                $allow = array('status' => false, 'message' => 'This booking is already cancelled. You can not reschedule this booking.');
+                return $allow;
+            }else{
+                $allow = array('status' => false,'message' => 'This booking is already completed. You can not reschedule this booking.');
+                return $allow;
+            }
         }
 
         /*  Check for booking cancel complete by SF */
@@ -4514,10 +4546,15 @@ class engineerApiv1 extends CI_Controller {
         );
         $sfbooking_details = $this->engineer_model->get_booking_details($sfbooking_select, $sfbooking_where);  // Vaiable mismatch passing where and select of sf status
         if (!empty($sfbooking_details)) {
-            $allow = FALSE;
-            return $allow;
+            if($sfbooking_details[0]['internal_status']==SF_BOOKING_CANCELLED_STATUS){
+                $allow = array('status' => false, 'message' => 'This booking is already cancelled. You can not reschedule this booking.');
+                return $allow;
+            }else{
+                $allow = array('status' => false,'message' => 'This booking is already completed. You can not reschedule this booking.');
+                return $allow;
+            }
         }
-
+        return $allow;
     }
 
     /*
