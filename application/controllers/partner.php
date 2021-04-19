@@ -2074,7 +2074,6 @@ class Partner extends CI_Controller {
 
         //Save header / ip address in DB
         $h = $this->getallheaders();
-        
         if ($h === FALSE) {
             $this->sendJsonResponse(array(ERR_GENERIC_ERROR_CODE, ERR_GENERIC_ERROR_MSG));
         } else {
@@ -3059,7 +3058,25 @@ exit();
         $data_new['remarks'] = $data['Bookings'][0]['booking_remarks'];
         $data_new['current_status'] = $data['Bookings'][0]['current_status'];
         $data_new['partner_internal_status'] = $data['Bookings'][0]['partner_internal_status'];
-		$data_new['can_booking_escalated'] = $this->can_booking_escalated($booking_id);
+	$data_new['can_booking_escalated'] = $this->can_booking_escalated($booking_id);
+        $data_new['appliance_brand'] = $data['Bookings'][0]['unit_details'][0]['appliance_brand'];
+        $data_new['appliance_category'] = $data['Bookings'][0]['unit_details'][0]['appliance_category'];
+        $data_new['appliance_capacity'] = $data['Bookings'][0]['unit_details'][0]['appliance_capacity'];
+        $data_new['sf_model_number'] = $data['Bookings'][0]['unit_details'][0]['sf_model_number'];
+        $data_new['model_number'] = $data['Bookings'][0]['unit_details'][0]['model_number'];
+        $data_new['serial_number'] = $data['Bookings'][0]['unit_details'][0]['serial_number'];
+        $data_new['purchase_date'] = $data['Bookings'][0]['unit_details'][0]['purchase_date'];
+
+        foreach($data['Bookings'][0]['unit_details'] as $key => $value){
+            unset($data['Bookings'][0]['unit_details'][$key]['appliance_brand']);
+            unset($data['Bookings'][0]['unit_details'][$key]['appliance_category']);
+            unset($data['Bookings'][0]['unit_details'][$key]['appliance_capacity']);
+            unset($data['Bookings'][0]['unit_details'][$key]['sf_model_number']);
+            unset($data['Bookings'][0]['unit_details'][$key]['model_number']);
+            unset($data['Bookings'][0]['unit_details'][$key]['serial_number']);
+            unset($data['Bookings'][0]['unit_details'][$key]['purchase_date']);
+        }
+
         $data_new['unit_details'] = $data['Bookings'][0]['unit_details'];
         $this->jsonResponseString['response'] = $data_new;
         $this->sendJsonResponse(array('0000', "Details found successfully"));

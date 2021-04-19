@@ -2422,7 +2422,20 @@ class engineerApiv1 extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if (!empty($requestData["booking_id"])) {
             $tech_support = $this->apis->techSupportNumberForEngineer($requestData["booking_id"]);
+            $booking_history = $this->booking_model->getbooking_history($requestData["booking_id"]);
+            $partner_id = $booking_history[0]['partner_id'];
+            $am_details = $this->partner_model->getpartner_data(" employee.exotel_phone", array("partners.id" => $partner_id, "agent_filters.entity_id IS NOT NULL" => NULL),"",TRUE,0,1);
+            $tech_support_number = array();
+            if(!empty($am_details)){
+                foreach($am_details as $key => $value){
+                    if(!empty($value['exotel_phone'])){
+                        $tech_support_number[] = $value['exotel_phone'];
+                    }
+                }
+                $tech_support_number = array_unique($tech_support_number);
+            }
             if (!empty($tech_support)) {
+                $tech_support[0]['account_manager'] = $tech_support_number;
                 $response = $tech_support[0];
                 log_message("info", __METHOD__ . "Tech Support Numbers Founded Successfully");
                 $this->jsonResponseString['response'] = $response;

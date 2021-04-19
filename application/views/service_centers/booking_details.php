@@ -192,6 +192,11 @@
                                     echo $booking_history[0]['assigned_engineer_name'] . "/5";
                                     } ?>
                                 </td>
+                            </tr>
+                            <tr>
+                                <th>SF brought appliance to workshop:</th>
+                                <td><?php if ($booking_history[0]['part_brought_at'] == 2) { echo "Yes"; } else { echo "No"; } ?></td>
+                                <td colspan="2"></td>
                             </tr> 
                         </table>
                     <table class="table  table-striped table-bordered cloned" >
@@ -400,6 +405,7 @@
                                 <th >Date Of Purchase</th>
                                 <th >Invoice Image </th>
                                 <th >Serial Number Image </th>
+                                <th>Defect Pic</th>
                                 <th >Defective Front Part Image </th>
                                 <th >Defective Back Part Image </th>
                                 <th >Serial Number </th>
@@ -454,6 +460,9 @@
                                 <td><?php if (!is_null($sp['serial_number_pic'])) {
                                     if ($sp['serial_number_pic'] !== '0') { ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/<?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $sp['serial_number_pic']; ?> " target="_blank">Click Here</a><?php }
                                     } ?>
+                                </td>
+                                <td>
+                                    <?php if (!empty($sp['defect_pic'])) {?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $sp['defect_pic']; ?> " target="_blank">Click Here</a><?php } ?>
                                 </td>
                                 <td><?php if (!is_null($sp['defective_parts_pic'])) {
                                     if ($sp['defective_parts_pic'] !== '0') { ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $sp['defective_parts_pic']; ?> " target="_blank">Click Here</a><?php }

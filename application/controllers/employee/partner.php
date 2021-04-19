@@ -121,7 +121,7 @@ class Partner extends CI_Controller {
     /**
      * @desc: this is used to display completed booking for specific service center
      */
-    function closed_booking($status,$state_code="all",$start_date1='',$end_date2='', $offset = 0, $booking_id = "") {
+    function closed_booking($status, $state_code="all", $offset = 0, $booking_id = "",$start_date1='',$end_date2='') {
  
         $date = $this->input->post('completion_date'); 
         if(!empty($start_date1) && !empty($end_date2) ){
@@ -150,7 +150,13 @@ class Partner extends CI_Controller {
         if($this->session->userdata('is_filter_applicable') == 1){
             $stateCity = 1;
         }
-        $config['base_url'] = base_url() . 'partner/closed_booking/' . $status.'/'.$state_code.'/'.$startDate.'/'.$endDate;
+        if(!empty($booking_id)){
+            $config['base_url'] = base_url() . 'partner/closed_booking/' . $status.'/'.$state_code.'/0/' .$booking_id.'/'.$startDate.'/'.$endDate;  
+        }
+        else{
+              $config['base_url'] = base_url() . 'partner/closed_booking/' . $status.'/'.$state_code.'/0/0/'.$startDate.'/'.$endDate;
+        }
+      
         if (!empty($booking_id)) {
             $config['total_rows'] = $this->partner_model->getclosed_booking("count", "", $partner_id, $status, $booking_id,$stateCity,$state_code,$startDate, $endDate);
         } else {
@@ -158,7 +164,7 @@ class Partner extends CI_Controller {
         }
 
         $config['per_page'] = 50;
-        $config['uri_segment'] = 7;
+        $config['uri_segment'] = 9;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';
         $this->pagination->initialize($config);
@@ -2500,7 +2506,12 @@ class Partner extends CI_Controller {
                     $where = array("spare_parts_details.awb_by_partner" => $this->input->post('awb'), "spare_parts_details.entity_type" => _247AROUND_PARTNER_STRING);
                     $courier_charge_parts_data = $this->inventory_model->get_generic_table_details('spare_parts_details', $select, $where, '');
                     //Splited courier charge to spare parts details lineitems
-                    $courier_charge_by_partner = ($this->input->post('courier_price_by_partner') / count($courier_charge_parts_data));
+                     if(!empty($courier_charge_parts_data)){
+                      $count = $courier_charge_by_partner = ($this->input->post('courier_price_by_partner') / count($courier_charge_parts_data));  
+                    }else{
+                     $courier_charge_by_partner = $this->input->post('courier_price_by_partner');
+                    }
+                    
                     $this->service_centers_model->update_spare_parts(array("spare_parts_details.awb_by_partner" => $this->input->post('awb')), array('spare_parts_details.courier_price_by_partner' => $courier_charge_by_partner, "spare_parts_details.courier_pic_by_partner" => trim($this->input->post('courier_image'))));
 
                     if (!empty($current_status)) {
@@ -3232,7 +3243,7 @@ class Partner extends CI_Controller {
             if(empty($is_exist) && $booking_details['current_status'] == _247AROUND_COMPLETED) {
                 $booking['internal_status'] = $spare_status;
 
-                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, $booking['internal_status'], $partner_id, $booking_id);
+                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, $booking['internal_status'], $this->session->userdata("partner_id"), $booking_id);
                 
                 if (!empty($partner_status)) {
                     $booking['partner_current_status'] = $partner_status[0];
