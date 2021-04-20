@@ -48,6 +48,7 @@
             </div>';
             }
             ?>
+            
             <?php if ($this->session->userdata("is_micro_wh") == 1) { ?>
                 <div class="col-md-10 col-md-offset-2" id="msl_info">
 <!--                    <div class="x_title">
