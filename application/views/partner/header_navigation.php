@@ -336,7 +336,7 @@
                                             <a data-toggle="tooltip" data-placement="right" title="" data-original-title="<?php echo $main_nav['navData']["id_".$p_id]['title']?>">
                                             <i class="<?php echo $main_nav['navData']["id_".$p_id]['title_icon']?>"></i> <span class="side_menu_list_title"><?php echo $main_nav['navData']["id_".$p_id]['title']?>
                                             </span><span class="fa fa-chevron-down"></span></a>
-                                             <ul class="nav child_menu newch" style="top:-100px;display:none !important;">
+                                             <ul class="nav child_menu newch" style="top:10px;display:none !important;">
                                                 <?php
                                                 $t=0;
                                                 foreach($main_nav['navFlow']["id_".$p_id] as $childID){                                                    

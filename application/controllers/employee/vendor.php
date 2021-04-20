@@ -4508,12 +4508,14 @@ class vendor extends CI_Controller {
         log_message('info', __METHOD__ . print_r($this->input->post('partner_id'), true));
 
         $partner_id = $this->input->post('partner_id');
-
+        $wh_id = $this->input->post('wh_id');
         $partner_data = $this->partner_model->getpartner($partner_id);
         $saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
 
         $option = '<option selected="" disabled="">Select Warehouse</option>';
-        if (!empty($partner_data[0])) {
+    
+        if (!empty($partner_data[0])) {  
+          if($wh_id == 1){
             if ($partner_data[0]['is_wh'] == 1) {
                 $select = "service_centres.district, service_centres.id,service_centres.state, service_centres.name";
                 $where = array('is_wh' => 1, 'active' => 1);
@@ -4530,7 +4532,9 @@ class vendor extends CI_Controller {
                     }
                 }
             }
-            if ($partner_data[0]['is_micro_wh'] == 1) {
+          }
+          else{
+            if($partner_data[0]['is_micro_wh'] == 1) {
                 $micro_wh_state_mapp_data_list = $this->inventory_model->get_micro_wh_state_mapping_partner_id($partner_id);
 
                 if (!empty($micro_wh_state_mapp_data_list)) {
@@ -4542,9 +4546,10 @@ class vendor extends CI_Controller {
                     }
                 }
             }
+          }   
         }
-
-
+ 
+        
         echo $option;
     }
 

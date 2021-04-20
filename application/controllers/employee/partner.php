@@ -5841,11 +5841,12 @@ class Partner extends CI_Controller {
      *  @param : void
      *  @return : void
      */
-    function inventory_stock_list(){
+    function inventory_stock_list($wh_id = ""){
+        $data['wh_id'] = $wh_id;
         $this->checkUserSession();
         $this->miscelleneous->load_partner_nav_header();
         //$this->load->view('partner/header');
-        $this->load->view('partner/inventory_stock_list');
+        $this->load->view('partner/inventory_stock_list',$data);
         $this->load->view('partner/partner_footer');
     }
     
