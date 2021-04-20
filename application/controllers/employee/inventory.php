@@ -4579,7 +4579,7 @@ class Inventory extends CI_Controller {
                                 
                                 foreach ($parts_details as $key => $value) {
                                     $request_type = '';
-                                    if(!empty($value['quantity'])){
+                                    if(empty($value['quantity'])){
                                         $value['quantity'] = 1;
                                     }
                                     if (isset($value['request_type']) && !empty($value['request_type'])) {
