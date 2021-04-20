@@ -4131,7 +4131,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
            var inputVal = $(this).val();
     
            if (!charReg.test(inputVal)) {
-               alert("Spacial Characters are not allowed");
+               alert("Special Characters are not allowed");
                $(this).css({'border-color' : 'red'});
                $('#submit_btn').attr('disabled',true);
            }else{
