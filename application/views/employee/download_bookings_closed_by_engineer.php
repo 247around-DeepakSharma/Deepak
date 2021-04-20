@@ -12,7 +12,7 @@
                     </div>';
                     }
                     ?>
-                    <form method="post" action="<?php echo base_url() ?>employee/engineer/download_engineer_closed_bookings">
+                    <form method="post" id="form-booking-closed-by-engineer" action="<?php echo base_url() ?>employee/engineer/download_engineer_closed_bookings">
                     <table class="table table-striped table-bordered">
                         <tr>
                             <th>Select Service Center</th>
@@ -49,6 +49,19 @@
 </div>
 <?php if($this->session->userdata('error')){ $this->session->unset_userdata('error'); echo $this->session->userdata('error');}?>
 <script type="text/javascript">
+
+    $(document).ready(function() {
+        $("#form-booking-closed-by-engineer").submit(function() {
+            var serviceCentersAsString = $('#form-booking-closed-by-engineer #service_center').val();
+            if(!serviceCentersAsString){
+                alert("You must Choose at least one Sevice Center for the Download bookings");
+                return false;
+            }else{
+                return true;
+            }
+        });
+    });
+    
     $("#service_center").select2();
      
     $(function() {
