@@ -3530,13 +3530,13 @@ exit();
                 $defective_parts =$explode[1];
                 $defective_parts_max_age = $explode[2];
                 $sc = $this->vendor_model->viewvendor($service_center_id)[0];
-                $sc_details['debit_acc_no'] = '50200030070899';
+                $sc_details['debit_acc_no'] = '102405500277';
                 $sc_details['bank_account'] = trim($sc['bank_account']);
                 $sc_details['beneficiary_name'] = trim($sc['beneficiary_name']);
                 $msl_amount = $this->get_msl_summary_amount($service_center_id, $due_date);
                 $sc_details['final_amount'] = abs(sprintf("%.2f",$amount));
                 $sc_details['msl_amount'] = abs(sprintf("%.2f",$msl_amount['amount_summary'] ));
-                if (trim($sc['bank_name']) === HDFC_BANK_NAME) {
+                if (trim($sc['bank_name']) === ICICI_BANK_NAME) {
                     $sc_details['payment_mode'] = "I";
                 } else {
                     $sc_details['payment_mode'] = "N";
