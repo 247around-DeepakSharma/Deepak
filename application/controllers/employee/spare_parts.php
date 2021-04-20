@@ -5375,7 +5375,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                 . "spare_parts_details.model_number_shipped as shipped_model_number, spare_parts_details.parts_shipped as shipped_part, spare_parts_details.shipped_parts_type, i.part_number as shipped_part_number, DATE_FORMAT(service_center_closed_date,'%d-%b-%Y') as service_center_closed_date,"
                 . "DATE_FORMAT(spare_parts_details.shipped_date,'%d-%b-%Y') as spare_part_shipped_date, datediff(CURRENT_DATE,spare_parts_details.shipped_date) as spare_shipped_age,"
                 . "challan_approx_value As parts_charge, spare_parts_details.awb_by_partner, spare_parts_details.awb_by_sf, spare_parts_details.acknowledge_date,"
-                . "(CASE WHEN spare_parts_details.auto_acknowledeged = 1 THEN 'From API' ELSE 'To Acknowledged' END) AS auto_ack_status";
+                . "(CASE WHEN spare_parts_details.auto_acknowledeged = 1 THEN 'From API' ELSE 'Auto Acknowledged' END) AS auto_ack_status";
 
         $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'spare_parts_details.shipped_date', NULL, NULL, NULL, NULL, NULL);
 
