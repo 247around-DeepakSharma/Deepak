@@ -2112,7 +2112,7 @@ $(document).ready(function () {
             var inputVal = $(this).val();
 
             if (!charReg.test(inputVal)) {
-                alert("Spacial Characters are not allowed");
+                alert("Special Characters are not allowed");
                 $(this).css({'border-color' : 'red'});
                 $('#submit_btn').attr('disabled','disabled');
             }else{
