@@ -1260,14 +1260,16 @@ class Partner extends CI_Controller {
      * params: partner id
      */
     function get_gst_number($id){
+      $_247AROUND = '247001';
       $gst_no = $this->input->post('gst_no');
       $select = "gst_number";
-      $where = array('entity_id' => '_247AROUND');
+      $where = array('entity_id' => $_247AROUND);
       $result = $this->inventory_model->get_entity_gst_data($select,$where);
-      if($id != '_247AROUND'){
+      if($id != $_247AROUND){
         foreach($result as $row){
           if($row['gst_number'] == $gst_no){ 
-          echo "true";} 
+          echo "true";
+          } 
         }
       }
     }
