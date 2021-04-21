@@ -581,7 +581,7 @@ class Miscelleneous {
         $data_vendor['cancellation_reason'] = $data['cancellation_reason'];
         
         $data_vendor['current_status'] = SF_BOOKING_INPROCESS_STATUS;
-        if (($this->My_CI->session->userdata('user_group') == _247AROUND_CLOSURE) 
+        if (($this->My_CI->session->userdata('call_closure') == 1) 
                 || $cancellation_reason == UPCOUNTRY_CHARGES_NOT_APPROVED_CANCELLATION_ID) {
             $data['closed_date'] = date("Y-m-d H:i:s");
             $data['current_status'] = _247AROUND_CANCELLED;
@@ -615,7 +615,7 @@ class Miscelleneous {
         $data_vendor['internal_status'] = _247AROUND_CANCELLED;
         log_message('info', __FUNCTION__ . " Update Service center action table  " . print_r($data_vendor, true));
         $this->My_CI->vendor_model->update_service_center_action($booking_id, $data_vendor);
-        if (($this->My_CI->session->userdata('user_group') == _247AROUND_CLOSURE) 
+        if (($this->My_CI->session->userdata('call_closure') == 1) 
                 || $cancellation_reason == UPCOUNTRY_CHARGES_NOT_APPROVED_CANCELLATION_ID) {
             $this->update_price_while_cancel_booking($booking_id, $agent_id, $cancelled_by);
         }
@@ -1270,7 +1270,7 @@ class Miscelleneous {
     function get_cp_buyback_credit_debit($cp_id) {
         $where['length'] = -1;
         $invoice_amount = $this->My_CI->invoices_model->get_invoices_details(array('vendor_partner' => 'vendor', 'vendor_partner_id' => $cp_id,
-            'type IN ("' . BUYBACK_VOUCHER . '", "Buyback")' => NULL, 'settle_amount' => 0), 'SUM(CASE WHEN (type_code = "B") THEN ( amount_collected_paid + `amount_paid`) WHEN (type_code = "A" ) THEN ( amount_collected_paid -`amount_paid`) END)  AS amount', 'type_code');
+            ' vertical IN ("Buyback")' => NULL, 'settle_amount' => 0), 'SUM(CASE WHEN (type_code = "B") THEN ( amount_collected_paid + `amount_paid`) WHEN (type_code = "A" ) THEN ( amount_collected_paid -`amount_paid`) END)  AS amount', 'type_code');
 
         $unbilled_amount = 0;
         $advance_amount = 0;

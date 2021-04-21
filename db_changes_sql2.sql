@@ -2888,4 +2888,13 @@ ALTER TABLE `vendor_partner_variable_charges` ADD `approval_file` VARCHAR(64) NU
 ALTER TABLE `spare_parts_details` ADD `shipped_hsn_code` INT(11) NULL DEFAULT NULL AFTER `model_number_shipped`;
 ALTER TABLE boloaaka_spare_parts_details.`trigger_spare_parts_details` ADD `shipped_hsn_code` INT(11) NULL DEFAULT NULL AFTER `model_number_shipped`;
 ALTER TABLE `oow_spare_invoice_details` ADD `hsn_code` INT(11) NULL DEFAULT NULL AFTER `hsn_code_old`;
+ALTER TABLE `challan_details` ADD `challan_date` DATE NULL DEFAULT NULL AFTER `challan_id`;
 
+
+--ABhay 18 April 2021
+ALTER TABLE `challan_items_details` ADD `settled_quantity` INT NOT NULL DEFAULT '0' AFTER `quantity`, ADD `is_settled` INT(1) NOT NULL DEFAULT '0' AFTER `settled_quantity`;
+ALTER TABLE `challan_details` CHANGE `type` `type` INT NULL DEFAULT NULL COMMENT '1 - MSL. 2 - MSL Defective return for invoice 3- MSL Defective return for Challan';
+
+
+--Abhay 21 April2021
+ALTER TABLE `employee` ADD `call_closure` INT(1) NOT NULL AFTER `role`;
