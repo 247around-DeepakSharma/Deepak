@@ -2909,7 +2909,6 @@ ALTER TABLE `variable_handling_invoice` ADD `type` INT NOT NULL COMMENT '1- Logi
 
 --Abhay Anand 2 March
 ALTER TABLE `vendor_partner_invoices` CHANGE `tcs_rate` `tcs_rate` DECIMAL(10,3) NOT NULL DEFAULT '0.00';
-<<<<<<< HEAD
 
 
 --Abhay 12 March
@@ -2944,5 +2943,26 @@ ALTER TABLE `part_invoice_opening_balance`
 ALTER TABLE `part_invoice_opening_balance`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
 COMMIT;
-=======
->>>>>>> 5a13c89d3... TCS rate rounded .08 instead of 0.075 #CRMS-2280
+
+
+
+--Abhay 22 March 2021
+INSERT INTO `variable_charges_type` (`id`, `name`, `type`, `description`, `hsn_code`, `gst_rate`, `is_fixed`, `updated_date`, `created_date`) VALUES (NULL, 'Monthly Management Charges', 'monthly-management-charges', 'monthly-management-charges', '998715', '18', '1', '2021-02-23 00:00:00', '2018-11-20 00:00:00');
+ALTER TABLE `vendor_partner_variable_charges` ADD `approval_file` VARCHAR(64) NULL DEFAULT NULL AFTER `fixed_charges`;
+
+
+--Abhay 12 April 2021
+ALTER TABLE `spare_parts_details` ADD `shipped_hsn_code` INT(11) NULL DEFAULT NULL AFTER `model_number_shipped`;
+ALTER TABLE boloaaka_spare_parts_details.`trigger_spare_parts_details` ADD `shipped_hsn_code` INT(11) NULL DEFAULT NULL AFTER `model_number_shipped`;
+ALTER TABLE `oow_spare_invoice_details` ADD `hsn_code` INT(11) NULL DEFAULT NULL AFTER `hsn_code_old`;
+ALTER TABLE `challan_details` ADD `challan_date` DATE NULL DEFAULT NULL AFTER `challan_id`;
+
+
+--ABhay 18 April 2021
+ALTER TABLE `challan_items_details` ADD `settled_quantity` INT NOT NULL DEFAULT '0' AFTER `quantity`, ADD `is_settled` INT(1) NOT NULL DEFAULT '0' AFTER `settled_quantity`;
+ALTER TABLE `challan_details` CHANGE `type` `type` INT NULL DEFAULT NULL COMMENT '1 - MSL. 2 - MSL Defective return for invoice 3- MSL Defective return for Challan';
+
+
+--Abhay 21 April2021
+ALTER TABLE `employee` ADD `call_closure` INT(1) NOT NULL AFTER `role`;
+>>>>>>> c562792b1... All any user to audit booking from admin panel #CRMS-2543
