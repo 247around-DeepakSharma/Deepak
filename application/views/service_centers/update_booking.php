@@ -794,7 +794,7 @@ $arr_partner_discount = array();
    
 });
 
-var max_date = "<?php echo date("d-m-Y", strtotime($booking_history[0]['initial_booking_date']))?>";
+var max_date = "<?php echo date("d-m-Y", strtotime($booking_history[0]['create_date']))?>";
   $("#purchase_date").datepicker({dateFormat: 'dd-mm-yy', changeYear: true, changeMonth: true});
   $('.purchase_date').each(function () {
     if ($(this).hasClass('hasDatepicker')) {
@@ -957,7 +957,8 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
         }
     }
     
-    $("#purchase_date_1").datepicker({dateFormat: 'YYYY-MM-DD', maxDate: 0});
+     var max_date = "<?php echo date("d-m-Y", strtotime($booking_history[0]['create_date']))?>";
+    $("#purchase_date_1").datepicker({dateFormat: 'YYYY-MM-DD', maxDate:max_date});
     
     <?php if(!empty($str_disabled)) { ?> 
         $(".purchase_date").attr("tabindex",-1);   
