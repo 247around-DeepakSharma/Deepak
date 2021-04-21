@@ -81,7 +81,13 @@
                         <span class="pull-right"><input type="button" id="warehouse" class="download_stock btn btn-primary btn-md" value="Download Warehouse Stock"></span>
                     </div>
                     <hr>
-                    <div class="clearfix"></div>
+                    <div class="clearfix">
+                        <?php if($wh_id == '0'){?>
+                <h4>Micro Warehouse</h4>
+                <?php }else{?>
+                 <h4> Central Warehouse</h4>
+               <?php }?>
+                    </div>
                 </div>
                 <div class="x_content">
                     <div class="x_content_header">
@@ -237,7 +243,7 @@
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/vendor/get_service_center_with_micro_wh',
-            data:{partner_id:<?php echo $this->session->userdata('partner_id'); ?>},
+            data:{partner_id:<?php echo $this->session->userdata('partner_id'); ?>,wh_id:<?php echo $wh_id ?>},
             success: function (response) {
                 $('#wh_id').html(response);
             }

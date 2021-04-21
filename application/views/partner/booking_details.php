@@ -158,13 +158,30 @@
                                         <td><?php if(!empty($booking_history['0']['booking_jobcard_filename'])){ ?> 
                                                     <a target="_blank" href='<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$booking_history['0']['booking_jobcard_filename']; ?>' class="btn btn-sm btn-primary btn-xs"><i class="fa fa-download" aria-hidden="true"></i></a>
                                             <?php } ?></td>
-                                    </tr>
+                                    </tr>  
                                     <tr>
                                         <th>Remarks: </th>
                                         <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
                                         <th>SF brought appliance to workshop: </th>
                                         <td><?php if ($booking_history[0]['part_brought_at'] == 2) { echo "Yes"; } else { echo "No"; } ?></td>
                                     </tr>
+                                    <tr>
+                                        <th>Signature File</th>
+                                        <td>
+                                            
+                                          <?php if(!empty($booking_history['0']['signature'])){
+                                              $src = base_url() . 'images/no_image.png';
+                                            $image_src = $src;
+                                              //echo $booking_history['0']['signature']; exit;
+                                            if (isset($booking_history['0']['signature']) && !empty($booking_history['0']['signature'])) {
+                                                $src = "http://s3.amazonaws.com/bookings-collateral/engineer-uploads/".$booking_history['0']['signature'];
+                                                $image_src = base_url().'images/view_image.png';
+                                            ?>
+                                        <a  href="<?php  echo $src?>" target="_blank"><img  src="<?php  echo $image_src?>" width="35px" height="35px" style="border:1px solid black;margin-left:10px;" /></a>
+                                        <?php }}?>
+                                        </td>
+                                    <tr>
+                               
                                 </table>
                             </div>
                                 <?php if(isset($booking_files) && !empty($booking_files)) { ?>
@@ -368,6 +385,8 @@
                                                             <th >Current Status</th>
                                                             <th >Spare Cancellation Reason</th>
                                                             <th>Consumption</th>
+                                                            <th>Consumption Reason</th>
+                                                            <th>Consumption Remarks</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody> 
@@ -471,6 +490,8 @@
                                                                 <?php } ?>
                                                                 </td>
                                                                 <td><?php if($sp['is_consumed'] == 1) { echo 'Yes';} else { echo 'No';} ?></td>
+                                                                  <td><?php if(!empty($sp['consumed_status'])) { echo $sp['consumed_status']; } ?></td>
+                                                                 <td><?php if(!empty($sp['consumption_remarks'])) { echo $sp['consumption_remarks']; } ?></td>
                                                             </tr>
                                                             <?php
                                                             if (!is_null($sp['parts_shipped'])) {
@@ -566,6 +587,7 @@
                                                                 <th >EDD </th>
                                                                 <th >Remarks By Partner</th>
                                                                 <th>Challan File</th>
+                                                                <th>Courier POD File</th>
                                                                 <th>Is Defective Parts Required</th>
                                                             </tr>
                                                         </thead>
@@ -635,6 +657,13 @@
                                                                             <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY ?>/vendor-partner-docs/<?php echo $sp['partner_challan_file']; ?>" target="_blank">Click Here to view</a>
                                                                         <?php } ?>
                                                                     </td>
+                                                                    <td>
+                                                                       <?php
+                                                                           if(!empty($sp['awb_by_partner']))
+                                                                           { ?>                                   
+                                                                           <a class='courier_pod_file' href="<?php echo S3_WEBSITE_URL;?>courier-pod/<?php  if(!empty($sp['courier_pod_file'])){ echo $sp['courier_pod_file']; } ?>" target="_blank" ><?php  if(!empty($sp['courier_pod_file'])){ ?>Click Here to view <?php } ?></a> 
+                                                                       <?php }?>
+                                                                </td>
                                                                     <td><?php echo $button; ?></td>
                                                                 </tr>
                                                             <?php }} ?>
@@ -718,6 +747,7 @@
                                                                 <th >Shipped date </th>
                                                                 <th >Remarks By SF </th>
                                                                 <th >Remarks By Partner </th>
+                                                                <th >Courier POD File  </th>
                                                                 <th> Received Defective Part Image </th>
                                                                 <th> Rejected Defective Part Image </th>
                                                                 <th>Challan File</th>
@@ -765,6 +795,13 @@
                                                                     <td><?php echo date('d-M-Y', strtotime($sp['defective_part_shipped_date'])); ?></td>
                                                                     <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
                                                                     <td><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
+                                                                    <td>
+                                                                       <?php
+                                                                           if(!empty($sp['awb_by_partner']))
+                                                                           { ?>                                   
+                                                                           <a class='courier_pod_file' href="<?php echo S3_WEBSITE_URL;?>courier-pod/<?php  if(!empty($sp['courier_pod_file'])){ echo $sp['courier_pod_file']; } ?>" target="_blank" ><?php  if(!empty($sp['courier_pod_file'])){ ?>Click Here to view <?php } ?></a> 
+                                                                       <?php }?>
+                                                                    </td>
                                                                     <td>
                                                                         <?php if (!empty($sp['received_defective_part_pic_by_wh'])) { ?>
                                                                             <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['received_defective_part_pic_by_wh']; ?> " target="_blank">Click Here to view</a>

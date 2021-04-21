@@ -580,6 +580,10 @@
     $('#partner_id').select2({
         placeholder:'Select Partner'
     });
+    $('#service_centers_id').select2({
+        placeholder:'Select Partner'
+    });
+    
     
     $('#spare_part_status').select2({
         placeholder:'Select Spare Status'

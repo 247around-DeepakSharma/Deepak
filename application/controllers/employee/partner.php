@@ -1273,14 +1273,16 @@ class Partner extends CI_Controller {
      * params: partner id
      */
     function get_gst_number($id){
+      $_247AROUND = '247001';
       $gst_no = $this->input->post('gst_no');
       $select = "gst_number";
-      $where = array('entity_id' => '_247AROUND');
+      $where = array('entity_id' => $_247AROUND);
       $result = $this->inventory_model->get_entity_gst_data($select,$where);
-      if($id != '_247AROUND'){
+      if($id != $_247AROUND){
         foreach($result as $row){
           if($row['gst_number'] == $gst_no){ 
-          echo "true";} 
+          echo "true";
+          } 
         }
       }
     }
@@ -2212,7 +2214,7 @@ class Partner extends CI_Controller {
                 . "spare_parts_details.model_number, spare_parts_details.quantity,spare_parts_details.serial_number,date_of_purchase, invoice_pic,"
                 . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, "
                 . "purchase_price, estimate_cost_given_date,booking_details.partner_id,"
-                . "booking_details.assigned_vendor_id,booking_details.service_id,spare_parts_details.parts_requested_type,spare_parts_details.part_warranty_status, requested_inventory_id,booking_details.service_id";
+                . "booking_details.assigned_vendor_id,booking_details.service_id,spare_parts_details.parts_requested_type,spare_parts_details.part_warranty_status, requested_inventory_id,booking_details.service_id,booking_details.applied_warranty_plan_id";
         $where['is_inventory'] = true;
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
         
@@ -3151,6 +3153,8 @@ class Partner extends CI_Controller {
             if(!empty($spare_id) && !empty($get_awb[0]['awb_by_wh'])){
                 
                 $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $get_awb[0]['awb_by_wh'], 'delivered_date IS NULL' => NULL), array('delivered_date' => date('Y-m-d H:i:s')));
+                $url_opd = base_url()."courier_tracking/update_pod_courier/".$get_awb[0]['awb_by_wh'];
+                $this->asynchronous_lib->do_background_process($url_opd, array());
             }
             
             $psendUrl = base_url().'employee/invoice/generate_reverse_micro_purchase_invoice/'.$spare_id;
@@ -5837,11 +5841,12 @@ class Partner extends CI_Controller {
      *  @param : void
      *  @return : void
      */
-    function inventory_stock_list(){
+    function inventory_stock_list($wh_id = ""){
+        $data['wh_id'] = $wh_id;
         $this->checkUserSession();
         $this->miscelleneous->load_partner_nav_header();
         //$this->load->view('partner/header');
-        $this->load->view('partner/inventory_stock_list');
+        $this->load->view('partner/inventory_stock_list',$data);
         $this->load->view('partner/partner_footer');
     }
     

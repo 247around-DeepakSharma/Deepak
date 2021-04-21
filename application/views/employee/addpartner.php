@@ -1007,7 +1007,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         } ?>">
                                         <label for="pan" class="col-md-3">PAN No.</label>
                                         <div class="col-md-4" style="width:25%">
-                                            <input type="text" class="form-control blockspacialchar"  name="pan" id="pan_no" <?php if (isset($query[0]['pan']) && $query[0]['pan'] != '' && $readonly) { echo 'readonly tabindex="-1"'; } ?> value = "<?php if (isset($query[0]['pan'])) {
+                                            <input type="text" class="form-control blockspacialchar" style="text-transform:uppercase;" name="pan" id="pan_no" <?php if (isset($query[0]['pan']) && $query[0]['pan'] != '' && $readonly) { echo 'readonly tabindex="-1"'; } ?> value = "<?php if (isset($query[0]['pan'])) {
                                                 echo $query[0]['pan'];
                                                 } ?>" placeholder="PAN Number">
                                         </div>
@@ -4131,7 +4131,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
            var inputVal = $(this).val();
     
            if (!charReg.test(inputVal)) {
-               alert("Spacial Characters are not allowed");
+               alert("Special Characters are not allowed");
                $(this).css({'border-color' : 'red'});
                $('#submit_btn').attr('disabled',true);
            }else{
@@ -6286,9 +6286,9 @@ $(document).ready(function () {
    // Author:Deepak Sharma 
    // This function use to validate GST Number with 247001 partner id 
    $(document).ready(function () {
-    $('#gst_number').focusout(function() {
-    if($("#submit_contract_btn").val() != ''){ 
+    $('#gst_number').on('input',function() { 
          var GST_no = $("#gst_number").val();
+        
          $.ajax({
          type: 'POST',    
          url:'<?php echo base_url() ?>employee/partner/get_gst_number/<?php echo $query[0]['id']?>',
@@ -6297,14 +6297,13 @@ $(document).ready(function () {
          success: function(msg){
             if(msg == 'true'){
               alert('Please Enter Valid GST Number ');
-              return false;
+              $("#submit_document_btn").attr('disabled',true);
             }
             else{
-                return true; 
+              $("#submit_document_btn").attr('disabled',false);
            }
         }  
-    });
-    }
+        });
     });
     });
 
