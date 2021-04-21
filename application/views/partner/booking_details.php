@@ -385,6 +385,8 @@
                                                             <th >Current Status</th>
                                                             <th >Spare Cancellation Reason</th>
                                                             <th>Consumption</th>
+                                                            <th>Consumption Reason</th>
+                                                            <th>Consumption Remarks</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody> 
@@ -487,11 +489,10 @@
                                                                     <?php echo $sp['part_cancel_reason']; ?>
                                                                 <?php } ?>
                                                                 </td>
-
+                                                                
                                                                 <td><?php if(!empty($sp['is_consumed']) && $sp['is_consumed'] == 1) { echo 'Yes';} else if(!empty($sp['consumed_part_status_id'])){ echo 'No';} ?></td>
                                                                   <td><?php if(!empty($sp['consumed_status'])) { echo $sp['consumed_status']; } ?></td>
                                                                  <td><?php if(!empty($sp['consumption_remarks'])) { echo $sp['consumption_remarks']; } ?></td>
-
                                                             </tr>
                                                             <?php
                                                             if (!is_null($sp['parts_shipped'])) {
