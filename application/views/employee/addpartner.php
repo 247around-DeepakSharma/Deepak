@@ -4166,10 +4166,11 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
         for(var i =1;i<=total_div;i++){
             if(i != tab_id){
               document.getElementById("container_"+i).style.display='none';
+              if(i!=17)
               document.getElementById(i).style.background='#d9edf7';
-             }
-             else{
+            } else {
                 document.getElementById("container_"+i).style.display='block';
+                if(i!=17)
                 document.getElementById(i).style.background='#fff';
                 // create datatable in case of contact us and Account Manager tab    
                 if(i == 8 || i == 16){
@@ -4188,7 +4189,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                     // Shift Export Button the right
                     $(".dt-buttons").css({"float" : "right"});
                 }                
-             }
+            }
         }
 
         if(tab_id === '6'){
