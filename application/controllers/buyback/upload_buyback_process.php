@@ -872,17 +872,26 @@ class Upload_buyback_process extends CI_Controller {
         for ($row = 2, $i = 0; $row <= $highestRow; $row++, $i++) {
             $rowData_array = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
             $rowData = array_combine($headings_new[0], $rowData_array[0]);
-            
-            $order_key_need_to_check = strtolower(str_replace(array("_",":"," ","-","|","/"), "", array_shift($rowData)));
-           
+            $okey = $rowData['capacity'].":".$rowData['brand'].":".$rowData['workingcondition'];
+            $order_key_need_to_check = strtolower(str_replace(array("_",":"," ","-","|","/"), "", $okey));
             //make order key and city arrray and push this data to array $this->price_quote_data for comparison
-            foreach($rowData as $city => $price){
-                $tmp_arr = array();
-                $tmp_arr['order_key'] = $order_key_need_to_check;
-                $tmp_arr['city'] = $city;
-                $tmp_arr['new_price_quote'] = $price;
+            foreach($rowData as $tmpcity => $price){
+                if (stristr($tmpcity, "-highestoffer") && $price != "N/A") {
+                    $tmp_arr = array();
+                    $tmp_arr['order_key'] = $order_key_need_to_check;
+                    $city = trim(str_replace("-highestoffer", "",$tmpcity));
+                    if(strtolower($city) == "noida"){
+                        $city = "Ghaziabad";
+                    } else if(strtolower($city) == "trivendrum"){
+                        $city = "Tiruvanthpuram";
+                    } else if(strtolower($city) == "delhi"){
+                         $city = "west delhi";
+                    }
+                    $tmp_arr['city'] = $city;
+                    $tmp_arr['new_price_quote'] = $price;
 
-                array_push($this->price_quote_data, $tmp_arr);
+                    array_push($this->price_quote_data, $tmp_arr);
+                }
             }
         }
     }
