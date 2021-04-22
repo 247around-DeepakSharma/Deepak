@@ -26,6 +26,7 @@
                     if($booking_history[0]['current_status'] == _247AROUND_COMPLETED && empty($is_invoice_generated)
                         && ($this->session->userdata('user_group') == _247AROUND_ADMIN) 
                         || ($this->session->userdata('user_group') == _247AROUND_CLOSURE)
+                        || ($this->session->userdata('call_closure') == 1)
                         || ($this->session->userdata('user_group') == INVENTORY_USER_GROUP ) 
                         || ($this->session->userdata('user_group') == INVENTORY_USER_GROUP_HOD )
                         || ($this->session->userdata('user_group') == _247AROUND_DEVELOPER )
@@ -91,7 +92,7 @@
                 <!--<span class="pull-right"><input id="enable_change_unit" type="checkbox" onchange="update_brand_details()" name="enable_change_unit"> <span>Change Brand Details</span></span>-->
             </div>
             <div class="panel-body">
-                <?php if(!in_array($this->session->userdata('user_group'), [_247AROUND_ADMIN, _247AROUND_CLOSURE, _247AROUND_RM])) { ?>
+                <?php if(($this->session->userdata('call_closure') != 1)) { ?>
                 <div class="alert alert-warning">
                     <span style="font-weight:bold;">You don't have permission to complete booking.</span>
                 </div>
@@ -730,7 +731,7 @@
                         <?php } else { ?>
                         <center>
                             <input type="hidden" id="customer_id" name="customer_id" value="<?php echo $booking_history[0]['user_id']; ?>">
-                            <?php if($enable_button && empty($is_invoice_generated) && empty($is_spare_pending_for_acknowledge) && in_array($this->session->userdata('user_group'), [_247AROUND_ADMIN, _247AROUND_CLOSURE, _247AROUND_RM])){
+                            <?php if($enable_button && empty($is_invoice_generated) && empty($is_spare_pending_for_acknowledge) && ($this->session->userdata('call_closure') == 1 )){
                             $is_upcountry = 0;
                             if(($booking_history[0]['upcountry_paid_by_customer'] == 1) && ($booking_history[0]['is_upcountry'] == 1)){
                                 $is_upcountry = 1;
@@ -1470,7 +1471,7 @@
                 $(".unit_purchase_invoice_"+div+"_"+i).val(purchase_invoice_value);
          }
     }
-    var max_date = "<?php echo date("d-m-Y", strtotime($booking_history[0]['initial_booking_date']))?>";
+    var max_date = "<?php echo date("d-m-Y", strtotime($booking_history[0]['create_date']))?>";
       function dop_calendar(id){
          $("#"+id).datepicker({
              dateFormat: 'dd-mm-yy', 
