@@ -942,6 +942,10 @@ class Upload_buyback_process extends CI_Controller {
             $order_key = strtolower(str_replace(array("_",":"," ","-","|","/"), "", $sheet->getCell('K' . $row)->getValue()));
             $city = strtolower($sheet->getCell('J' . $row)->getValue());
             $search = array_keys($order_key_city_arr, array("order_key" => $order_key, "city" => $city));
+            $around_total = (double)$sheet->getCell('T' . $row)->getValue();
+            if($around_total < 0){
+                $sheet->setCellValue('T' . $row, 0);
+            }
             
             if(!empty($search)){
                 /**
