@@ -151,7 +151,7 @@
                                                 <td style="vertical-align: middle;">
                                                 <?php if ($row->nrn_approved == 0) { ?>
 
-                                                        <select id="engineer_<?php echo $sn_no; ?>" class="engineer_select" service-id="<?php echo $row->service_id; ?>" engineer-id="<?php echo $row->assigned_engineer_id; ?>" booking-id="<?php echo $row->booking_id; ?>"></select>
+                                                        <select id="engineer_<?php echo $sn_no; ?>" class="engineer_select" service-id="<?php echo $row->service_id; ?>" engineer-id="<?php echo $row->assigned_engineer_id; ?>" booking-id="<?php echo $row->booking_id; ?>" closed-date="<?php echo $row->service_center_closed_date; ?>" is-engg-app="<?php echo $is_engineer_app; ?>"></select>
 
                                                         <a href='<?php echo base_url(); ?>service_center/add_engineer/<?php echo urlencode(base64_encode($row->booking_id)); ?>' class='btn btn-info btn-sm' target='_blank'><i class='fa fa-user' aria-hidden='true'></i></a>
 
@@ -170,7 +170,7 @@
                                                 <td style="vertical-align: middle;">
                                                     <?php if ($row->nrn_approved == 0) { ?>
                                                         <!--If SF already completed the booking or Admin completed the booking, do not allow SF to cancel booking-->                                                                                                   
-                                                        <?php if ($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date) || ($row->service_center_current_status == _247AROUND_COMPLETED)) { ?>
+                                                        <?php if (!empty($row->service_center_closed_date) || ($row->service_center_current_status == _247AROUND_COMPLETED)) { ?>
                                                             <a href="#" style="width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary  disabled"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>
             <?php } else { ?>
                                                             <a target="_blank" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($row->booking_id)) ?>" style="width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary <?php if ($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date)) {
@@ -202,7 +202,7 @@
                                                 <td style="vertical-align: middle;">
                                                     <?php if ($row->nrn_approved == 0) { ?>
                                                         <!--If engineer is not assigned, SF already completed the booking, Admin completed the booking do not allow SF to edit booking-->
-                                                        <?php if ((is_null($row->assigned_engineer_id) && $is_engineer_app == '1') || ($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date)) || ($row->service_center_current_status == _247AROUND_COMPLETED)) { ?> 
+                                                        <?php if ((is_null($row->assigned_engineer_id) && $is_engineer_app == '1') || !empty($row->service_center_closed_date) || ($row->service_center_current_status == _247AROUND_COMPLETED)) { ?> 
                                                             <a class="btn btn-sm btn-primary disabled" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="#" ><i class='fa fa-edit' aria-hidden='true'></i></a>  
                                                         <?php } else { ?> 
                                                             <a class="btn btn-sm btn-primary" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id)); ?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
@@ -449,7 +449,7 @@
                                                 </td>
                                                     <?php if ($is_engineer_app) { ?>
                                                     <td style="vertical-align: middle;">
-                                                        <select id="engineer_<?php echo $sn_no; ?>" class="engineer_select" service-id="<?php echo $row->service_id; ?>" engineer-id="<?php echo $row->assigned_engineer_id; ?>" booking-id="<?php echo $row->booking_id; ?>"></select>
+                                                        <select id="engineer_<?php echo $sn_no; ?>" class="engineer_select" service-id="<?php echo $row->service_id; ?>" engineer-id="<?php echo $row->assigned_engineer_id; ?>" booking-id="<?php echo $row->booking_id; ?>" closed-date="<?php echo $row->service_center_closed_date; ?>" is-engg-app="<?php echo $is_engineer_app; ?>"></select>
                                                         <a href='<?php echo base_url(); ?>service_center/add_engineer/<?php echo urlencode(base64_encode($row->booking_id)); ?>' class='btn btn-info btn-sm' target='_blank'><i class='fa fa-user' aria-hidden='true'></i></a>
                                                     </td>
                                                     <?php } ?>
@@ -700,7 +700,7 @@
                                                     </td>
                                         <?php if ($is_engineer_app) { ?>
                                                         <td style="vertical-align: middle;">
-                                                            <select id="engineer_<?php echo $sn_no; ?>" class="engineer_select" service-id="<?php echo $row->service_id; ?>" engineer-id="<?php echo $row->assigned_engineer_id; ?>" booking-id="<?php echo $row->booking_id; ?>"></select>
+                                                            <select id="engineer_<?php echo $sn_no; ?>" class="engineer_select" service-id="<?php echo $row->service_id; ?>" engineer-id="<?php echo $row->assigned_engineer_id; ?>" booking-id="<?php echo $row->booking_id; ?>" closed-date="<?php echo $row->service_center_closed_date; ?>" is-engg-app="<?php echo $is_engineer_app; ?>"></select>
                                                             <a href='<?php echo base_url(); ?>service_center/add_engineer/<?php echo urlencode(base64_encode($row->booking_id)); ?>' class='btn btn-info btn-sm' target='_blank'><i class='fa fa-user' aria-hidden='true'></i></a>
                                                         </td>
             <?php } ?>
@@ -1412,6 +1412,8 @@
             var service_id = $(this).attr("service-id");
             var engineer_id = $(this).attr("engineer-id");
             var booking_id = $(this).attr("booking-id");
+            var closed_date = $(this).attr("closed-date");
+            var is_engg_app = $(this).attr("is-engg-app");
             var id = $(this).attr("id");
             if(service_id){
                 $.ajax({
@@ -1421,6 +1423,12 @@
                     success: function (response) {
                         response = JSON.parse(response);
                         if(response.status){
+                            if(closed_date!="" && engineer_id!=''){
+                                $("#"+id).parent().find("a").remove();
+                                $("#"+id).parent().append(response.html);
+                                //$("span").attr("aria-labelledby", "select2-"+id+"-container").css("display", "none");
+                                $("#"+id).css("display", "none");
+                            }else{
                             if(response.already_engg){
                                 var html = response.html;
                              $("#"+id).html(html);
@@ -1432,6 +1440,7 @@
                             $("#"+id).css("display", "inline");
                             $("#"+id).parent().find("a").css("display", "none");
                             $("#"+id).select2();
+                        }
                         }
                         else{
                             $("#"+id).parent().find("a").remove();
