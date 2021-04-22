@@ -1960,6 +1960,10 @@ $(document).ready(function () {
                    alert('Please Enter PAN File');
                    return false;
                 }
+                if(pan_no.length != 10){
+                   alert('Please Enter Correct PAN Number');
+                   return false;
+                }
                 
                 if($('#name_on_pan').val() != ''  && $("#pan_file")[0].files.length == 0){
                    alert('Please Enter PAN File');

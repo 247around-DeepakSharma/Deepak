@@ -6264,8 +6264,9 @@ $(document).ready(function () {
    // This function use to validate GST Number with 247001 partner id 
    $(document).ready(function () {
     $('#gst_number').on('input',function() { 
-         var GST_no = $("#gst_number").val();
-         if(GST_no == '15'){
+        var GST_no = $("#gst_number").val();
+        if(GST_no == '15'){
+        if(<?php echo $query[0]['id']?> != ''){
          $.ajax({
          type: 'POST',    
          url:'<?php echo base_url() ?>employee/partner/get_gst_number/<?php echo $query[0]['id']?>',
@@ -6279,14 +6280,16 @@ $(document).ready(function () {
             else{
               $("#submit_document_btn").attr('disabled',false);
            }
-        }  
-        });
-       }else{
+          }  
+          });
+         }else{
              $("#submit_document_btn").attr('disabled',true);
              alert('Please Enter Valid GST Number ');
         }
+        }
        });
     });
+   
 
  
 </script>

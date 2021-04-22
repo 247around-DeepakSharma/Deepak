@@ -140,7 +140,7 @@
                             <tr>
                                 <th class="jumbotron">ID</th>
                                 <th class="jumbotron">Name</th>
-                                <th class="jumbotron">CRM Login / Password</th>
+                                <th class="jumbotron">Login</th>
                                 <th class="jumbotron">PoC Name</th>
                                 <th class="jumbotron">PoC Number</th>
                                 <th class="jumbotron">Owner Name</th>
