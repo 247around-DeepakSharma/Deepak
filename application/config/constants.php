@@ -529,6 +529,7 @@ define("_247AROUND_MOBILE_SERVICE_ID",'54');
 
 //247around call center number
 define('_247AROUND_CALLCENTER_NUMBER',9555000247);
+define('_247AROUND_PAID_CALLCENTER_NUMBER',9810873247);
 //jeeves call center number
 define('JEEVES_CALLCENTER_NUMBER',180042525252);
 //Sharp call center number
