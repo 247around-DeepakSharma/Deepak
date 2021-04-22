@@ -668,6 +668,12 @@ class User extends CI_Controller {
             $data1['warehouse_id'] = trim($data['warehouse_id']);
         }
         
+        if($data['groups'] == _247AROUND_CLOSURE 
+                || $data['groups'] == _247AROUND_ADMIN
+                || $data['groups'] == _247AROUND_RM){
+            $data1['call_closure'] = 1;
+        }
+        
         $maxid = $id = 0;
         $row = $this->db->query('SELECT MAX(id) maxid FROM employee')->row();
         if ($row) {
@@ -865,6 +871,12 @@ class User extends CI_Controller {
         $data1=array_diff_key($data, array_flip($removeKeys));
         
         $data1['groups']= str_replace(' ', '', $data1['groups']);
+        
+        if($data1['groups'] == _247AROUND_CLOSURE 
+                || $data1['groups'] == _247AROUND_ADMIN
+                || $data1['groups'] == _247AROUND_RM){
+            $data1['call_closure'] = 1;
+        }
         // Update region (North,South,East,West) with its respective RM 
         if(!empty($data1['region']))
         {
