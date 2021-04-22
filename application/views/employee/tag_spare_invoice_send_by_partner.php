@@ -642,7 +642,7 @@
                                         <div class="form-group">
                                             <label class="col-xs-2 control-label">Challan Amount * </label>
                                             <div class="col-xs-4">
-                                                <input placeholder="Enter Invoice Value" type="text" class="form-control allowNumericWithDecimal" name="invoice_amount" id="invoice_amount_dc" required=""/>
+                                                <input placeholder="Enter Challan Value" type="text" class="form-control allowNumericWithDecimal" name="invoice_amount" id="invoice_amount_dc" required=""/>
                                                 <label for="invoice_amount" class="error"></label>
                                             </div>
                                             <label class="col-xs-4 col-sm-2 control-label">Invoice File *  <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Only pdf files are allowed and file size should not be greater than 5 MB."><i class="fa fa-info"></i></span></label>
@@ -759,7 +759,7 @@
                                                 <label for="partNumber_dc_0" class="error"></label>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-3">
-                                                <select class="form-control" name="part[0][part_name]" id="partName_dc_0"  required=""></select>
+                                                <select class="form-control" name="part[0][part_name]" id="partName_dc_0"  required="" style='width:100%'></select>
                                                 <span id="part_loader_dc_0" style="display: none; margin-left: 45%;"><i class='fa fa-spinner fa-spin'></i></span>
                                                 <label for="partName_dc_0" class="error"></label>
                                             </div>
@@ -1018,6 +1018,9 @@
     //            placeholder:'Select Part Type'
     //        });
         $('#partName_0').select2({
+            placeholder:'Select Part Name'
+        });
+		$('#partName_dc_0').select2({
             placeholder:'Select Part Name'
         });
        
@@ -2365,10 +2368,11 @@
                     $('#clone_id_dc .form-control').each(function(){
                     var IdsArray =  $(this).attr("id").split("_");
                         if(IdsArray[0] == 'partGstRate'){
-                           var gst_rate = $("#partGstRate_dc_"+IdsArray[1]).val();
-                          $(this).attr("id","clone_gstRate_"+IdsArray[1]); 
-                          $("#clone_gstRate_"+IdsArray[1]).val(gst_rate).change();
-                          $("#clone_gstRate_"+IdsArray[1]).css('pointer-events','none');
+							
+                           var gst_rate = $("#partGstRate_dc_"+IdsArray[2]).val();
+                          $(this).attr("id","clone_gstRate_"+IdsArray[2]); 
+                          $("#clone_gstRate_"+IdsArray[2]).val(gst_rate).change();
+                          $("#clone_gstRate_"+IdsArray[2]).css('pointer-events','none');
                         }
                     $(this).attr("readonly","readonly");
                     });
