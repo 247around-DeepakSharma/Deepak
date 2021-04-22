@@ -3413,12 +3413,12 @@ class Inventory extends CI_Controller {
             $data = array();
             $no = $post['start'];
             $rowSums = array(
-                "colCount"=>0,
-                "colData"=>array(
-                    0=> 'Total',
-                    6=>0,                   //stock total occurs in col 7 in datatable
-                    10=>0.00,               //total occurs in col 11 in datatable
-                    11=>0.00                //customer total in col 11
+                "colCount" => 0,
+                "colData" => array(
+                    0 => 'Total',
+                    6 => 0, //stock total occurs in col 6 in datatable
+                    9 => 0.00, //total occurs in col 10 in datatable
+                    10 => 0.00                //customer total in col 10
                 )
             );
             foreach ($list as $inventory_list) {
@@ -3428,9 +3428,9 @@ class Inventory extends CI_Controller {
 
                 $tSum = $this->get_inventory_stock_total($inventory_list);
                 $rowSums['colData'][6] += $tSum['stocks'];
-                $rowSums['colData'][10] += $tSum['total'];
-                $rowSums['colData'][11] += $tSum['customerTotal'];
-                $rowSums["colCount"] = (count($row)>$rowSums['colCount'])?count($row):$rowSums["colCount"];
+                $rowSums['colData'][9] += $tSum['total'];
+                $rowSums['colData'][10] += $tSum['customerTotal'];
+                $rowSums["colCount"] = (count($row) > $rowSums['colCount']) ? count($row) : $rowSums["colCount"];
             }
             if(count($data)>0){
                 $data[] = $this->draw_table_footer($rowSums);
