@@ -3916,11 +3916,14 @@ class engineerApiv1 extends CI_Controller {
 				//booking_update_data = array("sf_model_number" => $requestData["model_number"], "sf_purchase_date" => $requestData["purchase_date"]);
 				$this->booking_model->update_booking_unit_details($requestData["booking_id"], $unit_detail);
 
-				if($booking_details['unit_details']['0']['sf_model_number']!=$requestData['model_number']){
+                                $model_change = false;
+
+				if(!empty($booking_details['unit_details']['0']['sf_model_number']) && $booking_details['unit_details']['0']['sf_model_number']!=$requestData['model_number']){
 					$model_change = true;
-				}else{
-					$model_change = false;
+				}else if($booking_details['unit_details']['0']['model_number']!=$requestData['model_number']){
+					$model_change = true;
 				}
+
 				$booking_details = $this->booking_creation_lib->get_edit_booking_form_helper_data($requestData['booking_id'], NULL, NULL,NULL);
 				//Update serial number category Capacity based on new model end
 
