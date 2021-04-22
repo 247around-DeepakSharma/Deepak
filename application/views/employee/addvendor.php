@@ -1945,6 +1945,10 @@ $(document).ready(function () {
                    alert('Please Enter PAN File');
                    return false;
                 }
+                if(pan_no.length != 10){
+                   alert('Please Enter Correct PAN Number');
+                   return false;
+                }
                 
                 if($('#name_on_pan').val() != ''  && $("#pan_file")[0].files.length == 0){
                    alert('Please Enter PAN File');
@@ -2533,6 +2537,17 @@ $('#district_option').change(function (){
          $("#pincode").attr('disabled',false);
     }    
 });     
+
+});
+ $('#pan_no').keypress(function (e) {
+       var regex = new RegExp("^[a-zA-Z0-9]+$");
+       var str = String.fromCharCode(!e.charCode ? e.which : e.charCode);
+       if (regex.test(str)) {
+           return true;
+       }
+       e.preventDefault();
+       return false;
+    });
 </script>
 <!--Validations here-->
 <?php if($this->session->userdata('checkbox')){$this->session->unset_userdata('checkbox');}?>
