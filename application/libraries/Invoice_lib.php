@@ -11,8 +11,8 @@ class Invoice_lib {
         $this->ci->load->library('table');
     }
     
-    function create_invoice_id($start_name){
-        $invoice_id_tmp = $this->_get_partial_invoice_id($start_name);
+    function create_invoice_id($start_name, $invoice_date = ''){
+        $invoice_id_tmp = $this->_get_partial_invoice_id($start_name, $invoice_date);
         $where = "( invoice_id LIKE '%".$invoice_id_tmp."%' )";
         $invoice_no_temp = $this->ci->invoices_model->get_invoices_details($where, "invoice_id");
         
@@ -46,13 +46,20 @@ class Invoice_lib {
         return trim($invoice_id_tmp . sprintf("%'.04d\n", $invoice_no));
     }
     
-    function _get_partial_invoice_id($start_name){
-        $current_month = date('m');
+    function _get_partial_invoice_id($start_name, $invoice_date =''){
+        if(!empty($invoice_date)){
+            $current_month = date('m', strtotime($invoice_date));
+            $year = date('y', strtotime($invoice_date));
+        } else {
+            $current_month = date('m');
+            $year = date('y');
+        }
+        
         // 3 means March Month
         if ($current_month > 3) {
-            $financial = date('y'). (date('y') + 1);
+            $financial = $year. ($year + 1);
         } else {
-            $financial = (date('y') - 1) .  date('y');
+            $financial = ($year - 1) .  $year;
         }
 
         return $start_name . "-"  . $financial . "-" ;
