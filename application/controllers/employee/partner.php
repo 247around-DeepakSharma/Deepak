@@ -4785,6 +4785,38 @@ class Partner extends CI_Controller {
         $this->miscelleneous->create_serviceability_report_csv($this->input->post());
         echo json_encode(array("response" => "success", "path" => base_url() . "file_process/downloadFile/serviceability_report.csv"));
     }
+     /**
+     * @desc This function is used to download upcountry local pincode data
+     * @param int $service_id
+     * @return Json with file name
+     */
+    function serviceability_list_upcountry_pincode() {
+        log_message('info', __FUNCTION__ . " Function Start ");
+        $service_id = $this->input->post('service_id');
+        if (!empty($service_id)) {
+            $where = " and services.id = " . $service_id;
+            $data = $this->upcountry_model->getpincode_upcountry_local(true, $where);
+            if (!empty($data)) {
+                foreach ($data as $dataValues) {
+                    $headings = array_keys($dataValues);
+                    $CSVData[] = array_values($dataValues);
+                }
+                $csv = implode(",", $headings) . " \n"; //Column headers
+                foreach ($CSVData as $record) {
+                    $csv .= implode(",", $record) . "\n"; //Append data to csv
+                }
+                $output_file = TMP_FOLDER . "local_pincode_upcountry_report.csv";
+                $csv_handler = fopen($output_file, 'w');
+                fwrite($csv_handler, $csv);
+                fclose($csv_handler);
+                echo json_encode(array("response" => "success", "path" => base_url() . "file_process/downloadFile/local_pincode_upcountry_report.csv"));
+            } else {
+                echo json_encode(array("response" => "error", "msg" => "No record found."));
+            }
+        } else {
+            echo json_encode(array("response" => "error", "msg" => "Please select Service ID."));
+        }
+    }
 
     /**
      * @desc This is used to get prepaid amount for requested partner 
