@@ -819,7 +819,7 @@ class invoices_model extends CI_Model {
             $courier_price = (array_sum(array_column($courier['final_courier'], 'courier_charges_by_sf')));
             if ($courier_price > 0) {
                 $c_data = array();
-                $c_data[0]['description'] = 'Courier Charges';
+                $c_data[0]['description'] = 'Service Charge (Courier)';
                 $c_data[0]['hsn_code'] = '';
                 $c_data[0]['qty'] = '';
                 $c_data[0]['rate'] = '';
@@ -839,7 +839,7 @@ class invoices_model extends CI_Model {
         if (!empty($upcountry_data)) {
             if($upcountry_data[0]['total_upcountry_price'] > 0){
                 $up_country = array();
-                $up_country[0]['description'] = 'Upcountry Charges';
+                $up_country[0]['description'] = 'Service Charge (Upcountry)';
                 $up_country[0]['hsn_code'] = '';
                 $up_country[0]['qty'] = '';
                 $up_country[0]['rate'] = '';
@@ -990,7 +990,7 @@ class invoices_model extends CI_Model {
         
         if (!empty($misc)) {
             $m = array();
-            $m[0]['description'] = 'Miscellaneous Charge';
+            $m[0]['description'] = 'Service Charge (Miscellaneous)';
             $m[0]['hsn_code'] = '';
             $m[0]['qty'] = '';
             $m[0]['rate'] = '';
