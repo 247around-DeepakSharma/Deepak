@@ -685,15 +685,15 @@ class Invoice extends CI_Controller {
         }
         
         if(!empty($misc_data['penalty_discount'])){
-            $total_penalty_discount = (array_sum(array_column($misc_data['penalty_discount'], 'penalty_amount')));
-            $penalty_booking_count = (array_sum(array_column($misc_data['penalty_discount'], 'booking_failed')));
-            $c_files_name = $this->generate_partner_penalty_excel($misc_data['penalty_discount'], $misc_data['penalty_tat_count'], $meta['invoice_id']);
+            $total_penalty_discount = $misc_data['penalty_discount_amount'];
+            $penalty_booking_count = (array_sum(array_column($misc_data['penalty_discount'], 'total_booking')));
+            $c_files_name = $this->generate_partner_penalty_excel($misc_data['penalty_discount'], array(), $meta['invoice_id']);
             array_push($files, $c_files_name);
             
-            $c_files_name1 = $this->generate_partner_penalty__tat_breakup_excel($misc_data['penalty_booking_data'], $meta['invoice_id']);
-            array_push($files, $c_files_name1);
+            //$c_files_name1 = $this->generate_partner_penalty__tat_breakup_excel($misc_data['penalty_booking_data'], $meta['invoice_id']);
+            //array_push($files, $c_files_name1);
         }
-        
+            
         // Generate Open Cell and LED Bar Spare Parts Excel
         if (!empty($misc_data['open_cell'])) {
             $meta['total_open_cell_price'] = (array_sum(array_column($misc_data['open_cell'], 'partner_charge')));
@@ -870,6 +870,35 @@ class Invoice extends CI_Controller {
                         'price' => $open_cell_booking_details['partner_charge']
                     );
                     $this->invoices_model->insert_open_cell_data($open_cell_data);
+                }
+            }
+            
+            if(!empty($misc_data['penalty_discount'])){
+                foreach($misc_data['penalty_discount'] as $value){
+                    $a = array('entity_id' => $value['entity_id'],
+                        'service_id' => $value['service_id'],
+                        'local_upcountry' => $value['local_upcountry'],
+                        'installation_repair' => $value['installation_repair'],
+                        'tat_with_in_lower_days' => $value['tat_with_in_lower_days'],
+                        'target_acheived_per_lower_days' => $value['target_acheived_per_lower_days'],
+                        'tat_with_in_higher_days' => $value['tat_with_in_higher_days'],
+                        'target_acheived_per_higher_days' => $value['target_acheived_per_higher_days'],
+                        'achieved_count_lower_day' => $value['achieved_count'],
+                        'total_booking' => $value['total_booking'],
+                        'archieved_per_lower_day' => $value['archieved_percentage'],
+                        'booking_failed_lower_day' => $value['booking_failed'],
+                        'penalty_amount_lower_day' => $value['penalty_amount'],
+                        'booking_amount' => $value['basic_amount'],
+                        'target_acheived_per_lower_day' => $value['target_acheived_per'],
+                        'booking_failed_higher_day' =>$value['booking_failed1'],
+                        'penalty_amount_higher_day' => $value['penalty_amount1'],
+                        'target_acheived_per_higher_day' => $value['target_acheived_per1'],
+                        'achieved_count_higher_day' => $value['achieved_count1'],
+                        'archieved_per_higher_day' => $value['archieved_percentage1'],
+                        'invoice_id' => $invoice_p_id
+                        );
+                    
+                        $this->invoices_model->insert_penalty_discount_brand_data($a);
                 }
             }
             
@@ -1119,7 +1148,7 @@ class Invoice extends CI_Controller {
     function generate_partner_penalty_excel($tat_data, $tat_count, $invoice_id){
         $template = 'partner_penalty_discount.xlsx';
         $output_file_excel = TMP_FOLDER . $invoice_id . "-penalty-detailed.xlsx";
-        $this->invoice_lib->generate_invoice_excel($template, $tat_count, $tat_data, $output_file_excel, true);
+        $this->invoice_lib->generate_invoice_excel($template, array(), $tat_data, $output_file_excel, true);
         return $output_file_excel;
     }
     
@@ -3529,13 +3558,13 @@ exit();
                 $defective_parts =$explode[1];
                 $defective_parts_max_age = $explode[2];
                 $sc = $this->vendor_model->viewvendor($service_center_id)[0];
-                $sc_details['debit_acc_no'] = '50200030070899';
+                $sc_details['debit_acc_no'] = '102405500277';
                 $sc_details['bank_account'] = trim($sc['bank_account']);
                 $sc_details['beneficiary_name'] = trim($sc['beneficiary_name']);
                 $msl_amount = $this->get_msl_summary_amount($service_center_id, $due_date);
                 $sc_details['final_amount'] = abs(sprintf("%.2f",$amount));
                 $sc_details['msl_amount'] = abs(sprintf("%.2f",$msl_amount['amount_summary'] ));
-                if (trim($sc['bank_name']) === HDFC_BANK_NAME) {
+                if (trim($sc['bank_name']) === ICICI_BANK_NAME) {
                     $sc_details['payment_mode'] = "I";
                 } else {
                     $sc_details['payment_mode'] = "N";
