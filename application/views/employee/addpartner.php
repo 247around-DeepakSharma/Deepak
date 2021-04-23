@@ -4166,10 +4166,11 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
         for(var i =1;i<=total_div;i++){
             if(i != tab_id){
               document.getElementById("container_"+i).style.display='none';
+              if(i!=17)
               document.getElementById(i).style.background='#d9edf7';
-             }
-             else{
+            } else {
                 document.getElementById("container_"+i).style.display='block';
+                if(i!=17)
                 document.getElementById(i).style.background='#fff';
                 // create datatable in case of contact us and Account Manager tab    
                 if(i == 8 || i == 16){
@@ -4188,7 +4189,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                     // Shift Export Button the right
                     $(".dt-buttons").css({"float" : "right"});
                 }                
-             }
+            }
         }
 
         if(tab_id === '6'){
@@ -6287,8 +6288,8 @@ $(document).ready(function () {
    // This function use to validate GST Number with 247001 partner id 
    $(document).ready(function () {
     $('#gst_number').on('input',function() { 
-         var GST_no = $("#gst_number").val();
-        
+        var GST_no = $("#gst_number").val();
+        if(<?php echo $query[0]['id']?> != ''){
          $.ajax({
          type: 'POST',    
          url:'<?php echo base_url() ?>employee/partner/get_gst_number/<?php echo $query[0]['id']?>',
@@ -6302,8 +6303,9 @@ $(document).ready(function () {
             else{
               $("#submit_document_btn").attr('disabled',false);
            }
-        }  
-        });
+          }  
+          });
+        }
     });
     });
 
