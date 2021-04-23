@@ -677,6 +677,33 @@ class Partner extends CI_Controller {
     }
 
     /**
+     * @desc : This function is used to Add/Edit TAT invoice condition details.
+     * @call : This function is called on Form Submit for Add/Edit TAT invoice condition Details.
+     * TAT invoice condition details like- Description, Local/Upcountry, Installation/Repair, TAT with in days, Target Acheived details
+     *      are added/edited.
+     *
+     * @param : void
+     * @return : void
+     */
+
+    function process_tat_invoice_condition() {
+
+        $arr_post = $this->input->post();
+        $data = array('entity' => $arr_post['entity'], 
+        'entity_id' => $arr_post['entity_id'],
+        'local_upcountry' => $arr_post['local_upcountry'], 
+        'installation_repair' =>  $arr_post['installation_repair'], 
+        'tat_with_in_lower_days' => $arr_post['tat_with_in_lower_days'], 
+        'target_acheived_per_lower_days' => $arr_post['target_acheived_per_lower_days'], 
+        'tat_with_in_higher_days' => $arr_post['tat_with_in_higher_days'], 
+        'target_acheived_per_higher_days' => $arr_post['target_acheived_per_higher_days'],
+        'description' => $arr_post['description'],
+        'active' => 1);
+        echo $result = $this->partner_model->process_tat_invoice_condition($arr_post['entity_id'],$data);
+        exit();
+    }
+
+    /**
      * @desc : This function is used to Add/Edit Partner details.
      * @call : This function is called on Form Submit for Add/Edit Partner details.
      * Partner details like- partner's name, owner's name, phone no., email, POC(point of contact) details
@@ -1207,6 +1234,7 @@ class Partner extends CI_Controller {
     function editpartner($id) {
         log_message('info', __FUNCTION__ . ' partner_id:' . $id);
         $query = $this->partner_model->viewpartner($id);
+        $results['tat_condition'] = $this->partner_model->get_tat_invoice_condition($id);
         $results['select_state'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         $results['services'] = $this->vendor_model->selectservice();
         $saas_flag = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
