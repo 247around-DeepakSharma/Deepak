@@ -598,7 +598,7 @@
                                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                         </button>
-                                        <strong><span id="success_msg"></span></strong>
+                                        <strong><span id="success_msg_dc"></span></strong>
                                     </div>
                                 </div>
                                 <div class="error_msg_div" style="display:none;">
@@ -606,7 +606,7 @@
                                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                         </button>
-                                        <strong><span id="error_msg"></span></strong>
+                                        <strong><span id="error_msg_dc"></span></strong>
                                     </div>
                                 </div>
                                 <form id="spareForm_dc" method="post" class="form-horizontal" novalidate="novalidate">
@@ -2444,7 +2444,7 @@
     //                                }                                
                                 if(obj.status){
                                     $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
-                                    $('#success_msg').html(obj.message);
+                                    $('#success_msg_dc').html(obj.message);
                                     $("#spareForm_dc")[0].reset();
                                     $("#spareForm_dc").find('input:text, input:file, select').val('');
                                     $('#select2-partner_id_dc-container').text('Select Partner');
