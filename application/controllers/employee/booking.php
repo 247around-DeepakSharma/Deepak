@@ -2418,7 +2418,11 @@ class Booking extends CI_Controller {
      * @return : void
      */
     function checked_complete_review_booking() {
-        $this->miscelleneous->checked_complete_review_booking($this->input->post());
+        if ($this->session->userdata('call_closure') == 1) {
+            $this->miscelleneous->checked_complete_review_booking($this->input->post());
+        } else {
+            $this->session->set_userdata('error', "You don't have permission to close bookings");
+        }
         redirect(base_url() . 'employee/booking/review_bookings');
     }
 
@@ -2502,7 +2506,7 @@ class Booking extends CI_Controller {
                 $this->update_completed_unit_applinace_details($booking_id);
             }
             $is_closure = 0;
-            if ($this->session->userdata('user_group') == 1) {
+            if ($this->session->userdata('call_closure') == 1) {
                 $is_closure = 1;
             }
             // customer paid basic charge is comming in array
