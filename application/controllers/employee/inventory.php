@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
@@ -205,7 +206,7 @@ class Inventory extends CI_Controller {
         //Getting ID of logged in user
         $id = $this->session->userdata('id');
         //Getting employee relation if present
-        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
+        if ($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM) {
             $sf_list_array = $this->vendor_model->get_employee_relation($id);
             if (!empty($sf_list_array)) {
                 $sf_list = $sf_list_array[0]['service_centres_id'];
@@ -300,7 +301,6 @@ class Inventory extends CI_Controller {
         $data['total_shipped'] = $this->input->post('total_shipped');
         $data['shipment_date'] = !empty($this->input->post('shipment_date')) ? $this->input->post('shipment_date') : date('Y-m-d H:i:s');
         $data['is_shipped'] = 1;
-
 
         $attachment = "";
         if (!empty($fileName)) {
@@ -987,7 +987,6 @@ class Inventory extends CI_Controller {
             $vendor_owner_mail = $order_received_from_email[0]['owner_email'];
             $to = $vendor_poc_mail . ',' . $vendor_owner_mail;
 
-
             //Getting template from Database
             $template_to = $this->booking_model->get_booking_email_template("un-cancel_brackets_order_received_from_vendor");
             if (!empty($template_to)) {
@@ -1075,11 +1074,11 @@ class Inventory extends CI_Controller {
             $this->checkUserSession();
         }
         $booking_new_internal_status = '';
-        
+
         if (!empty($id)) {
 
             // fetch record from booking details of $booking_id.
-            $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
+            $booking_details = $this->booking_model->get_booking_details('*', ['booking_id' => $booking_id])[0];
             $remarks = $this->input->post("remarks");
             if (!empty($this->input->post("spare_cancel_reason"))) {
                 $remarks = $this->input->post("spare_cancel_reason") . " , " . $remarks;
@@ -1087,15 +1086,14 @@ class Inventory extends CI_Controller {
             $flag = true;
             $b = array();
             $line_items = '';
-            
+
             $select = 'spare_parts_details.id,spare_parts_details.entity_type,booking_details.partner_id as booking_partner_id, spare_parts_details.status, spare_parts_details.inventory_invoice_on_booking, spare_parts_details.wh_ack_received_part';
 
             $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.booking_id' => $booking_id, 'status IN ("' . SPARE_PARTS_SHIPPED . '", "'
-                . SPARE_PARTS_REQUESTED . '", "' . SPARE_PART_ON_APPROVAL . '", "' . SPARE_OOW_EST_REQUESTED . '", "' . SPARE_PARTS_SHIPPED_BY_WAREHOUSE . '", "' . SPARE_DELIVERED_TO_SF . '", "'.DEFECTIVE_PARTS_PENDING.'", "'.OK_PART_TO_BE_SHIPPED.'", "'.OK_PARTS_SHIPPED.'", "'.DEFECTIVE_PARTS_SHIPPED.'", "'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'","'.DEFECTIVE_PARTS_REJECTED.'", "'.DEFECTIVE_PARTS_RECEIVED.'", "'.DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE.'") ' => NULL), TRUE, false, false);
+                . SPARE_PARTS_REQUESTED . '", "' . SPARE_PART_ON_APPROVAL . '", "' . SPARE_OOW_EST_REQUESTED . '", "' . SPARE_PARTS_SHIPPED_BY_WAREHOUSE . '", "' . SPARE_DELIVERED_TO_SF . '", "' . DEFECTIVE_PARTS_PENDING . '", "' . OK_PART_TO_BE_SHIPPED . '", "' . OK_PARTS_SHIPPED . '", "' . DEFECTIVE_PARTS_SHIPPED . '", "' . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . '","' . DEFECTIVE_PARTS_REJECTED . '", "' . DEFECTIVE_PARTS_RECEIVED . '", "' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '") ' => NULL), TRUE, false, false);
 
             $line_items = count($spare_parts_details);
-            
-            
+
             switch ($requestType) {
                 case 'CANCEL_PARTS':
                 case 'QUOTE_REQUEST_REJECTED';
@@ -1203,7 +1201,7 @@ class Inventory extends CI_Controller {
                         if ($line_items < 2) {
                             $b['internal_status'] = SPARE_PARTS_CANCELLED;
                         }
-                       $track_status =  $new_state = SPARE_PARTS_CANCELLED;
+                        $track_status = $new_state = SPARE_PARTS_CANCELLED;
                         $data['old_status'] = SPARE_PARTS_REQUESTED;
                     } else {
                         if ($line_items < 2) {
@@ -1219,7 +1217,7 @@ class Inventory extends CI_Controller {
                         $old_state = SPARE_OOW_EST_REQUESTED;
                     } else if ($requestType == 'DELIVERED_PART_CANCELLED') {
                         $old_state = SPARE_DELIVERED_TO_SF;
-                       $track_status = $new_state = REMOVE_PART_CONSUMPTION;
+                        $track_status = $new_state = REMOVE_PART_CONSUMPTION;
                     }
 
                     $sc_data['current_status'] = _247AROUND_PENDING;
@@ -1230,7 +1228,7 @@ class Inventory extends CI_Controller {
                     if ($line_items < 2) {
                         $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                     }
-                    /*@des: spare cancelled on spare chnage actor and action  */
+                    /* @des: spare cancelled on spare chnage actor and action  */
                     if ($requestType == 'CANCEL_PARTS' || $requestType == 'QUOTE_REQUEST_REJECTED') {
                         if (count($spare_parts_details) == 1) {
                             $partnerId = _247AROUND;
@@ -1264,19 +1262,19 @@ class Inventory extends CI_Controller {
                      * @modifiedBy Ankit Rajvanshi
                      */
                     $where = array('id' => $id);
-                    $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];                    
+                    $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];
                     $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
                     $spare_status = DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE;
                     $old_state = DEFECTIVE_PARTS_SHIPPED;
-                    if(!empty($is_spare_consumed) && $is_spare_consumed == 1) {
+                    if (!empty($is_spare_consumed) && $is_spare_consumed == 1) {
                         $spare_status = DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE;
                         $old_state = DEFECTIVE_PARTS_SHIPPED;
                     } else {
                         $spare_status = OK_PARTS_REJECTED_BY_WAREHOUSE;
                         $old_state = OK_PARTS_SHIPPED;
-                    }                    
-                    
-                    $data = array("approved_defective_parts_by_admin" => 0, 'status' => $spare_status,'defective_part_shipped_date' => NULL, 'spare_parts_details.courier_rejection_remarks' => $remarks);
+                    }
+
+                    $data = array("approved_defective_parts_by_admin" => 0, 'status' => $spare_status, 'defective_part_shipped_date' => NULL, 'spare_parts_details.courier_rejection_remarks' => $remarks);
                     $track_status = $new_state = "Courier Invoice Rejected By Admin";
                     break;
                 case 'APPROVE_COURIER_INVOICE':
@@ -1290,7 +1288,7 @@ class Inventory extends CI_Controller {
                     }
 
                     $this->service_centers_model->update_spare_parts(array("id" => $id), $data);
-                    
+
                     $track_status = $new_state = "Courier Invoice Approved By Admin";
                     $old_state = DEFECTIVE_PARTS_SHIPPED;
                     $flag = FALSE;
@@ -1301,7 +1299,7 @@ class Inventory extends CI_Controller {
                     $data = array('status' => DEFECTIVE_PARTS_SHIPPED);
                     $old_state = DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE;
                     $track_status = $new_state = DEFECTIVE_PARTS_SHIPPED;
-                    if($booking_details['current_status'] == _247AROUND_COMPLETED && $line_items < 2) {
+                    if ($booking_details['current_status'] == _247AROUND_COMPLETED && $line_items < 2) {
                         $b['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
                     }
                     break;
@@ -1314,34 +1312,34 @@ class Inventory extends CI_Controller {
                         $track_status = $new_state = "Spare Parts Not Required To Partner";
                     }
                     $old_state = SPARE_PARTS_REQUESTED;
-                    
+
                     /**
                      * If defective part not required after booking completion then change spare status accordingly.
                      * @modifiedBy Ankit Rajvanshi
                      */
-                    $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];                    
-                    if(!empty($spare_part_detail['consumed_part_status_id'])) {
+                    $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];
+                    if (!empty($spare_part_detail['consumed_part_status_id'])) {
                         $data['status'] = _247AROUND_COMPLETED;
-                        if($booking_details['current_status'] == _247AROUND_COMPLETED && $line_items < 2) {
+                        if ($booking_details['current_status'] == _247AROUND_COMPLETED && $line_items < 2) {
                             $b['internal_status'] = $data['status'];
                         }
                     }
-                    
+
                     break;
 
                 CASE 'NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING':
-                    
+
                     $where = array('id' => $id);
-                    $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];                    
-                    
-                    $track_status =  $new_state = "Spare Parts Not Required To Warehouse";
+                    $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];
+
+                    $track_status = $new_state = "Spare Parts Not Required To Warehouse";
                     $old_state = $spare_part_detail['status'];
                     $data['status'] = _247AROUND_COMPLETED;
                     $data['defective_part_required'] = 0;
 
-                    if(!empty($booking_details['service_center_closed_date'])) {
+                    if (!empty($booking_details['service_center_closed_date'])) {
                         /* change booking internal status if completed by admin. */
-                        if($booking_details['current_status'] == _247AROUND_COMPLETED && $line_items < 2) {
+                        if ($booking_details['current_status'] == _247AROUND_COMPLETED && $line_items < 2) {
                             $b['internal_status'] = $data['status'];
                         }
                     }
@@ -1354,19 +1352,19 @@ class Inventory extends CI_Controller {
                      * @modifiedBy Ankit Rajvanshi
                      */
 //                    if(!empty($booking_details['service_center_closed_date'])) {
-                        $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];                    
-                        if(!empty($spare_part_detail['consumed_part_status_id'])) {
-                            $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
-                            if(!empty($is_spare_consumed) && $is_spare_consumed == 1) {
-                                $data['status'] = DEFECTIVE_PARTS_PENDING;
-                            } else {
-                                $data['status'] = OK_PART_TO_BE_SHIPPED;
-                            }                 
+                    $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];
+                    if (!empty($spare_part_detail['consumed_part_status_id'])) {
+                        $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
+                        if (!empty($is_spare_consumed) && $is_spare_consumed == 1) {
+                            $data['status'] = DEFECTIVE_PARTS_PENDING;
+                        } else {
+                            $data['status'] = OK_PART_TO_BE_SHIPPED;
                         }
-                        
-                        if($booking_details['current_status'] == _247AROUND_COMPLETED && $line_items < 2) {
-                            $b['internal_status'] = $data['status'];
-                        }
+                    }
+
+                    if ($booking_details['current_status'] == _247AROUND_COMPLETED && $line_items < 2) {
+                        $b['internal_status'] = $data['status'];
+                    }
 //                   }
                     $track_status = $new_state = "Spare Parts Required To Warehouse";
                     if ($this->session->userdata('partner_id')) {
@@ -1374,21 +1372,21 @@ class Inventory extends CI_Controller {
                     }
                     $create_sf_challan_file = false;
                     $service_center_id_challan = '';
-                    if($spare_part_detail['status']==_247AROUND_COMPLETED && empty($spare_part_detail['sf_challan_file'])){
+                    if ($spare_part_detail['status'] == _247AROUND_COMPLETED && empty($spare_part_detail['sf_challan_file'])) {
                         $create_sf_challan_file = $id;
                         $service_center_id_challan = $spare_part_detail['service_center_id'];
                     }
 
                     $old_state = SPARE_PARTS_REQUESTED;
                     break;
-                
+
                 CASE 'COURIER_LOST':
                     /**
                      * Admin mark courier lost.
                      * @modifiedBy Ankit Rajvanshi
                      */
                     $where = array('id' => $id);
-                    $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];                    
+                    $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];
                     $data['status'] = InProcess_Courier_Lost;
                     $data['old_status'] = $spare_part_detail['status'];
                     $data['consumed_part_status_id'] = 2;
@@ -1402,9 +1400,9 @@ class Inventory extends CI_Controller {
                 if ($response && ($requestType == "CANCEL_PARTS" || $requestType == "DELIVERED_PART_CANCELLED") || $requestType == "QUOTE_REQUEST_REJECTED") {
                     $this->update_inventory_on_cancel_parts($id, $booking_id, $old_state);
                 }
-                if($requestType == "REQUIRED_PARTS"){
-                    if(!empty($create_sf_challan_file) && !empty($service_center_id_challan)){
-                        $this->invoice_lib->generate_challan_file($create_sf_challan_file, $service_center_id_challan, '',true);
+                if ($requestType == "REQUIRED_PARTS") {
+                    if (!empty($create_sf_challan_file) && !empty($service_center_id_challan)) {
+                        $this->invoice_lib->generate_challan_file($create_sf_challan_file, $service_center_id_challan, '', true);
                     }
                 }
             }
@@ -1420,7 +1418,7 @@ class Inventory extends CI_Controller {
                 $agent_name = $this->session->userdata('partner_name');
                 $entity_id = $this->session->userdata('partner_id');
                 $track_entity_type = _247AROUND_PARTNER_STRING;
-                $this->notify->insert_state_change($booking_id, $new_state, $old_state, $remarks, $agent_id, $agent_name, ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, $entity_id, "", $id );
+                $this->notify->insert_state_change($booking_id, $new_state, $old_state, $remarks, $agent_id, $agent_name, ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, $entity_id, "", $id);
             } else if ($this->session->userdata('service_center_id')) {
                 $agent_id = $this->session->userdata('service_center_agent_id');
                 $agent_name = $this->session->userdata('service_center_name');
@@ -1428,15 +1426,15 @@ class Inventory extends CI_Controller {
                 $track_entity_type = _247AROUND_SF_STRING;
                 $this->notify->insert_state_change($booking_id, $new_state, $old_state, $remarks, $agent_id, $agent_name, ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, NULL, $entity_id, $id);
             }
-            
+
             /* Insert Spare Tracking Details */
-                if (!empty($id)) {
-                    $tracking_details = array('spare_id' => $id, 'action' => $track_status, 'remarks' => trim($remarks), 'agent_id' => $agent_id, 'entity_id' => $entity_id, 'entity_type' => $track_entity_type);
-                    $this->service_centers_model->insert_spare_tracking_details($tracking_details);
-                }
+            if (!empty($id)) {
+                $tracking_details = array('spare_id' => $id, 'action' => $track_status, 'remarks' => trim($remarks), 'agent_id' => $agent_id, 'entity_id' => $entity_id, 'entity_type' => $track_entity_type);
+                $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+            }
 
             $partner_id = $this->reusable_model->get_search_query('booking_details', 'booking_details.partner_id', array('booking_details.booking_id' => trim($booking_id)), NULL, NULL, NULL, NULL, NULL)->result_array();
-            if(empty($b['internal_status']) && !empty($booking_new_internal_status)){
+            if (empty($b['internal_status']) && !empty($booking_new_internal_status)) {
                 $b['internal_status'] = $booking_new_internal_status;
             }
             if (!empty($partner_id) && !empty($b['internal_status'])) {
@@ -1450,23 +1448,23 @@ class Inventory extends CI_Controller {
                     }
                 }
 
-                if($b['internal_status'] == SPARE_PARTS_REQUESTED) {
+                if ($b['internal_status'] == SPARE_PARTS_REQUESTED) {
                     /**
                      * Check spare part request pending on partner 
                      * If Yes then do not change actor
                      * Otherwise check spare request pending on warehouse
                      * If yes then change actor to 247around
                      */
-                    $pending_spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*', array('spare_parts_details.booking_id' => $booking_id,'spare_parts_details.status' => SPARE_PARTS_REQUESTED), TRUE, TRUE, false);
-                    if(!empty($pending_spare_parts_details)) {
+                    $pending_spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.status' => SPARE_PARTS_REQUESTED), TRUE, TRUE, false);
+                    if (!empty($pending_spare_parts_details)) {
                         $entity_types = array_unique(array_column($pending_spare_parts_details, 'entity_type'));
                         // if no part request pending on partner then set 247around.
-                        if(!in_array(_247AROUND_PARTNER_STRING, $entity_types)) {
+                        if (!in_array(_247AROUND_PARTNER_STRING, $entity_types)) {
                             $b['actor'] = _247AROUND_EMPLOYEE_STRING;
                         }
                     }
                 }
-                
+
                 $this->booking_model->update_booking($booking_id, $b);
             }
 
@@ -1604,7 +1602,7 @@ class Inventory extends CI_Controller {
             if (empty($spare_parts_details)) {
                 $data['error'] = true;
                 $data['error_message'] = "Booking is not found in (In Warranty).";
-            } else if(count($spare_parts_details) > 1){
+            } else if (count($spare_parts_details) > 1) {
                 $data['error'] = true;
                 $data['error_message'] = "We cann't allow more than one requested Parts. Please cancel more than one requested parts";
             } else {
@@ -1641,7 +1639,7 @@ class Inventory extends CI_Controller {
 //                    . '"total_charges":"814.20","estimate_sent":"1","arrange_part_by":"2"}';
 //            $_POST = json_decode($str, true);
             $data = $this->input->post();
-            
+
             $unit = $this->booking_model->get_unit_details(array("booking_id" => $data['booking_id'], 'price_tags' => REPAIR_IN_WARRANTY_TAG));
             if (!empty($unit)) {
 
@@ -1658,15 +1656,13 @@ class Inventory extends CI_Controller {
                             $sf_parts = ($data['part_estimate_given'] ) * parts_percentage * (1 + SERVICE_TAX_RATE);
                         } else {
                             $sf_parts = ($data['part_estimate_given'] ) * parts_percentage;
-                            
                         }
                     }
                     $sf_service = ($data['service_charge']) * basic_percentage * (1 + SERVICE_TAX_RATE);
                     $transport_charge = ($data['transport_charge']) * (1 + SERVICE_TAX_RATE);
                     $courier_charge = ($data['courier_charge']) * (1 + SERVICE_TAX_RATE);
                     $venor_percentage = (($sf_service + $sf_parts + $transport_charge + $courier_charge) / $customer_total) * 100;
-                    $u['customer_total'] = $u['partner_net_payable'] = $unit[0]['customer_total'] = $unit[0]['partner_net_payable'] = $unit[0]['partner_paid_basic_charges'] = 
-                            $u['partner_paid_basic_charges'] = $customer_total;
+                    $u['customer_total'] = $u['partner_net_payable'] = $unit[0]['customer_total'] = $unit[0]['partner_net_payable'] = $unit[0]['partner_paid_basic_charges'] = $u['partner_paid_basic_charges'] = $customer_total;
                     $unit[0]["vendor_basic_percentage"] = $venor_percentage;
                     $u['vendor_basic_percentage'] = $venor_percentage;
                     $unit[0]['around_paid_basic_charges'] = 0;
@@ -1710,13 +1706,12 @@ class Inventory extends CI_Controller {
             $this->update_part_price_details();
         }
     }
-    
+
     /**
      * @desc This is used to update and insert spare parts details table
      * @return: void
      */
-
-     function insert_update_spare_parts($p_price, $sf_parts, $assigned_vendor_id, $booking_id, $model_number, $serial_number) {
+    function insert_update_spare_parts($p_price, $sf_parts, $assigned_vendor_id, $booking_id, $model_number, $serial_number) {
         $arrange_part_by = $this->input->post('arrange_part_by');
         $sp['parts_requested'] = $sp['parts_shipped'] = $this->input->post("part_name");
         $sp['partner_id'] = $this->input->post('partner_id');
@@ -1726,30 +1721,30 @@ class Inventory extends CI_Controller {
         $sp['booking_id'] = $booking_id;
         $sp['status'] = SPARE_DELIVERED_TO_SF;
         $sp['service_center_id'] = $assigned_vendor_id;
-        $sp['model_number'] = $sp['model_number_shipped'] =  $model_number;
+        $sp['model_number'] = $sp['model_number_shipped'] = $model_number;
         $sp['serial_number'] = $serial_number;
         $sp['purchase_price'] = ($this->input->post('part_estimate_given') ) * (1 + SERVICE_TAX_RATE);
-        $sp['sell_price'] = ($this->input->post('total_parts_charges') ) * (1 + SERVICE_TAX_RATE);;
+        $sp['sell_price'] = ($this->input->post('total_parts_charges') ) * (1 + SERVICE_TAX_RATE);
+        ;
         $sp['challan_approx_value'] = $sp['sell_price'];
         $sp['shipped_date'] = date('Y-m-d');
         if ($this->input->post("entity")) {
             $entity = $this->input->post("entity");
-            $sp['entity_type'] =$entity;
+            $sp['entity_type'] = $entity;
         }
 
         if ($this->input->post("entity_id")) {
             $entity_id = $this->input->post("entity_id");
-           
+
             $sp['partner_id'] = $entity_id;
-            
         }
-        
-        if($arrange_part_by == 2){
-            $sp['entity_type']= _247AROUND_SF_STRING;
+
+        if ($arrange_part_by == 2) {
+            $sp['entity_type'] = _247AROUND_SF_STRING;
             $sp['entity_type'] = $this->input->post('assigned_vendor_id');
         }
 
-        
+
         $where = array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.status' => SPARE_PARTS_REQUESTED, 'spare_parts_details.part_warranty_status' => SPARE_PART_IN_WARRANTY_STATUS);
         $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id, spare_parts_details.booking_id', $where, true, false, false);
         if (!empty($spare_parts_details)) {
@@ -1762,7 +1757,7 @@ class Inventory extends CI_Controller {
                     $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                 }
             }
-        } 
+        }
 //        else {
 //            $spare_id = $this->service_centers_model->insert_data_into_spare_parts($sp);
 //            /* Insert Spare Tracking Details */
@@ -1785,7 +1780,7 @@ class Inventory extends CI_Controller {
         $where['where'] = array("booking_details.booking_id" => $booking_id);
         //RM Specific Bookings
         $sfIDArray = array();
-        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
+        if ($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM) {
             $rm_id = $this->session->userdata('id');
             $rmServiceCentersData = $this->reusable_model->get_search_result_data("service_centres", "group_concat(id) as service_centres_id", array("rm_id" => $rm_id), NULL, NULL, NULL, NULL, NULL);
             $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
@@ -1824,7 +1819,7 @@ class Inventory extends CI_Controller {
             $total_taxable_value = $s[0]['taxable_value'];
             $l_data = array_merge($l_data, $s);
         }
-        
+
         if ($formdata["part_estimate_given"] > 0) {
             $p = array();
             $p[0]['brand'] = $unit_details[0]['appliance_brand'];
@@ -1871,7 +1866,7 @@ class Inventory extends CI_Controller {
             $l_data = array_merge($l_data, $c);
         }
 
-        
+
         $meta['price_inword'] = convert_number_to_words($total_amount);
         $meta['total_taxable_value'] = sprintf("%1\$.2f", ($total_taxable_value));
         $meta['total_gst_tax_amount'] = sprintf("%1\$.2f", ($total_gst_tax_amount));
@@ -1919,8 +1914,8 @@ class Inventory extends CI_Controller {
 
             $subject = vsprintf($emailtemplate[4], array($partner_data[0]['public_name'], $meta['name']));
             //  $emailBody = vsprintf($emailtemplate[0], $estimate_cost);
-            $html = $this->load->view('templates/estimate_sheet', array("meta"=>$meta,'estimate' => $l_data),true);
-            $json_result = $this->miscelleneous->convert_html_to_pdf($html,$booking_id,$output_file_pdf,"jobcards-pdf");
+            $html = $this->load->view('templates/estimate_sheet', array("meta" => $meta, 'estimate' => $l_data), true);
+            $json_result = $this->miscelleneous->convert_html_to_pdf($html, $booking_id, $output_file_pdf, "jobcards-pdf");
             $pdf_response = json_decode($json_result, TRUE);
             $output_pdf_file_name = $output_file_excel;
             $attachement_url = TMP_FOLDER . $output_file_excel;
@@ -2325,7 +2320,6 @@ class Inventory extends CI_Controller {
         $sf .= ">" . $stock_list['public_name'] . "</a>";
         $row[] = $sf;
 
-
         $row[] = $stock_list['out_of_tat_part_count'];
         $row[] = $stock_list['out_of_tat_amount'];
 
@@ -2634,7 +2628,7 @@ class Inventory extends CI_Controller {
 
         //RM Specific stocks
         $sfIDArray = array();
-        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
+        if ($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM) {
             $rm_id = $this->session->userdata('id');
             $rmServiceCentersData = $this->reusable_model->get_search_result_data("service_centres", "group_concat(id) as service_centres_id", array("rm_id" => $rm_id), NULL, NULL, NULL, NULL, NULL);
             $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
@@ -2693,7 +2687,7 @@ class Inventory extends CI_Controller {
 
         return $row;
     }
-    
+
     /*
      * Desc: This function is used to rendor to generate OOW spare invoice 
      * @param: void
@@ -2714,11 +2708,11 @@ class Inventory extends CI_Controller {
         $w['select'] = "spare_parts_details.id, spare_parts_details.part_warranty_status, spare_parts_details.booking_id, purchase_price, public_name,"
                 . "purchase_invoice_id,sell_invoice_id, incoming_invoice_pdf, sell_price, booking_details.partner_id as booking_partner_id,booking_details.request_type, spare_parts_details.status,oow_spare_invoice_details.invoice_id,oow_spare_invoice_details.invoice_pdf, oow_spare_invoice_details.invoice_amount as basic_amount";
         $data['spare'] = $this->inventory_model->get_spare_parts_query($w);
-        if($this->input->post('dashboard')){
-            $data['dashboard']  =   $this->input->post('dashboard');
-        }else{
+        if ($this->input->post('dashboard')) {
+            $data['dashboard'] = $this->input->post('dashboard');
+        } else {
             $data['dashboard'] = '';
-        $this->miscelleneous->load_nav_header();
+            $this->miscelleneous->load_nav_header();
         }
         $this->load->view("employee/spare_invoice_list", $data);
     }
@@ -2831,7 +2825,7 @@ class Inventory extends CI_Controller {
     function get_inventory_master_list_table($stock_list, $no, $partners) {
         $row = array();
         if ($stock_list->entity_type === _247AROUND_PARTNER_STRING) {
-            $stock_list->entity_public_name = $partners[$stock_list->entity_id ];
+            $stock_list->entity_public_name = $partners[$stock_list->entity_id];
         }
         $json_data = json_encode($stock_list);
 
@@ -2857,7 +2851,7 @@ class Inventory extends CI_Controller {
                 $row[] = $stock_list->oow_around_margin . " %";
             }
         }
-        
+
         if ($this->session->userdata('userType') == 'employee') {
             $basic_price_with_around_margin = (float) $stock_list->price + ($stock_list->price * ($stock_list->oow_around_margin / 100));
             $sf_total = $basic_price_with_around_margin + ($basic_price_with_around_margin * ($stock_list->gst_rate / 100));
@@ -2872,11 +2866,10 @@ class Inventory extends CI_Controller {
 
         if ($this->session->userdata('userType') == 'employee') {
             $row[] = "<i class ='fa fa-inr'></i> " . round(($total * ( 1 + ($stock_list->oow_vendor_margin + $stock_list->oow_around_margin) / 100 )), 0);
-        }        
+        }
         $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_master_details' data-id='$json_data' title='Edit Details'><i class = 'fa fa-edit'></i></a>";
         $row[] = "<a href='" . base_url() . "employee/inventory/get_bom_list_by_inventory_id/" . urlencode($stock_list->inventory_id) . "' class = 'btn btn-primary' title='Get Model Details' target='_blank'><i class ='fa fa-eye'></i></a>";
         $row[] = '<a href="' . base_url() . 'employee/inventory/alternate_inventory_list/' . $stock_list->entity_id . '/' . $stock_list->inventory_id . '/' . $stock_list->service_id . '" target="_blank" class="btn btn-info">View</a>';
-
 
         return $row;
     }
@@ -2928,10 +2921,10 @@ class Inventory extends CI_Controller {
                 $post['where'] = "inventory_model_mapping.model_number_id = $model_number_id ";
             }
 
-            if(!empty($this->input->post('part_type'))) {
-                $post['where'] .= ' AND inventory_master_list.type = "'.trim($this->input->post('part_type')).'"';
+            if (!empty($this->input->post('part_type'))) {
+                $post['where'] .= ' AND inventory_master_list.type = "' . trim($this->input->post('part_type')) . '"';
             }
-            
+
             $select = "inventory_master_list.*,appliance_model_details.model_number,services.services";
             $list = $this->inventory_model->get_serviceable_bom_master_list($post, $select);
             $no = $post['start'];
@@ -2958,8 +2951,8 @@ class Inventory extends CI_Controller {
         $row[] = $stock_list->gst_rate;
         $sf_price = number_format((float) $stock_list->price + ($stock_list->price * ($stock_list->gst_rate) / 100), 2, '.', '');
         $total = number_format((float) ($sf_price + ($sf_price * ($stock_list->oow_vendor_margin / 100))), 2, '.', '');
-        
-        if(empty($this->session->userdata('partner_id'))) {
+
+        if (empty($this->session->userdata('partner_id'))) {
             $row[] = "<i class ='fa fa-inr'></i> " . $total;
             $row[] = $stock_list->oow_vendor_margin . " %";
             $saas_partner = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
@@ -3094,8 +3087,8 @@ class Inventory extends CI_Controller {
 
             $basic_price_with_around_margin = (float) $stock_list->price + ($stock_list->price * ($stock_list->oow_around_margin / 100));
             $sf_total = $basic_price_with_around_margin + ($basic_price_with_around_margin * ($stock_list->gst_rate / 100));
-            $row[] = "<i class ='fa fa-inr'></i> " . number_format((float) ($sf_total), 2, '.', '');        
-            
+            $row[] = "<i class ='fa fa-inr'></i> " . number_format((float) ($sf_total), 2, '.', '');
+
             $row[] = "<i class ='fa fa-inr'></i> " . round(($total * ( 1 + ($stock_list->oow_vendor_margin + $stock_list->oow_around_margin) / 100 )), 0);
         }
 
@@ -3118,7 +3111,7 @@ class Inventory extends CI_Controller {
         }
 
         if ($this->session->userdata('userType') == 'employee') {
-            $json_data = json_encode(array('status' => $stock_list->status, 'group_id' => $stock_list->group_id,'inventory_id' => $stock_list->inventory_id, 'model_id' => $stock_list->model_id));
+            $json_data = json_encode(array('status' => $stock_list->status, 'group_id' => $stock_list->group_id, 'inventory_id' => $stock_list->inventory_id, 'model_id' => $stock_list->model_id));
             $row[] = "<a href='javascript:void(0)' class ='btn $colour_class' data-alternate_spare_details='$json_data' id='change_status_alternate_spare_part'>" . $icon . "</a>";
         }
         return $row;
@@ -3137,7 +3130,7 @@ class Inventory extends CI_Controller {
             } else {
                 $agent_id = $this->session->userdata('id');
             }
-           
+
             $data = array('part_name' => trim($this->input->post('part_name')),
                 'part_number' => trim($this->input->post('part_number')),
                 'size' => trim($this->input->post('size')),
@@ -3154,7 +3147,6 @@ class Inventory extends CI_Controller {
                 'is_defective_required' => $this->input->post('is_defective_required'),
                 'agent_id' => $agent_id
             );
-
 
             if (!empty($data['service_id']) && !empty($data['part_name']) && !empty($data['part_number']) && !empty($data['type']) && !empty($data['entity_id']) && !empty($data['entity_type'])) {
 
@@ -3360,7 +3352,7 @@ class Inventory extends CI_Controller {
             $this->load->view('partner/partner_footer');
         }
     }
-    
+
     /** @desc: This function is used to get the inventory list with stock details.
      * @param: void
      * @return void
@@ -3474,15 +3466,14 @@ class Inventory extends CI_Controller {
         }
         return $res;
     }
-    
-     
-     /** 
+
+    /**
      * @desc: This function is used to search inventory stock on warehouse using part number.
      * @param: void
      * @return:Json
      */
     function search_inventory_stock_available_warehouse() {
-        
+
         $post = $this->get_post_data();
         if ($this->input->post('sender_entity_id') && (!empty($this->input->post('part_number')) || !empty($this->input->post('model_number_id')))) {
             $post[''] = array();
@@ -3494,27 +3485,27 @@ class Inventory extends CI_Controller {
                 $post['where']['inventory_master_list.entity_id'] = trim($this->input->post('sender_entity_id'));
                 $post['where']['inventory_master_list.entity_type'] = trim($this->input->post('sender_entity_type'));
             }
-            
-            if ( !empty($this->input->post('part_number'))) {
+
+            if (!empty($this->input->post('part_number'))) {
                 $post['where']['inventory_master_list.part_number'] = trim($this->input->post('part_number'));
             }
-            
+
             if ($this->input->post('stock_is')) {
                 unset($post['where']['inventory_stocks.stock <> 0']);
             }
-            
+
             if (!empty($this->input->post('model_number_id'))) {
                 $post['where']['inventory_model_mapping.model_number_id'] = $this->input->post('model_number_id');
             }
 
-            if(!empty($this->input->post('part_type'))) {
+            if (!empty($this->input->post('part_type'))) {
                 $post['where']['inventory_master_list.type'] = trim($this->input->post('part_type'));
             }
-            
-            if(!empty($this->input->post('service_id'))) {
+
+            if (!empty($this->input->post('service_id'))) {
                 $post['where']['inventory_master_list.service_id'] = trim($this->input->post('service_id'));
             }
-            
+
             $select = "inventory_master_list.*,inventory_stocks.stock,services.services,service_centres.company_name as wh_name, service_centres.is_micro_wh";
             $list = $this->inventory_model->get_inventory_stock_list($post, $select);
             $data = array();
@@ -3564,7 +3555,7 @@ class Inventory extends CI_Controller {
         echo json_encode($output);
     }
 
-    /** 
+    /**
      * @desc: This function is used to draw the footer of table.
      * @param: rowData
      * @return: Array
@@ -3581,13 +3572,12 @@ class Inventory extends CI_Controller {
         }
         return $res;
     }
-    
-    /** 
+
+    /**
      * @desc: This function is used to create table body to table.
      * @param: Array
      * @return: Array
      */
-    
     private function get_inventory_warehouse_stock_total($inventory) {
         $res = array();
         $res['stocks'] = (isset($inventory->stock)) ? $inventory->stock : 0;
@@ -3611,22 +3601,21 @@ class Inventory extends CI_Controller {
         }
         return $res;
     }
-    
-    /** 
+
+    /**
      * @desc: This function is used to create table body to table.
      * @param: Array
      * @return: Array
      */
-    
     private function get_inventory_warehouse_stock_details_table($inventory_list, $sn) {
         $row = array();
 
         $row[] = $sn;
-        
-        if($inventory_list->is_micro_wh == 1){
-          $row[] =  $inventory_list->wh_name."(Micro-Warehouse)" ;  
-        }else{
-           $row[] =  $inventory_list->wh_name ; 
+
+        if ($inventory_list->is_micro_wh == 1) {
+            $row[] = $inventory_list->wh_name . "(Micro-Warehouse)";
+        } else {
+            $row[] = $inventory_list->wh_name;
         }
         $row[] = '<span id="services_' . $inventory_list->inventory_id . '">' . $inventory_list->services . '</span>';
         $row[] = '<span id="type_' . $inventory_list->inventory_id . '">' . $inventory_list->type . '</span>';
@@ -3644,7 +3633,6 @@ class Inventory extends CI_Controller {
         $sfbaseprice = 0;
         $repair_oow_around_percentage_vendor = $inventory_list->oow_around_margin / 100;
 
-
         if ($this->session->userdata('userType') == 'service_center' || $this->session->userdata('userType') == "employee") {
 
             $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . number_format(($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor)), 2) . '</span>';
@@ -3658,7 +3646,6 @@ class Inventory extends CI_Controller {
         if ($this->session->userdata('userType') == 'service_center' || $this->session->userdata('userType') == "employee") {
 
             $repair_oow_around_percentage_vendor = $inventory_list->oow_around_margin / 100;
-
 
             $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) (round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor), 0) + (round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor), 0) * ($inventory_list->gst_rate / 100))), 2, '.', '') . "</span>";
         } else {
@@ -3684,8 +3671,6 @@ class Inventory extends CI_Controller {
 
         return $row;
     }
-    
-    
 
     function inventory_stock_list() {
         $this->load->view('employee/header');
@@ -3705,9 +3690,9 @@ class Inventory extends CI_Controller {
 
         //RM Specific stocks
         $sfIDArray = array();
-        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
+        if ($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM) {
             $rm_id = $this->session->userdata('id');
-            $rmServiceCentersData = $this->reusable_model->get_search_result_data("service_centres", "group_concat(id) as service_centres_id", array("(rm_id = '".$rm_id."' || asm_id = '".$rm_id."')" => NULL), NULL, NULL, NULL, NULL, NULL);
+            $rmServiceCentersData = $this->reusable_model->get_search_result_data("service_centres", "group_concat(id) as service_centres_id", array("(rm_id = '" . $rm_id . "' || asm_id = '" . $rm_id . "')" => NULL), NULL, NULL, NULL, NULL, NULL);
             $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
             $sfIDArray = explode(",", $sfIDList);
         }
@@ -3733,7 +3718,7 @@ class Inventory extends CI_Controller {
 
     private function get_inventory_stocks_details_table($inventory_list, $sn, $return_new_part_flag) {
         $row = array();
-       ///echo $return_new_part_flag;
+        ///echo $return_new_part_flag;
         $row[] = $sn;
         $row[] = '<span id="services_' . $inventory_list->inventory_id . '">' . $inventory_list->services . '</span>';
         $row[] = '<span id="type_' . $inventory_list->inventory_id . '">' . $inventory_list->type . '</span>';
@@ -3743,28 +3728,27 @@ class Inventory extends CI_Controller {
         $row[] = '<a href="' . base_url() . 'employee/inventory/show_inventory_ledger_list/0/' . $inventory_list->receiver_entity_type . '/' . $inventory_list->receiver_entity_id . '/' . $inventory_list->inventory_id . '" target="_blank" title="Get Ledger Details">' . $inventory_list->stock . '<a>';
 
         if ($this->session->userdata('userType') == 'service_center' || $this->session->userdata('userType') == "employee") {
-            $sfbaseprice =  ($inventory_list->price * ( 1 + $inventory_list->oow_around_margin/100));
-            $sf_buying_price = $sfbaseprice *(1 + $inventory_list->gst_rate/100);
-            $cbasic = ($inventory_list->price * ( 1 + ($inventory_list->oow_around_margin + $inventory_list->oow_vendor_margin)/100));
-            $ctotal = $cbasic *(1 + $inventory_list->gst_rate/100);
-        
-            $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' .  sprintf("%.2f",$sfbaseprice). '</span>';
+            $sfbaseprice = ($inventory_list->price * ( 1 + $inventory_list->oow_around_margin / 100));
+            $sf_buying_price = $sfbaseprice * (1 + $inventory_list->gst_rate / 100);
+            $cbasic = ($inventory_list->price * ( 1 + ($inventory_list->oow_around_margin + $inventory_list->oow_vendor_margin) / 100));
+            $ctotal = $cbasic * (1 + $inventory_list->gst_rate / 100);
+
+            $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . sprintf("%.2f", $sfbaseprice) . '</span>';
             $row[] = '<span id="gst_rate_' . $inventory_list->inventory_id . '">' . $inventory_list->gst_rate . '</span>';
-            $row[] =  '<span id="total_amount_' . $inventory_list->inventory_id . '">'. sprintf("%.2f",$sf_buying_price). '</span>';
-            $row[] = sprintf("%.2f",$ctotal);
-            
+            $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . sprintf("%.2f", $sf_buying_price) . '</span>';
+            $row[] = sprintf("%.2f", $ctotal);
         } else {
             $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . sprintf("%.2f", $inventory_list->price) . '</span>';
             $row[] = '<span id="gst_rate_' . $inventory_list->inventory_id . '">' . $inventory_list->gst_rate . '</span>';
-            $row[] =  '<span id="total_amount_' . $inventory_list->inventory_id . '">'. sprintf("%.2f", $inventory_list->price *(1 + $inventory_list->gst_rate/100)). '</span>';
+            $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . sprintf("%.2f", $inventory_list->price * (1 + $inventory_list->gst_rate / 100)) . '</span>';
         }
-        
+
 
         if ($this->session->userdata('userType') == "employee") {
             $row[] = '<input style="max-width: 87px;" readonly type="number" name="quantity[' . $inventory_list->inventory_id . '][]" class="form-control" id="qty_' . $inventory_list->inventory_id . '" />';
             $row[] = '<a href="javascript:void(0)" class="btn btn-primary btn-md add_inventory_to_return" onclick="addnewpart(' . $inventory_list->inventory_id . ', ' . $inventory_list->stock . ' )">ADD</a>';
         }
-        
+
 
         if ($this->session->userdata('userType') == 'service_center') {
             $row[] = '<a href="' . base_url() . 'service_center/inventory/alternate_inventory_list/' . $inventory_list->entity_id . '/' . $inventory_list->inventory_id . '/' . $inventory_list->service_id . '" target="_blank" class="btn btn-info">View</a>';
@@ -3823,7 +3807,7 @@ class Inventory extends CI_Controller {
             if ($requested_inventory_id == $value['inventory_id']) {
                 $option .= " selected ";
             }
-            $option .=" > ";
+            $option .= " > ";
             $option .= $value['part_name'] . "</option>";
         }
 
@@ -3884,7 +3868,7 @@ class Inventory extends CI_Controller {
                 if ($requested_inventory_id == $value['inventory_id']) {
                     $option .= " selected ";
                 }
-                $option .=" > ";
+                $option .= " > ";
                 $option .= $value['part_number'] . "</option>";
             }
         }
@@ -4046,21 +4030,21 @@ class Inventory extends CI_Controller {
             $data = $this->input->post('data');
             $id = $this->input->post('id');
             $column = $this->input->post('column');
-            if($column=='shipped_date'){
+            if ($column == 'shipped_date') {
                 $data = date('Y-m-d', strtotime($data));
             }
             $booking_id = $this->input->post('booking_id');
             //If we are updating awb_number and awb_number preexist then update shipped_date and courier pic , courier name etc
-            if($column=='awb_by_partner'){
+            if ($column == 'awb_by_partner') {
                 $allSpares = $this->service_centers_model->get_spare_parts_booking(array('spare_parts_details.awb_by_partner' => $this->input->post('data')), "spare_parts_details.id,spare_parts_details.shipped_date,spare_parts_details.courier_pic_by_partner,spare_parts_details.courier_name_by_partner,spare_parts_details.awb_by_partner");
                 $current_spare = $this->service_centers_model->get_spare_parts_booking(array('spare_parts_details.id' => $this->input->post('id')), "spare_parts_details.awb_by_partner");
                 $other_fields_to_update = array();
-                if(!empty($allSpares) && !empty($current_spare)){
+                if (!empty($allSpares) && !empty($current_spare)) {
                     //$other_fields_to_update['shipped_date'] = $allSpares[0]['shipped_date'];
                     $other_fields_to_update['courier_pic_by_partner'] = $allSpares[0]['courier_pic_by_partner'];
                     $other_fields_to_update['courier_name_by_partner'] = $allSpares[0]['courier_name_by_partner'];
                     $current_spare_awb = $current_spare[0]['awb_by_partner'];
-                    if($allSpares[0]['awb_by_partner']!=$current_spare_awb){
+                    if ($allSpares[0]['awb_by_partner'] != $current_spare_awb) {
                         $this->service_centers_model->update_spare_parts(array('id' => $id), $other_fields_to_update);
                     }
                 }
@@ -4073,12 +4057,11 @@ class Inventory extends CI_Controller {
                     $this->service_centers_model->insert_spare_tracking_details($tracking_details); // Insert into spare part tracking History
                 }
             }
-            if($column!='shipped_date'){
+            if ($column != 'shipped_date') {
                 $this->service_centers_model->update_spare_parts(array('id' => $id), array($column => $data));
             }
             // if serial number is changed , update in booking_unit_details table also.
-            if(!empty($booking_id) && $column == 'serial_number')
-            {
+            if (!empty($booking_id) && $column == 'serial_number') {
                 $this->booking_model->update_booking_unit_details($booking_id, array($column => $data));
             }
             //Updating Shipment Date
@@ -4137,7 +4120,7 @@ class Inventory extends CI_Controller {
 
         foreach ($inventory_type as $value) {
             $option .= "<option data-service_id='" . $value['service_id'] . "' value='" . $value['type'] . "'";
-            $option .=" > ";
+            $option .= " > ";
             $option .= $value['type'] . "</option>";
         }
 
@@ -4155,9 +4138,9 @@ class Inventory extends CI_Controller {
         $spareColumn = $this->input->post('spareColumn');
         if (!empty($this->input->post('directory_name')) && $this->input->post('directory_name') == 'courier-pod') {
             $file_dir = "courier-pod";
-        }else if (!empty($this->input->post('directory_name')) && $this->input->post('directory_name') == 'purchase-invoices') {
+        } else if (!empty($this->input->post('directory_name')) && $this->input->post('directory_name') == 'purchase-invoices') {
             $file_dir = "purchase-invoices";
-        }else if (!empty($this->input->post('directory_name'))) {
+        } else if (!empty($this->input->post('directory_name'))) {
             $file_dir = "vendor-partner-docs";
         } else {
             $file_dir = "misc-images";
@@ -4165,12 +4148,11 @@ class Inventory extends CI_Controller {
 
         $defective_parts_pic = $this->miscelleneous->upload_file_to_s3($_FILES["file"], $spareColumn, $allowedExts, $bookingID, $file_dir, "sp_parts");
         if ($defective_parts_pic) {
-            if($spareColumn != 'courier_pic_by_partner' && $spareColumn != 'courier_pod_file'){
+            if ($spareColumn != 'courier_pic_by_partner' && $spareColumn != 'courier_pod_file') {
                 $this->service_centers_model->update_spare_parts(array('id' => $spareID), array($spareColumn => $defective_parts_pic));
             }
             // if serial number image is changed , update in booking_unit_details table also.
-            if(!empty($bookingID) && $spareColumn == 'serial_number_pic')
-            {
+            if (!empty($bookingID) && $spareColumn == 'serial_number_pic') {
                 $this->booking_model->update_booking_unit_details($bookingID, array($spareColumn => $defective_parts_pic));
             }
             if (!empty($this->input->post('awb_number')) && $spareColumn == 'courier_pic_by_partner') {
@@ -4296,7 +4278,7 @@ class Inventory extends CI_Controller {
 
         foreach ($inventory_details as $value) {
             $option .= "<option value='" . $value['model_number'] . "'";
-            $option .=" > ";
+            $option .= " > ";
             $option .= $value['model_number'] . "</option>";
         }
 
@@ -4308,7 +4290,6 @@ class Inventory extends CI_Controller {
      *  @param : void
      *  @return : $res JSON 
      */
-
     function process_msl_upload_excel() {
         $input_d = file_get_contents('php://input');
         $_POST = json_decode($input_d, TRUE);
@@ -4329,6 +4310,7 @@ class Inventory extends CI_Controller {
      */
     function process_spare_invoice_tagging() {
         log_message("info", __METHOD__ . json_encode($this->input->post(), true));
+        exit();
 //        $str = '{"is_wh_micro":"2","247around_gst_number":"09AAFCB1281J1ZM","partner_id":"247130","wh_id":"870","awb_number":"12587455","courier_name":"gati-kwe","courier_shipment_date":"04/07/2019","from_gst_number":"7","part":[{"shippingStatus":"1","service_id":"37","part_name":"TRAY,BOTTOM,ER180I,INSTA","part_number":"1100023151","booking_id":"","quantity":"1","part_total_price":"158.25","hsn_code":"39239090","gst_rate":"18","inventory_id":"6011"},{"shippingStatus":"1","service_id":"37","part_name":"LEG,ADJUSTABLE,27MM L,ER180I,INSTA","part_number":"1100028374","booking_id":"","quantity":"2","part_total_price":"15","hsn_code":"84189900","gst_rate":"18","inventory_id":"7463"}],"partner_name":" Videocon","wh_name":" Amritsar Baldev Electronics - (Micro Warehouse) ","dated":"04/07/2019","sender_entity_type":"vendor","sender_entity_id":"15","invoice_tag":"MSL","transfered_by":"2"}';
         //        $_POST = json_decode($str, true);  
 //  
@@ -4376,340 +4358,339 @@ class Inventory extends CI_Controller {
 
                 $parts_details = $this->input->post('part');
 
-
                 if (!empty($parts_details)) {
                     /**
                      * Check if inventory_id is zero.
                      */
                     $inventory_ids = array_column($parts_details, 'inventory_id');
-                    if(!in_array('0', $inventory_ids)) {
-                                        
-                    
-                    if ($invoice_file_required) {
+                    if (!in_array('0', $inventory_ids)) {
 
-                        $invoice_file = $this->check_msl_invoice_id($transfered_by, $invoice_id);
-                    } else {
 
-                        $invoice_file['status'] = true;
-                        $invoice_file['message'] = 'Invoice By Excel';
-                    }
-                    if ($invoice_file['status']) {
+                        if ($invoice_file_required) {
 
-                        if ($invoice_file) {
-                            $courier_file = $this->upload_spare_courier_file($_FILES);
+                            $invoice_file = $this->check_msl_invoice_id($transfered_by, $invoice_id);
                         } else {
-                            $courier_file['status'] = true;
+
+                            $invoice_file['status'] = true;
                             $invoice_file['message'] = 'Invoice By Excel';
                         }
-                        $not_updated_data = array();
-                        if ($courier_file['status']) {
+                        if ($invoice_file['status']) {
 
-                            $template1 = array(
-                                'table_open' => '<table border="1" cellpadding="2" cellspacing="0" class="mytable">'
-                            );
-
-                            $this->table->set_template($template1);
-
-                            $this->table->set_heading(array('Part Name', 'Part Number', 'Quantity', 'Booking Id', 'Basic Price', 'GST Rate', 'HSN Code'));
-                            
-                            if ($this->session->userdata('service_center_id')) {
-                                $agent_id = $this->session->userdata('service_center_id');
-                                $action_agent_id = $this->session->userdata('service_center_agent_id');
-                                $action_entity_id = $this->session->userdata('service_center_id');
-                                $agent_type = _247AROUND_SF_STRING;
-                            } else if ($this->session->userdata('id')) {
-                                $agent_id = $this->session->userdata('id');
-                                $action_agent_id = $this->session->userdata('id');
-                                $action_entity_id = _247AROUND;
-                                $agent_type = _247AROUND_EMPLOYEE_STRING;
+                            if ($invoice_file) {
+                                $courier_file = $this->upload_spare_courier_file($_FILES);
                             } else {
-                                $agent_id = $this->session->userdata('partner_id');
-                                $action_agent_id = $this->session->userdata('agent_id');
-                                $action_entity_id = $this->session->userdata('partner_id');
-                                $agent_type = _247AROUND_PARTNER_STRING;
+                                $courier_file['status'] = true;
+                                $invoice_file['message'] = 'Invoice By Excel';
                             }
-                            $entity_details = $this->partner_model->getpartner_details("district, state", array('partners.id' => $partner_id));
-                            $from_city = $entity_details[0]['district'];
-                            $from_state = $entity_details[0]['state'];
-                            if (!empty($from_gst_number)) {
-                                $partner_gst = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $from_gst_number));
-                                $partner_state_code = $partner_gst[0]['state'];
-                                $from_city = $partner_gst[0]['city'];
-                                $from_state = $this->invoices_model->get_state_code(array('state_code' => $partner_state_code))[0]['state'];
-                            } else {
-                                $partner_state_code = $this->invoices_model->get_state_code(array('state' => $entity_details[0]['state']))[0]['state_code'];
-                            }
+                            $not_updated_data = array();
+                            if ($courier_file['status']) {
 
-                            $around_gst = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $to_gst_number));
-
-                            if ($around_gst[0]['state'] == $partner_state_code) {
-                                $c_s_gst = true;
-                            } else {
-                                $c_s_gst = false;
-                            }
-
-                            $wh_details = $this->vendor_model->getVendorDetails("district, state, primary_contact_email as official_email", array('service_centres.id' => $wh_id));
-                            $to_city = $wh_details[0]['district'];
-                            $to_state = $wh_details[0]['state'];
-                                
-                            //$c_s_gst = $this->invoices_model->check_gst_tax_type($entity_details[0]['state']);
-                            $booking_id_array = array_column($parts_details, 'booking_id');
-                            $tqty = 0;
-                            $total_basic_amount = 0;
-                            $total_cgst_tax_amount = $total_sgst_tax_amount = $total_igst_tax_amount = 0;
-                            $invoice = array();
-                            $invoicebreakup = array();
-                            //update courier details
-                            $courier_data = array();
-                            $courier_data['sender_entity_id'] = $sender_enity_id;
-                            $courier_data['sender_entity_type'] = $sender_entity_type;
-                            $courier_data['receiver_entity_id'] = $wh_id;
-                            $courier_data['receiver_entity_type'] = _247AROUND_SF_STRING;
-                            $courier_data['AWB_no'] = $awb_number;
-                            $courier_data['courier_name'] = $courier_name;
-                            $courier_data['create_date'] = date('Y-m-d H:i:s');
-                            $courier_data['quantity'] = count($booking_id_array);
-                            $courier_data['bill_to_partner'] = $partner_id;
-                            $courier_data['status'] = COURIER_DETAILS_STATUS;
-                            if (!empty($booking_id_array)) {
-                                $courier_data['booking_id'] = implode(",", $booking_id_array);
-                            }
-
-                            if (!empty($courier_file['message'])) {
-                                $courier_data['courier_file'] = $courier_file['message'];
-                            }
-
-                            if (!empty($courier_shipment_date)) {
-                                $courier_data['shipment_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $courier_shipment_date)));
-                            }
-
-                            $exist_courier_details = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', '*', array('awb_number' => $awb_number), array());
-
-                            if (!empty($exist_courier_details)) {
-                                $courier_company_details_id = trim($exist_courier_details[0]['id']);
-                                $awb_data = array(
-                                    'awb_number' => $courier_company_details_id[0]['awb_number'],
-                                    'company_name' => $courier_company_details_id[0]['company_name'],
-                                    'courier_invoice_file' => $courier_company_details_id[0]['courier_invoice_file']
-                                );
-                               
-                                //$awb_by_wh = trim($exist_courier_details[0]['awb_number']);
-                                //$courier_name_by_wh = trim($exist_courier_details[0]['company_name']);
-                                //$courier_price_by_wh = $exist_courier_details[0]['courier_charge'];
-                            } else {
-                                if ($transfered_by != MSL_TRANSFERED_BY_PARTNER) {
-                                    $vendor_details = $this->vendor_model->getVendorDetails("district, state", array('service_centres.id' => $sender_enity_id));
-                                    $from_city = $vendor_details[0]['district'];
-                                    $from_state = $vendor_details[0]['state'];
-                                }
-
-                                $awb_data = array(
-                                    'awb_number' => trim($awb_number),
-                                    'company_name' => trim($courier_name),
-                                    'partner_id' => $partner_id,
-                                    'booking_id' => (!empty($booking_id_array) ? implode(",", $booking_id_array) : ''),
-                                    'courier_charge' => '0.00',
-                                    'box_count' => $box_count, //trim($this->input->post('shipped_spare_parts_boxes_count')),
-                                    'small_box_count' => $small_box_count,
-                                    'billable_weight' => '0.00', //trim($billable_weight),
-                                    'actual_weight' => '0.00', //trim($billable_weight),
-                                    'basic_billed_charge_to_partner' => '0.00',
-                                    'courier_invoice_file' => $courier_file['message'],
-                                    'shippment_date' => date("Y-m-d", strtotime(str_replace('/', '-', $courier_shipment_date))), //defective_part_shipped_date
-                                    'created_by' => 1,
-                                    'is_exist' => 1,
-                                    'sender_city' => $from_city,
-                                    'receiver_city' => $to_city,
-                                    'sender_state' => $from_state,
-                                    'receiver_state' => $to_state
+                                $template1 = array(
+                                    'table_open' => '<table border="1" cellpadding="2" cellspacing="0" class="mytable">'
                                 );
 
-                                $courier_company_details_id = $this->service_centers_model->insert_into_awb_details($awb_data);
-                            }
+                                $this->table->set_template($template1);
 
-                            $insert_courier_details = $this->inventory_model->insert_courier_details($courier_data);
+                                $this->table->set_heading(array('Part Name', 'Part Number', 'Quantity', 'Booking Id', 'Basic Price', 'GST Rate', 'HSN Code'));
 
-                            if (!empty($insert_courier_details)) {
-                                log_message('info', 'Courier Details added successfully.');
-                                
-                                foreach ($parts_details as $key => $value) {
-                                    $request_type = '';
-                                    if(!empty($value['quantity'])){
-                                        $value['quantity'] = 1;
-                                    }
-                                    if (isset($value['request_type']) && !empty($value['request_type'])) {
-                                        $request_type = trim($value['request_type']);
-                                    } else {
-                                        $request_type = REPAIR_OOW_TAG;
-                                    }
-                                    if ($value['shippingStatus'] == 1) {
-                                        
-                                        if(isset($value['spare_id']) && $value['spare_id'] =="new_spare_id" ){
-                                            
-                                            $sid = $this->insert_new_spare_item($value, $wh_id, 
-                                                    $action_entity_id, $action_entity_id, $is_wh_micro, $request_type);
-                                            $parts_details[$key]['spare_id'] = $sid;
-                                            
-                                            $value['spare_id'] = $sid;
-                                        }
-                                        //Parts shipped
-                                        $this->table->add_row($value['part_name'], $value['part_number'], $value['quantity'], $value['booking_id'], $value['part_total_price'], $value['gst_rate'], $value['hsn_code']);
-
-                                        $tqty += $value['quantity'];
-
-                                        $invoice_annexure = $this->inventory_invoice_data($invoice_id, $c_s_gst, $value);
-                                        $invoice_annexure['from_gst_number'] = $this->input->post("from_gst_number");
-                                        $invoice_annexure['to_gst_number'] = $this->input->post("to_gst_number");
-
-                                        $inventory_master_data = $this->inventory_model->get_inventory_master_list_data("*", array('inventory_id' => $value['inventory_id']));
-                                        if (!empty($inventory_master_data) && ((floatval($inventory_master_data[0]['price']) != floatval($invoice_annexure['rate'])) || ($inventory_master_data[0]['hsn_code'] !== $value['hsn_code']) || ($inventory_master_data[0]['gst_rate'] !== $value['gst_rate']))) {
-                                            $this->inventory_model->update_inventory_master_list_data(array('inventory_id' => $value['inventory_id']), array('price' => $invoice_annexure['rate'], 'hsn_code' => $value['hsn_code'], 'gst_rate' => $value['gst_rate'], 'is_invoice' => '1'));
-                                        }
-                                        $to_gst_number = $invoice_annexure['to_gst_number'];
-                                        array_push($invoicebreakup, $invoice_annexure);
-                                        $invoice_annexure['booking_id'] = trim($value['booking_id']);
-
-                                        if(isset($value['spare_id'])){
-                                            $invoice_annexure['spare_id'] = $value['spare_id'];
-                                        }
-        
-        
-                                        array_push($invoice, $invoice_annexure);
-                                        unset($invoice_annexure['from_gst_number']);
-                                        unset($invoice_annexure['to_gst_number']);
-                                        unset($invoice_annexure['booking_id']); 
-
-                                        $total_basic_amount += $invoice_annexure['taxable_value'];
-                                        $total_cgst_tax_amount += $invoice_annexure['cgst_tax_amount'];
-                                        $total_sgst_tax_amount += $invoice_annexure['sgst_tax_amount'];
-                                        $total_igst_tax_amount += $invoice_annexure['igst_tax_amount'];
-
-                                        If ($is_wh_micro == 1) {
-                                            $ledger_data = array();
-
-                                            $ledger_data['receiver_entity_id'] = $wh_id;
-                                            $ledger_data['receiver_entity_type'] = _247AROUND_SF_STRING;
-                                            $ledger_data['sender_entity_id'] = $sender_enity_id;
-                                            $ledger_data['sender_entity_type'] = $sender_entity_type;
-                                            $ledger_data['inventory_id'] = $value['inventory_id'];
-                                            $ledger_data['quantity'] = $value['quantity'];
-                                            $ledger_data['agent_id'] = $agent_id;
-                                            $ledger_data['agent_type'] = $agent_type;
-                                            $ledger_data['booking_id'] = trim($value['booking_id']);
-                                            $ledger_data['invoice_id'] = $invoice_id;
-                                            $ledger_data['is_wh_ack'] = 0;
-                                            $ledger_data['courier_id'] = $courier_company_details_id;
-                                            $ledger_data['is_wh_micro'] = $is_wh_micro;
-                                            if(!empty($value['spare_id'])) {
-                                                $ledger_data['spare_id'] = $value['spare_id'];
-                                            }
-                                            $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
-                                            if (isset($value['request_type']) && !empty($value['request_type'])) {
-                                                $ledger_data['request_type'] = trim($value['request_type']);
-                                            }
-
-                                            $ledger_data['is_defective_part_return_wh'] = $is_defective_part_return_wh;
-
-                                            if ($insert_id) {
-                                                log_message("info", "Ledger details added successfully");
-                                                $this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, $is_wh_micro, 
-                                                        $action_agent_id, $awb_data, $sender_entity_type, 
-                                                        $sender_enity_id, $action_entity_id, $agent_type);
-                                            } else {
-                                                array_push($not_updated_data, $value['part_number']);
-                                                log_message("info", "error in adding inventory ledger details data: " . print_r($ledger_data, TRUE));
-                                            }
-                                        }
-                                    } else if ($value['shippingStatus'] == 0) {
-                                        if (isset($value['spare_id']) && !empty($value['spare_id']) && ($value['spare_id'] != "new_spare_id")) {
-                                            //Cancelled Spare line item
-                                            $this->service_centers_model->update_spare_parts(array('id' => $value['spare_id']), array('status' => _247AROUND_CANCELLED, "old_status" => SPARE_PARTS_REQUESTED));
-
-                                            $this->notify->insert_state_change($value['booking_id'], SPARE_PARTS_CANCELLED, SPARE_PARTS_CANCELLED, "", $action_agent_id, "", ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, $action_entity_id);
-                                        }
-                                    } else if ($value['shippingStatus'] == -1) {
-                                        //Partner will shipe later
-                                        $this->service_centers_model->update_spare_parts(array('id' => $value['spare_id']), array('remarks_by_partner' => "Part will be sent later"));
-                                    }
-                                }
-                                
-                                if ($transfered_by == MSL_TRANSFERED_BY_PARTNER) {
-                                    $this->insert_inventory_main_invoice($invoice_id, $partner_id, $booking_id_array, $tqty, str_replace('/', '-', $invoice_dated), $total_basic_amount, $total_cgst_tax_amount, $total_sgst_tax_amount, $total_igst_tax_amount, $invoice_file['message'], $wh_id);
-
-                                    $this->invoices_model->insert_invoice_breakup($invoicebreakup);
+                                if ($this->session->userdata('service_center_id')) {
+                                    $agent_id = $this->session->userdata('service_center_id');
+                                    $action_agent_id = $this->session->userdata('service_center_agent_id');
+                                    $action_entity_id = $this->session->userdata('service_center_id');
+                                    $agent_type = _247AROUND_SF_STRING;
+                                } else if ($this->session->userdata('id')) {
+                                    $agent_id = $this->session->userdata('id');
+                                    $action_agent_id = $this->session->userdata('id');
+                                    $action_entity_id = _247AROUND;
+                                    $agent_type = _247AROUND_EMPLOYEE_STRING;
                                 } else {
-                                    // $this->remove_inventory_from_warehouse($invoice, $sender_enity_id, $wh_id, $action_agent_id);
+                                    $agent_id = $this->session->userdata('partner_id');
+                                    $action_agent_id = $this->session->userdata('agent_id');
+                                    $action_entity_id = $this->session->userdata('partner_id');
+                                    $agent_type = _247AROUND_PARTNER_STRING;
+                                }
+                                $entity_details = $this->partner_model->getpartner_details("district, state", array('partners.id' => $partner_id));
+                                $from_city = $entity_details[0]['district'];
+                                $from_state = $entity_details[0]['state'];
+                                if (!empty($from_gst_number)) {
+                                    $partner_gst = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $from_gst_number));
+                                    $partner_state_code = $partner_gst[0]['state'];
+                                    $from_city = $partner_gst[0]['city'];
+                                    $from_state = $this->invoices_model->get_state_code(array('state_code' => $partner_state_code))[0]['state'];
+                                } else {
+                                    $partner_state_code = $this->invoices_model->get_state_code(array('state' => $entity_details[0]['state']))[0]['state_code'];
                                 }
 
+                                $around_gst = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $to_gst_number));
 
-                                // 2 Means - this part send to Micro Warehouse And 1 means sent to warehouse
-                                If ($is_wh_micro == 2) {
-                                    $not_updated_data = $this->generate_micro_warehouse_invoice($invoice, $wh_id, $tqty, $partner_id, 
-                                            $to_gst_number, $sender_enity_id, $sender_entity_type, $agent_id, $agent_type, 
-                                            $courier_company_details_id, $action_agent_id, $awb_data, $action_entity_id);
+                                if ($around_gst[0]['state'] == $partner_state_code) {
+                                    $c_s_gst = true;
+                                } else {
+                                    $c_s_gst = false;
                                 }
-                                //send email to 247around warehouse incharge
-                                $email_template = $this->booking_model->get_booking_email_template("spare_send_by_partner_to_wh");
-                                $wh_incharge_id = $this->reusable_model->get_search_result_data("entity_role", "id", array("entity_type" => _247AROUND_SF_STRING, 'role' => WAREHOUSE_INCHARCGE_CONSTANT), NULL, NULL, NULL, NULL, NULL, array());
-                                if (!empty($wh_incharge_id)) {
 
-                                    //get 247around warehouse incharge email
-                                    $wh_where = array('contact_person.role' => $wh_incharge_id[0]['id'],
-                                        'contact_person.entity_id' => $wh_id,
-                                        'contact_person.entity_type' => _247AROUND_SF_STRING
+                                $wh_details = $this->vendor_model->getVendorDetails("district, state, primary_contact_email as official_email", array('service_centres.id' => $wh_id));
+                                $to_city = $wh_details[0]['district'];
+                                $to_state = $wh_details[0]['state'];
+
+                                //$c_s_gst = $this->invoices_model->check_gst_tax_type($entity_details[0]['state']);
+                                $booking_id_array = array_column($parts_details, 'booking_id');
+                                $tqty = 0;
+                                $total_basic_amount = 0;
+                                $total_cgst_tax_amount = $total_sgst_tax_amount = $total_igst_tax_amount = 0;
+                                $invoice = array();
+                                $invoicebreakup = array();
+                                //update courier details
+                                $courier_data = array();
+                                $courier_data['sender_entity_id'] = $sender_enity_id;
+                                $courier_data['sender_entity_type'] = $sender_entity_type;
+                                $courier_data['receiver_entity_id'] = $wh_id;
+                                $courier_data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                                $courier_data['AWB_no'] = $awb_number;
+                                $courier_data['courier_name'] = $courier_name;
+                                $courier_data['create_date'] = date('Y-m-d H:i:s');
+                                $courier_data['quantity'] = count($booking_id_array);
+                                $courier_data['bill_to_partner'] = $partner_id;
+                                $courier_data['status'] = COURIER_DETAILS_STATUS;
+                                if (!empty($booking_id_array)) {
+                                    $courier_data['booking_id'] = implode(",", $booking_id_array);
+                                }
+
+                                if (!empty($courier_file['message'])) {
+                                    $courier_data['courier_file'] = $courier_file['message'];
+                                }
+
+                                if (!empty($courier_shipment_date)) {
+                                    $courier_data['shipment_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $courier_shipment_date)));
+                                }
+
+                                $exist_courier_details = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', '*', array('awb_number' => $awb_number), array());
+
+                                if (!empty($exist_courier_details)) {
+                                    $courier_company_details_id = trim($exist_courier_details[0]['id']);
+                                    $awb_data = array(
+                                        'awb_number' => $courier_company_details_id[0]['awb_number'],
+                                        'company_name' => $courier_company_details_id[0]['company_name'],
+                                        'courier_invoice_file' => $courier_company_details_id[0]['courier_invoice_file']
                                     );
 
-                                    $email_details = $this->inventory_model->get_warehouse_details('contact_person.official_email', $wh_where, FALSE, TRUE);
-                                    if (empty($email_details)) {
-                                        $email_details = $wh_details;
-                                    }
-                                    if (!empty($email_details) && !empty($email_template)) {
-                                        //generate part details table                                        
-                                        $parts_details_table = $this->table->generate();
-
-                                        //generate courier details table
-                                        $this->table->set_heading(array('Courier Name', 'AWB Number', 'Shipment Date', 'Invoice Amount', 'Invoice Number'));
-                                        $this->table->add_row(array($courier_name, $awb_number, $courier_shipment_date, round($invoice_amount), $invoice_id));
-                                        $courier_details_table = $this->table->generate();
-
-                                        $to = $email_details[0]['official_email'];
-                                        $cc = $email_template[3];
-                                        $subject = vsprintf($email_template[4], array($partner_name, $wh_name));
-                                        $message = vsprintf($email_template[0], array($partner_name, $parts_details_table, $courier_details_table));
-                                        if (!empty($invoice_file['message'])) {
-                                            $invoice_attchment = S3_WEBSITE_URL . "invoices-excel/" . $invoice_file['message'];
-                                        } else {
-                                            $invoice_attchment = '';
-                                        }
-                                        if (!empty($courier_file['message'])) {
-                                            $courier_attchment = S3_WEBSITE_URL . "vendor-partner-docs/" . $courier_file['message'];
-                                        } else {
-                                            $courier_attchment = '';
-                                        }
-                                        $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, $invoice_attchment, 'spare_send_by_partner_to_wh', $courier_attchment);
-                                    }
-                                }
-
-                                if (empty($not_updated_data)) {
-                                    $res['status'] = TRUE;
-                                    $res['message'] = 'Details Updated Successfully';
-                                    $res['warehouse_id'] = $wh_id;
-                                    $res['total_quantity'] = $tqty;
-                                    $res['partner_id'] = $partner_id;
+                                    //$awb_by_wh = trim($exist_courier_details[0]['awb_number']);
+                                    //$courier_name_by_wh = trim($exist_courier_details[0]['company_name']);
+                                    //$courier_price_by_wh = $exist_courier_details[0]['courier_charge'];
                                 } else {
-                                    $res['status'] = false;
-                                    $res['message'] = "For These Parts Details not updated :" . implode(',', $not_updated_data) . " Please Try again for these parts";
+                                    if ($transfered_by != MSL_TRANSFERED_BY_PARTNER) {
+                                        $vendor_details = $this->vendor_model->getVendorDetails("district, state", array('service_centres.id' => $sender_enity_id));
+                                        $from_city = $vendor_details[0]['district'];
+                                        $from_state = $vendor_details[0]['state'];
+                                    }
+
+                                    $awb_data = array(
+                                        'awb_number' => trim($awb_number),
+                                        'company_name' => trim($courier_name),
+                                        'partner_id' => $partner_id,
+                                        'booking_id' => (!empty($booking_id_array) ? implode(",", $booking_id_array) : ''),
+                                        'courier_charge' => '0.00',
+                                        'box_count' => $box_count, //trim($this->input->post('shipped_spare_parts_boxes_count')),
+                                        'small_box_count' => $small_box_count,
+                                        'billable_weight' => '0.00', //trim($billable_weight),
+                                        'actual_weight' => '0.00', //trim($billable_weight),
+                                        'basic_billed_charge_to_partner' => '0.00',
+                                        'courier_invoice_file' => $courier_file['message'],
+                                        'shippment_date' => date("Y-m-d", strtotime(str_replace('/', '-', $courier_shipment_date))), //defective_part_shipped_date
+                                        'created_by' => 1,
+                                        'is_exist' => 1,
+                                        'sender_city' => $from_city,
+                                        'receiver_city' => $to_city,
+                                        'sender_state' => $from_state,
+                                        'receiver_state' => $to_state
+                                    );
+
+                                    $courier_company_details_id = $this->service_centers_model->insert_into_awb_details($awb_data);
                                 }
-                            } else {
-                                log_message('info', 'Error in inserting courier details.');
-                                $res['status'] = false;
-                                $res['message'] = 'Something went wrong. Please try again.';
+
+                                $insert_courier_details = $this->inventory_model->insert_courier_details($courier_data);
+
+                                if (!empty($insert_courier_details)) {
+                                    log_message('info', 'Courier Details added successfully.');
+
+                                    foreach ($parts_details as $key => $value) {
+                                        $request_type = '';
+                                        if (empty($value['quantity'])) {
+                                            $value['quantity'] = 1;
+                                        }
+                                        if (isset($value['request_type']) && !empty($value['request_type'])) {
+                                            $request_type = trim($value['request_type']);
+                                        } else {
+                                            $request_type = REPAIR_OOW_TAG;
+                                        }
+                                        if ($value['shippingStatus'] == 1) {
+
+                                            if (isset($value['spare_id']) && $value['spare_id'] == "new_spare_id") {
+
+                                                $sid = $this->insert_new_spare_item($value, $wh_id,
+                                                        $action_entity_id, $action_entity_id, $is_wh_micro, $request_type);
+                                                $parts_details[$key]['spare_id'] = $sid;
+
+                                                $value['spare_id'] = $sid;
+                                            }
+                                            //Parts shipped
+                                            $this->table->add_row($value['part_name'], $value['part_number'], $value['quantity'], $value['booking_id'], $value['part_total_price'], $value['gst_rate'], $value['hsn_code']);
+
+                                            $tqty += $value['quantity'];
+
+                                            $invoice_annexure = $this->inventory_invoice_data($invoice_id, $c_s_gst, $value, true);
+                                            $invoice_annexure['from_gst_number'] = $this->input->post("from_gst_number");
+                                            $invoice_annexure['to_gst_number'] = $this->input->post("to_gst_number");
+
+                                            $inventory_master_data = $this->inventory_model->get_inventory_master_list_data("*", array('inventory_id' => $value['inventory_id']));
+                                            if (!empty($inventory_master_data) && ((floatval($inventory_master_data[0]['price']) != floatval($invoice_annexure['rate'])) || ($inventory_master_data[0]['hsn_code'] !== $value['hsn_code']) || ($inventory_master_data[0]['gst_rate'] !== $value['gst_rate']))) {
+                                                $this->inventory_model->update_inventory_master_list_data(array('inventory_id' => $value['inventory_id']), array('price' => $invoice_annexure['rate'], 'hsn_code' => $value['hsn_code'], 'gst_rate' => $value['gst_rate'], 'is_invoice' => '1'));
+                                            }
+                                            $to_gst_number = $invoice_annexure['to_gst_number'];
+                                            array_push($invoicebreakup, $invoice_annexure);
+                                            $invoice_annexure['booking_id'] = trim($value['booking_id']);
+
+                                            if (isset($value['spare_id'])) {
+                                                $invoice_annexure['spare_id'] = $value['spare_id'];
+                                            }
+
+
+                                            array_push($invoice, $invoice_annexure);
+                                            unset($invoice_annexure['from_gst_number']);
+                                            unset($invoice_annexure['to_gst_number']);
+                                            unset($invoice_annexure['booking_id']);
+
+                                            $total_basic_amount += $invoice_annexure['taxable_value'];
+                                            $total_cgst_tax_amount += $invoice_annexure['cgst_tax_amount'];
+                                            $total_sgst_tax_amount += $invoice_annexure['sgst_tax_amount'];
+                                            $total_igst_tax_amount += $invoice_annexure['igst_tax_amount'];
+
+                                            If ($is_wh_micro == 1) {
+                                                $ledger_data = array();
+
+                                                $ledger_data['receiver_entity_id'] = $wh_id;
+                                                $ledger_data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                                                $ledger_data['sender_entity_id'] = $sender_enity_id;
+                                                $ledger_data['sender_entity_type'] = $sender_entity_type;
+                                                $ledger_data['inventory_id'] = $value['inventory_id'];
+                                                $ledger_data['quantity'] = $value['quantity'];
+                                                $ledger_data['agent_id'] = $agent_id;
+                                                $ledger_data['agent_type'] = $agent_type;
+                                                $ledger_data['booking_id'] = trim($value['booking_id']);
+                                                $ledger_data['invoice_id'] = $invoice_id;
+                                                $ledger_data['is_wh_ack'] = 0;
+                                                $ledger_data['courier_id'] = $courier_company_details_id;
+                                                $ledger_data['is_wh_micro'] = $is_wh_micro;
+                                                if (!empty($value['spare_id'])) {
+                                                    $ledger_data['spare_id'] = $value['spare_id'];
+                                                }
+                                                $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
+                                                if (isset($value['request_type']) && !empty($value['request_type'])) {
+                                                    $ledger_data['request_type'] = trim($value['request_type']);
+                                                }
+
+                                                $ledger_data['is_defective_part_return_wh'] = $is_defective_part_return_wh;
+
+                                                if ($insert_id) {
+                                                    log_message("info", "Ledger details added successfully");
+                                                    $this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, $is_wh_micro,
+                                                            $action_agent_id, $awb_data, $sender_entity_type,
+                                                            $sender_enity_id, $action_entity_id, $agent_type);
+                                                } else {
+                                                    array_push($not_updated_data, $value['part_number']);
+                                                    log_message("info", "error in adding inventory ledger details data: " . print_r($ledger_data, TRUE));
+                                                }
+                                            }
+                                        } else if ($value['shippingStatus'] == 0) {
+                                            if (isset($value['spare_id']) && !empty($value['spare_id']) && ($value['spare_id'] != "new_spare_id")) {
+                                                //Cancelled Spare line item
+                                                $this->service_centers_model->update_spare_parts(array('id' => $value['spare_id']), array('status' => _247AROUND_CANCELLED, "old_status" => SPARE_PARTS_REQUESTED));
+
+                                                $this->notify->insert_state_change($value['booking_id'], SPARE_PARTS_CANCELLED, SPARE_PARTS_CANCELLED, "", $action_agent_id, "", ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, $action_entity_id);
+                                            }
+                                        } else if ($value['shippingStatus'] == -1) {
+                                            //Partner will shipe later
+                                            $this->service_centers_model->update_spare_parts(array('id' => $value['spare_id']), array('remarks_by_partner' => "Part will be sent later"));
+                                        }
+                                    }
+
+                                    if ($transfered_by == MSL_TRANSFERED_BY_PARTNER) {
+                                        $this->insert_inventory_main_invoice($invoice_id, $partner_id, $booking_id_array, $tqty, str_replace('/', '-', $invoice_dated), $total_basic_amount, $total_cgst_tax_amount, $total_sgst_tax_amount, $total_igst_tax_amount, $invoice_file['message'], $wh_id);
+
+                                        $this->invoices_model->insert_invoice_breakup($invoicebreakup);
+                                    } else {
+                                        // $this->remove_inventory_from_warehouse($invoice, $sender_enity_id, $wh_id, $action_agent_id);
+                                    }
+
+
+                                    // 2 Means - this part send to Micro Warehouse And 1 means sent to warehouse
+                                    If ($is_wh_micro == 2) {
+                                        $not_updated_data = $this->generate_micro_warehouse_invoice($invoice, $wh_id, $tqty, $partner_id,
+                                                $to_gst_number, $sender_enity_id, $sender_entity_type, $agent_id, $agent_type,
+                                                $courier_company_details_id, $action_agent_id, $awb_data, $action_entity_id);
+                                    }
+                                    //send email to 247around warehouse incharge
+                                    $email_template = $this->booking_model->get_booking_email_template("spare_send_by_partner_to_wh");
+                                    $wh_incharge_id = $this->reusable_model->get_search_result_data("entity_role", "id", array("entity_type" => _247AROUND_SF_STRING, 'role' => WAREHOUSE_INCHARCGE_CONSTANT), NULL, NULL, NULL, NULL, NULL, array());
+                                    if (!empty($wh_incharge_id)) {
+
+                                        //get 247around warehouse incharge email
+                                        $wh_where = array('contact_person.role' => $wh_incharge_id[0]['id'],
+                                            'contact_person.entity_id' => $wh_id,
+                                            'contact_person.entity_type' => _247AROUND_SF_STRING
+                                        );
+
+                                        $email_details = $this->inventory_model->get_warehouse_details('contact_person.official_email', $wh_where, FALSE, TRUE);
+                                        if (empty($email_details)) {
+                                            $email_details = $wh_details;
+                                        }
+                                        if (!empty($email_details) && !empty($email_template)) {
+                                            //generate part details table                                        
+                                            $parts_details_table = $this->table->generate();
+
+                                            //generate courier details table
+                                            $this->table->set_heading(array('Courier Name', 'AWB Number', 'Shipment Date', 'Invoice Amount', 'Invoice Number'));
+                                            $this->table->add_row(array($courier_name, $awb_number, $courier_shipment_date, round($invoice_amount), $invoice_id));
+                                            $courier_details_table = $this->table->generate();
+
+                                            $to = $email_details[0]['official_email'];
+                                            $cc = $email_template[3];
+                                            $subject = vsprintf($email_template[4], array($partner_name, $wh_name));
+                                            $message = vsprintf($email_template[0], array($partner_name, $parts_details_table, $courier_details_table));
+                                            if (!empty($invoice_file['message'])) {
+                                                $invoice_attchment = S3_WEBSITE_URL . "invoices-excel/" . $invoice_file['message'];
+                                            } else {
+                                                $invoice_attchment = '';
+                                            }
+                                            if (!empty($courier_file['message'])) {
+                                                $courier_attchment = S3_WEBSITE_URL . "vendor-partner-docs/" . $courier_file['message'];
+                                            } else {
+                                                $courier_attchment = '';
+                                            }
+                                            $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, $invoice_attchment, 'spare_send_by_partner_to_wh', $courier_attchment);
+                                        }
+                                    }
+
+                                    if (empty($not_updated_data)) {
+                                        $res['status'] = TRUE;
+                                        $res['message'] = 'Details Updated Successfully';
+                                        $res['warehouse_id'] = $wh_id;
+                                        $res['total_quantity'] = $tqty;
+                                        $res['partner_id'] = $partner_id;
+                                    } else {
+                                        $res['status'] = false;
+                                        $res['message'] = "For These Parts Details not updated :" . implode(',', $not_updated_data) . " Please Try again for these parts";
+                                    }
+                                } else {
+                                    log_message('info', 'Error in inserting courier details.');
+                                    $res['status'] = false;
+                                    $res['message'] = 'Something went wrong. Please try again.';
+                                }
                             }
+                        } else {
+                            $res['status'] = false;
+                            $res['message'] = $invoice_file['message'];
                         }
-                    } else {
-                        $res['status'] = false;
-                        $res['message'] = $invoice_file['message'];
-                    }
                     } else {
                         $res['status'] = false;
                         $res['message'] = "We can't update msl. Please refresh and try again.";
@@ -4757,27 +4738,24 @@ class Inventory extends CI_Controller {
      * @param Array $ledger
      * @param int $wh_id
      */
-    function move_inventory_to_warehouse($ledger, $fomData, $wh_id, $is_wh_micro, $action_agent_id, 
-            $awb, $sender_entity_type, $sender_enity_id,$s_partner_id, $track_entity_type) {
+    function move_inventory_to_warehouse($ledger, $fomData, $wh_id, $is_wh_micro, $action_agent_id,
+            $awb, $sender_entity_type, $sender_enity_id, $s_partner_id, $track_entity_type) {
         log_message('info', __METHOD__ . " warehouse id " . $wh_id . " ledger " . json_encode($ledger, true) . " Form data " . json_encode($fomData) . " WH id " . $wh_id, true);
         $access = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $transfered_by = $this->input->post('transfered_by');
-        
-        
-        
-        if($sender_entity_type == _247AROUND_PARTNER_STRING){
-            
+        if ($sender_entity_type == _247AROUND_PARTNER_STRING) {
+
             $status = SPARE_SHIPPED_BY_PARTNER;
             $d_id = DEFAULT_WAREHOUSE_ID;
         } else {
             $status = SPARE_PARTS_SHIPPED_BY_WAREHOUSE;
             $d_id = $sender_enity_id;
         }
-        
+
         if (!empty($ledger['booking_id'])) {
             if (isset($fomData['spare_id'])) {
                 if ($is_wh_micro == 1) {
-                   $is_wh = 2;
+                    $is_wh = 2;
                 } else {
                     $is_wh = 1;
                 }
@@ -4787,15 +4765,15 @@ class Inventory extends CI_Controller {
                     'shipped_quantity' => $ledger['quantity'],
                     'inventory_invoice_on_booking' => 1, 'defective_return_to_entity_id' => $d_id,
                     'defective_return_to_entity_type' => _247AROUND_SF_STRING, 'is_micro_wh' => $is_wh);
-                if($is_wh ==1){
+                if ($is_wh == 1) {
                     $spareD = $this->partner_model->get_spare_parts_by_any("spare_parts_details.model_number", array('spare_parts_details.id' => $fomData['spare_id']));
                     $master = $this->inventory_model->get_inventory_master_list_data('oow_around_margin, '
                             . 'inventory_master_list.gst_rate,inventory_master_list.type,'
                             . 'inventory_master_list.part_name,inventory_master_list.price, '
                             . 'inventory_master_list.gst_rate, inventory_master_list.oow_around_margin,'
-                            . 'inventory_master_list.hsn_code, inventory_master_list.service_id', 
+                            . 'inventory_master_list.hsn_code, inventory_master_list.service_id',
                             array('inventory_master_list.inventory_id' => $ledger['inventory_id']));
-                    
+
                     $a['model_number_shipped'] = $spareD[0]['model_number'];
                     $a['parts_shipped'] = $master[0]['part_name'];
                     $a['shipped_parts_type'] = $master[0]['type'];
@@ -4806,28 +4784,27 @@ class Inventory extends CI_Controller {
                     $a['courier_name_by_partner'] = $awb['company_name'];
                     $a['courier_price_by_partner'] = 0;
                     $a['courier_pic_by_partner'] = $awb['courier_invoice_file'];
-                    
-                    $challan_estimate =  sprintf("%.2f", $master[0]['price'] * ( 1 + $master[0]['gst_rate'] / 100));
+
+                    $challan_estimate = sprintf("%.2f", $master[0]['price'] * ( 1 + $master[0]['gst_rate'] / 100));
                     $c = sprintf("%.2f", $challan_estimate * ( 1 + $master[0]['oow_around_margin'] / 100));
-                    $a['challan_approx_value'] = sprintf("%.2f", $c *  $ledger['quantity']);
-                    
+                    $a['challan_approx_value'] = sprintf("%.2f", $c * $ledger['quantity']);
+
                     $hsn_code_arr = $this->inventory_model->get_hsn_code_details('hsn_code_details.id,'
-                                    . 'hsn_code_details.hsn_code,hsn_code_details.gst_rate', 
-                                array('hsn_code_details.service_id' => $master[0]['service_id'], 
-                                    'hsn_code_details.hsn_code' => $master[0]['hsn_code']));
-                    if(!empty($hsn_code_arr)){
+                            . 'hsn_code_details.hsn_code,hsn_code_details.gst_rate',
+                            array('hsn_code_details.service_id' => $master[0]['service_id'],
+                                'hsn_code_details.hsn_code' => $master[0]['hsn_code']));
+                    if (!empty($hsn_code_arr)) {
 
                         $a['shipped_hsn_code'] = $hsn_code_arr[0]['id'];
                     } else {
-                        $hid= $this->inventory_model->insert_hsn_code_details(array('hsn_code' => $master[0]['hsn_code'], 
+                        $hid = $this->inventory_model->insert_hsn_code_details(array('hsn_code' => $master[0]['hsn_code'],
                             'service_id' => $master[0]['service_id'], 'status' => 1, 'gst_rate' => $master[0]['gst_rate'],
                             'agent_id' => _247AROUND));
                         $a['shipped_hsn_code'] = $hid;
                     }
-                    
-                    
-                    $action = SPARE_SHIPPED_BY_PARTNER;
 
+
+                    $action = SPARE_SHIPPED_BY_PARTNER;
                 } else {
                     $a['requested_inventory_id'] = $ledger['inventory_id'];
                     $action = SPARE_SHIPPED_TO_WAREHOUSE;
@@ -4856,18 +4833,17 @@ class Inventory extends CI_Controller {
                 } else {
                     log_message('info', ' error in updating spare details');
                 }
-            } 
+            }
 //            else if (isset($fomData['spare_id']) && $fomData['spare_id'] == 'new_spare_id') {
 //                $this->insert_new_spare_item($ledger, $fomData, $wh_id, $s_partner_id, $action_agent_id);
 //            }
-        } 
-        
+        }
     }
 
     function insert_new_spare_item($fomData, $wh_id, $s_partner_id, $action_agent_id, $is_wh_micro, $request_type) {
         log_message('info', __METHOD__ . " Form data " . json_encode($fomData, true) . " wh id " . $wh_id);
-        $spare = $this->partner_model->get_spare_parts_by_any("*", array('spare_parts_details.booking_id' => $fomData['booking_id'],"spare_parts_details.purchase_invoice_id IS NOT NULL" => null), false);
-        
+        $spare = $this->partner_model->get_spare_parts_by_any("*", array('spare_parts_details.booking_id' => $fomData['booking_id'], "spare_parts_details.purchase_invoice_id IS NOT NULL" => null), false);
+
         if (!empty($spare)) {
             $newdata['booking_id'] = $fomData['booking_id'];
             $newdata['entity_type'] = _247AROUND_SF_STRING;
@@ -4888,7 +4864,7 @@ class Inventory extends CI_Controller {
             $newdata['part_warranty_status'] = $spare[0]['part_warranty_status'];
 
             $inventory_master_deatails = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.type,'
-                    . 'inventory_master_list.price, inventory_master_list.gst_rate, inventory_master_list.oow_around_margin', 
+                    . 'inventory_master_list.price, inventory_master_list.gst_rate, inventory_master_list.oow_around_margin',
                     array('inventory_master_list.inventory_id' => $fomData['inventory_id']));
             if (!empty($inventory_master_deatails[0]['type'])) {
                 $newdata['parts_requested_type'] = $inventory_master_deatails[0]['type'];
@@ -4920,9 +4896,9 @@ class Inventory extends CI_Controller {
 
             $spare_id = $this->service_centers_model->insert_data_into_spare_parts($newdata);
             if ($spare_id) {
-                $this->notify->insert_state_change($fomData['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE, 
+                $this->notify->insert_state_change($fomData['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE,
                         $action_agent_id, $action_agent_id, NULL, NULL, $s_partner_id, NULL);
-                log_message('info', __METHOD__ . " New Spare Inserted for booking id " . $fomData['booking_id'] 
+                log_message('info', __METHOD__ . " New Spare Inserted for booking id " . $fomData['booking_id']
                         . " Spare Line item " . $spare_id);
                 return $spare_id;
             } else {
@@ -4940,14 +4916,14 @@ class Inventory extends CI_Controller {
      * @param int $tqty
      * @param int $partner_id
      */
-    function generate_micro_warehouse_invoice($invoice, $wh_id, $tqty, $partner_id, $from_gst_number, $sender_enity_id, 
-            $sender_entity_type, $agent_id, $agent_type, $courier_id, $action_agent_id, $awb_data, 
+    function generate_micro_warehouse_invoice($invoice, $wh_id, $tqty, $partner_id, $from_gst_number, $sender_enity_id,
+            $sender_entity_type, $agent_id, $agent_type, $courier_id, $action_agent_id, $awb_data,
             $s_partner_id) {
         log_message('info', __METHOD__);
-        $invoice_date = date('Y-m-d'); 
+        $invoice_date = date('Y-m-d');
         $entity_details = $this->vendor_model->getVendorDetails("gst_no as gst_number, sc_code,"
                 . "state,address as company_address,company_name,district, pincode, owner_phone_1, primary_contact_phone_1", array("id" => $wh_id));
-                        
+
         $not_updated_data = array();
 
         if (empty($entity_details[0]['gst_number'])) {
@@ -4983,9 +4959,9 @@ class Inventory extends CI_Controller {
             $a[$key]['inventory_id'] = $value['inventory_id'];
             $a[$key]['rate'] = sprintf("%.2f", $value['rate'] * ( 1 + $repair_oow_around_percentage));
             $a[$key]['qty'] = $value['qty'];
-            $a[$key]['company_name'] = $entity_details[0]['company_name']." (Ph No: ".
-                    $entity_details[0]['primary_contact_phone_1'].", ". 
-                    $entity_details[0]['owner_phone_1']. " )";
+            $a[$key]['company_name'] = $entity_details[0]['company_name'] . " (Ph No: " .
+                    $entity_details[0]['primary_contact_phone_1'] . ", " .
+                    $entity_details[0]['owner_phone_1'] . " )";
             $a[$key]['company_address'] = $entity_details[0]['company_address'];
             $a[$key]['district'] = $entity_details[0]['district'];
             $a[$key]['pincode'] = $entity_details[0]['pincode'];
@@ -5002,7 +4978,6 @@ class Inventory extends CI_Controller {
             $margin_total = $value['taxable_value'] * ( 1 + $repair_oow_around_percentage);
             $a[$key]['taxable_value'] = $margin_total;
             $a[$key]['from_gst_number_id'] = $value['to_gst_number'];
-            
         }
         $response = $this->invoices_model->_set_partner_excel_invoice_data($a, $invoice_date, $invoice_date, "Tax Invoice", $invoice_date);
         $response['meta']['main_company_gst_number'] = $around_gst[0]['gst_number'];
@@ -5068,7 +5043,7 @@ class Inventory extends CI_Controller {
             $this->invoices_model->insert_new_invoice($invoice_details);
             log_message('info', __METHOD__ . ": Invoice ID inserted");
             $this->invoice_lib->insert_def_invoice_breakup($response, 0);
-            
+
             $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], false);
             unlink(TMP_FOLDER . $output_pdf_file_name);
             unlink(TMP_FOLDER . $response['meta']['invoice_id'] . ".xlsx");
@@ -5097,28 +5072,24 @@ class Inventory extends CI_Controller {
                 $ledger_data['is_wh_ack'] = 0;
                 $ledger_data['courier_id'] = $courier_id;
                 $ledger_data['is_wh_micro'] = 2;
-                if(isset($value['booking_id']) && !empty($value['booking_id'])){
+                if (isset($value['booking_id']) && !empty($value['booking_id'])) {
                     $ledger_data['booking_id'] = $value['booking_id'];
                 }
-                if(!empty($value['spare_id']) && $value['spare_id'] != "new_spare_id") {
+                if (!empty($value['spare_id']) && $value['spare_id'] != "new_spare_id") {
                     $ledger_data['spare_id'] = $value['spare_id'];
-                    
                 }
-                
+
                 $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
                 $ledger_data['is_defective_part_return_wh'] = trim($this->input->post('is_defective_part_return_wh'));
-                
-                
 
                 if ($insert_id) {
                     log_message("info", "Ledger details added successfully");
-                    if(!empty($value['spare_id'])) {
-                         $ledger_data['spare_id'] = $value['spare_id'];
-                    
+                    if (!empty($value['spare_id'])) {
+                        $ledger_data['spare_id'] = $value['spare_id'];
                     }
-                    $this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, 2, $action_agent_id, 
+                    $this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, 2, $action_agent_id,
                             $awb_data, $sender_entity_type, $sender_enity_id, $s_partner_id, $agent_type);
-                    if($sender_entity_type == _247AROUND_SF_STRING){
+                    if ($sender_entity_type == _247AROUND_SF_STRING) {
                         $stock = "stock - '" . $value['qty'] . "'";
                         $this->inventory_model->update_inventory_stock(array('entity_id' => $sender_enity_id, 'inventory_id' => $value['inventory_id']), $stock);
                     }
@@ -5149,11 +5120,11 @@ class Inventory extends CI_Controller {
         $total_invoice_amount = ($total_basic_amount + $total_cgst_tax_amount + $total_sgst_tax_amount + $total_igst_tax_amount);
         $tcs_rate = $this->input->post('tcs_rate');
         $tcs_amount = 0;
-        
-        if($tcs_rate > 0){
-            $tcs_amount = ($total_invoice_amount * $tcs_rate)/100;
+
+        if ($tcs_rate > 0) {
+            $tcs_amount = ($total_invoice_amount * $tcs_rate) / 100;
         }
-        
+
         if ($this->session->userdata('id')) {
             $agent_id = $this->session->userdata('id');
         } else {
@@ -5176,7 +5147,7 @@ class Inventory extends CI_Controller {
             "parts_count" => $tqty,
             'total_amount_collected' => ($total_invoice_amount + $tcs_amount),
             //Amount needs to be Paid to Vendor
-            'amount_collected_paid' => (0 - ($total_invoice_amount +$tcs_amount)),
+            'amount_collected_paid' => (0 - ($total_invoice_amount + $tcs_amount)),
             'agent_id' => $agent_id,
             "cgst_tax_rate" => 0,
             "sgst_tax_rate" => 0,
@@ -5204,17 +5175,20 @@ class Inventory extends CI_Controller {
      * @param Array $value
      * @return Array
      */
-    function inventory_invoice_data($invoice_id, $c_s_gst, $value) {
+    function inventory_invoice_data($invoice_id, $c_s_gst, $value, $is_invoice) {
         $invoice = array();
-        $invoice['invoice_id'] = $invoice_id;
+        if ($is_invoice) {
+            $invoice['invoice_id'] = $invoice_id;
+        }
+
         $invoice['description'] = $value['part_name'];
         $invoice['product_or_services'] = "Product";
         $invoice['hsn_code'] = $value['hsn_code'];
         $invoice['qty'] = $value['quantity'];
-        $invoice['rate'] = sprintf("%.2f",$value['part_total_price'] / $value['quantity']);
+        $invoice['rate'] = sprintf("%.2f", $value['part_total_price'] / $value['quantity']);
         $invoice['inventory_id'] = $value['inventory_id'];
-        $invoice['taxable_value'] = sprintf("%.2f",$value['part_total_price']);
-        
+        $invoice['taxable_value'] = sprintf("%.2f", $value['part_total_price']);
+
         if (!empty($value['gst_rate'])) {
             $gst_amount = $invoice['taxable_value'] * ($value['gst_rate'] / 100 );
         } else {
@@ -5377,7 +5351,7 @@ class Inventory extends CI_Controller {
         if ($is_wh_ack == 3) {
             $post['where']['i.is_wh_ack'] = $is_wh_ack;
         }
-        
+
         $post['is_micro_wh'] = false;
         $select = "services.services, inventory_master_list.*,CASE WHEN(sc.name IS NOT NULL) THEN (sc.name) 
                     WHEN(p.public_name IS NOT NULL) THEN (p.public_name) 
@@ -5429,7 +5403,7 @@ class Inventory extends CI_Controller {
         $a .= ', "' . $inventory_list->AWB_no . '"';
         $a .= ', "msl_awb_loader_' . $no . '"';
         $a .= ")'>" . $inventory_list->AWB_no . "</a>";
-        $a .="<span id='msl_awb_loader_$no' style='display:none;'><i class='fa fa-spinner fa-spin'></i></span>";
+        $a .= "<span id='msl_awb_loader_$no' style='display:none;'><i class='fa fa-spinner fa-spin'></i></span>";
         $row[] = $a;
         $row[] = "<input type='checkbox' class= 'check_single_row' id='ack_spare_$inventory_list->inventory_id'  data-inventory_id='" . $inventory_list->inventory_id . "' data-is_wh_micro='" . $inventory_list->is_wh_micro . "' data-quantity='" . $inventory_list->quantity . "' data-ledger_id = '" . $inventory_list->id . "' data-part_name = '" . $inventory_list->part_name . "' data-booking_id = '" . $inventory_list->booking_id . "' data-invoice_id = '" . $inventory_list->invoice_id . "' data-part_number = '" . $inventory_list->part_number . "'>";
 
@@ -5470,7 +5444,7 @@ class Inventory extends CI_Controller {
         $a .= ', "' . $inventory_list->AWB_no . '"';
         $a .= ', "msl_awb_loader_' . $no . '"';
         $a .= ")'>" . $inventory_list->AWB_no . "</a>";
-        $a .="<span id='msl_awb_loader_$no' style='display:none;'><i class='fa fa-spinner fa-spin'></i></span>";
+        $a .= "<span id='msl_awb_loader_$no' style='display:none;'><i class='fa fa-spinner fa-spin'></i></span>";
         $row[] = $a;
 
         if ($this->input->post('is_wh_micro')) {
@@ -5523,7 +5497,7 @@ class Inventory extends CI_Controller {
         $a .= ', "' . $inventory_list->AWB_no . '"';
         $a .= ', "msl_awb_loader_' . $no . '"';
         $a .= ")'>" . $inventory_list->AWB_no . "</a>";
-        $a .="<span id='msl_awb_loader_$no' style='display:none;'><i class='fa fa-spinner fa-spin'></i></span>";
+        $a .= "<span id='msl_awb_loader_$no' style='display:none;'><i class='fa fa-spinner fa-spin'></i></span>";
         $row[] = $a;
 
         $row[] = "<span style='color:red;font-weight: 900;'>Rejected</span>";
@@ -5544,13 +5518,13 @@ class Inventory extends CI_Controller {
             $this->check_WH_UserSession();
         }
         //$_POST = json_decode('{"data":"{\"0\":{\"inventory_id\":\"41390\",\"quantity\":\"1\",\"ledger_id\":\"76383\",\"part_name\":\"GOGGLE,3D,PR,AUO,T315HBV1-V1,SXL,BLACK\",\"part_number\":\"1100078055\",\"booking_id\":\"LP-5242592005134\",\"invoice_id\":\"TXS-CED-05202013\",\"is_wh_micro\":\"1\"},\"1\":{\"inventory_id\":\"48474\",\"quantity\":\"1\",\"ledger_id\":\"76384\",\"part_name\":\"ASSY,STAND BASE,32,METALLICA\",\"part_number\":\"1200051821\",\"booking_id\":\"LP-5242592005134\",\"invoice_id\":\"TXS-CED-05202013\",\"is_wh_micro\":\"1\"},\"2\":{\"inventory_id\":\"38938\",\"quantity\":\"1\",\"ledger_id\":\"76385\",\"part_name\":\"REMOTE,RF 2.4GHZ GYROSCP,TSY150,STV\",\"part_number\":\"1100065181\",\"booking_id\":\"LP-5242592005134\",\"invoice_id\":\"TXS-CED-05202013\",\"is_wh_micro\":\"1\"}}","sender_entity_id":"247130","sender_entity_type":"partner","receiver_entity_id":"15","receiver_entity_type":"vendor","sender_entity_name":" Videocon","receiver_entity_name":"247around Ghaziabad (Uttar Pradesh)"}', true);
-        
+
         $sender_entity_id = $this->input->post('sender_entity_id');
         $sender_entity_type = $this->input->post('sender_entity_type');
         $receiver_entity_id = $this->input->post('receiver_entity_id');
         $receiver_entity_type = $this->input->post('receiver_entity_type');
         $postData = json_decode($this->input->post('data'));
-        
+
         if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($receiver_entity_id) && !empty($receiver_entity_type) && !empty($postData)) {
             $template1 = array(
                 'table_open' => '<table border="1" cellpadding="2" cellspacing="0" class="mytable">'
@@ -5566,48 +5540,48 @@ class Inventory extends CI_Controller {
 //
 //            $this->table->set_heading(array('Part Name', 'Part Number', 'Quantity'));
             $is_any_ledger_updated = false;
-            if(!empty($proceed_to_process_all_record)){
-            foreach ($postData as $value) {
-                $get_ledger_detail = $this->inventory_model->get_inventory_ledger_details('id,is_wh_ack,wh_ack_date', array('id' => $value->ledger_id, 'wh_ack_date is not null' => null));
-                if (!empty($get_ledger_detail)) {
-                    //This ledger is already acknowledge by warehouse
-                    continue;
-                }
-                $is_any_ledger_updated = true;
-                //acknowledge spare by setting is_wh_ack flag = 1 in inventory ledger table
-                $update = $this->inventory_model->update_ledger_details(array('is_wh_ack' => 1, 'wh_ack_date' => date('Y-m-d H:i:s')), array('id' => $value->ledger_id));
-                if ($update) {
-
-                    //$this->table->add_row($value->part_name, $value->part_number, $value->quantity);
-                    //update inventory stocks
-                    $is_entity_exist = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $receiver_entity_id, 'entity_type' => $receiver_entity_type, 'inventory_id' => $value->inventory_id), NULL, NULL, NULL, NULL, NULL)->result_array();
-                    if (!empty($is_entity_exist)) {
-                        $stock = "stock + '" . $value->quantity . "'";
-                        $update_stocks = $this->inventory_model->update_inventory_stock(array('id' => $is_entity_exist[0]['id']), $stock);
-                        if ($update_stocks) {
-                            $this->map_in_tansit_inventory_data_to_warehouse($value, $receiver_entity_id, $sender_entity_id);
-                            log_message("info", __FUNCTION__ . " Stocks has been updated successfully");
-                            $flag = TRUE;
-                        } else {
-                            log_message("info", __FUNCTION__ . " Error in updating stocks");
-                        }
-                    } else {
-                        $insert_data['entity_id'] = $receiver_entity_id;
-                        $insert_data['entity_type'] = $receiver_entity_type;
-                        $insert_data['inventory_id'] = $value->inventory_id;
-                        $insert_data['stock'] = $value->quantity;
-                        $insert_data['create_date'] = date('Y-m-d H:i:s');
-
-                        $insert_id = $this->inventory_model->insert_inventory_stock($insert_data);
-                        if (!empty($insert_id)) {
-                            $this->map_in_tansit_inventory_data_to_warehouse($value, $receiver_entity_id, $sender_entity_id);
-
-                            log_message("info", __FUNCTION__ . " Stocks has been inserted successfully" . print_r($insert_data, true));
-                            $flag = TRUE;
-                        } else {
-                            log_message("info", __FUNCTION__ . " Error in inserting stocks" . print_r($insert_data, true));
-                        }
+            if (!empty($proceed_to_process_all_record)) {
+                foreach ($postData as $value) {
+                    $get_ledger_detail = $this->inventory_model->get_inventory_ledger_details('id,is_wh_ack,wh_ack_date', array('id' => $value->ledger_id, 'wh_ack_date is not null' => null));
+                    if (!empty($get_ledger_detail)) {
+                        //This ledger is already acknowledge by warehouse
+                        continue;
                     }
+                    $is_any_ledger_updated = true;
+                    //acknowledge spare by setting is_wh_ack flag = 1 in inventory ledger table
+                    $update = $this->inventory_model->update_ledger_details(array('is_wh_ack' => 1, 'wh_ack_date' => date('Y-m-d H:i:s')), array('id' => $value->ledger_id));
+                    if ($update) {
+
+                        //$this->table->add_row($value->part_name, $value->part_number, $value->quantity);
+                        //update inventory stocks
+                        $is_entity_exist = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $receiver_entity_id, 'entity_type' => $receiver_entity_type, 'inventory_id' => $value->inventory_id), NULL, NULL, NULL, NULL, NULL)->result_array();
+                        if (!empty($is_entity_exist)) {
+                            $stock = "stock + '" . $value->quantity . "'";
+                            $update_stocks = $this->inventory_model->update_inventory_stock(array('id' => $is_entity_exist[0]['id']), $stock);
+                            if ($update_stocks) {
+                                $this->map_in_tansit_inventory_data_to_warehouse($value, $receiver_entity_id, $sender_entity_id);
+                                log_message("info", __FUNCTION__ . " Stocks has been updated successfully");
+                                $flag = TRUE;
+                            } else {
+                                log_message("info", __FUNCTION__ . " Error in updating stocks");
+                            }
+                        } else {
+                            $insert_data['entity_id'] = $receiver_entity_id;
+                            $insert_data['entity_type'] = $receiver_entity_type;
+                            $insert_data['inventory_id'] = $value->inventory_id;
+                            $insert_data['stock'] = $value->quantity;
+                            $insert_data['create_date'] = date('Y-m-d H:i:s');
+
+                            $insert_id = $this->inventory_model->insert_inventory_stock($insert_data);
+                            if (!empty($insert_id)) {
+                                $this->map_in_tansit_inventory_data_to_warehouse($value, $receiver_entity_id, $sender_entity_id);
+
+                                log_message("info", __FUNCTION__ . " Stocks has been inserted successfully" . print_r($insert_data, true));
+                                $flag = TRUE;
+                            } else {
+                                log_message("info", __FUNCTION__ . " Error in inserting stocks" . print_r($insert_data, true));
+                            }
+                        }
 
                     //update courier deliverd date on basis of inventory
                     $get_courier_id = $this->inventory_model->get_inventory_ledger_details('courier_id', array('id' => $value->ledger_id));
@@ -5619,10 +5593,11 @@ class Inventory extends CI_Controller {
                             $url_opd = base_url()."courier_tracking/update_pod_courier/".$courier_id."/1";
                             $this->asynchronous_lib->do_background_process($url_opd, array());
                         }
+                       
+                        }
                     }
                 }
             }
-        }
             //for now comment this code as per discussion with anuj and abhay. No need to send email when wh/partner acknowledged that they received spare
 //            //send email to partner warehouse incharge that 247around warehouse received spare
 //            $email_template = $this->booking_model->get_booking_email_template("spare_received_by_wh_from_partner");
@@ -5649,10 +5624,10 @@ class Inventory extends CI_Controller {
 //            }
 
             if (empty($is_any_ledger_updated)) {
-                if(!empty($proceed_to_process_all_record)){
+                if (!empty($proceed_to_process_all_record)) {
                     $res['status'] = FALSE;
                     $res['message'] = 'No Record found to update.';
-                }else{
+                } else {
                     $res['status'] = FALSE;
                     $res['message'] = 'Some Spare already acknowledged, Please refresh page to continue.';
                 }
@@ -5687,11 +5662,11 @@ class Inventory extends CI_Controller {
             $where['status'] = SPARE_PARTS_REQUESTED;
             $where['requested_inventory_id'] = $data->inventory_id;
         }
-        
+
         if ($data->is_wh_micro == 2) {
             $where['sell_invoice_id'] = $data->invoice_id;
             $where['shipped_inventory_id'] = $data->inventory_id;
-            $where['status IN ("' . SPARE_SHIPPED_BY_PARTNER . '","' . SPARE_OOW_SHIPPED . '", "'.SPARE_PARTS_SHIPPED_BY_WAREHOUSE.'")'] = NULL;
+            $where['status IN ("' . SPARE_SHIPPED_BY_PARTNER . '","' . SPARE_OOW_SHIPPED . '", "' . SPARE_PARTS_SHIPPED_BY_WAREHOUSE . '")'] = NULL;
         }
 
         $update = array();
@@ -5706,16 +5681,16 @@ class Inventory extends CI_Controller {
             // $this->vendor_model->update_service_center_action($data->booking_id, $sc_data);
         }
         if (!empty($data->booking_id)) {
-            
+
             $where['spare_parts_details.booking_id'] = $data->booking_id;
             $update_spare_part = $this->service_centers_model->update_spare_parts($where, $update);
-            
+
             ////
             /// in micro reduce stock ///
             if ($data->is_wh_micro == 2) {
                 $where['wh_ack_received_part'] = 1;
                 $spare_booking = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.booking_id, spare_parts_details.status, spare_parts_details.entity_type,spare_parts_details.quantity ,spare_parts_details.partner_id, requested_inventory_id, shipped_inventory_id", $where, false);
-                
+
                 foreach ($spare_booking as $spare_booking_value) {
                     //  reduce stock //
                     $in['receiver_entity_id'] = $receiver_entity_id;
@@ -5731,12 +5706,12 @@ class Inventory extends CI_Controller {
                     }
                     $in['agent_type'] = _247AROUND_SF_STRING;
                     $in['is_wh'] = TRUE;
-                    if(!empty($data->shipped_inventory_id)){
+                    if (!empty($data->shipped_inventory_id)) {
                         $in['inventory_id'] = $data->shipped_inventory_id;
                     } else {
                         $in['inventory_id'] = $data->inventory_id;
                     }
-                    
+
                     $in['spare_id'] = $spare_booking_value['id'];
                     $this->miscelleneous->process_inventory_stocks($in);
                     $pcb = array();
@@ -5762,7 +5737,7 @@ class Inventory extends CI_Controller {
             if ($data->is_wh_micro == 2) {
                 $where['service_center_id'] = $receiver_entity_id;
             }
-            
+
             $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.booking_id, spare_parts_details.status,spare_parts_details.quantity, spare_parts_details.entity_type, spare_parts_details.partner_id, requested_inventory_id", $where, false);
             $qty = $data->quantity;
             if (!empty($spare)) {
@@ -5784,7 +5759,7 @@ class Inventory extends CI_Controller {
                         }
 
                         if ($data->is_wh_micro == 2) {
-                           //// REDUCE STOCK ///
+                            //// REDUCE STOCK ///
                             $in['receiver_entity_id'] = $receiver_entity_id;
                             $in['receiver_entity_type'] = _247AROUND_SF_STRING;
                             $in['sender_entity_id'] = $receiver_entity_id;
@@ -5815,7 +5790,7 @@ class Inventory extends CI_Controller {
                     'requested_inventory_id' => $data->inventory_id);
                 if ($data->is_wh_micro == 2) {
                     $where1['partner_id'] = $sender_entity_id;
-                    $where1['status IN ("' . SPARE_PARTS_SHIPPED . '","' . SPARE_SHIPPED_BY_PARTNER . '","' . SPARE_OOW_SHIPPED . '", "'.SPARE_PARTS_SHIPPED_BY_WAREHOUSE.'")'] = NULL;
+                    $where1['status IN ("' . SPARE_PARTS_SHIPPED . '","' . SPARE_SHIPPED_BY_PARTNER . '","' . SPARE_OOW_SHIPPED . '", "' . SPARE_PARTS_SHIPPED_BY_WAREHOUSE . '")'] = NULL;
                     $where1['service_center_id'] = $receiver_entity_id;
                     $where1['spare_parts_details.entity_type IN ("' . _247AROUND_PARTNER_STRING . '","' . _247AROUND_SF_STRING . '")'] = NULL;
                 }
@@ -5836,7 +5811,7 @@ class Inventory extends CI_Controller {
                         if ($data->quantity >= $value['quantity']) {
                             log_message('info', __METHOD__ . " Rest qty " . $qty . " spare id " . $value['id']);
                             $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $value['id']), $update);
-                            
+
                             $qty = $qty - 1;
                             $actor = $next_action = NULL;
                             $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $status, _247AROUND, $value['booking_id']);
@@ -5899,7 +5874,7 @@ class Inventory extends CI_Controller {
             $agent_name = $this->session->userdata('service_center_name');
             $login_service_center_id = $this->session->userdata('service_center_id');
             $login_partner_id = NULL;
-        }else{
+        } else {
             $agentid = $this->session->userdata('id');
         }
 
@@ -5912,9 +5887,9 @@ class Inventory extends CI_Controller {
      *  @return :$res JSON
      */
     function send_defective_parts_to_partner_from_wh() {
-        log_message("info", __METHOD__ );
+        log_message("info", __METHOD__);
         //$str = '{"data":"{\"0\":{\"inventory_id\":\"50040\",\"is_micro_wh\":\"2\",\"booking_id\":\"LP-3606631903131\",\"partner_id\":\"15\",\"defective_return_to_entity_id\":\"15\",\"defective_return_to_entity_type\":\"vendor\",\"spare_id\":\"25987\",\"part_name\":\"ASSY,FIM,D-LED,LEDTVIVC24F2-A,CON5\",\"service_center_id\":\"239\",\"sent_entity_type\":\"vendor\",\"model\":\"LEDTVIVC24F02A\",\"booking_partner_id\":\"247130\",\"shipping_quantity\":\"1\"},\"1\":{\"inventory_id\":\"50047\",\"is_micro_wh\":\"2\",\"booking_id\":\"LP-3602551903121\",\"partner_id\":\"15\",\"defective_return_to_entity_id\":\"15\",\"defective_return_to_entity_type\":\"vendor\",\"spare_id\":\"27102\",\"part_name\":\"BAR,LED,40DLED,11LED,COREACH\",\"service_center_id\":\"58\",\"sent_entity_type\":\"vendor\",\"model\":\"LEDTVVNF43FH11FA\",\"booking_partner_id\":\"247130\",\"shipping_quantity\":\"1\"},\"2\":{\"inventory_id\":\"52269\",\"is_micro_wh\":\"2\",\"booking_id\":\"LP-3742741904131\",\"partner_id\":\"15\",\"defective_return_to_entity_id\":\"15\",\"defective_return_to_entity_type\":\"vendor\",\"spare_id\":\"29330\",\"part_name\":\"ASSY,PCB,SMPS,PWM-514C5502M65,VNV50\",\"service_center_id\":\"300\",\"sent_entity_type\":\"vendor\",\"model\":\"UHDTVVNV50Q549SAMP\",\"booking_partner_id\":\"247130\",\"shipping_quantity\":\"1\"},\"3\":{\"inventory_id\":\"51574\",\"is_micro_wh\":\"2\",\"booking_id\":\"LP-3753911904161\",\"partner_id\":\"15\",\"defective_return_to_entity_id\":\"15\",\"defective_return_to_entity_type\":\"vendor\",\"spare_id\":\"29420\",\"part_name\":\"ASSY,SMPS,M-10,TV5502-ZC02-01VNB43\/VNB50\",\"service_center_id\":\"300\",\"sent_entity_type\":\"vendor\",\"model\":\"UHDTVVNB50Q519SA\",\"booking_partner_id\":\"247130\",\"shipping_quantity\":\"1\"},\"4\":{\"inventory_id\":\"51066\",\"is_micro_wh\":\"2\",\"booking_id\":\"LP-3671351904143\",\"partner_id\":\"15\",\"defective_return_to_entity_id\":\"15\",\"defective_return_to_entity_type\":\"vendor\",\"spare_id\":\"29687\",\"part_name\":\"BAR,LED,50DLED,HCG,CR,7LED,BIG-H,MALE\",\"service_center_id\":\"54\",\"sent_entity_type\":\"vendor\",\"model\":\"UHDTVVNB43Q519SA\",\"booking_partner_id\":\"247130\",\"shipping_quantity\":\"1\"},\"5\":{\"inventory_id\":\"50092\",\"is_micro_wh\":\"2\",\"booking_id\":\"LP-3846281905021\",\"partner_id\":\"15\",\"defective_return_to_entity_id\":\"15\",\"defective_return_to_entity_type\":\"vendor\",\"spare_id\":\"31559\",\"part_name\":\"ASSY,SPEAKER,BOOM,BOX,40DLED,8227-C\",\"service_center_id\":\"265\",\"sent_entity_type\":\"vendor\",\"model\":\"DDBTVVJU40FH17XAH\",\"booking_partner_id\":\"247130\",\"shipping_quantity\":\"1\"},\"6\":{\"inventory_id\":\"51066\",\"is_micro_wh\":\"2\",\"booking_id\":\"LP-3897031905071\",\"partner_id\":\"15\",\"defective_return_to_entity_id\":\"15\",\"defective_return_to_entity_type\":\"vendor\",\"spare_id\":\"33261\",\"part_name\":\"BAR,LED,50DLED,HCG,CR,7LED,BIG-H,MALE\",\"service_center_id\":\"737\",\"sent_entity_type\":\"vendor\",\"model\":\"LEDTVVMD55FH0ZFAP\",\"booking_partner_id\":\"247130\",\"shipping_quantity\":\"1\"},\"7\":{\"inventory_id\":\"51128\",\"is_micro_wh\":\"2\",\"booking_id\":\"LP-3999461905141\",\"partner_id\":\"15\",\"defective_return_to_entity_id\":\"15\",\"defective_return_to_entity_type\":\"vendor\",\"spare_id\":\"34553\",\"part_name\":\"ASSY,SPEAKER,BOOM,BOX,50DLED,STRATA\",\"service_center_id\":\"855\",\"sent_entity_type\":\"vendor\",\"model\":\"LEDTVVKV50FH16XAH\",\"booking_partner_id\":\"247130\",\"shipping_quantity\":\"1\"},\"8\":{\"inventory_id\":\"51627\",\"is_micro_wh\":\"2\",\"booking_id\":\"LP-4009971905141\",\"partner_id\":\"15\",\"defective_return_to_entity_id\":\"15\",\"defective_return_to_entity_type\":\"vendor\",\"spare_id\":\"34831\",\"part_name\":\"ASSY,PCB,MT5507,SMART,N-COMBO,MT\",\"service_center_id\":\"855\",\"sent_entity_type\":\"vendor\",\"model\":\"SMTTVVNW32HH55SAF\",\"booking_partner_id\":\"247130\",\"shipping_quantity\":\"1\"},\"9\":{\"inventory_id\":\"50092\",\"is_micro_wh\":\"2\",\"booking_id\":\"LP-3990131905131\",\"partner_id\":\"15\",\"defective_return_to_entity_id\":\"15\",\"defective_return_to_entity_type\":\"vendor\",\"spare_id\":\"34896\",\"part_name\":\"ASSY,SPEAKER,BOOM,BOX,40DLED,8227-C\",\"service_center_id\":\"855\",\"sent_entity_type\":\"vendor\",\"model\":\"DDBTVVJU40FH17XAH\",\"booking_partner_id\":\"247130\",\"shipping_quantity\":\"1\"},\"10\":{\"inventory_id\":\"50510\",\"is_micro_wh\":\"2\",\"booking_id\":\"LP-3966061905111\",\"partner_id\":\"15\",\"defective_return_to_entity_id\":\"15\",\"defective_return_to_entity_type\":\"vendor\",\"spare_id\":\"35826\",\"part_name\":\"ASSY,SPEAKER,BOX,32DLED,FERRITE,COMBO\",\"service_center_id\":\"855\",\"sent_entity_type\":\"vendor\",\"model\":\"DDBTVVJU32HH18XKH\",\"booking_partner_id\":\"247130\",\"shipping_quantity\":\"1\"},\"11\":{\"inventory_id\":\"50510\",\"is_micro_wh\":\"2\",\"booking_id\":\"LP-4095641905201\",\"partner_id\":\"15\",\"defective_return_to_entity_id\":\"15\",\"defective_return_to_entity_type\":\"vendor\",\"spare_id\":\"38520\",\"part_name\":\"ASSY,SPEAKER,BOX,32DLED,FERRITE,COMBO\",\"service_center_id\":\"855\",\"sent_entity_type\":\"vendor\",\"model\":\"LEDTVIVC32F02K\",\"booking_partner_id\":\"247130\",\"shipping_quantity\":\"1\"},\"12\":{\"inventory_id\":\"51066\",\"is_micro_wh\":\"2\",\"booking_id\":\"LP-3966311905111\",\"partner_id\":\"15\",\"defective_return_to_entity_id\":\"15\",\"defective_return_to_entity_type\":\"vendor\",\"spare_id\":\"38751\",\"part_name\":\"BAR,LED,50DLED,HCG,CR,7LED,BIG-H,MALE\",\"service_center_id\":\"8\",\"sent_entity_type\":\"vendor\",\"model\":\"LEDTVVMD55FH0ZFAP\",\"booking_partner_id\":\"247130\",\"shipping_quantity\":\"1\"}}","sender_entity_id":"15","sender_entity_type":"vendor","wh_name":"247around Ghaziabad (Uttar Pradesh)","receiver_partner_id":"247130","from_gst_number":"7","to_gst_number":"5"}';
-       // $_POST = json_decode($str, true);
+        // $_POST = json_decode($str, true);
         if (!empty($this->session->userdata('warehouse_id'))) {
             $this->checkUserSession();
         } else {
@@ -5986,8 +5961,8 @@ class Inventory extends CI_Controller {
      */
     function send_defective_to_partner_from_wh_on_challan() {
         log_message("info", __METHOD__ . json_encode($this->input->post(), true));
-        
-        if(!empty($this->session->userdata('warehouse_id'))) {
+
+        if (!empty($this->session->userdata('warehouse_id'))) {
             $this->checkUserSession();
             $sf_id = $this->session->userdata('warehouse_id');
         } else {
@@ -5998,8 +5973,8 @@ class Inventory extends CI_Controller {
         $courier_name_by_wh = $this->input->post('courier_name_by_wh');
         $courier_price_by_wh = $this->input->post('courier_price_by_wh');
         $defective_parts_shippped_date_by_wh = $this->input->post('defective_parts_shippped_date_by_wh');
-        $kilo_gram = $this->input->post('shipped_spare_parts_weight_in_kg') ? : '0';
-        $gram = $this->input->post('shipped_spare_parts_weight_in_gram') ? : '00';
+        $kilo_gram = $this->input->post('shipped_spare_parts_weight_in_kg') ?: '0';
+        $gram = $this->input->post('shipped_spare_parts_weight_in_gram') ?: '00';
 
         $billable_weight = $kilo_gram . "." . $gram;
         //$postData = json_decode('{"0":{"inventory_id":"326","is_micro_wh":"0","booking_id":"PV-4568991908222","partner_id":"247073","defective_return_to_entity_id":"15","defective_return_to_entity_type":"vendor","spare_id":"90728","part_name":"","service_center_id":"1","sent_entity_type":"partner","model":"CTV PLANUS 2100 DLX-1","booking_partner_id":"247073","shipping_quantity":"1"}}',TRUE);
@@ -6030,7 +6005,7 @@ class Inventory extends CI_Controller {
                     $partner_details = $this->partner_model->getpartner($this->input->post('receiver_partner_id'));
                     $to_city = $partner_details[0]['district'];
                     $to_state = $partner_details[0]['state'];
-                    
+
                     $awb_data = array(
                         'awb_number' => trim($awb_by_wh),
                         'company_name' => trim($courier_name_by_wh),
@@ -6058,23 +6033,20 @@ class Inventory extends CI_Controller {
 
             foreach ($postData as $key => $val) {
                 if (!empty($val['spare_id'])) {
-                    /**
-                     * @modifiedBy Ankit Rajvanshi
-                     */
                     // Fetch spare details of $spare_id.
                     $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $val['spare_id']], NULL, NULL, NULL, NULL, NULL)[0];
                     $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
                     $data['status'] = DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH;
-                    if(!empty($is_spare_consumed) && $is_spare_consumed == 1) {
+                    if (!empty($is_spare_consumed) && $is_spare_consumed == 1) {
                         $data['status'] = DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH;
                     } else {
                         $data['status'] = OK_PARTS_SEND_TO_PARTNER_BY_WH;
-                    }  
-                    
+                    }
+
                     $data["spare_parts_details.wh_to_partner_defective_shipped_date"] = date('Y-m-d H:i:s');
                     $affected_id = $this->service_centers_model->update_spare_parts(array('id' => $val['spare_id']), $data);
-                    
-                    if(!empty($this->session->userdata('warehouse_id'))) { 
+
+                    if (!empty($this->session->userdata('warehouse_id'))) {
                         $agent_id = $this->session->userdata('id');
                         $agent_name = $this->session->userdata('employee_id');
                         $entity_id = _247AROUND;
@@ -6083,22 +6055,22 @@ class Inventory extends CI_Controller {
                         $agent_id = $this->session->userdata('service_center_agent_id');
                         $agent_name = $this->session->userdata('service_center_name');
                         $entity_id = $this->session->userdata('service_center_id');
-                        $entity_type = _247AROUND_SF_STRING;                        
+                        $entity_type = _247AROUND_SF_STRING;
                     }
-                   
+
                     /* Insert Spare Tracking Details */
                     $tracking_details = array('spare_id' => $val['spare_id'], 'action' => $data['status'], 'remarks' => $data['status'], 'agent_id' => $agent_id, 'entity_id' => $entity_id, 'entity_type' => $entity_type);
                     $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                     $actor = ACTOR_NOT_DEFINE;
                     $next_action = NEXT_ACTION_NOT_DEFINE;
-                    
+
                     // fetch record from booking details of $booking_id.
                     $booking_id = $spare_part_detail['booking_id'];
                     $partner_id = $spare_part_detail['partner_id'];
-                    $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
+                    $booking_details = $this->booking_model->get_booking_details('*', ['booking_id' => $booking_id])[0];
 
                     $is_exist = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status", array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.defective_part_required' => 1, "status IN  (
-                                    '" . DEFECTIVE_PARTS_RECEIVED . "', '" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "', '" .Ok_PARTS_RECEIVED_BY_WAREHOUSE . "', '" . Ok_PARTS_RECEIVED . "', '".OK_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_SHIPPED."') " => NULL));
+                                    '" . DEFECTIVE_PARTS_RECEIVED . "', '" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "', '" . Ok_PARTS_RECEIVED_BY_WAREHOUSE . "', '" . Ok_PARTS_RECEIVED . "', '" . OK_PARTS_SHIPPED . "', '" . DEFECTIVE_PARTS_SHIPPED . "') " => NULL));
 
                     $actor = $next_action = 'not_define';
                     if (empty($is_exist)) {
@@ -6108,7 +6080,7 @@ class Inventory extends CI_Controller {
                     }
 
                     // Change booking internal status if booking is completed.
-                    if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                    if ($booking_details['current_status'] == _247AROUND_COMPLETED) {
                         $booking['internal_status'] = $booking_internal_status;
                         $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, $booking['internal_status'], $partner_id, $booking_id);
                         if (!empty($partner_status)) {
@@ -6119,16 +6091,16 @@ class Inventory extends CI_Controller {
                         }
                         $this->booking_model->update_booking($booking_id, $booking);
                     }
-                    
+
                     /**
                      * Check session and set entity id and agent id.
                      */
-                    if(!empty($this->session->userdata('warehouse_id'))) { 
+                    if (!empty($this->session->userdata('warehouse_id'))) {
                         $this->notify->insert_state_change($val['booking_id'], $data['status'], "", $data['status'], $agent_id, $agent_name, $actor, $next_action, $entity_id, NULL, $val['spare_id']);
                     } else {
                         $this->notify->insert_state_change($val['booking_id'], $data['status'], "", $data['status'], $agent_id, $agent_name, $actor, $next_action, NULL, $entity_id, $val['spare_id']);
                     }
-                    
+
                     log_message("info", "Booking State change inserted");
                 }
             }
@@ -6220,185 +6192,191 @@ class Inventory extends CI_Controller {
         if (!empty($invoiceData['processData'])) {
 
             $entity_details = $this->partner_model->getpartner_details("gst_number, primary_contact_email,state, company_name, address, district, pincode,", array('partners.id' => $invoiceData['booking_partner_id']));
-            foreach ($invoiceData['processData'] as $key => $invoiceValue) {
-                
-                $invoice = array();
+            foreach ($invoiceData['processData'] as $c_type => $invoiceTmp) {
+                if (!empty($invoiceTmp)) {
+                    foreach ($invoiceTmp as $key => $invoiceValue) {
 
+                        $invoice = array();
 
-                $template1 = array(
-                    'table_open' => '<table border="1" cellpadding="2" cellspacing="0" class="mytable">'
-                );
-                $this->table->set_template($template1);
-                $this->table->set_heading(array('Part Name', 'Invoice ID', 'Reference Invoice ID', 'Total Qty', 'Total Amount', 'Booking Id'));
+                        $template1 = array(
+                            'table_open' => '<table border="1" cellpadding="2" cellspacing="0" class="mytable">'
+                        );
+                        $this->table->set_template($template1);
+                        $this->table->set_heading(array('Part Name', 'Invoice ID', 'Reference Invoice ID', 'Total Qty', 'Total Amount', 'Booking Id'));
 
-                $tmp_k = explode('-', $key);
-                $tmp_invoice = $vendor_details[0]['sc_code']."-" . $tmp_k[0];
-                $invoice_id = $this->miscelleneous->create_sf_challan_id($tmp_invoice);
+                        $tmp_k = explode('-', $key);
+                        $tmp_invoice = $vendor_details[0]['sc_code'] . "-" . $tmp_k[0];
+                        $invoice_id = $this->miscelleneous->create_sf_challan_id($tmp_invoice);
 
-                foreach ($invoiceValue['mapping'] as $m) {
-                    $m['outgoing_invoice_id'] = $invoice_id;
-                    $this->invoices_model->insert_inventory_invoice($m);
-                }
-
-                foreach ($invoiceValue['data'] as $value) {
-                    //Push booking ID
-                    array_push($booking_id_array, $value['booking_id']);
-
-                    if (!array_key_exists($value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0), $invoice)) {
-
-
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] = $value['part_number'] . " " . $value['part_name'] . "  Reference Invoice ID " . $value['incoming_invoice_id'];
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['taxable_value'] = $value['rate'] * $value['qty'];
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['invoice_id'] = $invoice_id;
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['product_or_services'] = "Product";
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['gst_number'] = $value['to_gst_number'];
-                        if ($value['from_state_code'] == $value['to_state_code']) {
-                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['c_s_gst'] = true;
-                            $in_template ="247around_Challan_Intra_State.xlsx";
-                        } else {
-                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['c_s_gst'] = FALSE;
-                            $in_template = "247around_Challan_Inter_State.xlsx";
-                        }
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['company_name'] = $entity_details[0]['company_name'];
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['company_address'] = $value['to_address'];
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['district'] = $value['to_city'];
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['spare_id'] = $value['spare_id'];
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['to_gst_number_id'] = $value['to_gst_number_id'];
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['from_gst_number_id'] = $value['from_gst_number_id'];
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['pincode'] = $value['to_pincode'];
-                        $state = $this->invoices_model->get_state_code(array('state_code' => $value['to_state_code']))[0]['state'];
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['state'] = $state;
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['rate'] = $value['rate'];
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['gst_rate'] = $value['gst_rate'];
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] = $value['qty']; //1;
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['hsn_code'] = $value['hsn_code'];
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['inventory_id'] = $value['inventory_id'];
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['partner_id'] = $value['booking_partner_id'];
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['part_number'] = $value['part_number'];
-                    } else {
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] + $value['qty']; //1;
-                        if (strpos($invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'], $value['incoming_invoice_id']) == false) {
-                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] . " - " . $value['incoming_invoice_id'];
-                        } else {
-                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'];
+                        foreach ($invoiceValue['mapping'] as $m) {
+                            $m['outgoing_invoice_id'] = $invoice_id;
+                            $this->invoices_model->insert_inventory_invoice($m);
                         }
 
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['taxable_value'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] * $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['rate'];
-                        
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['spare_id'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['spare_id'].",".$value['spare_id'];
-                    }
+                        foreach ($invoiceValue['data'] as $value) {
+                            //Push booking ID
+                            array_push($booking_id_array, $value['booking_id']);
 
-                    $total_amount = ($invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['taxable_value'] + ($invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['taxable_value'] * ($value['gst_rate'] / 100)) );
-                    $this->table->add_row($value['part_name'], $invoice_id, $value['incoming_invoice_id'], $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'], round($total_amount, 2), $value['booking_id']);
+                            if (!array_key_exists($value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0), $invoice)) {
 
-                    array_push($sp_id, $value['spare_id']);
-                }
 
-                $sd = $ed = $invoice_date = date("Y-m-d");
-                $invoices = array_values($invoice);
-                unset($invoice);
+                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] = $value['part_number'] . " " . $value['part_name'] . "  Reference Invoice ID " . $value['incoming_invoice_id'];
+                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['taxable_value'] = $value['rate'] * $value['qty'];
+                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['invoice_id'] = $invoice_id;
+                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['product_or_services'] = "Product";
+                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['gst_number'] = $value['to_gst_number'];
+                                if ($value['from_state_code'] == $value['to_state_code']) {
+                                    $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['c_s_gst'] = true;
+                                    $in_template = "247around_Challan_Intra_State.xlsx";
+                                } else {
+                                    $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['c_s_gst'] = FALSE;
+                                    $in_template = "247around_Challan_Inter_State.xlsx";
+                                }
+                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['company_name'] = $entity_details[0]['company_name'];
+                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['company_address'] = $value['to_address'];
+                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['district'] = $value['to_city'];
+                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['spare_id'] = $value['spare_id'];
+                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['to_gst_number_id'] = $value['to_gst_number_id'];
+                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['from_gst_number_id'] = $value['from_gst_number_id'];
+                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['pincode'] = $value['to_pincode'];
+                                $state = $this->invoices_model->get_state_code(array('state_code' => $value['to_state_code']))[0]['state'];
+                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['state'] = $state;
+                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['rate'] = $value['rate'];
+                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['gst_rate'] = $value['gst_rate'];
+                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] = $value['qty']; //1;
+                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['hsn_code'] = $value['hsn_code'];
+                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['inventory_id'] = $value['inventory_id'];
+                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['partner_id'] = $value['booking_partner_id'];
+                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['part_number'] = $value['part_number'];
+                            } else {
+                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] + $value['qty']; //1;
+                                if (strpos($invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'], $value['incoming_invoice_id']) == false) {
+                                    $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] . " - " . $value['incoming_invoice_id'];
+                                } else {
+                                    $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'];
+                                }
 
-                log_message('info', __METHOD__ . " Spare Invoice Data " . print_r($invoices, TRUE) . " Entity id " . $sender_entity_id);
-                $response = $this->invoices_model->_set_partner_excel_invoice_data($invoices, $sd, $ed, "Tax Invoice", $invoice_date);
-                $response['meta']['invoice_template'] = $in_template;
-                $response['meta']['invoice_id'] = $invoice_id;
-                $response['meta']['invoice_type'] = "Delivery Challan";
-                $response['booking'][0]['invoice_id'] = $response['meta']['invoice_id'];
-                $response['meta']['main_company_gst_number'] = $invoiceValue['data'][0]['from_gst_number'];
-                $response['meta']['main_company_state'] = $this->invoices_model->get_state_code(array('state_code' => $invoiceValue['data'][0]['from_state_code']))[0]['state'];
-                $response['meta']['main_company_state_code'] = $invoiceValue['data'][0]['from_state_code'];
-                $response['meta']['main_company_address'] = $invoiceValue['data'][0]['from_address'] . "," . $invoiceValue['data'][0]['from_city'];
+                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['taxable_value'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] * $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['rate'];
 
-                $response['meta']['main_company_pincode'] = $invoiceValue['data'][0]['from_pincode'];
-                $response['meta']['main_company_seal'] = $invoiceValue['data'][0]['state_stamp_pic'];
-                $response['meta']['meta_id'] = "Challan Number: ".$response['meta']['invoice_id'];
-                $response['meta']['meta_date'] = "Date: ".$response['meta']['invoice_date'];
+                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['spare_id'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['spare_id'] . "," . $value['spare_id'];
+                            }
 
-                $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
-                if ($status) {
+                            $total_amount = ($invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['taxable_value'] + ($invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['taxable_value'] * ($value['gst_rate'] / 100)) );
+                            $this->table->add_row($value['part_name'], $invoice_id, $value['incoming_invoice_id'], $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'], round($total_amount, 2), $value['booking_id']);
 
-                    log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $response['meta']['invoice_id']);
-                    $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final", false, false, "vendor-partner-docs");
-                    $output_file = "";
-                    $template = "partner_inventory_invoice_annexure-v1.xlsx";
-                    $output_file = $response['meta']['invoice_id'] . "-detailed.xlsx";
-
-                    unset($response['meta']['main_company_logo_cell']);
-                    unset($response['meta']['main_company_seal_cell']);
-                    unset($response['meta']['main_company_sign_cell']);
-
-                    $this->invoice_lib->generate_invoice_excel($template, $response['meta'], $invoiceValue['data'], TMP_FOLDER . $output_file);
-                    
-                    if(!empty($this->session->userdata('warehouse_id'))) {
-                        $agent_id = $this->session->userdata('id');
-                        $agent_type = _247AROUND_EMPLOYEE_STRING;
-                    } else { 
-                        $agent_id = $this->session->userdata('service_center_agent_id');
-                        $agent_type = _247AROUND_SF_STRING;
-                    }
-                    
-                    $challan_details = array(
-                        'challan_id' => $response['meta']['invoice_id'],
-                        'sender_entity_id' => $sender_entity_id,
-                        'sender_entity_type' => $sender_entity_type,
-                        'receiver_entity_id' => $response['booking'][0]['partner_id'],
-                        'receiver_entity_type' => 'partner',
-                        'main_file' => $convert['main_pdf_file_name'],
-                        'annx_file' => $output_file,
-                        'taxable_value' => $response['meta']['total_taxable_value'],
-                        'gst_amount' => ($response['meta']["igst_total_tax_amount"] + $response['meta']["sgst_total_tax_amount"] + $response['meta']["cgst_total_tax_amount"]),
-                        'quantity' => $response['meta']['parts_count'],
-                        'agent_id' => $agent_id,
-                        'agent_type' => $agent_type,
-                        'type' => MSL_DEFECTIVE_CHALLAN_TYPE,
-                        'from_gst_number_id' => $response['booking'][0]['from_gst_number_id'],
-                        'to_gst_number_id' => $response['booking'][0]['to_gst_number_id']
-                        
-                    );
-                    
-                    
-                    $challan_id = $this->invoices_model->insert_challan_details($challan_details);
-
-                    $this->invoice_lib->insert_def_challan_breakup($response, $challan_id);
-                    
-                    $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], true, false, 'vendor-partner-docs');
-
-                    log_message('info', __METHOD__ . "=> Insert Invoices in partner invoice table");
-
-                    $invoiceData['invoice'][] = $response['meta']['invoice_id'];
-                    $main_file = S3_WEBSITE_URL . "vendor-partner-docs/" . $convert['main_pdf_file_name'];
-
-                    if (!empty($output_file)) {
-                        $detailed_file = TMP_FOLDER . $output_file;
-                    } else {
-                        $detailed_file = "";
-                    }
-
-                    $parts_table = $this->table->generate();
-
-                    $this->send_defective_return_mail($response['booking'][0]['partner_id'], $parts_table, $main_file, $detailed_file, $invoice_id);
-
-                    foreach ($sp_id as $spare_id) {
-                        
-                        $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('wh_challan_number' =>  $response['meta']['invoice_id'], 'wh_challan_file' => $convert['main_pdf_file_name']));
-                        /* Insert Spare Tracking Details */
-                        $tracking_details = array('spare_id' => $spare_id, 'action' => CHALLAN_GENERATION_STATUS, 'remarks' => $response['meta']['invoice_id']);
-                        if (!empty($this->session->userdata('warehouse_id'))) {
-                            $tracking_details['agent_id'] = $this->session->userdata('id');
-                            $tracking_details['entity_id'] = _247AROUND;
-                            $tracking_details['entity_type'] = _247AROUND_EMPLOYEE_STRING;
-                        } else {
-                            $tracking_details['agent_id'] = $this->session->userdata('service_center_agent_id');
-                            $tracking_details['entity_id'] = $this->session->userdata('service_center_id');
-                            $tracking_details['entity_type'] = _247AROUND_SF_STRING;
+                            array_push($sp_id, $value['spare_id']);
                         }
 
-                        $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                        $sd = $ed = $invoice_date = date("Y-m-d");
+                        $invoices = array_values($invoice);
+                        unset($invoice);
+
+                        log_message('info', __METHOD__ . " Spare Invoice Data " . print_r($invoices, TRUE) . " Entity id " . $sender_entity_id);
+                        $response = $this->invoices_model->_set_partner_excel_invoice_data($invoices, $sd, $ed, "Tax Invoice", $invoice_date);
+                        $response['meta']['invoice_template'] = $in_template;
+                        $response['meta']['invoice_id'] = $invoice_id;
+                        $response['meta']['invoice_type'] = "Delivery Challan";
+                        $response['booking'][0]['invoice_id'] = $response['meta']['invoice_id'];
+                        $response['meta']['main_company_gst_number'] = $invoiceValue['data'][0]['from_gst_number'];
+                        $response['meta']['main_company_state'] = $this->invoices_model->get_state_code(array('state_code' => $invoiceValue['data'][0]['from_state_code']))[0]['state'];
+                        $response['meta']['main_company_state_code'] = $invoiceValue['data'][0]['from_state_code'];
+                        $response['meta']['main_company_address'] = $invoiceValue['data'][0]['from_address'] . "," . $invoiceValue['data'][0]['from_city'];
+
+                        $response['meta']['main_company_pincode'] = $invoiceValue['data'][0]['from_pincode'];
+                        $response['meta']['main_company_seal'] = $invoiceValue['data'][0]['state_stamp_pic'];
+                        $response['meta']['meta_id'] = "Challan Number: " . $response['meta']['invoice_id'];
+                        $response['meta']['meta_date'] = "Date: " . $response['meta']['invoice_date'];
+
+                        $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
+                        if ($status) {
+
+                            log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $response['meta']['invoice_id']);
+                            $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final", false, false, "vendor-partner-docs");
+                            $output_file = "";
+                            $template = "partner_inventory_invoice_annexure-v1.xlsx";
+                            $output_file = $response['meta']['invoice_id'] . "-detailed.xlsx";
+
+                            unset($response['meta']['main_company_logo_cell']);
+                            unset($response['meta']['main_company_seal_cell']);
+                            unset($response['meta']['main_company_sign_cell']);
+
+                            $this->invoice_lib->generate_invoice_excel($template, $response['meta'], $invoiceValue['data'], TMP_FOLDER . $output_file);
+
+                            if (!empty($this->session->userdata('warehouse_id'))) {
+                                $agent_id = $this->session->userdata('id');
+                                $agent_type = _247AROUND_EMPLOYEE_STRING;
+                            } else {
+                                $agent_id = $this->session->userdata('service_center_agent_id');
+                                $agent_type = _247AROUND_SF_STRING;
+                            }
+                            
+                            
+                            if($c_type == 0){
+                                $mtype = MSL_DEFECTIVE_CHALLAN_TYPE;
+                            } else {
+                                $mtype = MSL_DEFECTIVE_RETURN_FOR_CHALLAN;
+                            }
+                            $challan_details = array(
+                                'challan_id' => $response['meta']['invoice_id'],
+                                'sender_entity_id' => $sender_entity_id,
+                                'sender_entity_type' => $sender_entity_type,
+                                'receiver_entity_id' => $response['booking'][0]['partner_id'],
+                                'receiver_entity_type' => 'partner',
+                                'main_file' => $convert['main_pdf_file_name'],
+                                'annx_file' => $output_file,
+                                'taxable_value' => $response['meta']['total_taxable_value'],
+                                'gst_amount' => ($response['meta']["igst_total_tax_amount"] + $response['meta']["sgst_total_tax_amount"] + $response['meta']["cgst_total_tax_amount"]),
+                                'quantity' => $response['meta']['parts_count'],
+                                'agent_id' => $agent_id,
+                                'agent_type' => $agent_type,
+                                'type' => $mtype,
+                                'from_gst_number_id' => $response['booking'][0]['from_gst_number_id'],
+                                'to_gst_number_id' => $response['booking'][0]['to_gst_number_id']
+                            );
+
+                            $challan_id = $this->invoices_model->insert_challan_details($challan_details);
+
+                            $this->invoice_lib->insert_def_challan_breakup($response, $challan_id);
+
+                            $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], true, false, 'vendor-partner-docs');
+
+                            log_message('info', __METHOD__ . "=> Insert Invoices in partner invoice table");
+
+                            $invoiceData['invoice'][] = $response['meta']['invoice_id'];
+                            $main_file = S3_WEBSITE_URL . "vendor-partner-docs/" . $convert['main_pdf_file_name'];
+
+                            if (!empty($output_file)) {
+                                $detailed_file = TMP_FOLDER . $output_file;
+                            } else {
+                                $detailed_file = "";
+                            }
+
+                            $parts_table = $this->table->generate();
+
+                            $this->send_defective_return_mail($response['booking'][0]['partner_id'], $parts_table, $main_file, $detailed_file, $invoice_id);
+
+                            foreach ($sp_id as $spare_id) {
+
+                                $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('wh_challan_number' => $response['meta']['invoice_id'], 'wh_challan_file' => $convert['main_pdf_file_name']));
+                                /* Insert Spare Tracking Details */
+                                $tracking_details = array('spare_id' => $spare_id, 'action' => CHALLAN_GENERATION_STATUS, 'remarks' => $response['meta']['invoice_id']);
+                                if (!empty($this->session->userdata('warehouse_id'))) {
+                                    $tracking_details['agent_id'] = $this->session->userdata('id');
+                                    $tracking_details['entity_id'] = _247AROUND;
+                                    $tracking_details['entity_type'] = _247AROUND_EMPLOYEE_STRING;
+                                } else {
+                                    $tracking_details['agent_id'] = $this->session->userdata('service_center_agent_id');
+                                    $tracking_details['entity_id'] = $this->session->userdata('service_center_id');
+                                    $tracking_details['entity_type'] = _247AROUND_SF_STRING;
+                                }
+
+                                $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                            }
+                            unset($response);
+
+                            $sp_id = array();
+                        }
                     }
-                    unset($response);
-                    
-                    $sp_id = array();
-                    
                 }
             }
 
@@ -6425,7 +6403,7 @@ class Inventory extends CI_Controller {
             $awb_by_wh = $this->input->post('awb_by_wh');
             $wh_name = $this->input->post('wh_name');
             //If warehouse name not coming from form
-            if($wh_name){
+            if ($wh_name) {
                 $wh_name = $this->session->userdata('wh_name');
             }
 
@@ -6623,7 +6601,7 @@ class Inventory extends CI_Controller {
                 if (in_array($ext, $allowed)) {
                     $upload_file_name = str_replace(' ', '_', trim($file_details['invoice_file']['name']));
 
-                    $file_name = 'spare_invoice_' . rand(10, 100) . '_' . $upload_file_name;
+                    $file_name = 'spare_invoice_' . rand(10, 1000) . '_' . $upload_file_name;
                     //Upload files to AWS
                     $directory_xls = "invoices-excel/" . $file_name;
                     $this->s3->putObjectFile($file_details['invoice_file']['tmp_name'], BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
@@ -6652,11 +6630,11 @@ class Inventory extends CI_Controller {
      *  @return : $res array() // consist response message and response status
      */
     function get_parts_number() {
-        
+
         $part_name = trim($this->input->post('part_name'));
 
         $part_number = trim($this->input->post('part_number'));
-        
+
         $post['length'] = -1;
         $post['where'] = array('entity_id' => trim($this->input->post('entity_id')), 'entity_type' => trim($this->input->post('entity_type')), 'service_id' => trim($this->input->post('service_id')), 'part_number' => $part_number);
         $post['order'] = array(array('column' => 0, 'dir' => 'ASC'));
@@ -7093,12 +7071,13 @@ class Inventory extends CI_Controller {
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/wh_inventory_stock_list', $data);
     }
-      
-     /*
+
+    /*
      *  @desc : This function is used to display search warehouse stock using part number 
      *  @param : void
      *  @return : void
      */
+
     function search_inventory_stock_by_part_number_on_wh() {
         $this->checkUserSession();
         $this->miscelleneous->load_nav_header();
@@ -7218,9 +7197,6 @@ class Inventory extends CI_Controller {
             $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
             $booking_id = $this->input->post("booking_id");
 
-
-
-
             $defective_courier_receipt = $this->miscelleneous->upload_file_to_s3($_FILES["defective_courier_receipt"], "defective_courier_receipt", $allowedExts, $booking_id, "misc-images", "defective_courier_receipt");
             if ($defective_courier_receipt) {
 
@@ -7323,7 +7299,7 @@ class Inventory extends CI_Controller {
                     $select = "courier_company_invoice_details.awb_number, courier_company_invoice_details.company_name, courier_company_invoice_details.courier_charge, courier_company_invoice_details.actual_weight,courier_company_invoice_details.box_count, inventory_ledger.invoice_id";
                     if (!empty($docket_number)) {
                         $docket_number_arr = explode(',', $docket_number);
-                        $docket_number_arr_str = implode(',', array_map(function($val) {
+                        $docket_number_arr_str = implode(',', array_map(function ($val) {
                                     return "'" . trim($val) . "'";
                                 }, $docket_number_arr));
 
@@ -7339,7 +7315,7 @@ class Inventory extends CI_Controller {
                     $select .= ",service_centres.name as 'sf_name', sc.name as wh_name, spare_consumption_status.consumed_status, spare_consumption_status.is_consumed";
                     if (!empty($docket_number)) {
                         $docket_number_arr = explode(',', $docket_number);
-                        $docket_number_arr_str = implode(',', array_map(function($val) {
+                        $docket_number_arr_str = implode(',', array_map(function ($val) {
                                     return "'" . trim($val) . "'";
                                 }, $docket_number_arr));
 
@@ -7351,12 +7327,12 @@ class Inventory extends CI_Controller {
                             $where["spare_parts_details.shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.shipped_date <= '" . date('Y-m-d', strtotime($to_date . "+1 days")) . "' "] = NULL;
                         } else if ($search_by == 'awb_by_sf') {
                             $where["spare_parts_details.defective_part_shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.defective_part_shipped_date <='" . date('Y-m-d', strtotime($to_date)) . "' "] = NULL;
-                        }else if ($search_by == 'awb_by_wh') {
+                        } else if ($search_by == 'awb_by_wh') {
                             $where["spare_parts_details.wh_to_partner_defective_shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.wh_to_partner_defective_shipped_date <= '" . date('Y-m-d', strtotime($to_date)) . "' "] = NULL;
                         }
                     }
                     $post['is_inventory'] = TRUE;
-                    $docket_details = $this->partner_model->get_spare_parts_by_any($select, $where, FALSE, TRUE, FALSE, $post,TRUE);
+                    $docket_details = $this->partner_model->get_spare_parts_by_any($select, $where, FALSE, TRUE, FALSE, $post, TRUE);
                 }
 
 
@@ -7381,7 +7357,7 @@ class Inventory extends CI_Controller {
 
         echo json_encode($res);
     }
-    
+
     /*
      * @desc: This Function is used to download the consolidated report
      * @param: void
@@ -7432,7 +7408,7 @@ class Inventory extends CI_Controller {
         //$where = array("spare_parts_details.status NOT IN('" . SPARE_PARTS_REQUESTED . "')" => NULL);
         $where = array();
         $group_by = "spare_parts_details.id";
-         if (!empty($rm_id) && is_numeric($rm_id)) {
+        if (!empty($rm_id) && is_numeric($rm_id)) {
             $where['service_centres.rm_id'] = $rm_id;
         }
         if (!empty($partner_id) && is_numeric($partner_id)) {
@@ -7442,20 +7418,20 @@ class Inventory extends CI_Controller {
         if (!empty($service_center_id) && is_numeric($service_center_id)) {
             $where['booking_details.assigned_vendor_id'] = $service_center_id;
         }
-               
+
         if (!empty($spare_part_status)) {
-             $i = 0;
-             $single_status = '';
-             $multiple_status = '';
+            $i = 0;
+            $single_status = '';
+            $multiple_status = '';
             foreach ($spare_part_status as $key => $value) {
-                if($key < 1) {
+                if ($key < 1) {
                     $single_status .= "'" . $value . "'";
                 } else {
-                    $multiple_status .= ",'".$value."'";
+                    $multiple_status .= ",'" . $value . "'";
                 }
                 $i++;
             }
-            
+
             if ($i > 1) {
                 $status = $single_status . $multiple_status;
             } else {
@@ -7466,8 +7442,6 @@ class Inventory extends CI_Controller {
 
 
         $spare_details = $this->inventory_model->get_spare_consolidated_data($select, $where, $group_by);
-
-        
 
         $this->load->dbutil();
         $this->load->helper('file');
@@ -7499,7 +7473,7 @@ class Inventory extends CI_Controller {
             $is_micro = $this->input->post('is_micro');
             $vendor_id = $this->input->post('vendor_id');
 
-            $sc_close_date = $this->reusable_model->get_search_query('booking_details','booking_details.service_center_closed_date, booking_details.request_type, assigned_vendor_id',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
+            $sc_close_date = $this->reusable_model->get_search_query('booking_details', 'booking_details.service_center_closed_date, booking_details.request_type, assigned_vendor_id', array('booking_id' => $booking_id), NULL, NULL, NULL, NULL, NULL)->result_array();
             $data['add_more'] = false;
             if (isset($sc_close_date[0]['request_type']) && $sc_close_date[0]['request_type'] == REPAIR_OOW_TAG) {
                 $s_change = $this->booking_model->getbooking_state_change_by_any(array('booking_id' => $booking_id, "new_state" => SPARE_OOW_EST_GIVEN));
@@ -7510,11 +7484,9 @@ class Inventory extends CI_Controller {
 
             if (!empty($sc_close_date[0]['service_center_closed_date'])) {
                 echo json_encode(array('code' => -247, "data" => "Booking already closed. Part shipping not allowed"));
-                
-            } else if($is_micro == 2 && $sc_close_date[0]['assigned_vendor_id'] != $vendor_id){
-                
+            } else if ($is_micro == 2 && $sc_close_date[0]['assigned_vendor_id'] != $vendor_id) {
+
                 echo json_encode(array('code' => -247, "data" => "Booking assigned another Warehouse. Part shipping not allowed"));
-                
             } else {
 
                 $where = array('status' => SPARE_PARTS_REQUESTED,
@@ -7523,8 +7495,8 @@ class Inventory extends CI_Controller {
                 if ($this->session->userdata('partner_id')) {
                     $where['spare_parts_details.partner_id'] = $this->session->userdata('partner_id');
                 }
-                if($is_micro == 2){
-                    $where['spare_parts_details.part_warranty_status'] =1;
+                if ($is_micro == 2) {
+                    $where['spare_parts_details.part_warranty_status'] = 1;
                 }
                 $data['data'] = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id,spare_parts_details.quantity, spare_parts_details.requested_inventory_id, booking_details.partner_id,"
                         . "spare_parts_details.booking_id, booking_details.service_id,spare_parts_details.model_number,booking_details.request_type,spare_parts_details.part_warranty_status", $where, true);
@@ -7582,7 +7554,7 @@ class Inventory extends CI_Controller {
                 $option .= " selected ";
             }
             $total_amount = sprintf("%.2f", $value['price'] * (1 + $value['gst_rate'] / 100));
-            $option .="  data-inventory_id = '" . $value['inventory_id']
+            $option .= "  data-inventory_id = '" . $value['inventory_id']
                     . "' data-gst_rate = '" . $value['gst_rate']
                     . "' data-hsn_code = '" . $value['hsn_code'] . "' data-basic_price = '" . $value['price']
                     . "' data-total_amount = '" . $total_amount . "' data-type ='" . $value['type'] . "' > ";
@@ -7666,13 +7638,13 @@ class Inventory extends CI_Controller {
             }
         }
     }
-    
+
     /**
      * @desc: This Function is used to get the lists of recheck docket number
      * @param: void
      * @return : boolean
      */
-    function get_recheck_docket_number(){
+    function get_recheck_docket_number() {
         $post_data = array('length' => $this->input->post('length'),
             'start' => $this->input->post('start'),
             'file_type' => trim($this->input->post('file_type')),
@@ -7684,7 +7656,7 @@ class Inventory extends CI_Controller {
             'is_exist' => 0,
             'is_reject' => 0,
         );
-        $post_data['column_search'] = array('awb_number', 'company_name', 'courier_charge', 'courier_invoice_id','billed_docket.invoice_id');
+        $post_data['column_search'] = array('awb_number', 'company_name', 'courier_charge', 'courier_invoice_id', 'billed_docket.invoice_id');
         $select = "billed_docket.invoice_id, courier_company_invoice_details.awb_number, courier_company_invoice_details.courier_invoice_id, courier_company_invoice_details.company_name, courier_company_invoice_details.courier_charge, courier_company_invoice_details.billable_weight, courier_company_invoice_details.basic_billed_charge_to_partner, courier_company_invoice_details.small_box_count, courier_company_invoice_details.shippment_date, courier_company_invoice_details.delivered_date, courier_company_invoice_details.box_count, courier_company_invoice_details.pickup_from, courier_company_invoice_details.actual_weight, courier_company_invoice_details.create_date,  courier_company_invoice_details.id";
         $list = $this->inventory_model->get_searched_courier_invoices($select, $post_data);
         $no = $post_data['start'];
@@ -7717,12 +7689,12 @@ class Inventory extends CI_Controller {
             $a .= '&nbsp;&nbsp;&nbsp; <button type="button" class="btn btn-warning btn-xs" onclick="open_reject_remark_model(' . $invoice_list->id . ')" data-toggle="modal" data-target="#rejectInvoiceModal">Ignore</button>';
             $row[] = $a;
             $data[] = $row;
-            
+
             $tSum = $this->get_courier_charges_total($invoice_list);
             $rowSums['colData'][7] += $tSum['total'];
             $rowSums["colCount"] = (count($row) > $rowSums['colCount']) ? count($row) : $rowSums["colCount"];
         }
-                   
+
         if (count($data) > 0) {
             $data[] = $this->draw_table_courier_docket_footer($rowSums);
         }
@@ -7736,13 +7708,13 @@ class Inventory extends CI_Controller {
 
         echo json_encode($output);
     }
-      
-     /**
+
+    /**
      * @desc: This Function is used to get the lists of recheck docket number
      * @param: void
      * @return : boolean
      */
-    function get_ignored_invoice_list(){
+    function get_ignored_invoice_list() {
         $post_data = array('length' => $this->input->post('length'),
             'start' => $this->input->post('start'),
             'file_type' => trim($this->input->post('file_type')),
@@ -7750,12 +7722,12 @@ class Inventory extends CI_Controller {
             'draw' => $this->input->post('draw'),
             'search_value' => trim($this->input->post('search')['value'])
         );
-        
+
         $post_data['where'] = array(
             'is_reject' => 1,
         );
-        
-        $post_data['column_search'] = array('awb_number', 'company_name', 'courier_charge', 'courier_invoice_id','billed_docket.invoice_id');
+
+        $post_data['column_search'] = array('awb_number', 'company_name', 'courier_charge', 'courier_invoice_id', 'billed_docket.invoice_id');
         $list = $this->inventory_model->get_searched_courier_invoices('*', $post_data);
 
         $no = $post_data['start'];
@@ -7780,12 +7752,12 @@ class Inventory extends CI_Controller {
             $row[] = $invoice_list->courier_charge;
             $row[] = $invoice_list->reject_remarks;
             $data[] = $row;
-            
+
             $tSum = $this->get_courier_charges_total($invoice_list);
             $rowSums['colData'][5] += $tSum['total'];
             $rowSums["colCount"] = (count($row) > $rowSums['colCount']) ? count($row) : $rowSums["colCount"];
         }
-                   
+
         if (count($data) > 0) {
             $data[] = $this->draw_table_courier_docket_footer($rowSums);
         }
@@ -7799,20 +7771,19 @@ class Inventory extends CI_Controller {
 
         echo json_encode($output);
     }
-    
-     /** 
+
+    /**
      * @desc: This function is used to create table body to table.
      * @param: Array
      * @return: Array
      */
-    
     private function get_courier_charges_total($data_list) {
         $res = array();
-        $res['total'] =  $data_list->courier_charge;
+        $res['total'] = $data_list->courier_charge;
         return $res;
     }
 
-    /** 
+    /**
      * @desc: This function is used to draw the footer of table.
      * @param: rowData
      * @return: Array
@@ -7829,7 +7800,7 @@ class Inventory extends CI_Controller {
         }
         return $res;
     }
-    
+
     /**
      * @desc: This Function is used to search docket number in bulk
      * @param: void
@@ -7871,7 +7842,7 @@ class Inventory extends CI_Controller {
             echo json_encode($returndata);
         }
     }
-    
+
     /**
      * @desc: This Function is print warehouse address from tag page using MSL.
      * @param: void
@@ -7990,11 +7961,11 @@ class Inventory extends CI_Controller {
      *  @return : $res array()
      */
     function get_inventory_parts_type() {
-        
-        /* Check if any record exists in inventory_master_list table if exists then return message.*/
-        if(!empty($this->input->post('check_non_inventory'))) {
-            $inventory_master_list = $this->inventory_model->get_inventory_master_list_data('inventory_id', array('entity_id' => $this->input->post('partner_id'),'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $this->input->post('service_id')));
-            if(!empty($inventory_master_list)) {
+
+        /* Check if any record exists in inventory_master_list table if exists then return message. */
+        if (!empty($this->input->post('check_non_inventory'))) {
+            $inventory_master_list = $this->inventory_model->get_inventory_master_list_data('inventory_id', array('entity_id' => $this->input->post('partner_id'), 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $this->input->post('service_id')));
+            if (!empty($inventory_master_list)) {
                 $option = UPDATE_INVENTORY_MASTER_LIST_MSG;
             } else {
                 $option = '<option selected disabled>Select Part Type</option>';
@@ -8156,7 +8127,7 @@ class Inventory extends CI_Controller {
             $option = '<option selected disabled>Select Model Number</option>';
             foreach ($inventory_details as $value) {
                 $option .= "<option value='" . $value['id'] . "'";
-                $option .=">";
+                $option .= ">";
                 $option .= $value['model_number'] . "</option>";
             }
             echo $option;
@@ -8233,7 +8204,6 @@ class Inventory extends CI_Controller {
         );
         $post['joinType'] = array("services" => "INNER", "appliance_model_details" => "LEFT");
         $select = "partner_appliance_details.id as tid, partner_appliance_details.model as model_id, partner_appliance_details.service_id, services.services, partner_appliance_details.brand, partner_appliance_details.category, partner_appliance_details.capacity, appliance_model_details.model_number, partner_appliance_details.active";
-
 
         $list = $this->reusable_model->get_datatable_data("partner_appliance_details", $select, $post);
         //log_message('info', __METHOD__. "kalyani ".$this->db->last_query());
@@ -8411,7 +8381,7 @@ class Inventory extends CI_Controller {
      *  @return : $res array
      */
     function partner_wise_inventory_spare_parts_list() {
-        
+
         if (!empty($this->input->post("entity_id"))) {
             $where = array(
                 'inventory_master_list.entity_id' => $this->input->post("entity_id"),
@@ -8601,7 +8571,7 @@ class Inventory extends CI_Controller {
         }
         $gst_numbers = $this->inventory_model->get_entity_gst_data("entity_gst_details.id as id, entity_gst_details.state as state_code, gst_number, state_code.state as state", $where);
         foreach ($gst_numbers as $key => $value) {
-            $html .= "<option data-state_code =  '".$value['state_code']."' value='" . $value['id'] . "'>" . $value['state'] . " - " . $value['gst_number'] . "</option>";
+            $html .= "<option data-state_code =  '" . $value['state_code'] . "' value='" . $value['id'] . "'>" . $value['state'] . " - " . $value['gst_number'] . "</option>";
         }
         echo $html;
     }
@@ -8615,7 +8585,7 @@ class Inventory extends CI_Controller {
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/msl_excel_upload');
     }
-    
+
     /**
      * @desc This function is used to create the view page to upload msl file.
      * @param: null
@@ -8623,9 +8593,9 @@ class Inventory extends CI_Controller {
     function upload_msl_excel_file() {
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/upload_msl_excel_file',$data);
+        $this->load->view('employee/upload_msl_excel_file', $data);
     }
-    
+
     /**
      *  @desc : This function is used to appliance wise model number and inventory details
      *  @param : void
@@ -8653,7 +8623,6 @@ class Inventory extends CI_Controller {
 
         if (!empty($partner_id) && !empty($service_id)) {
             $bom_details = $this->inventory_model->get_serviceable_bom_data($select, $where);
-
 
             $this->load->dbutil();
             $this->load->helper('file');
@@ -8709,7 +8678,6 @@ class Inventory extends CI_Controller {
 
         if (!empty($partner_id) && !empty($service_id)) {
             $bom_details = $this->inventory_model->get_serviceable_bom_data($select, $where);
-
 
             $this->load->dbutil();
             $this->load->helper('file');
@@ -8792,14 +8760,14 @@ class Inventory extends CI_Controller {
      *  @param : void
      *  @return : void
      */
-    function download_warehouse_stock_data($request_type_url ='') {
+    function download_warehouse_stock_data($request_type_url = '') {
         log_message('info', __METHOD__ . ' Processing...');
 
         $request_type = $this->input->post('request_type');
         $fetch_array = false;
-        if(empty($request_type) && !empty($request_type_url)){
-           $request_type = $request_type_url;
-           $fetch_array = true;
+        if (empty($request_type) && !empty($request_type_url)) {
+            $request_type = $request_type_url;
+            $fetch_array = true;
         }
         $partner_id = $this->input->post('partner_id');
 
@@ -8826,7 +8794,7 @@ class Inventory extends CI_Controller {
 
         if (!empty($request_type)) {
 
-            $bom_details = $this->inventory_model->get_warehouse_stocks($post, $select,$fetch_array);
+            $bom_details = $this->inventory_model->get_warehouse_stocks($post, $select, $fetch_array);
             if (!empty($request_type_url)) {
                 $array = array();
                 foreach ($bom_details as $key => $value) {
@@ -8855,30 +8823,30 @@ class Inventory extends CI_Controller {
                 $headings = array("Warehouse", "Partner", "Part Number", "Part Name", "Stock", "247 Buying Price", "GST Rate", "Around Margin", "Vendor Margin", "SF Buying Price", "Customer Price");
                 $file_name = $request_type . '_stock_data_' . date('j-M-Y-H-i-s');
                 $this->miscelleneous->downloadCSV($array, $headings, $file_name);
-            } else{
-
-            $this->load->dbutil();
-            $this->load->helper('file');
-
-            $file_name = $request_type . '_stock_data_' . date('j-M-Y-H-i-s') . ".csv";
-            $delimiter = ",";
-            $newline = "\r\n";
-            $new_report = $this->dbutil->csv_from_result($bom_details, $delimiter, $newline);
-
-            write_file(TMP_FOLDER . $file_name, $new_report);
-
-            if (file_exists(TMP_FOLDER . $file_name)) {
-                log_message('info', __FUNCTION__ . ' File created ' . $file_name);
-                $res1 = 0;
-                system(" chmod 777 " . TMP_FOLDER . $file_name, $res1);
-                $res['status'] = true;
-                $res['msg'] = base_url() . "file_process/downloadFile/" . $file_name;
             } else {
-                log_message('info', __FUNCTION__ . ' error in generating file ' . $file_name);
-                $res['status'] = FALSE;
-                $res['msg'] = 'error in generating file';
+
+                $this->load->dbutil();
+                $this->load->helper('file');
+
+                $file_name = $request_type . '_stock_data_' . date('j-M-Y-H-i-s') . ".csv";
+                $delimiter = ",";
+                $newline = "\r\n";
+                $new_report = $this->dbutil->csv_from_result($bom_details, $delimiter, $newline);
+
+                write_file(TMP_FOLDER . $file_name, $new_report);
+
+                if (file_exists(TMP_FOLDER . $file_name)) {
+                    log_message('info', __FUNCTION__ . ' File created ' . $file_name);
+                    $res1 = 0;
+                    system(" chmod 777 " . TMP_FOLDER . $file_name, $res1);
+                    $res['status'] = true;
+                    $res['msg'] = base_url() . "file_process/downloadFile/" . $file_name;
+                } else {
+                    log_message('info', __FUNCTION__ . ' error in generating file ' . $file_name);
+                    $res['status'] = FALSE;
+                    $res['msg'] = 'error in generating file';
+                }
             }
-        }
         }
         echo json_encode($res);
     }
@@ -8909,13 +8877,11 @@ class Inventory extends CI_Controller {
                 . " (invoice_details.cgst_tax_amount + invoice_details.igst_tax_amount + invoice_details.sgst_tax_amount) AS gst_tax_amount, total_amount, vendor_partner_invoices.type, entt_gst_dtl.gst_number,entity_gst_details.gst_number as to_gst_number,"
                 . "vendor_partner_invoices.sub_category";
 
-        $where = array("sub_category IN ('" . MSL_DEFECTIVE_RETURN . "', '". MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  .  IN_WARRANTY . "', '" . MSL . "', '" . MSL_NEW_PART_RETURN . "')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
+        $where = array("sub_category IN ('" . MSL_DEFECTIVE_RETURN . "', '" . MSL_Credit_Note . "', '" . MSL_Debit_Note . "', '" . IN_WARRANTY . "', '" . MSL . "', '" . MSL_NEW_PART_RETURN . "')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
 
-        $post['column_search'] = array('invoice_details.invoice_id', 'invoice_details.description', 'entity_gst_details.gst_number','part_number');
-        $list = $this->inventory_model->get_inventory_ledger_details_data_view($select, $where,$post);
-        
+        $post['column_search'] = array('invoice_details.invoice_id', 'invoice_details.description', 'entity_gst_details.gst_number', 'part_number');
+        $list = $this->inventory_model->get_inventory_ledger_details_data_view($select, $where, $post);
 
-        
         $no = $post['start'];
         $data = array();
         foreach ($list as $spare_list) {
@@ -9017,7 +8983,7 @@ class Inventory extends CI_Controller {
                 . " (invoice_details.cgst_tax_amount + invoice_details.igst_tax_amount + invoice_details.sgst_tax_amount) AS 'GST Tax Amount', total_amount AS 'Total Amount', vendor_partner_invoices.type AS Type, entt_gst_dtl.gst_number AS 'From GST Number',entity_gst_details.gst_number AS 'To GST Number',"
                 . "vendor_partner_invoices.sub_category AS 'Sub Category',courier_details.AWB_no AS 'Awb_Number',courier_details.courier_name AS 'Courier Name',date_format(courier_details.shipment_date, \"%d-%b-%Y %H:%i:%s\") AS 'Shipment Date'";
 
-        $where = array("sub_category IN ('" . MSL_DEFECTIVE_RETURN . "', '" .MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . IN_WARRANTY . "', '" . MSL . "', '" . MSL_NEW_PART_RETURN . "')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
+        $where = array("sub_category IN ('" . MSL_DEFECTIVE_RETURN . "', '" . MSL_Credit_Note . "', '" . MSL_Debit_Note . "', '" . IN_WARRANTY . "', '" . MSL . "', '" . MSL_NEW_PART_RETURN . "')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
 
         if (!empty($partner_id)) {
             $bom_details = $this->inventory_model->get_inventory_ledger_details_data($select, $where);
@@ -9097,7 +9063,6 @@ class Inventory extends CI_Controller {
             $data = array('inventory_model_mapping.max_quantity' => $this->input->post("max_qty"));
             $where = array('inventory_model_mapping.id' => $this->input->post("model_mapping_id"));
 
-
             $affect_row = $this->inventory_model->update_inventory_model_mapping($data, $where);
 
             if ($affect_row) {
@@ -9121,13 +9086,12 @@ class Inventory extends CI_Controller {
         $spare_parts_id = $this->input->post("spare_parts_id");
         $booking_id = $this->input->post("booking_id");
         $spare_action = $this->update_action_on_spare_parts($spare_parts_id, $booking_id, "DELIVERED_PART_CANCELLED");
-        
+
         /* Load data which is required i.e., remove all shipped details & courier details */
         $spare_data = $this->miscelleneous->load_data_to_cancel_micro_wh_part($spare_parts_id, _247AROUND_CANCELLED, NULL);
         /* update data of spare parts details */
         $this->service_centers_model->update_spare_parts(['id' => $spare_parts_id], $spare_data);
 
-        
         //increase stock on cancel part
         $data = array(
             "receiver_entity_type" => _247AROUND_SF_STRING,
@@ -9234,7 +9198,7 @@ class Inventory extends CI_Controller {
             $select = 'spare_parts_details.booking_id,oow_spare_invoice_details.id,oow_spare_invoice_details.invoice_id,oow_spare_invoice_details.spare_id,oow_spare_invoice_details.invoice_date,oow_spare_invoice_details.hsn_code,oow_spare_invoice_details.invoice_amount as total_invoice_amount,oow_spare_invoice_details.gst_rate,oow_spare_invoice_details.invoice_pdf';
             $where = array("spare_parts_details.id IN(" . $spare_ids . ")" => NULL);
             $oow_invoice_data = $this->inventory_model->get_spare_invoice_details($select, $where);
-            $invoice_details =array();
+            $invoice_details = array();
             foreach ($oow_invoice_data as $key => $val) {
                 $tax_amount = $this->booking_model->get_calculated_tax_charge($val['total_invoice_amount'], $val['gst_rate']);
                 $invoice_details[$key]['id'] = $val['id'];
@@ -9242,11 +9206,11 @@ class Inventory extends CI_Controller {
                 $invoice_details[$key]['invoice_id'] = $val['invoice_id'];
                 $invoice_details[$key]['booking_id'] = $val['booking_id'];
                 $invoice_details[$key]['invoice_date'] = $val['invoice_date'];
-                
+
                 $hsn_code_arr = $this->inventory_model->get_hsn_code_details('hsn_code_details.id,'
-                                    . 'hsn_code_details.hsn_code,hsn_code_details.gst_rate', 
-                                array('hsn_code_details.id' => $val['hsn_code']));
-                
+                        . 'hsn_code_details.hsn_code,hsn_code_details.gst_rate',
+                        array('hsn_code_details.id' => $val['hsn_code']));
+
                 $invoice_details[$key]['hsn_code'] = $hsn_code_arr[0]['id'];
                 $invoice_details[$key]['gst_rate'] = $val['gst_rate'];
                 $invoice_details[$key]['invoice_pdf'] = $val['invoice_pdf'];
@@ -9296,7 +9260,6 @@ class Inventory extends CI_Controller {
         log_message('info', __METHOD__ . ' Entering...');
 
         $data = $this->input->post('dataToAdd');
-
 
         $insert_batch = $this->inventory_model->insert_part_type_mapping_batch($data);
 
@@ -9369,7 +9332,7 @@ class Inventory extends CI_Controller {
         if (!empty($entity_id)) {
             $post['column_order'] = array();
             $post['column_search'] = array('v.invoice_id', 'v.create_date');
-            $where = "im.entity_id = $entity_id AND im.entity_type ='" . $entity_type . "' AND  v.sub_category IN('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_SECURITY_AMOUNT."', '".MSL_NEW_PART_RETURN."' ) ";
+            $where = "im.entity_id = $entity_id AND im.entity_type ='" . $entity_type . "' AND  v.sub_category IN('" . MSL_DEFECTIVE_RETURN . "', '" . IN_WARRANTY . "', '" . MSL_Credit_Note . "', '" . MSL_Debit_Note . "', '" . MSL . "', '" . MSL_SECURITY_AMOUNT . "', '" . MSL_NEW_PART_RETURN . "' ) ";
             if (!empty($service_centers_id)) {
                 $where .= " AND v.vendor_partner_id = " . $service_centers_id;
             }
@@ -9431,7 +9394,7 @@ class Inventory extends CI_Controller {
             $select = "v.invoice_id AS 'Invoice Id', v.create_date AS 'Invoice Date', case when (v.type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'Invoice Type', im.part_number AS 'Part Number', i.description AS 'Description',sc.name as 'Service Center Name', im.hsn_code AS 'HSN Code', i.qty AS 'Quantity', i.settle_qty as 'Settled Quantity', i.rate AS 'Rate', i.taxable_value AS 'Taxable Value', (i.cgst_tax_rate + i.igst_tax_rate + i.sgst_tax_rate) AS 'GST Rate', (i.cgst_tax_amount + i.igst_tax_amount + i.sgst_tax_amount) AS 'GST Tax Amount', i.total_amount AS 'Total Amount', v.type AS 'Type', entt_gst_dtl.gst_number AS 'From GST Number', entity_gst_details.gst_number AS 'To GST Number', v.sub_category AS 'Sub Category'";
             $where["im.entity_id"] = $entity_id;
             $where["im.entity_type"] = _247AROUND_PARTNER_STRING;
-            $where["v.sub_category IN('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_SECURITY_AMOUNT."', '".MSL_NEW_PART_RETURN."' )"] = null;
+            $where["v.sub_category IN('" . MSL_DEFECTIVE_RETURN . "', '" . IN_WARRANTY . "', '" . MSL_Credit_Note . "', '" . MSL_Debit_Note . "', '" . MSL . "', '" . MSL_SECURITY_AMOUNT . "', '" . MSL_NEW_PART_RETURN . "' )"] = null;
             if (!empty($service_center_id)) {
                 $where["v.vendor_partner_id"] = $service_center_id;
             }
@@ -9565,8 +9528,8 @@ class Inventory extends CI_Controller {
 
         return $row;
     }
-       
-     /*
+
+    /*
      *  @desc : This function is used to get courier serviceable area list.
      *  @param : void
      *  @return : Json
@@ -9592,12 +9555,13 @@ class Inventory extends CI_Controller {
         }
         echo json_encode($output);
     }
-    
+
     /*
      *  @desc : This function is used to draw courier serviceable area list in bulk.
      *  @param : void
      *  @return : void
      */
+
     function get_courier_serviceable_area_list_data() {
         $post = $this->get_post_data();
         $courier_flag = trim($this->input->post('courier_flag'));
@@ -9621,12 +9585,14 @@ class Inventory extends CI_Controller {
             'post' => $post
         );
     }
-     /*
+
+    /*
      *  @desc : This function is used to draw courier serviceable area list in single line item.
      *  @param : $serviceable_area
-      * @param : $no
+     * @param : $no
      *  @return : array
      */
+
     function get_courier_serviceable_area_list_table($serviceable_area, $no) {
         $row = array();
         $json_data = json_encode($serviceable_area);
@@ -9649,39 +9615,41 @@ class Inventory extends CI_Controller {
 
         return $row;
     }
-    
+
     /*
      *  @desc : This function is used to open the download courier invoice page 
      *  @param : void
      *  @return : void
      */
+
     function download_courier_invoice() {
         $this->checkUserSession();
         $this->miscelleneous->load_nav_header();
         $this->load->view("employee/courier_invoice_list");
     }
-    
+
     /*
      *  @desc : This function is used to download the courier invoice data
      *  @param : void
      *  @return : void
      */
-    function download_courier_invoice_data(){
+
+    function download_courier_invoice_data() {
 
         log_message('info', __METHOD__ . ' Processing...');
 
         $partner_id = $this->input->post('partner_id');
         $date_range = $this->input->post('date_range');
-        if(!empty($date_range)){
-           $date_array = explode('-', $date_range); 
+        if (!empty($date_range)) {
+            $date_array = explode('-', $date_range);
         }
-        
-        if(isset($date_array[0])){
-          $from_date = date("Y-m-d", strtotime($date_array[0]));  
+
+        if (isset($date_array[0])) {
+            $from_date = date("Y-m-d", strtotime($date_array[0]));
         }
-        
-        if(isset($date_array[1])){
-          $to_date = date("Y-m-d", strtotime($date_array[1].  "+1 days"));  
+
+        if (isset($date_array[1])) {
+            $to_date = date("Y-m-d", strtotime($date_array[1] . "+1 days"));
         }
 
         if (!empty($partner_id)) {
@@ -9693,9 +9661,9 @@ class Inventory extends CI_Controller {
                 if ($partner_id != 'all') {
                     $where['billed_docket.entity_id'] = $partner_id;
                 }
-                
+
                 $where['billed_docket.create_date >= "' . $from_date . '" AND billed_docket.create_date <= "' . $to_date . '"'] = NULL;
-                
+
                 $courier_invoice_details = $this->inventory_model->get_courier_invoice_data($select, $where);
                 $this->load->dbutil();
                 $this->load->helper('file');
@@ -9726,6 +9694,7 @@ class Inventory extends CI_Controller {
 
         echo json_encode($res);
     }
+
     /**
      * @Desc: This function is used for view page of bulk warrenty checker in partner panel
      * @params: void
@@ -9781,14 +9750,14 @@ class Inventory extends CI_Controller {
                             $arrBookings = array();
                             $arrWarrantyData = array();
                             $arrModelWiseWarrantyData = array();
-                            foreach($bookingID_chunks as $key => $booking_chunks){
+                            foreach ($bookingID_chunks as $key => $booking_chunks) {
                                 $arrBookings_chunk = $this->warranty_utilities->get_warranty_specific_data_of_bookings($booking_chunks);
                                 $arrWarrantyData_chunk = $this->warranty_utilities->get_warranty_data($arrBookings_chunk, true);
                                 $arrModelWiseWarrantyData_chunk = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData_chunk);
 
-                                $arrBookings = array_merge($arrBookings_chunk,$arrBookings);
-                                $arrWarrantyData = array_merge($arrWarrantyData_chunk,$arrWarrantyData);
-                                $arrModelWiseWarrantyData = array_merge($arrModelWiseWarrantyData_chunk,$arrModelWiseWarrantyData);
+                                $arrBookings = array_merge($arrBookings_chunk, $arrBookings);
+                                $arrWarrantyData = array_merge($arrWarrantyData_chunk, $arrWarrantyData);
+                                $arrModelWiseWarrantyData = array_merge($arrModelWiseWarrantyData_chunk, $arrModelWiseWarrantyData);
                             }
                             foreach ($arrBookings as $key => $value) {
                                 if (!empty($arrModelWiseWarrantyData[$value['model_number']])) {
@@ -9822,15 +9791,16 @@ class Inventory extends CI_Controller {
             $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], BULK_CHECK_WARRANTY_STATUS, FILE_UPLOAD_SUCCESS_STATUS, "", "partner", $partner_id);
         }
         if (!empty($data['file_name'])) {
-                $fileName = TMP_FOLDER . $data['file_name'];
-                if (file_exists($fileName)) {
-                    unlink($fileName);
-                }
+            $fileName = TMP_FOLDER . $data['file_name'];
+            if (file_exists($fileName)) {
+                unlink($fileName);
             }
+        }
         $this->miscelleneous->load_partner_nav_header();
         $this->load->view('partner/bulk_warranty_checker', array('warrentyStatus' => $warrentyStatus, 'partner_id' => $partner_id, 'errormessage' => $errormessage));
         $this->load->view('partner/partner_footer');
     }
+
     /**
      * @desc: This function is used to get the file type
      * @param void
@@ -9921,47 +9891,47 @@ class Inventory extends CI_Controller {
     function resend_delivery_on_challan() {
         $post_data = $this->input->post();
         $spare_id = $post_data['spare_id'];
-        
-        if(empty($spare_id)) {
+
+        if (empty($spare_id)) {
             return false;
         }
         /* get spare part details of $spare_id */
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
         $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
-        
+
         // If part consumed status should defective part otherwise ok part.
         $spare_status = DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH;
-        if(!empty($is_spare_consumed) && $is_spare_consumed == 1) {
+        if (!empty($is_spare_consumed) && $is_spare_consumed == 1) {
             $spare_status = DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH;
         } else {
             $spare_status = OK_PARTS_SEND_TO_PARTNER_BY_WH;
         }
-        
+
         /**
          * Update spare parts.
          */
         $this->service_centers_model->update_spare_parts(
-            array('id' => $spare_id), 
-            array(
-                'status' => $spare_status,
-                'remarks_defective_part_by_partner' => NULL,
-                'defective_part_rejected_by_partner'=> 0,
-            )
+                array('id' => $spare_id),
+                array(
+                    'status' => $spare_status,
+                    'remarks_defective_part_by_partner' => NULL,
+                    'defective_part_rejected_by_partner' => 0,
+                )
         );
-        
+
         /**
          * log this change in spare tracking history
          */
         $tracking_details = array(
-            'spare_id' => $spare_id, 
-            'action' => $spare_status, 
-            'remarks' => $spare_status, 
+            'spare_id' => $spare_id,
+            'action' => $spare_status,
+            'remarks' => $spare_status,
         );
-        if(!empty($this->session->userdata('warehouse_id'))) {
+        if (!empty($this->session->userdata('warehouse_id'))) {
             $tracking_details['agent_id'] = $this->session->userdata('id');
             $tracking_details['entity_id'] = _247AROUND;
             $tracking_details['entity_type'] = _247AROUND_EMPLOYEE_STRING;
-        } else { 
+        } else {
             $tracking_details['agent_id'] = $this->session->userdata('service_center_agent_id');
             $tracking_details['entity_id'] = $this->session->userdata('service_center_id');
             $tracking_details['entity_type'] = _247AROUND_SF_STRING;
@@ -9973,14 +9943,14 @@ class Inventory extends CI_Controller {
          */
         $actor = ACTOR_NOT_DEFINE;
         $next_action = NEXT_ACTION_NOT_DEFINE;
-                    
+
         // fetch record from booking details of $booking_id.
         $booking_id = $spare_part_detail['booking_id'];
         $partner_id = $spare_part_detail['partner_id'];
-        $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
+        $booking_details = $this->booking_model->get_booking_details('*', ['booking_id' => $booking_id])[0];
 
         $is_exist = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status", array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.defective_part_required' => 1, "status IN  (
-                        '" . DEFECTIVE_PARTS_RECEIVED . "', '" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "', '" .Ok_PARTS_RECEIVED_BY_WAREHOUSE . "', '" . Ok_PARTS_RECEIVED . "', '".OK_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PARTS_REJECTED."') " => NULL));
+                        '" . DEFECTIVE_PARTS_RECEIVED . "', '" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "', '" . Ok_PARTS_RECEIVED_BY_WAREHOUSE . "', '" . Ok_PARTS_RECEIVED . "', '" . OK_PARTS_SHIPPED . "', '" . DEFECTIVE_PARTS_SHIPPED . "', '" . DEFECTIVE_PARTS_REJECTED . "', '" . OK_PARTS_REJECTED . "') " => NULL));
 
         if (empty($is_exist)) {
             $booking_internal_status = $spare_status;
@@ -9989,7 +9959,7 @@ class Inventory extends CI_Controller {
         }
 
         // Change booking internal status if booking is completed.
-        if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+        if ($booking_details['current_status'] == _247AROUND_COMPLETED) {
             $booking = [];
             $booking['internal_status'] = $booking_internal_status;
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, $booking['internal_status'], $partner_id, $booking_id);
@@ -10002,34 +9972,30 @@ class Inventory extends CI_Controller {
             $this->booking_model->update_booking($booking_id, $booking);
         }
 
-        if(!empty($this->session->userdata('warehouse_id'))) {
+        if (!empty($this->session->userdata('warehouse_id'))) {
             $this->notify->insert_state_change($booking_id, $spare_status, $spare_part_detail['status'], $spare_status, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor, $next_action, _247AROUND, NULL, $spare_id);
         } else {
             $this->notify->insert_state_change($booking_id, $spare_status, $spare_part_detail['status'], $spare_status, $this->session->userdata('service_center_agent_id'), $this->session->userdata('service_center_name'), $actor, $next_action, NULL, $this->session->userdata('service_center_id'), $spare_id);
         }
-        
+
         return true;
     }
- 
- 
-  /**
+
+    /**
      *  @desc : This function is used to get the view of table for non return part from SF
      *  @param : void()
      *  @return : View
      *  @Author : Abhishek Awasthi
      */
-
-    function show_non_return_part(){
+    function show_non_return_part() {
 
         $this->miscelleneous->load_nav_header();
         $data['saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $data['partners'] = $this->partner_model->getpartner();
-        $this->load->view("employee/show_non_return_part_sf",$data);
-
+        $this->load->view("employee/show_non_return_part_sf", $data);
     }
- 
 
-  /**
+    /**
      *  @desc : This function is used to get the get_get_spare_parts
      *  @param : void()
      *  @return : JSON
@@ -10103,8 +10069,7 @@ class Inventory extends CI_Controller {
 //        $row[] = '<input id="selectbox" data-spare-id="' . $spare->sid . '" data-partner-id="'.$spare->partner_id.'" data-is-micro-wh="'.$spare->is_micro_wh.'" data-shipped-inventory-id="'.$spare->shipped_inventory_id.'" data-booking-id="'.$spare->booking_id.'" data-shipping-quantity="'.$spare->shipping_quantity.'" data-part-name="'.$spare->part_name.'" data-defective-return-to-entity-id="'.$spare->defective_return_to_entity_id.'" data-sc-code="'.$spare->sc_code.'" class="select_part"  type="checkbox"  />';
 //        return $row;
 //    }
- 
-  
+
     /**
      * @desc : Method is used to accept the parts which was rejected by partner on delivery challan.
      * After this action part will show on Delivery on challan send to partner tab
@@ -10113,65 +10078,65 @@ class Inventory extends CI_Controller {
     function justify_delivery_on_challan() {
         $post_data = $this->input->post();
         $spare_id = $post_data['spare_id'];
-        
-        if(empty($spare_id)) {
+
+        if (empty($spare_id)) {
             return false;
         }
         /* get spare part details of $spare_id */
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
         $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
-        
+
         // If part consumed status should defective part otherwise ok part.
         $spare_status = DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE;
-        if(!empty($is_spare_consumed) && $is_spare_consumed == 1) {
+        if (!empty($is_spare_consumed) && $is_spare_consumed == 1) {
             $spare_status = DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE;
         } else {
             $spare_status = Ok_PARTS_RECEIVED_BY_WAREHOUSE;
         }
-        
+
         /**
          * Update spare parts.
          */
         $this->service_centers_model->update_spare_parts(
-            array('id' => $spare_id), 
-            array(
-                'status' => $spare_status,
-                'wh_to_partner_defective_shipped_date' => NULL
-            )
+                array('id' => $spare_id),
+                array(
+                    'status' => $spare_status,
+                    'wh_to_partner_defective_shipped_date' => NULL
+                )
         );
-        
+
         /**
          * log this change in spare tracking history
          */
         $tracking_details = array(
-            'spare_id' => $spare_id, 
-            'action' => $spare_status, 
-            'remarks' => $spare_status, 
+            'spare_id' => $spare_id,
+            'action' => $spare_status,
+            'remarks' => $spare_status,
         );
-        if(!empty($this->session->userdata('warehouse_id'))) {
+        if (!empty($this->session->userdata('warehouse_id'))) {
             $tracking_details['agent_id'] = $this->session->userdata('id');
             $tracking_details['entity_id'] = _247AROUND;
             $tracking_details['entity_type'] = _247AROUND_EMPLOYEE_STRING;
-        } else { 
+        } else {
             $tracking_details['agent_id'] = $this->session->userdata('service_center_agent_id');
             $tracking_details['entity_id'] = $this->session->userdata('service_center_id');
             $tracking_details['entity_type'] = _247AROUND_SF_STRING;
         }
         $this->service_centers_model->insert_spare_tracking_details($tracking_details);
-        
+
         /**
          * Log this change in booking state change & update booking internal status.
          */
         $actor = ACTOR_NOT_DEFINE;
         $next_action = NEXT_ACTION_NOT_DEFINE;
-                    
+
         // fetch record from booking details of $booking_id.
         $booking_id = $spare_part_detail['booking_id'];
         $partner_id = $spare_part_detail['partner_id'];
-        $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
+        $booking_details = $this->booking_model->get_booking_details('*', ['booking_id' => $booking_id])[0];
 
         $is_exist = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status", array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.defective_part_required' => 1, "status IN  (
-                        '" . DEFECTIVE_PARTS_RECEIVED . "', '" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "', '" .Ok_PARTS_RECEIVED_BY_WAREHOUSE . "', '" . Ok_PARTS_RECEIVED . "', '".OK_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PARTS_REJECTED."') " => NULL));
+                        '" . DEFECTIVE_PARTS_RECEIVED . "', '" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "', '" . Ok_PARTS_RECEIVED_BY_WAREHOUSE . "', '" . Ok_PARTS_RECEIVED . "', '" . OK_PARTS_SHIPPED . "', '" . DEFECTIVE_PARTS_SHIPPED . "', '" . DEFECTIVE_PARTS_REJECTED . "', '" . OK_PARTS_REJECTED . "') " => NULL));
 
         if (empty($is_exist)) {
             $booking_internal_status = $spare_status;
@@ -10180,7 +10145,7 @@ class Inventory extends CI_Controller {
         }
 
         // Change booking internal status if booking is completed.
-        if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+        if ($booking_details['current_status'] == _247AROUND_COMPLETED) {
             $booking = [];
             $booking['internal_status'] = $booking_internal_status;
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, $booking['internal_status'], $partner_id, $booking_id);
@@ -10192,26 +10157,26 @@ class Inventory extends CI_Controller {
             }
             $this->booking_model->update_booking($booking_id, $booking);
         }
-        
-        if(!empty($this->session->userdata('warehouse_id'))) {
+
+        if (!empty($this->session->userdata('warehouse_id'))) {
             $this->notify->insert_state_change($booking_id, $spare_status, $spare_part_detail['status'], $spare_status, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor, $next_action, _247AROUND, NULL, $spare_id);
         } else {
             $this->notify->insert_state_change($booking_id, $spare_status, $spare_part_detail['status'], $spare_status, $this->session->userdata('service_center_agent_id'), $this->session->userdata('service_center_name'), $actor, $next_action, NULL, $this->session->userdata('service_center_id'), $spare_id);
         }
-        
+
         return true;
     }
-
 
     /**
      *  @desc : This function is used to search inventory stocks on warehouse(as Micro-warehouse,central warehouse).
      *  @param : void
      *  @return : void
      */
-    function warehouse_inventory_stock(){
+    function warehouse_inventory_stock() {
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/wareouse_inventory_stock_list_part_number');
-    }  
+    }
+
     /**
      *  @desc : This function is used to show view file of defective part Dashboard
      *  @param : void
@@ -10276,14 +10241,14 @@ class Inventory extends CI_Controller {
                 $partner_details = $this->partner_model->getpartner_data('distinct partners.id,partners.public_name', $partnerWhere, "", null, 1, '');
                 $publicName = $partner_details[0]['public_name'];
                 $select = "invoice_details.id, case when (type_code = 'B') THEN 'purchase_invoice' ELSE 'sale_invoice' END AS 'invoice_type', total_amount,invoice_details.taxable_value";
-                $where = array("sub_category IN ('" . MSL_DEFECTIVE_RETURN . "', '" .MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . IN_WARRANTY . "', '" . MSL . "', '" . MSL_NEW_PART_RETURN . "')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
+                $where = array("sub_category IN ('" . MSL_DEFECTIVE_RETURN . "', '" . MSL_Credit_Note . "', '" . MSL_Debit_Note . "', '" . IN_WARRANTY . "', '" . MSL . "', '" . MSL_NEW_PART_RETURN . "')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
                 $post['column_search'] = array('invoice_details.invoice_id', 'invoice_details.description', 'entity_gst_details.gst_number', 'part_number');
                 $list = $this->inventory_model->get_inventory_ledger_details_data_view($select, $where, $post);
 
                 $purchasecount = 0;
                 $salecount = 0;
                 foreach ($list as $key => $value) {
-                   
+
                     $invoice_type = $value->invoice_type;
                     $total_amount = $value->taxable_value;
                     if ($invoice_type == 'purchase_invoice') {
@@ -10360,9 +10325,9 @@ class Inventory extends CI_Controller {
                 $total_part_amount = 0;
 
                 $select = 'SUM(spare_parts_details.sell_price)  as total_sell_price';
-                $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('booking_details.partner_id'=>$partner_id,'spare_parts_details.sell_invoice_id is not null'=>NULL,'spare_parts_details.reverse_sale_invoice_id is  null'=>NULL),true);
-                
-                if(!empty($spare_parts_details)){
+                $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('booking_details.partner_id' => $partner_id, 'spare_parts_details.sell_invoice_id is not null' => NULL, 'spare_parts_details.reverse_sale_invoice_id is  null' => NULL), true);
+
+                if (!empty($spare_parts_details)) {
                     $saleout_warranty = $spare_parts_details[0]['total_sell_price'];
                 }
 
@@ -10370,14 +10335,13 @@ class Inventory extends CI_Controller {
 
                 $in_transit_item_array = array(strtoupper(DEFECTIVE_PARTS_SHIPPED), strtoupper(OK_PARTS_SHIPPED), strtoupper(DAMAGE_PARTS_SHIPPED));
 
-                $in_transit_item_array1 = array(strtoupper(DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE), strtoupper(DEFECTIVE_PARTS_PENDING), strtoupper(OK_PART_TO_BE_SHIPPED), strtoupper(SPARE_DELIVERED_TO_SF), strtoupper(OK_PARTS_REJECTED_BY_WAREHOUSE), strtoupper(SPARE_OOW_SHIPPED),strtoupper(SPARE_PARTS_SHIPPED),strtoupper(SPARE_PARTS_SHIPPED_BY_WAREHOUSE));
+                $in_transit_item_array1 = array(strtoupper(DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE), strtoupper(DEFECTIVE_PARTS_PENDING), strtoupper(OK_PART_TO_BE_SHIPPED), strtoupper(SPARE_DELIVERED_TO_SF), strtoupper(OK_PARTS_REJECTED_BY_WAREHOUSE), strtoupper(SPARE_OOW_SHIPPED), strtoupper(SPARE_PARTS_SHIPPED), strtoupper(SPARE_PARTS_SHIPPED_BY_WAREHOUSE));
 
                 $completed_cancelled_array = array(_247AROUND_CANCELLED, 'Booking Completed - Defective Part Shipped By SF', 'Booking Completed - Defective Part To Be Shipped By SF', SPARE_PARTS_CANCELLED, 'Part Lost', 'Booking Completed - Ok Part To Be Shipped By SF', 'Booking Completed - Defective Part Rejected By Partner', 'Booking Completed By Service Centre', _247AROUND_COMPLETED, 'Cancelled - Customer not reachable / Customer not picked phone', NRN_APPROVED_BY_PARTNER, BOOKING_COMPLETED_BY_ENGINEER_STATUS, 'Cancelled - Refused By Customer', 'Cancelled - Customer out of station', 'Booking Completed - Defective Part Received By Partner', 'Booking Completed - Defective Part Rejected By Warehouse', 'Booking Completed - Defective Part Received By Warehouse', BOOKING_CANCELLED_BY_ENGINEER_STATUS, 'Booking Cancelled By Service Centre', 'Cancelled (Customer Refused Service)', 'Booking In Progress - Spare Parts Cancelled');
                 $completed_cancelled_array = array_map('strtoupper', $completed_cancelled_array);
 
                 $pending_rescheduled_array = array(SPARE_PARTS_REQUESTED, 'Pending (Product Not Delivered To Customer)', SPARE_SHIPPED_BY_PARTNER, 'Spare Parts Requested By Service Centre', SPARE_DELIVERED_TO_SF, 'Booking In Progress', _247AROUND_RESCHEDULED, CUSTOMER_NOT_REACHABLE, SPARE_SHIPPED_TO_WAREHOUSE, 'Spare Parts Requested By Service Centre - Pending on Approval', 'Spare parts not received by SF', ESTIMATE_APPROVED_BY_CUSTOMER, 'Invoice not available', 'Booking In Progress - Service Centre Assigned', 'Booking In Progress - Engineer On Route', 'Booking In Progress - Service Center Reassigned', CUSTOMER_ASK_TO_RESCHEDULE, _247AROUND_PENDING, WAREHOUSE_ACKNOWLEDGED_TO_RECEIVE_PARTS, _247AROUND__SCHEDULED, 'Pending (Customer Not Responding)', 'Rescheduled - Upcountry Booking');
                 $pending_rescheduled_array = array_map('strtoupper', $pending_rescheduled_array);
-
 
                 $select = "spare_parts_details.id as spare_id, booking_details.partner_current_status as 'Partner Status Level 1', booking_details.partner_internal_status as 'Partner Status Level 2', spare_parts_details.status as 'Spare Status', "
                         . "datediff(CURRENT_DATE, spare_parts_details.shipped_date) as 'Spare Shipped Age', challan_approx_value As 'Parts Charge'";
@@ -10423,9 +10387,7 @@ class Inventory extends CI_Controller {
                 $total_part_count = $out_tat_part_completed_cancelled_count + $out_tat_part_pending_rescheduled_count + $in_tat_part_completed_cancelled_count + $in_tat_part_pending_rescheduled_count;
                 $total_part_amount = $out_tat_part_completed_cancelled_amount + $out_tat_part_pending_rescheduled_amount + $in_tat_part_completed_cancelled_amount + $in_tat_part_pending_rescheduled_amount;
 
-
-
-                $difference = $total_Inward-$total_Outward-$defective_amount_at_wharehouse-$in_transit_part_amount-$total_part_amount-$whfreshStock_amount-$whfreshStock_amount_micro-$saleout_warranty;
+                $difference = $total_Inward - $total_Outward - $defective_amount_at_wharehouse - $in_transit_part_amount - $total_part_amount - $whfreshStock_amount - $whfreshStock_amount_micro - $saleout_warranty;
 
                 /*
                  * Change All Amount values to 2 decimal places
@@ -10467,21 +10429,19 @@ class Inventory extends CI_Controller {
                 } else {
                     $percentage = '';
                 }
-                $array['data'][] = array(++$row_count, $publicName, $percentage, $total_Inward, $total_Outward, $whfreshStock_amount, $whfreshStock_amount_micro,$saleout_warranty, $defective_amount_at_wharehouse, $out_tat_part_completed_cancelled_count, $out_tat_part_completed_cancelled_amount, $out_tat_part_pending_rescheduled_count, $out_tat_part_pending_rescheduled_amount, $in_transit_part_count, $in_transit_part_amount, $in_tat_part_completed_cancelled_count, $in_tat_part_completed_cancelled_amount, $in_tat_part_pending_rescheduled_count, $in_tat_part_pending_rescheduled_amount, $total_part_count, $total_part_amount, $difference);
+                $array['data'][] = array(++$row_count, $publicName, $percentage, $total_Inward, $total_Outward, $whfreshStock_amount, $whfreshStock_amount_micro, $saleout_warranty, $defective_amount_at_wharehouse, $out_tat_part_completed_cancelled_count, $out_tat_part_completed_cancelled_amount, $out_tat_part_pending_rescheduled_count, $out_tat_part_pending_rescheduled_amount, $in_transit_part_count, $in_transit_part_amount, $in_tat_part_completed_cancelled_count, $in_tat_part_completed_cancelled_amount, $in_tat_part_pending_rescheduled_count, $in_tat_part_pending_rescheduled_amount, $total_part_count, $total_part_amount, $difference);
             }
-            $array['data'][] = array('', 'Grand Total', '', '', '', '', '', '','', $grandtotal_out_tat_c_n_c_count, $grandtotal_out_tat_c_n_c_amount, $grandtotal_out_tat_p_n_r_count, $grandtotal_out_tat_p_n_r_amount, $grand_intransit_part_count, $grand_intransit_part_amount, $grandtotal_in_tat_c_n_c_count, $grandtotal_in_tat_c_n_c_amount, $grandtotal_in_tat_p_n_r_count, $grandtotal_in_tat_p_n_r_amount, $grand_total_part_count, $grand_total_part_amount, '');
+            $array['data'][] = array('', 'Grand Total', '', '', '', '', '', '', '', $grandtotal_out_tat_c_n_c_count, $grandtotal_out_tat_c_n_c_amount, $grandtotal_out_tat_p_n_r_count, $grandtotal_out_tat_p_n_r_amount, $grand_intransit_part_count, $grand_intransit_part_amount, $grandtotal_in_tat_c_n_c_count, $grandtotal_in_tat_c_n_c_amount, $grandtotal_in_tat_p_n_r_count, $grandtotal_in_tat_p_n_r_amount, $grand_total_part_count, $grand_total_part_amount, '');
         } else {
-            $array['data'][] = array('', '', '', '', '', '', '', '', '', '','', '', '', '', '', '', '', '', '', '', '', '');
+            $array['data'][] = array('', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');
         }
 
         $array['draw'] = $_POST['draw'];
         $array['recordsTotal'] = count($array['data']);
         $array['recordsFiltered'] = count($array['data']);
 
-
         echo json_encode($array);
     }
-
 
     /**
      *  @desc : This function is used to count number of times canceled status of booking rejected by admin 
@@ -10505,7 +10465,7 @@ class Inventory extends CI_Controller {
         $return_array['count'] = $count_cancelled_rejected;
         echo json_encode($return_array);
     }
-    
+
     /*
      *  @desc : This function is used to get spare part chages
      *  @param : void
@@ -10528,28 +10488,28 @@ class Inventory extends CI_Controller {
         }
         echo json_encode($data);
     }
-    
-    
-     /**
+
+    /**
      * @desc This function is used to create the view page to upload courier serviceable area file.
      * @param: null
      */
     function upload_courier_serviceable_area_file() {
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/upload_courier_serviceable_area',$data);
+        $this->load->view('employee/upload_courier_serviceable_area', $data);
     }
+
     /**
      * @desc This function is used to download all undelivered docket
      */
-    function download_undelivered_docket(){
-        $select ="`awb_number` as 'Docket Number', `courier_invoice_id` as 'Courier Company Invoice ID', `company_name` as 'Courier Name', "
+    function download_undelivered_docket() {
+        $select = "`awb_number` as 'Docket Number', `courier_invoice_id` as 'Courier Company Invoice ID', `company_name` as 'Courier Name', "
                 . "`courier_charge` as 'Courier Charges', `actual_weight` As 'Actual Weight', `billable_weight` As 'Billable Weight', `courier_invoice_file` As 'Courier Invoice File', "
                 . "`pickup_from` As 'Picku From', `box_count` as 'Large Box Count', `small_box_count` AS 'Small Box Count', `shippment_date` as 'Shippment Date', `courier_pod_file` as 'POD File',"
                 . " `is_rto`, `rto_file`, `create_date` AS 'Docket Entry Date'";
         $where = array('delivered_date IS NULL' => NULL);
         $data = $this->inventory_model->get_courier_company_invoice_details($select, $where, array(), true);
-        
+
         $this->load->dbutil();
         $this->load->helper('file');
         $file_name = 'courier_data_' . date('jMYHis') . ".csv";
@@ -10562,13 +10522,13 @@ class Inventory extends CI_Controller {
             header('Content-Description: File Transfer');
             header('Content-Type: application/octet-stream');
             header("Content-Disposition: attachment; filename=\"$file_name\"");
-            if(ob_get_length()>0) {
+            if (ob_get_length() > 0) {
                 ob_end_flush();
             }
             $res1 = 0;
-            if(file_exists(TMP_FOLDER . $file_name)) {
+            if (file_exists(TMP_FOLDER . $file_name)) {
                 system(" chmod 777 " . TMP_FOLDER . $file_name . '.zip ', $res1);
-                readfile(TMP_FOLDER . $file_name); 
+                readfile(TMP_FOLDER . $file_name);
             }
         } else {
             log_message('info', __FUNCTION__ . ' error in generating file ' . $file_name);
@@ -10576,37 +10536,36 @@ class Inventory extends CI_Controller {
 
         exit();
     }
-    
+
     /*
      *  @desc : This function is used to get HSN Code Details
      *  @param : void
      *  @return : $res array()
-     */ 
-    
-    
-     function get_hsn_code_details() {
-         
-        
+     */
+
+    function get_hsn_code_details() {
+
+
         $post = $this->get_post_data();
-              
+
         if (!empty($this->input->post('satus'))) {
-            
-        
+
+
             $post[''] = array();
             $post['column_order'] = 'hsn_code_details.create_date';
             $post['column_search'] = array('hsn_code_details.hsn_code', 'hsn_code_details.gst_rate');
-            
+
             $select = "hsn_code_details.id, hsn_code_details.hsn_code, hsn_code_details.status, hsn_code_details.gst_rate, hsn_code_details.service_id, hsn_code_details.create_date, services.services";
             $list = $this->inventory_model->get_hsncode_list($post, $select, true);
-           
+
             $data = array();
             $no = $post['start'];
-            
+
             foreach ($list as $hsncode_list) {
                 $no++;
                 $data[] = $this->get_hsn_code_details_table($hsncode_list, $no);
             }
-            
+
             $post['length'] = -1;
 
             $output = array(
@@ -10615,7 +10574,6 @@ class Inventory extends CI_Controller {
                 "recordsFiltered" => $this->inventory_model->count_filtered_hsncode_list($post),
                 "data" => $data,
             );
-            
         } else {
             $output = array(
                 "draw" => $this->input->post('draw'),
@@ -10627,13 +10585,13 @@ class Inventory extends CI_Controller {
         }
         echo json_encode($output);
     }
-    
+
     /*
      * @desc: This function is used to create table body to table.
      * @param: Array
      * @return: Array
      */
-    
+
     private function get_hsn_code_details_table($hsncode_list, $sn) {
         $row = array();
 
@@ -10643,17 +10601,16 @@ class Inventory extends CI_Controller {
         $row[] = '<span id="type_' . $hsncode_list->id . '">' . $hsncode_list->hsn_code . '</span>';
         $row[] = '<span id="part_name_' . $hsncode_list->id . '" style="word-break: break-all;">' . $hsncode_list->gst_rate . '%</span>';
         $row[] = '<span id="part_number_' . $hsncode_list->id . '" style="word-break: break-all;">' . $hsncode_list->create_date . '</span>';
-        $row[] = '<a class="btn btn-info" href="'.base_url() . 'employee/invoice/get_add_new_hsn_code/' . $hsncode_list->id.'"><i class="fa fa-edit" aria-hidden="true"></i></a>';
-        if($hsncode_list->status == 1){
-        $row[] = '<button type="button" class="btn btn-default" style="background-color: #d9534f; border-color: #fff; width: 90px; color: #fff;" id="' . $hsncode_list->id.'" onclick="process_to_manage_status(this.id)">Deactivate</button>';
-        }else{
-        $row[] = '<button type="button" class="btn btn-danger" style="background-color: #01903a; border-color: #fff; width: 90px; color: #fff;" href="#" id="' . $hsncode_list->id.'" onclick="process_to_manage_status(this.id)">Activate</button>';
+        $row[] = '<a class="btn btn-info" href="' . base_url() . 'employee/invoice/get_add_new_hsn_code/' . $hsncode_list->id . '"><i class="fa fa-edit" aria-hidden="true"></i></a>';
+        if ($hsncode_list->status == 1) {
+            $row[] = '<button type="button" class="btn btn-default" style="background-color: #d9534f; border-color: #fff; width: 90px; color: #fff;" id="' . $hsncode_list->id . '" onclick="process_to_manage_status(this.id)">Deactivate</button>';
+        } else {
+            $row[] = '<button type="button" class="btn btn-danger" style="background-color: #01903a; border-color: #fff; width: 90px; color: #fff;" href="#" id="' . $hsncode_list->id . '" onclick="process_to_manage_status(this.id)">Activate</button>';
         }
         return $row;
     }
-    
-         
-     /**
+
+    /**
      *  @desc : This function is used to show OOW Spare Parts Details
      *  @param : void
      *  @return : void
@@ -10670,14 +10627,14 @@ class Inventory extends CI_Controller {
 
         echo json_encode($output);
     }
-    
+
     /*
      *  @desc : This function is used to get the listing of oow spare
      *  @param : void
      *  @return : Array
      */
-    
-       function get_oow_spare_invoice_list_data() {
+
+    function get_oow_spare_invoice_list_data() {
         $post = $this->get_post_data();
         $post['spare_invoice_flag'] = true;
         $post['column_order'] = array();
@@ -10713,13 +10670,13 @@ class Inventory extends CI_Controller {
      *  @param : $invoice_list, $no
      *  @return : Array
      */
-    
+
     function get_inventory_spare_invoice_list_table($invoice_list, $no) {
         $row = array();
 
         $row[] = $no;
         $row[] = "<a href='javascript:void(0);' onclick= 'spare_history_tracking(" . $invoice_list->id . ")'>" . $invoice_list->id . "</a>";
-        $row[] = '<a  target="_blank" href="'.base_url().'employee/booking/viewdetails/'.$invoice_list->booking_id.'"  title="View">'.$invoice_list->booking_id.'</a>';
+        $row[] = '<a  target="_blank" href="' . base_url() . 'employee/booking/viewdetails/' . $invoice_list->booking_id . '"  title="View">' . $invoice_list->booking_id . '</a>';
         $row[] = "<spane style='word-break: break-all;'>" . $invoice_list->parts_shipped . "</span>";
         $row[] = $invoice_list->request_type;
         if ($invoice_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
@@ -10781,7 +10738,7 @@ class Inventory extends CI_Controller {
 
         return $row;
     }
-    
+
     /**
      * @desc This function is used to check excess part assigned to warehouse. 
      * If excess part assigned to warehouse according to stock then we are remap to partner
@@ -10801,7 +10758,7 @@ class Inventory extends CI_Controller {
             foreach ($data as $val) {
                 $excess = $this->inventory_model->get_inventory_stock_count_details('*', array('entity_id' => $wh_id['id'], 'entity_type' => _247AROUND_SF_STRING,
                     'inventory_id' => $val['requested_inventory_id'], 'stock < "' . $val['quantity'] . '"' => NULL));
-                    
+
                 if (!empty($excess)) {
                     $part = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, "
                             . "requested_inventory_id, spare_parts_details.quantity, booking_details.partner_id",
@@ -10882,51 +10839,44 @@ class Inventory extends CI_Controller {
             }
         }
     }
-  
+
     /**
      *  Author:Deepak Sharma
      *  @desc : This function is used save part type
      *  @param : array
      *  @return : void
      */
-     function get_part_type_option_list()
-    {
+    function get_part_type_option_list() {
         $part_type = "other";
-        try
-        {
+        try {
             if ($this->input->is_ajax_request()) {
                 $data = '';
-                $result = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.part_type,inventory_parts_type.id', array('part_type !='=> $part_type ,'inventory_parts_type.service_id' => $this->input->post('service_id')),TRUE);
-                foreach($result as $row)
-                {
-                    $data.= "<option value='".$row['id']."'>".$row['part_type']."</option>";
+                $result = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.part_type,inventory_parts_type.id', array('part_type !=' => $part_type, 'inventory_parts_type.service_id' => $this->input->post('service_id')), TRUE);
+                foreach ($result as $row) {
+                    $data .= "<option value='" . $row['id'] . "'>" . $row['part_type'] . "</option>";
                 }
                 echo $data;
-             }
-            else {
+            } else {
                 echo '';
             }
-            
-        }
-        catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             echo '';
         }
     }
-    
+
     /**
      *  @desc : This function is used to get inventory part types along with their warranty status
      *  @param : void
      *  @return : $res array()
-    */
+     */
     function get_parts_type_with_warranty_status($is_sf_request = false) {
         // Get List of Parts Covered in Warranty
         $arr_parts_in_warranty = array();
-        if(!empty($this->input->post('warranty_plan_id'))) {
+        if (!empty($this->input->post('warranty_plan_id'))) {
             $warranty_plan_id = $this->input->post('warranty_plan_id');
             $arr_parts_in_warranty = $this->warranty_model->get_warranty_parts_type_list_code($warranty_plan_id);
             $arr_parts_in_warranty = array_column($arr_parts_in_warranty, 'part_type');
-            $arr_parts_in_warranty = array_map(function($rec_parts_in_warranty){
+            $arr_parts_in_warranty = array_map(function ($rec_parts_in_warranty) {
                 return trim(strtolower($rec_parts_in_warranty));
             }, $arr_parts_in_warranty);
         }
@@ -10940,40 +10890,40 @@ class Inventory extends CI_Controller {
 
         $option = '<option selected disabled>Select Part Type</option>';
         foreach ($inventory_type as $value) {
-            $part_type = $value['type']." (OW)";
+            $part_type = $value['type'] . " (OW)";
             $part_warranty_status = 2;
-            if(in_array(trim(strtolower($value['type'])), $arr_parts_in_warranty)){
-                $part_type = $value['type']." (IW)";
+            if (in_array(trim(strtolower($value['type'])), $arr_parts_in_warranty)) {
+                $part_type = $value['type'] . " (IW)";
                 $part_warranty_status = 1;
             }
-            $option .= "<option data-part-warranty-status='".$part_warranty_status."' data-service_id='" . $value['service_id'] . "' value='" . $value['type'] . "'";
-            $option .=" > ";
+            $option .= "<option data-part-warranty-status='" . $part_warranty_status . "' data-service_id='" . $value['service_id'] . "' value='" . $value['type'] . "'";
+            $option .= " > ";
             $option .= $part_type . "</option>";
         }
 
         echo $option;
     }
-    
+
     /**
      *  @desc : This function is used to get inventory part type along with their warranty status
      *  @param : void
      *  @return : $res array()
-    */
+     */
     function get_inventory_parts_type_with_warranty_status() {
         // Get List of Parts Covered in Warranty
         $arr_parts_in_warranty = array();
-        if(!empty($this->input->post('warranty_plan_id'))) {
+        if (!empty($this->input->post('warranty_plan_id'))) {
             $warranty_plan_id = $this->input->post('warranty_plan_id');
             $arr_parts_in_warranty = $this->warranty_model->get_warranty_parts_type_list_code($warranty_plan_id);
             $arr_parts_in_warranty = array_column($arr_parts_in_warranty, 'part_type');
-            $arr_parts_in_warranty = array_map(function($rec_parts_in_warranty){
+            $arr_parts_in_warranty = array_map(function ($rec_parts_in_warranty) {
                 return trim(strtolower($rec_parts_in_warranty));
             }, $arr_parts_in_warranty);
         }
-        /* Check if any record exists in inventory_master_list table if exists then return message.*/
-        if(!empty($this->input->post('check_non_inventory'))) {
-            $inventory_master_list = $this->inventory_model->get_inventory_master_list_data('inventory_id', array('entity_id' => $this->input->post('partner_id'),'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $this->input->post('service_id')));
-            if(!empty($inventory_master_list)) {
+        /* Check if any record exists in inventory_master_list table if exists then return message. */
+        if (!empty($this->input->post('check_non_inventory'))) {
+            $inventory_master_list = $this->inventory_model->get_inventory_master_list_data('inventory_id', array('entity_id' => $this->input->post('partner_id'), 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $this->input->post('service_id')));
+            if (!empty($inventory_master_list)) {
                 $option = UPDATE_INVENTORY_MASTER_LIST_MSG;
             } else {
                 $option = '<option selected disabled>Select Part Type</option>';
@@ -10985,24 +10935,24 @@ class Inventory extends CI_Controller {
 
             if (!empty($this->input->post('request_type'))) {
                 foreach ($inventory_parts_type as $value) {
-                    $part_type = $value['part_type']." (OW)";
+                    $part_type = $value['part_type'] . " (OW)";
                     $part_warranty_status = 2;
-                    if(in_array(trim(strtolower($value['part_type'])), $arr_parts_in_warranty)){
-                        $part_type = $value['part_type']." (IW)";
+                    if (in_array(trim(strtolower($value['part_type'])), $arr_parts_in_warranty)) {
+                        $part_type = $value['part_type'] . " (IW)";
                         $part_warranty_status = 1;
                     }
-                    $option .= "<option data-part-warranty-status='".$part_warranty_status."' value='" . $value['id'] . "'>";
+                    $option .= "<option data-part-warranty-status='" . $part_warranty_status . "' value='" . $value['id'] . "'>";
                     $option .= $part_type . "</option>";
                 }
             } else {
                 foreach ($inventory_parts_type as $value) {
-                    $part_type = $value['part_type']." (OW)";
+                    $part_type = $value['part_type'] . " (OW)";
                     $part_warranty_status = 2;
-                    if(in_array(trim(strtolower($value['part_type'])), $arr_parts_in_warranty)){
-                        $part_type = $value['part_type']." (IW)";
+                    if (in_array(trim(strtolower($value['part_type'])), $arr_parts_in_warranty)) {
+                        $part_type = $value['part_type'] . " (IW)";
                         $part_warranty_status = 1;
                     }
-                    $option .= "<option data-part-warranty-status='".$part_warranty_status."' data-hsn-code-details='" . $value['hsn_code_details_id'] . "' value='" . $value['part_type'] . "'";
+                    $option .= "<option data-part-warranty-status='" . $part_warranty_status . "' data-hsn-code-details='" . $value['hsn_code_details_id'] . "' value='" . $value['part_type'] . "'";
                     $option .= " > ";
                     $option .= $part_type . "</option>";
                 }
@@ -11010,4 +10960,455 @@ class Inventory extends CI_Controller {
         }
         echo $option;
     }
+
+    function upload_msl_on_dc() {
+//        $str = '{"is_wh_micro_dc":"1","partner_id":"247130","wh_id":"15","dated":"14\/04\/2021","invoice_tag":"MSL","transfered_by":"1","challan_id":"87788888","invoice_amount":"601.8","awb_number":"8776677","courier_name":"\tAirwings Courier Express India","courier_shipment_date":"2021-04-13","box_count":"1","small_box_count":"2","from_gst_number":"5","to_gst_number":"7","part":[{"shippingStatus":"1","service_id":"46","part_number":"1100049277","part_name":"REMOTE CONTROL, IDTV,T801,MOD PRINTING","booking_id":"","quantity":"2","hsn_code":"85299090","gst_rate":"18","part_total_price":"397.50","inventory_id":"38553"},{"shippingStatus":"1","service_id":"46","part_number":"1100112812","part_name":"CONN,FFC,50,60P,69.32T20.F01,T-CON,ODT","booking_id":"","quantity":"3","hsn_code":"85369090","gst_rate":"18","part_total_price":"112.50","inventory_id":"43148"}],"total_spare_invoice_price":"601.8","tcs_rate":"0.00","final_total":"601.80","partner_name":" Videocon","wh_name":" 247around Ghaziabad ( Uttar Pradesh ) - (Central Warehouse)"}';
+//        $_POST = json_decode($_POST);
+        $partner_id = $this->input->post('partner_id');
+        $challan_id = $this->input->post('challan_id');
+        $challan_date = $this->input->post('dated');
+        $wh_id = $this->input->post('wh_id');
+        $is_wh_micro = $this->input->post('is_wh_micro_dc');
+        //$challan_amount = $this->input->post('challan_amount');
+        $awb_number = $this->input->post('awb_number');
+        $courier_name = $this->input->post('courier_name');
+        $courier_shipment_date = $this->input->post('courier_shipment_date');
+        $partner_name = trim($this->input->post('partner_name'));
+        $wh_name = trim($this->input->post('wh_name'));
+        $transfered_by = $this->input->post('transfered_by');
+        $from_gst_number = $this->input->post("from_gst_number");
+        $to_gst_number = $this->input->post("to_gst_number");
+        $box_count = $this->input->post("box_count");
+        $small_box_count = $this->input->post("small_box_count");
+        $parts_details = $this->input->post('part');
+        $is_valid = $this->_validate_msl_part_details_data($parts_details);
+        if ($is_valid['validation']) {
+            if (!empty($partner_id) && !empty($challan_date) && !empty($wh_id) && !empty($awb_number) && !empty($courier_name)) {
+
+                $sender_enity_id = $partner_id;
+                $sender_entity_type = _247AROUND_PARTNER_STRING;
+
+                $challanfile = $this->check_duplicate_msl_challan($challan_id);
+                if ($challanfile['status']) {
+                    $courier_file = $this->upload_spare_courier_file($_FILES);
+                    if ($courier_file['status']) {
+
+                        $this->db->trans_begin();
+
+                        $template1 = array(
+                            'table_open' => '<table border="1" cellpadding="2" cellspacing="0" class="mytable">'
+                        );
+
+                        $this->table->set_template($template1);
+
+                        $this->table->set_heading(array('Part Name', 'Part Number', 'Quantity', 'Booking Id', 'Basic Price', 'GST Rate', 'HSN Code'));
+
+                        if ($this->session->userdata('id')) {
+                            $agent_id = $this->session->userdata('id');
+                            $action_agent_id = $this->session->userdata('id');
+                            $action_entity_id = _247AROUND;
+                            $agent_type = _247AROUND_EMPLOYEE_STRING;
+                        } else {
+                            $agent_id = $this->session->userdata('partner_id');
+                            $action_agent_id = $this->session->userdata('agent_id');
+                            $action_entity_id = $this->session->userdata('partner_id');
+                            $agent_type = _247AROUND_PARTNER_STRING;
+                        }
+
+                        $entity_details = $this->partner_model->getpartner_details("district, state", array('partners.id' => $partner_id));
+                        $from_city = $entity_details[0]['district'];
+                        $from_state = $entity_details[0]['state'];
+                        if (!empty($from_gst_number)) {
+                            $partner_gst = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $from_gst_number));
+                            $partner_state_code = $partner_gst[0]['state'];
+                            $from_city = $partner_gst[0]['city'];
+                            $from_state = $this->invoices_model->get_state_code(array('state_code' => $partner_state_code))[0]['state'];
+                        } else {
+                            $partner_state_code = $this->invoices_model->get_state_code(array('state' => $entity_details[0]['state']))[0]['state_code'];
+                        }
+
+                        $around_gst = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $to_gst_number));
+
+                        if ($around_gst[0]['state'] == $partner_state_code) {
+                            $c_s_gst = true;
+                        } else {
+                            $c_s_gst = false;
+                        }
+
+                        $wh_details = $this->vendor_model->getVendorDetails("district, state, primary_contact_email as official_email", array('service_centres.id' => $wh_id));
+                        $to_city = $wh_details[0]['district'];
+                        $to_state = $wh_details[0]['state'];
+
+                        //$c_s_gst = $this->invoices_model->check_gst_tax_type($entity_details[0]['state']);
+
+                        $tqty = 0;
+                        $total_basic_amount = 0;
+                        $total_cgst_tax_amount = $total_sgst_tax_amount = $total_igst_tax_amount = 0;
+                        $challanbreakup = array();
+                        //update courier details
+                        $courier_data = array();
+                        $courier_data['sender_entity_id'] = $sender_enity_id;
+                        $courier_data['sender_entity_type'] = $sender_entity_type;
+                        $courier_data['receiver_entity_id'] = $wh_id;
+                        $courier_data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                        $courier_data['AWB_no'] = $awb_number;
+                        $courier_data['courier_name'] = $courier_name;
+                        $courier_data['create_date'] = date('Y-m-d H:i:s');
+                        $courier_data['quantity'] = 0;
+                        $courier_data['bill_to_partner'] = $partner_id;
+                        $courier_data['status'] = COURIER_DETAILS_STATUS;
+                        $courier_data['courier_file'] = $courier_file['message'];
+                        $total_quantity = (array_sum(array_column($parts_details, 'quantity')));
+                        $courier_data['quantity'] = $total_quantity;
+
+                        if (!empty($courier_shipment_date)) {
+                            $courier_data['shipment_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $courier_shipment_date)));
+                        }
+
+                        $exist_courier_details = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', '*', array('awb_number' => $awb_number), array());
+
+                        if (!empty($exist_courier_details)) {
+                            $courier_company_details_id = trim($exist_courier_details[0]['id']);
+                            $awb_data = array(
+                                'awb_number' => $courier_company_details_id[0]['awb_number'],
+                                'company_name' => $courier_company_details_id[0]['company_name'],
+                                'courier_invoice_file' => $courier_company_details_id[0]['courier_invoice_file']
+                            );
+
+                            //$awb_by_wh = trim($exist_courier_details[0]['awb_number']);
+                            //$courier_name_by_wh = trim($exist_courier_details[0]['company_name']);
+                            //$courier_price_by_wh = $exist_courier_details[0]['courier_charge'];
+                        } else {
+                            if ($transfered_by != MSL_TRANSFERED_BY_PARTNER) {
+                                $vendor_details = $this->vendor_model->getVendorDetails("district, state", array('service_centres.id' => $sender_enity_id));
+                                $from_city = $vendor_details[0]['district'];
+                                $from_state = $vendor_details[0]['state'];
+                            }
+
+                            $awb_data = array(
+                                'awb_number' => trim($awb_number),
+                                'company_name' => trim($courier_name),
+                                'partner_id' => $partner_id,
+                                'courier_charge' => '0.00',
+                                'box_count' => $box_count, //trim($this->input->post('shipped_spare_parts_boxes_count')),
+                                'small_box_count' => $small_box_count,
+                                'billable_weight' => '0.00', //trim($billable_weight),
+                                'actual_weight' => '0.00', //trim($billable_weight),
+                                'basic_billed_charge_to_partner' => '0.00',
+                                'courier_invoice_file' => $courier_file['message'],
+                                'shippment_date' => date("Y-m-d", strtotime(str_replace('/', '-', $courier_shipment_date))), //defective_part_shipped_date
+                                'created_by' => 1,
+                                'is_exist' => 1,
+                                'sender_city' => $from_city,
+                                'receiver_city' => $to_city,
+                                'sender_state' => $from_state,
+                                'receiver_state' => $to_state
+                            );
+
+                            $courier_company_details_id = $this->service_centers_model->insert_into_awb_details($awb_data);
+                        }
+
+                        $insert_courier_details = $this->inventory_model->insert_courier_details($courier_data);
+                        if ($insert_courier_details) {
+                            $not_updated_data = array();
+                            foreach ($parts_details as $key => $value) {
+                                $this->table->add_row($value['part_name'], $value['part_number'], $value['quantity'], $value['booking_id'], $value['part_total_price'], $value['gst_rate'], $value['hsn_code']);
+
+                                $tqty += $value['quantity'];
+
+                                $challan_annexure = $this->inventory_invoice_data($challan_id, $c_s_gst, $value, false);
+                                $inventory_master_data = $this->inventory_model->get_inventory_master_list_data("*", array('inventory_id' => $value['inventory_id']));
+                                if (!empty($inventory_master_data) && ((floatval($inventory_master_data[0]['price']) != floatval($challan_annexure['rate'])) || ($inventory_master_data[0]['hsn_code'] !== $value['hsn_code']) || ($inventory_master_data[0]['gst_rate'] !== $value['gst_rate']))) {
+                                    $this->inventory_model->update_inventory_master_list_data(array('inventory_id' => $value['inventory_id']), array('price' => $challan_annexure['rate'], 'hsn_code' => $value['hsn_code'], 'gst_rate' => $value['gst_rate'], 'is_invoice' => '1'));
+                                }
+
+                                array_push($challanbreakup, $challan_annexure);
+
+                                $total_basic_amount += $challan_annexure['taxable_value'];
+                                $total_cgst_tax_amount += $challan_annexure['cgst_tax_amount'];
+                                $total_sgst_tax_amount += $challan_annexure['sgst_tax_amount'];
+                                $total_igst_tax_amount += $challan_annexure['igst_tax_amount'];
+
+                                If ($is_wh_micro == 1) {
+                                    $ledger_data = array();
+
+                                    $ledger_data['receiver_entity_id'] = $wh_id;
+                                    $ledger_data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                                    $ledger_data['sender_entity_id'] = $sender_enity_id;
+                                    $ledger_data['sender_entity_type'] = $sender_entity_type;
+                                    $ledger_data['inventory_id'] = $value['inventory_id'];
+                                    $ledger_data['quantity'] = $value['quantity'];
+                                    $ledger_data['agent_id'] = $agent_id;
+                                    $ledger_data['agent_type'] = $agent_type;
+                                    $ledger_data['booking_id'] = '';
+                                    $ledger_data['invoice_id'] = $challan_id;
+                                    $ledger_data['is_wh_ack'] = 0;
+                                    $ledger_data['courier_id'] = $courier_company_details_id;
+                                    $ledger_data['is_wh_micro'] = $is_wh_micro;
+
+                                    $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
+
+                                    if ($insert_id) {
+                                        log_message("info", "Ledger details added successfully");
+                                    } else {
+                                        array_push($not_updated_data, $value['part_number']);
+                                        log_message("info", "error in adding inventory ledger details data: " . print_r($ledger_data, TRUE));
+                                    }
+                                }
+                            }
+
+                            if (empty($not_updated_data)) {
+
+                                $ch_id = $this->insert_inventory_msl_challan($challan_id, $partner_id, $tqty, str_replace('/', '-', $challan_date), $total_basic_amount, $total_cgst_tax_amount, $total_sgst_tax_amount, $total_igst_tax_amount, $challan_file['message'], $wh_id, $insert_courier_details);
+                                if ($ch_id) {
+                                    foreach ($challanbreakup as $value) {
+                                        $value['challan_id'] = $ch_id;
+                                        $this->invoices_model->insert_challan_breakup($value);
+                                    }
+
+                                    //send email to 247around warehouse incharge
+                                    $email_template = $this->booking_model->get_booking_email_template("spare_send_by_partner_to_wh");
+                                    $wh_incharge_id = $this->reusable_model->get_search_result_data("entity_role", "id", array("entity_type" => _247AROUND_SF_STRING, 'role' => WAREHOUSE_INCHARCGE_CONSTANT), NULL, NULL, NULL, NULL, NULL, array());
+                                    if (!empty($wh_incharge_id)) {
+
+                                        //get 247around warehouse incharge email
+                                        $wh_where = array('contact_person.role' => $wh_incharge_id[0]['id'],
+                                            'contact_person.entity_id' => $wh_id,
+                                            'contact_person.entity_type' => _247AROUND_SF_STRING
+                                        );
+
+                                        $email_details = $this->inventory_model->get_warehouse_details('contact_person.official_email', $wh_where, FALSE, TRUE);
+                                        if (empty($email_details)) {
+                                            $email_details = $wh_details;
+                                        }
+                                        if (!empty($email_details) && !empty($email_template)) {
+                                            //generate part details table                                        
+                                            $parts_details_table = $this->table->generate();
+
+                                            //generate courier details table
+                                            $this->table->set_heading(array('Courier Name', 'AWB Number', 'Shipment Date', 'Invoice Amount', 'Invoice Number'));
+                                            $this->table->add_row(array($courier_name, $awb_number, $courier_shipment_date, round($invoice_amount), $invoice_id));
+                                            $courier_details_table = $this->table->generate();
+
+                                            $to = $email_details[0]['official_email'];
+                                            $cc = $email_template[3];
+                                            $subject = vsprintf($email_template[4], array($partner_name, $wh_name));
+                                            $message = vsprintf($email_template[0], array($partner_name, $parts_details_table, $courier_details_table));
+                                            if (!empty($challan_file['message'])) {
+                                                $invoice_attchment = S3_WEBSITE_URL . "vendor-partner-docs/" . $challan_file['message'];
+                                            } else {
+                                                $invoice_attchment = '';
+                                            }
+                                            if (!empty($courier_file['message'])) {
+                                                $courier_attchment = S3_WEBSITE_URL . "vendor-partner-docs/" . $courier_file['message'];
+                                            } else {
+                                                $courier_attchment = '';
+                                            }
+                                            $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, $invoice_attchment, 'spare_send_by_partner_to_wh', $courier_attchment);
+                                        }
+                                    }
+                                } else {
+                                    $res['status'] = false;
+                                    $res['message'] = 'Challan is not insertng. Please try again';
+                                }
+                            } else {
+                                $res['status'] = false;
+                                $res['message'] = "For These Parts Details not updated :" . implode(',', $not_updated_data) . " Please Try again for these parts";
+                            }
+                        } else {
+                            log_message('info', 'Error in inserting courier details.');
+                            $res['status'] = false;
+                            $res['message'] = 'Courier Details is not inserting. Please try again';
+                        }
+
+                        if ($this->db->trans_status() === FALSE) {
+                            $this->db->trans_rollback();
+                            $res['status'] = false;
+                            $res['message'] = 'Failed! MSL is not uploaded.';
+                        } else {
+                            $this->db->trans_commit();
+
+                            $res['status'] = true;
+                            $res['message'] = 'Details Updated Successfully';
+                            $res['warehouse_id'] = $wh_id;
+                            $res['total_quantity'] = $tqty;
+                            $res['partner_id'] = $partner_id;
+                        }
+                    } else {
+                        $res['status'] = false;
+                        $res['message'] = $courier_file['msg'];
+                    }
+                } else {
+                    $res['status'] = false;
+                    $res['message'] = $challanfile['msg'];
+                }
+            } else {
+                $res['status'] = false;
+                $res['message'] = 'All fields are required';
+            }
+        } else {
+            $res['status'] = false;
+            $res['message'] = $is_valid['msg'];
+        }
+    }
+
+    function _validate_msl_part_details_data($parts_details) {
+        $msg = "";
+        if (!empty($parts_details)) {
+            foreach ($parts_details as $key => $value) {
+                if (!isset($value['service_id']) || (isset($value['service_id']) && empty($value['service_id']))) {
+                    $msg = "Please Select Appliance";
+                    break;
+                }
+
+                if (!isset($value['quantity']) || (isset($value['quantity']) && empty($value['quantity']))) {
+                    $msg = "Part Quantity should not be zero";
+                    break;
+                }
+
+                if (!isset($value['hsn_code']) || (isset($value['hsn_code']) && empty($value['hsn_code']))) {
+                    $msg = "HSN Code Should not be empty";
+                    break;
+                }
+
+                if (!isset($value['gst_rate']) || (isset($value['gst_rate']) && empty($value['gst_rate']))) {
+                    $msg = "GST Rate Should not be empty";
+                    break;
+                }
+                if (!isset($value['inventory_id']) || (isset($value['inventory_id']) && empty($value['inventory_id']))) {
+                    $msg = "Part Number Should not be empty";
+                    break;
+                }
+
+                if (!isset($value['part_total_price']) || (isset($value['part_total_price']) && empty($value['part_total_price']))) {
+                    $msg = "Part Price Should not be empty";
+                    break;
+                }
+            }
+
+            if (!empty($msg)) {
+                return json_encode(array('validation' => false, 'msg' => $msg));
+            } else {
+                return json_encode(array('validation' => true));
+            }
+        } else {
+            return json_encode(array('validation' => false, 'msg' => "Part Details Should not be empty"));
+        }
+    }
+
+    function check_challan_exists($challan_no_tmp) {
+        $res = array();
+        if ($challan_no_tmp) {
+            $challan_id = str_replace("/", "-", $challan_no_tmp);
+            $where = array('challan_id' => $challan_id);
+            $challan_details = $this->accounting_model->get_challan_details($where);
+            if (!empty($challan_details)) {
+                $res['status'] = TRUE;
+                $res['msg'] = "Challan Id is already exist";
+            } else {
+                $res['status'] = FALSE;
+                $res['msg'] = 'no data found';
+            }
+        } else {
+            $res['status'] = FALSE;
+            $res['msg'] = 'Invalid Request';
+        }
+
+        if ($this->input->post('is_ajax')) {
+            echo json_encode($res);
+        } else {
+            return $res;
+        }
+    }
+
+    function check_duplicate_msl_challan($challan_number) {
+        $is_challan_exists = $this->check_challan_exists($challan_number);
+        if (!$is_challan_exists['status']) {
+            return $this->upload_spare_invoice_file($challan_number, $_FILES);
+        } else {
+            $invoice_file['status'] = FALSE;
+            $invoice_file['message'] = "Entered Challan number already exists in our record.";
+
+            return $invoice_file;
+        }
+    }
+
+    function upload_msl_challan_file($challan_number, $file_details) {
+
+        $MB = 1048576;
+        //check if upload file is empty or not
+        if (!empty($file_details['challan_file']['name'])) {
+            //check upload file size. it should not be greater than 2mb in size
+            if ($file_details['challan_file']['size'] <= 5 * $MB) {
+                $allowed = array('pdf', 'PDF');
+                $ext = pathinfo($file_details['challan_file']['name'], PATHINFO_EXTENSION);
+                //check upload file type. it should be pdf.
+                if (in_array($ext, $allowed)) {
+                    $upload_file_name = str_replace(' ', '_', trim($file_details['challan_file']['name']));
+
+                    $file_name = $challan_number . "." . $ext;
+                    //Upload files to AWS
+                    $directory_xls = "vendor-partner-docs/" . $file_name;
+                    $this->s3->putObjectFile($file_details['challan_file']['tmp_name'], BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
+
+                    $res['status'] = true;
+                    $res['message'] = $file_name;
+                } else {
+                    $res['status'] = false;
+                    $res['message'] = 'Uploaded file must in pdf.';
+                }
+            } else {
+                $res['status'] = false;
+                $res['message'] = 'Uploaded file size can not be greater than 5 mb';
+            }
+        } else {
+            $res['status'] = false;
+            $res['message'] = 'Please Upload File';
+        }
+
+        return $res;
+    }
+
+    function insert_inventory_msl_challan($challan_id, $sender_entity_id,
+            $tqty, $challan_dated, $total_basic_amount,
+            $total_cgst_tax_amount, $total_sgst_tax_amount, $total_igst_tax_amount, $challan_file, $receiver_entity_id, $courier_id) {
+        log_message('info', __METHOD__ . " For Challan ID " . $challan_id);
+
+        if ($this->session->userdata('id')) {
+            $agent_id = $this->session->userdata('id');
+            $agent_type = _247AROUND_EMPLOYEE_STRING;
+        } else {
+            $agent_id = $this->session->userdata('agent_id');
+            $agent_type = _247AROUND_PARTNER_STRING;
+        }
+
+        $from_gst_number_id = $this->input->post("from_gst_number");
+        $to_gst_number_id = $this->input->post("to_gst_number");
+
+        $challan_details_insert = array(
+            'challan_id' => $challan_id,
+            'sender_entity_id' => $sender_entity_id,
+            'sender_entity_type' => "partner",
+            'receiver_entity_id' => $receiver_entity_id,
+            "receiver_entity_type" => "vendor",
+            "quantity" => $tqty,
+            "taxable_value" => $total_basic_amount,
+            'gst_amount' => ($total_cgst_tax_amount + $total_sgst_tax_amount + $total_igst_tax_amount),
+            'courier_id' => $courier_id,
+            'main_file' => $challan_file,
+            'annx_file' => $challan_file,
+            'challan_date' => date("Y-m-d", strtotime($challan_dated)),
+            'agent_id' => $agent_id,
+            "type" => 1,
+            'agent_type' => $agent_type,
+            'from_gst_number_id' => $from_gst_number_id,
+            'to_gst_number_id' => $to_gst_number_id
+        );
+
+        $ch_id = $this->invoices_model->insert_challan_details($challan_details_insert);
+        log_message('info', __METHOD__ . "Challan inserted ... " . $ch_id);
+
+        return $ch_id;
+    }
+
 }
