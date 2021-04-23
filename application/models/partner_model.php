@@ -782,6 +782,58 @@ function get_data_for_partner_callback($booking_id) {
     }
 
     /**
+     * @desc: This function is to add/Edit TAT invoice condition
+     *
+     *TAT invoice condition details like- Description, Local/Upcountry, Installation/Repair, TAT with in days, Target Acheived details
+     *      are added/edited.
+     *
+     * @param: $data
+     *          - TAT invoice condition details to be added.
+     *         $id
+     *          - Partner id
+     * @return: Boolean value for the new/Edit TAT invoice condition 
+     */
+    function process_tat_invoice_condition($id,$data){
+        
+        if ($this->get_tat_invoice_condition($id)) {
+            $this->db->where(array("entity_id" => $id));
+            $this->db->update("tat_invoice_condition", $data);
+            return TRUE;
+        } else {
+            $this->db->insert('tat_invoice_condition', $data);
+            if($this->db->insert_id()){
+                return TRUE;
+            }else{
+                return FALSE;
+            }
+        }
+    }
+
+    /**
+     * @desc: This function is to fetch single record TAT invoice condition
+     *
+     * @param: $id
+     *          - Partner id
+     * @return: array for the TAT invoice condition details 
+     */
+
+    function get_tat_invoice_condition($id) {
+        //TODO: Deactivate partner account if auth token mismatch happens 3 or more times in a day
+        $this->db->select('id,entity,entity_id,local_upcountry,installation_repair,tat_with_in_lower_days,target_acheived_per_lower_days,tat_with_in_higher_days,target_acheived_per_higher_days,description');
+        $this->db->from("tat_invoice_condition");
+        $this->db->where(array("entity_id" => $id, "active" => '1'));
+        
+        $query = $this->db->get();
+  
+        if (count($query->result_array()) > 0) {
+        //Return partner details in case of success
+          return $query->result_array()[0];
+        } else {
+          return FALSE;
+        }
+    }
+
+    /**
      * @desc: This function is to add a new partner
      *
      * partner details like Service Center's name, owners name, ph no., email, poc name, email, services, brands covered,
