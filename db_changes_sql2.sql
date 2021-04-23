@@ -2898,3 +2898,15 @@ ALTER TABLE `challan_details` CHANGE `type` `type` INT NULL DEFAULT NULL COMMENT
 
 --Abhay 21 April2021
 ALTER TABLE `employee` ADD `call_closure` INT(1) NOT NULL AFTER `role`;
+
+--Abhay 23 April
+UPDATE `variable_charges_type` SET `description` = 'Service Charge (Packaging Charges)' WHERE `variable_charges_type`.`type` = "packaging-variable";
+UPDATE `variable_charges_type` SET `description` = 'Service Charge (MSL Packaging Charges( Large Box))' WHERE `variable_charges_type`.`id` = 60;
+UPDATE `variable_charges_type` SET `description` = 'Service Charge (MSL Packaging Charges( Small Box))' WHERE `variable_charges_type`.`id` = 61;
+UPDATE `variable_charges_type` SET `description` = 'Service Charge (Defective Return Packaging( Small Box))' WHERE `variable_charges_type`.`id` = 62;
+UPDATE `variable_charges_type` SET `description` = 'Service Charge (Defective Return Packaging( Large Box))' WHERE `variable_charges_type`.`id` = 63;
+UPDATE `variable_charges_type` SET `description` = 'Service Charge (LED Bar 
+Replacement)' WHERE `variable_charges_type`.`id` = 64;
+UPDATE `variable_charges_type` SET `description` = 'Service Charge (Open Cell Replacement)' WHERE `variable_charges_type`.`id` = 59;
+UPDATE `variable_charges_type` SET `description` = 'Service Charge (Logistic Handling)' WHERE `variable_charges_type`.`id` = 66;
+UPDATE `variable_charges_type` SET `description` = 'Service Charge (MSL Handling)' WHERE `variable_charges_type`.`id` = 65;
