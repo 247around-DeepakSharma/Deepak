@@ -77,7 +77,7 @@
         bulk_input = document.getElementById("bulk_input").value;
         bulkInputArray = bulk_input.replace( /\n/g, " " ).split( " " );
         if(bulkInputArray.length>500){
-            alert("Search Input Should be less then 100");
+            alert("Search Input Should be less then 500");
         }
         else{
         if(select_type && bulk_input){
