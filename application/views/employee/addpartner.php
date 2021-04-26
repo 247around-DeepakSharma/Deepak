@@ -6262,6 +6262,11 @@ $(document).ready(function () {
        if (pan_no == '' &&  pan_file == 0 ) {
              alert ("Please Enter PAN Details");
            return false;}
+       var gst_exp = /[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}/;
+       if($("#gst_number").val() != '' && !GST_no.match(gst_exp)){
+             alert('Please enter correct GST Number'); 
+             return false;
+        }
        
         if( GST_no != '' &&  GST_file == 0){
             alert ("Please Enter GST number file");
@@ -6287,9 +6292,9 @@ $(document).ready(function () {
    // Author:Deepak Sharma 
    // This function use to validate GST Number with 247001 partner id 
    $(document).ready(function () {
-    $('#gst_number').on('input',function() { 
+     $('#gst_number').on('input',function() {
         var GST_no = $("#gst_number").val();
-        if(<?php echo $query[0]['id']?> != '' && GST_no != ''){
+        if(<?php echo $query[0]['id']?> != '' && GST_no != '' ){
          $.ajax({
          type: 'POST',    
          url:'<?php echo base_url() ?>employee/partner/get_gst_number/<?php echo $query[0]['id']?>',
