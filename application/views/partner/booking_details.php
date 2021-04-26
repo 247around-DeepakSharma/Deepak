@@ -158,13 +158,30 @@
                                         <td><?php if(!empty($booking_history['0']['booking_jobcard_filename'])){ ?> 
                                                     <a target="_blank" href='<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$booking_history['0']['booking_jobcard_filename']; ?>' class="btn btn-sm btn-primary btn-xs"><i class="fa fa-download" aria-hidden="true"></i></a>
                                             <?php } ?></td>
-                                    </tr>
+                                    </tr>  
                                     <tr>
                                         <th>Remarks: </th>
                                         <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
                                         <th>SF brought appliance to workshop: </th>
                                         <td><?php if ($booking_history[0]['part_brought_at'] == 2) { echo "Yes"; } else { echo "No"; } ?></td>
                                     </tr>
+                                    <tr>
+                                        <th>Signature File</th>
+                                        <td>
+                                            
+                                          <?php if(!empty($booking_history['0']['signature'])){
+                                              $src = base_url() . 'images/no_image.png';
+                                            $image_src = $src;
+                                              //echo $booking_history['0']['signature']; exit;
+                                            if (isset($booking_history['0']['signature']) && !empty($booking_history['0']['signature'])) {
+                                                $src = "http://s3.amazonaws.com/bookings-collateral/engineer-uploads/".$booking_history['0']['signature'];
+                                                $image_src = base_url().'images/view_image.png';
+                                            ?>
+                                        <a  href="<?php  echo $src?>" target="_blank"><img  src="<?php  echo $image_src?>" width="35px" height="35px" style="border:1px solid black;margin-left:10px;" /></a>
+                                        <?php }}?>
+                                        </td>
+                                    <tr>
+                               
                                 </table>
                             </div>
                                 <?php if(isset($booking_files) && !empty($booking_files)) { ?>
@@ -368,6 +385,8 @@
                                                             <th >Current Status</th>
                                                             <th >Spare Cancellation Reason</th>
                                                             <th>Consumption</th>
+                                                            <th>Consumption Reason</th>
+                                                            <th>Consumption Remarks</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody> 
@@ -470,11 +489,10 @@
                                                                     <?php echo $sp['part_cancel_reason']; ?>
                                                                 <?php } ?>
                                                                 </td>
-
+                                                                
                                                                 <td><?php if(!empty($sp['is_consumed']) && $sp['is_consumed'] == 1) { echo 'Yes';} else if(!empty($sp['consumed_part_status_id'])){ echo 'No';} ?></td>
                                                                   <td><?php if(!empty($sp['consumed_status'])) { echo $sp['consumed_status']; } ?></td>
                                                                  <td><?php if(!empty($sp['consumption_remarks'])) { echo $sp['consumption_remarks']; } ?></td>
-
                                                             </tr>
                                                             <?php
                                                             if (!is_null($sp['parts_shipped'])) {
