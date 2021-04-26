@@ -6229,6 +6229,7 @@ class Partner extends CI_Controller {
             "WH to Partner Reverse Purchase Invoice Id",
             "WH to Parnter Reverse Purchase Invoice Date",
             "Is Spare Auto Acknowledge By SF",
+            "SF brought appliance to workshop",
             "Consumption",
             "Spare Consumption Reason"
             );
@@ -6293,6 +6294,7 @@ class Partner extends CI_Controller {
              }else{
             $tempArray[] = "No";   
              }
+             $tempArray[] = $sparePartBookings['part_brought_at'];
              if($sparePartBookings['is_consumed']==1){
             $tempArray[] = "Yes";   
              }else if(!empty($sparePartBookings['consumed_part_status_id'])){
