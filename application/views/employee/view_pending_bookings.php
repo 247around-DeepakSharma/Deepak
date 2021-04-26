@@ -222,6 +222,7 @@
                         <th></th>
                         <th></th>
                         <th></th>
+                        <th></th>
                     </tr>
                 <tbody></tbody>
                 </thead>
@@ -302,6 +303,25 @@
         </div>
     </div>
     <!-- End Helper Document Model -->
+   <!-- Recording Document -->
+     <div id="BookingRecording" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Booking Recordings</h4>
+                </div>
+                <div class="modal-body" id="collatral_container_1">
+                    <center><img id="loader_gif_pending" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--End Recording Document -->
 </div>
 <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
@@ -602,6 +622,17 @@
          url: '<?php echo base_url(); ?>employee/service_centers/get_learning_collateral_for_bookings/',
          success: function (data) {
              $('#collatral_container').html(data);
+         }
+       });
+    }
+    function get_bookings_recording(booking_id){
+    $('#collatral_container').html('<center><img id="loader_gif_pending" src="<?php echo base_url(); ?>images/loadring.gif" ></center>');
+       $.ajax({
+         type: 'POST',
+         data: {booking_id: booking_id},
+         url: '<?php echo base_url(); ?>employee/booking/get_all_booking_recordings/',
+         success: function (data) {
+             $('#collatral_container_1').html(data);
          }
        });
     }

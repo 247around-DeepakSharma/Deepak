@@ -4295,6 +4295,7 @@ class Booking extends CI_Controller {
 
         }
         
+         $row[] = "<a class = 'btn btn-sm btn-color' title = 'Recording' data-toggle='modal' data-target='#BookingRecording'onclick=get_bookings_recording('".$order_list->id."')><span class='fa fa-microphone fa-2x' style='height:5px;'></span></a>";
         
         return $row;
     }
@@ -4852,7 +4853,7 @@ class Booking extends CI_Controller {
         
         $row[] = $penalty_row;
         $row[] = "<a class = 'btn btn-sm btn-color' title = 'Helper Document' data-toggle='modal' data-target='#showBrandCollateral' onclick=get_brand_collateral('".$order_list->booking_id."')><i class='fa fa-file-text-o' aria-hidden='true'></i></a>";
-        
+        $row[] = "<a class = 'btn btn-sm btn-color' title = 'Recording' data-toggle='modal' data-target='#BookingRecording'onclick=get_bookings_recording('".$order_list->id."')><span class='fa fa-microphone fa-2x' style='height:5px;'></span></a>";
         return $row;
     }
     /**
@@ -7092,6 +7093,39 @@ class Booking extends CI_Controller {
         $data['data'] = $this->booking_model->get_booking_recordings_by_id($booking_primary_id, $select);
         $this->load->view('employee/show_booking_recordings', $data);
     }  
+    function get_all_booking_recordings(){
+         $booking_primary_id = $this->input->post('booking_id');
+         $select = "recording_url";
+         $data = $this->booking_model->get_booking_recordings_by_id($booking_primary_id, $select);
+          if (!empty($data)) {
+            $finalString = '<h2>Booking Recordings<h2>
+                <table class="table">
+            <thead>
+              <tr>
+                <th>Sr.No</th>
+                <th>Recording</th>
+              </tr>
+            </thead>
+            <tbody>';
+            $index = 0;
+            foreach ($data as $key => $row) {
+    
+                $index++;
+                $finalString .= '<tr><td>' . $index . '</td>';
+                $finalString .= '<td>';
+                $finalString .= '<audio controls><source src="'.$row['recording_url'].'" type="audio/mpeg"><span class="fa fa-microphone fa-2x" style ="width:10px;height:10px;"></span></audio>';
+                $finalString .='</td>';
+                $finalString .='</tr>';
+            }
+            $finalString .='</tbody></table>';
+        } else {
+            $finalString = "<p style='text-align:center;'>Recordings are not available</p>";
+        }
+
+        echo $finalString;
+            
+        }
+    
     
     function review_bookings_by_status_sf_wise($review_status){
         $this->checkUserSession();
