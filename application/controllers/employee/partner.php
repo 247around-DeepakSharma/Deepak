@@ -6174,7 +6174,7 @@ class Partner extends CI_Controller {
         ini_set('memory_limit', '-1');
         $CSVData = array();
                 
-        $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true);
+        $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true,0,null,false,false,1);
         $headings = array("Spare ID",
             "Booking ID",
             "Customer Contact Number",
@@ -6295,8 +6295,10 @@ class Partner extends CI_Controller {
              }
              if($sparePartBookings['is_consumed']==1){
             $tempArray[] = "Yes";   
-             }else{
+             }else if(!empty($sparePartBookings['consumed_part_status_id'])){
             $tempArray[] = "No";   
+             }else{
+               $tempArray[] = "";  
              }
             $tempArray[] = $sparePartBookings['consumed_status'];
              
