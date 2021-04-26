@@ -28,6 +28,7 @@
         <br>
         <div style="margin-bottom: 20px;">
             <a href="<?php echo base_url();?>employee/vendor/add_engineer"><input class="btn btn-primary" type="Button" value="Add Engineer"></a>
+            <a href="<?php echo base_url();?>employee/engineer/download_all_engineers"><input class="btn btn-primary" type="Button" value="Download All Engineers"></a>
              
             <button type="button" class="btn btn-success pull-right">Installed <span class="badge"><?php echo count($installs); ?></span></button>
             <button type="button" class="btn btn-danger pull-right" style="margin-right: 17px;">UnInstalled <span class="badge"><?php echo count($uninstalls); ?></span></button>
@@ -82,7 +83,7 @@
         processing: true, //Feature control the processing indicator.
         serverSide: true, //Feature control DataTables' server-side processing mode.
         order: [], //Initial no order.
-        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+        lengthMenu: [[10, 25, 50, 100, 500, 1000], [10, 25, 50, 100, 500, 1000]],
         pageLength: 10,
         // Load data for the table's content from an Ajax source
         dom: 'lBfrtip',
