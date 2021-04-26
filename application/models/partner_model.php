@@ -939,7 +939,7 @@ function get_data_for_partner_callback($booking_id) {
      * @param boolean $flag_select
      * @return Array
      */
-    function get_spare_parts_booking_list($where, $start, $end,$flag_select,$state=0,$is_stock_needed = null,$is_unit_details = false,$orderBy = false){
+    function get_spare_parts_booking_list($where, $start, $end,$flag_select,$state=0,$is_stock_needed = null,$is_unit_details = false,$orderBy = false,$get_consumed_status_id=0){
         ini_set('memory_limit', '-1');
         ini_set('max_execution_time', 36000);
 
@@ -966,7 +966,8 @@ function get_data_for_partner_callback($booking_id) {
                 . "vendor_partner_invoices.invoice_date,"
                 . "spare_consumption_status.consumed_status,"   
                 . "concat('`',spare_parts_details.`serial_number`) as serial_number,"   
-                . "booking_details.booking_primary_contact_no" ;
+                . "booking_details.booking_primary_contact_no,"
+                . "CASE WHEN booking_details.part_brought_at=1 THEN 'No'  WHEN booking_details.part_brought_at=2 THEN 'Yes' ELSE 'No' END AS 'part_brought_at'";
 
             if($end){
                 $limit = "LIMIT $start, $end";
@@ -979,6 +980,10 @@ function get_data_for_partner_callback($booking_id) {
         } else {
             $select = "SELECT count(spare_parts_details.id) as total_rows ";
         }
+        if(!$get_consumed_status_id){
+            $select .= ",spare_parts_details.consumed_part_status_id";
+        }
+        
         if(!$orderBy){
             $orderBy = " ORDER BY status = '". DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE."'";
         }

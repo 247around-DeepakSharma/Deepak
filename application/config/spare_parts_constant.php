@@ -223,8 +223,10 @@ define('AUTO_ACKNOWLEDGED_FROM_API', 1);
 define('AUTO_ACKNOWLEDGED_TO_CRON', 2);
 // Action status defined when challan gneerated
 define('CHALLAN_GENERATION_STATUS', 'Reverse Part Challan to Brand Generated');
-// CHALLAN TYPE - MSL_DEFECTIVE 
+// CHALLAN TYPE - MSL_DEFECTIVE FOR INVOICE
 define('MSL_DEFECTIVE_CHALLAN_TYPE', '2');
+// CHALLAN TYPE - MSL_DEFECTIVE FOR CHALLAN
+define('MSL_DEFECTIVE_RETURN_FOR_CHALLAN', '3');
 // Action status defined when challan rejected
 define('CHALLAN_REJECTION_STATUS', 'Reverse Part Challan to Brand Rejected');
 // Courier RTO By API

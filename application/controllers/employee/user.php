@@ -670,9 +670,7 @@ class User extends CI_Controller {
             $data1['warehouse_id'] = trim($data['warehouse_id']);
         }
         
-        if($data['groups'] == _247AROUND_CLOSURE 
-                || $data['groups'] == _247AROUND_ADMIN
-                || $data['groups'] == _247AROUND_RM){
+        if($data['groups'] == _247AROUND_CLOSURE){
             $data1['call_closure'] = 1;
         }
         
@@ -873,9 +871,7 @@ class User extends CI_Controller {
         
         $data1['groups']= str_replace(' ', '', $data1['groups']);
         
-        if($data1['groups'] == _247AROUND_CLOSURE 
-                || $data1['groups'] == _247AROUND_ADMIN
-                || $data1['groups'] == _247AROUND_RM){
+        if($data1['groups'] == _247AROUND_CLOSURE){
             $data1['call_closure'] = 1;
         }
         // Update region (North,South,East,West) with its respective RM 

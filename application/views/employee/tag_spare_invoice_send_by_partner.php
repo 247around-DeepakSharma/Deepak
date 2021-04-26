@@ -28,7 +28,7 @@
             <ul class="nav nav-tabs" role="tablist" >
                 <li role="presentation" class="active"><a href="#onMsl" aria-controls="onMsl" role="tab" data-toggle="tab">Inventory On MSL</a></li>
                 <li role="presentation" ><a href="#onBooking" aria-controls="onBooking" role="tab" data-toggle="tab">Inventory On Booking</a></li>
-                <li role="presentation" ><a href="#onDc" aria-controls="onDc" role="tab" data-toggle="tab">Inventory On DC</a></li>
+                <li role="presentation" ><a href="#onDc" aria-controls="onDc" role="tab" data-toggle="tab">MSL On DC</a></li>
             </ul>
         </div>
     </div>
@@ -598,7 +598,7 @@
                                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                         </button>
-                                        <strong><span id="success_msg"></span></strong>
+                                        <strong><span id="success_msg_dc"></span></strong>
                                     </div>
                                 </div>
                                 <div class="error_msg_div" style="display:none;">
@@ -606,7 +606,7 @@
                                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                         </button>
-                                        <strong><span id="error_msg"></span></strong>
+                                        <strong><span id="error_msg_dc"></span></strong>
                                     </div>
                                 </div>
                                 <form id="spareForm_dc" method="post" class="form-horizontal" novalidate="novalidate">
@@ -633,22 +633,22 @@
                                                 <input type="hidden" name="invoice_tag" value="<?php echo MSL; ?>">
                                                 <input type="hidden" name="transfered_by" value="<?php echo MSL_TRANSFERED_BY_PARTNER; ?>">
                                             </div>
-                                            <label class="col-xs-2 control-label">Invoice Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Please make sure invoice number does not contain '/'. You can replace '/' with '-' "><i class="fa fa-info"></i></span></label>
+                                            <label class="col-xs-2 control-label">Challan Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Please make sure challan number does not contain '/'. You can replace '/' with '-' "><i class="fa fa-info"></i></span></label>
                                             <div class="col-xs-8 col-sm-4">
-                                                <input type="text" placeholder="Enter Invoice Number" class="form-control" name="invoice_id" id="invoice_id" required="" onblur="check_invoice_id(this.id)"/>
-                                                <label for="invoice_id" class="error"></label>
+                                                <input type="text" placeholder="Enter Challan Number" class="form-control" name="challan_id" id="challan_id" required="" onblur="check_challan_id(this.id)"/>
+                                                <label for="challanid" class="error"></label>
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label class="col-xs-2 control-label">Challan Amount * </label>
                                             <div class="col-xs-4">
-                                                <input placeholder="Enter Challan Value" type="text" class="form-control allowNumericWithDecimal" name="invoice_amount" id="invoice_amount_dc" required=""/>
-                                                <label for="invoice_amount" class="error"></label>
+                                                <input placeholder="Enter Challan Value" type="text" class="form-control allowNumericWithDecimal" name="challan_amount" id="challan_amount_dc" required=""/>
+                                                <label for="challan_amount" class="error"></label>
                                             </div>
-                                            <label class="col-xs-4 col-sm-2 control-label">Invoice File *  <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Only pdf files are allowed and file size should not be greater than 5 MB."><i class="fa fa-info"></i></span></label>
+                                            <label class="col-xs-4 col-sm-2 control-label">Challan File *  <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Only pdf files are allowed and file size should not be greater than 5 MB."><i class="fa fa-info"></i></span></label>
                                             <div class="col-xs-8 col-sm-4">
-                                                <input type="file" class="form-control" name="file" id="invoice_file_dc" required="" accept="application/pdf"/>
-                                                <label for="invoice_file" class="error"></label>
+                                                <input type="file" class="form-control" name="file" id="challan_file_dc" required="" accept="application/pdf"/>
+                                                <label for="challan_file" class="error"></label>
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -2351,7 +2351,7 @@
                     }
                 });
                 
-                var entered_invoice_amt = Number($('#invoice_amount_dc').val());
+                var entered_invoice_amt = Number($('#challan_amount_dc').val());
                 var our_invoice_amt = Number($('#final_total_dc').val());
                 var box_count = $("#box_count_dc").val() || 0;
                 var small_box_count = $("#small_box_count_dc").val() || 0;
@@ -2359,14 +2359,14 @@
                 $('#small_box_count_dc').css('border','');
                 if(box_count + small_box_count > 0){
                 if((our_invoice_amt >= entered_invoice_amt - 10) && (our_invoice_amt <= entered_invoice_amt + 10) ){
-                    $('#invoice_amount_dc').css('border','1px solid #ccc');
+                    $('#challan_amount_dc').css('border','1px solid #ccc');
                     $('#total_spare_invoice_price_dc').removeClass('text-danger');
                     
                     /* Open Modal */
                     $("#clone_id_dc").empty();
                     $('#appliance_details_id_dc').clone(true).appendTo('#clone_id_dc');
                     $('#clone_id_dc .form-control').each(function(){
-                    var IdsArray =  $(this).attr("id").split("_");
+                    var IdsArray =  $(this).attr("id").split("_");a
                         if(IdsArray[0] == 'partGstRate'){
 							
                            var gst_rate = $("#partGstRate_dc_"+IdsArray[2]).val();
@@ -2391,7 +2391,7 @@
                         var params = $('#spareForm_dc').serializeArray();
     
                         //Getting Invoice Files Collection
-                        var invoice_files = $("#invoice_file_dc")[0].files;
+                        var challan_files = $("#challan_file_dc")[0].files;
     
                         //Getting Courier Files Collection
                         var courier_file = $("#courier_file_dc")[0].files;
@@ -2403,8 +2403,8 @@
                         formData.append("is_wh_micro_dc", is_micro);
     
                         //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
-                        for (var i = 0; i < invoice_files.length; i++) {
-                            formData.append('invoice_file', invoice_files[i]);
+                        for (var i = 0; i < challan_files.length; i++) {
+                            formData.append('challan_files', challan_files[i]);
                         }
     
                         //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
@@ -2444,7 +2444,7 @@
     //                                }                                
                                 if(obj.status){
                                     $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
-                                    $('#success_msg').html(obj.message);
+                                    $('#success_msg_dc').html(obj.message);
                                     $("#spareForm_dc")[0].reset();
                                     $("#spareForm_dc").find('input:text, input:file, select').val('');
                                     $('#select2-partner_id_dc-container').text('Select Partner');
@@ -2486,7 +2486,7 @@
                 }
                 }else{
                     alert('Amount of invoice does not match with total price');
-                    $('#invoice_amount_dc').css('border','1px solid red');
+                    $('#challan_amount_dc').css('border','1px solid red');
                     $('#total_spare_invoice_price_dc').addClass('text-danger');
                     return false;
                 }
@@ -2675,5 +2675,48 @@
         $("#confirmation_dc").val('1');
         $("#spareForm_dc").submit();
     });
+    
+    
+    function check_challan_id(id){
+    
+        var challan_id = $('#'+id).val().trim();
+        if(challan_id){
+            
+            if( challan_id.indexOf('/') !== -1 ){
+                $('#'+id).css('border','1px solid red');
+                $('#submit_btn_dc').attr('disabled',true);
+                
+                alert("Challan Number - Use '-' in place of '/'");
+            }
+            else{
+                $.ajax({
+                    method:'POST',
+                    url:'<?php echo base_url(); ?>employee/inventory/check_challan_exists/'+challan_id,
+                    data:{is_ajax:true},
+                    success:function(res){
+                        //console.log(res);
+                        var obj = JSON.parse(res);
+                        if(obj.status === true){
+                            $('#'+id).css('border','1px solid red');
+                            if(isOnBooking){
+                               $('#on_submit_btn').attr('disabled',true);
+                            } else {
+                               $('#submit_btn').attr('disabled',true);
+                            }
+                            alert('Invoice number already exists');
+                        }else{
+                            $('#'+id).css('border','1px solid #ccc');
+                            if(isOnBooking){
+                              $('#on_submit_btn').attr('disabled',false);
+                            } else {
+                               $('#submit_btn').attr('disabled',false);
+                            }
+                            
+                        }
+                    }
+                });
+            }
+        }
+    }
 		
 </script>
