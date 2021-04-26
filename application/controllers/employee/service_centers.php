@@ -1158,7 +1158,7 @@ class Service_centers extends CI_Controller {
         $this->checkUserSession();
         $this->form_validation->set_rules('cancellation_reason', 'Cancellation Reason', 'required');
         // if current status of the booking is Completed or Cancelled then the booking cannot be cancelled again.
-        $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id]);
+        $booking_details = $this->booking_model->get_booking_details('*', ['booking_id' => $booking_id]);
         $booking_current_status = $booking_details[0]['current_status'];
         $booking_internal_status = $booking_details[0]['internal_status'];
         if ($booking_current_status == _247AROUND_COMPLETED || $booking_internal_status == SF_BOOKING_COMPLETE_STATUS) {
@@ -1178,9 +1178,9 @@ class Service_centers extends CI_Controller {
             $cancellation_text = $this->input->post('cancellation_reason_text');
             // Get cancellation reason Text from Id
             $cancellation_reason_text = "";
-            if(!empty($cancellation_reason)){
-                $arr_cancellation_reason =  $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('id' => $cancellation_reason), NULL, NULL, NULL, NULL, NULL, array());
-                $cancellation_reason_text = !empty($arr_cancellation_reason[0]['reason']) ? $arr_cancellation_reason[0]['reason'] : ""; 
+            if (!empty($cancellation_reason)) {
+                $arr_cancellation_reason = $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('id' => $cancellation_reason), NULL, NULL, NULL, NULL, NULL, array());
+                $cancellation_reason_text = !empty($arr_cancellation_reason[0]['reason']) ? $arr_cancellation_reason[0]['reason'] : "";
             }
             $correctpin = $this->input->post('correct_pincode');
             $can_state_change = $cancellation_reason_text;
@@ -1194,69 +1194,70 @@ class Service_centers extends CI_Controller {
             }
 
 
-            switch ($cancellation_reason) {
-                case PRODUCT_NOT_DELIVERED_TO_CUSTOMER_ID :
-                    //Called when sc choose Product not delivered to customer 
-                    $this->convert_booking_to_query($booking_id, $partner_id);
-
-                    break;
-
-                default :
-                    if ($cancellation_reason == CANCELLATION_REASON_WRONG_AREA_ID) {
-                        $this->send_mail_rm_for_wrong_area_picked($booking_id, $partner_id, $city, $booking_pincode, WRONG_CALL_AREA_TEMPLATE);
-                    }
-
-                    if (isset($correctpin) && !empty($correctpin) && $cancellation_reason == _247AROUND_WRONG_PINCODE_CANCEL_REASON_ID) {
-                        $pinupdate = array(
-                            'booking_pincode' => $correctpin,
-                            'edit_by_sf' => 1
-                        );
-                        $this->booking_model->update_booking($booking_id, $pinupdate);
-                        $this->initialized_variable->fetch_partner_data($partner_id);
-                        $partner_data = $this->initialized_variable->get_partner_data();
-                        $booking['service_id'] = $this->input->post('service_id');
-                        $response = $this->miscelleneous->check_upcountry_vendor_availability($city, $correctpin, $booking['service_id'], $partner_data, false, $brand);
-                        if (!empty($response) && !isset($response['vendor_not_found'])) {
-                            $url = base_url() . "employee/vendor/process_reassign_vendor_form/0";
-                            $async_data['service'] = $response['vendor_id'];
-                            $async_data['booking_id'] = $booking_id;
-                            $async_data['remarks'] = "Booking Reassigned While Cancellation by Sf";
-                            $this->asynchronous_lib->do_background_process($url, $async_data);
-                        }
-                        $this->send_mail_rm_for_wrong_area_picked($booking_id, $partner_id, $city, $booking_pincode, WRONG_PINCODE_TEMPLATE, $correctpin);
-                        redirect(base_url() . "service_center/pending_booking");
-                        break;
-                    }
-
-                    // Add Update by SF Value
-                    $this->booking_model->update_booking($booking_id, ['edit_by_sf' => 1]);
-
-                    $data['current_status'] = "InProcess";
-                    $data['internal_status'] = "Cancelled";
-                    $data['service_center_remarks'] = date("F j") . ":- " . $cancellation_text;
-                    $data['service_charge'] = $data['additional_service_charge'] = $data['parts_cost'] = $data['amount_paid'] = 0;
-                    $data['cancellation_reason'] = $cancellation_reason;
-                    $data['closed_date'] = date('Y-m-d H:i:s');
-                    $data['update_date'] = date('Y-m-d H:i:s');
-                    $this->vendor_model->update_service_center_action($booking_id, $data);
-                    $this->miscelleneous->pull_service_centre_close_date($booking_id, $partner_id);
-
-                    $engineer_action = $this->engineer_model->getengineer_action_data("id", array("booking_id" => $booking_id));
-                    if (!empty($engineer_action)) {
-                        $eng_data = array(
-                            "internal_status" => _247AROUND_CANCELLED,
-                            "current_status" => _247AROUND_CANCELLED
-                        );
-                        $this->engineer_model->update_engineer_table($eng_data, array("booking_id" => $booking_id));
-                    }
-
-                    //$this->miscelleneous->process_booking_tat_on_completion($booking_id);
-                    //End Update Service Center Closed Date
-                    $this->update_booking_internal_status($booking_id, "InProcess_Cancelled", $partner_id);
-                    $this->insert_details_in_state_change($booking_id, 'InProcess_Cancelled', $can_state_change, "not_define", "not_define");
-                    redirect(base_url() . "service_center/pending_booking");
-                    break;
+            //switch ($cancellation_reason) {
+//                case PRODUCT_NOT_DELIVERED_TO_CUSTOMER_ID :
+//                    //Called when sc choose Product not delivered to customer 
+//                    $this->convert_booking_to_query($booking_id, $partner_id);
+//
+//                    break;
+//
+//                default :
+            if ($cancellation_reason == CANCELLATION_REASON_WRONG_AREA_ID) {
+                $this->send_mail_rm_for_wrong_area_picked($booking_id, $partner_id, $city, $booking_pincode, WRONG_CALL_AREA_TEMPLATE);
             }
+
+            if (isset($correctpin) && !empty($correctpin) &&
+                    $cancellation_reason == _247AROUND_WRONG_PINCODE_CANCEL_REASON_ID) {
+                $pinupdate = array(
+                    'booking_pincode' => $correctpin,
+                    'edit_by_sf' => 1
+                );
+                $this->booking_model->update_booking($booking_id, $pinupdate);
+                $this->initialized_variable->fetch_partner_data($partner_id);
+                $partner_data = $this->initialized_variable->get_partner_data();
+                $booking['service_id'] = $this->input->post('service_id');
+                $response = $this->miscelleneous->check_upcountry_vendor_availability($city, $correctpin, $booking['service_id'], $partner_data, false, $brand);
+                if (!empty($response) && !isset($response['vendor_not_found'])) {
+                    $url = base_url() . "employee/vendor/process_reassign_vendor_form/0";
+                    $async_data['service'] = $response['vendor_id'];
+                    $async_data['booking_id'] = $booking_id;
+                    $async_data['remarks'] = "Booking Reassigned While Cancellation by Sf";
+                    $this->asynchronous_lib->do_background_process($url, $async_data);
+                }
+                $this->send_mail_rm_for_wrong_area_picked($booking_id, $partner_id, $city, $booking_pincode, WRONG_PINCODE_TEMPLATE, $correctpin);
+                redirect(base_url() . "service_center/pending_booking");
+           //     break;
+            }
+
+            // Add Update by SF Value
+            $this->booking_model->update_booking($booking_id, ['edit_by_sf' => 1]);
+
+            $data['current_status'] = "InProcess";
+            $data['internal_status'] = "Cancelled";
+            $data['service_center_remarks'] = date("F j") . ":- " . $cancellation_text;
+            $data['service_charge'] = $data['additional_service_charge'] = $data['parts_cost'] = $data['amount_paid'] = 0;
+            $data['cancellation_reason'] = $cancellation_reason;
+            $data['closed_date'] = date('Y-m-d H:i:s');
+            $data['update_date'] = date('Y-m-d H:i:s');
+            $this->vendor_model->update_service_center_action($booking_id, $data);
+            $this->miscelleneous->pull_service_centre_close_date($booking_id, $partner_id);
+
+            $engineer_action = $this->engineer_model->getengineer_action_data("id", array("booking_id" => $booking_id));
+            if (!empty($engineer_action)) {
+                $eng_data = array(
+                    "internal_status" => _247AROUND_CANCELLED,
+                    "current_status" => _247AROUND_CANCELLED
+                );
+                $this->engineer_model->update_engineer_table($eng_data, array("booking_id" => $booking_id));
+            }
+
+            //$this->miscelleneous->process_booking_tat_on_completion($booking_id);
+            //End Update Service Center Closed Date
+            $this->update_booking_internal_status($booking_id, "InProcess_Cancelled", $partner_id);
+            $this->insert_details_in_state_change($booking_id, 'InProcess_Cancelled', $can_state_change, "not_define", "not_define");
+            redirect(base_url() . "service_center/pending_booking");
+            //        break;
+            //}
         }
     }
 
@@ -1309,42 +1310,42 @@ class Service_centers extends CI_Controller {
      */
     function convert_booking_to_query($booking_id, $partner_id) {
         log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id . ' Partner_id: ' . $partner_id);
-        $booking['booking_id'] = "Q-" . $booking_id;
-        $booking['current_status'] = "FollowUp";
-        $booking['type'] = "Query";
-        $booking['internal_status'] = PRODUCT_NOT_DELIVERED_TO_CUSTOMER;
-        $booking['assigned_vendor_id'] = NULL;
-        $booking['assigned_engineer_id'] = NULL;
-        $booking['mail_to_vendor'] = '0';
-        $booking['booking_date'] = date('Y-m-d');
-
-        //Get Partner 
-        $actor = $next_action = 'not_define';
-        $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $partner_id, $booking['booking_id']);
-        if (!empty($partner_status)) {
-            $booking['partner_current_status'] = $partner_status[0];
-            $booking['partner_internal_status'] = $partner_status[1];
-            $actor = $booking['actor'] = $partner_status[2];
-            $next_action = $booking['next_action'] = $partner_status[3];
-        }
-        //Update Booking unit details
-        $this->booking_model->update_booking($booking_id, $booking);
-
-        $unit_details['booking_id'] = "Q-" . $booking_id;
-        $unit_details['booking_status'] = "FollowUp";
-        //update unit details
-        $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
-        // Delete booking from sc action table
-        $this->service_centers_model->delete_booking_id($booking_id);
-        //Insert Data into Booking state change
-        $this->insert_details_in_state_change($booking_id, PRODUCT_NOT_DELIVERED_TO_CUSTOMER, "Convert Booking to Query", $actor, $next_action);
-
-
-        $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/" . $booking_id;
-        $pcb = array();
-        $this->asynchronous_lib->do_background_process($cb_url, $pcb);
-
-        redirect(base_url() . "service_center/pending_booking");
+//        $booking['booking_id'] = "Q-" . $booking_id;
+//        $booking['current_status'] = "FollowUp";
+//        $booking['type'] = "Query";
+//        $booking['internal_status'] = PRODUCT_NOT_DELIVERED_TO_CUSTOMER;
+//        $booking['assigned_vendor_id'] = NULL;
+//        $booking['assigned_engineer_id'] = NULL;
+//        $booking['mail_to_vendor'] = '0';
+//        $booking['booking_date'] = date('Y-m-d');
+//
+//        //Get Partner 
+//        $actor = $next_action = 'not_define';
+//        $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $partner_id, $booking['booking_id']);
+//        if (!empty($partner_status)) {
+//            $booking['partner_current_status'] = $partner_status[0];
+//            $booking['partner_internal_status'] = $partner_status[1];
+//            $actor = $booking['actor'] = $partner_status[2];
+//            $next_action = $booking['next_action'] = $partner_status[3];
+//        }
+//        //Update Booking unit details
+//        $this->booking_model->update_booking($booking_id, $booking);
+//
+//        $unit_details['booking_id'] = "Q-" . $booking_id;
+//        $unit_details['booking_status'] = "FollowUp";
+//        //update unit details
+//        $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
+//        // Delete booking from sc action table
+//        $this->service_centers_model->delete_booking_id($booking_id);
+//        //Insert Data into Booking state change
+//        $this->insert_details_in_state_change($booking_id, PRODUCT_NOT_DELIVERED_TO_CUSTOMER, "Convert Booking to Query", $actor, $next_action);
+//
+//
+//        $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/" . $booking_id;
+//        $pcb = array();
+//        $this->asynchronous_lib->do_background_process($cb_url, $pcb);
+//
+//        redirect(base_url() . "service_center/pending_booking");
     }
 
     /**
@@ -9438,98 +9439,98 @@ if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file'
       This function is for search booking to transfer
      */
 
-//    function spare_transfer() {
-//        $this->load->view('service_centers/header');
-//        $this->load->view('service_centers/spare_part_transfer');
-//    }
+    function spare_transfer() {
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/spare_part_transfer');
+    }
 
-//    function booking_spare_list() {
-//        $data = array();
-//        $from = trim($this->input->post('frombooking'));
-//        $to = trim($this->input->post('tobooking'));
-//        // $where=array('booking_id',$from);
-//        $from_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $from, 'entity_type' => _247AROUND_SF_STRING, 'wh_ack_received_part' => 1,
-//            'status' => SPARE_PARTS_REQUESTED));
-//        $frominventory_req_id = $from_details[0]['requested_inventory_id'];
-//        $to_details = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $to,
-//            'entity_type' => _247AROUND_PARTNER_STRING, 'purchase_invoice_id' => NULL, 'wh_ack_received_part' => 1, 'status' => SPARE_PARTS_REQUESTED));
-//
-//        // print_r($this->db->last_query());exit;
-//        $toinventory_req_id = $to_details[0]['requested_inventory_id'];
-//        if (empty($from_details) || empty($to_details)) {
-//            $this->session->set_flashdata('error_msg', "Spare transfer for this  is not allowed");
-//            redirect('service_center/spare_transfer');
-//        } else {
-//            // $this->load->view('service_centers/spare_part_transfer');
-//            $data['from_booking'] = $from_details;
-//            $data['to_booking'] = $to_details;
-//            $data['frombooking'] = $from_details[0]['booking_id'];
-//            $data['tobooking'] = $to_details[0]['booking_id'];
-//            $this->load->view('service_centers/header');
-//            // $this->load->view('service_centers/booking_spare_list',$data);
-//            $this->load->view('service_centers/spare_part_transfer', $data);
-//        }
-//    }
+    function booking_spare_list() {
+        $data = array();
+        $from = trim($this->input->post('frombooking'));
+        $to = trim($this->input->post('tobooking'));
+        // $where=array('booking_id',$from);
+        $from_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $from, 'entity_type' => _247AROUND_SF_STRING, 'wh_ack_received_part' => 1,
+            'status' => SPARE_PARTS_REQUESTED));
+        $frominventory_req_id = $from_details[0]['requested_inventory_id'];
+        $to_details = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $to,
+            'entity_type' => _247AROUND_PARTNER_STRING, 'purchase_invoice_id' => NULL, 'wh_ack_received_part' => 1, 'status' => SPARE_PARTS_REQUESTED));
+
+        // print_r($this->db->last_query());exit;
+        $toinventory_req_id = $to_details[0]['requested_inventory_id'];
+        if (empty($from_details) || empty($to_details)) {
+            $this->session->set_flashdata('error_msg', "Spare transfer for this  is not allowed");
+            redirect('service_center/spare_transfer');
+        } else {
+            // $this->load->view('service_centers/spare_part_transfer');
+            $data['from_booking'] = $from_details;
+            $data['to_booking'] = $to_details;
+            $data['frombooking'] = $from_details[0]['booking_id'];
+            $data['tobooking'] = $to_details[0]['booking_id'];
+            $this->load->view('service_centers/header');
+            // $this->load->view('service_centers/booking_spare_list',$data);
+            $this->load->view('service_centers/spare_part_transfer', $data);
+        }
+    }
 
     /*
       This function is for spare transfer
      */
 
-//    function do_spare_transfer() {
-//        // NEED TO RECHECK 
-//        $frominventory = $this->input->post('frominventry');
-//        $toinventory = $this->input->post('toinventory');
-//        $frombooking = $this->input->post('frombooking');
-//        $tobooking = $this->input->post('tobooking');
-//        $fromspdetailid = $this->input->post('inventoryidfrom');
-//        $tospdetailid = $this->input->post('inventoryidto');
-//        $data['frombooking'] = $frombooking;
-//        $data['tobooking'] = $tobooking;
-//        // print_r($_POST);exit;
-//        if (empty($frombooking) || empty($tobooking) || $fromspdetailid != $tospdetailid) {
-//
-//            $this->session->set_flashdata('error_msg', "Spare transfer for this  is not allowed");
-//            redirect('service_center/spare_transfer');
-//        } else {
-//            $form_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $frominventory));
-//            $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $toinventory));
-//            if (empty($form_details) || empty($to_details)) {
-//                $this->session->set_flashdata('error_msg', "Booking spare details not found. Spare transfer not allowed");
-//                redirect('service_center/spare_transfer');
-//            } else {
-//                $fromservicecenter_id = $form_details[0]['service_center_id'];
-//                $inventory_stock = $this->inventory_model->get_inventory_stock_count_details('*', array('inventory_id' => $fromspdetailid, 'entity_id' => $fromservicecenter_id));
-//                // print_r($inventory_stock);echo $fromservicecenter_id;exit;
-//                $inventory_stockcount = $inventory_stock[0]['stock'];
-//                $remaining_inventory = ($inventory_stockcount);
-//                $data_update = array(
-//                    'defective_return_to_entity_id' => $form_details[0]['defective_return_to_entity_id'],
-//                    'defective_return_to_entity_type' => $form_details[0]['defective_return_to_entity_type'],
-//                    'entity_type' => _247AROUND_SF_STRING,
-//                    'purchase_invoice_id' => $form_details[0]['purchase_invoice_id'],
-//                    'partner_id' => $form_details[0]['partner_id']
-//                );
-//                $this->service_centers_model->update_spare_parts(array('id' => $toinventory), $data_update);
-//                if ($remaining_inventory < 1) {
-//                    $data_from = array(
-//                        'entity_type' => _247AROUND_PARTNER_STRING,
-//                        'partner_id' => $to_details[0]['defective_return_to_entity_id'],
-//                        'purchase_invoice_id' => NULL,
-//                        'defective_return_to_entity_id' => $to_details[0]['defective_return_to_entity_id'],
-//                        'defective_return_to_entity_type' => $to_details[0]['defective_return_to_entity_type']
-//                    );
-//                    $this->service_centers_model->update_spare_parts(array('id' => $frominventory), $data_from);
-//                }
-//                if ($this->db->affected_rows() > 0) {
-//                    $this->session->set_flashdata('success', "Spare Successfully transfered ");
-//                    redirect('service_center/spare_transfer');
-//                } else {
-//                    $this->session->set_flashdata('error_msg', "Spare not  transfered ");
-//                    redirect('service_center/spare_transfer');
-//                }
-//            }
-//        }
-//    }
+    function do_spare_transfer() {
+        // NEED TO RECHECK 
+        $frominventory = $this->input->post('frominventry');
+        $toinventory = $this->input->post('toinventory');
+        $frombooking = $this->input->post('frombooking');
+        $tobooking = $this->input->post('tobooking');
+        $fromspdetailid = $this->input->post('inventoryidfrom');
+        $tospdetailid = $this->input->post('inventoryidto');
+        $data['frombooking'] = $frombooking;
+        $data['tobooking'] = $tobooking;
+        // print_r($_POST);exit;
+        if (empty($frombooking) || empty($tobooking) || $fromspdetailid != $tospdetailid) {
+
+            $this->session->set_flashdata('error_msg', "Spare transfer for this  is not allowed");
+            redirect('service_center/spare_transfer');
+        } else {
+            $form_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $frominventory));
+            $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $toinventory));
+            if (empty($form_details) || empty($to_details)) {
+                $this->session->set_flashdata('error_msg', "Booking spare details not found. Spare transfer not allowed");
+                redirect('service_center/spare_transfer');
+            } else {
+                $fromservicecenter_id = $form_details[0]['service_center_id'];
+                $inventory_stock = $this->inventory_model->get_inventory_stock_count_details('*', array('inventory_id' => $fromspdetailid, 'entity_id' => $fromservicecenter_id));
+                // print_r($inventory_stock);echo $fromservicecenter_id;exit;
+                $inventory_stockcount = $inventory_stock[0]['stock'];
+                $remaining_inventory = ($inventory_stockcount);
+                $data_update = array(
+                    'defective_return_to_entity_id' => $form_details[0]['defective_return_to_entity_id'],
+                    'defective_return_to_entity_type' => $form_details[0]['defective_return_to_entity_type'],
+                    'entity_type' => _247AROUND_SF_STRING,
+                    'purchase_invoice_id' => $form_details[0]['purchase_invoice_id'],
+                    'partner_id' => $form_details[0]['partner_id']
+                );
+                $this->service_centers_model->update_spare_parts(array('id' => $toinventory), $data_update);
+                if ($remaining_inventory < 1) {
+                    $data_from = array(
+                        'entity_type' => _247AROUND_PARTNER_STRING,
+                        'partner_id' => $to_details[0]['defective_return_to_entity_id'],
+                        'purchase_invoice_id' => NULL,
+                        'defective_return_to_entity_id' => $to_details[0]['defective_return_to_entity_id'],
+                        'defective_return_to_entity_type' => $to_details[0]['defective_return_to_entity_type']
+                    );
+                    $this->service_centers_model->update_spare_parts(array('id' => $frominventory), $data_from);
+                }
+                if ($this->db->affected_rows() > 0) {
+                    $this->session->set_flashdata('success', "Spare Successfully transfered ");
+                    redirect('service_center/spare_transfer');
+                } else {
+                    $this->session->set_flashdata('error_msg', "Spare not  transfered ");
+                    redirect('service_center/spare_transfer');
+                }
+            }
+        }
+    }
 
     /*
       This function is for list of defective part shipped by SF
