@@ -300,7 +300,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label for="state" class="col-md-3 vertical-align">District*</label>
                                         <div class="col-md-8">
-                                            <select id="district_option" class="district form-control" name ="district" onChange="getPincode()" disabled="true">
+                                            <select id="district_option" class="district form-control" name ="district" onChange="getPincode()" required="true">
                                                 <option selected disabled>Select District</option>
                                                 <option <?php
                                                     if (isset($query[0]['district'])) {
@@ -322,7 +322,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     <div class="form-group ">
                                         <label for="state" class="col-md-3 vertical-align">Pincode*</label>
                                         <div class="col-md-8">
-                                            <select class="pincode form-control" id="pincode" name ="pincode" required="true" disabled="true">
+                                            <select class="pincode form-control" id="pincode" name ="pincode" required="true">
                                                 <option selected disabled>Select Pincode</option>
                                                 <option <?php
                                                     if (isset($query[0]['pincode'])) {
@@ -1749,6 +1749,7 @@ function manageAccountNameField(value){
     function getDistrict() {
      var state = $("#state").val();
      var district = $(".district").val();
+     if(state != null){
      $.ajax({
        type: 'POST',
        url: '<?php echo base_url(); ?>employee/vendor/getDistrict/1',
@@ -1761,6 +1762,7 @@ function manageAccountNameField(value){
          }
        }
      });
+    }
     }
         function getRMs(rm_id = '') {
         var state = $("#state").val();
@@ -1793,9 +1795,10 @@ function manageAccountNameField(value){
         }
     }
     
-                function getPincode() {
+    function getPincode() {
       var district = $(".district").val();
       var pincode = $(".pincode").val();
+      if(district != ''){
       $.ajax({
         type: 'POST',
         url: '<?php echo base_url(); ?>employee/vendor/getPincode/1',
@@ -1804,7 +1807,8 @@ function manageAccountNameField(value){
           $(".pincode").html(data);
        }
      });
-    }
+     }
+   }
     
                 $(function () {
     var state = $("#state").val();
@@ -2523,22 +2527,6 @@ function  check_mobile_number(){
            }
   }
 }
-//Author:Deepak 
-//This function use for ,you can't select district without select state first
-$('#state').change(function (){
-    if($("#state").val() != null) {
-         $("#district_option").attr('disabled',false);
-    }  
-});
-//Author:Deepak 
-//This function use for ,you can't select pincode without select district first
-$('#district_option').change(function (){
-    if($("#district_option").val() != null) {
-         $("#pincode").attr('disabled',false);
-    }    
-});     
-
-});
  $('#pan_no').keypress(function (e) {
        var regex = new RegExp("^[a-zA-Z0-9]+$");
        var str = String.fromCharCode(!e.charCode ? e.which : e.charCode);
