@@ -20,6 +20,34 @@ class User_model extends CI_Model {
         return $this->db->count_all_results("users");
     }
 
+    /** @desc: This funtion gets all mobile entries
+     *  @return :  array (mobile entries)
+     */
+    function getMobileEntry($select,$where,$result) {
+
+        $sql = $select."from user_mobile_entry".$where.$result['group_by'].$result['order_by'];
+        $query = $this->db->query($sql);
+
+        if ($query->num_rows() > 0) {
+            return $query->result_array();
+        }
+
+        return array();
+    }
+
+    /** @desc: This funtion is use to save all mobile entries
+     *  @return :  ID
+     */
+
+    function save_mobile_entry($post){
+
+        $this->db->insert('user_mobile_entry', $post);
+
+        $id = $this->db->insert_id();
+
+        return $id;
+    }
+
     /** @desc: This funtion gets all users
      *  @param : limit (between 10)
      *  @return :  array (user details)
