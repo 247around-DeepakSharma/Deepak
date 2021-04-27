@@ -3232,5 +3232,30 @@ exit();
             return 0;
         }
     }
+    /**
+     * @desc: This is used to get recent updated booking
+     * params: $select,$where
+     * return: Array of Data for View
+     * Ghanshyam
+     */
+    function get_recent_updated_booking(){
+        log_message("info", __METHOD__ . " Entering..");
+        $input_d = file_get_contents('php://input');
+        $post = json_decode($input_d, TRUE);
+        $authentication = $this->checkAuthentication(true);
+        if (empty($authentication)) {
+            exit;
+        }
+        $partner_id = $authentication['id'];
+        $previous_date = date('Y-m-d', strtotime('-1 day', strtotime(date('Y-m-d'))));
+        $where = array("booking_details.partner_id" => $partner_id,"date(booking_state_change.create_date) = '$previous_date'" => null);
+        $Bookings = $this->booking_model->get_recent_updated_booking('distinct(booking_state_change.booking_id) as booking_id', $where);
+        if(!empty($Bookings)){
+            $this->jsonResponseString['response'] = $Bookings;
+            $this->sendJsonResponse(array('0000', "Details found successfully"));
+        }else{
+            $this->sendJsonResponse(array(ERR_INVALID_BOOKING_ID_CODE, "No booking found."));
+        }
+    }
 
 }
