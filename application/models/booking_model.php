@@ -3317,5 +3317,19 @@ class Booking_model extends CI_Model {
         $result = $this->db->query($query)->result_array();
         return $result;   
     }
+    /**
+     * @desc: This is used to get recent updated booking
+     * params: $select,$where
+     * return: Array of Data for View
+     * Ghanshyam
+     */
+    function get_recent_updated_booking($select,$where){
+        $this->db->select($select);
+        $this->db->from("booking_state_change");
+        $this->db->join("booking_details", "booking_state_change.booking_id = booking_details.booking_id");
+        $this->db->where($where);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
     
 }
