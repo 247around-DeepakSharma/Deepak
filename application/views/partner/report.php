@@ -183,7 +183,7 @@
                                     <div class="text-left">
                                         <button type="button" style="background: #2a3f54;border-color: #2a3f54;" class="btn btn-success" onclick="process_serviceability_report()">Export
                                             <img id="loader_gif_title" src="<?php echo base_url(); ?>images/loadring.gif" style="width: 23%;display:none;"></button>
-                                        <div class="btn btn-default" data-dismiss="modal">Cancel</div>
+                                        
                                     </div>
                             </form>
                                         </div>
@@ -383,7 +383,7 @@
                                         <div class="text-left" style='margin-top:5px'>                                           
                                             <button type="button" style="background: #2a3f54;border-color: #2a3f54;" class="btn btn-success" onclick="process_pincode_report()">Export
                                            <img id="loader_gif_title_new" src="<?php echo base_url(); ?>images/loadring.gif" style="width: 23%;display:none;"></button>
-                                           <div class="btn btn-default" data-dismiss="modal">Cancel</div>
+                                           
                                         </div>
                                      </form>
                                   </div>
