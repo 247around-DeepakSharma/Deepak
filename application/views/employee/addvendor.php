@@ -1763,6 +1763,7 @@ function manageAccountNameField(value){
     function getDistrict() {
      var state = $("#state").val();
      var district = $(".district").val();
+     if(state != null){
      $.ajax({
        type: 'POST',
        url: '<?php echo base_url(); ?>employee/vendor/getDistrict/1',
@@ -1770,8 +1771,12 @@ function manageAccountNameField(value){
        success: function (data) {
         // console.log(data);
          $(".district").html(data);
+         if (district != "") {
+           getPincode();
+         }
        }
      });
+    }
     }
         function getRMs(rm_id = '') {
         var state = $("#state").val();
@@ -1804,9 +1809,10 @@ function manageAccountNameField(value){
         }
     }
     
-                function getPincode() {
+    function getPincode() {
       var district = $(".district").val();
       var pincode = $(".pincode").val();
+      if(district != ''){
       $.ajax({
         type: 'POST',
         url: '<?php echo base_url(); ?>employee/vendor/getPincode/1',
@@ -1815,8 +1821,15 @@ function manageAccountNameField(value){
           $(".pincode").html(data);
        }
      });
+     }
+   }
+    
+                $(function () {
+    var state = $("#state").val();
+                    if (state != "") {
+        getDistrict();
     }
-  
+    });
     
     function get_brands() {
         var appliance = [];
