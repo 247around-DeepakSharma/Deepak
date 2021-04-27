@@ -358,7 +358,7 @@ class Engineer_model extends CI_Model {
      *@return - resultant array
      */ 
     function engineer_completed_bookings_details($booking_id){
-        $sql = "SELECT engineer_booking_action.*, booking_details.booking_date, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, 
+        $sql = "SELECT engineer_booking_action.*,booking_cancellation_reasons.reason as cancellation_reason_text, booking_details.booking_date, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, 
                 services.services, booking_details.request_type, booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, 
                 booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, symptom.symptom, defect.defect, symptom_completion_solution.technical_solution
                 FROM `engineer_booking_action` 
@@ -368,6 +368,7 @@ class Engineer_model extends CI_Model {
                 LEFT JOIN symptom on symptom.id = engineer_booking_action.symptom
                 LEFT JOIN defect on defect.id = engineer_booking_action.defect
                 LEFT JOIN symptom_completion_solution ON symptom_completion_solution.id = engineer_booking_action.solution
+                LEFT JOIN booking_cancellation_reasons on engineer_booking_action.cancellation_reason = booking_cancellation_reasons.id
                 WHERE `engineer_booking_action`.`booking_id` = '".$booking_id."'";
         
         $query = $this->db->query($sql);
