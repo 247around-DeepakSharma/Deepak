@@ -965,7 +965,7 @@ function get_data_for_partner_callback($booking_id) {
                 . "spare_consumption_status.consumed_status,"   
                 . "concat('`',spare_parts_details.`serial_number`) as serial_number,"   
                 . "booking_details.booking_primary_contact_no,"
-                . "CASE WHEN booking_details.part_brought_at=1 THEN 'No'  WHEN booking_details.part_brought_at=2 THEN 'Yes' ELSE 'No' END AS 'part_brought_at'";
+                . "CASE WHEN booking_details.part_brought_at=1 THEN 'Customer Location'  WHEN booking_details.part_brought_at=2 THEN 'Service Center Location' ELSE '' END AS 'part_brought_at'";
 
             if($end){
                 $limit = "LIMIT $start, $end";
