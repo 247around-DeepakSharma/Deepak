@@ -22,6 +22,15 @@ class Validate_serial_no {
                  }
              }
         }
+        if (!preg_match("/^[a-zA-Z0-9](.*[a-zA-Z0-9])?$/", $serialNo)) {
+           return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR); 
+        }
+        $cleansn = preg_replace('/[^A-Za-z0-9\-]/', '', $serialNo);
+        
+        $diff = strlen($serialNo)-strlen($cleansn);
+        if($diff > 2){
+            return array('code' => FAILURE_CODE, "message" => VIDEOCON_SERIAL_NUMBER_VALIDATION_ERROR);
+        }
         //If booking is repeat then validate serial number with parent booking 
         if($price_tags == REPEAT_BOOKING_TAG){
             $repeatResult =  $this->validate_repeat_booking_serial_number($serialNo,$booking_id,$modelNumber);
