@@ -1928,7 +1928,7 @@ $(document).ready(function () {
         var sub_gst_no = gst_no.substr(2, 10);
         if(company_type != 'Proprietorship Firm'){
             if(sub_gst_no != pan_no){
-             alert('Please enter correct GST Number 645'); 
+             alert('Please enter correct GST Number'); 
              return false;
             }
         }
