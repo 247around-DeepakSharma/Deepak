@@ -10839,7 +10839,7 @@ function do_delivered_spare_transfer() {
         if (!empty($spare_parts_data)) {
             $data['booking_id'] = $booking_id = $spare_parts_data[0]['booking_id'];
 
-            $spare_parts_list = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id as spare_id, parts_requested, spare_parts_details.booking_id,spare_parts_details.is_micro_wh, status, auto_acknowledeged, acknowledge_date, cci_details.courier_pod_file, inventory_master_list.part_number', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.status' => SPARE_DELIVERED_TO_SF, "auto_acknowledeged" => AUTO_ACKNOWLEDGED_FROM_API, "consumed_part_status_id" => NULL), false, false, false, ['is_inventory' => true], false, false, false, false, TRUE);
+            $spare_parts_list = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id as spare_id, parts_requested, spare_parts_details.booking_id,spare_parts_details.is_micro_wh, status, auto_acknowledeged, acknowledge_date, cci_details.courier_pod_file, im.part_number', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.status' => SPARE_DELIVERED_TO_SF, "auto_acknowledeged" => AUTO_ACKNOWLEDGED_FROM_API, "consumed_part_status_id" => NULL), false, false, false, ['is_inventory' => true], false, false, false, false, TRUE);
             $pod_spare_parts_list = array();
             $non_pod_spare_parts = array();
             $pod_flag = false;
