@@ -4358,7 +4358,19 @@ class vendor extends CI_Controller {
         $partner = !empty($this->input->post('partner')) ? $this->input->post('partner') : [];
         if (count($booking_id) === count($partner)) {
             foreach ($booking_id as $key => $value) {
-
+            $arr_validation_checks = $this->check_reassign_validations($value);
+            $sp_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $value, 'status !="Cancelled"' => NULL));
+            if(!empty($arr_validation_checks)){
+               $output = $arr_validation_checks;
+               $userSession = array('error' => $output);
+               $this->session->set_userdata($userSession);
+               redirect(base_url() . 'employee/vendor/get_reassign_partner_form');
+            }else if($sp_details){
+               $output = "Spare Involved at this booking id $value do not reassign the partner";
+               $userSession = array('error' => $output);
+               $this->session->set_userdata($userSession);
+               redirect(base_url() . 'employee/vendor/get_reassign_partner_form');
+            }
                 // update partner to corresponding booking id in booking_details table
                 $booking_details_data = array('partner_id' => $partner[$key],);
                 $this->booking_model->update_booking(trim($value), $booking_details_data);
