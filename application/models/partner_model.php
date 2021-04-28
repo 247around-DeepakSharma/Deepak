@@ -1606,6 +1606,33 @@ function get_data_for_partner_callback($booking_id) {
         $query = $this->db->get('partners');
         return $query->result_array();
     }
+
+    /**
+     * @desc: This is used to get the partners details which did not get any booking last month 
+     * @param String $partner_id
+     * @return Array
+     */
+    function get_partner_details_no_booking_last_month($active,$partnerType,$ac,$partner_not_like=NULL,$partner_id="", $is_prepaid=null){
+
+        $prevmonth = date('M Y', strtotime("last month"));
+        $month = (int)date('m',strtotime($prevmonth));
+        $where = array();
+        $this->db->select('partners.*, MONTH(booking_details.create_date) as Month, YEAR(booking_details.create_date) as Year');
+        if ($partner_id != "") {
+            $where['partners.id']  = $partner_id;
+        } else{
+            if($active !='All'){
+                $where['partners.is_active'] = $active;
+            }
+        }
+        
+        $this->db->join('booking_details','partners.id=booking_details.partner_id');
+        $this->db->where($where);
+        $this->db->where('MONTH(booking_details.create_date) !=', $month);
+        $this->db->where('YEAR(booking_details.create_date) =', date('Y',strtotime($prevmonth)));
+        $query = $this->db->get('partners');
+        return $query->result_array();
+    }
     
     function partner_login_details($where){
         $this->db->select('*');
