@@ -1941,15 +1941,17 @@ function manageAccountNameField(value){
 var company_type = $("#company_type").val();
 $(document).ready(function () {
     $('.submit_button').click(function() {
-        var pan_no = $("#pan_no").val();
+        var pan_no = $("#pan_no").val().toUpperCase();
         var gst_no = $('#gst_no').val();
+        if(gst_no != ''){
         var sub_gst_no = gst_no.substr(2, 10);
         if(company_type != 'Proprietorship Firm'){
             if(sub_gst_no != pan_no){
-             alert('Please enter correct GST Number'); 
+             alert("Please enter correct GST number"); 
              return false;
             }
         }
+      }
                 var pan_exp = /[a-zA-z]{5}\d{4}[a-zA-Z]{1}/;
                 if($('#pan_no').val() != '' && !pan_no.match(pan_exp)){
                     alert('Please enter correct Pan Number'); 
@@ -1991,7 +1993,7 @@ $(document).ready(function () {
                     alert('Please enter correct GST Number'); 
                     return false;
                    }
-                if(gst_no.length != 15){
+                if(gst_no.length != 15 && gst_no != '' ){
                    alert('Please Enter Correct GST Number');
                    return false;
                 }
