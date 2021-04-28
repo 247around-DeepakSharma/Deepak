@@ -6134,13 +6134,19 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . ' Function End');
         //unlink($csv);
     }
-    function download_waiting_defective_parts(){
-         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
+    function download_waiting_defective_parts($state_code=""){
+
+        if(!empty($state_code))
+        {
+          $data1=$data['states']= $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER(state_code.state) as state",array('state_code'=>$state_code),NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());         
+          $state=$data1[0]['state'];
+        }
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
         $where = array(
             "spare_parts_details.defective_part_required" => 1,
-            "approved_defective_parts_by_admin" => 1,
+           "approved_defective_parts_by_admin" => 1,
             '((spare_parts_details.defective_return_to_entity_id ="'.$partner_id.'" '
             . 'AND spare_parts_details.defective_return_to_entity_type = "'._247AROUND_PARTNER_STRING.'" '
             . ' AND status IN ("'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'", "'.OK_PARTS_SEND_TO_PARTNER_BY_WH.'") ) OR '
@@ -6149,14 +6155,20 @@ class Partner extends CI_Controller {
             . 'AND booking_details.partner_id = "'.$partner_id.'" '
             . 'AND spare_parts_details.status IN ("'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'","'.OK_PARTS_SEND_TO_PARTNER_BY_WH.'")))' => NULL
         );
-        $select = "CONCAT( '', GROUP_CONCAT((defective_part_shipped ) ) , '' ) as defective_part_shipped, i.part_number as part_code, spare_parts_details.shipped_quantity as shipped_quantity,"
-                . " spare_parts_details.booking_id, users.name, courier_name_by_sf, awb_by_sf, spare_parts_details.sf_challan_number, spare_parts_details.partner_challan_number, "
-                . "defective_part_shipped_date,remarks_defective_part_by_sf";
+        if(!empty($state))
+        {
+          $where['booking_details.state']=$state;
+        }
+        $select = "defective_part_shipped,spare_parts_details.defactive_part_received_date_by_courier_api, (CASE WHEN spare_parts_details.defactive_part_return_to_partner_from_wh_date_by_courier_api != '' THEN spare_parts_details.defactive_part_return_to_partner_from_wh_date_by_courier_api ELSE '' END) as defactive_part_return_to_partner_from_wh_date_by_courier_api, "
+                . " spare_parts_details.booking_id, users.name, spare_parts_details.courier_name_by_wh, spare_parts_details.awb_by_wh, spare_parts_details.wh_to_partner_defective_shipped_date,"
+                . "spare_parts_details.remarks_defective_part_by_wh,spare_parts_details.wh_challan_number"
+                . ",spare_parts_details.wh_challan_file, spare_parts_details.shipped_quantity,spare_parts_details.quantity,spare_parts_details.partner_challan_number, spare_parts_details.id, spare_parts_details.status, i.part_number, (CASE WHEN spare_consumption_status.is_consumed = 1 THEN 'YES' ELSE 'No' END) as is_consumed";
         $group_by = "spare_parts_details.id";
         $order_by = "spare_parts_details.defective_part_shipped_date DESC";
         $newCSVFileName = "Waiting_Spare_Parts_".date("Y-m-d").".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
         $report = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by,FALSE,FALSE,0,1);
+
         $delimiter = ",";
         $newline = "\r\n";
         $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
