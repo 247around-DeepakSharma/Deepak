@@ -6267,11 +6267,12 @@ $(document).ready(function () {
    });
    // Author:Deepak Sharma 
    // This function use to validate GST Number with 247001 partner id 
+   var  id = "<?php echo $query[0]['id']?>";
    $(document).ready(function () {
      $('#gst_number').on('input',function() {
         var GST_no = $("#gst_number").val();
         if(GST_no == '15'){
-        if(<?php echo $query[0]['id']?> != '' && GST_no != '' ){
+        if(id != '' && GST_no != '' ){
          $.ajax({
          type: 'POST',    
          url:'<?php echo base_url() ?>employee/partner/get_gst_number/<?php echo $query[0]['id']?>',
