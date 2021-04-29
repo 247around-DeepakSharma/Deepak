@@ -1,7 +1,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <?php if(!empty($booking_history)) {  $spare_request_type = ''; ?> 
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=<?php echo GOOGLE_MAPS_API_KEY;?>"></script>
-<script src="<?php echo base_url();?>js/googleScript.js"></script> 
+<script src="<?php echo base_url();?>js/googleScript.js"></script>
 <style type="text/css">
     
     .spare_image {
@@ -1501,8 +1501,8 @@
                         <th>Amount Paid</th>
                         <th>Customer Signature</th>
                         <th>Closed Date</th>
-                        <th>Closing Address</th>
-                        <th>Remarks</th>
+                        <th>Address</th>
+                        <th>Closing Remarks</th>
                     </tr>
                     <tbody>
                         <tr>
@@ -1510,7 +1510,7 @@
                             <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $signature_details[0]['signature'];?>" target="_blank">Click Here</a></td>
                             <td><?php echo date("d-M-Y", strtotime($signature_details[0]['closed_date'])); ?></td>
                             <td><?php echo $signature_details[0]['address']; ?></td>
-                            <td><?php echo $signature_details[0]['remarks']; ?></td>
+                            <td><?php echo $signature_details[0]['cancellation_remark']; ?></td>
                             
                         </tr>
                        
