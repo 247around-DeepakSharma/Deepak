@@ -1083,6 +1083,17 @@
                     }
                 }
             });
+
+            $('.quantity').each(function() {
+                var id = $(this).attr('id');
+                if(id !== "parts_quantity"){
+                    if($(this).val().length === 0){
+                        alert('Please enter quantity');
+                        checkbox_value = 0;
+                       return false;
+                    }
+                }
+            });
             
             $('.defect_pic').each(function() {
                 var id = $(this).attr('id');
