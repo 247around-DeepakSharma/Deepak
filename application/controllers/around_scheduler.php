@@ -3410,6 +3410,84 @@ class Around_scheduler extends CI_Controller {
         }
             
     }
+
+    /**
+     * @desc This is used to Send Email to AM/Nitin sir if any partner did not get any booking last month.
+     * @return boolean
+     * Nadeem Ahamad 
+     * 27-04-2021 to 28-04-2021
+     */
+
+    function partner_no_booking_month(){
+
+        $partner_not_like = INTERNALTYPE;
+        $partnerType = array(OEM, EXTWARRANTYPROVIDERTYPE, ECOMMERCETYPE);
+        $active = 1;
+        $ac = 'All';
+        $query = $this->partner_model->get_partner_details_no_booking_last_month($active, $partnerType, $ac, $partner_not_like, "", null);
+        $template = $this->booking_model->get_booking_email_template("no_booking_monthly_mail");
+        if (!empty($template) && !empty($query)) {
+
+            $prevmonth = date('M Y', strtotime("last month"));
+
+            $body = $template[0];
+			$from = $template[2];
+			$cc = '';
+			$to = '';
+            $file = '';
+			if (!empty($template[1])) {
+				$to = $template[1];
+			}
+			if (!empty($template[3])) {
+				$cc = $template[3];
+			}
+            $subject = str_replace("<<Month>>",date('M',strtotime($prevmonth)),$template[4]);
+            $subject = str_replace("<<Year>>",date('Y',strtotime($prevmonth)),$subject);
+			$bcc = '';
+            $table = "<table style='width:80%'  border='1'>";
+            $table .= "<tr>";
+            $table .= "<th>Partner Name</th>";
+            $table .= "<th>Account Manager Name</th>";
+            $table .= "</tr>";
+
+            foreach ($query as $key => $value) {
+                
+                $partner_id = $value['id'];
+                $am_details = $this->partner_model->getpartner_data("partners.public_name, agent_filters.*, employee.full_name, employee.groups,employee.official_email,employee.phone", array("partners.id" => $partner_id, "agent_filters.entity_id IS NOT NULL" => NULL), "", TRUE, 0, 1);
+
+                $CSVData = array();
+                $amemail_ids = array();
+                $am_string_array = array();
+                $am_string = "";
+                $amemail_ids_string;
+
+                foreach ($am_details as $key_am => $value_am) {
+                    if (!empty($value_am['phone'])) {
+                        $am_string_array[] = $value_am['full_name'];
+                    }
+                }
+
+                if (!empty($am_string_array)) {
+                    $am_string = implode(',', array_unique($am_string_array));
+                }
+
+                $table .= "<tr>";
+                $table .= "<td>".$value['public_name']."</td>";
+                $table .= "<td>".$am_string."</td>";
+                $table .= "</tr>";
+            }
+
+            $table .= "</table>";
+
+            $emailBody = str_replace("<<Month>>",date('M',strtotime($prevmonth)),$body);
+            $emailBody = str_replace("<<Year>>",date('Y',strtotime($prevmonth)),$emailBody);
+            $emailBody = sprintf($emailBody, $table);
+            
+            $result = $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $emailBody, $file, 'no_booking_monthly_mail');
+
+        }
+    }
+    
     /**
      * @desc This is used to Send Email to partner to tell about pending spare count in Requested Status
      * @return boolean
