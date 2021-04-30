@@ -4358,19 +4358,14 @@ class vendor extends CI_Controller {
         $partner = !empty($this->input->post('partner')) ? $this->input->post('partner') : [];
         if (count($booking_id) === count($partner)) {
             foreach ($booking_id as $key => $value) {
-            $arr_validation_checks = $this->check_reassign_validations($value);
-            $sp_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $value, 'status !="Cancelled"' => NULL));
-            if(!empty($arr_validation_checks)){
-               $output = $arr_validation_checks;
-               $userSession = array('error' => $output);
-               $this->session->set_userdata($userSession);
-               redirect(base_url() . 'employee/vendor/get_reassign_partner_form');
-            }else if($sp_details){
-               $output = "Spare Involved at this booking id $value do not reassign the partner";
-               $userSession = array('error' => $output);
-               $this->session->set_userdata($userSession);
-               redirect(base_url() . 'employee/vendor/get_reassign_partner_form');
-            }
+                $sp_details = $this->partner_model->get_spare_parts_by_any("status", array('booking_id' => $value, 'status !="Cancelled"' => NULL));
+                if(!empty($sp_details)){
+                 $output = "Spare Parts Involved On Bookings So Partner Not Assigned";
+                 $userSession = array('error' => $output);
+                 $this->session->set_userdata($userSession);
+                 redirect(base_url() . 'employee/vendor/get_reassign_partner_form');
+                 exit;
+                }
                 // update partner to corresponding booking id in booking_details table
                 $booking_details_data = array('partner_id' => $partner[$key],);
                 $this->booking_model->update_booking(trim($value), $booking_details_data);
@@ -4393,7 +4388,21 @@ class vendor extends CI_Controller {
             redirect(base_url() . 'employee/vendor/get_reassign_partner_form');
         }
     }
-
+/**
+ * Author:Deepak sharma 
+ * this function use for check spare assign or not
+ */
+    function booking_spare_assign_or_not(){
+             $id = $this->input->post('booking_id');
+             $sp_details = $this->partner_model->get_spare_parts_by_any("status", array('booking_id' => $id, 'status !="Cancelled"' => NULL));
+              //print_r($sp_details);exit;
+            if(!empty($sp_details)){
+            echo "Success";
+            } 
+            else{
+              echo "Not Exist";
+            }
+    }
     /**
      * if pincode exist in the india pincode table the echo success other wise Not Exist
      * @param String $pincode

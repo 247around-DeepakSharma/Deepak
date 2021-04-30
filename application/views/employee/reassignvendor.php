@@ -28,7 +28,7 @@
                                         <th style="width: 40%;">
                                             <div class="form-group">
                                                 <label for="booking-id">Booking ID:</label>
-                                                <input type="text" class="form-control get_required" id="booking-id_1" name="booking_id[]">
+                                                <input type="text" class="form-control get_required" id="booking-id_1" name="booking_id[]" oninput = "booking_validate(this.id)">
                                             </div>
                                         </th>
                                         <th>
@@ -57,7 +57,7 @@
                             <div class="cloned"></div>
                             <div class="col-md-12">
                                 <center><img id="loader_gif" src="" style="display: none;width:40px;"></center>
-                                <center><input type="submit" value="Reassign Partner" onclick="return check_validation()" class="btn btn-md btn-primary" /></center>
+                                <center><input type="submit" value="Reassign Partner" onclick="return check_validation()" class="btn btn-md btn-primary"  id ="submit_btn"/></center>
                             </div>
                         </div>
                     </form>
@@ -133,6 +133,25 @@
                                 return true;
                             }
                         }
+                       function booking_validate(id){
+                           var booking_id = document.getElementById(id).value;
+                           var saveData = $.ajax({
+                           type: 'POST',
+                           url: "<?php echo base_url() ?>employee/vendor/booking_spare_assign_or_not",
+                           data:{booking_id:booking_id},
+                           dataType: "text",
+                           success: function(resultData) {
+                               if(resultData == "Success"){
+                               alert("Do not reassign the partner of this booking id "+booking_id+" because sapre is involved");
+                               $("#submit_btn").attr('disabled',true);
+                             }
+                             else{
+                                $("#submit_btn").attr('disabled',false);
+                            }
+                        }
+                        });
+                          saveData.error(function() { alert("Something went wrong"); });
+                       }
                     </script>
                 <?php } else { ?>
                     <h2><b>Re-Assign Vendor</b></h2>

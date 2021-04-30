@@ -26,6 +26,19 @@
         background: #df4848;
         border-radius: 10px;
     }
+    .custom-form{
+        display: block;
+        width: 100%;
+        height: 34px;
+        padding: 6px 12px;
+        font-size: 14px;
+        line-height: 1.42857143;
+        color: #555;
+        background-color: #fff;
+        background-image: none;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
 </style>
 <div role="tabpanel" class="tab-pane" id="estimate_cost_given">
     <div class="container-fluid">
@@ -1134,6 +1147,45 @@
     </div>
 </div>
 <!-- Common uses of hidden field  --->
+ <!-- Courier Audit Update AWB By SF -->
+ <div class="modal fade" id="courier_audit_tab_modal">
+     <div class="modal-dialog modal-dialog-centered">
+         <div class="modal-content">
+             <!-- Modal Header -->
+             <div class="modal-header">
+                 <h4 class="modal-title"><strong>Update AWB Number</strong></h4>
+                 <button type="button" class="close" style="margin-top: -45px;margin-right: -5px;" data-dismiss="modal">&times;</button>
+             </div>
+             <!-- Modal body -->
+             <div class="modal-body">
+                 <div class="row form-group">
+                     <div class="col-md-4">
+                         <label for="awb_by_sf">AWB Number <span style="color:red">*</span></label>
+                     </div>
+                     <div class="col-md-8">
+                         <input type="text" class="form-control" name="awb_by_sf" id="awb_by_sf" value="">
+                     </div>
+                 </div>
+                 <div class="row form-group">
+                     <div class="col-md-4">
+                         <label for="courier_charges">Courier Price <span style="color:red">*</span></label>
+                     </div>
+                     <div class="col-md-8">
+                         <input type="number" min="0" name="courier_price_by_sf" id="courier_price_by_sf" class="custom-form" onblur="chkPrice($(this),2000)" value="">
+                     </div>
+                 </div>
+                 <hr>
+                 <div class="row form-group">
+                     <div class="col-md-12" style="text-align: center;">
+                         <input type="text" id="pre_awb_by_sf" value="">
+                         <button type="button" style="width: 30%;" id="awb_number_change_from_audit" class="btn btn-success">Save</button>
+                     </div>
+                 </div>
+             </div>
+         </div>
+     </div>
+ </div>
+  <!-- Courier Audit Update AWB By SF -->
 <div class="loader hide"></div>
 <style>
     .loader {
@@ -2546,22 +2598,31 @@
     });  
     
   
-$(document).on('click', '.awb_number_by_sf_edit', function(){
-   
-    if ($(this).siblings(".awb_number_by_sf_no_text").is(":hidden")) {
-         
+    $(document).on('click', '.update_awb_by_sf_from_courier_autid', function(){
+        $("#pre_exit_awb_by_sf").val($(this).attr('data-awb-number'));
+        $('#courier_audit_tab_modal').modal({
+            show: true
+        }); 
+    });
+
+    $("#awb_number_change_from_audit").click(function(){
         var prethis = $(this);
-        var pre_awb_by_sf = $(this).siblings(".awb_number_by_sf_no_text").attr('data-awb-number');
-        var change_awb_number_by_sf = $(this).siblings("input").val();
+        var pre_awb_by_sf = $("#pre_exit_awb_by_sf").val();
+        var change_awb_number_by_sf = $("#awb_by_sf").val();
          inputRGEX = /^[a-zA-Z0-9]*$/;
         if(!inputRGEX.test(change_awb_number_by_sf)){
             alert("AWB Number should special character."); 
-            $(this).siblings("input").val('');
-            return false
+            $("#awb_by_sf").val('');
+            return false;
         }
         
         if(change_awb_number_by_sf == ''){
           alert("AWB Number should not be blank."); 
+          return false;  
+        }
+        
+        if($("#courier_price_by_sf").val() < 1){
+          alert("Courier Charges should not be blank."); 
           return false;  
         }
         
@@ -2571,7 +2632,7 @@ $(document).on('click', '.awb_number_by_sf_edit', function(){
             beforeSend: function(){
                  prethis.html('<i class="fa fa-circle-o-notch fa-lg" aria-hidden="true"></i>');
              },
-            data: { change_awb_number_by_sf: change_awb_number_by_sf, pre_awb_by_sf:pre_awb_by_sf},
+            data: {awb: change_awb_number_by_sf, pre_awb_by_sf:pre_awb_by_sf, courier_charge:$("#courier_price_by_sf").val()},
             success: function (data) {
                obj = JSON.parse(data)
                 if(obj['status']=="success"){
@@ -2583,13 +2644,7 @@ $(document).on('click', '.awb_number_by_sf_edit', function(){
             }
         });
         
-    } else {
-        var text = $(this).siblings(".awb_number_by_sf_no_text").text();
-        $(this).before("<input type=\"text\" class=\"form-control\" value=\"" + text + "\">");
-        $(this).html('<i class="fa fa-check fa-lg" aria-hidden="true"></i>');
-        $(this).siblings(".awb_number_by_sf_no_text").hide();
-    }
-});
+    });
     
  $("#vendor_id").select2({
     placeholder:'Select Service Center',
