@@ -670,10 +670,11 @@ class Notify {
                         if(!empty($city_details)){
                             
                             $zone_color = $city_details[0]['zone_color'];
-                            if($zone_color == "Red"){
-                                $sms1['tag'] = "sms_to_redzone_customers";
+                            if($query1[0]['partner_id'] == SHARP_ID){
+                                $sms1['tag'] = "covid_service_delay";
                                 $sms1['phone_no'] = $query1[0]['booking_primary_contact_no'];
-                                $sms1['smsData']['appliance'] = $query1[0]['services'];
+                                $sms1['smsData']['booking_id'] = $query1[0]['booking_id'];                                
+                                $sms1['smsData']['contact_number'] = SHARP_CALLCENTER_NUMBER;
                                 $sms1['smsData']['partner'] = $sms['smsData']['public_name'];
                                 $sms1['type'] = "user";
                                 $sms1['booking_id'] = $booking_id;
