@@ -10705,7 +10705,8 @@ function do_delivered_spare_transfer() {
             $this->booking_model->update_booking($booking_id, ['service_center_closed_date' => $closed_date]);
 
             // Insert data into booking state change
-            $this->insert_details_in_state_change($booking_id, $sf_booking_status, "Booking Auto Approved", "247Around", "Review the Booking", NULL, true);
+			$remarks_auto_close = "Booking Auto Approved - ".$engg_completed_booking->remarks;
+            $this->insert_details_in_state_change($booking_id, $sf_booking_status, $remarks_auto_close, "247Around", "Review the Booking", NULL, true);
 
             //Update spare consumption as entered by engineer Booking Completed
             if ($booking_status == _247AROUND_COMPLETED) {
