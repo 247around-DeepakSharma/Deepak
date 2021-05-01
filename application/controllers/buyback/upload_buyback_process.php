@@ -869,11 +869,19 @@ class Upload_buyback_process extends CI_Controller {
         for ($row = 2, $i = 0; $row <= $highestRow; $row++, $i++) {
             $rowData_array = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
             $rowData = array_combine($headings_new[0], $rowData_array[0]);
-            $okey = $rowData['capacity'].":".$rowData['brand'].":".$rowData['workingcondition'];
+            $okey = '';
+            if($headings_new[0][0]=='brand' && $headings_new[0][1]=='type' && $headings_new[0][2]=='size'){
+                $okey = $rowData['brand'].":".$rowData['type']."_".$rowData['size'];
+            }else if($headings_new[0][0]=='capacity' && $headings_new[0][1]=='brand' && $headings_new[0][2]=='workingcondition'){
+                $okey = $rowData['capacity'].":".$rowData['brand'].":".$rowData['workingcondition'];
+            }else if($headings_new[0][0]=='brand' && $headings_new[0][1]=='type' && $headings_new[0][2]=='productcondition'){
+                $okey = $rowData['brand'].":".$rowData['type'].":".$rowData['productcondition'];
+            }
+            if(!empty($okey)){
             $order_key_need_to_check = strtolower(str_replace(array("_",":"," ","-","|","/"), "", $okey));
             //make order key and city arrray and push this data to array $this->price_quote_data for comparison
             foreach($rowData as $tmpcity => $price){
-                if (stristr($tmpcity, "-highestoffer") && $price != "N/A") {
+                if (stristr($tmpcity, "-highestoffer")) {
                     $tmp_arr = array();
                     $tmp_arr['order_key'] = $order_key_need_to_check;
                     $city = trim(str_replace("-highestoffer", "",$tmpcity));
@@ -881,14 +889,19 @@ class Upload_buyback_process extends CI_Controller {
                         $city = "Ghaziabad";
                     } else if(strtolower($city) == "trivendrum"){
                         $city = "Tiruvanthpuram";
-                    } else if(strtolower($city) == "delhi"){
+                    } else if(strtolower($city) == "delhi" && stristr($rowData['buybackitemid'], "TV")){
                          $city = "west delhi";
                     }
                     $tmp_arr['city'] = $city;
-                    $tmp_arr['new_price_quote'] = $price;
+                    if($price != "N/A"){
+                        $tmp_arr['new_price_quote'] = $price;
+                    }else{
+                        $tmp_arr['new_price_quote'] = $rowData['minimumdiscount'];
+                    }
 
                     array_push($this->price_quote_data, $tmp_arr);
                 }
+		}
             }
         }
     }
