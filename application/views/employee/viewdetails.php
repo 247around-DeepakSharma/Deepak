@@ -1493,7 +1493,7 @@
                             <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $signature_details[0]['signature'];?>" target="_blank">Click Here</a></td>
                             <td><?php echo $signature_details[0]['closed_date']; ?></td>
                             <td><?php echo $signature_details[0]['address']; ?></td>
-                            <td><?php echo $signature_details[0]['cancellation_remark']; ?></td>
+                            <td><?php echo $signature_details[0]['closing_remark']; ?></td>
                             
                         </tr>
                        
