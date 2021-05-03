@@ -31,6 +31,7 @@ class File_upload extends CI_Controller {
         $this->load->model('employee_model');
         $this->load->model('invoices_model');
         $this->load->model('accounting_model');
+        $this->load->model('warranty_model');
 
         $this->load->helper(array('form', 'url', 'file', 'array'));
     }
@@ -102,12 +103,15 @@ class File_upload extends CI_Controller {
                             //process upload courier serviceable area excel  
                             $response = $this->process_upload_courier_serviceable_area_file($data);
                             break;
+                        case PART_WARRANTY_DETAILS:
+                            $response = $this->process_upload_part_warranty_file($data);
+                            break;
                         default :
                             log_message("info", " upload file type not found");
                             $response['status'] = FALSE;
                             $response['message'] = 'Something Went wrong!!!';
                     }
-                   
+                        
                     if ($this->input->post("transfered_by") == MSL_TRANSFERED_BY_WAREHOUSE) {
                         $file_type = $data['post_data']['file_type'] . " by warehouse";
                     } else {
@@ -2860,4 +2864,98 @@ class File_upload extends CI_Controller {
 
         echo json_encode($response, true);
     }
+
+    function process_upload_part_warranty_file($data){
+        log_message('info', __FUNCTION__ . " => process upload part warranty data file");
+        $sheetUniqueRowData = array();
+        $data_to_be_inserted = array();
+        //column which must be present in the  upload inventory file
+        $header_column_need_to_be_present = array('product', 'plan_name', 'part_type');
+        //check if required column is present in upload file header
+        $check_header = $this->check_column_exist($header_column_need_to_be_present, $data['header_data']);
+        if ($check_header['status']) {
+            $nonValidData = array();
+            // Store all Products data in Array
+            $arr_services = $this->reusable_model->get_search_result_data('services', 'services,id', NULL, NULL, NULL, NULL, NULL, NULL);
+            $arr_services = array_column($arr_services, 'id', 'services');
+            // Store Plans Data
+            $arr_service_wise_warranty_plans = [];
+            $arr_plans = $this->reusable_model->get_search_result_data('warranty_plans', '*', ['is_active' => 1], NULL, NULL, NULL, NULL, NULL);
+            foreach ($arr_plans as $arr_plan) {
+                $arr_service_wise_warranty_plans[$arr_plan['service_id']][$arr_plan['plan_name']] = $arr_plan['plan_id'];
+            }       
+            //get file data to process
+            for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
+                $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
+                $sanitizes_row_data = array_map('trim', $rowData_array[0]);
+                if (!empty(array_filter($sanitizes_row_data))) {
+                    $rowData = array_combine($data['header_data'], $rowData_array[0]);
+                  
+                    // Check if Product Exists
+                    $service_name = trim($rowData['product']);
+                    if (empty($arr_services[$service_name])){
+                        array_push($nonValidData, $service_name. " not found.");
+                        break;
+                    }
+                    $service_id = $arr_services[$service_name];
+                    
+                    // Check if Plan Exists
+                    $plan_name = trim($rowData['plan_name']);
+                    if (empty($arr_service_wise_warranty_plans[$service_id][$plan_name])){
+                        array_push($nonValidData, $plan_name. " not found.");
+                        break;
+                    }
+                    $plan_id = $arr_service_wise_warranty_plans[$service_id][$plan_name];
+                    
+                    // Check if Part Type Exists
+                    $part_type = trim($rowData['part_type']);
+                    $arr_part_type = $this->reusable_model->get_search_result_data('inventory_parts_type', 'part_type,id', ['part_type' => $part_type, 'service_id' => $service_id], NULL, NULL, NULL, NULL, NULL);
+                    if (empty($arr_part_type[0]['part_type'])){
+                        array_push($nonValidData, $part_type. " not found.");
+                        break;
+                    }
+                    $part_type_id = $arr_part_type[0]['id'];
+                    
+                    // Check if Part Type already Mapped
+                    $arr_part_type_mapping = $this->reusable_model->get_search_result_data('warranty_plan_part_type_mapping', 'id', ['part_type_id' => $part_type_id, 'plan_id' => $plan_id], NULL, NULL, NULL, NULL, NULL);
+                    if (!empty($arr_part_type_mapping[0]['id'])){
+                        continue;
+                    }
+                    
+                    // Remove 'Others' Part Type if any
+                    if(strtoupper($part_type) == 'OTHERS' || strtoupper($part_type) == 'OTHER'){
+                        continue;
+                    }
+                    
+                    array_push($data_to_be_inserted, array(
+                        'plan_id' => $plan_id,
+                        'part_type_id' => $part_type_id,
+                        'created_by' => 1
+                    ));
+                }                
+            }
+            if(!empty($nonValidData)){
+                $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], PART_WARRANTY_DETAILS, FILE_UPLOAD_FAILED_STATUS, "default", _247AROUND_EMPLOYEE_STRING, _247AROUND);
+                $response['status'] = FALSE;
+                $response['message'] = "Incorrect Data - " . implode(", ", $nonValidData);
+            }
+            else {
+                $insert = $this->warranty_model->insert_part_warranty_data($data_to_be_inserted); 
+                if($insert)
+                {
+                    $response['status'] = TRUE;
+                    $response['message'] = "Data Uploaded Successfully";                    
+                }
+                else
+                {
+                    $response['status'] = TRUE;
+                    $response['message'] = "Data can not be Inserted";
+                }
+            }
+        } else {
+            $response['status'] = FALSE;
+            $response['message'] = $check_header['message'];
+        }
+        return $response;
+    }    
 }
