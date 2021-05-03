@@ -5398,6 +5398,9 @@ class Partner extends CI_Controller {
         if(!empty($this->input->post('is_all_partner'))){
           $option .= '<option value="all">All</option>';  
         }
+        else{
+            $option .= '<option value="all">All</option>';
+        }
         
         foreach ($partner_list as $value) {
             $option .= "<option value='" . $value['id'] . "'";
