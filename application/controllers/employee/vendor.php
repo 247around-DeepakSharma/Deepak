@@ -842,11 +842,11 @@ class vendor extends CI_Controller {
         if ($vendor_list['is_wh'] != 1) {
             if ($vendor_list['active'] == 0) {
                 $disable = "disabled";
+                $row[] = '<a href="javascript:void(0)" class="btn btn-md btn-success" onclick ="return false" onclick="return login_to_vendor(' . $vendor_list['id'] . ')"  ' . $disable . '  >Login</a>';
             } else {
                 $disable = "";
+                $row[] = '<a href="javascript:void(0)" class="btn btn-md btn-success" onclick="return login_to_vendor(' . $vendor_list['id'] . ')"  ' . $disable . '  >Login</a>';
             }
-
-            $row[] = '<a href="javascript:void(0)" class="btn btn-md btn-success" onclick="return login_to_vendor(' . $vendor_list['id'] . ')"  ' . $disable . '  >Login</a>';
         } else {
             $row[] = "";
         }
@@ -993,6 +993,7 @@ class vendor extends CI_Controller {
                  $vendor['on_off'] = 1; 
             }
             else{
+                $vendor['on_off'] = 0;
                  $this->sfauthorization_certificate->create_new_certificate($id);  
             }
             $this->vendor_model->edit_vendor($vendor, $id);
