@@ -3190,6 +3190,7 @@ function get_detailed_summary_report_query($partner_id,$whereConditions=NULL){
                     LEFT JOIN entity_login_table ON (booking_details.created_by_agent_id = entity_login_table.agent_id)
                     LEFT JOIN employee ON (booking_details.created_by_agent_id = employee.id)
                     LEFT JOIN dealer_details ON (booking_details.dealer_id = dealer_details.dealer_id)
+					LEFT JOIN vendor_partner_invoices ON (vendor_partner_invoices.invoice_id = spare_parts_details.reverse_purchase_invoice_id)
             WHERE {$where} AND product_or_services != 'Product'
             GROUP BY
                     ud.id
@@ -3382,6 +3383,7 @@ function get_detailed_summary_report_query($partner_id,$whereConditions=NULL){
                 LEFT JOIN entity_login_table ON (booking_details.created_by_agent_id = entity_login_table.agent_id)
                 LEFT JOIN employee ON (booking_details.created_by_agent_id = employee.id)
                 LEFT JOIN dealer_details ON (booking_details.dealer_id = dealer_details.dealer_id)
+				LEFT JOIN vendor_partner_invoices ON (vendor_partner_invoices.invoice_id = spare_parts_details.reverse_purchase_invoice_id)
             WHERE {$where}
                 AND product_or_services != 'Product' AND spare_parts_details.booking_id is not null 
             GROUP BY
