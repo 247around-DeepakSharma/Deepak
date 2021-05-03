@@ -1617,7 +1617,8 @@ function get_data_for_partner_callback($booking_id) {
         $prevmonth = date('M Y', strtotime("last month"));
         $month = (int)date('m',strtotime($prevmonth));
         $where = array();
-        $this->db->select('partners.*, MONTH(booking_details.create_date) as Month, YEAR(booking_details.create_date) as Year');
+        $this->db->distinct();
+        $this->db->select("partners.id, partners.public_name");
         if ($partner_id != "") {
             $where['partners.id']  = $partner_id;
         } else{
