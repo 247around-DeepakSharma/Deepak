@@ -10708,7 +10708,11 @@ if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file'
             
             // Insert data into booking state change
 
-			$remarks_auto_close = "Booking Auto Approved - ".$engg_completed_booking->closing_remark;
+			 if ($engg_completed_booking->internal_status == _247AROUND_COMPLETED) {
+				$remarks_auto_close = "Booking Auto Approved - ".$engg_completed_booking->closing_remark;
+			 }else{
+				 $remarks_auto_close = "Booking Auto Approved - ".$engg_completed_booking->cancellation_remark;
+			 }
 
             $this->insert_details_in_state_change($booking_id, $sf_booking_status, $remarks_auto_close, "247Around", "Review the Booking", NULL, true);
 
