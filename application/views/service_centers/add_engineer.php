@@ -39,6 +39,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="col-md-6">
+                                <input type="hidden" value="1" name="sf_id"/>
                                 <?php if(!empty($data)){?>
                                 <input type="hidden" value="<?php echo $data[0]['id']?>" name="id"/>
                                 <?php }?>
