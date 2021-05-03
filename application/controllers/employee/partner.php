@@ -1272,9 +1272,10 @@ class Partner extends CI_Controller {
      * @desc: This is used to get number which entity id =247001
      * params: partner id
      */
-    function get_gst_number($id){
+    function get_gst_number(){
       $_247AROUND = '247001';
       $gst_no = $this->input->post('gst_no');
+      $id = $this->input->post('id');
       $select = "gst_number";
       $where = array('entity_id' => $_247AROUND);
       $result = $this->inventory_model->get_entity_gst_data($select,$where);
