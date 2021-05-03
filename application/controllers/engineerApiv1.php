@@ -1559,7 +1559,7 @@ class engineerApiv1 extends CI_Controller {
                 foreach ($bookinghistory['spare_parts'] as $sp) {
                     $spare_status = $this->engineer_model->check_cancell_allowed($sp['id']);
                     if($spare_status[0]['status']!=_247AROUND_CANCELLED){
-                         $status = CANCEL_PAGE_SPARE_NOT_SHIPPED;
+                         $status = "Spare Part is involved in this booking. This booking cannot be cancelled.";
                          $isdisable = true;
                     }
                 }
@@ -3282,7 +3282,7 @@ class engineerApiv1 extends CI_Controller {
                     curl_close($ch);
                     $response = json_decode($curl_response);
                     if ($response->status) {
-                        $this->sendJsonResponse(array('0000', 'success'));
+                        $this->sendJsonResponse(array('0000', 'Booking Updated Successfully.'));
                     } else {
                         $this->sendJsonResponse(array('0044', 'Error occured while updating booking'));
                     }
@@ -3573,7 +3573,7 @@ class engineerApiv1 extends CI_Controller {
                     if ($est_approved_msg) {
                         $response["message"] = $est_approved_msg;
                     } else {
-                        $response["message"] = "You can not request spare part for this booking";
+                        $response["message"] = "Spare Part cannot be requested for this booking.";
                     }
                 }
                 log_message("info", "Spare parts flag found");
