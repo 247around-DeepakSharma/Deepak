@@ -2174,6 +2174,11 @@ class vendor extends CI_Controller {
                     if ($this->input->post('around_exp')) {
                         $data['around_exp'] = $this->input->post('around_exp');
                     }
+                    if(!empty($this->input->post('sf_id')) && $this->input->post('sf_id') == '1'){
+                    $this->checkserviceCenterUserSession();
+                    }else{
+                    $this->checkUserSession();
+                    }
                     $engineer_id = $this->vendor_model->insert_engineer($data);
                     if ($engineer_id) {
                         //insert engineer appliance detail in engineer_appliance_mapping table
@@ -5172,13 +5177,24 @@ class vendor extends CI_Controller {
     function checkUserSession() {
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
             return TRUE;
-        } else {
+        }else{
             log_message('info', __FUNCTION__ . " Session Expire for Service Center");
             $this->session->sess_destroy();
             redirect(base_url() . "employee/login");
         }
     }
-
+   function checkserviceCenterUserSession(){
+      if(($this->session->userdata('loggedIn') == TRUE) && $this->session->userdata('userType') == 'service_center') {
+       return TRUE;
+       
+      }
+       else{
+            log_message('info', __FUNCTION__ . " Session Expire for Service Center");
+            $this->session->sess_destroy();
+            redirect(base_url() . "service_center/login");
+            
+        }
+   }
     function pending_bookings_on_vendor($vendorID) {
         $count = $this->reusable_model->get_search_result_count("booking_details", "booking_id", array('assigned_vendor_id' => $vendorID), NULL, NULL, NULL,
                 array("current_status" => array(_247AROUND_RESCHEDULED, _247AROUND_PENDING)), NULL);
