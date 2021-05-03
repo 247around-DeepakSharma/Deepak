@@ -6266,8 +6266,10 @@ $(document).ready(function () {
    });
    });
    // Author:Deepak Sharma 
-   // This function use to validate GST Number with 247001 partner id 
+   // This function use to validate GST Number with 247001 partner id
+ <?php if(!empty($query[0]['id'])){?>
    var  id = "<?php echo $query[0]['id']?>";
+   <?php }?>
    $(document).ready(function () {
      $('#gst_number').on('input',function() {
         var GST_no = $("#gst_number").val();
@@ -6275,9 +6277,9 @@ $(document).ready(function () {
         if(id != '' && GST_no != '' ){
          $.ajax({
          type: 'POST',    
-         url:'<?php echo base_url() ?>employee/partner/get_gst_number/<?php echo $query[0]['id']?>',
+         url:'<?php echo base_url() ?>employee/partner/get_gst_number',
          data:{ 
-            'gst_no':GST_no},
+            'gst_no':GST_no,'id':id},
          success: function(msg){
             if(msg == 'true'){
               alert('Please Enter Valid GST Number ');
