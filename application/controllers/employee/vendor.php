@@ -612,11 +612,21 @@ class vendor extends CI_Controller {
      * @param: void
      * @return : array(result) to view
      */
-    function view_agreement_list() {
+    function view_agreement_list($offset = 0) {
         $this->miscelleneous->load_nav_header();
         $this->checkUserSession();
-        $data = $this->vendor_model->get_sf_agreement_list();
-        $this->load->view('employee/view_agreement_list', array('results' => $data));
+        $config['base_url'] = base_url() . 'employee/vendor/view_agreement_list';
+        $total_rows = $this->vendor_model->get_sf_agreement_list();
+        $config['total_rows'] = count($total_rows);
+        $config['per_page'] = 50;
+        $config['uri_segment'] = 4;
+        $config['first_link'] = 'First';
+        $config['last_link'] = 'Last';
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_links();
+        $data['count'] = $config['total_rows'];
+        $data['data'] = array_slice($total_rows, $offset, $config['per_page']);
+        $this->load->view('employee/view_agreement_list',$data);
     }
 
     /**
