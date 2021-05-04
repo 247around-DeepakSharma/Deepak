@@ -1956,7 +1956,31 @@ class Service_centers extends CI_Controller {
             echo "Booking Not Found. Please Retry Again";
         }
     }
-
+//Deepak Sharma
+    function send_mail_consumptionReason($booking_id,$part_number,$service_center_id){
+        $partner_id =  $this->partner_model->partner_details($booking_id);
+        $am_details = $this->partner_model->getpartner_data("partners.primary_contact_email,employee.official_email", array("partners.id" => $partner_id[0]['partner_id'], "agent_filters.entity_id IS NOT NULL" => NULL), "", TRUE, 0, 1);
+        $am_email = $am_details[0]['official_email'];
+        $partner_poc = $am_details[0]['primary_contact_email'];
+        $arr_rm_asm_mails = $this->vendor_model->get_rm_sf_relation_by_sf_id($service_center_id);
+        $sf_name = !empty($arr_rm_asm_mails[0]['name']) ? $arr_rm_asm_mails[0]['name'] : "";
+        $asm_mail = !empty($arr_rm_asm_mails[0]['official_email']) ? $arr_rm_asm_mails[0]['official_email'] : "";
+        $rm_mail = !empty($arr_rm_asm_mails[1]['official_email']) ? $arr_rm_asm_mails[1]['official_email'] : ""; 
+        $template = $this->booking_model->get_booking_email_template("Broken Part");
+        if (!empty($template)) {
+				$body = $template[0];
+				$from = $template[2];
+				$cc = "$am_email,$asm_mail,$rm_mail";
+				$to = $partner_poc;
+				$subject = $template[4];
+				$bcc = '';
+                
+                    $emailsubject = vsprintf($subject, array($part_number,$booking_id));
+                    $emailBody = vsprintf($body, array($sf_name,$part_number,$booking_id));
+                    $this->notify->sendEmail($from, $to, $cc, $bcc,$emailsubject, $emailBody, '', 'Broken Part');
+               
+            }
+    }
     /**
      * @desc: This is used to get required spare parts to partner 
      * @param String Base_encode form - $id
@@ -2269,6 +2293,8 @@ class Service_centers extends CI_Controller {
        
         $f_status = true;
         $booking_id = $this->input->post('booking_id');
+        $part_number = $this->input->post('part_number');
+        $service_center_id = $this->session->userdata('service_center_id');
         //if current status of the booking is Completed or Cancelled then the booking cannot be Updated.
          $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0]['current_status'];
         if ($booking_details == _247AROUND_COMPLETED || $booking_details == _247AROUND_CANCELLED) {
@@ -2361,6 +2387,9 @@ class Service_centers extends CI_Controller {
                     break;
             }
             if ($this->input->post("call_from_api")) {
+                if($reason == '3'){
+                  $this->send_mail_consumptionReason($booking_id,$part_number,$service_center_id);  
+                }
                 $response['status'] = true;
                 $response['message'] = 'Booking Updated Successfully';
                 echo json_encode($response);

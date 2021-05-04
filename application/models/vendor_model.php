@@ -1900,7 +1900,7 @@ class vendor_model extends CI_Model {
     function get_rm_sf_relation_by_sf_id($sf_id){
         if(!empty($sf_id)){
             $sql = "Select 
-                        service_centres.rm_id as agent_id,
+                        service_centres.rm_id as agent_id,service_centres.name as name,
                         group_concat(DISTINCT agent_state_mapping.state_code) as state_code,
                         employee.*
                     from 
@@ -1913,7 +1913,7 @@ class vendor_model extends CI_Model {
                     GROUP BY service_centres.rm_id
                     UNION
                     Select 
-                        service_centres.asm_id as agent_id,
+                        service_centres.asm_id as agent_id,service_centres.name as name,
                         group_concat(DISTINCT agent_state_mapping.state_code) as state_code,
                         employee.*
                     from 
