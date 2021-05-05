@@ -1282,7 +1282,7 @@ class Partner extends CI_Controller {
       if($id != $_247AROUND){
         foreach($result as $row){
           if($row['gst_number'] == $gst_no){ 
-          echo "true";
+          echo trim("true");
           } 
         }
       }
