@@ -164,6 +164,36 @@ class Warranty_model extends CI_Model {
         return $query->result_array();
     }
 
+    function get_serial_number_warranty_data($arrOrWhere, $data = array()) {
+        $this->db->_protect_identifiers = FALSE;
+        $strSelect = "concat('PRODUCT',warranty_plans.service_id) AS model_id,
+                    '".$data['model_number']."' AS model_number,
+                    warranty_plans.plan_id,
+                    warranty_plans.period_start as plan_start_date,
+                    warranty_plans.period_end as plan_end_date,
+                    warranty_plans.plan_depends_on,
+                    ifnull(warranty_plans.warranty_type, ".IN_WARRANTY_STATUS.") as warranty_type,
+                    ifnull(warranty_plans.warranty_period, ".DEFAULT_IN_WARRANTY_PERIOD.") as warranty_period,
+                    MAX(CASE WHEN ifnull(warranty_plans.warranty_type, ".IN_WARRANTY_STATUS.") = ".IN_WARRANTY_STATUS." THEN ifnull(warranty_plans.warranty_period, 12) ELSE 0 END) as in_warranty_period,
+                    MAX(CASE WHEN ifnull(warranty_plans.warranty_type, ".IN_WARRANTY_STATUS.") <> ".IN_WARRANTY_STATUS." THEN ifnull(warranty_plans.warranty_period, 0) ELSE 0 END) as extended_warranty_period,"                . "
+                    ifnull(count(warranty_plan_part_type_mapping.id), 0) as no_of_parts,
+                    group_concat(inventory_parts_type.part_type) as parts";
+        if(!empty($data['select'])){
+            $strSelect .= ",".$data['select'];
+        }
+        
+        $this->db->select($strSelect);
+        $this->db->or_where($arrOrWhere);
+        $this->db->where(['warranty_plans.is_active' => 1]);
+        $this->db->from('warranty_plans');
+        $this->db->join('warranty_plan_serial_number_mapping', ' warranty_plans.plan_id = warranty_plan_serial_number_mapping.plan_id AND warranty_plan_serial_number_mapping.is_active = 1', 'left');
+        $this->db->join('warranty_plan_part_type_mapping', 'warranty_plans.plan_id = warranty_plan_part_type_mapping.plan_id', 'left');
+        $this->db->join('inventory_parts_type', 'warranty_plan_part_type_mapping.part_type_id = inventory_parts_type.id', 'left');
+        
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
     function get_warranty_specific_data_of_bookings($arrBookingIds) {
         $this->db->_protect_identifiers = FALSE;
         $strSelect =    'booking_details.booking_id,
