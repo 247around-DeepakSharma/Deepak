@@ -378,7 +378,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label for="company_type" class="col-md-4">Company Type</label>
                                         <div class="col-md-8">
-                                            <select name="company_type" class="form-control" <?php if (isset($query[0]['company_type'])) { echo 'readonly tabindex="-1"'; } ?>>
+                                            <select name="company_type" id ="company_type" class="form-control" <?php if (isset($query[0]['company_type'])) { echo 'readonly tabindex="-1"'; } ?>>
                                                 <option disabled selected >Select Company Type</option>
                                                 <option value="Individual" <?php
                                                     if (isset($query[0]['company_type'])) {
@@ -6215,10 +6215,20 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
 // This is use to validate pan no and gst number pan no comuplsory  to select and pan file also
 $(document).ready(function () {
     $('#submit_document_btn').click(function() {// initialize the plugin
-       var pan_no = $("#pan_no").val();
+       var company_type = $("#company_type").val();
+       var pan_no = $("#pan_no").val().toUpperCase();
        var GST_no = $("#gst_number").val();
        var pan_file = $("#pan_file_1")[0].files.length;
        var GST_file = $("#gst_file")[0].files.length;
+        if(GST_no != ''){
+        var sub_gst_no = GST_no.substr(2, 10);
+        if(company_type != 'Proprietorship Firm'){
+            if(sub_gst_no != pan_no){
+             alert('Please enter correct GST Number'); 
+             return false;
+            }
+        }
+      }
         if( pan_no == '' && pan_file != ''){
            alert ("Please Enter  PAN number");
            return false;}
