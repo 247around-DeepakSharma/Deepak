@@ -1131,6 +1131,16 @@
         var pdi = false;
         var extended_warranty = false;
         var pre_sales = false;
+        // Video Trouble Shooting
+        var vts_flag = false;
+        // Service With 2 Free Filter Change
+        var ffc_flag = false;
+        // AC PowerJet Wet Service
+        var acpw_flag = false;
+        // Dead On Arrival (DOA)
+        var doa_flag = false;
+        // Dead after Purchase (DaP)
+        var dap_flag = false;
         var array =[];
 
         if((findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 
@@ -1175,6 +1185,36 @@
                     array.push(pdi);
                 }
                 
+         // Video Trouble Shooting
+         if(findInArray(delivered_price_tags, 'Video Trouble Shooting') > -1 ){
+             vts_flag = true;
+             array.push(vts_flag);
+         }
+         
+         // Service With 2 Free Filter Change
+         if(findInArray(delivered_price_tags, 'Service With 2 Free Filter Change') > -1 ){
+             ffc_flag = true;
+             array.push(ffc_flag);
+         }
+          
+         // AC PowerJet Wet Service 
+         if(findInArray(delivered_price_tags, 'AC PowerJet Wet Service') > -1 ){
+             acpw_flag = true;
+             array.push(acpw_flag);
+         }
+         
+         // Dead On Arrival (DOA)
+         if(findInArray(delivered_price_tags, 'Dead On Arrival (DOA)') > -1 ){
+             doa_flag = true;
+             array.push(doa_flag);
+         }
+         
+         // Dead after Purchase (DaP)
+         if(findInArray(delivered_price_tags, 'Dead after Purchase (DaP)') > -1 ){
+             dap_flag = true;
+             array.push(dap_flag);
+         }
+               
          if(array.length > 1){
              return false;
          } else {
