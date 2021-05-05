@@ -2,12 +2,21 @@
 $link_url = S3_WEBSITE_URL . $s3_folder . '/';
 ?>
 <style>
-    #search{
+    #agreement_table_filter{
         float:right;
-        margin-right: 107px;
+        margin-right:5px;
+        display:inline;
     }
+    .pagination{
+        display: none;
+        }
+        .dataTables_info{
+            display: none;
+        }
+        #agreement_table_length{
+             display: none;
+        }
 </style>
-<input type="text" id="search" onkeyup="search_filter()" placeholder="Search for name.." title="Type in a name">
 <div class="container">
 <table class="table table-bordered table-responsive-md table-striped text-center" id="agreement_table">
             <thead>
@@ -42,22 +51,11 @@ $link_url = S3_WEBSITE_URL . $s3_folder . '/';
 </div>
  <div class="custom_pagination" style="margin-right: 107px; float: right;" > <?php if(isset($links)) echo $links; ?></div>
 <script>
-function search_filter() {
-  var input, filter, table, tr, td, i, txtValue;
-  input = document.getElementById("search");
-  filter = input.value.toUpperCase();
-  table = document.getElementById("agreement_table");
-  tr = table.getElementsByTagName("tr");
-  for (i = 0; i < tr.length; i++) {
-    td = tr[i].getElementsByTagName("td")[1];
-    if (td) {
-      txtValue = td.textContent || td.innerText;
-      if (txtValue.toUpperCase().indexOf(filter) > -1) {
-        tr[i].style.display = "";
-      } else {
-        tr[i].style.display = "none";
-      }
-    }
-  }
-}
+$('#agreement_table').dataTable({
+     "pageLength": 50,
+        'columnDefs': [ {
+            'targets': [2,3], // column index (start from 0)
+            'orderable': false, // set orderable false for selected columns
+         }]
+    });
 </script>
