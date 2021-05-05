@@ -122,7 +122,6 @@ class File_upload extends CI_Controller {
                         
                         //save file and upload on s3
                         $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $file_type, FILE_UPLOAD_SUCCESS_STATUS, "default", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
-                        
                         $this->session->set_userdata('file_success', $response['message']);
                     } else {
                         //save file and upload on s3
