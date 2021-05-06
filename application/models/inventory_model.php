@@ -336,7 +336,7 @@ class Inventory_model extends CI_Model {
     
     public function _get_spare_parts_query($post) {       
         $this->db->from('spare_parts_details');
-        $this->db->select($post['select'].", DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request,"
+        $this->db->select($post['select'].", warranty_plan_part_type_mapping.id as part_warranty_id, DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request,"
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.shipped_date, '%Y-%m-%d')) AS age_of_shipped_date,"
                 . "spare_parts_details.quantity,"
                 . "spare_parts_details.shipped_quantity,"
@@ -391,7 +391,7 @@ class Inventory_model extends CI_Model {
         }
         
         $this->db->join('services', 'booking_details.service_id = services.id','left');
-        
+        $this->db->join('warranty_plan_part_type_mapping', 'booking_details.applied_warranty_plan_id = warranty_plan_part_type_mapping.plan_id AND warranty_plan_part_type_mapping.part_type_id = spare_parts_details.parts_requested_type_id','left');
         if (!empty($post['where'])) {
             $this->db->where($post['where'], FALSE);
         }
