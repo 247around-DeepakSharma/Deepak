@@ -506,7 +506,9 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                 ?>
                                 <div class="col-md-2">
                                 <label class="checkbox-inline checkbox-inline-no-edit">
-                                    <?php
+                                    <?php if(in_array($this->session->userdata('user_group'), [_247AROUND_ACCOUNTANT, _247AROUND_RM, _247AROUND_ASM, _247AROUND_DEVELOPER])) { ?>
+                                    <input onclick='return false' data-toggle="tooltip" class='checkbox_input' type="checkbox" id="is_engineer" name="is_engineer" value="1"  checked="true" readonly><b>Engineer App</b>
+                                    <?php }else{
                                      $check_flag = '';
                                        if (isset($query[0]['id'])) {
                                          $check_flag = false;
@@ -514,8 +516,8 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         $check_flag =  true;
                                         
                                     }?>
-                                        
-                                    <input <?php if(empty($check_uncheck_engineer)){ ?> onclick='return false' data-toggle="tooltip" title="<?php echo $check_uncheck_message; ?>" <?php } ?>  class='checkbox_input' type="checkbox" id="is_engineer" <?php if(isset($query[0]['isEngineerApp']) ||( !empty($check_flag))) { if((isset($query[0]['isEngineerApp']) && $query[0]['isEngineerApp'] == 1) || (!empty($check_flag))){ echo "checked";}}?> name="is_engineer" value="1" readonly ><b>Engineer App</b>
+                                  <input <?php if(empty($check_uncheck_engineer)){ ?> onclick='return false' data-toggle="tooltip" title="<?php echo $check_uncheck_message; ?>" <?php } ?>  class='checkbox_input' type="checkbox" id="is_engineer" <?php if(isset($query[0]['isEngineerApp']) ||( !empty($check_flag))) { if((isset($query[0]['isEngineerApp']) && $query[0]['isEngineerApp'] == 1) || (!empty($check_flag))){ echo "checked";}}?> name="is_engineer" value="1" readonly ><b>Engineer App</b>
+                                    <?php }?>
                                 </label>
 
                                 </div>
@@ -989,7 +991,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                <hr style="border: 1px solid;padding: 0px;margin: 10px;border-color: #9e9da7;">
                                <div class="col-md-12" style="height: 59px;">
                                 <label  for="name_on_pan"  class="col-md-1 vertical-align">MSME</label>
-                                <div class="col-md-4" style="margin-right:14px;">
+                                <div class="col-md-4" style="margin-top:10px;">
                                     <div class="form-group  <?php
                                         if (form_error('msme_no')) {
                                             echo 'has-error';
@@ -1005,7 +1007,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         <span class="err1"><?php echo form_error('msme_no'); ?></span>
                                     </div>
                                 </div>
-                                <div class="col-md-4" style="margin-left:40px;">
+                                <div class="col-md-4" style="margin-left:40px; margin-top:10px;">
                                     <div class="form-group">
                                         <!--                                        <label  for="pan_file" class="col-md-4">PAN File :</label>-->
                                         <input type="file" class="form-control"  id="msme_file" name="msme_file" value = "<?php
@@ -1021,7 +1023,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         <?php echo form_error('msme_file'); ?>
                                     </div>
                                 </div>
-                                <div class="col-md-1" style="margin-left: 20px;">
+                                <div class="col-md-1" style="margin-left: 20px; margin-top:10px;">
                                     <?php
                                         $src = base_url() . 'images/no_image.png';
                                         $image_src = $src;
@@ -2110,7 +2112,7 @@ $(document).ready(function () {
             var inputVal = $(this).val();
 
             if (!charReg.test(inputVal)) {
-                alert("Spacial Characters are not allowed");
+                alert("Special Characters are not allowed");
                 $(this).css({'border-color' : 'red'});
                 $('#submit_btn').attr('disabled','disabled');
             }else{
