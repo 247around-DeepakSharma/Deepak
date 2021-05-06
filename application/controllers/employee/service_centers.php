@@ -1956,12 +1956,23 @@ class Service_centers extends CI_Controller {
             echo "Booking Not Found. Please Retry Again";
         }
     }
-//Deepak Sharma
-    function send_mail_consumptionReason($booking_id,$part_number,$service_center_id){
-        $partner_id =  $this->partner_model->partner_details($booking_id);
-        $am_details = $this->partner_model->getpartner_data("partners.primary_contact_email,employee.official_email", array("partners.id" => $partner_id[0]['partner_id'], "agent_filters.entity_id IS NOT NULL" => NULL), "", TRUE, 0, 1);
-        $am_email = $am_details[0]['official_email'];
-        $partner_poc = $am_details[0]['primary_contact_email'];
+/**
+ * Author:Deepak Sharma
+ * When sf select  consumption reason as broke panel 
+ * @param type $booking_id
+ * @param type $part_number
+ * @param type $service_center_id
+ */
+    
+    function send_mail_consumptionReason($booking_id, $part_number, $service_center_id){
+        $select = "booking_details.partner_id";               
+        $post['where'] = array("booking_details.booking_id = '$booking_id'" => null);
+        $post['length'] = -1;
+        $data = $this->booking_model->get_bookings_by_status($post, $select, array(), 2)->result_array();
+        $partner_id  = !empty( $data[0]['partner_id']) ?  $data[0]['partner_id'] : "";
+        $am_details = $this->partner_model->getpartner_data("partners.primary_contact_email,employee.official_email", array("partners.id" => $partner_id, "agent_filters.entity_id IS NOT NULL" => NULL), "", TRUE, 0, 1);
+        $am_email = !empty($am_details[0]['official_email']) ? $am_details[0]['official_email'] : "";
+        $partner_poc = !empty($am_details[0]['primary_contact_email']) ? $am_details[0]['primary_contact_email'] : "";
         $arr_rm_asm_mails = $this->vendor_model->get_rm_sf_relation_by_sf_id($service_center_id);
         $sf_name = !empty($arr_rm_asm_mails[0]['name']) ? $arr_rm_asm_mails[0]['name'] : "";
         $asm_mail = !empty($arr_rm_asm_mails[0]['official_email']) ? $arr_rm_asm_mails[0]['official_email'] : "";
@@ -2295,6 +2306,7 @@ class Service_centers extends CI_Controller {
         $booking_id = $this->input->post('booking_id');
         $part_number = $this->input->post('part_number');
         $service_center_id = $this->session->userdata('service_center_id');
+        $consumptio_reason  = 3;
         //if current status of the booking is Completed or Cancelled then the booking cannot be Updated.
          $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0]['current_status'];
         if ($booking_details == _247AROUND_COMPLETED || $booking_details == _247AROUND_CANCELLED) {
@@ -2387,7 +2399,7 @@ class Service_centers extends CI_Controller {
                     break;
             }
             if ($this->input->post("call_from_api")) {
-                if($reason == '3'){
+                if($reason == $consumptio_reason){
                   $this->send_mail_consumptionReason($booking_id,$part_number,$service_center_id);  
                 }
                 $response['status'] = true;

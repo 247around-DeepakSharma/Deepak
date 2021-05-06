@@ -104,6 +104,7 @@ $route['service_center/bank_transactions'] = 'employee/service_centers/bank_tran
 $route['service_center/update_booking_status/(:any)'] = 'employee/service_centers/update_booking_status/$1';
 $route['service_center/update_booking_spare_parts_required/(:any)'] = 'employee/service_centers/update_booking_spare_parts_required/$1';
 $route['service_center/process_update_booking'] = 'employee/service_centers/process_update_booking';
+$route['service_center/send_mail_consumptionReason'] = 'employee/service_centers/send_mail_consumptionReason';
 $route['service_center/acknowledge_delivered_spare_parts/(:any)/(:any)/(:any)/(:any)'] = 'employee/service_centers/acknowledge_delivered_spare_parts/$1/$2/$3/$4';
 $route['service_center/get_search_form'] = 'employee/service_centers/get_search_form';
 $route['service_center/search'] = 'employee/service_centers/search';
