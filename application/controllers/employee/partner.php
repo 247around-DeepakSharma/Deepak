@@ -6185,6 +6185,7 @@ $post['amount_due'] = false;
             "WH to Partner Reverse Purchase Invoice Id",
             "WH to Parnter Reverse Purchase Invoice Date",
             "Is Spare Auto Acknowledge By SF",
+            "Part brought at",
             "Consumption",
             "Spare Consumption Reason"
             );
@@ -6249,6 +6250,7 @@ $post['amount_due'] = false;
              }else{
             $tempArray[] = "No";   
              }
+             $tempArray[] = $sparePartBookings['part_brought_at'];
              if($sparePartBookings['is_consumed']==1){
             $tempArray[] = "Yes";   
              }else if(!empty($sparePartBookings['consumed_part_status_id'])){

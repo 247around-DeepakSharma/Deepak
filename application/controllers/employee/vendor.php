@@ -1429,6 +1429,7 @@ class vendor extends CI_Controller {
                     'service_center_closed_date' => NULL,
                     'cancellation_reason' => NULL,
                     'upcountry_distance' => NULL,
+                    'part_brought_at' => 0,
                     'internal_status' => _247AROUND_PENDING);
                 
                 $actor = $next_action = 'not_define';
