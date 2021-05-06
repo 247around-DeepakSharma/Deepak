@@ -493,13 +493,6 @@
                                                                   <td><?php if(!empty($sp['consumed_status'])) { echo $sp['consumed_status']; } ?></td>
                                                                  <td><?php if(!empty($sp['consumption_remarks'])) { echo $sp['consumption_remarks']; } ?></td>
 
-                                                                </td>
-
-                                                                <td><?php if(!empty($sp['is_consumed']) && $sp['is_consumed'] == 1) { echo 'Yes';} else if(!empty($sp['consumed_part_status_id'])){ echo 'No';} ?></td>
-                                                                  <td><?php if(!empty($sp['consumed_status'])) { echo $sp['consumed_status']; } ?></td>
-                                                                 <td><?php if(!empty($sp['consumption_remarks'])) { echo $sp['consumption_remarks']; } ?></td>
-
->>>>>>> 28ff78126... CRMS-2490 Consumption reason should not be NO, when OOT Part is marked OK to be returned
                                                             </tr>
                                                             <?php
                                                             if (!is_null($sp['parts_shipped'])) {
