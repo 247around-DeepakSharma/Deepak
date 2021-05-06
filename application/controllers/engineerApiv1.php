@@ -1784,8 +1784,7 @@ class engineerApiv1 extends CI_Controller {
 
             echo $response;
         } else {
-            //$responseData = array("appid" => $this->appId, "debug" => $this->debug, "data" => $this->jsonResponseString);
-			$responseData = array( "data" => $this->jsonResponseString);
+            $responseData = array("appid" => $this->appId, "debug" => $this->debug, "data" => $this->jsonResponseString);
             $response = json_encode($responseData, JSON_UNESCAPED_SLASHES);
 
             echo $response;
