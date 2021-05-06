@@ -1273,8 +1273,8 @@ class Inventory extends CI_Controller {
                         $spare_status = OK_PARTS_REJECTED_BY_WAREHOUSE;
                         $old_state = OK_PARTS_SHIPPED;
                     }
-
-                    $data = array("approved_defective_parts_by_admin" => 0, 'status' => $spare_status, 'defective_part_shipped_date' => NULL, 'spare_parts_details.courier_rejection_remarks' => $remarks);
+		    $spare_part_detail_crc = $spare_part_detail['courier_rejection_count']+1;
+                    $data = array("approved_defective_parts_by_admin" => 0, 'status' => $spare_status, 'defective_part_shipped_date' => NULL, 'spare_parts_details.courier_rejection_remarks' => $remarks, 'courier_rejection_count' => $spare_part_detail_crc);
                     $track_status = $new_state = "Courier Invoice Rejected By Admin";
                     break;
                 case 'APPROVE_COURIER_INVOICE':

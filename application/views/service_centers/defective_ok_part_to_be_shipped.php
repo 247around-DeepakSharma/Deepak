@@ -49,6 +49,9 @@ if ($this->uri->segment(3)) {
                                             </td>
                                             <td>
                                                 <a  href="<?php echo base_url(); ?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id'])); ?>"  title='View'><?php echo $row['booking_id']; ?></a>
+                                                <?php if($row['courier_rejection_count'] == 1){ ?>
+                                                <span data-toggle="tooltip" title="This is last attempt to send correct parts"><img src='<?php echo base_url(); ?>images/rejected_from_review.png' style="width: 120px;margin-top:10px"></span>
+                                                <?php } ?>
                                             </td>
                                             <td>
                                                 <?php echo $row['name']; ?>
@@ -72,7 +75,7 @@ if ($this->uri->segment(3)) {
                                             <td style="word-break: break-all;">
                                                 <?php echo $row['parts_shipped']; ?>
                                             </td>
-                                            <td style="word-break: break-all;">
+                                            <td >
                                                 <?php echo $row['part_number']; ?>
                                             </td>
                                             <td style="word-break: break-all;">
@@ -118,11 +121,17 @@ if ($this->uri->segment(3)) {
                                             </td>  
 
                                             <td>
-                                                <input type="checkbox" data-booking_partner_id="<?php echo $row['booking_partner_id']; ?>"  data-sf_id="<?php echo $row['service_center_id']; ?>" data-mobile="<?php echo $row['mobile']; ?>" data-user_name="<?php echo $row['name']; ?>" class="form-control checkbox_courier" onclick="remove_select_all_courier()" name="send_courier[]"  value="<?php echo $row['id']; ?>" />
+											
+                                                <input type="checkbox" data-booking_partner_id="<?php echo $row['booking_partner_id']; ?>"  data-sf_id="<?php echo $row['service_center_id']; ?>" data-mobile="<?php echo $row['mobile']; ?>" data-user_name="<?php echo $row['name']; ?>" class="form-control checkbox_courier" onclick="remove_select_all_courier()" name="send_courier[]"  value="<?php echo $row['id']; ?>" <?php if($row['courier_rejection_count'] > 1){echo 'disabled';} ?>/>
+												
                                             </td>                                
 
                                             <td>
-                                                <a href="<?php echo base_url() ?>service_center/update_defective_parts/<?php echo $row['id']; ?>" class="btn btn-sm btn-primary" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
+												<?php if($row['courier_rejection_count'] > 1){ ?>                                                
+												<a href="#" class="btn btn-sm btn-primary" style="background-color:#2C9D9C; border-color: #2C9D9C; pointer-events:none;opacity:.5" ><i class='fa fa-pencil-square-o' aria-hidden='true' ></i></a>
+												<?php }else{ ?>
+												<a href="<?php echo base_url() ?>service_center/update_defective_parts/<?php echo $row['id']; ?>" class="btn btn-sm btn-primary" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-pencil-square-o' aria-hidden='true' ></i></a>
+												<?php } ?>
                                             </td>
 
                                         </tr>
@@ -588,7 +597,7 @@ if ($this->uri->segment(3)) {
             $('#selectall_challan_file').prop('checked', false);
             $('#selectall_address').prop('checked', false);
         }
-        $(".checkbox_courier").prop('checked', $(this).prop("checked"));
+        $(".checkbox_courier:not(:disabled)").prop('checked', $(this).prop("checked"));
         $("#button_send").val("Send Defective Parts");
         $("#button_send").attr("type", "button");
         $("#button_send").attr("data-target", "#courier_update");
@@ -897,7 +906,9 @@ if ($this->uri->segment(3)) {
 
     }
 
-
+$(document).ready(function(){
+  $('[data-toggle="tooltip"]').tooltip();
+});
 </script>
 <style type="text/css">
     .sweet-alert {
