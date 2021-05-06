@@ -212,8 +212,12 @@
         
         var booking_id = $(this).data('booking_id');
         var booking_request_type = $(this).data('request_type');
+        var part_warranty_id = $(this).data('part_warranty_id');
         if(typeof booking_request_type === undefined){
             booking_request_type = 'NA';
+        }
+        if(typeof part_warranty_id === undefined){
+            part_warranty_id = '';
         }
         var url = $(this).data('url');
         var keys = $(this).data('keys'); 
@@ -230,7 +234,7 @@
              booking_request_type = booking_request_type.replace(/\s/g, '');
              var HTML = '<select class="form-control" id="part_warranty_status" name="part_warranty_status" value="">';
                  HTML+= '<option selected="" disabled="">Select warranty status</option>';
-                 if(booking_request_type.indexOf("OUTOFWARRANTY") < 0)
+                 if(booking_request_type.indexOf("OUTOFWARRANTY") < 0 && part_warranty_id == "")
                  {
                     HTML+= '<option value="1"> In-Warranty </option>';
                  }
