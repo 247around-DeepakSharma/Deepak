@@ -6185,7 +6185,6 @@ $post['amount_due'] = false;
             "WH to Partner Reverse Purchase Invoice Id",
             "WH to Parnter Reverse Purchase Invoice Date",
             "Is Spare Auto Acknowledge By SF",
-            "Part brought at",
             "Consumption",
             "Spare Consumption Reason"
             );
