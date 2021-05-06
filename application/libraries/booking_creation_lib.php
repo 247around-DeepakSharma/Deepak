@@ -222,6 +222,16 @@ class booking_creation_lib {
         $pdi = false;
         $extended_warranty = false;
         $pre_sales = false;
+        // Video Trouble Shooting
+        $vts_flag = false;
+        // Service With 2 Free Filter Change
+        $ffc_flag = false;
+        // AC PowerJet Wet Service
+        $acpw_flag = false;
+        // Dead On Arrival (DOA)
+        $doa_flag = false;
+        // Dead after Purchase (DaP)
+        $dap_flag = false;
         $array =[];
 
         if(($this->findInArray($delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 
@@ -265,6 +275,36 @@ class booking_creation_lib {
                     $pdi = true;
                     array_push($array, $pdi);
                 }
+                
+         // Video Trouble Shooting
+         if($this->findInArray($delivered_price_tags, 'Video Trouble Shooting') > -1 ){
+             $vts_flag = true;
+             array_push($array, $vts_flag);
+         }
+         
+         // Service With 2 Free Filter Change
+         if($this->findInArray($delivered_price_tags, 'Service With 2 Free Filter Change') > -1 ){
+             $ffc_flag = true;
+             array_push($array, $ffc_flag);
+         }
+          
+         // AC PowerJet Wet Service 
+         if($this->findInArray($delivered_price_tags, 'AC PowerJet Wet Service') > -1 ){
+             $acpw_flag = true;
+             array_push($array, $acpw_flag);
+         }
+         
+         // Dead On Arrival (DOA)
+         if($this->findInArray($delivered_price_tags, 'Dead On Arrival (DOA)') > -1 ){
+             $doa_flag = true;
+             array_push($array, $doa_flag);
+         }
+         
+         // Dead after Purchase (DaP)
+         if($this->findInArray($delivered_price_tags, 'Dead after Purchase (DaP)') > -1 ){
+             $dap_flag = true;
+             array_push($array, $dap_flag);
+         }
                 
          if(count($array) > 1){
              return false;

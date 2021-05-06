@@ -1510,7 +1510,11 @@
                             <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $signature_details[0]['signature'];?>" target="_blank">Click Here</a></td>
                             <td><?php echo date("d-M-Y", strtotime($signature_details[0]['closed_date'])); ?></td>
                             <td><?php echo $signature_details[0]['address']; ?></td>
-                            <td><?php echo $signature_details[0]['cancellation_remark']; ?></td>
+                            <?php if($booking_history[0]['internal_status'] == 'InProcess_Completed') {?>
+                                <td><?php echo $signature_details[0]['remarks']; ?></td>
+                            <?php } else { ?>
+                                <td><?php echo $signature_details[0]['cancellation_remark']; ?></td>
+                            <?php } ?>
                             
                         </tr>
                        

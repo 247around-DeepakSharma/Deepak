@@ -66,9 +66,9 @@
                                 if (count($records)) {
                                     $i = 1;
                                     foreach ($records as $record) {
-                                        if (!$record['active']) {
-                                            continue;
-                                        }
+//                                        if (!$record['active']) {
+//                                            continue;
+//                                        }
                                         ?>
                                         <tr>
                                             <td class="text-center"><?php echo $i; ?> </td>

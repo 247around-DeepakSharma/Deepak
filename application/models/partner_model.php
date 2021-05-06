@@ -1617,7 +1617,8 @@ function get_data_for_partner_callback($booking_id) {
         $prevmonth = date('M Y', strtotime("last month"));
         $month = (int)date('m',strtotime($prevmonth));
         $where = array();
-        $this->db->select('partners.*, MONTH(booking_details.create_date) as Month, YEAR(booking_details.create_date) as Year');
+        $this->db->distinct();
+        $this->db->select("partners.id, partners.public_name");
         if ($partner_id != "") {
             $where['partners.id']  = $partner_id;
         } else{
@@ -3419,6 +3420,20 @@ function get_data_for_partner_callback($booking_id) {
     function get_courier_lost_parts_details($spare_id_array) {
         $sql = "Select * from courier_lost_spare_status where spare_id in (".implode(',', $spare_id_array).") order by spare_id asc, create_date asc";
         return $query = $this->db->query($sql)->result_array();
+    }
+  /*
+   * Author:Deepak Sharma
+   * This function use for partner_id using booking_id
+   * @param :$booking_id
+   */
+    function  partner_details($booking_id = ''){
+         $sql = "SELECT 
+             booking_details.partner_id
+             FROM booking_details
+             WHERE booking_id = '$booking_id'";   
+             $query = $this->db->query($sql);
+             $result = $query->result_array();
+             return  $result;
     }
 
 }
