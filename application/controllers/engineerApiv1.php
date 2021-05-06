@@ -504,6 +504,14 @@ class engineerApiv1 extends CI_Controller {
             case 'sendCancelRescheduleOTP':
                 $this->sendCancelRescheduleOTPCustomer();  //// Sending OTP
                 break;
+			/*   this API used to send get engineer details */
+            case 'getEngineerDetail':
+                $this->processgetEngineerDetail();  //// Sending OTP
+                break;
+			 /*   this API used to send update engineer details */
+            case 'updateEngineerDetail':
+                $this->processupdateEngineerDetail();  //// Sending OTP
+                break;
             default:
                 break;
         }
@@ -1559,7 +1567,7 @@ class engineerApiv1 extends CI_Controller {
                 foreach ($bookinghistory['spare_parts'] as $sp) {
                     $spare_status = $this->engineer_model->check_cancell_allowed($sp['id']);
                     if($spare_status[0]['status']!=_247AROUND_CANCELLED){
-                         $status = CANCEL_PAGE_SPARE_NOT_SHIPPED;
+                         $status = "Spare Part is involved in this booking. This booking cannot be cancelled.";
                          $isdisable = true;
                     }
                 }
@@ -3282,7 +3290,7 @@ class engineerApiv1 extends CI_Controller {
                     curl_close($ch);
                     $response = json_decode($curl_response);
                     if ($response->status) {
-                        $this->sendJsonResponse(array('0000', 'success'));
+                        $this->sendJsonResponse(array('0000', 'Booking Updated Successfully.'));
                     } else {
                         $this->sendJsonResponse(array('0044', 'Error occured while updating booking'));
                     }
@@ -3573,7 +3581,7 @@ class engineerApiv1 extends CI_Controller {
                     if ($est_approved_msg) {
                         $response["message"] = $est_approved_msg;
                     } else {
-                        $response["message"] = "You can not request spare part for this booking";
+                        $response["message"] = "Spare Part cannot be requested for this booking.";
                     }
                 }
                 log_message("info", "Spare parts flag found");
@@ -5265,5 +5273,117 @@ function submitPreviousPartsConsumptionData(){
             exit;
         }
     }
+     /**
+     * @Desc: This function is to used to get Engineer detail
+     * @params: void
+     * @return: JSON
+     * @author Ghanshyam Ji Gupta
+     * @date : 06-05-2021
+     */
+        function processgetEngineerDetail() {
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $enginner_id = $requestData['engineer_id'];
+        $engineer_profile_force_update = $this->engineer_model->get_engineer_config('engineer_profile_force_update');
+        
+        $response['id_type'] = array('Aadhar Card', 'Driving License', 'Voter ID Card', 'PAN Card', 'Ration Card', 'Passport', 'Others');
+        $post['length'] = -1;
+        $post['order'] = array("engineer_details.id" => "ASC");
+        $post['column_order'] = array();
+        $post['column_search'] = array("engineer_details.name", "service_centres.name", "engineer_details.phone", "engineer_details.alternate_phone");
+        $post['join'] = array(
+            "service_centres" => "service_centres.id = engineer_details.service_center_id",
+            'entity_identity_proof' => 'entity_identity_proof.entity_id = engineer_details.id AND entity_identity_proof.entity_type = "engineer"',
+        );
+        $post['joinType'] = array("service_centres" => "LEFT", "entity_identity_proof", "LEFT");
+        $post['where'] = array('delete' => 0);
+        $post['where'] = array('engineer_details.id' => $enginner_id);
+
+        $list = $this->reusable_model->get_datatable_data("engineer_details", "engineer_details.id, engineer_details.name, entity_identity_proof.identity_proof_type as identity_proof,entity_identity_proof.identity_proof_pic,entity_identity_proof.identity_proof_number,engineer_details.profile_pic", $post);
+        if (!empty($list)) {
+            $return_engg_detail = (array) $list[0];
+            $force_update_screen = 0;
+            if (!empty($return_engg_detail['identity_proof_pic'])) {
+                $return_engg_detail['identity_proof_pic'] = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/engineer-id-proofs/" . $return_engg_detail['identity_proof_pic'];
+            } else {
+                $force_update_screen = 1;
+                $return_engg_detail['identity_proof_pic'] = '';
+            }
+
+            if (!empty($return_engg_detail['profile_pic'])) {
+                $return_engg_detail['profile_pic'] = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/engineer-id-proofs/" . $return_engg_detail['profile_pic'];
+            } else {
+                $force_update_screen = 1;
+                $return_engg_detail['profile_pic'] = '';
+            }
+            if (empty($return_engg_detail['profile_pic']) || empty($return_engg_detail['profile_pic'])) {
+                $force_update_screen = 1;
+            }
+            if(isset($engineer_profile_force_update[0]->config_value) && $engineer_profile_force_update[0]->config_value==0){
+                $force_update_screen = 0;
+            }
+
+
+            $return_engg_detail['force_update_screen'] = $force_update_screen;
+            $response['engineer_detail'] = $return_engg_detail;
+            $this->jsonResponseString['response'] = $response; // All Data in response//
+            $this->sendJsonResponse(array('0000', 'success')); // send success response //
+        } else {
+            $this->jsonResponseString['response'] = array();
+            $this->sendJsonResponse(array("0101", 'No Engineer Detail  Found'));
+        }
+    }
+     /**
+     * @Desc: This function is to used to get Engineer detail
+     * @params: void
+     * @return: JSON
+     * @author Ghanshyam Ji Gupta
+     * @date : 06-05-2021
+     */
+        function processupdateEngineerDetail() {
+            $requestData = json_decode($this->jsonRequestData['qsh'], true);
+            $engineer_id = $requestData['engineer_id'];
+            $post['length'] = -1;
+            $post['order'] = array("engineer_details.id" => "ASC");
+            $post['column_order'] = array();
+            $post['column_search'] = array("engineer_details.name", "service_centres.name", "engineer_details.phone", "engineer_details.alternate_phone");
+            $post['join'] = array(
+                "service_centres" => "service_centres.id = engineer_details.service_center_id",
+                'entity_identity_proof' => 'entity_identity_proof.entity_id = engineer_details.id AND entity_identity_proof.entity_type = "engineer"',
+            );
+            $post['joinType'] = array("service_centres" => "LEFT", "entity_identity_proof", "LEFT");
+            $post['where'] = array('delete' => 0);
+            $post['where'] = array('engineer_details.id' => $engineer_id);
+            $list = $this->reusable_model->get_datatable_data("engineer_details", "engineer_details.id, engineer_details.name, entity_identity_proof.identity_proof_type as identity_proof,entity_identity_proof.identity_proof_pic,entity_identity_proof.identity_proof_number,engineer_details.profile_pic", $post);
+            if (!empty($list)) {
+                if(!empty($requestData['profile_pic'])){
+                  $profile_pic = $requestData['booking_id']."_engineer_profile_" . date("YmdHis") . ".png";
+                  $file_upload_status = $this->miscelleneous->generate_image($requestData['profile_pic'], $profile_pic, 'engineer-id-proofs');
+                  $data['profile_pic'] = $profile_pic;
+                  $where = array('id' => $engineer_id);
+                  $engineer_update_id = $this->vendor_model->update_engineer($where, $data);
+                }
+                if(!empty($requestData['identity_proof_type'])){
+                    $data_identity['identity_proof_type'] = $requestData['identity_proof_type'];
+                }
+                if(!empty($requestData['identity_proof_number'])){
+                    $data_identity['identity_proof_type'] = $requestData['identity_proof_number'];
+                }
+                if(!empty($requestData['identity_proof_pic'])){
+                    $identity_proof_pic = $requestData['booking_id']."_identity_proof_pic_" . date("YmdHis") . ".png";
+                    $identity_proof_pic_upload = $this->miscelleneous->generate_image($requestData['identity_proof_pic'], $identity_proof_pic, 'engineer-id-proofs');
+                    $data_identity['identity_proof_type'] = $identity_proof_pic_upload;
+                }
+                if(!empty($data_identity)){
+                    $where_identity = array("entity_type" => "engineer", "entity_id" => $engineer_id);
+                    $this->vendor_model->update_entity_identity_proof($where_identity, $data_identity);
+                }
+                $this->jsonResponseString['response'] = array(); // All Data in response//
+                $this->sendJsonResponse(array('0000', 'success')); // send success response //
+
+            }else{
+                $this->jsonResponseString['response'] = array();
+                $this->sendJsonResponse(array("0101", 'No Engineer Detail  Found'));
+            }
+        }
 
 }

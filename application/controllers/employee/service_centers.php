@@ -1110,7 +1110,7 @@ class Service_centers extends CI_Controller {
             log_message('info', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
             echo json_encode($status, true);
         } else {
-            $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), trim($price_tags), $user_id, $booking_id, $appliance_id, $model_number);
+            $status = $this->validate_serial_no->validateSerialNo($partner_id, $serial_number, trim($price_tags), $user_id, $booking_id, $appliance_id, $model_number);
             if (!empty($status)) {
                 $status['notdefine'] = 0;
                 log_message('info', __METHOD__ . 'Status ' . print_r($status, true));
@@ -1956,7 +1956,31 @@ class Service_centers extends CI_Controller {
             echo "Booking Not Found. Please Retry Again";
         }
     }
-
+//Deepak Sharma
+    function send_mail_consumptionReason($booking_id,$part_number,$service_center_id){
+        $partner_id =  $this->partner_model->partner_details($booking_id);
+        $am_details = $this->partner_model->getpartner_data("partners.primary_contact_email,employee.official_email", array("partners.id" => $partner_id[0]['partner_id'], "agent_filters.entity_id IS NOT NULL" => NULL), "", TRUE, 0, 1);
+        $am_email = $am_details[0]['official_email'];
+        $partner_poc = $am_details[0]['primary_contact_email'];
+        $arr_rm_asm_mails = $this->vendor_model->get_rm_sf_relation_by_sf_id($service_center_id);
+        $sf_name = !empty($arr_rm_asm_mails[0]['name']) ? $arr_rm_asm_mails[0]['name'] : "";
+        $asm_mail = !empty($arr_rm_asm_mails[0]['official_email']) ? $arr_rm_asm_mails[0]['official_email'] : "";
+        $rm_mail = !empty($arr_rm_asm_mails[1]['official_email']) ? $arr_rm_asm_mails[1]['official_email'] : ""; 
+        $template = $this->booking_model->get_booking_email_template("Broken Part");
+        if (!empty($template)) {
+				$body = $template[0];
+				$from = $template[2];
+				$cc = "$am_email,$asm_mail,$rm_mail";
+				$to = $partner_poc;
+				$subject = $template[4];
+				$bcc = '';
+                
+                    $emailsubject = vsprintf($subject, array($part_number,$booking_id));
+                    $emailBody = vsprintf($body, array($sf_name,$part_number,$booking_id));
+                    $this->notify->sendEmail($from, $to, $cc, $bcc,$emailsubject, $emailBody, '', 'Broken Part');
+               
+            }
+    }
     /**
      * @desc: This is used to get required spare parts to partner 
      * @param String Base_encode form - $id
@@ -2269,6 +2293,8 @@ class Service_centers extends CI_Controller {
        
         $f_status = true;
         $booking_id = $this->input->post('booking_id');
+        $part_number = $this->input->post('part_number');
+        $service_center_id = $this->session->userdata('service_center_id');
         //if current status of the booking is Completed or Cancelled then the booking cannot be Updated.
          $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0]['current_status'];
         if ($booking_details == _247AROUND_COMPLETED || $booking_details == _247AROUND_CANCELLED) {
@@ -2361,6 +2387,9 @@ class Service_centers extends CI_Controller {
                     break;
             }
             if ($this->input->post("call_from_api")) {
+                if($reason == '3'){
+                  $this->send_mail_consumptionReason($booking_id,$part_number,$service_center_id);  
+                }
                 $response['status'] = true;
                 $response['message'] = 'Booking Updated Successfully';
                 echo json_encode($response);
@@ -3425,7 +3454,7 @@ class Service_centers extends CI_Controller {
                 . " sf_challan_file as challan_file, "
                 . " remarks_defective_part_by_partner, "
                 . " remarks_by_partner, spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.defective_return_to_entity_id,spare_parts_details.entity_type,spare_parts_details.courier_rejection_remarks,"
-                . " spare_parts_details.id,spare_parts_details.shipped_quantity,spare_parts_details.challan_approx_value,spare_parts_details.remarks_defective_part_by_wh,spare_parts_details.rejected_defective_part_pic_by_wh ,i.part_number, spare_consumption_status.consumed_status,  spare_consumption_status.is_consumed";
+                . " spare_parts_details.id,spare_parts_details.shipped_quantity,spare_parts_details.challan_approx_value,spare_parts_details.remarks_defective_part_by_wh,spare_parts_details.rejected_defective_part_pic_by_wh ,i.part_number, spare_consumption_status.consumed_status,  spare_consumption_status.is_consumed,spare_parts_details.courier_rejection_count";
 
         $group_by = "spare_parts_details.id";
         $order_by = "status = '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', spare_parts_details.booking_id ASC";
@@ -4401,7 +4430,7 @@ class Service_centers extends CI_Controller {
                 }
 
                 $post['is_inventory'] = true;
-                $select = 'booking_details.booking_id, booking_details.assigned_vendor_id, spare_parts_details.id,spare_parts_details.requested_inventory_id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.model_number,spare_parts_details.serial_number, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id,IF(spare_consumption_status.consumed_status !="" , spare_consumption_status.consumed_status, "NA") as consumed_status';
+                $select = 'booking_details.booking_id, booking_details.assigned_vendor_id, spare_parts_details.id,spare_parts_details.requested_inventory_id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.model_number,spare_parts_details.serial_number, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id,IF(spare_consumption_status.consumed_status !="" , spare_consumption_status.consumed_status, "NA") as consumed_status,inventory_master_list.gst_rate';
                 $part_details = $this->partner_model->get_spare_parts_by_any($select, array(), true, false, false, $post);
 
 
@@ -6458,7 +6487,7 @@ if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file'
 
         $where = "spare_parts_details.partner_id = '" . $data['sf_id'] . "' AND  spare_parts_details.entity_type =  '" . _247AROUND_SF_STRING . "' AND status = '" . SPARE_PARTS_REQUESTED . "' "
                 . " AND booking_details.current_status IN ('" . _247AROUND_PENDING . "', '" . _247AROUND_RESCHEDULED . "') "
-                . " AND wh_ack_received_part != 0 AND spare_parts_details.partner_challan_number IS NULL AND spare_parts_details.partner_challan_file IS NULL";
+                . " AND wh_ack_received_part != 0";
 
         $select = "spare_parts_details.id, spare_parts_details.booking_id, spare_parts_details.partner_id, spare_parts_details.entity_type, spare_parts_details.service_center_id,spare_parts_details.partner_challan_file,spare_parts_details.partner_challan_number,GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, purchase_invoice_id, users.name, "
                 . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.flat_upcountry,"
@@ -10705,7 +10734,12 @@ function do_delivered_spare_transfer() {
             $this->booking_model->update_booking($booking_id, ['service_center_closed_date' => $closed_date]);
 
             // Insert data into booking state change
-            $this->insert_details_in_state_change($booking_id, $sf_booking_status, "Booking Auto Approved", "247Around", "Review the Booking", NULL, true);
+			 if ($engg_completed_booking->internal_status == _247AROUND_COMPLETED) {
+				$remarks_auto_close = "Booking Auto Approved - ".$engg_completed_booking->closing_remark;
+			 }else{
+				 $remarks_auto_close = "Booking Auto Approved - ".$engg_completed_booking->cancellation_remark;
+			 }
+            $this->insert_details_in_state_change($booking_id, $sf_booking_status, $remarks_auto_close, "247Around", "Review the Booking", NULL, true);
 
             //Update spare consumption as entered by engineer Booking Completed
             if ($booking_status == _247AROUND_COMPLETED) {
@@ -10839,7 +10873,7 @@ function do_delivered_spare_transfer() {
         if (!empty($spare_parts_data)) {
             $data['booking_id'] = $booking_id = $spare_parts_data[0]['booking_id'];
 
-            $spare_parts_list = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id as spare_id, parts_requested, spare_parts_details.booking_id,spare_parts_details.is_micro_wh, status, auto_acknowledeged, acknowledge_date, cci_details.courier_pod_file, inventory_master_list.part_number', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.status' => SPARE_DELIVERED_TO_SF, "auto_acknowledeged" => AUTO_ACKNOWLEDGED_FROM_API, "consumed_part_status_id" => NULL), false, false, false, ['is_inventory' => true], false, false, false, false, TRUE);
+            $spare_parts_list = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id as spare_id, parts_requested, spare_parts_details.booking_id,spare_parts_details.is_micro_wh, status, auto_acknowledeged, acknowledge_date, cci_details.courier_pod_file, im.part_number', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.status' => SPARE_DELIVERED_TO_SF, "auto_acknowledeged" => AUTO_ACKNOWLEDGED_FROM_API, "consumed_part_status_id" => NULL), false, false, false, ['is_inventory' => true], false, false, false, false, TRUE);
             $pod_spare_parts_list = array();
             $non_pod_spare_parts = array();
             $pod_flag = false;

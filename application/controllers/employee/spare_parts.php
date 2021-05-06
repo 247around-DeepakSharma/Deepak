@@ -1062,7 +1062,7 @@ class Spare_parts extends CI_Controller {
         $row[] = date("d-M-Y", strtotime($spare_list->defective_part_shipped_date));
         $row[] = $spare_list->consumed_status;
         $row[] = $spare_list->courier_name_by_sf;
-        $row[] = '<span class="awb_number_by_sf_no_text"  style="color:blue; pointer:cursor" data-awb-number ="'.$spare_list->awb_by_sf.'">'.$spare_list->awb_by_sf.'</span><span class="awb_number_by_sf_edit"><i class="fa fa-pencil fa-lg"></i></span>';
+        $row[] = '<span style="color:blue; pointer:cursor" class="update_awb_by_sf_from_courier_autid" data-awb-number ="'.$spare_list->awb_by_sf.'">'.$spare_list->awb_by_sf.'</span>';
         $row[] = "<i class='fa fa-inr'></i>" . $spare_list->courier_charges_by_sf;
         $row[] = $spare_list->remarks_defective_part_by_sf;
         if (!empty($spare_list->defective_courier_receipt)) {
@@ -5744,43 +5744,84 @@ class Spare_parts extends CI_Controller {
     function process_update_awb_number_sf() {
         log_message('info', __METHOD__ . ' Processing...');
 
-        $pre_awb_by_sf = $this->input->post("pre_awb_by_sf");
-        $change_awb_number_by_sf = $this->input->post("change_awb_number_by_sf");
-
+        $pre_awb_by_sf = $this->input->post("awb");
+        $awb_number = $this->input->post("change_awb_number_by_sf");
         $agent_id = $this->session->userdata("id");
         $entity_id = _247AROUND;
         $entity_type = _247AROUND_EMPLOYEE_STRING;
+        
+        $courier_company_detail = $this->inventory_model->get_courier_company_invoice_details('courier_company_invoice_details.id, courier_company_invoice_details.awb_number', array('awb_number' => $awb_number));
 
-        if (!empty($change_awb_number_by_sf)) {
-            $select = 'spare_parts_details.id,spare_parts_details.quantity,spare_parts_details.status,spare_parts_details.entity_type,spare_parts_details.booking_id, spare_parts_details.awb_by_sf';
-            $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.awb_by_sf' => $pre_awb_by_sf), false, false, false);
-            $booking_array = array();
-            foreach ($spare_parts_details as $value) {
-                $spare_id = $value['id'];
-                if (!empty($spare_id)) {
-                    $this->service_centers_model->update_spare_parts(array('spare_parts_details.id' => $spare_id), array("spare_parts_details.awb_by_sf" => trim($change_awb_number_by_sf)));
-                    /* Insert in Spare Tracking Details */
-                    $remarks = " Docket replaced from " . $pre_awb_by_sf . " To " . $change_awb_number_by_sf;
-                    $new_state = "New Awb Number updated";
-                    $tracking_details = array('spare_id' => $spare_id, 'action' => 'New Awb Number ' . $change_awb_number_by_sf, 'remarks' => $remarks, 'agent_id' => $agent_id, 'entity_id' => $entity_id, 'entity_type' => $entity_type);
-                    $this->service_centers_model->insert_spare_tracking_details($tracking_details);
-                    if (!in_array($value['booking_id'], $booking_array)) {
-                        $this->notify->insert_state_change($value['booking_id'], $new_state, '', $remarks, $agent_id, $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, $entity_id, "", $spare_id);
-                        $booking_array[] = $value['booking_id'];
+        if (empty($courier_company_detail)) {
+            $courier_company_data = array(
+                'awb_number' => trim($this->input->post('awb')),
+                'company_name' => strtolower(trim($this->input->post('courier_name'))),
+                'courier_charge' => trim($this->input->post('courier_charge')),
+            );
+
+            $courier_company_detail[0]['id'] = $this->inventory_model->insert_courier_company_invoice_details($courier_company_data);
+            $updateCharge = TRUE;
+        } else {
+
+            if (!empty($courier_company_detail)) {
+                $courier_company_data_update = array(
+                    'company_name' => strtolower(trim($this->input->post('courier_name'))),
+                    'courier_charge' => trim($this->input->post('courier_charge'))
+                );
+
+                if (!empty($this->input->post('sp_parts'))) {
+                    $courier_company_data_update['courier_invoice_file'] = $this->input->post('sp_parts');
+                }
+
+                $this->inventory_model->update_courier_company_invoice_details(array('id' => $courier_company_detail[0]['id']), $courier_company_data_update);
+                $updateCharge = TRUE;
+            }
+        }
+
+        if ($updateCharge === TRUE) {
+
+            $this->inventory_model->update_spare_courier_details($id, array('spare_parts_details.awb_by_sf' => $awb_number));
+
+            $data_spare_part_detail = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id, spare_parts_details.awb_by_sf, spare_parts_details.courier_name_by_sf', array('spare_parts_details.awb_by_sf = "' . $awb_number . '"  AND status != "' . _247AROUND_CANCELLED . '"' => null), false);
+
+            if (!empty($data_spare_part_detail)) {
+                $spare_part_reverse_data = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id, spare_parts_details.awb_by_sf, spare_parts_details.courier_name_by_sf', array('spare_parts_details.awb_by_sf = "' . $pre_awb_by_sf . '"  AND status != "' . _247AROUND_CANCELLED . '"' => null), false);
+                if (!empty($spare_part_reverse_data)) {
+                    $couir_invoice_details = $this->inventory_model->get_courier_company_invoice_details('courier_company_invoice_details.id, courier_company_invoice_details.awb_number,courier_company_invoice_details.company_name, courier_company_invoice_details.courier_charge', array('awb_number' => $pre_awb_by_sf));
+                    if (!empty($couir_invoice_details)) {
+                        $courier_charge = ($couir_invoice_details[0]['courier_charge'] / count($spare_part_reverse_data));
+                        $this->service_centers_model->update_spare_parts(array('spare_parts_details.awb_by_sf' => $pre_awb_by_sf), array("spare_parts_details.courier_charges_by_sf" => $courier_charge));
                     }
                 }
-            }
-            
-            $courier_company_data = $this->inventory_model->get_courier_company_invoice_details("id, awb_number, company_name", array("courier_company_invoice_details.awb_number" => $change_awb_number_by_sf), array(), $is_object = FALSE);
 
-            if (empty($courier_company_data)) {
-                $this->inventory_model->update_courier_company_invoice_details(array('courier_company_invoice_details.awb_number' => $pre_awb_by_sf), array('courier_company_invoice_details.awb_number' => trim($change_awb_number_by_sf)));
-            }
+                $courier_amount = ($courier_charges / count($data_spare_part_detail));
+                $data['spare_parts_details.awb_by_sf'] = $awb_number;
+                $data['spare_parts_details.courier_name_by_sf'] = $courier_name_by_sf;
+                $data['spare_parts_details.courier_charges_by_sf'] = $courier_amount;
 
-            echo json_encode(array('status' => 'success'));
+                foreach ($data_spare_part_detail as $value) {
+
+                    $this->inventory_model->update_spare_courier_details($value['id'], $data);
+                    /* Insert in Spare Tracking Details */
+                    if ($pre_awb_by_sf != $awb_number) {
+                        $remarks = " Docket replaced from " . $pre_awb_by_sf . " To " . $awb_number . "," . $remarks_defective_part_by_sf;
+                        $new_state = "New Awb Number updated";
+                        $action = 'New Awb Number ' . $awb_number;
+                    } else {
+                        $remarks = $remarks_defective_part_by_sf;
+                        $new_state = "Courier Charges Or Courier name Updated";
+                        $action = 'Courier Charges Or Courier name Of Awb Number ' . $awb_number;
+                    }
+                    $tracking_details = array('spare_id' => $value['id'], 'action' => $action, 'remarks' => $remarks, 'agent_id' => $agent_id, 'entity_id' => $entity_id, 'entity_type' => $entity_type);
+                    $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                }
+            }
         }
+
+        echo json_encode(array('status' => 'success'));
     }
-   /*
+
+    /*
      * @desc: This Function is used to get inventory stock mismatch form
      * @param: void
      * @return : json

@@ -306,7 +306,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label for="state" class="col-md-3 vertical-align">District*</label>
                                         <div class="col-md-8">
-                                            <select id="district_option" class="district form-control" name ="district" onChange="getPincode()" disabled="true">
+                                            <select id="district_option" class="district form-control" name ="district" onChange="getPincode()" required="true">
                                                 <option selected disabled>Select District</option>
                                                 <option <?php
                                                     if (isset($query[0]['district'])) {
@@ -328,7 +328,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     <div class="form-group ">
                                         <label for="state" class="col-md-3 vertical-align">Pincode*</label>
                                         <div class="col-md-8">
-                                            <select class="pincode form-control" id="pincode" name ="pincode" required="true" disabled="true">
+                                            <select class="pincode form-control" id="pincode" name ="pincode" required="true">
                                                 <option selected disabled>Select Pincode</option>
                                                 <option <?php
                                                     if (isset($query[0]['pincode'])) {
@@ -351,7 +351,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label for="company_type" class="col-md-3">Company Type*</label>
                                         <div class="col-md-8">
-                                            <select name="company_type" class="form-control">
+                                            <select name="company_type" class="form-control" id="company_type">
                                                 <option disabled selected >Select Company Type</option>
                                                 <option value="Individual" <?php if(isset($query[0]['company_type'])){
                                                     if ($query[0]['company_type'] == "Individual") {
@@ -1763,6 +1763,7 @@ function manageAccountNameField(value){
     function getDistrict() {
      var state = $("#state").val();
      var district = $(".district").val();
+     if(state != null){
      $.ajax({
        type: 'POST',
        url: '<?php echo base_url(); ?>employee/vendor/getDistrict/1',
@@ -1775,6 +1776,7 @@ function manageAccountNameField(value){
          }
        }
      });
+    }
     }
         function getRMs(rm_id = '') {
         var state = $("#state").val();
@@ -1807,9 +1809,10 @@ function manageAccountNameField(value){
         }
     }
     
-                function getPincode() {
+    function getPincode() {
       var district = $(".district").val();
       var pincode = $(".pincode").val();
+      if(district != ''){
       $.ajax({
         type: 'POST',
         url: '<?php echo base_url(); ?>employee/vendor/getPincode/1',
@@ -1818,7 +1821,8 @@ function manageAccountNameField(value){
           $(".pincode").html(data);
        }
      });
-    }
+     }
+   }
     
                 $(function () {
     var state = $("#state").val();
@@ -1934,10 +1938,21 @@ function manageAccountNameField(value){
 <script type="text/javascript">
 //Author: Deepak Sharma
 // This function use to for validation   
+var company_type = $("#company_type").val();
 $(document).ready(function () {
-    $('.submit_button').click(function() {              
+    $('.submit_button').click(function() {
+        var pan_no = $("#pan_no").val().toUpperCase();
+        var gst_no = $('#gst_no').val();
+        if(gst_no != ''){
+        var sub_gst_no = gst_no.substr(2, 10);
+        if(company_type != 'Proprietorship Firm'){
+            if(sub_gst_no != pan_no){
+             alert("Please enter correct GST number"); 
+             return false;
+            }
+        }
+      }
                 var pan_exp = /[a-zA-z]{5}\d{4}[a-zA-Z]{1}/;
-                var pan_no = $("#pan_no").val();
                 if($('#pan_no').val() != '' && !pan_no.match(pan_exp)){
                     alert('Please enter correct Pan Number'); 
                     return false;
@@ -1974,11 +1989,14 @@ $(document).ready(function () {
                    return false;
                }
                 var gst_exp = /[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}/;
-                var gst_no = $('#gst_no').val();
                 if($('#gst_no').val() != '' && !gst_no.match(gst_exp)){
                     alert('Please enter correct GST Number'); 
                     return false;
                    }
+                if(gst_no.length != 15 && gst_no != '' ){
+                   alert('Please Enter Correct GST Number');
+                   return false;
+                }
   
                 if($('#gst_no').val() != '' && $("#gst_file")[0].files.length== 0){
                    alert("Please Upload GST File");
@@ -2535,20 +2553,6 @@ function  check_mobile_number(){
            }
   }
 }
-//Author:Deepak 
-//This function use for ,you can't select district without select state first
-$('#state').change(function (){
-    if($("#state").val() != null) {
-         $("#district_option").attr('disabled',false);
-    }  
-});
-//Author:Deepak 
-//This function use for ,you can't select pincode without select district first
-$('#district_option').change(function (){
-    if($("#district_option").val() != null) {
-         $("#pincode").attr('disabled',false);
-    }    
-});
  $('#pan_no').keypress(function (e) {
        var regex = new RegExp("^[a-zA-Z0-9]+$");
        var str = String.fromCharCode(!e.charCode ? e.which : e.charCode);

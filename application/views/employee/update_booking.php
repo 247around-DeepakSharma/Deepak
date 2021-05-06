@@ -517,7 +517,7 @@ if(empty($booking_history[0]['booking_id'])){
                                         <div class="form-group ">
                                             <label for="purchase_date" class="col-md-4">Purchase Date *</label>
                                             <div class="col-md-6">
-                                            <div class="input-group date">
+                                            <div class="input-group date" style="z-index: 0;">
                                                 <input <?php if($is_repeat && (!empty($booking_model_purchase_date))){ echo 'readonly="readonly"'; } ?> id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "<?php if(!empty($booking_model_purchase_date)){ echo date("d-M-Y", strtotime($booking_model_purchase_date)); } elseif(isset($unit_details[0]['purchase_date']) && $unit_details[0]['purchase_date'] != '0000-00-00'){ echo date("d-M-Y", strtotime($unit_details[0]['purchase_date'])); }?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" onchange="check_booking_request()">
                                                 <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>

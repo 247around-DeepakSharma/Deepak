@@ -49,6 +49,7 @@ class Warranty_utilities {
             
             // Get All Valid Plans against Model, lies within Purchase Date of Product
             // get Product specific plans (for E-commerce Partners)
+            $model_number = "All";
             if(!empty($rec_data['service_id'])){
                 // Get Model Specific Plans
                 if(!empty($rec_data['model_number'])){
@@ -65,10 +66,20 @@ class Warranty_utilities {
                 //removes the single as well as double quotes from start and end
                 $model_number = str_replace('"', '', str_replace("'", "", $rec_data['model_number']));
                 $arrOrWhere["(appliance_model_details.model_number = '".$model_number."' and date(warranty_plans.period_start) <= '".$purchase_date."' and date(warranty_plans.period_end) >= '".$purchase_date."' and warranty_plans.partner_id = '".$rec_data['partner_id']."' $strPartTypeCondition)"] = null; 
-            }            
+            }
+            
+            if(!empty($rec_data['serial_number'])){
+                $serial_number = str_replace('"', '', str_replace("'", "", $rec_data['serial_number']));
+                $arrOrWhereSerialNumber["warranty_plan_serial_number_mapping.serial_number = '".$serial_number."'"] = NULL;
+                $data['model_number'] = $model_number;                
+            }
         }  
                 
         $arrWarrantyData = $this->My_CI->warranty_model->get_warranty_data($arrOrWhere, $data);        
+        if(!empty($arrOrWhereSerialNumber)){
+            $arrSerialNumberWarrantyData = $this->My_CI->warranty_model->get_serial_number_warranty_data($arrOrWhereSerialNumber, $data);
+            $arrWarrantyData = array_merge($arrSerialNumberWarrantyData, $arrWarrantyData);
+        }
         return $arrWarrantyData;
     }
     
@@ -100,6 +111,7 @@ class Warranty_utilities {
         $arrBooking['plan_id'] = !empty($arrBooking['plan_id']) ? $arrBooking['plan_id'] : "";
         $arrBooking['no_of_parts'] = !empty($arrBooking['no_of_parts']) ? $arrBooking['no_of_parts'] : "";
         $arrBooking['parts'] = !empty($arrBooking['parts']) ? $arrBooking['parts'] : "";
+        $arrBooking['warranty_period'] = !empty($arrBooking['warranty_period']) ? $arrBooking['warranty_period'] : 0;
         $arrBooking['in_warranty_period'] = !empty($arrBooking['in_warranty_period']) ? $arrBooking['in_warranty_period'] : 0;
         $arrBooking['extended_warranty_period'] = !empty($arrBooking['extended_warranty_period']) ? $arrBooking['extended_warranty_period'] : 0;
         foreach($arrWarrantyData as $recWarrantyData)
@@ -118,10 +130,11 @@ class Warranty_utilities {
                 */
                 
                 // Select Plan on the Basis of Maximum number of Part Types Allowed
-                if($recWarrantyData['no_of_parts'] >= $arrBooking['no_of_parts']){
+                if(($recWarrantyData['no_of_parts'] > $arrBooking['no_of_parts']) || (($recWarrantyData['no_of_parts'] == $arrBooking['no_of_parts']) && $arrBooking['warranty_period'] < $recWarrantyData['warranty_period'])){
                     $arrBooking['plan_id'] = $recWarrantyData['plan_id'];
                     $arrBooking['no_of_parts'] = $recWarrantyData['no_of_parts'];
                     $arrBooking['parts'] = $recWarrantyData['parts'];
+                    $arrBooking['warranty_period'] = $recWarrantyData['warranty_period'];
                     $arrBooking['in_warranty_period'] = $recWarrantyData['in_warranty_period'];
                     $arrBooking['extended_warranty_period'] = $recWarrantyData['extended_warranty_period'];
                 }
@@ -247,7 +260,7 @@ class Warranty_utilities {
         }
         
         $arrWarrantyData = $this->get_warranty_data($arrBookings);          
-        $arrModelWiseWarrantyData = $this->get_model_wise_warranty_data($arrWarrantyData);         
+        $arrModelWiseWarrantyData = $this->get_model_wise_warranty_data($arrWarrantyData);
         foreach($arrBookings as $key => $arrBooking)
         {            
             $model_number = (!empty($arrBooking['model_number']) ? trim($arrBooking['model_number']) : "");
@@ -260,7 +273,7 @@ class Warranty_utilities {
             }
             $arrBookings[$arrBooking['booking_id']] = $arrBookings[$key];
             unset($arrBookings[$key]);
-        }        
+        }
         $arrBookingsWarrantyStatus = $this->get_bookings_warranty_status($arrBookings, $arrInstallationData); 
         return $arrBookingsWarrantyStatus;
     }

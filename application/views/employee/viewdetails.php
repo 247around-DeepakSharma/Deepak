@@ -1,7 +1,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <?php if(!empty($booking_history)) {  $spare_request_type = ''; ?> 
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=<?php echo GOOGLE_MAPS_API_KEY;?>"></script>
-<script src="<?php echo base_url();?>js/googleScript.js"></script> 
+<script src="<?php echo base_url();?>js/googleScript.js"></script>
 <style type="text/css">
     
     .spare_image {
@@ -806,7 +806,7 @@
                                             <?php echo $sp['part_cancel_reason']; ?>
                                         <?php } ?>
                                         </td>
-                                        <td><?php if(!empty($sp['is_consumed']) && $sp['is_consumed'] == 1) { echo 'Yes';} else { echo 'No';} ?></td>
+                                        <td><?php if(!empty($sp['is_consumed']) && $sp['is_consumed'] == 1) { echo 'Yes';} else if(!empty($sp['consumed_part_status_id'])){ echo 'No';} ?></td>
                                         <td><?php if(!empty($sp['consumed_status'])) { echo $sp['consumed_status']; } ?></td>
                                         <td><?php if(!empty($sp['consumption_remarks'])) { echo $sp['consumption_remarks']; } ?></td>
                                      
@@ -1501,8 +1501,8 @@
                         <th>Amount Paid</th>
                         <th>Customer Signature</th>
                         <th>Closed Date</th>
-                        <th>Closing Address</th>
-                        <th>Remarks</th>
+                        <th>Address</th>
+                        <th>Closing Remarks</th>
                     </tr>
                     <tbody>
                         <tr>
@@ -1510,7 +1510,11 @@
                             <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $signature_details[0]['signature'];?>" target="_blank">Click Here</a></td>
                             <td><?php echo date("d-M-Y", strtotime($signature_details[0]['closed_date'])); ?></td>
                             <td><?php echo $signature_details[0]['address']; ?></td>
-                            <td><?php echo $signature_details[0]['remarks']; ?></td>
+                            <?php if($booking_history[0]['internal_status'] == 'InProcess_Completed') {?>
+                                <td><?php echo $signature_details[0]['remarks']; ?></td>
+                            <?php } else { ?>
+                                <td><?php echo $signature_details[0]['cancellation_remark']; ?></td>
+                            <?php } ?>
                             
                         </tr>
                        

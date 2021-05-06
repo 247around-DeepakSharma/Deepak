@@ -939,7 +939,7 @@ function get_data_for_partner_callback($booking_id) {
      * @param boolean $flag_select
      * @return Array
      */
-    function get_spare_parts_booking_list($where, $start, $end,$flag_select,$state=0,$is_stock_needed = null,$is_unit_details = false,$orderBy = false){
+    function get_spare_parts_booking_list($where, $start, $end,$flag_select,$state=0,$is_stock_needed = null,$is_unit_details = false,$orderBy = false,$get_consumed_status_id=0){
         ini_set('memory_limit', '-1');
         ini_set('max_execution_time', 36000);
 
@@ -966,7 +966,8 @@ function get_data_for_partner_callback($booking_id) {
                 . "vendor_partner_invoices.invoice_date,"
                 . "spare_consumption_status.consumed_status,"   
                 . "concat('`',spare_parts_details.`serial_number`) as serial_number,"   
-                . "booking_details.booking_primary_contact_no" ;
+                . "booking_details.booking_primary_contact_no,"
+                . "CASE WHEN booking_details.part_brought_at=1 THEN 'Customer Location'  WHEN booking_details.part_brought_at=2 THEN 'Service Center Location' ELSE '' END AS 'part_brought_at'";
 
             if($end){
                 $limit = "LIMIT $start, $end";
@@ -979,6 +980,10 @@ function get_data_for_partner_callback($booking_id) {
         } else {
             $select = "SELECT count(spare_parts_details.id) as total_rows ";
         }
+        if(!$get_consumed_status_id){
+            $select .= ",spare_parts_details.consumed_part_status_id";
+        }
+        
         if(!$orderBy){
             $orderBy = " ORDER BY status = '". DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE."'";
         }
@@ -1598,6 +1603,34 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->join('bookings_sources','partners.id=bookings_sources.partner_id');
         $this->db->where($where);   
         $this->db->where_in('bookings_sources.partner_type', $where_in);
+        $query = $this->db->get('partners');
+        return $query->result_array();
+    }
+
+    /**
+     * @desc: This is used to get the partners details which did not get any booking last month 
+     * @param String $partner_id
+     * @return Array
+     */
+    function get_partner_details_no_booking_last_month($active,$partnerType,$ac,$partner_not_like=NULL,$partner_id="", $is_prepaid=null){
+
+        $prevmonth = date('M Y', strtotime("last month"));
+        $month = (int)date('m',strtotime($prevmonth));
+        $where = array();
+        $this->db->distinct();
+        $this->db->select("partners.id, partners.public_name");
+        if ($partner_id != "") {
+            $where['partners.id']  = $partner_id;
+        } else{
+            if($active !='All'){
+                $where['partners.is_active'] = $active;
+            }
+        }
+        
+        $this->db->join('booking_details','partners.id=booking_details.partner_id');
+        $this->db->where($where);
+        $this->db->where('MONTH(booking_details.create_date) !=', $month);
+        $this->db->where('YEAR(booking_details.create_date) =', date('Y',strtotime($prevmonth)));
         $query = $this->db->get('partners');
         return $query->result_array();
     }
@@ -3387,6 +3420,20 @@ function get_data_for_partner_callback($booking_id) {
     function get_courier_lost_parts_details($spare_id_array) {
         $sql = "Select * from courier_lost_spare_status where spare_id in (".implode(',', $spare_id_array).") order by spare_id asc, create_date asc";
         return $query = $this->db->query($sql)->result_array();
+    }
+  /*
+   * Author:Deepak Sharma
+   * This function use for partner_id using booking_id
+   * @param :$booking_id
+   */
+    function  partner_details($booking_id = ''){
+         $sql = "SELECT 
+             booking_details.partner_id
+             FROM booking_details
+             WHERE booking_id = '$booking_id'";   
+             $query = $this->db->query($sql);
+             $result = $query->result_array();
+             return  $result;
     }
 
 }

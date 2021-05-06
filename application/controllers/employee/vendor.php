@@ -612,11 +612,21 @@ class vendor extends CI_Controller {
      * @param: void
      * @return : array(result) to view
      */
-    function view_agreement_list() {
+    function view_agreement_list($offset = 0) {
         $this->miscelleneous->load_nav_header();
         $this->checkUserSession();
-        $data = $this->vendor_model->get_sf_agreement_list();
-        $this->load->view('employee/view_agreement_list', array('results' => $data));
+        $config['base_url'] = base_url() . 'employee/vendor/view_agreement_list';
+        $total_rows = $this->vendor_model->get_sf_agreement_list();
+        $config['total_rows'] = count($total_rows);
+        $config['per_page'] = 50;
+        $config['uri_segment'] = 4;
+        $config['first_link'] = 'First';
+        $config['last_link'] = 'Last';
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_links();
+        $data['count'] = $config['total_rows'];
+        $data['data'] = array_slice($total_rows, $offset, $config['per_page']);
+        $this->load->view('employee/view_agreement_list',$data);
     }
 
     /**
@@ -842,11 +852,11 @@ class vendor extends CI_Controller {
         if ($vendor_list['is_wh'] != 1) {
             if ($vendor_list['active'] == 0) {
                 $disable = "disabled";
+                $row[] = '<a href="javascript:void(0)" class="btn btn-md btn-success" onclick ="return false" ' . $disable . '  >Login</a>';
             } else {
                 $disable = "";
+                $row[] = '<a href="javascript:void(0)" class="btn btn-md btn-success" onclick="return login_to_vendor(' . $vendor_list['id'] . ')"  ' . $disable . '  >Login</a>';
             }
-
-            $row[] = '<a href="javascript:void(0)" class="btn btn-md btn-success" onclick="return login_to_vendor(' . $vendor_list['id'] . ')"  ' . $disable . '  >Login</a>';
         } else {
             $row[] = "";
         }
@@ -993,6 +1003,7 @@ class vendor extends CI_Controller {
                  $vendor['on_off'] = 1; 
             }
             else{
+                $vendor['on_off'] = 0;
                  $this->sfauthorization_certificate->create_new_certificate($id);  
             }
             $this->vendor_model->edit_vendor($vendor, $id);
@@ -1258,6 +1269,7 @@ class vendor extends CI_Controller {
                 'service_center_closed_date' => NULL,
                 'cancellation_reason' => NULL,
                 'upcountry_distance' => NULL,
+                'part_brought_at' => 0,
                 'internal_status' => _247AROUND_PENDING);
 
             $actor = $next_action = 'not_define';
@@ -2172,6 +2184,11 @@ class vendor extends CI_Controller {
 
                     if ($this->input->post('around_exp')) {
                         $data['around_exp'] = $this->input->post('around_exp');
+                    }
+                    if(!empty($this->input->post('sf_id')) && $this->input->post('sf_id') == '1'){
+                    $this->checkserviceCenterUserSession();
+                    }else{
+                    $this->checkUserSession();
                     }
                     $engineer_id = $this->vendor_model->insert_engineer($data);
                     if ($engineer_id) {
@@ -4357,7 +4374,14 @@ class vendor extends CI_Controller {
         $partner = !empty($this->input->post('partner')) ? $this->input->post('partner') : [];
         if (count($booking_id) === count($partner)) {
             foreach ($booking_id as $key => $value) {
-
+                $sp_details = $this->partner_model->get_spare_parts_by_any("status", array('booking_id' => $value, 'status !="Cancelled"' => NULL));
+                if(!empty($sp_details)){
+                 $output = "Spare Parts Involved On Bookings So Partner Not Assigned";
+                 $userSession = array('error' => $output);
+                 $this->session->set_userdata($userSession);
+                 redirect(base_url() . 'employee/vendor/get_reassign_partner_form');
+                 exit;
+                }
                 // update partner to corresponding booking id in booking_details table
                 $booking_details_data = array('partner_id' => $partner[$key],);
                 $this->booking_model->update_booking(trim($value), $booking_details_data);
@@ -4380,7 +4404,21 @@ class vendor extends CI_Controller {
             redirect(base_url() . 'employee/vendor/get_reassign_partner_form');
         }
     }
-
+/**
+ * Author:Deepak sharma 
+ * this function use for check spare assign or not
+ */
+    function booking_spare_assign_or_not(){
+             $id = $this->input->post('booking_id');
+             $sp_details = $this->partner_model->get_spare_parts_by_any("status", array('booking_id' => $id, 'status !="Cancelled"' => NULL));
+              //print_r($sp_details);exit;
+            if(!empty($sp_details)){
+            echo "Success";
+            } 
+            else{
+              echo "Not Exist";
+            }
+    }
     /**
      * if pincode exist in the india pincode table the echo success other wise Not Exist
      * @param String $pincode
@@ -5150,13 +5188,24 @@ class vendor extends CI_Controller {
     function checkUserSession() {
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
             return TRUE;
-        } else {
+        }else{
             log_message('info', __FUNCTION__ . " Session Expire for Service Center");
             $this->session->sess_destroy();
             redirect(base_url() . "employee/login");
         }
     }
-
+   function checkserviceCenterUserSession(){
+      if(($this->session->userdata('loggedIn') == TRUE) && $this->session->userdata('userType') == 'service_center') {
+       return TRUE;
+       
+      }
+       else{
+            log_message('info', __FUNCTION__ . " Session Expire for Service Center");
+            $this->session->sess_destroy();
+            redirect(base_url() . "service_center/login");
+            
+        }
+   }
     function pending_bookings_on_vendor($vendorID) {
         $count = $this->reusable_model->get_search_result_count("booking_details", "booking_id", array('assigned_vendor_id' => $vendorID), NULL, NULL, NULL,
                 array("current_status" => array(_247AROUND_RESCHEDULED, _247AROUND_PENDING)), NULL);

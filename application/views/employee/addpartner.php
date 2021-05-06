@@ -378,7 +378,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label for="company_type" class="col-md-4">Company Type</label>
                                         <div class="col-md-8">
-                                            <select name="company_type" class="form-control" <?php if (isset($query[0]['company_type'])) { echo 'readonly tabindex="-1"'; } ?>>
+                                            <select name="company_type" id ="company_type" class="form-control" <?php if (isset($query[0]['company_type'])) { echo 'readonly tabindex="-1"'; } ?>>
                                                 <option disabled selected >Select Company Type</option>
                                                 <option value="Individual" <?php
                                                     if (isset($query[0]['company_type'])) {
@@ -6249,10 +6249,20 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
 // This is use to validate pan no and gst number pan no comuplsory  to select and pan file also
 $(document).ready(function () {
     $('#submit_document_btn').click(function() {// initialize the plugin
-       var pan_no = $("#pan_no").val();
+       var company_type = $("#company_type").val();
+       var pan_no = $("#pan_no").val().toUpperCase();
        var GST_no = $("#gst_number").val();
        var pan_file = $("#pan_file_1")[0].files.length;
        var GST_file = $("#gst_file")[0].files.length;
+        if(GST_no != ''){
+        var sub_gst_no = GST_no.substr(2, 10);
+        if(company_type != 'Proprietorship Firm'){
+            if(sub_gst_no != pan_no){
+             alert('Please enter correct GST Number'); 
+             return false;
+            }
+        }
+      }
         if( pan_no == '' && pan_file != ''){
            alert ("Please Enter  PAN number");
            return false;}
@@ -6262,6 +6272,11 @@ $(document).ready(function () {
        if (pan_no == '' &&  pan_file == 0 ) {
              alert ("Please Enter PAN Details");
            return false;}
+       var gst_exp = /[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}/;
+       if($("#gst_number").val() != '' && !GST_no.match(gst_exp)){
+             alert('Please enter correct GST Number'); 
+             return false;
+        }
        
         if( GST_no != '' &&  GST_file == 0){
             alert ("Please Enter GST number file");
@@ -6285,16 +6300,19 @@ $(document).ready(function () {
    });
    });
    // Author:Deepak Sharma 
-   // This function use to validate GST Number with 247001 partner id 
+   // This function use to validate GST Number with 247001 partner id
+ <?php if(!empty($query[0]['id'])){?>
+   var  id = "<?php echo $query[0]['id']?>";
+   <?php }?>
    $(document).ready(function () {
-    $('#gst_number').on('input',function() { 
+     $('#gst_number').on('input',function() {
         var GST_no = $("#gst_number").val();
-        if(<?php echo $query[0]['id']?> != ''){
+        if(id != '' && GST_no != '' ){
          $.ajax({
          type: 'POST',    
-         url:'<?php echo base_url() ?>employee/partner/get_gst_number/<?php echo $query[0]['id']?>',
+         url:'<?php echo base_url() ?>employee/partner/get_gst_number',
          data:{ 
-            'gst_no':GST_no},
+            'gst_no':GST_no,'id':id},
          success: function(msg){
             if(msg == 'true'){
               alert('Please Enter Valid GST Number ');

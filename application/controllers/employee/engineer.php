@@ -299,6 +299,79 @@ function get_review_engineer_action_by_admin_list_table($review_list, $no){
         die();
     }
 
+
+    /*
+     * @Desc - This function is used to Download all engineers
+     * @Author  - Nadeem Ahamad
+     */
+    
+    function download_all_engineers(){
+
+        // $data = $this->get_engineer_details_data();
+
+        $service_center_id = "";
+        if ($this->input->post("service_center_id")) {
+            $service_center_id = $this->input->post("service_center_id");
+        }
+        $post['start'] = 0;
+        $search = '';
+        $post['search_value'] = '';//$search['value'];
+        $post['order'] = array("engineer_details.id" => "ASC");
+        $post['draw'] = 1;
+        $post['column_order'] = array();
+        $post['column_search'] = array("engineer_details.name", "service_centres.name", "engineer_details.phone", "engineer_details.alternate_phone");
+        $post['join'] = array(
+            "service_centres" => "service_centres.id = engineer_details.service_center_id",
+            'entity_identity_proof' => 'entity_identity_proof.entity_id = engineer_details.id AND entity_identity_proof.entity_type = "engineer"',
+        );
+        $post['joinType'] = array("service_centres" => "LEFT", "entity_identity_proof", "LEFT");
+        $post['where'] = array('delete' => 0);
+        if ($service_center_id) {
+            $post['where']['service_center_id'] = $service_center_id;
+        }
+        $post['length'] = $this->reusable_model->count_all_result("engineer_details", $post['where']);
+
+        $data = array();
+        $no = $post['start'];
+
+        $list = $this->reusable_model->get_datatable_data("engineer_details", "engineer_details.id, engineer_details.name,engineer_details.installed, engineer_details.phone, engineer_details.alternate_phone, engineer_details.active, entity_identity_proof.identity_proof_type as identity_proof, engineer_details.varified, DATE_FORMAT(engineer_details.create_date,'%d-%b-%Y') as create_date, service_centres.name as company_name, service_centres.state, service_centres.district", $post);
+        //echo $this->db->last_query(); die();
+        foreach ($list as $key => $value) {
+            $service_id = $this->engineer_model->get_engineer_appliance(array("engineer_id" => $value->id, "is_active" => 1), "service_id");
+            $appliances = array();
+            if (!empty($service_id)) {
+                foreach ($service_id as $values) {
+                    $service_name = $this->booking_model->selectservicebyid($values['service_id']);
+                    if (!empty($service_name)) {
+                        array_push($appliances, $service_name[0]['services']);
+                    }
+                }
+            }
+            $value->appliance_name = implode(",", $appliances);
+
+            $no++;
+            $row = $this->get_engineer_details_table($value, $no);
+
+            $rowData = array_map(function($rowitem){
+                return trim(strip_tags($rowitem));
+            }, $row);
+            unset($rowData[0]);
+            unset($rowData[11]);
+            unset($rowData[12]);
+            unset($rowData[15]);
+
+            $data[] = $rowData;
+        }
+        $output = array(
+            "draw" => 1,
+            "recordsTotal" => $this->reusable_model->count_all_result("engineer_details", $post['where']),
+            "recordsFiltered" => $this->reusable_model->count_all_filtered_result("engineer_details", "count(engineer_details.id) as numrows", $post),
+            "data" => $data
+        );
+        $headings = array("Service Center Name", "State", "City", "Engineer Name", "Appliances", "Mobile", "Alternate Mobile Number", "ID Proof", "Create Date", "Verified", "Status", "Install/UnInstall");
+        $this->miscelleneous->downloadCSV($output['data'], $headings, "All Engineers Details");
+    }
+
     /*
      * @Desc - This function is used to get the engineer detail row
      * @param - 

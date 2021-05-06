@@ -1272,16 +1272,17 @@ class Partner extends CI_Controller {
      * @desc: This is used to get number which entity id =247001
      * params: partner id
      */
-    function get_gst_number($id){
+    function get_gst_number(){
       $_247AROUND = '247001';
       $gst_no = $this->input->post('gst_no');
+      $id = $this->input->post('id');
       $select = "gst_number";
       $where = array('entity_id' => $_247AROUND);
       $result = $this->inventory_model->get_entity_gst_data($select,$where);
       if($id != $_247AROUND){
         foreach($result as $row){
           if($row['gst_number'] == $gst_no){ 
-          echo "true";
+          echo trim("true");
           } 
         }
       }
@@ -5383,6 +5384,9 @@ class Partner extends CI_Controller {
         if(!empty($this->input->post('is_all_partner'))){
           $option .= '<option value="all">All</option>';  
         }
+        else{
+            $option .= '<option value="all">All</option>';
+        }
         
         foreach ($partner_list as $value) {
             $option .= "<option value='" . $value['id'] . "'";
@@ -6193,7 +6197,7 @@ class Partner extends CI_Controller {
         ini_set('memory_limit', '-1');
         $CSVData = array();
                 
-        $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true);
+        $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true,0,null,false,false,1);
         $headings = array("Spare ID",
             "Booking ID",
             "Customer Contact Number",
@@ -6248,6 +6252,7 @@ class Partner extends CI_Controller {
             "WH to Partner Reverse Purchase Invoice Id",
             "WH to Parnter Reverse Purchase Invoice Date",
             "Is Spare Auto Acknowledge By SF",
+            "Part brought at",
             "Consumption",
             "Spare Consumption Reason"
             );
@@ -6312,11 +6317,13 @@ class Partner extends CI_Controller {
              }else{
             $tempArray[] = "No";   
              }
-            
+             $tempArray[] = $sparePartBookings['part_brought_at'];
              if($sparePartBookings['is_consumed']==1){
             $tempArray[] = "Yes";   
-             }else{
+             }else if(!empty($sparePartBookings['consumed_part_status_id'])){
             $tempArray[] = "No";   
+             }else{
+               $tempArray[] = "";  
              }
             $tempArray[] = $sparePartBookings['consumed_status'];
              
