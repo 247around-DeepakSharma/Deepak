@@ -3454,7 +3454,7 @@ class Service_centers extends CI_Controller {
                 . " sf_challan_file as challan_file, "
                 . " remarks_defective_part_by_partner, "
                 . " remarks_by_partner, spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.defective_return_to_entity_id,spare_parts_details.entity_type,spare_parts_details.courier_rejection_remarks,"
-                . " spare_parts_details.id,spare_parts_details.shipped_quantity,spare_parts_details.challan_approx_value,spare_parts_details.remarks_defective_part_by_wh,spare_parts_details.rejected_defective_part_pic_by_wh ,i.part_number, spare_consumption_status.consumed_status,  spare_consumption_status.is_consumed";
+                . " spare_parts_details.id,spare_parts_details.shipped_quantity,spare_parts_details.challan_approx_value,spare_parts_details.remarks_defective_part_by_wh,spare_parts_details.rejected_defective_part_pic_by_wh ,i.part_number, spare_consumption_status.consumed_status,  spare_consumption_status.is_consumed,spare_parts_details.courier_rejection_count";
 
         $group_by = "spare_parts_details.id";
         $order_by = "status = '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', spare_parts_details.booking_id ASC";
@@ -4430,7 +4430,7 @@ class Service_centers extends CI_Controller {
                 }
 
                 $post['is_inventory'] = true;
-                $select = 'booking_details.booking_id, booking_details.assigned_vendor_id, spare_parts_details.id,spare_parts_details.requested_inventory_id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.model_number,spare_parts_details.serial_number, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id,IF(spare_consumption_status.consumed_status !="" , spare_consumption_status.consumed_status, "NA") as consumed_status';
+                $select = 'booking_details.booking_id, booking_details.assigned_vendor_id, spare_parts_details.id,spare_parts_details.requested_inventory_id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.model_number,spare_parts_details.serial_number, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id,IF(spare_consumption_status.consumed_status !="" , spare_consumption_status.consumed_status, "NA") as consumed_status,inventory_master_list.gst_rate';
                 $part_details = $this->partner_model->get_spare_parts_by_any($select, array(), true, false, false, $post);
 
 
@@ -6487,7 +6487,7 @@ if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file'
 
         $where = "spare_parts_details.partner_id = '" . $data['sf_id'] . "' AND  spare_parts_details.entity_type =  '" . _247AROUND_SF_STRING . "' AND status = '" . SPARE_PARTS_REQUESTED . "' "
                 . " AND booking_details.current_status IN ('" . _247AROUND_PENDING . "', '" . _247AROUND_RESCHEDULED . "') "
-                . " AND wh_ack_received_part != 0 AND spare_parts_details.partner_challan_number IS NULL AND spare_parts_details.partner_challan_file IS NULL";
+                . " AND wh_ack_received_part != 0";
 
         $select = "spare_parts_details.id, spare_parts_details.booking_id, spare_parts_details.partner_id, spare_parts_details.entity_type, spare_parts_details.service_center_id,spare_parts_details.partner_challan_file,spare_parts_details.partner_challan_number,GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, purchase_invoice_id, users.name, "
                 . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.flat_upcountry,"
