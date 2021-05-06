@@ -1,5 +1,5 @@
-<?php if ($this->uri->segment(9)) {
-    $count = $this->uri->segment(9) + 1;
+<?php if ($this->uri->segment(8)) {
+    $count = $this->uri->segment(8) + 1;
 } else {
     $count = 1;
 } ?>
@@ -238,6 +238,9 @@ $('input[name="create_date"], input[name="completion_date"]').daterangepicker({
         });
     </script>
     <style>
+        #complete_booking_table_length{
+            display: none;
+        }
         .pagination{
             display: none;
         }
