@@ -7374,7 +7374,7 @@ class Inventory extends CI_Controller {
         $select = "spare_parts_details.id as spare_id, services.services as 'Appliance',  booking_details.booking_id as 'Booking ID',  booking_details.assigned_vendor_id as 'Assigned Vendor Id', "
                 . "emply.full_name as 'RM Name',empl.full_name as 'ASM Name',service_centres.name as 'SF Name', service_centres.district as 'SF City', service_centres.state as 'SF State', "
                 . "(CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'Inactive' END) as 'SF Status', partners.public_name as 'Partner Name', "
-                . "(CASE WHEN service_centres.on_off = 1 THEN 'OFF' ELSE 'ON' END) as 'SF TEMP ON/OFF Status', "
+                . "(CASE WHEN service_centres.on_off = 0 THEN 'OFF' ELSE 'ON' END) as 'SF TEMP ON/OFF Status', "
                 . "GROUP_CONCAT(employee.full_name) as 'Account Manager Name', booking_details.current_status as 'Booking Status', booking_details.partner_current_status as 'Partner Status Level 1', "
                 . "booking_details.partner_internal_status as 'Partner Status Level 2',"
                 . "spare_parts_details.status as 'Spare Status', (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as 'Spare Warranty Status', (CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Approved' ELSE 'Not Approved' END) as 'NRN Status', DATE_FORMAT(service_center_closed_date,'%d-%b-%Y') as 'Service Center Closed Date', DATE_FORMAT(booking_details.closed_date,'%d-%b-%Y') as 'Final Closing Date', DATE_FORMAT(spare_parts_details.spare_cancelled_date,'%d-%b-%Y')   as 'Spare Part Cancellation Date', bcr.reason as 'Spare Cancellation Reason', booking_details.request_type as 'Booking Request Type', spare_parts_details.model_number as 'Requested Model Number',spare_parts_details.parts_requested as 'Requested Part',"
@@ -9195,7 +9195,7 @@ class Inventory extends CI_Controller {
         $spare_id_array = $this->input->post("spare_id_array");
         if (!empty($spare_id_array)) {
             $spare_ids = implode(',', $spare_id_array);
-            $select = 'spare_parts_details.booking_id,oow_spare_invoice_details.id,oow_spare_invoice_details.invoice_id,oow_spare_invoice_details.spare_id,oow_spare_invoice_details.invoice_date,oow_spare_invoice_details.hsn_code,oow_spare_invoice_details.invoice_amount as total_invoice_amount,oow_spare_invoice_details.gst_rate,oow_spare_invoice_details.invoice_pdf';
+            $select = 'spare_parts_details.booking_id,oow_spare_invoice_details.id,oow_spare_invoice_details.invoice_id,oow_spare_invoice_details.spare_id,oow_spare_invoice_details.invoice_date,oow_spare_invoice_details.hsn_code, oow_spare_invoice_details.invoice_amount as total_invoice_amount,oow_spare_invoice_details.gst_rate,oow_spare_invoice_details.invoice_pdf';
             $where = array("spare_parts_details.id IN(" . $spare_ids . ")" => NULL);
             $oow_invoice_data = $this->inventory_model->get_spare_invoice_details($select, $where);
             $invoice_details = array();
@@ -9206,12 +9206,16 @@ class Inventory extends CI_Controller {
                 $invoice_details[$key]['invoice_id'] = $val['invoice_id'];
                 $invoice_details[$key]['booking_id'] = $val['booking_id'];
                 $invoice_details[$key]['invoice_date'] = $val['invoice_date'];
-
                 $hsn_code_arr = $this->inventory_model->get_hsn_code_details('hsn_code_details.id,'
                         . 'hsn_code_details.hsn_code,hsn_code_details.gst_rate',
                         array('hsn_code_details.id' => $val['hsn_code']));
+                if(!empty($hsn_code_arr)){
+                    $invoice_details[$key]['hsn_code'] = $hsn_code_arr[0]['hsn_code'];
+                } else {
+                    $invoice_details[$key]['hsn_code'] = NULL;
+                }
 
-                $invoice_details[$key]['hsn_code'] = $hsn_code_arr[0]['id'];
+                
                 $invoice_details[$key]['gst_rate'] = $val['gst_rate'];
                 $invoice_details[$key]['invoice_pdf'] = $val['invoice_pdf'];
                 $invoice_details[$key]['invoice_amount'] = $val['total_invoice_amount'] - $tax_amount;
