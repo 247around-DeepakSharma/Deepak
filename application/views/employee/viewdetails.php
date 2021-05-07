@@ -637,8 +637,12 @@
                             <td style="width: 50%;">
                                 <select class="form-control add_new_file" id="file_description_<?=$count?>"  name="file_description" style="width:40%" >
                                     <option selected disabled>Select File Type</option>
-                                    <?php if(!empty($file_type)) {
-                                        foreach($file_type as $val) { ?>
+                                    <?php if(!empty($file_type)) {                       
+                                            foreach($file_type as $val) {
+                                                if(($val['id'] == ANNUAL_MAINTENANCE_CONTRACT) && (trim($booking_history[0]['request_type']) != WARRANTY_TYPE_AMC)){                                               
+                                                    continue;
+                                                }
+                                    ?>
                                     <option value="<?=$val['id']?>" ><?=$val['file_type']?></option>
                                     <?php  }
                                     } ?>
