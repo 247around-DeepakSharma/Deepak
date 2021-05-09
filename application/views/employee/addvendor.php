@@ -999,7 +999,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <input type="text" class="form-control blockspacialchar" 
                                                style="text-transform:uppercase" 
-                                               id="msme_no" name="msme_no" placeholder="MSME Number" value = "<?php
+                                               id="msme_no" name="msme_no" placeholder="MSME Number"<?php if (isset($query[0]['msme_no']) && $query[0]['msme_no'] != '' && $readonly) { echo 'disabled tabindex="-1"'; } ?> value = "<?php
                                             if (isset($query[0]['msme_no'])) {
                                                 echo $query[0]['msme_no'];
                                             }
@@ -1009,13 +1009,13 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                 </div>
                                 <div class="col-md-4" style="margin-left:40px; margin-top:10px;">
                                     <div class="form-group">
-                                        <!--                                        <label  for="pan_file" class="col-md-4">PAN File :</label>-->
-                                        <input type="file" class="form-control"  id="msme_file" name="msme_file" value = "<?php
+                                                  
+                                        <input type="file" class="form-control"  id="msme_file" name="msme_file" <?php if (isset($query[0]['msme_no']) && $query[0]['msme_no'] != '' && $readonly) { echo 'disabled tabindex="-1"'; } ?> value = "<?php
                                             if (isset($query[0]['msme_file'])) {
                                                 echo $query[0]['msme_file'];
                                             }
                                             ?>">
-                                            <input type="hidden" id="pan_file_hd" name="msme_file_hd" value = "<?php
+                                            <input type="hidden" id="msme_file_hd" name="msme_file_hd" value = "<?php
                                                 if (isset($query[0]['msme_file'])) {
                                                     echo $query[0]['msme_file'];
                                                 }
@@ -1933,7 +1933,7 @@ $(document).ready(function () {
         var sub_gst_no = gst_no.substr(2, 10);
         if(company_type != 'Proprietorship Firm'){
             if(sub_gst_no != pan_no){
-             alert("Please enter correct GST number"); 
+             alert("PAN number should be a part of GST"); 
              return false;
             }
         }
@@ -1956,18 +1956,20 @@ $(document).ready(function () {
                    alert('Please enter PAN Name with Pan Number');
                    return false;
                 }
-                if($('#pan_no').val() != ''  && $("#pan_file")[0].files.length == 0){
-                   alert('Please Enter PAN File');
-                   return false;
-                }
                 if(pan_no.length != 10){
                    alert('Please Enter Correct PAN Number');
                    return false;
                 }
+                if($('#pan_file_hd').val() == ''){
+                   if($('#pan_no').val() != ''  && $("#pan_file")[0].files.length == 0){
+                      alert('Please Enter PAN File');
+                      return false;
+                    }
                 
-                if($('#name_on_pan').val() != ''  && $("#pan_file")[0].files.length == 0){
-                   alert('Please Enter PAN File');
-                   return false;
+                    if($('#name_on_pan').val() != ''  && $("#pan_file")[0].files.length == 0){
+                      alert('Please Enter PAN File');
+                      return false;
+                    }
                 }
    
                 if($("#pan_file")[0].files.length != '' && ($('#name_on_pan').val() == 0 || $('#pan_no').val() == 0 )) {
@@ -1983,11 +1985,12 @@ $(document).ready(function () {
                    alert('Please Enter Correct GST Number');
                    return false;
                 }
-  
-                if($('#gst_no').val() != '' && $("#gst_file")[0].files.length== 0){
-                   alert("Please Upload GST File");
-                   return false; 
-               }  
+                if($('#gst_file_hd').val() == ''){
+                   if($('#gst_no').val() != '' && $("#gst_file")[0].files.length== 0){
+                       alert("Please Upload GST File");
+                       return false; 
+                    } 
+                }
                 if($('#gst_no').val() == '' && $("#gst_file")[0].files.length != 0){
                    alert("Please Upload GST Number");
                    return false;
@@ -1997,13 +2000,14 @@ $(document).ready(function () {
                        alert('Please enter correct MSME Number'); 
                        return false;
                    }
-               
-                if($('#msme_no').val() != '' && $("#msme_file")[0].files.length == 0){
-                   alert("Please Upload MSME File");
-                   return false;
-               }  
+               if($('#msme_file_hd').val() == ''){
+                   if($('#msme_no').val() != '' && $("#msme_file")[0].files.length == 0){
+                      alert("Please Upload MSME File");
+                      return false;
+                    }
+               }
                 if($('#msme_no').val() == '' && $("#msme_file")[0].files.length != 0){
-                   alert("Please Upload MSME Nuber");
+                   alert("Please Upload MSME Number");
                    return false;
                }
    });
@@ -2429,6 +2433,19 @@ $(document).ready(function () {
             $('#'+container+' #gst_file').css('background-color','');
             $('#'+container+' a[title="Remove Image"]').css('display','none');
         }
+         if($('#'+container+' #msme_no').val() != ''){
+            $('#'+container+' #msme_no').css('pointer-events', 'none');
+            $('#'+container+' #msme_no').attr('readonly');
+            $('#'+container+' #msme_no').css('background-color','');
+        }
+        
+        if($('#'+container+' #msme_file_hd').val() != ''){
+            $('#'+container+' #msme_file').css('pointer-events', 'none');
+            $('#'+container+' #msme_file').attr('readonly');
+            $('#'+container+' #msme_file').css('background-color','');
+            $('#'+container+' a[title="Remove Image"]').css('display','none');
+        }
+        
               
         if($('#'+container+' #signature_file_hd').val() != ''){
             $('#'+container+' #signature_file').css('pointer-events', 'none');
