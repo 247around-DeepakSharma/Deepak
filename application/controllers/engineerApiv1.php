@@ -3746,8 +3746,14 @@ class engineerApiv1 extends CI_Controller {
             $repeat_booking_message = false;
             $price_tag_real = $this->booking_utilities->get_booking_request_type($price_tags);
             
-            
-            
+            $booking_create_date = date('Y-m-d', strtotime($booking_history[0]['booking_create_date']));
+            if (strtotime($requestData['purchase_date']) > strtotime($booking_create_date)) {
+                $response['warranty_flag'] = 1;
+                $this->jsonResponseString['response'] = $response;
+                $this->sendJsonResponse(array('0055', "Booking purchase date can not be greater than booking create date."));
+                exit;
+            }
+
             if(!empty($serial_number)){
                 $check_serial = $this->checkVaidationOnSerialNumber($partner_id, $serial_number, $price_tag_real, $user_id, $booking_id, $appliance_id, $model_number);
                 if ($check_serial['code'] != 0000) {

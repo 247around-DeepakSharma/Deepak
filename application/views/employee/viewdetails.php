@@ -640,8 +640,12 @@
                             <td style="width: 50%;">
                                 <select class="form-control add_new_file" id="file_description_<?=$count?>"  name="file_description" style="width:40%" >
                                     <option selected disabled>Select File Type</option>
-                                    <?php if(!empty($file_type)) {
-                                        foreach($file_type as $val) { ?>
+                                    <?php if(!empty($file_type)) {                       
+                                            foreach($file_type as $val) {
+                                                if(($val['id'] == ANNUAL_MAINTENANCE_CONTRACT) && (trim($booking_history[0]['request_type']) != WARRANTY_TYPE_AMC)){                                               
+                                                    continue;
+                                                }
+                                    ?>
                                     <option value="<?=$val['id']?>" ><?=$val['file_type']?></option>
                                     <?php  }
                                     } ?>
@@ -1465,7 +1469,6 @@
                     </div>
                 </div>
             </div>
-           
                 <?php if($engineer_action_not_exit) { ?>
 <div class="tab-pane fade in" id="tab6">
                 <div class="row">
@@ -1510,11 +1513,13 @@
                             <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $signature_details[0]['signature'];?>" target="_blank">Click Here</a></td>
                             <td><?php echo date("d-M-Y", strtotime($signature_details[0]['closed_date'])); ?></td>
                             <td><?php echo $signature_details[0]['address']; ?></td>
-                            <?php if($booking_history[0]['internal_status'] == 'InProcess_Completed') {?>
+                            <?php if($unit_details[0]['en_internal_status'] === 'Completed' || $booking_history[0]['internal_status'] == 'InProcess_Completed') {?>
                                 <td><?php echo $signature_details[0]['remarks']; ?></td>
-                            <?php } else { ?>
+                            <?php } else if($unit_details[0]['en_internal_status'] === 'Cancelled' || $booking_history[0]['internal_status'] == 'InProcess_Cancelled'){ ?>
                                 <td><?php echo $signature_details[0]['cancellation_remark']; ?></td>
-                            <?php } ?>
+                            <?php } else{?>
+                                <td></td>
+                            <?php }?>
                             
                         </tr>
                        
