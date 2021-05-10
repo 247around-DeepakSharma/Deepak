@@ -5957,7 +5957,7 @@ class vendor extends CI_Controller {
      * This function use upload MSME file 
      */
     function msme_file_upload(){
-        if (($_FILES['msme_file']['error'] != 4) && !empty($_FILES['msme_file']['tmp_name'])) {
+        if ((!empty($_FILES['msme_file']['error']) != 4) && !empty($_FILES['msme_file']['tmp_name'])) {
             //Adding file validation
             $checkfilevalidation = 1;
             if ($checkfilevalidation) {
