@@ -310,7 +310,7 @@ class Validate_serial_no {
             foreach ($data as $key =>$value) {
                 $booking_details = $this->MY_CI->booking_model->get_bookings_count_by_any('user_id', array('booking_id' => $value['booking_id']));
                 // Check if Service is same
-                if($arr_booking_date[0]['service_id'] != $value['service_id']){
+                if(($arr_booking_date[0]['service_id'] != $value['service_id']) && ($arr_booking_date[0]['partner_id'] == $value['partner_id'])){
                     $msg = "Same Serial number is used against different Appliance in Booking ID - ".$value['booking_id'];
                     $isDuplicate = TRUE;
                     break;
