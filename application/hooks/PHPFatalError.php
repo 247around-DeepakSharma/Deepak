@@ -36,9 +36,11 @@ function handleShutdown() {
         $msg .= "<br><br><br>";
         $msg .= "<b>Session :</b>";
         $msg .= json_encode($CI->session->userdata);
-        $msg .= "<br><br><br>";
-        $msg .= "<b>Referrer :</b>";
-        $msg .= $CI->agent->referrer();
+        if(!empty($CI->agent->referrer())){
+            $msg .= "<br><br><br>";
+            $msg .= "<b>Referrer :</b>";
+            $msg .= $CI->agent->referrer();
+        }
         $CI->email->message($msg);
         $CI->email->send();
         exit();
