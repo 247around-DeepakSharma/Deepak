@@ -144,7 +144,7 @@
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/accounting/download_payment_account_ledger',
-            data: {vendor_id : service_centre_id, date_range : date_range},
+            data: {vendor_id : service_centre_id, date_range : date_range, vendor_partner: 'vendor'},
             success: function (data) {
                 $('#download_invoice_data').html("Submit..").attr('disabled',false);
                 var obj = JSON.parse(data); 
