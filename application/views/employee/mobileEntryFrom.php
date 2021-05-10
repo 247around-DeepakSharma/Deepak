@@ -184,7 +184,7 @@
                             ?>
                             <label class="label label-primary tooltip-info">
                                 <span class="name-text"><?= (strlen($first_name) > 6) ? substr($first_name,0,6).'...' : $first_name ?></span>
-                                <span class="badge"><?= ($key % 5 == 0) ? '100': $value['total'] ?></span>
+                                <span class="badge"><?= $value['total'] ?></span>
                                 <span class="tooltiptext-info"><?= $value['agent'] ?></span>
                             </label>
                         <?php } ?>
