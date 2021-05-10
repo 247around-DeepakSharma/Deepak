@@ -495,9 +495,10 @@ class Service_centers_model extends CI_Model {
     }
 
 
-    function get_spare_parts_booking($where, $select, $group_by = false, $order_by = false, $offset = false, $limit = false,$state=0,$download=NULL,$post=array()){
-        $this->_spare_parts_booking_query($where, $select,$state);
-
+    function get_spare_parts_booking($where, $select, $group_by = false, $order_by = false, $offset = false, $limit = false,$state=0,$download=NULL,$post=array(), $join_flag = false){
+       
+        $this->_spare_parts_booking_query($where, $select,$state, $join_flag);
+ 
         if (!empty($post['search_value'])) {
             $like = "";
             foreach ($post['column_search'] as $key => $item) { // loop column 
