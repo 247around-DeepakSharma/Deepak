@@ -177,4 +177,6 @@ define('MSL_HANDLING_CHARGES', 'msl-handling-charges');
 define('LOGISTIC_HANDLING_TYPE', 1);
 // MSL Handling Charges
 define('MSL_HANDLING_TYPE', 2);
+// FOC INVOICE MIN THRESHOLD
+define('FOC_MIN_INVOICE_LIMIT', 50);
 ?>

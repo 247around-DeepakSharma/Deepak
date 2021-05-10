@@ -2950,7 +2950,7 @@ exit();
                 }
             }   
                 
-            if ($invoices['meta']['sub_total_amount'] > 0) {
+            if ($invoices['meta']['sub_total_amount'] > FOC_MIN_INVOICE_LIMIT) {
 
                 if (isset($details['invoice_id'])) {
                     log_message('info', __METHOD__ . ": Invoice Id re- geneterated " . $details['invoice_id']);
@@ -2976,7 +2976,9 @@ exit();
                     log_message('info', __FUNCTION__ . ' Invoice File did not create. invoice id' . $invoices['meta']['invoice_id']);
                     return FALSE;
                 }
-            } else {
+            } else if ($invoices['meta']['sub_total_amount'] < FOC_MIN_INVOICE_LIMIT) {
+                $this->session->set_userdata(array('error' => "We are not generting invoice beacuse of invoice amount less than Rs. ".FOC_MIN_INVOICE_LIMIT));
+            }else {
                 //Negative Amount Invoice
                 $this->session->set_userdata(array('error' => "Vendor has negative invoice amount"));
                 if($invoice_type == "final"){
