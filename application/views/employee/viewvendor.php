@@ -277,7 +277,7 @@
         <div class="modal-dialog">
 
             <!-- Modal content-->
-            <div class="modal-content">
+            <div class="modal-content" id="datacontainer">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                     <h4 class="modal-title">Active/De-active History View</h4>
@@ -628,3 +628,9 @@
     }
 });
 </script>
+<style>
+    #datacontainer{
+        width:900px !important;
+       
+    }
+</style>

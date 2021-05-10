@@ -3420,21 +3420,7 @@ function get_data_for_partner_callback($booking_id) {
     function get_courier_lost_parts_details($spare_id_array) {
         $sql = "Select * from courier_lost_spare_status where spare_id in (".implode(',', $spare_id_array).") order by spare_id asc, create_date asc";
         return $query = $this->db->query($sql)->result_array();
-    }
-  /*
-   * Author:Deepak Sharma
-   * This function use for partner_id using booking_id
-   * @param :$booking_id
-   */
-    function  partner_details($booking_id = ''){
-         $sql = "SELECT 
-             booking_details.partner_id
-             FROM booking_details
-             WHERE booking_id = '$booking_id'";   
-             $query = $this->db->query($sql);
-             $result = $query->result_array();
-             return  $result;
-    }
-
+   }
+    
 }
 

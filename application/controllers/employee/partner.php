@@ -121,7 +121,7 @@ class Partner extends CI_Controller {
     /**
      * @desc: this is used to display completed booking for specific service center
      */
-    function closed_booking($status, $state_code="all", $offset = 0, $booking_id = "",$start_date1='',$end_date2='') {
+    function closed_booking($status, $state_code="all", $booking_id = "",$start_date1='',$end_date2='',$offset = 0) {
  
         $date = $this->input->post('completion_date'); 
         if(!empty($start_date1) && !empty($end_date2) ){
@@ -151,10 +151,10 @@ class Partner extends CI_Controller {
             $stateCity = 1;
         }
         if(!empty($booking_id)){
-            $config['base_url'] = base_url() . 'partner/closed_booking/' . $status.'/'.$state_code.'/0/' .$booking_id.'/'.$startDate.'/'.$endDate;  
+            $config['base_url'] = base_url() . 'partner/closed_booking/' . $status.'/'.$state_code.'/' .$booking_id.'/'.$startDate.'/'.$endDate;  
         }
         else{
-              $config['base_url'] = base_url() . 'partner/closed_booking/' . $status.'/'.$state_code.'/0/0/'.$startDate.'/'.$endDate;
+            $config['base_url'] = base_url() . 'partner/closed_booking/' . $status.'/'.$state_code.'/0/'.$startDate.'/'.$endDate;  
         }
       
         if (!empty($booking_id)) {
