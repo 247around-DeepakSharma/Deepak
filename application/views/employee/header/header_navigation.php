@@ -193,9 +193,8 @@
             <!-- /.navbar-header -->
             <?php 
             if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == 'admin'){  ?>
-            <!-- <li><a target="_blank" href="https://forms.gle/Bbvh95cKXDHQcWB8A" >Feature Requirement</a></li> -->
+            <li><a target="_blank" href="https://forms.gle/Bbvh95cKXDHQcWB8A" >Feature Requirement</a></li>
             <?php } ?>
-            <li><a target="_blank" href="<?php echo base_url();?>mobile_entry" >Mobile Entry</a></li>
             <li><a style="color:#00ff7e;font-weight:900;cursor:pointer;" id="myBtn" data-toggle="modal" data-target="#myModalCovid" >COVID-19</a></li>
             </ul>
         
