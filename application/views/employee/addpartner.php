@@ -6281,6 +6281,7 @@ $(document).ready(function () {
          data:{ 
             'gst_no':GST_no,'id':id},
          success: function(msg){
+            var msg = msg.trim();
             if(msg == 'true'){
               alert('Please Enter Valid GST Number ');
               $("#submit_document_btn").attr('disabled',true);
