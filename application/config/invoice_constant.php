@@ -178,4 +178,14 @@ define('MSL_HANDLING_CHARGES', 'msl-handling-charges');
 define('LOGISTIC_HANDLING_TYPE', 1);
 // MSL Handling Charges
 define('MSL_HANDLING_TYPE', 2);
+// FOC INVOICE MIN THRESHOLD
+define('FOC_MIN_INVOICE_LIMIT', 50);
+//Buyback TV HSN CODE
+define('BUYBACK_TV_HSN_CODE', '852872');
+//Buyback AC HSN CODE
+define('BUYBACK_AC_HSN_CODE', '841510');
+//Buyback Ref HSN CODE
+define('BUYBACK_REF_HSN_CODE', '841821');
+//Buyback WASCHING MACHINE HSN CODE
+define('BUYBACK_WM_HSN_CODE', '845011');
 ?>

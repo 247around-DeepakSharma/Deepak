@@ -2533,10 +2533,10 @@ class invoices_model extends CI_Model {
             $select = " COUNT(bb_unit_details.id) as qty, SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
                 THEN (round(bb_unit_details.cp_claimed_price,2)) 
                 ELSE (round(bb_unit_details.cp_basic_charge + cp_tax_charge,2)) END ) AS taxable_value, concat('Used ',services) as description, 
-                CASE WHEN (bb_unit_details.service_id = '"._247AROUND_TV_SERVICE_ID."') THEN (8528) 
-                WHEN (bb_unit_details.service_id = '"._247AROUND_AC_SERVICE_ID."') THEN (8415)
-                WHEN (bb_unit_details.service_id = '"._247AROUND_WASHING_MACHINE_SERVICE_ID."') THEN (8450)
-                WHEN (bb_unit_details.service_id = '"._247AROUND_REFRIGERATOR_SERVICE_ID."') THEN (8418) ELSE '' END As hsn_code, owner_phone_1, gst_no,
+                CASE WHEN (bb_unit_details.service_id = '"._247AROUND_TV_SERVICE_ID."') THEN ('".BUYBACK_TV_HSN_CODE."') 
+                WHEN (bb_unit_details.service_id = '"._247AROUND_AC_SERVICE_ID."') THEN ('".BUYBACK_AC_HSN_CODE."')
+                WHEN (bb_unit_details.service_id = '"._247AROUND_WASHING_MACHINE_SERVICE_ID."') THEN ('".BUYBACK_REF_HSN_CODE."')
+                WHEN (bb_unit_details.service_id = '"._247AROUND_REFRIGERATOR_SERVICE_ID."') THEN ('".BUYBACK_WM_HSN_CODE."') ELSE '' END As hsn_code, owner_phone_1, gst_no,
                 sc.company_name, sc.address as company_address, sc.state,
                 sc.owner_email, sc.primary_contact_email, sc.owner_phone_1, sc.is_buyback_gst_invoice";
             $group_by = " GROUP BY bb_unit_details.service_id ";
