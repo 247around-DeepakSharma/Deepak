@@ -27,7 +27,7 @@
 
 
             <tr style="text-align: center; height: 50px; font-size: 40px;background-color: rgb(211,211,211);">	
-                <td colspan="10" style="text-align: center; height: 50px; font-size: 40px;"><b>Tax Invoice</b></tr>
+                <td colspan="10" style="text-align: center; height: 50px; font-size: 40px;"><b><?php echo $meta['invoice_type']; ?></b></tr>
 
 
             <tr><td colspan="4">Invoice No:<?php echo $meta['invoice_id']; ?></td>		
