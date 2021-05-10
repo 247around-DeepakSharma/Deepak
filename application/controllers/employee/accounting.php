@@ -2207,7 +2207,7 @@ class Accounting extends CI_Controller {
                     
                     $ledger = $this->inventory_model->call_procedure('payment_account_ledger',"'$vendor_id','$from_date', '$to_date', '$vendor_partner'");
                     $merged = array_merge($c, $ledger);
-                     
+                    $meta = array();
                     if($vendor_partner === "vendor"){
                         $entity_details = $this->vendor_model->getVendorDetails("*", array('id' => $vendor_id));
                         if (!empty($entity_details[0]['gst_no']) 
@@ -2222,7 +2222,6 @@ class Accounting extends CI_Controller {
                         $meta['gst_no'] = $entity_details[0]['gst_number'];
                     }
                     
-                    $meta = array();
                     
                     $meta['company_name'] =$entity_details[0]['company_name'];
                     $meta['company_address'] = $entity_details[0]['address'] . "," 
