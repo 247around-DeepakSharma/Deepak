@@ -1012,7 +1012,16 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                                 } ?>" placeholder="PAN Number">
                                         </div>
                                         <div class="col-md-4">  
-                                            <input type="file" class="form-control" id = "pan_file_1" name="pan_file" <?php if (isset($query[0]['pan']) && $query[0]['pan'] != '' && $readonly) { echo 'disabled tabindex="-1"'; } ?>>
+                                            <input type="file" class="form-control" id = "pan_file_1" name="pan_file" <?php if (isset($query[0]['pan']) && $query[0]['pan'] != '' && $readonly) { echo 'disabled tabindex="-1"'; } ?> value = "<?php
+                                                if (isset($query[0]['gst_number_file'])) {
+                                                    echo $query[0]['gst_number_file'];
+                                                }
+                                                ?>">
+                                            <input type="hidden" id="pan_file_hd" name="pan_file_hd" value = "<?php
+                                                if (isset($query[0]['pan_file'])) {
+                                                    echo $query[0]['pan_file'];
+                                                }
+                                                ?>"/>
                                         </div>
                                         <div class="col-md-1">
                                             <?php
@@ -1168,7 +1177,16 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                                 } ?>" readonly="readonly">
                                         </div>
                                         <div class="col-md-3">
-                                            <input type="file" class="form-control" id = "gst_file" name="gst_number_file" <?php if (isset($query[0]['gst_number'])  && $readonly) { echo 'disabled tabindex="-1"'; } ?>>
+                                            <input type="file" class="form-control" id = "gst_file" name="gst_number_file" <?php if (isset($query[0]['gst_number'])  && $readonly) { echo 'disabled tabindex="-1"'; } ?> value = "<?php
+                                                if (isset($query[0]['gst_number_file'])) {
+                                                    echo $query[0]['gst_number_file'];
+                                                }
+                                                ?>">
+                                            <input type="hidden" id="gst_file_hd" name="gst_file_hd" value = "<?php
+                                                if (isset($query[0]['gst_number_file'])) {
+                                                    echo $query[0]['gst_number_file'];
+                                                }
+                                                ?>"/>
                                         </div>
                                         <div class="col-md-1">
                                             <?php
@@ -6224,33 +6242,12 @@ $(document).ready(function () {
         var sub_gst_no = GST_no.substr(2, 10);
         if(company_type != 'Proprietorship Firm'){
             if(sub_gst_no != pan_no){
-             alert('Please enter correct GST Number'); 
+             alert('PAN number should be a part of GST'); 
              return false;
             }
         }
-      }
-        if( pan_no == '' && pan_file != ''){
-           alert ("Please Enter  PAN number");
-           return false;}
-       if( pan_no != '' &&  pan_file == 0){
-            alert ("Please Enter PAN number file");
-           return false;}
-       if (pan_no == '' &&  pan_file == 0 ) {
-             alert ("Please Enter PAN Details");
-           return false;}
-       var gst_exp = /[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}/;
-       if($("#gst_number").val() != '' && !GST_no.match(gst_exp)){
-             alert('Please enter correct GST Number'); 
-             return false;
-        }
-       
-        if( GST_no != '' &&  GST_file == 0){
-            alert ("Please Enter GST number file");
-           return false;}
-        if(GST_file!= '' &&  GST_no == 0){
-            alert ("Please Enter GST number");
-           return false;}
-        if($("#pan_no").val() != ''){
+      } 
+      if($("#pan_no").val() != ''){
           var pan_exp = /[a-zA-z]{5}\d{4}[a-zA-Z]{1}/;
           var pan_no = $("#pan_no").val();
          if(pan_no.length != 10){
@@ -6263,6 +6260,33 @@ $(document).ready(function () {
            }
          }
        }  
+        if( pan_no == '' && pan_file != ''){
+           alert ("Please Enter  PAN Number");
+           return false;}
+       if($('#pan_file_hd').val() == '' ){
+           if( pan_no != '' &&  pan_file == 0){
+              alert ("Please Enter PAN file");
+              return false;
+          }
+        }
+       if (pan_no == '' &&  pan_file == 0 ) {
+             alert ("Please Enter PAN Details");
+             return false;
+       }
+       var gst_exp = /[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}/;
+       if($("#gst_number").val() != '' && !GST_no.match(gst_exp)){
+             alert('Please enter correct GST Number'); 
+             return false;
+        }
+      if($('#gst_file_hd').val() == '' ){
+          if( GST_no != '' &&  GST_file == 0){
+              alert ("Please Enter GST number file");
+              return false;
+          }
+      }
+        if(GST_file!= '' &&  GST_no == 0){
+            alert ("Please Enter GST number");
+           return false;}
    });
    });
    // Author:Deepak Sharma 
@@ -6281,6 +6305,7 @@ $(document).ready(function () {
          data:{ 
             'gst_no':GST_no,'id':id},
          success: function(msg){
+            var msg = msg.trim();
             if(msg == 'true'){
               alert('Please Enter Valid GST Number ');
               $("#submit_document_btn").attr('disabled',true);
