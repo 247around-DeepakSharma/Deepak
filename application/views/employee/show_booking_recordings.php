@@ -20,7 +20,15 @@
                     <td><?php echo date("d-M-Y", strtotime($row['create_date'])); ?></td>
                     <td><?php echo $row['full_name']; ?></td>
                     <td><?php echo $row['display_name']; ?></td>
-                    <td><a href="<?php echo $row['recording_url']; ?>" target="_blank"><span class="fa fa-microphone fa-2x" style="display: block;float:left;" ></span></a></td>                    
+                    <td>
+                        <?php if(!empty($row['recording_url'])) { ?>
+                            <a href="<?php echo $row['recording_url']; ?>" target="_blank">
+                                <span class="fa fa-microphone fa-2x" style="display: block;float:left;" ></span>
+                            </a>
+                        <?php } elseif(!empty($row['status'])) {                             
+                            echo ucwords($row['status']);
+                        } ?>
+                    </td>                    
                 </tr>
             <?php } ?>
         </table>
