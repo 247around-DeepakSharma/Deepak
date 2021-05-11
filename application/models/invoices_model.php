@@ -3466,7 +3466,9 @@ class invoices_model extends CI_Model {
                             $d['tat_data']['archieved_percentage1'] = $d2['tat_data']['archieved_percentage'];
                             $d['tat_data']['local_upcountry'] = $l_u;
                             
-                            array_push($tat_data, $d['tat_data']);
+                            if($d['tat_data']['total_booking'] > 0){
+                                array_push($tat_data, $d['tat_data']);
+                            } 
                     }
                 }
         }
@@ -3524,7 +3526,16 @@ class invoices_model extends CI_Model {
                 $tat_condition[$key]['service_id'] = $service_id;
 
             }
-        } 
+        } else {
+            $tat_condition[$key]['booking_failed'] = 0;
+            $tat_condition[$key]['archieved_percentage'] = 0;
+            $tat_condition[$key]['penalty_amount'] = 0;
+            $tat_condition[$key]['basic_amount'] = $basic_amount;
+            $tat_condition[$key]['services'] = $services;
+            $tat_condition[$key]['remarks'] = "D" . $tat_with_in_days;
+            $tat_condition[$key]['target_acheived_per'] = $target_acheived_per;
+            $tat_condition[$key]['service_id'] = $service_id;
+        }
 
         return array('b_data' => $b_data, 'tat_data' => $tat_condition[$key]);
     }
