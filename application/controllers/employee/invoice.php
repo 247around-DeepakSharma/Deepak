@@ -3189,16 +3189,18 @@ exit();
                 $data['parts_count'] = $parts_count;
 
                 if ($data['vendor_partner'] == "vendor") {
-
-                    $entity_details = $this->vendor_model->viewvendor($data['vendor_partner_id']);
+                    $entity_details = $this->vendor_model->viewvendor($data['vendor_partner_id']);                    
                     
-                    
-                    if (!empty($entity_details[0]['gst_number']) 
-                    && !empty($entity_details[0]['gst_status']) 
-                    && !($entity_details[0]['gst_status'] == _247AROUND_CANCELLED || $entity_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
-                        $gst_number = $entity_details[0]['gst_no'];
+                    if($around_type == "A"){
+                        $gst_number = true;
                     } else {
-                        $gst_number = "";
+                        if (!empty($entity_details[0]['gst_number']) 
+                        && !empty($entity_details[0]['gst_status']) 
+                        && !($entity_details[0]['gst_status'] == _247AROUND_CANCELLED || $entity_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
+                            $gst_number = $entity_details[0]['gst_no'];
+                        } else {
+                            $gst_number = "";
+                        }
                     }
                     
                     
