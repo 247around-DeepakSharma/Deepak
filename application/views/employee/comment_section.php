@@ -27,14 +27,6 @@
         <button type="Submit" class="btn btn-primary" id="cancel_btn" value="Cancel" onclick="cancel();" >Cancel</button>
 
     </div>
-
-    <div class="col-md-12" id="update_section" style="display:none;">
-        <textarea rows="5"  class="form-control" id="comment2" name="comment2" required=""></textarea>
-        <br>
-        <button type="Submit" class="btn btn-primary" id="update_btn" value="Update" onclick="updateComment()" >Update</button>
-        <button type="Submit" class="btn btn-primary" id="cancel_btn" value="Cancel" onclick="cancel();" >Cancel</button>
-        <input type="hidden" id="comment_id" name="comment_id" value="">
-    </div>
 </div>
 <hr/>
 <table  class="table table-striped table-bordered table-hover">
@@ -49,12 +41,6 @@
                 $new_date = date('j F, Y g:i A', $old_date_timestamp);
                 echo $new_date;
                 ?>
-                    <button type="submit" title="Delete" style="float:right; border: hidden; background: rgba(0, 0, 0, 0);" onclick="deleteComment(<?php echo $row['id']?>);">
-                        <span style="float:right; color:#ccccb3" class="glyphicon glyphicon-remove"></span>
-                    </button> 
-                    <button type="submit" title="Edit" style="float:right; border: hidden; background: rgba(0, 0, 0, 0); " onclick="editComment('<?php echo $row['id']?>')" id="edit_btn" data-remarks="<?php echo $row['remarks']?>">
-                        <span style="float:right; color:#ccccb3" class="glyphicon glyphicon-pencil"></span>
-                    </button> 
                    
                 </p>
                 <strong id="<?php echo 'comment_text_'. $row['id'];?>"><?php echo $row['remarks']; ?></strong>

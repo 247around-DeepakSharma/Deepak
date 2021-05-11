@@ -54,6 +54,7 @@
                         <th>Purchase Invoice PDF</th>
                         <th>Sale Invoice Id</th>
                         <th>Create Purchase Invoice </th>
+                        <th>Comment</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -628,6 +629,78 @@ if (!empty($dashboard)) {
         }
     });
 
+</script>
+<!--comment Part  -->
+<input type="hidden" name="comment_booking_id" value="" id="comment_booking_id">
+<div id="commentModal" class="modal fade" role="dialog">
+      <div class="modal-dialog" style=" height: 90% !important;">
+          <!--Modal content-->
+         <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <br />
+          </div>
+            <div class="modal-body">
+                <div id="commentbox"></div>
+            </div>
+         </div>
+      </div>
+   </div>
+<script type="text/javascript">
+     function save_remarks(booking_id){
+        alert(booking_id);
+        $('#comment_booking_id').val(booking_id);
+        getcommentbox(3, booking_id); 
+        $('#commentModal').modal();       
+    }
+    function getcommentbox(type_val, booking_id){
+        $.ajax({
+            method: 'POST',
+            data: {comment_type:type_val},
+            url: '<?php echo base_url(); ?>employee/booking/get_comment_section/'+booking_id+'/'+type_val,
+            success: function (response) {
+                if(type_val == 3){
+                    document.getElementById("commentbox").innerHTML = response;                     
+                }   
+            }
+        });
+    }
+
+   function load_comment_area(){
+        $("#commentbox").children('form').next('div').children('#comment_section').show();
+        $("#commentbox").children('form').next('div').children('#update_section').hide();
+        //document.getElementById("comment_section").style.display='block';
+        $('#commnet_btn').hide();
+    }  
+    function addComment() {
+        var prethis = $(this);
+        var comment_type = 3;
+        var comment = $("#commentbox").children('form').next('div').children('#comment_section').children('#comment').val();
+        var booking_id = $('#comment_booking_id').val();
+  
+        if(comment != '') {
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/booking/addComment',
+             beforeSend: function(){
+                
+                 prethis.html('<i class="fa fa-circle-o-notch fa-lg" aria-hidden="true"></i>');
+             },
+            data: {comment_type : comment_type, comment: comment, booking_id: booking_id},
+            success: function (response) { 
+                if(response === "error"){
+                    alert('There is some issue. Please refresh and try again');
+                } else {
+                    document.getElementById("commentbox").innerHTML = response;
+                   // document.getElementById("spare_parts_commentbox").innerHTML = response;
+                }   
+            }
+            
+        });
+        } else {
+        alert("Please enter comments");
+        }
+    }
 </script>
 <style>
     .height-full-length
