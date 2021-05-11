@@ -2627,8 +2627,30 @@ class engineerApiv1 extends CI_Controller {
         log_message("info", __METHOD__ . " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $booking_id = $requestData['booking_id'];
+        $booking_details = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id, NULL, NULL,NULL);
+        $warranty_plan_id = $booking_details['booking_history'][0]['applied_warranty_plan_id'];
+        $arr_parts_in_warranty = $this->warranty_model->get_warranty_parts_type_list_code($warranty_plan_id);
+            $arr_parts_in_warranty = array_column($arr_parts_in_warranty, 'part_type');
+            $arr_parts_in_warranty = array_map(function ($rec_parts_in_warranty) {
+                return trim(strtolower($rec_parts_in_warranty));
+            }, $arr_parts_in_warranty);
+                   
+
         if (!empty($requestData["model_number_id"])) {
-            $response['partTypeList'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.type as part_type', array('model_number_id' => $requestData["model_number_id"], 'inventory_model_mapping.active' => 1, 'inventory_model_mapping.bom_main_part' => 1));
+            $partTypeList = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.type as part_type', array('model_number_id' => $requestData["model_number_id"], 'inventory_model_mapping.active' => 1, 'inventory_model_mapping.bom_main_part' => 1));
+            //Return part type and part type warranty status as per logic on CRM
+            foreach($response['partTypeList'] as $key => $value){
+                $part_type = $value['part_type'];
+                if (in_array(trim(strtolower($part_type)), $arr_parts_in_warranty)) {
+                    $response['partTypeList'][$key]['part_warranty'] = 1;
+                    $response['partTypeList'][$key]['part_type'] = $part_type;
+                }else{
+                    $response['partTypeList'][$key]['part_warranty'] = 2;
+                    $response['partTypeList'][$key]['part_type'] = $part_type;
+                }
+                
+            }
             log_message("info", __METHOD__ . "Part Type found successfully");
             $this->jsonResponseString['response'] = $response;
             $this->sendJsonResponse(array('0000', 'success'));
@@ -3466,7 +3488,7 @@ class engineerApiv1 extends CI_Controller {
             'EW' => ['Extended', 'AMC', 'Repeat', 'PDI', 'Tech Visit', 'Spare Cannibalization', 'Handling Charges']
         ];
         $arr_warranty_status_full_names = array('IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty');
-        $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];
+        $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id]['status'];
         // If no data found against warranty, consider booking as of Out Warranty
         if ($warranty_checker_status != 'IW' && $warranty_checker_status != 'EW'):
             $warranty_checker_status = "OW";
