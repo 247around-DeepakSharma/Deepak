@@ -2154,12 +2154,19 @@ class Accounting extends CI_Controller {
         $this->miscelleneous->load_nav_header();
         $this->load->view("employee/payment_account_ledger");
     }
+    
+    function get_partner_payment_account_ledger(){
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view("employee/partner_payment_account_ledger");
+    }
     /**
      * @desc this function is used to download payment account ledger
      */
     function download_payment_account_ledger() {
         $vendor_id = $this->input->post('vendor_id');
         $date_range = $this->input->post('date_range');
+        $vendor_partner = $this->input->post('vendor_partner');
         if (!empty($vendor_id)) {
             if (!empty($date_range)) {
                 $date_array = explode('-', $date_range);
@@ -2167,7 +2174,7 @@ class Accounting extends CI_Controller {
                     $from_date = date("Y-m-d", strtotime(trim($date_array[0])));
                     $to_date = date("Y-m-d", strtotime(trim($date_array[1]) . "+1 days"));
 
-                    $c_balance = $this->inventory_model->call_procedure('payment_account_balance', "'$vendor_id','$from_date'");
+                    $c_balance = $this->inventory_model->call_procedure('payment_account_balance', "'$vendor_id','$from_date', '$vendor_partner'");
                     $credit = (array_sum(array_column($c_balance, 'credit')));
                     $debit = (array_sum(array_column($c_balance, 'debit')));
                     $balance = $credit - $debit;
@@ -2182,19 +2189,24 @@ class Accounting extends CI_Controller {
                         $c[0]['debit'] = abs($balance);
                     }
                     
-                    $ledger = $this->inventory_model->call_procedure('payment_account_ledger',"'$vendor_id','$from_date', '$to_date'");
+                    $ledger = $this->inventory_model->call_procedure('payment_account_ledger',"'$vendor_id','$from_date', '$to_date', '$vendor_partner'");
                     $merged = array_merge($c, $ledger);
-                     
-                     
-                    $entity_details = $this->vendor_model->getVendorDetails("*", array('id' => $vendor_id));
                     $meta = array();
-                    if (!empty($entity_details[0]['gst_no']) 
+                    if($vendor_partner === "vendor"){
+                        $entity_details = $this->vendor_model->getVendorDetails("*", array('id' => $vendor_id));
+                        if (!empty($entity_details[0]['gst_no']) 
                         && !empty($entity_details[0]['gst_status']) 
                         && !($entity_details[0]['gst_status'] == _247AROUND_CANCELLED || $entity_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
                             $meta['gst_no'] = $entity_details[0]['gst_no'];
                         } else {
                             $meta['gst_no'] = "";
                         }
+                    } else {
+                        $entity_details = $this->partner_model->getpartner_details("gst_number, state, company_name, pincode, district, address", array('partners.id' => $vendor_id));
+                        $meta['gst_no'] = $entity_details[0]['gst_number'];
+                    }
+                    
+                    
                     $meta['company_name'] =$entity_details[0]['company_name'];
                     $meta['company_address'] = $entity_details[0]['address'] . "," 
                         . $entity_details[0]['district']  . ", Pincode: "
@@ -2203,7 +2215,7 @@ class Accounting extends CI_Controller {
                     $meta['file_period'] = date('Y/m/d', strtotime($from_date))." To ". date('Y/m/d', strtotime($date_array[1]));
                     
                     $template = "AccountStatementLeadger.xlsx";
-                    $n = $res = str_replace( array( '\'', '"',  ',' , ';', '<', '>', ' ' ), '', $entity_details[0]['company_name']); 
+                    $n = $res = str_replace( array( '\'', '"',  ',' , ';', '<', '>', ' ', '(', ')' ), '', $entity_details[0]['company_name']); 
                     $output_file_excel = $n.date('YmdHis').".xlsx";
                     $res = $this->invoice_lib->generate_invoice_excel($template, $meta, $merged, TMP_FOLDER.$output_file_excel);
                     if($res){
