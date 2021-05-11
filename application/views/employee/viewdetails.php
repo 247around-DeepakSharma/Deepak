@@ -82,12 +82,7 @@
 </div>
 <div class="btn-group" role="group">
     <button type="button" class="btn btn-default" href="#tab8" data-toggle="tab">
-<<<<<<< HEAD
         <div class="hidden-xs">Sms / Email</div>
-=======
-        <!--<div class="hidden-xs"><i class="fa fa-whatsapp" aria-hidden="true" style="color:green;"></i> SMS / Email</div>-->
-        <div class="hidden-xs">SMS / Email</div>
->>>>>>> f763ccfbc (Display No History Found in Whatsapp Log in view detail page# CRMS-2441)
     </button>
 </div>
 <div class="btn-group" role="group">
@@ -104,10 +99,6 @@
     <?php }  if($booking_history[0]['current_status'] != 'Cancelled' && isset($saas_module) && !$saas_module){?>
 <div class="btn-group" role="group">
     <button type="button" class="btn btn-default" href="#tab7" data-toggle="tab">
-<<<<<<< HEAD
-=======
-        <!--<div class="hidden-xs"><span style="color:#1f004d;font-weight: bold;">pay</span><span style="color:#008ae6;font-weight: bold;">tm</span> Transactions</div>-->
->>>>>>> f763ccfbc (Display No History Found in Whatsapp Log in view detail page# CRMS-2441)
         <div class="hidden-xs">Transactions</div>
     </button>
 </div>
@@ -769,26 +760,46 @@
                                          <td>-</td>
                                         <?php  } ?>
 
-                                        <td><?php echo date_format(date_create($sp['date_of_purchase']),'d-m-Y'); ?></td>
-                                        <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressinvoice_pic".$sp['id'] ?>" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['invoice_pic'])) {
-                                            if ($sp['invoice_pic'] != '0') {
-                                        ?> <a href="<?php echo S3_WEBSITE_URL; ?>purchase-invoices/<?php echo $sp['invoice_pic']; ?> " target="_blank" id="<?php echo "a_invoice_pic_".$sp['id']; ?>">Click Here</a> <?php } } ?> &nbsp;&nbsp;<i id="<?php echo "invoice_pic_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','invoice_pic');"></i>
+                                        <td><?php echo date_format(date_create($sp['date_of_purchase']),'d-M-Y'); ?></td>
+
+                                        <td>
+                                            <div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressinvoice_pic".$sp['id'] ?>" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['invoice_pic'])) {
+                                            if ($sp['invoice_pic'] != '0') { ?>
+                                                <a href="<?php echo S3_WEBSITE_URL; ?>purchase-invoices/<?php echo $sp['invoice_pic']; ?> " target="_blank" id="<?php echo "a_invoice_pic_".$sp['id']; ?>">Click Here</a>
+                                            <?php } } ?> &nbsp;&nbsp;
+                                            <?php if(($booking_history[0]['current_status'] != _247AROUND_COMPLETED) && ($booking_history[0]['current_status'] != _247AROUND_CANCELLED)) { ?>
+                                                <i id="<?php echo "invoice_pic_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','invoice_pic');"></i>
+                                            <?php } ?>
                                         </td>
-                                        <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressserial_number_pic".$sp['id'] ?>"  role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['serial_number_pic'])) {
+                                        <td>
+                                            <div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressserial_number_pic".$sp['id'] ?>"  role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['serial_number_pic'])) {
                                             if ($sp['serial_number_pic'] !== '0') {
-                                                ?> <a href="<?php echo S3_WEBSITE_URL; ?><?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $sp['serial_number_pic']; ?> " target="_blank" id="<?php echo "a_serial_number_pic_".$sp['id']; ?>">Click Here</a> &nbsp;&nbsp;<i id="<?php echo "serial_number_pic_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','serial_number_pic');"></i><?php }
+                                                ?> <a href="<?php echo S3_WEBSITE_URL; ?><?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $sp['serial_number_pic']; ?> " target="_blank" id="<?php echo "a_serial_number_pic_".$sp['id']; ?>">Click Here</a> &nbsp;&nbsp;
+                                                <?php if(($booking_history[0]['current_status'] != _247AROUND_COMPLETED) && ($booking_history[0]['current_status'] != _247AROUND_CANCELLED)) { ?>
+                                                    <i id="<?php echo "serial_number_pic_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','serial_number_pic');"></i>
+                                                <?php } ?>  
+                                                <?php }                                                    
                                             }
                                             ?>
                                         </td>
-                                        <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressdefective_parts_pic".$sp['id'] ?>"  role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['defective_parts_pic'])) {
+                                        <td>
+                                            <div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressdefective_parts_pic".$sp['id'] ?>"  role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['defective_parts_pic'])) {
                                             if ($sp['defective_parts_pic'] !== '0') {
-                                                ?> <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $sp['defective_parts_pic']; ?> " target="_blank" id="<?php echo "a_defective_parts_pic_".$sp['id']; ?>">Click Here</a>&nbsp;&nbsp;<i id="<?php echo "defective_parts_pic_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','defective_parts_pic');"></i><?php }
+                                                ?> <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $sp['defective_parts_pic']; ?> " target="_blank" id="<?php echo "a_defective_parts_pic_".$sp['id']; ?>">Click Here</a>&nbsp;&nbsp;
+                                                <?php if(($booking_history[0]['current_status'] != _247AROUND_COMPLETED) && ($booking_history[0]['current_status'] != _247AROUND_CANCELLED)) { ?>                                                    
+                                                    <i id="<?php echo "defective_parts_pic_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','defective_parts_pic');"></i>
+                                                <?php } ?>  
+                                            <?php }
                                             }
                                             ?>
                                         </td>
                                         <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressdefective_back_parts_pic".$sp['id'] ?>" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['defective_back_parts_pic'])) {
                                             if ($sp['defective_back_parts_pic'] !== '0') {
-                                                ?> <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $sp['defective_back_parts_pic']; ?> " target="_blank" id="<?php echo "a_defective_back_parts_pic_".$sp['id']; ?>">Click Here</a>&nbsp;&nbsp;<i id="<?php echo "defective_back_parts_pic_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','defective_back_parts_pic');"></i><?php }
+                                                ?> <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $sp['defective_back_parts_pic']; ?> " target="_blank" id="<?php echo "a_defective_back_parts_pic_".$sp['id']; ?>">Click Here</a>&nbsp;&nbsp;
+                                                <?php if(($booking_history[0]['current_status'] != _247AROUND_COMPLETED) && ($booking_history[0]['current_status'] != _247AROUND_CANCELLED)) { ?>                                                    
+                                                    <i id="<?php echo "defective_back_parts_pic_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','defective_back_parts_pic');"></i>
+                                                <?php } ?>      
+                                            <?php }
                                             }
                                             ?>
                                         </td>
