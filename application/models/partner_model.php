@@ -810,6 +810,34 @@ function get_data_for_partner_callback($booking_id) {
     }
 
     /**
+     * @desc: This function is to add/Edit KPI Managment
+     *
+     * KPI Managment details like- entity_id, lower_achivement_range, higher_achivement_range, penalty_percentage are added/edited.
+     *
+     * @param: $data
+     *          - KPI Managment details to be added.
+     *         $id
+     *          - Partner id
+     * @return: Boolean value for the new/Edit KPI Managment 
+     */
+
+    function process_tat_invoice_kpi_management($id,$entity_id,$data){
+        $result = $this->get_tat_invoice_kpi_management($entity_id);
+        if ($result) {
+            $this->db->where(array("id" => $id));
+            $this->db->update("tat_kpi_penalty_range", $data);
+            return TRUE;
+        } else {
+            $this->db->insert('tat_kpi_penalty_range', $data);
+            if($this->db->insert_id()){
+                return TRUE;
+            }else{
+                return FALSE;
+            }
+        }
+    }
+
+    /**
      * @desc: This function is to fetch single record TAT invoice condition
      *
      * @param: $id
@@ -828,6 +856,31 @@ function get_data_for_partner_callback($booking_id) {
         if (count($query->result_array()) > 0) {
         //Return partner details in case of success
           return $query->result_array()[0];
+        } else {
+          return FALSE;
+        }
+    }
+
+    /**
+     * @desc: This function is to fetch records of KPI Managment
+     *
+     * @param: $id
+     *          - Partner id
+     * @return: array for the TAT KPI Managment details 
+     */
+
+    function get_tat_invoice_kpi_management($id) {
+
+        //TODO: Deactivate partner account if auth token mismatch happens 3 or more times in a day
+        $this->db->select('id,entity_id,lower_achivement_range,higher_achivement_range,penalty_percentage');
+        $this->db->from("tat_kpi_penalty_range");
+        $this->db->where(array("entity_id" => $id));
+        
+        $query = $this->db->get();
+  
+        if (count($query->result_array()) > 0) {
+        //Return partner details in case of success
+          return $query->result_array();
         } else {
           return FALSE;
         }
