@@ -1109,7 +1109,7 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
                 $installation_date = $arrBooking[0]['purchase_date'];
                 $installation_booking = "";
                 if(!empty($booking_data[0]['service_center_closed_date'])){
-                    $installation_date = $booking_data[0]['service_center_closed_date'];
+                    $installation_date = date("Y-m-d", strtotime($booking_data[0]['service_center_closed_date']));
                     $installation_booking = $booking_data[0]['booking_id'];
                 }
                 $arrReturnData = ['installation_date' => $installation_date, 'installation_booking' => $installation_booking];
