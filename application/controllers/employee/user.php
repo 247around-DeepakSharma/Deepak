@@ -238,71 +238,6 @@ class User extends CI_Controller {
     }
 
     /**
-     * @desc : This function is used to load the view to mobile entry form
-     * 
-     */
-
-    function mobile_entry_form(){
-
-        $results['user_id'] = $this->session->userdata('id');
-        $results['emp_name'] = $this->session->userdata("emp_name");
-
-        $select = "Select count(entity_id) as total, entity ";
-        $where = "";
-        $result['group_by'] = " GROUP BY entity_id";
-        $result['order_by'] = " ORDER BY id";
-
-        $results['data'] = $this->user_model->getMobileEntry($select,$where,$result);
-        $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/mobileEntryFrom', $results);
-    }
-
-    /**
-     * @desc : This function is used to validate mobile number
-     * 
-     */
-
-    function process_mobile_number_validation(){
-
-        $mobile_number = $this->input->post('mobile_number');
-        $select = "Select * ";
-        $where = " WHERE mobile = '$mobile_number'";
-        $result['group_by'] = "";
-        $result['order_by'] = "";
-
-        $results['data'] = $this->user_model->getMobileEntry($select,$where,$result);
-
-        if($results['data']){
-            echo true;
-        }else{
-            echo false;
-        }
-    }
-
-    /**
-     * @desc : This function is used to save mobile entry data
-     * 
-     */
-
-    function save_mobile_entry_data(){
-
-        $post['entity_id'] = $this->input->post('entity_id');
-        $post['entity'] = $this->input->post('entity');
-        $post['fullname'] = $this->input->post('fullname');
-        $post['mobile'] = $this->input->post('mobile_number');
-        $post['brand_name'] = $this->input->post('brand_name');
-        $post['created_date'] = date("Y-m-d H:i:s");
-        //save the data
-        $user_id = $this->user_model->save_mobile_entry($post);
-        if($user_id){
-            echo TRUE;
-        }else{
-            echo FALSE;
-        }
-
-    }
-
-    /**
      * @desc : This function is used to add a new user
      *
      * @param : void
@@ -1539,9 +1474,12 @@ class User extends CI_Controller {
         if (!empty($booking_id)) {
             $arrBookings = $this->warranty_utilities->get_warranty_specific_data_of_bookings(array($booking_id));
             if (!empty($arrBookings)) {
-                $array['purchase_date'] = $arrBookings[0]['purchase_date'];
+                $array['purchase_date'] = date("d-M-Y", strtotime($arrBookings[0]['purchase_date']));;
                 $warranty_status_as_per_booking_date = $this->warranty_utilities->get_warranty_status_of_bookings($arrBookings);
                 $array['booking_warranty_status'] = $warranty_status_as_per_booking_date[$booking_id];
+                if(!empty($array['booking_warranty_status']['installation_date'])){
+                    $array['booking_warranty_status']['installation_date'] = date("d-M-Y", strtotime($array['booking_warranty_status']['installation_date']));
+                }
                 /*
                  * Changing Booking Date to current Date to get warranty status as per current Date
                  */

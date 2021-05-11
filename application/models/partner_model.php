@@ -1658,7 +1658,7 @@ function get_data_for_partner_callback($booking_id) {
      */
     function get_spare_parts_by_any($select,$where,$is_join=false, $sf_details = FALSE, $group_by = false, 
             $post= array(), $wh_details = false, $oow_spare_flag = false,$wh_shipped_courier_flag = false, 
-            $sf_shipped_courier_flag = false, $partner_shipped_courier_flag = false, $ssba_flag = false){
+            $sf_shipped_courier_flag = false, $partner_shipped_courier_flag = false, $ssba_flag = false, $unit_details = false){
 
         $this->db->select($select,FALSE);
         $this->db->where($where,false);
@@ -1720,7 +1720,11 @@ function get_data_for_partner_callback($booking_id) {
         /* JOIN with service_center_booking_action to check the booking_status at service_center end */ 
         if (!empty($ssba_flag)) {
             $this->db->join('service_center_booking_action', 'spare_parts_details.booking_id = service_center_booking_action.booking_id', 'left');
-        }        
+        }
+        /* JOIN with booking_unit_details to get customer payble price of spare */ 
+        if(!empty($unit_details)){
+            $this->db->join('booking_unit_details', 'spare_parts_details.booking_unit_details_id = booking_unit_details.id', 'left');
+        }
 
         /* JOIN with symtom to get the symptom  */ 
         if (!empty($post['symptom'])) {
