@@ -1256,7 +1256,6 @@ class Miscelleneous {
     function get_cp_buyback_credit_debit($cp_id) {
         $where['length'] = -1;
         $invoice_amount = $this->My_CI->invoices_model->get_invoices_details(array('vendor_partner' => 'vendor', 'vendor_partner_id' => $cp_id, 'vertical IN ("Buyback")' => NULL, 'settle_amount' => 0), 'SUM(CASE WHEN (type_code = "B") THEN ( amount_collected_paid + `amount_paid`) WHEN (type_code = "A" ) THEN ( amount_collected_paid -`amount_paid`) END)  AS amount', 'type_code');
-
         $unbilled_amount = 0;
         $advance_amount = 0;
 
