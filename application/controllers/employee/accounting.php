@@ -396,6 +396,7 @@ class Accounting extends CI_Controller {
         $header['from_gst_number'] = "From GST Number";
         $header['to_gst_number'] = "To GST Number";
         $header['gst_reg_type'] = "GstReg Type";
+        $header['gst_status'] = "Gst Status";
         $header['invoice_date'] = "Invoice Date";
         $header['from_date'] = "Invoice From Date";
         $header['to_date'] = "Invoice To Date";
@@ -456,6 +457,7 @@ class Accounting extends CI_Controller {
                 $array[$value['invoice_id']]['address'] = $value['address'];
                 $array[$value['invoice_id']]['state'] = $value['state'];
                 $array[$value['invoice_id']]['gst_reg_type'] = $value['gst_reg_type'];
+                $array[$value['invoice_id']]['gst_status'] = isset($value['gst_status'])? $value['gst_status']:"";
                 $array[$value['invoice_id']]['invoice_date'] = $value['invoice_date'];
                 $array[$value['invoice_id']]['from_date'] = $value['from_date'];
                 $array[$value['invoice_id']]['to_date'] = $value['to_date'];
