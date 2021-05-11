@@ -201,6 +201,8 @@ class Warranty_model extends CI_Model {
                         booking_details.partner_id,
                         booking_details.service_id,
                         booking_unit_details.appliance_brand,
+                        booking_unit_details.appliance_brand as brand,
+                        booking_unit_details.serial_number,
                         IFNULL(spare_parts_details.model_number,
                                         IFNULL(booking_unit_details.sf_model_number,
                                                         IFNULL(service_center_booking_action.model_number,

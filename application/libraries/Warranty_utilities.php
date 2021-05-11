@@ -162,7 +162,7 @@ class Warranty_utilities {
                 $extended_warranty_period = !empty($recWarrantyData['extended_warranty_period']) ? $recWarrantyData['extended_warranty_period'] : 0;
                 $warrantyStatus = $this->get_warranty_status($in_warranty_period, $extended_warranty_period, $recWarrantyData['purchase_date'], $recWarrantyData['booking_create_date'], $warranty_found);
                 if($recWarrantyData['purchase_date'] == '1970-01-01' || empty($recWarrantyData['purchase_date'])):
-                    $data['status'] = "No Data Found";
+                    $data['status'] = "DOP Not Valid";
                 elseif($recWarrantyData['booking_create_date'] == '1970-01-01'):
                     $data['status'] = "Booking Create Date Not Valid";
                 elseif(empty($recWarrantyData['service_id'])):
@@ -223,8 +223,8 @@ class Warranty_utilities {
             $warrantyStatus = 'IW';      
         elseif (strtotime($create_date) <= $warranty_end_period) :
             $warrantyStatus = 'EW'; 
-        elseif(!$warranty_found):
-            $warrantyStatus = 'No Data Found'; 
+//        elseif(!$warranty_found):
+//            $warrantyStatus = 'No Data Found'; 
         endif; 
         return $warrantyStatus;
     }
