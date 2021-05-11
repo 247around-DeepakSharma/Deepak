@@ -648,7 +648,6 @@ if (!empty($dashboard)) {
    </div>
 <script type="text/javascript">
      function save_remarks(booking_id){
-        alert(booking_id);
         $('#comment_booking_id').val(booking_id);
         getcommentbox(3, booking_id); 
         $('#commentModal').modal();       
