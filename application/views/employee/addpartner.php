@@ -79,9 +79,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
 		{
 			$current_tab=1;
 		}
-        echo '<div id="update-error-msg" class="alert alert-success alert-dismissible hidden" role="alert">
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span></button><strong></strong></div>';
+        echo '<div id="update-error-msg" class="alert alert-success alert-dismissible hidden" role="alert"><strong></strong></div>';
         if ($this->session->userdata('success')) {
             echo '<div class="alert alert-success alert-dismissible" role="alert">
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -443,7 +441,8 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     <div class="form-group <?php if( form_error('primary_contact_email') ) { echo 'has-error';} ?>">
                                         <label for="primary_contact_email" class="col-md-4">Primary Contact Email</label>
                                         <div class="col-md-8">
-                                            <input  type="text" class="form-control"  name="primary_contact_email" value = "<?php if (isset($query[0]['primary_contact_email'])){echo $query[0]['primary_contact_email'];}?>">
+                                            <input  type="text" class="form-control"  name="primary_contact_email" onkeypress="return RestrictCommaSemicolon(event);"
+                                                ondrop="return false;" onpaste="return false;"  value = "<?php if (isset($query[0]['primary_contact_email'])){echo $query[0]['primary_contact_email'];}?>">
                                             <?php echo form_error('primary_contact_email'); ?>
                                         </div>
                                     </div>
@@ -536,7 +535,8 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     <div class="form-group ">
                                         <label for="upcountry_approval_email" class="col-md-4">Upcountry Approval Email</label>
                                         <div class="col-md-8">
-                                            <input  type="text" class="form-control"  name="upcountry_approval_email" value = "<?php if (isset($query[0])) {
+                                            <input  type="text" class="form-control"  name="upcountry_approval_email" onkeypress="return RestrictCommaSemicolon(event);"
+    ondrop="return false;" onpaste="return false;" value = "<?php if (isset($query[0])) {
                                                 echo $query[0]['upcountry_approval_email'];
                                                 } ?>">
                                         </div>
@@ -582,7 +582,8 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         } ?>">
                                         <label for="spare_notification_email" class="col-md-4">Spare Notification Email</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control"  name="spare_notification_email" value = "<?php if (isset($query[0]['spare_notification_email'])) {
+                                            <input type="text" class="form-control"  name="spare_notification_email" onkeypress="return RestrictCommaSemicolon(event);"
+    ondrop="return false;" onpaste="return false;" value = "<?php if (isset($query[0]['spare_notification_email'])) {
                                                 echo $query[0]['spare_notification_email'];
                                                 } ?>" >
                                             <?php echo form_error('spare_notification_email'); ?>
@@ -630,7 +631,8 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         } ?>">
                                         <label for="owner_email" class="col-md-4">Owner Email</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control"  name="owner_email" value = "<?php if (isset($query[0]['owner_email'])) {
+                                            <input type="text" class="form-control"  name="owner_email" onkeypress="return RestrictCommaSemicolon(event);"
+    ondrop="return false;" onpaste="return false;" value = "<?php if (isset($query[0]['owner_email'])) {
                                                 echo $query[0]['owner_email'];
                                                 } ?>" >
                                             <?php echo form_error('owner_email'); ?>
@@ -641,7 +643,8 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         } ?>">
                                         <label for="owner_alternate_email" class="col-md-4">Owner Alternate Email</label>
                                         <div class="col-md-8">
-                                            <input type="email" class="form-control"  name="owner_alternate_email" value = "<?php if (isset($query[0]['owner_alternate_email'])) {
+                                            <input type="email" class="form-control"  name="owner_alternate_email" onkeypress="return RestrictCommaSemicolon(event);"
+    ondrop="return false;" onpaste="return false;" value = "<?php if (isset($query[0]['owner_alternate_email'])) {
                                                 echo $query[0]['owner_alternate_email'];
                                                 } ?>" >
                                             <?php echo form_error('owner_alternate_email'); ?>
@@ -684,7 +687,8 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     } ?>">
                                     <label  for="summary_email_to" class="col-md-4">To</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control"  name="summary_email_to" value = "<?php if (isset($query[0]['summary_email_to'])) {
+                                        <input type="text" class="form-control"  name="summary_email_to" onkeypress="return RestrictCommaSemicolon(event);"
+    ondrop="return false;" onpaste="return false;" value = "<?php if (isset($query[0]['summary_email_to'])) {
                                             echo $query[0]['summary_email_to'];
                                             } ?>">
                                         <?php echo form_error('summary_email_to'); ?>
@@ -695,7 +699,8 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     } ?>">
                                     <label for="summary_email_cc" class="col-md-4">cc</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control"  name="summary_email_cc" value = "<?php if (isset($query[0]['summary_email_cc'])) {
+                                        <input type="text" class="form-control"  name="summary_email_cc" onkeypress="return RestrictCommaSemicolon(event);"
+    ondrop="return false;" onpaste="return false;" value = "<?php if (isset($query[0]['summary_email_cc'])) {
                                             echo $query[0]['summary_email_cc'];} else { echo "anuj@247around.com,nits@247around.com";} ?>">
                                         <?php echo form_error('summary_email_cc'); ?>
                                     </div>
@@ -723,7 +728,8 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     } ?>">
                                     <label for="invoice_email_to" class="col-md-4">To</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control"  name="invoice_email_to" value = "<?php if (isset($query[0]['invoice_email_to'])) {
+                                        <input type="text" class="form-control"  name="invoice_email_to"  onkeypress="return RestrictCommaSemicolon(event);"
+    ondrop="return false;" onpaste="return false;" value = "<?php if (isset($query[0]['invoice_email_to'])) {
                                             echo $query[0]['invoice_email_to'];
                                             } ?>">
                                         <?php echo form_error('invoice_email_to'); ?>
@@ -734,7 +740,8 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     } ?>">
                                     <label for="invoice_email_cc" class="col-md-4">cc</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control"  name="invoice_email_cc" value = "<?php if (isset($query[0]['invoice_email_cc'])) {
+                                        <input type="text" class="form-control"  name="invoice_email_cc" onkeypress="return RestrictCommaSemicolon(event);"
+    ondrop="return false;" onpaste="return false;" value = "<?php if (isset($query[0]['invoice_email_cc'])) {
                                             echo $query[0]['invoice_email_cc'];}  else { echo ACCOUNTS_AR_EMAIL_ID; }
                                             ?>">
                                         <?php echo form_error('invoice_email_cc'); ?>
@@ -3007,15 +3014,6 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                     <div class="panel panel-default">
                         <div class="panel-heading"><b></b></div>
                         <div class="panel-body">
-                            <div class="col-md-12">
-                                <div class="form-group ">
-                                    <label for="partner_type" class="col-md-2">Description</label>
-                                    <div class="col-md-10">
-                                        <textarea class="form-control" name="description" id="description" cols="10" rows="4"><?php echo  isset($results['tat_condition']) ? $results['tat_condition']['description'] : ''; ?></textarea>
-                                        <span id="error-description"></span>
-                                    </div>
-                                </div>
-                            </div>
                             <div class="col-md-6">
                                 <div class="form-group ">
                                     <label for="partner_type" class="col-md-4">Local/Upcountry</label>
@@ -3035,6 +3033,15 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                             <option <?php echo isset($results['tat_condition']) ? ($results['tat_condition']['installation_repair'] == 0) ? "selected='selected'" : '' : ''; ?> value="0">Installation</option>
                                             <option <?php echo isset($results['tat_condition']) ? ($results['tat_condition']['local_upcountry'] == 1) ? "selected='selected'" : '' : ''; ?> value="1">Repair</option>
                                         </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group ">
+                                    <label for="partner_type" class="col-md-2">Description</label>
+                                    <div class="col-md-10">
+                                        <textarea class="form-control" name="description" id="description" cols="10" rows="1"><?php echo  isset($results['tat_condition']) ? $results['tat_condition']['description'] : ''; ?></textarea>
+                                        <span id="error-description"></span>
                                     </div>
                                 </div>
                             </div>
@@ -3087,6 +3094,53 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         <span id="error-target-acheived-per-higher-days"></span>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading"><b>KPI Managment</b></div>
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <table width="100%">
+                                    <tbody>
+                                        <tr class="row">
+                                            <th></th>
+                                            <th style="text-align:center;">Lower</th>
+                                            <th></th>
+                                            <th style="text-align:center;">Higher</th>
+                                            <th style="text-align:center;">Percentage</th>
+                                        </tr>
+                                        <?php $j=0; for($i=1;$i<=3;$i++){?>
+                                            
+                                            <tr class="row">
+                                                <th style="text-align:center;">Range <?= $i ?></th>
+                                                <td>
+                                                    <div class="form-group col-md-12">
+                                                        <input type="hidden" class="form-control" name="kpi_id_<?= $i ?>" id="kpi_id_<?= $i ?>"  value="<?php echo  isset($results['kpi_management'][$j]) ? $results['kpi_management'][$j]['id'] : ''; ?>"/>
+                                                        <input type="text" class="form-control" name="low_range_<?= $i ?>" id="low_range_<?= $i ?>"  value="<?php echo  isset($results['kpi_management'][$j]) ? $results['kpi_management'][$j]['lower_achivement_range'] : ''; ?>"/>
+                                                        <span id="error_low_range_<?= $i ?>"></span>
+                                                    </div>
+                                                </td>
+                                                <td>  To  </td>
+                                                <td>
+                                                    <div class="form-group col-md-12">
+                                                        <input type="text" class="form-control" name="high_range_<?= $i ?>" id="high_range_<?= $i ?>"  value="<?php echo  isset($results['kpi_management'][$j]) ? $results['kpi_management'][$j]['higher_achivement_range'] : ''; ?>"/>
+                                                        <span id="error_high_range_<?= $i ?>"></span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="form-group col-md-12">
+                                                        <input type="number" class="form-control" name="percentage_<?= $i ?>" id="percentage_<?= $i ?>"  value="<?php echo  isset($results['kpi_management'][$j]) ? $results['kpi_management'][$j]['penalty_percentage'] : ''; ?>" />
+                                                        <span id="error_percentage_<?= $i ?>"></span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                        <?php $j++; } ?>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -3915,6 +3969,21 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
     function show_help_text(input){
     $(input).parent('div').find('span').text($(input).val());
     }
+
+    function RestrictCommaSemicolon(e) {
+
+        var theEvent = e || window.event;
+        var key = theEvent.keyCode || theEvent.which;
+        key = String.fromCharCode(key);
+        var regex = /[^;]+$/;
+        if (!regex.test(key)) {
+            theEvent.returnValue = false;
+            if (theEvent.preventDefault) {
+                theEvent.preventDefault();
+            }
+        }
+    }
+    
     
     function up_message(){
     var up_rate = $("#up_rate").val();
@@ -6478,11 +6547,33 @@ $(document).ready(function () {
             var tat_with_in_higher_days = $('#tat-with-in-higher-days').val();
             var target_acheived_per_higher_days = $('#target-acheived-per-higher-days').val();
 
+            var kpi_id_1 = $('#kpi_id_1').val();
+            var kpi_id_2 = $('#kpi_id_2').val();
+            var kpi_id_3 = $('#kpi_id_3').val();
+            var low_range_1 = $('#low_range_1').val();
+            var low_range_2 = $('#low_range_2').val();
+            var low_range_3 = $('#low_range_3').val();
+            var high_range_1 = $('#high_range_1').val();
+            var high_range_2 = $('#high_range_2').val();
+            var high_range_3 = $('#high_range_3').val();
+            var percentage_1 = $('#percentage_1').val();
+            var percentage_2 = $('#percentage_2').val();
+            var percentage_3 = $('#percentage_3').val();
+
             $('#error-description').html('');
             $('#error-tat-with-in-lower-days').html('');
             $('#error-target-acheived-per-lower-days').html('');
             $('#error-tat-with-in-higher-days').html('');
             $('#error-target-acheived-per-higher-days').html('');
+            $('#error_low_range_1').html('');
+            $('#error_low_range_2').html('');
+            $('#error_low_range_3').html('');
+            $('#error_high_range_1').html('');
+            $('#error_high_range_2').html('');
+            $('#error_high_range_3').html('');
+            $('#error_percentage_1').html('');
+            $('#error_percentage_2').html('');
+            $('#error_percentage_3').html('');
 
             var actionUrl = '<?php echo base_url(); ?>employee/partner/process_tat_invoice_condition';
 
@@ -6501,21 +6592,73 @@ $(document).ready(function () {
             } else if(target_acheived_per_higher_days.length == 0){
                 $('#error-target-acheived-per-higher-days').html('This is required').css({"color": "red"});
                 $('#target-acheived-per-higher-days').focus();
-            }else{
+            } else if(low_range_1.length == 0){
+                $('#error_low_range_1').html('This is required').css({"color": "red"});
+                $('#low_range_1').focus();
+            } else if(high_range_1.length == 0){
+                $('#error_high_range_1').html('This is required').css({"color": "red"});
+                $('#high_range_1').focus();
+            } else if(high_range_1 <= low_range_1){
+                $('#error_high_range_1').html('Invalid Higher Range').css({"color": "red"});
+                $('#high_range_1').focus();
+            } else if(percentage_1.length == 0){
+                $('#error_percentage_1').html('This is required').css({"color": "red"});
+                $('#high_percentage_1').focus();
+            } else if(low_range_2.length == 0){
+                $('#error_low_range_2').html('This is required').css({"color": "red"});
+                $('#low_range_2').focus();
+            } else if(high_range_1 >= low_range_2){
+                $('#error_low_range_2').html('Invalid Lower Range').css({"color": "red"});
+                $('#low_range_2').focus();
+            } else if(high_range_2.length == 0){
+                $('#error_high_range_2').html('This is required').css({"color": "red"});
+                $('#high_range_2').focus();
+            } else if(high_range_2 <= low_range_2){
+                $('#error_high_range_2').html('Invalid Higher Range').css({"color": "red"});
+                $('#high_range_2').focus();
+            } else if(percentage_2.length == 0){
+                $('#error_percentage_2').html('This is required').css({"color": "red"});
+                $('#percentage_2').focus();
+            } else if(low_range_3.length == 0){
+                $('#error_low_range_3').html('This is required').css({"color": "red"});
+                $('#low_range_3').focus();
+            } else if(high_range_2 >= low_range_3){
+                $('#error_low_range_3').html('Invalid Lower Range').css({"color": "red"});
+                $('#low_range_3').focus();
+            } else if(high_range_3.length == 0){
+                $('#error_high_range_3').html('This is required').css({"color": "red"});
+                $('#high_range_3').focus();
+            } else if(percentage_3.length == 0){
+                $('#error_percentage_3').html('This is required').css({"color": "red"});
+                $('#percentage_3').focus();
+            } else{
+
                 $('#submit_btn_tat').prop('disabled', true);
                 $.ajax({
                     type: 'POST',    
                     url: actionUrl,
                     data: { 
-                            'entity_id': entity_id, 
-                            'entity': entity, 
-                            'description': description, 
-                            'local_upcountry': local_upcountry, 
-                            'installation_repair': installation_repair, 
-                            'tat_with_in_lower_days': tat_with_in_lower_days, 
-                            'target_acheived_per_lower_days': target_acheived_per_lower_days, 
-                            'tat_with_in_higher_days': tat_with_in_higher_days, 
-                            'target_acheived_per_higher_days': target_acheived_per_higher_days
+                        'entity_id': entity_id, 
+                        'entity': entity, 
+                        'description': description, 
+                        'local_upcountry': local_upcountry, 
+                        'installation_repair': installation_repair, 
+                        'tat_with_in_lower_days': tat_with_in_lower_days, 
+                        'target_acheived_per_lower_days': target_acheived_per_lower_days, 
+                        'tat_with_in_higher_days': tat_with_in_higher_days, 
+                        'target_acheived_per_higher_days': target_acheived_per_higher_days,
+                        'kpi_id_1': kpi_id_1,
+                        'kpi_id_2': kpi_id_2,
+                        'kpi_id_3': kpi_id_3,
+                        'low_range_1': low_range_1,
+                        'low_range_2': low_range_2,
+                        'low_range_3': low_range_3,
+                        'high_range_1': high_range_1,
+                        'high_range_2': high_range_2,
+                        'high_range_3': high_range_3,
+                        'percentage_1': percentage_1,
+                        'percentage_2': percentage_2,
+                        'percentage_3': percentage_3
                     },
                     success: function(response){
                         if(response == true){
