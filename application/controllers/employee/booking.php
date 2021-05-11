@@ -3263,7 +3263,15 @@ class Booking extends CI_Controller {
      * @param String $booking_id
      */
     function get_comment_section($booking_id , $comment_type){
-        $data['comments'] = $this->booking_model->get_remarks(array('booking_id' => $booking_id, "isActive" => 1,'comment_type'=> $comment_type));
+        if($comment_type == 2){
+            $comment_typeId =array($comment_type,'3');
+             $data['comments'] = $this->booking_model->get_remarks(array('booking_id' => $booking_id, "isActive" => 1),$comment_typeId);
+
+        }else{
+             $data['comments'] = $this->booking_model->get_remarks(array('booking_id' => $booking_id, "isActive" => 1,'comment_type'=> $comment_type));
+
+        }
+       
         $data['booking_id'] = $booking_id;
         $data['user_id'] = $this->session->userdata('id');
         $this->load->view('employee/comment_section', $data);

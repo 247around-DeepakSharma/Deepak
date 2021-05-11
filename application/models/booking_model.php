@@ -2793,10 +2793,13 @@ class Booking_model extends CI_Model {
      * @return: array
      * 
      */
-    function get_remarks($where){
+    function get_remarks($where,$comment_typeId = ''){
         $this->db->select('booking_comments.id, agent_id, remarks, booking_comments.create_date, employee_id,employee.full_name, booking_comments.isActive');
         $this->db->from('booking_comments');
         $this->db->join('employee','booking_comments.agent_id = employee.id');
+        if(!empty($comment_typeId)){
+           $this->db->where_in('comment_type',$comment_typeId);
+        }
         $this->db->where($where);
         $this->db->order_by('booking_comments.create_date');
         $query = $this->db->get();
