@@ -701,6 +701,14 @@ class Partner extends CI_Controller {
         'target_acheived_per_higher_days' => $arr_post['target_acheived_per_higher_days'],
         'description' => $arr_post['description'],
         'active' => 1);
+        $kpi_data[] = array('entity_id' => $arr_post['entity_id'],'lower_achivement_range' => $arr_post['low_range_1'],'higher_achivement_range' => $arr_post['high_range_1'],'penalty_percentage' => $arr_post['percentage_1']);
+        $kpi_data[] = array('entity_id' => $arr_post['entity_id'],'lower_achivement_range' => $arr_post['low_range_2'],'higher_achivement_range' => $arr_post['high_range_2'],'penalty_percentage' => $arr_post['percentage_2']);
+        $kpi_data[] = array('entity_id' => $arr_post['entity_id'],'lower_achivement_range' => $arr_post['low_range_3'],'higher_achivement_range' => $arr_post['high_range_3'],'penalty_percentage' => $arr_post['percentage_3']);
+        foreach($kpi_data as $key => $value){
+            $index = $key+1;
+            $index = 'kpi_id_'.$index;
+            $this->partner_model->process_tat_invoice_kpi_management($arr_post[$index],$arr_post['entity_id'],$value);
+        }
         echo $result = $this->partner_model->process_tat_invoice_condition($arr_post['entity_id'],$data);
         exit();
     }
@@ -1235,6 +1243,7 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . ' partner_id:' . $id);
         $query = $this->partner_model->viewpartner($id);
         $results['tat_condition'] = $this->partner_model->get_tat_invoice_condition($id);
+        $results['kpi_management'] = $this->partner_model->get_tat_invoice_kpi_management($id);
         $results['select_state'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         $results['services'] = $this->vendor_model->selectservice();
         $saas_flag = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
