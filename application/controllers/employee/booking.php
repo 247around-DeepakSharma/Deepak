@@ -334,7 +334,13 @@ class Booking extends CI_Controller {
                     {
                         $services_details['around_paid_basic_charges'] =    0;
                     }
-                    $services_details['partner_paid_basic_charges'] = $partner_net_payable[$brand_id][$key + 1][$services_details['id']][0];
+                    if(!empty($partner_net_payable[$brand_id][$key + 1][$services_details['id']][0])){
+                        $services_details['partner_paid_basic_charges'] = $partner_net_payable[$brand_id][$key + 1][$services_details['id']][0];
+                    }
+                    else
+                    {
+                        $services_details['partner_paid_basic_charges'] = 0;
+                    }
                     $services_details['partner_net_payable'] = $services_details['partner_paid_basic_charges'];
                     $services_details['around_net_payable'] = $services_details['around_paid_basic_charges'];
                     if(isset($booking['current_status'])){
@@ -2373,6 +2379,7 @@ class Booking extends CI_Controller {
         $where['is_in_process'] = 0;
         $whereIN['booking_id'] = $postArray['booking_id'];
         $whereIN['booking_details.current_status'] = array(_247AROUND_PENDING, _247AROUND_RESCHEDULED);
+        $where['booking_details.internal_status != "'.REJECTED_FROM_REVIEW_STATUS.'"'] = NULL;
         $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id, current_status",$where,NULL,NULL,NULL,$whereIN,NULL,array());
         if(!empty($tempArray)){
             if($this->input->post("internal_booking_status") == _247AROUND_COMPLETED){
@@ -6721,6 +6728,9 @@ class Booking extends CI_Controller {
     public function get_warranty_data($case = 1){
         $post_data = $this->input->post();
         $arrBookings = $post_data['bookings_data'];  
+        if(empty($arrBookings)){
+            return;
+        }
         $arrBookingsWarrantyStatus = $this->warranty_utilities->get_warranty_status_of_bookings($arrBookings);   
             
         switch ($case) {

@@ -1645,7 +1645,7 @@ function get_data_for_partner_callback($booking_id) {
      */
     function get_spare_parts_by_any($select,$where,$is_join=false, $sf_details = FALSE, $group_by = false, 
             $post= array(), $wh_details = false, $oow_spare_flag = false,$wh_shipped_courier_flag = false, 
-            $sf_shipped_courier_flag = false, $partner_shipped_courier_flag = false, $ssba_flag = false, $unit_details = false){
+            $sf_shipped_courier_flag = false, $partner_shipped_courier_flag = false, $ssba_flag = false){
 
         $this->db->select($select,FALSE);
         $this->db->where($where,false);
@@ -1707,11 +1707,7 @@ function get_data_for_partner_callback($booking_id) {
         /* JOIN with service_center_booking_action to check the booking_status at service_center end */ 
         if (!empty($ssba_flag)) {
             $this->db->join('service_center_booking_action', 'spare_parts_details.booking_id = service_center_booking_action.booking_id', 'left');
-        }
-        /* JOIN with booking_unit_details to get customer payble price of spare */ 
-        if(!empty($unit_details)){
-            $this->db->join('booking_unit_details', 'spare_parts_details.booking_unit_details_id = booking_unit_details.id', 'left');
-        }
+        }        
 
         /* JOIN with symtom to get the symptom  */ 
         if (!empty($post['symptom'])) {
@@ -3412,6 +3408,37 @@ function get_data_for_partner_callback($booking_id) {
         $sql = "Select * from courier_lost_spare_status where spare_id in (".implode(',', $spare_id_array).") order by spare_id asc, create_date asc";
         return $query = $this->db->query($sql)->result_array();
    }
+       /**
+     * @Desc: This function is used to get the spare part details with customer payble charges
+     * @params: $select string
+     * @params: $where array
+     * @return: array()
+     * Ghanshyam ji gupta
+     * 
+     */
+    function get_spare_detail_with_customer_payble($select,$where,$post= array()){
+        $this->db->select($select,FALSE);
+        $this->db->where($where,false);
+        //$this->db->where('status',)
+        $this->db->from('spare_parts_details');
+        $this->db->join('spare_consumption_status','spare_parts_details.consumed_part_status_id = spare_consumption_status.id', 'left');
+        $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id');
+        $this->db->join('services', 'services.id = booking_details.service_id');
+        $this->db->join('inventory_master_list','inventory_master_list.inventory_id = spare_parts_details.requested_inventory_id', "left");
+        $this->db->join('inventory_master_list as im','im.inventory_id = spare_parts_details.shipped_inventory_id', "left");
+        $this->db->join('inventory_master_list as original_im','original_im.inventory_id = spare_parts_details.original_inventory_id', "left");
+        $this->db->join('booking_cancellation_reasons','booking_cancellation_reasons.id = spare_parts_details.spare_cancellation_reason', "left");
+        $this->db->join('service_centres AS sc','spare_parts_details.defective_return_to_entity_id = sc.id','left');
+        $this->db->join('oow_spare_invoice_details', 'spare_parts_details.id = oow_spare_invoice_details.spare_id','left');  
+        $this->db->join('courier_company_invoice_details AS cci_details', 'spare_parts_details.awb_by_partner = cci_details.awb_number', 'left');
+        $this->db->join('courier_company_invoice_details AS ccid', 'spare_parts_details.awb_by_sf = ccid.awb_number', 'left');
+        $this->db->join('courier_company_invoice_details AS cc_invoice_details', 'spare_parts_details.awb_by_wh = cc_invoice_details.awb_number', 'left');
+        $this->db->join('service_center_booking_action', 'spare_parts_details.booking_id = service_center_booking_action.booking_id', 'left');
+        $this->db->join('booking_unit_details', 'spare_parts_details.booking_unit_details_id = booking_unit_details.id', 'left');
+        $this->db->order_by('spare_parts_details.entity_type', 'asc');
+        $query = $this->db->get();
+        return $query->result_array();       
+    }
     
 }
 

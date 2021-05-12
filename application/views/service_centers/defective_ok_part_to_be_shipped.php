@@ -88,7 +88,7 @@ if ($this->uri->segment(3)) {
                                                 <?php echo $row['courier_rejection_remarks']; ?>
                                             </td>
                                             <td>
-                                                <?php echo $row['remarks_defective_part_by_wh']; ?>
+                                                <span data-toggle="tooltip" title="<?php echo $row['remarks_defective_part_by_wh_text']; ?>"><?php echo $row['remarks_defective_part_by_wh']; ?></span>
                                             </td>
                                             <td>
                                                <?php if(!empty($row['rejected_defective_part_pic_by_wh'])){ ?>

@@ -512,6 +512,9 @@ class engineerApiv1 extends CI_Controller {
             case 'updateEngineerDetail':
                 $this->processupdateEngineerDetail();  //// Sending OTP
                 break;
+            case 'SendOTPonComplete':
+                $this->ProcessSendOTPonComplete();  //// Sending OTP
+                break;
             default:
                 break;
         }
@@ -1400,6 +1403,14 @@ class engineerApiv1 extends CI_Controller {
             $sign_pic_url = $booking_id . "_sign_" . rand(10, 100) . ".png";
 
             $this->miscelleneous->generate_image($requestData["signature_pic"], $sign_pic_url, "engineer-uploads");
+            
+            if(!empty($requestData["selfie_pic"])){
+                $selfie_pic = $booking_id . "_selfie_" . rand(10, 100) . ".png";
+                $this->miscelleneous->generate_image($requestData["selfie_pic"], $selfie_pic, "engineer-uploads");
+                $en["selfie_pic"] = $selfie_pic;
+            }            
+            $en["is_otp_verified"] = $requestData["selfie_pic"];
+           
 
             //$en["amount_paid"] = $requestData["amountPaid"];
             $en["booking_id"] = $booking_id;
@@ -5430,5 +5441,33 @@ function submitPreviousPartsConsumptionData(){
                 $this->sendJsonResponse(array("0101", 'No Engineer Detail  Found'));
             }
         }
+        /**
+     * @Desc: This function is to used to send user OTP
+     * @params: void
+     * @return: JSON
+     * @author Ghanshyam Ji Gupta
+     * @date : 12-05-2021
+     */
+        function ProcessSendOTPonComplete() {
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("mobile"), $requestData);
+        $mobile_number = $requestData['mobile_number'];
+        $engineer_id = $requestData['engineer_id'];
+        if (!empty($mobile_number)) {
+            $otp = rand(1000, 9999);
+            $sms['tag'] = "send_otp_booking_complete";
+            $sms['smsData']['otp'] = $otp;
+            $sms['phone_no'] = $mobile_number;
+            $sms['booking_id'] = "";
+            $sms['type'] = "enginner";
+            $sms['type_id'] = $engineer_id;
+            $send_SMS = $this->notify->send_sms_msg91($sms);
+            $this->jsonResponseString['response'] = array('otp' => $otp);
+            $this->sendJsonResponse(array('0000', 'OTP send successfully'));
+        } else {
+            $this->jsonResponseString['response'] = array();
+            $this->sendJsonResponse(array("0101", 'No mobile number found.'));
+        }
+    }
 
 }
