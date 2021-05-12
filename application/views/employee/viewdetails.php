@@ -82,12 +82,7 @@
 </div>
 <div class="btn-group" role="group">
     <button type="button" class="btn btn-default" href="#tab8" data-toggle="tab">
-<<<<<<< HEAD
-        <div class="hidden-xs">Sms / Email</div>
-=======
-        <!--<div class="hidden-xs"><i class="fa fa-whatsapp" aria-hidden="true" style="color:green;"></i> SMS / Email</div>-->
         <div class="hidden-xs">SMS / Email</div>
->>>>>>> f763ccfbc (Display No History Found in Whatsapp Log in view detail page# CRMS-2441)
     </button>
 </div>
 <div class="btn-group" role="group">
@@ -104,10 +99,6 @@
     <?php }  if($booking_history[0]['current_status'] != 'Cancelled' && isset($saas_module) && !$saas_module){?>
 <div class="btn-group" role="group">
     <button type="button" class="btn btn-default" href="#tab7" data-toggle="tab">
-<<<<<<< HEAD
-=======
-        <!--<div class="hidden-xs"><span style="color:#1f004d;font-weight: bold;">pay</span><span style="color:#008ae6;font-weight: bold;">tm</span> Transactions</div>-->
->>>>>>> f763ccfbc (Display No History Found in Whatsapp Log in view detail page# CRMS-2441)
         <div class="hidden-xs">Transactions</div>
     </button>
 </div>
