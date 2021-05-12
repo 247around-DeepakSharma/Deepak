@@ -1609,26 +1609,13 @@ function get_data_for_partner_callback($booking_id) {
      * @param String $partner_id
      * @return Array
      */
-    function get_partner_details_no_booking_last_month($active,$partnerType,$ac,$partner_not_like=NULL,$partner_id="", $is_prepaid=null){
+    function get_partner_details_no_booking_last_month($active){
 
         $prevmonth = date('M Y', strtotime("last month"));
         $month = (int)date('m',strtotime($prevmonth));
-        $where = array();
-        $this->db->distinct();
-        $this->db->select("partners.id, partners.public_name");
-        if ($partner_id != "") {
-            $where['partners.id']  = $partner_id;
-        } else{
-            if($active !='All'){
-                $where['partners.is_active'] = $active;
-            }
-        }
-        
-        $this->db->join('booking_details','partners.id=booking_details.partner_id');
-        $this->db->where($where);
-        $this->db->where('MONTH(booking_details.create_date) !=', $month);
-        $this->db->where('YEAR(booking_details.create_date) =', date('Y',strtotime($prevmonth)));
-        $query = $this->db->get('partners');
+        $year = (int)date('Y',strtotime($prevmonth));
+        $sql = "SELECT DISTINCT `partners`.`id` as id, `partners`.`public_name` FROM `partners`, `booking_details` WHERE `partners`.`id` NOT IN (SELECT `booking_details`.`partner_id` FROM `booking_details` WHERE `partners`.`id`=`booking_details`.`partner_id` AND `partners`.`is_active` = '$active' AND Month(`booking_details`.`create_date`) = '$month' AND YEAR(`booking_details`.`create_date`) = '$year')";
+        $query = $this->db->query($sql);
         return $query->result_array();
     }
     
