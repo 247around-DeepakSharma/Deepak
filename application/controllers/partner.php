@@ -3218,6 +3218,15 @@ exit();
         $data_new['model_number'] = $data['Bookings'][0]['unit_details'][0]['model_number'];
         $data_new['serial_number'] = $data['Bookings'][0]['unit_details'][0]['serial_number'];
         $data_new['purchase_date'] = $data['Bookings'][0]['unit_details'][0]['purchase_date'];
+        
+        $data_new['upcountry_charges'] = 0;
+        if ($data['Bookings'][0]['upcountry_paid_by_customer'] == 1) {
+            if ($data['Bookings'][0]['flat_upcountry'] == 1) {
+                $data_new['upcountry_charges'] = $data['Bookings'][0]['upcountry_to_be_paid_by_customer'];
+            } else {
+                $data_new['upcountry_charges'] = $data['Bookings'][0]['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE;
+            }
+        }
 
         foreach($data['Bookings'][0]['unit_details'] as $key => $value){
             unset($data['Bookings'][0]['unit_details'][$key]['appliance_brand']);
@@ -3257,14 +3266,14 @@ exit();
         $partner_id = $authentication['id'];
         $partner_name = $authentication['public_name'];
 
-        $select = "spare_parts_details.*,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number, booking_cancellation_reasons.reason as part_cancel_reason,spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, wrong_part_shipped_details.part_name as wrong_part_name, wrong_part_shipped_details.remarks as wrong_part_remarks, sc.name AS send_defective_to, oow_spare_invoice_details.invoice_id as oow_invoice_id, oow_spare_invoice_details.invoice_date as oow_invoice_date, oow_spare_invoice_details.hsn_code as oow_hsn_code, oow_spare_invoice_details.gst_rate as oow_gst_rate, oow_spare_invoice_details.invoice_amount as oow_incoming_invoice_amount, oow_spare_invoice_details.invoice_pdf as oow_incoming_invoice_pdf, ccid.box_count as sf_box_count,ccid.billable_weight as sf_billable_weight,cc_invoice_details.box_count as wh_box_count,cc_invoice_details.billable_weight as wh_billable_weight, cci_details.box_count as p_box_count, cci_details.billable_weight as p_billable_weight";
+        $select = "spare_parts_details.*,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number, booking_cancellation_reasons.reason as part_cancel_reason,spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, sc.name AS send_defective_to, oow_spare_invoice_details.invoice_id as oow_invoice_id, oow_spare_invoice_details.invoice_date as oow_invoice_date, oow_spare_invoice_details.hsn_code as oow_hsn_code, oow_spare_invoice_details.gst_rate as oow_gst_rate, oow_spare_invoice_details.invoice_amount as oow_incoming_invoice_amount, oow_spare_invoice_details.invoice_pdf as oow_incoming_invoice_pdf, ccid.box_count as sf_box_count,ccid.billable_weight as sf_billable_weight,cc_invoice_details.box_count as wh_box_count,cc_invoice_details.billable_weight as wh_billable_weight, cci_details.box_count as p_box_count, cci_details.billable_weight as p_billable_weight,booking_unit_details.customer_net_payable";
         $where = array('spare_parts_details.booking_id' => $requestData['booking_id'], 'booking_details.partner_id' => $partner_id);
         $post = array();
         $post['is_inventory'] = 1;
         $post['is_original_inventory'] = 1;
         $post['spare_cancel_reason'] = 1;
         $post['wrong_part'] = 1;
-        $spare_data = $this->partner_model->get_spare_parts_by_any($select, $where, true, FALSE, FALSE, $post, TRUE, TRUE, TRUE, TRUE, TRUE, false);
+        $spare_data = $this->partner_model->get_spare_detail_with_customer_payble($select, $where,$post);
         if (empty($spare_data)) {
             $this->sendJsonResponse(array(ERR_INVALID_BOOKING_ID_CODE, "No spare data found."));
             exit;
@@ -3350,6 +3359,12 @@ exit();
             $spare_request[$key]['consumed_status'] = $spare['consumed_status'];
             $spare_request[$key]['consumption_remarks'] = $spare['consumption_remarks'];
             $spare_request[$key]['consumed_status'] = $spare['consumed_status'];
+            
+            if(!empty($spare['customer_net_payable'])){
+                $spare_request[$key]['spare_price'] = $spare['customer_net_payable'];
+            }else{
+                $spare_request[$key]['spare_price'] = '0.00';
+            }
         }
         $spare_request = array_values($spare_request);
         $response['spare_parts_requested'] = $spare_request;

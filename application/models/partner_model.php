@@ -3393,7 +3393,40 @@ function get_detailed_summary_report_query($partner_id,$whereConditions=NULL){
     function get_courier_lost_parts_details($spare_id_array) {
         $sql = "Select * from courier_lost_spare_status where spare_id in (".implode(',', $spare_id_array).") order by spare_id asc, create_date asc";
         return $query = $this->db->query($sql)->result_array();
+
+   }
+       /**
+     * @Desc: This function is used to get the spare part details with customer payble charges
+     * @params: $select string
+     * @params: $where array
+     * @return: array()
+     * Ghanshyam ji gupta
+     * 
+     */
+    function get_spare_detail_with_customer_payble($select,$where,$post= array()){
+        $this->db->select($select,FALSE);
+        $this->db->where($where,false);
+        //$this->db->where('status',)
+        $this->db->from('spare_parts_details');
+        $this->db->join('spare_consumption_status','spare_parts_details.consumed_part_status_id = spare_consumption_status.id', 'left');
+        $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id');
+        $this->db->join('services', 'services.id = booking_details.service_id');
+        $this->db->join('inventory_master_list','inventory_master_list.inventory_id = spare_parts_details.requested_inventory_id', "left");
+        $this->db->join('inventory_master_list as im','im.inventory_id = spare_parts_details.shipped_inventory_id', "left");
+        $this->db->join('inventory_master_list as original_im','original_im.inventory_id = spare_parts_details.original_inventory_id', "left");
+        $this->db->join('booking_cancellation_reasons','booking_cancellation_reasons.id = spare_parts_details.spare_cancellation_reason', "left");
+        $this->db->join('service_centres AS sc','spare_parts_details.defective_return_to_entity_id = sc.id','left');
+        $this->db->join('oow_spare_invoice_details', 'spare_parts_details.id = oow_spare_invoice_details.spare_id','left');  
+        $this->db->join('courier_company_invoice_details AS cci_details', 'spare_parts_details.awb_by_partner = cci_details.awb_number', 'left');
+        $this->db->join('courier_company_invoice_details AS ccid', 'spare_parts_details.awb_by_sf = ccid.awb_number', 'left');
+        $this->db->join('courier_company_invoice_details AS cc_invoice_details', 'spare_parts_details.awb_by_wh = cc_invoice_details.awb_number', 'left');
+        $this->db->join('service_center_booking_action', 'spare_parts_details.booking_id = service_center_booking_action.booking_id', 'left');
+        $this->db->join('booking_unit_details', 'spare_parts_details.booking_unit_details_id = booking_unit_details.id', 'left');
+        $this->db->order_by('spare_parts_details.entity_type', 'asc');
+        $query = $this->db->get();
+        return $query->result_array();       
     }
+    
 
 }
 
