@@ -10739,6 +10739,7 @@ class Inventory extends CI_Controller {
 
         $row[] = $button;
         $row[] = '<input type="checkbox" class="form-control spare_id" name="spare_id[]" data-partner_id="' . $invoice_list->booking_partner_id . '" data-invoice_id ="' . $invoice_list->invoice_id . '" data-spare_id="' . $invoice_list->id . '" value="' . $invoice_list->id . '" />';
+         $row[] = '<a style="margin-top:5px;position: relative;" class="btn btn-success btn-sm" id="comment_1" href="javascript:void(0);" name="save-remarks" onclick="save_remarks(\''.$invoice_list->booking_id .'\');"><i class="fa fa-comment"></i></a>';
 
         return $row;
     }
