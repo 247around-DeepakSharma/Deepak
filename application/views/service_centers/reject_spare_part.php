@@ -29,7 +29,7 @@
             <label>Remarks&nbsp;<span style="color:red;">*</span></label>
         </div>        
         <div class="col-md-9"> 
-            <textarea class="form-control" rows="4" name="remarks" id="reject-remarks"></textarea>
+            <textarea class="form-control" rows="4" name="remarks" id="reject-remarks" maxlength='140' placeholder='Please enter remarks in max 140 character.'></textarea>
         </div>        
     </div>    
     <div class="row form-group"> 
@@ -41,6 +41,14 @@
 </form>
 
 <script>
+$(function() {  
+    $("textarea[maxlength]").bind('input propertychange', function() {  
+        var maxLength = $(this).attr('maxlength');  
+        if ($(this).val().length > maxLength) {  
+            $(this).val($(this).val().substring(0, maxLength));  
+        }  
+    })  
+});
     $(".reject_reason").select2();
     
     $(document).on('click',".reject-part__", function() {
