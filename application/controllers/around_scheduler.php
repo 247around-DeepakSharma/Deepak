@@ -3691,6 +3691,8 @@ class Around_scheduler extends CI_Controller {
                         fputcsv($fp, $CSVData[$i]);
                     }
                     $emailBody = vsprintf($body, array(count($data), $am_string));
+                    $today_date = date('d').'_'.date('m').'_'.date('Y');
+                    $subject = vsprintf($subject,array($value['public_name'],$today_date,$value['public_name']));
                     $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $emailBody, $file, 'partner_part_pending');
 
                     if (file_exists($file)) {
