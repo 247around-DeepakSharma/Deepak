@@ -46,6 +46,13 @@
                     <input type="hidden" name="service_center_closed_date" value="<?php if(!empty($bookinghistory[0]['service_center_closed_date'])) { echo $bookinghistory[0]['service_center_closed_date'];} else {echo "";} ?>">
                     <div class="col-md-12" style="margin-left:-31px;">
                         <table class="table table-striped table-bordered table-hover" cellspacing="0" width="100%">
+                            <?php if(($spare_flag != SPARE_PART_RADIO_BUTTON_NOT_REQUIRED)  && ($bookinghistory[0]['isEngineerApp'] == 1)){ ?>
+                            <tr style="background: #fff;">
+                                <td colspan="3">
+                                    <span style='color:red;'> Note : To request spare parts, Please use Engineer Buddy App </span>                                                                                                      
+                                </td>
+                            </tr>
+                            <?php } ?>
                             <tr>
                                 <th>Booking Id</th>
                                 <th>Customer Name</th>
@@ -57,7 +64,7 @@
                                     <th style="text-align: center;" class="not_required">Warranty Checker</th>
                                 <?php } ?>
                                 <?php
-                                    if($spare_flag != SPARE_PART_RADIO_BUTTON_NOT_REQUIRED){
+                                    if(($spare_flag != SPARE_PART_RADIO_BUTTON_NOT_REQUIRED)  && ($bookinghistory[0]['isEngineerApp'] != 1)){
                                         if($spare_flag == SPARE_PARTS_REQUIRED || $spare_flag == SPARE_OOW_EST_REQUESTED){ ?>
                                             <th style="text-align: center;" class="not_required"><?php echo $spare_flag; ?></th><?php
                                         } 
@@ -88,7 +95,7 @@
                                             <center><a href="<?php echo base_url(); ?>service_center/warranty<?=$partner_id?><?=$service_id?>" target="_blank" class='btn btn-sm btn-success' title='Warranty Checker' style="height: 29px;width: 36px;"><i class='fa fa-certificate' aria-hidden='true'></i></a></center>
                                     </td>
                                 <?php } ?>
-                                <?php if($spare_flag != SPARE_PART_RADIO_BUTTON_NOT_REQUIRED){ ?>
+                                <?php if(($spare_flag != SPARE_PART_RADIO_BUTTON_NOT_REQUIRED) && ($bookinghistory[0]['isEngineerApp'] != 1)){ ?>
                                 <td class="not_required">
                                     <?php
                                         $redirect_url = base_url()."employee/service_centers/update_booking_status/".urlencode(base64_encode($bookinghistory[0]['booking_id']))."/0/1";

@@ -844,7 +844,7 @@ class Booking_model extends CI_Model {
         }
 
 
-        $sql = " SELECT booking_details.id as booking_primary_id,engineer_table_sign.signature,`services`.`services`, booking_details.create_date as booking_create_date,users.*, booking_details.* ".  $service_center_name. $partner_name. ",booking_cancellation_reasons.reason as cancellation_reason, (CASE WHEN sms_sent_details.sms_tag = 'sms_to_redzone_customers' THEN 1 ELSE 0 END) as is_red_zone_sms_sent "
+        $sql = " SELECT booking_details.id as booking_primary_id,engineer_table_sign.signature,`services`.`services`, booking_details.create_date as booking_create_date,users.*, booking_details.* ".  $service_center_name. $partner_name. ",booking_cancellation_reasons.reason as cancellation_reason, (CASE WHEN sms_sent_details.sms_tag = 'sms_to_redzone_customers' THEN 1 ELSE 0 END) as is_red_zone_sms_sent,service_centres.isEngineerApp "
                . "from booking_details "
                . " LEFT JOIN sms_sent_details ON sms_sent_details.booking_id = booking_details.booking_id AND sms_sent_details.sms_tag = 'sms_to_redzone_customers' "
                . " LEFT JOIN booking_cancellation_reasons ON (booking_details.cancellation_reason = booking_cancellation_reasons.id)"
