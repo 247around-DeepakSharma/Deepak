@@ -62,37 +62,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php
-                                if (count($records)) {
-                                    $i = 1;
-                                    foreach ($records as $record) {
-//                                        if (!$record['active']) {
-//                                            continue;
-//                                        }
-                                        ?>
-                                        <tr>
-                                            <td class="text-center"><?php echo $i; ?> </td>
-                                            <td class="text-center"><?php echo $record['company_name']; ?></td>
-                                            <td class="text-center"><?php echo $record['address']; ?></td>
-                                            <td class="text-center"><?php echo $record['pincode']; ?></td>
-                                            <td class="text-center"><?php echo $record['state']; ?></td>
-                                            <td class="text-center"><?php echo $record['district']; ?></td>
-                                            <td class="text-center">
-                                                <?php if (!$record['is_approved']) { ?>
-                                                    <button class="btn btn-primary" type="button" id="btn_<?php echo $record['id']; ?>" onclick="approve_sf('<?php echo $record['id']; ?>')"><i class="fa fa-active"></i> Approve</button>
-                                                    <span id="loader_<?php echo $record['id']; ?>"></span>
-                                        <?php } ?>
-                                            </td>
-                                        </tr>
-                                        <?php
-                                        $i++;
-                                    }
-                                } else {
-                                    ?>
-                                    <tr>
-                                        <td colspan="7">No Data Found.</td>
-                                    </tr>
-                                <?php } ?>  
+                               
                             </tbody>
                         </table>
                     </div>
@@ -102,17 +72,19 @@
     </div>
 </div>
 <script type="text/javascript">
-    $(document).ready(function () {
         $('#datatable1').DataTable({
             "paging": true,
             "ordering": true,
             "info": true,
+             "ajax": {
+            url: "<?php echo base_url(); ?>employee/vendor/get_unapprovered_service_centers",
+            type: "POST",
+        },
             'columnDefs': [{
                     'targets': [2, 6], // column index (start from 0)
                     'orderable': false, // set orderable false for selected columns
                 }]
         });
-    });
     
     function approve_sf(sf_id) {
         if (sf_id !== '' || sf_id !== undefined) {

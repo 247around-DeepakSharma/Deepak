@@ -2540,7 +2540,7 @@ class Miscelleneous {
         $where["header_navigation.nav_type"]=$nav_type;
         $where["header_navigation.entity_type"]=$entity_type;
         $parentArray = $structuredData=$navFlowArray=array();
-        $orderBYArray = array("level"=>"ASC");
+        $orderBYArray = array("level"=>"ASC","sequence"=>"ASC");
         if($entity_type == "Partner"){
 			$orderBYArray = array("level"=>"ASC","sequence"=>"DESC","header_navigation.title"=>"ASC");
         }
