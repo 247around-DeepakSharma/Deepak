@@ -144,13 +144,13 @@
                         <div class="form-group">
                             <label for="fullname" class="col-md-4">Name<span style="color:red"> *</span>:</label>
                             <div class="col-md-6">
-                                <input type="text" class="form-control" name="fullname" id="fullname">
+                                <input type="text" class="form-control" name="fullname" id="fullname" onkeypress="return RestrictfirstSpace(event,this);">
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="mobile-number" class="col-md-4">Mobile No.<span style="color:red">*</span> :</label>
                             <div class="col-md-6">
-                                <input type="text" class="form-control" name="mobile_number" id="mobile-number">
+                                <input type="text" class="form-control" name="mobile_number" id="mobile-number" onkeypress="return RestrictfirstSpace(event,this);">
                             </div>
                         </div>
                         <div class="form-group">
@@ -275,5 +275,18 @@
             return actionReturn;
         });
     });
+
+    function RestrictfirstSpace(e,elementRef) {
+        var theEvent = e || window.event;
+        var key = theEvent.keyCode || theEvent.which;
+        key = String.fromCharCode(key);
+        var regxp_space = /[^ ]+$/;
+        if (!regxp_space.test(key) && (elementRef.value.length <= 0)) {
+            theEvent.returnValue = false;
+            if (theEvent.preventDefault) {
+                theEvent.preventDefault();
+            }
+        }
+    }
 </script>
 </html>
