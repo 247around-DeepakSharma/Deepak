@@ -6798,17 +6798,65 @@ class vendor extends CI_Controller {
         if (!in_array($this->session->userdata('user_group'), array(_247AROUND_ADMIN, _247AROUND_RM))) {
             redirect('employee/vendor/viewvendor');
         }
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/unapproved_sf_list');
+    }
+ function get_unapprovered_service_centers() {
+        if (!in_array($this->session->userdata('user_group'), array(_247AROUND_ADMIN, _247AROUND_RM))) {
+            redirect('employee/vendor/viewvendor');
+        }
+        $post = $this->get_post_data();
+        $post['column_order'] = array();
+        $post['column_search'] = array('service_centres.pincode', 'service_centres.company_name', 'state', 'district');
         $id = $this->session->userdata('user_group') == _247AROUND_RM ? $this->session->userdata('id') : "";
         $post['where']['is_approved'] = 0;
         if (!empty($id)) {
             $post['where']['rm_id'] = $id;
         }
         $post['length'] = -1;
-        $data['records'] = $this->vendor_model->viewallvendor($post, 'service_centres.*');
-        $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/unapproved_sf_list', $data);
+        $list = $this->vendor_model->viewallvendor($post, 'service_centres.*');
+        //$this->miscelleneous->load_nav_header();
+        $data = array();
+        $no = 0;
+
+        foreach ($list as $vendor_list) {
+            $no++;
+            $row = $this->get_unapproved_vendor_table($vendor_list, $no);
+            $data[] = $row;
+        }
+
+        $post['length'] = -1;
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->vendor_model->count_all_viewallvendor($post),
+            "recordsFiltered" => $this->vendor_model->count_filtered_viewallvendor($post),
+            "data" => $data
+        );
+
+       
+        echo json_encode($output);
     }
-    
+    /**
+      * this function use for get unapproved vendor list
+      *Author:Deepak Sharma
+      *@return type
+      *Create Date:13 May 2021
+    */
+    function get_unapproved_vendor_table($vendor_list, $no){
+
+        $row = array();
+        $row[] = $no;
+        $row[]= $vendor_list['company_name'];
+        $row[]= $vendor_list['address'];
+        $row[]= $vendor_list['pincode'];
+        $row[]= $vendor_list['state'];
+        $row[]= $vendor_list['district'];
+        $row[] = '<button class="btn btn-primary" type="button" id="btn_'.
+        $vendor_list['id'].'" onclick="approve_sf('.$vendor_list['id'].')"><i class="fa fa-active"></i>Approve</button>';
+                                            
+
+        return $row;
+    }    
     /**
      * This function is used to approve unapproved Vendors
      * @param sf_id (POST)
