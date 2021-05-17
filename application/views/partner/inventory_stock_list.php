@@ -114,7 +114,6 @@
                                     <th>Spare Part Number</th>
                                     <th>Description</th>
                                     <th>Spare Stock</th>
-                                    <th>Requested Parts</th>
                                     <th>Spare Basic Price</th>
                                     <th>Spare GST Rate</th>
                                     <th>Spare Total Price</th>
