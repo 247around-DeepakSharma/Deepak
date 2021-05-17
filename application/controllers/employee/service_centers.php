@@ -1229,6 +1229,8 @@ class Service_centers extends CI_Controller {
            //     break;
             }
 
+            $engineer_action = $this->engineer_model->getengineer_action_data("*", array("booking_id" => $booking_id));            
+            
             // Add Update by SF Value
             $this->booking_model->update_booking($booking_id, ['edit_by_sf' => 1]);
 
@@ -1239,10 +1241,13 @@ class Service_centers extends CI_Controller {
             $data['cancellation_reason'] = $cancellation_reason;
             $data['closed_date'] = date('Y-m-d H:i:s');
             $data['update_date'] = date('Y-m-d H:i:s');
+            // Update SF Closed date same as engineer closed date
+            if (!empty($engineer_action[0]['closed_date'])) {
+                $data['closed_date'] = $engineer_action[0]['closed_date'];
+            }
             $this->vendor_model->update_service_center_action($booking_id, $data);
             $this->miscelleneous->pull_service_centre_close_date($booking_id, $partner_id);
 
-            $engineer_action = $this->engineer_model->getengineer_action_data("id", array("booking_id" => $booking_id));
             if (!empty($engineer_action)) {
                 $eng_data = array(
                     "internal_status" => _247AROUND_CANCELLED,
