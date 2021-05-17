@@ -242,7 +242,7 @@
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/vendor/get_service_center_with_micro_wh',
-            data:{partner_id:<?php echo $this->session->userdata('partner_id'); ?>,wh_id:<?php echo $wh_id ?>},
+            data:{partner_id:<?php echo $this->session->userdata('partner_id'); ?>,wh_id:2},
             success: function (response) {
                 $('#wh_id').html(response);
             }
