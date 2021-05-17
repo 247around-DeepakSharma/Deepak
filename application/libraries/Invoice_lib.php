@@ -1257,7 +1257,7 @@ class Invoice_lib {
 
                 $unsettle = $this->ci->invoices_model->get_unsettle_inventory_invoice('invoice_details.*', $where, $order_by);
                 if (!empty($unsettle)) {
-                    $qty = (!empty($value['shipping_quantity']) ? $value['shipping_quantity'] : 1);//1;
+                    $qty = (!empty($value['shipping_quantity']) ? $value['shipping_quantity'] : 1);
 
                     $inventory_details = $this->ci->inventory_model->get_inventory_master_list_data('*', array('inventory_id' => $value['inventory_id']));
                     $value['part_name'] = $inventory_details[0]['part_name'];
@@ -1277,25 +1277,32 @@ class Invoice_lib {
                                 $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'settle_qty' => $restQty, 
                                     'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id'], 'spare_id' => $spare_id, 'rate' => $s['rate']);
 
-                                if (!array_key_exists($s['from_state_code'] . "-" . $s['to_state_code'], $processPostData)) {
+                                if (!array_key_exists($s['from_state_code'] . "-" . $s['to_state_code'], $processPostData[0])) {
 
-                                    $processPostData[$s['from_state_code'] . "-" . $s['to_state_code']]['data'][0] = $s;
-                                    $processPostData[$s['from_state_code'] . "-" . $s['to_state_code']]['from_state_code'][0] = $s['from_state_code'];
+                                    $processPostData[0][$s['from_state_code'] . "-" . $s['to_state_code']]['data'][0] = $s;
+                                    $processPostData[0][$s['from_state_code'] . "-" . $s['to_state_code']]['from_state_code'][0] = $s['from_state_code'];
 
-                                    $processPostData[$s['from_state_code'] . "-" . $s['to_state_code']]['mapping'][0] = $mapping;
+                                    $processPostData[0][$s['from_state_code'] . "-" . $s['to_state_code']]['mapping'][0] = $mapping;
                                 } else {
 
-                                    array_push($processPostData[$s['from_state_code'] . "-" . $s['to_state_code']]['data'], $s);
-                                    array_push($processPostData[$s['from_state_code'] . "-" . $s['to_state_code']]['mapping'], $mapping);
+                                    array_push($processPostData[0][$s['from_state_code'] . "-" . $s['to_state_code']]['data'], $s);
+                                    array_push($processPostData[0][$s['from_state_code'] . "-" . $s['to_state_code']]['mapping'], $mapping);
                                 }
 
                                 log_message('info', _METHOD_ . " Settle " . print_r($s, true));
                                 $qty = 0;
                                 break;
                             } else {
+<<<<<<< HEAD
                                 $this->invoices_not_found($value);
                                 array_push($not_updated, (isset($value['booking_id'])?$value['booking_id']:''));
                                 log_message('info', _METHOD_ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . (isset($value['booking_id'])?$value['booking_id']:'') . " Inventory id " . $value['inventory_id']);
+=======
+                                $processPostData = $this->settle_inventory_challan_annexure($processPostData, $value, $to_gst_id, $from_gst_id);
+//                                $this->invoices_not_found($value);
+//                                array_push($not_updated, (isset($value['booking_id'])?$value['booking_id']:''));
+//                                log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . (isset($value['booking_id'])?$value['booking_id']:'') . " Inventory id " . $value['inventory_id']);
+>>>>>>> CRM_Release_SPRINT_06_21
                             }
                         } else if ($restQty < $qty) {
 
@@ -1305,22 +1312,29 @@ class Invoice_lib {
                                 $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'settle_qty' => $restQty, 
                                     'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id'], 'spare_id' => $spare_id, 'rate' => $s['rate']);
 
-                                if (!array_key_exists($s['from_state_code'] . "-" . $s['to_state_code'], $processPostData)) {
+                                if (!array_key_exists($s['from_state_code'] . "-" . $s['to_state_code'], $processPostData[0])) {
 
-                                    $processPostData[$s['from_state_code'] . "-" . $s['to_state_code']]['data'][0] = $s;
+                                    $processPostData[0][$s['from_state_code'] . "-" . $s['to_state_code']]['data'][0] = $s;
 
-                                    $processPostData[$s['from_state_code'] . "-" . $s['to_state_code']]['mapping'][0] = $mapping;
+                                    $processPostData[0][$s['from_state_code'] . "-" . $s['to_state_code']]['mapping'][0] = $mapping;
                                 } else {
 
-                                    array_push($processPostData[$s['from_state_code'] . "-" . $s['to_state_code']]['data'], $s);
-                                    array_push($processPostData[$s['from_state_code'] . "-" . $s['to_state_code']]['mapping'], $mapping);
+                                    array_push($processPostData[0][$s['from_state_code'] . "-" . $s['to_state_code']]['data'], $s);
+                                    array_push($processPostData[0][$s['from_state_code'] . "-" . $s['to_state_code']]['mapping'], $mapping);
                                 }
 
                                 $qty = $qty - $restQty;
                             } else {
+<<<<<<< HEAD
                                 $this->invoices_not_found($value);
                                 array_push($not_updated, (isset($value['booking_id'])?$value['booking_id']:''));
                                 log_message('info', _METHOD_ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . (isset($value['booking_id'])?$value['booking_id']:'') . " Inventory id " . $value['inventory_id']);
+=======
+                                $processPostData = $this->settle_inventory_challan_annexure($processPostData, $value, $to_gst_id, $from_gst_id);
+//                                $this->invoices_not_found($value);
+//                                array_push($not_updated, (isset($value['booking_id'])?$value['booking_id']:''));
+//                                log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . (isset($value['booking_id'])?$value['booking_id']:'') . " Inventory id " . $value['inventory_id']);
+>>>>>>> CRM_Release_SPRINT_06_21
                             }
                         } else if ($restQty > $qty) {
 
@@ -1332,21 +1346,22 @@ class Invoice_lib {
                                 $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'settle_qty' => $qty, 'create_date' => date('Y-m-d H:i:s'), 
                                     "inventory_id" => $value['inventory_id'], 'spare_id' => $spare_id, 'rate' => $s['rate']);
 
-                                if (!array_key_exists($s['from_state_code'] . "-" . $s['to_state_code'], $processPostData)) {
+                                if (!array_key_exists($s['from_state_code'] . "-" . $s['to_state_code'], $processPostData[0])) {
 
-                                    $processPostData[$s['from_state_code'] . "-" . $s['to_state_code']]['data'][0] = $s;
+                                    $processPostData[0][$s['from_state_code'] . "-" . $s['to_state_code']]['data'][0] = $s;
 
-                                    $processPostData[$s['from_state_code'] . "-" . $s['to_state_code']]['mapping'][0] = $mapping;
+                                    $processPostData[0][$s['from_state_code'] . "-" . $s['to_state_code']]['mapping'][0] = $mapping;
                                 } else {
 
-                                    array_push($processPostData[$s['from_state_code'] . "-" . $s['to_state_code']]['data'], $s);
-                                    array_push($processPostData[$s['from_state_code'] . "-" . $s['to_state_code']]['mapping'], $mapping);
+                                    array_push($processPostData[0][$s['from_state_code'] . "-" . $s['to_state_code']]['data'], $s);
+                                    array_push($processPostData[0][$s['from_state_code'] . "-" . $s['to_state_code']]['mapping'], $mapping);
                                 }
 
                                 $qty = 0;
 
                                 break;
                             } else {
+<<<<<<< HEAD
                                 $this->invoices_not_found($value);
                                 array_push($not_updated, (isset($value['booking_id'])?$value['booking_id']:''));
                                 log_message('info', _METHOD_ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . (isset($value['booking_id'])?$value['booking_id']:'') . " Inventory id " . $value['inventory_id']);
@@ -1356,13 +1371,34 @@ class Invoice_lib {
                                 $this->invoices_not_found($value);
                                 array_push($not_updated, (isset($value['booking_id'])?$value['booking_id']:''));
                                 log_message('info', _METHOD_ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . (isset($value['booking_id'])?$value['booking_id']:'') . " Inventory id " . $value['inventory_id']);
+=======
+                                $processPostData = $this->settle_inventory_challan_annexure($processPostData, $value, $to_gst_id, $from_gst_id);
+//                                $this->invoices_not_found($value);
+//                                array_push($not_updated, (isset($value['booking_id'])?$value['booking_id']:''));
+//                                log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . (isset($value['booking_id'])?$value['booking_id']:'') . " Inventory id " . $value['inventory_id']);
+                            }
+                        } else {
+                            if ($qty > 0) {
+                                $processPostData = $this->settle_inventory_challan_annexure($processPostData, $value, $to_gst_id, $from_gst_id);
+//                                $this->invoices_not_found($value);
+//                                array_push($not_updated, (isset($value['booking_id'])?$value['booking_id']:''));
+//                                log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . (isset($value['booking_id'])?$value['booking_id']:'') . " Inventory id " . $value['inventory_id']);
+>>>>>>> CRM_Release_SPRINT_06_21
                             }
                         }
                     }
                 } else {
+<<<<<<< HEAD
                     $this->invoices_not_found($value);
                     array_push($not_updated, (isset($value['booking_id'])?$value['booking_id']:''));
                     log_message('info', _METHOD_ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . (isset($value['booking_id'])?$value['booking_id']:'') . " Inventory id " . $value['inventory_id']);
+=======
+                    
+                    $processPostData = $this->settle_inventory_challan_annexure($processPostData, $value, $to_gst_id, $from_gst_id);
+//                    $this->invoices_not_found($value);
+//                    array_push($not_updated, (isset($value['booking_id'])?$value['booking_id']:''));
+//                    log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . (isset($value['booking_id'])?$value['booking_id']:'') . " Inventory id " . $value['inventory_id']);
+>>>>>>> CRM_Release_SPRINT_06_21
                 }
             } else {
                 $this->invoices_not_found($value);
