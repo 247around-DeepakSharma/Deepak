@@ -4938,75 +4938,77 @@ exit();
             if (!empty($spare)) {
                 if ($spare[0]['is_micro_wh'] == 1 && ($spare[0]['partner_id'] == $spare[0]['service_center_id'])) {
                     if (!empty($spare[0]['shipped_inventory_id'])) {
-                        
+
                         $spare[0]['spare_id'] = $spare_id;
                         $spare[0]['inventory_id'] = $spare[0]['shipped_inventory_id'];
                         $spare[0]['booking_partner_id'] = $spare[0]['service_center_id'];
                         $service_center_state_code = $this->invoices_model->get_state_code(array('state' => $spare[0]['state']))[0]['state_code'];
-                        $unsettle = $this->invoice_lib->settle_inventory_invoice_annexure($spare);                        
+                        $unsettle = $this->invoice_lib->settle_inventory_invoice_annexure($spare);
                         if (!empty($unsettle['processData'])) {
-                            foreach ($unsettle['processData'] as $invoiceValue) {
-                                $data = array();
-                                
-                                foreach ($invoiceValue['data'] as $value) {
-                                    $data[0]['description'] = ucwords($value['part_name']) . " (" . $spare[0]['booking_id'] . ") ";
-                                    
-                                    $data[0]['product_or_services'] = "Product";
-                                    $data[0]['gst_number'] = $spare[0]['gst_number'];
-                                    $data[0]['main_gst_number'] = $value['to_gst_number'];
-                                    
-                                    $data[0]['spare_id'] = $spare_id;
-                                    $data[0]['inventory_id'] = $spare[0]['inventory_id'];
-                                    $data[0]['company_name'] = $spare[0]['company_name'];
-                                    $data[0]['owner_phone_1'] = $spare[0]['owner_phone_1'];
-                                    $data[0]['company_address'] = $spare[0]['company_address'];
-                                    $data[0]['district'] = $spare[0]['district'];
-                                    $data[0]['pincode'] = $spare[0]['pincode'];
-                                    $data[0]['state'] = $spare[0]['state'];
-                                    $data[0]['taxable_value'] = $value['rate'] * $value['qty'];
-                                    $data[0]['rate'] = $value['rate'];
-                                    
-                                    if (!empty($spare[0]['gst_number']) 
-                                        && !empty($spare[0]['gst_status']) 
-                                        && !($spare[0]['gst_status'] == _247AROUND_CANCELLED || $spare[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
-                                        $invoice_type = "Tax Invoice";
-                                        $invoice_id = $this->invoice_lib->create_invoice_id($spare[0]['sc_code']);
-                                        $data[0]['to_gst_number_id'] = $value['to_gst_number_id'];
-                                            
-                                    } else {
-                                        $data[0]['gst_number'] = true;
-                                        $invoice_type = CREDIT_NOTE;
-                                        $invoice_id = $this->create_invoice_id_to_insert("ARD-CN");
-                                        $data[0]['from_gst_number_id'] = $value['to_gst_number_id'];
-                                    }
-                                    if($service_center_state_code ==  $value['to_state_code']){
-                                        $data[0]['c_s_gst'] = TRUE;
-                                    } else {
-                                        $data[0]['c_s_gst'] = FALSE; 
-                                    }
-                                    
-                                    $data[0]['invoice_id'] = $invoice_id;
 
-                                    $data[0]['qty'] = $value['qty'];
-                                    $data[0]['hsn_code'] = $value['hsn_code'];
-                                    $sd = $ed = $invoice_date = date("Y-m-d");
-                                    $data[0]['gst_rate'] = $value['gst_rate'];
-                                    $data[0]['from_state_code'] = $value['to_state_code'];
-                                    $data[0]['from_address'] = $value['to_address'];
-                                    $data[0]['from_pincode'] = $value['to_pincode'];
-                                    $data[0]['from_city'] = $value['to_city'];
-                                    $email_array = array($spare[0]['owner_email'], $spare[0]['primary_contact_email']);
-                                    $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare, MSL_DEFECTIVE_RETURN, $invoice_type, $email_array);
-                                    if ($a) {
-                                        
-                                    } else {
-                                        log_message('info', __METHOD__ . " File is not genereated " . $spare_id);
+                            foreach ($unsettle['processData'] as $c_type => $invoiceTmp) {
+                                if (!empty($invoiceTmp)) {
+                                    foreach ($invoiceTmp as $key => $invoiceValue) {
+                                        $data = array();
+
+                                        foreach ($invoiceValue['data'] as $value) {
+                                            $data[0]['description'] = ucwords($value['part_name']) . " (" . $spare[0]['booking_id'] . ") ". "  Reference Invoice ID " . $value['incoming_invoice_id'];
+
+                                            $data[0]['product_or_services'] = "Product";
+                                            $data[0]['gst_number'] = $spare[0]['gst_number'];
+                                            $data[0]['main_gst_number'] = $value['to_gst_number'];
+
+                                            $data[0]['spare_id'] = $spare_id;
+                                            $data[0]['inventory_id'] = $spare[0]['inventory_id'];
+                                            $data[0]['company_name'] = $spare[0]['company_name'];
+                                            $data[0]['owner_phone_1'] = $spare[0]['owner_phone_1'];
+                                            $data[0]['company_address'] = $spare[0]['company_address'];
+                                            $data[0]['district'] = $spare[0]['district'];
+                                            $data[0]['pincode'] = $spare[0]['pincode'];
+                                            $data[0]['state'] = $spare[0]['state'];
+                                            $data[0]['taxable_value'] = $value['rate'] * $value['qty'];
+                                            $data[0]['rate'] = $value['rate'];
+
+                                            if (!empty($spare[0]['gst_number']) && !empty($spare[0]['gst_status']) && !($spare[0]['gst_status'] == _247AROUND_CANCELLED || $spare[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
+                                                $invoice_type = "Tax Invoice";
+                                                $invoice_id = $this->invoice_lib->create_invoice_id($spare[0]['sc_code']);
+                                                $data[0]['to_gst_number_id'] = $value['to_gst_number_id'];
+                                            } else {
+                                                $data[0]['gst_number'] = true;
+                                                $invoice_type = CREDIT_NOTE;
+                                                $invoice_id = $this->create_invoice_id_to_insert("ARD-CN");
+                                                $data[0]['from_gst_number_id'] = $value['to_gst_number_id'];
+                                            }
+                                            if ($service_center_state_code == $value['to_state_code']) {
+                                                $data[0]['c_s_gst'] = TRUE;
+                                            } else {
+                                                $data[0]['c_s_gst'] = FALSE;
+                                            }
+
+                                            $data[0]['invoice_id'] = $invoice_id;
+
+                                            $data[0]['qty'] = $value['qty'];
+                                            $data[0]['hsn_code'] = $value['hsn_code'];
+                                            $sd = $ed = $invoice_date = date("Y-m-d");
+                                            $data[0]['gst_rate'] = $value['gst_rate'];
+                                            $data[0]['from_state_code'] = $value['to_state_code'];
+                                            $data[0]['from_address'] = $value['to_address'];
+                                            $data[0]['from_pincode'] = $value['to_pincode'];
+                                            $data[0]['from_city'] = $value['to_city'];
+                                            $email_array = array($spare[0]['owner_email'], $spare[0]['primary_contact_email']);
+                                            $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare, MSL_DEFECTIVE_RETURN, $invoice_type, $email_array);
+                                            if ($a) {
+                                                
+                                            } else {
+                                                log_message('info', __METHOD__ . " File is not genereated " . $spare_id);
+                                            }
+                                        }
+
+                                        foreach ($invoiceValue['mapping'] as $m) {
+                                            $m['outgoing_invoice_id'] = $invoice_id;
+                                            $this->invoices_model->insert_inventory_invoice($m);
+                                        }
                                     }
-                                }
-                                
-                                foreach($invoiceValue['mapping'] as $m){
-                                    $m['outgoing_invoice_id'] = $invoice_id;
-                                    $this->invoices_model->insert_inventory_invoice($m);
                                 }
                             }
                         }
@@ -5023,6 +5025,7 @@ exit();
             log_message('info', __METHOD__ . " Empty Spare ");
         }
     }
+
     /**
      * @desc This function is used to insert sale invoice and mail with invoice file
      * @param String $invoice_id
@@ -5189,7 +5192,6 @@ exit();
                 . "spare_parts_details.is_micro_wh, spare_parts_details.booking_id,"
                 . "spare_parts_details.id, reverse_purchase_invoice_id, spare_parts_details.shipped_quantity as shipping_quantity", array('spare_parts_details.id' => $spare_id), TRUE, FALSE);
 
-
         if (!empty($spare)) {
             $partner_details = $this->partner_model->getpartner($spare[0]['booking_partner_id']);
             if (!empty($partner_details)) {
@@ -5204,37 +5206,42 @@ exit();
                         $spare[0]['booking_partner_id'] = $spare[0]['partner_id'];
                         $unsettles = $this->invoice_lib->settle_inventory_invoice_annexure($spare);
                         if (!empty($unsettles['processData'])) {
-                            foreach ($unsettles['processData'] as $key => $invoicevalue) {
-                                $tmp_k = explode('-', $key);
-                                $tmp_invoice = "ARD-".$tmp_k[0];
-                                $invoice_id = $this->invoice_lib->create_invoice_id($tmp_invoice); 
-                                
-                                foreach ($invoicevalue['data'] as $value) {
-                                    $data = array();
-                                    $data[0]['description'] = ucwords($value['part_name']) . " (" . $spare[0]['booking_id'] . ") ";
-                                    $data[0]['taxable_value'] = $value['rate']*$value['qty'];
-                                    $data[0]['product_or_services'] = "Product";
-                                    $data[0]['gst_number'] = $value['to_gst_number'];
-                                    $data[0]['from_gst_number'] = $value['from_gst_number'];
-                                    $data[0]['invoice_id'] = $invoice_id;
-                                    $data[0]['spare_id'] = $spare_id;
-                                    $data[0]['inventory_id'] = $spare[0]['shipped_inventory_id'];
-                                    $data[0]['company_name'] = $partner_details[0]['company_name'];
-                                    $data[0]['company_address'] = $partner_details[0]['address'];
-                                    $data[0]['district'] = $partner_details[0]['district'];
-                                    $data[0]['pincode'] = $partner_details[0]['pincode'];
-                                    $data[0]['state'] = $partner_details[0]['state'];
-                                    $data[0]['rate'] = $value['rate'];
-                                    $data[0]['qty'] = $value['qty'];//1;
-                                    $data[0]['hsn_code'] = $value['hsn_code'];
-                                    $sd = $ed = $invoice_date = date("Y-m-d");
-                                    $data[0]['gst_rate'] = $value['gst_rate'];
 
-                                    $a = $this->_reverse_purchase_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $partner_details, $spare[0]);
-                                    if ($a) {
-                                        
-                                    } else {
-                                        log_message('info', __METHOD__ . " File is not genereated " . $spare_id);
+                            foreach ($unsettles['processData'] as $c_type => $invoiceTmp) {
+                                if (!empty($invoiceTmp)) {
+                                    foreach ($invoiceTmp as $key => $invoicevalue) {
+                                        $tmp_k = explode('-', $key);
+                                        $tmp_invoice = "ARD-" . $tmp_k[0];
+                                        $invoice_id = $this->invoice_lib->create_invoice_id($tmp_invoice);
+
+                                        foreach ($invoicevalue['data'] as $value) {
+                                            $data = array();
+                                            $data[0]['description'] = ucwords($value['part_name']) . " (" . $spare[0]['booking_id'] . ") ". "  Reference Invoice ID " . $value['incoming_invoice_id'];
+                                            $data[0]['taxable_value'] = $value['rate'] * $value['qty'];
+                                            $data[0]['product_or_services'] = "Product";
+                                            $data[0]['gst_number'] = $value['to_gst_number'];
+                                            $data[0]['from_gst_number'] = $value['from_gst_number'];
+                                            $data[0]['invoice_id'] = $invoice_id;
+                                            $data[0]['spare_id'] = $spare_id;
+                                            $data[0]['inventory_id'] = $spare[0]['shipped_inventory_id'];
+                                            $data[0]['company_name'] = $partner_details[0]['company_name'];
+                                            $data[0]['company_address'] = $partner_details[0]['address'];
+                                            $data[0]['district'] = $partner_details[0]['district'];
+                                            $data[0]['pincode'] = $partner_details[0]['pincode'];
+                                            $data[0]['state'] = $partner_details[0]['state'];
+                                            $data[0]['rate'] = $value['rate'];
+                                            $data[0]['qty'] = $value['qty']; //1;
+                                            $data[0]['hsn_code'] = $value['hsn_code'];
+                                            $sd = $ed = $invoice_date = date("Y-m-d");
+                                            $data[0]['gst_rate'] = $value['gst_rate'];
+
+                                            $a = $this->_reverse_purchase_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $partner_details, $spare[0]);
+                                            if ($a) {
+                                                
+                                            } else {
+                                                log_message('info', __METHOD__ . " File is not genereated " . $spare_id);
+                                            }
+                                        }
                                     }
                                 }
                             }
