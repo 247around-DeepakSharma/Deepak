@@ -55,16 +55,15 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Appliance  <?php //echo $this->session->userdata('userType'); ?></th>
-                                    <th> Type</th>
-                                    <th>  Part Name</th>
-                                    <th>  Part Number</th>
+                                    <th>Type</th>
+                                    <th>Part Name</th>
+                                    <th>Part Number</th>
                                     <th>Description</th>
-                                    <th>  Stock</th>
-                                    <th>  Requested Parts</th>
-                                    <th> SF Basic Price</th>
-                                    <th>  GST Rate</th>
-                                    <th>  Total Price</th>
-                                    <th>  Customer  Total</th>
+                                    <th>Stock</th>
+                                    <th>SF Basic Price</th>
+                                    <th>GST Rate</th>
+                                    <th>Total Price</th>
+                                    <th>Customer  Total</th>
                                     <th>Alternate Parts</th>
                                     
                                 </tr>
