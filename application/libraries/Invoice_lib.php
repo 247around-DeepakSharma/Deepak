@@ -1343,7 +1343,11 @@ class Invoice_lib {
                                 $this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settle' => 1, 'settle_qty' => $b['qty']));
                                 $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'settle_qty' => $restQty, 
                                     'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id'], 'spare_id' => $spare_id, 'rate' => $s['rate']);
-
+                                
+                                if(!isset($processPostData[0])){
+                                    $processPostData[0] = array();
+                                }
+                                
                                 if (!array_key_exists($s['from_state_code'] . "-" . $s['to_state_code'], $processPostData[0])) {
 
                                     $processPostData[0][$s['from_state_code'] . "-" . $s['to_state_code']]['data'][0] = $s;
@@ -1373,6 +1377,10 @@ class Invoice_lib {
                                 $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'settle_qty' => $restQty, 
                                     'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id'], 'spare_id' => $spare_id, 'rate' => $s['rate']);
 
+                                if(!isset($processPostData[0])){
+                                    $processPostData[0] = array();
+                                }
+                                
                                 if (!array_key_exists($s['from_state_code'] . "-" . $s['to_state_code'], $processPostData[0])) {
 
                                     $processPostData[0][$s['from_state_code'] . "-" . $s['to_state_code']]['data'][0] = $s;
@@ -1401,6 +1409,10 @@ class Invoice_lib {
                                 $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'settle_qty' => $qty, 'create_date' => date('Y-m-d H:i:s'), 
                                     "inventory_id" => $value['inventory_id'], 'spare_id' => $spare_id, 'rate' => $s['rate']);
 
+                                if(!isset($processPostData[0])){
+                                    $processPostData[0] = array();
+                                }
+                                
                                 if (!array_key_exists($s['from_state_code'] . "-" . $s['to_state_code'], $processPostData[0])) {
 
                                     $processPostData[0][$s['from_state_code'] . "-" . $s['to_state_code']]['data'][0] = $s;
@@ -1487,7 +1499,11 @@ class Invoice_lib {
                         $this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settled' => 1, 'settled_quantity' => $b['quantity']));
                         $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'settle_qty' => $restQty,
                             'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id'], 'spare_id' => $spare_id, 'rate' => $s['rate']);
-
+                        
+                        if(!isset($processPostData[1])){
+                            $processPostData[1] = array();
+                        }
+                        
                         if (!array_key_exists($s['from_state_code'] . "-" . $s['to_state_code'], $processPostData[1])) {
 
                             $processPostData[1][$s['from_state_code'] . "-" . $s['to_state_code']]['data'][0] = $s;
@@ -1515,7 +1531,11 @@ class Invoice_lib {
                         $this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settled' => 1, 'settled_quantity' => $b['quantity']));
                         $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'settle_qty' => $restQty,
                             'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id'], 'spare_id' => $spare_id, 'rate' => $s['rate']);
-
+                        
+                        if(!isset($processPostData[1])){
+                            $processPostData[1] = array();
+                        }
+                        
                         if (!array_key_exists($s['from_state_code'] . "-" . $s['to_state_code'], $processPostData[1])) {
 
                             $processPostData[1][$s['from_state_code'] . "-" . $s['to_state_code']]['data'][0] = $s;
@@ -1543,6 +1563,10 @@ class Invoice_lib {
                         $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'settle_qty' => $qty, 'create_date' => date('Y-m-d H:i:s'),
                             "inventory_id" => $value['inventory_id'], 'spare_id' => $spare_id, 'rate' => $s['rate']);
 
+                        if(!isset($processPostData[1])){
+                            $processPostData[1] = array();
+                        }
+                        
                         if (!array_key_exists($s['from_state_code'] . "-" . $s['to_state_code'], $processPostData[1])) {
 
                             $processPostData[1][$s['from_state_code'] . "-" . $s['to_state_code']]['data'][0] = $s;
