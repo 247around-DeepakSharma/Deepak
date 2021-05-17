@@ -3776,7 +3776,11 @@ class Inventory extends CI_Controller {
         } else {
             $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . sprintf("%.2f", $inventory_list->price) . '</span>';
             $row[] = '<span id="gst_rate_' . $inventory_list->inventory_id . '">' . $inventory_list->gst_rate . '</span>';
-            $row[] =  '<span id="total_amount_' . $inventory_list->inventory_id . '">'. sprintf("%.2f", $inventory_list->price *(1 + $inventory_list->gst_rate/100)). '</span>';
+            $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . sprintf("%.2f", $inventory_list->price * (1 + $inventory_list->gst_rate / 100)) . '</span>';
+            
+            $cbasic = ($inventory_list->price * ( 1 + ($inventory_list->oow_around_margin + $inventory_list->oow_vendor_margin) / 100));
+            $ctotal = $cbasic * (1 + $inventory_list->gst_rate / 100);
+            $row[] = sprintf("%.2f", $ctotal);
         }
         
 
