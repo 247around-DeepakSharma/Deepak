@@ -157,7 +157,7 @@
             <td colspan="6"></td>
         </tr>
         <tr>
-            <td  colspan="7" align="left" style="border-top: hidden;"><b>GST: </b><?php echo $excel_data['partner_gst']; ?></td>
+            <td  colspan="7" align="left" style="border-top: hidden;"></td>
             <td style="border-top: hidden; border-right:hidden; border-left: hidden;"></td>
             <td colspan="7" style="border-top: hidden; border-left: hidden;"></td>
         </tr>
