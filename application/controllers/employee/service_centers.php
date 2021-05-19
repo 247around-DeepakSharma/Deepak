@@ -10762,6 +10762,13 @@ function do_delivered_spare_transfer() {
 			 }
             $this->insert_details_in_state_change($booking_id, $sf_booking_status, $remarks_auto_close, "247Around", "Review the Booking", NULL, true);
 
+            // Update Symptom, Defect & SOlution against Booking
+            $bookingSymptom['booking_id'] = $booking_id;
+            $bookingSymptom['symptom_id_booking_completion_time'] = $engg_completed_booking->symptom;
+            $bookingSymptom['defect_id_completion'] = $engg_completed_booking->defect;
+            $bookingSymptom['solution_id'] = $engg_completed_booking->solution;
+            $this->booking_model->addBookingSymptom($bookingSymptom);                   
+            
             //Update spare consumption as entered by engineer Booking Completed
             if ($booking_status == _247AROUND_COMPLETED) {
                 $update_consumption = false;
