@@ -144,7 +144,7 @@
                         <div class="form-group">
                             <label for="fullname" class="col-md-4">Name<span style="color:red"> *</span>:</label>
                             <div class="col-md-6">
-                                <input type="text" class="form-control" name="fullname" id="fullname" onkeypress="return RestrictfirstSpace(event,this);">
+                                <input type="text" class="form-control" name="fullname" id="fullname" onkeypress="return RestrictfirstSpace(event,this);" onpaste="not_allow_paste_space()">
                             </div>
                         </div>
                         <div class="form-group">
@@ -287,6 +287,29 @@
                 theEvent.preventDefault();
             }
         }
+    }
+
+    $("#fullname").on('keyup', function(e) {
+        var val = $(this).val();
+        if (val.match(/[^ a-zA-Z]/g)) {
+            $(this).val(val.replace(/[^ a-zA-Z]/g, ''));
+        }
+    });
+
+    $("#mobile-number").on('keyup', function(e) {
+        var val = $(this).val();
+        if (val.match(/[^0-9]/g)) {
+            $(this).val(val.replace(/[^0-9]/g, ''));
+        }
+    });
+
+    function not_allow_paste_space(){
+        setTimeout(() => {
+            var fullname = $('#fullname').val();
+            if(fullname.charAt(0) == ' '){
+                $('#fullname').val(fullname.trim());
+            }
+        }, 200);
     }
 </script>
 </html>
