@@ -1,8 +1,8 @@
 
 <p>Agent Name:- <?php if($this->session->userdata('employee_id') === NULL){ echo _247AROUND_DEFAULT_AGENT_NAME;}else{echo $this->session->userdata('employee_id');} ?></p>
 <p><?php echo $file_name; ?>  :- This file was request to upload </p>
-<p>Total Booking came today: <?php echo $total_booking_came_today; ?></p>
-<p>Total Booking inserted today: <?php echo $total_booking_inserted; ?> </p>
+<p>Total Booking came today: <?php if(!empty($total_booking_came_today)) { echo $total_booking_came_today ; } ?></p>
+<p>Total Booking inserted today: <?php if(!empty($total_booking_inserted)) { echo $total_booking_inserted; } ?> </p>
 
 <?php if (isset($count_booking_updated)) { ?>
     <p>Total Booking Updated: <?php echo $count_booking_updated; ?>
