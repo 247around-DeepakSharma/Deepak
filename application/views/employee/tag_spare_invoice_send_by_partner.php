@@ -213,7 +213,7 @@
                                                 <input type="text" class="form-control part_number" name="part[0][part_number]" id="partNumber_0" required="" onblur="get_part_details(this.id)" placeholder="Enter Part Number">
                                                 <label for="partNumber_0" class="error"></label>
                                             </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-3">
+                                            <div class="col-xs-12 col-sm-6 col-md-2">
                                                 <select class="form-control" name="part[0][part_name]" id="partName_0"  required=""></select>
                                                 <span id="part_loader_0" style="display: none; margin-left: 45%;"><i class='fa fa-spinner fa-spin'></i></span>
                                                 <label for="partName_0" class="error"></label>
@@ -798,8 +798,14 @@
                             return false;
                         }
     
-                        if(Number($('#partHsnCode_'+i).val()) === ""){
+                        if(Number($('#partHsnCode_'+i).val()) == ''){
                             showConfirmDialougeBox('Please enter HSN Code', 'warning');
+                            $('#partHsnCode_'+i).addClass('text-danger');
+                            flag = false;
+                            return false;
+                        }
+                         if(Number($('#partHsnCode_'+i).val().length) != 6 && Number($('#partHsnCode_'+i).val().length) != 8){
+                            showConfirmDialougeBox('HSN Code should be six and eight digit only', 'warning');
                             $('#partHsnCode_'+i).addClass('text-danger');
                             flag = false;
                             return false;
@@ -1910,4 +1916,419 @@
         $("#on_b_total_spare_invoice_price").val(our_invoice_amt);
         change_tcs_rate("on_b_");
     }
+
+   
+        $("#spareForm_dc").on('submit', function(e) {
+            e.preventDefault();
+            $("#submit_btn_dc").attr('disabled',true);
+            var isvalid = $("#spareForm_dc").valid();
+            var flag = true;
+            if (isvalid) {
+                var wh_name = $('#wh_id_dc option:selected').text();
+                $('#wh_name_dc').val(wh_name);
+                
+                var partner_name = $('#partner_id_dc option:selected').text();
+                $('#partner_name_dc').val(partner_name);
+                
+                $(".part-total-price_dc").each(function(i) {
+                    if($.trim($('#partBasicPrice_dc_'+i).val()) !== '') {
+                        validateDecimal('partBasicPrice_dc_'+i,$('#partBasicPrice_dc_'+i).val());
+    
+                        if(Number($('#partBasicPrice_dc_'+i).val()) == 0){
+                            showConfirmDialougeBox('Please enter total basic price', 'warning');
+                            $('#partBasicPrice_dc_'+i).addClass('text-danger');
+                            flag = false;
+                            return false;
+                        }
+    
+                        if(Number($('#partHsnCode_dc_'+i).val()) == ''){
+                            showConfirmDialougeBox('Please enter HSN Code', 'warning');
+                            $('#partHsnCode_dc_'+i).addClass('text-danger');
+                            flag = false;
+                            return false;
+                        }
+                         if(Number($('#partHsnCode_dc_'+i).val()) != 6 && Number($('#partHsnCode_dc_'+i).val()) != 8){
+                            showConfirmDialougeBox('HSN Code should be six and eight digit only', 'warning');
+                            $('#partHsnCode_dc_'+i).addClass('text-danger');
+                            flag = false;
+                            return false;
+                        }
+    
+                        if(Number($('#partGstRate_dc_'+i).val()) === ""){
+                            showConfirmDialougeBox('Please enter Gst Rate', 'warning');
+                            $('#partGstRate_dc_'+i).addClass('text-danger');
+                            flag = false;
+                            return false;
+                        }
+                    }
+                });
+                
+                var entered_invoice_amt = Number($('#challan_amount_dc').val());
+                var our_invoice_amt = Number($('#final_total_dc').val());
+                var box_count = $("#box_count_dc").val() || 0;
+                var small_box_count = $("#small_box_count_dc").val() || 0;
+                $('#box_count_dc').css('border','');
+                $('#small_box_count_dc').css('border','');
+                if(box_count + small_box_count > 0){
+                if((our_invoice_amt >= entered_invoice_amt - 10) && (our_invoice_amt <= entered_invoice_amt + 10) ){
+                    $('#challan_amount_dc').css('border','1px solid #ccc');
+                    $('#total_spare_invoice_price_dc').removeClass('text-danger');
+                    
+                    /* Open Modal */
+                    $("#clone_id_dc").empty();
+                    $('#appliance_details_id_dc').clone(true).appendTo('#clone_id_dc');
+                    $('#clone_id_dc .form-control').each(function(){
+                    var IdsArray =  $(this).attr("id").split("_");a
+                        if(IdsArray[0] == 'partGstRate'){
+							
+                           var gst_rate = $("#partGstRate_dc_"+IdsArray[2]).val();
+                          $(this).attr("id","clone_gstRate_"+IdsArray[2]); 
+                          $("#clone_gstRate_"+IdsArray[2]).val(gst_rate).change();
+                          $("#clone_gstRate_"+IdsArray[2]).css('pointer-events','none');
+                        }
+                    $(this).attr("readonly","readonly");
+                    });
+                    $("#clone_id_dc .select2-selection__rendered").css('background','#eee');
+                    $("#clone_id_dc .addButton").hide();
+                    $("#clone_id_dc .removeButton").hide();
+                
+                    if(flag == true){
+                        $('#map_appliance_model_dc').modal('toggle');
+                    }
+                   var c_status = $("#confirmation_dc").val();
+                       
+                   if((c_status !='')&& (c_status == '1')){
+                    if(confirm('Are you sure to continue')){
+                        //Serializing all For Input Values (not files!) in an Array Collection so that we can iterate this collection later.
+                        var params = $('#spareForm_dc').serializeArray();
+    
+                        //Getting Invoice Files Collection
+                        var challan_files = $("#challan_file_dc")[0].files;
+    
+                        //Getting Courier Files Collection
+                        var courier_file = $("#courier_file_dc")[0].files;
+    
+                        //Declaring new Form Data Instance  
+                        var formData = new FormData();
+                        
+                        var is_micro = $("#wh_id_dc").find(':selected').attr('data-warehose');
+                        formData.append("is_wh_micro_dc", is_micro);
+    
+                        //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
+                        for (var i = 0; i < challan_files.length; i++) {
+                            formData.append('challan_files', challan_files[i]);
+                        }
+    
+                        //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
+                        for (var i = 0; i < courier_file.length; i++) {
+                            formData.append('courier_file', courier_file[i]);
+                        }
+                        //Now Looping the parameters for all form input fields and assigning them as Name Value pairs. 
+                        $(params).each(function (index, element) {
+                            formData.append(element.name, element.value);
+                        });
+                        
+                        formData.append("tcs_rate", $("#tcs_rate_dc").val());
+                        
+                        $.ajax({
+                            method:"POST",
+                            url:"<?php echo base_url();?>employee/inventory/process_spare_invoice_tagging",
+                            data:formData,
+                            contentType: false,
+                            processData: false,
+                            beforeSend: function(){
+                                // Handle the beforeSend event
+                                $('#sumit_msl_dc,#submit_btn_dc').attr('disabled',true);
+                                $('#submit_btn_dc').html("<i class='fa fa-spinner fa-spin'></i> Processing...");
+                                $("#spareForm_dc")[0].reset();
+                                $("#spareForm_dc").find('input:text, input:file, select').val('');
+                                $(".select2-selection__rendered").html('');
+                                $('label.error').css('color','white');
+                            },
+                            success:function(response){
+                                console.log(response);
+                                obj = JSON.parse(response);
+    //                                if(obj['warehouse_id']!='' && obj['total_quantity']!=''){                                   
+    //                                    var confirmation = confirm("Want to Print Warehouse Address");
+    //                                    if (confirmation){
+    //                                       window.location.href = "<?php echo base_url();?>employee/inventory/print_warehouse_address/"+obj['partner_id']+"/"+obj['warehouse_id']+"/"+obj['total_quantity']+""; 
+    //                                    }
+    //                                }                                
+                                if(obj.status){
+                                    $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
+                                    $('#success_msg_dc').html(obj.message);
+                                    $("#spareForm_dc")[0].reset();
+                                    $("#spareForm_dc").find('input:text, input:file, select').val('');
+                                    $('#select2-partner_id_dc-container').text('Select Partner');
+                                    $('#select2-partner_id_dc-container').attr('title','Select Partner');
+                                    $('#select2-from_gst_number_dc-container').text('Select From GST Number');
+                                    $('#select2-from_gst_number_dc-container').attr('title','Select From GST Number');
+                                    $('#select2-to_gst_number_dc-container').text('Select To GST Number');
+                                    $('#select2-to_gst_number_dc-container').attr('title','Select To GST Number');
+                                    $('#select2-wh_id_dc-container').text('Select Warehouse');
+                                    $('#select2-wh_id_dc-container').attr('title','Select Warehouse');
+                                    $('#select2-serviceId_dc_0-container').text('Select Appliance');
+                                    $('#select2-serviceId_dc_0-container').attr('title','Select Appliance');
+                                    $('#select2-partName_dc_0-container').text('Select Part Name');
+                                    $('#select2-partName_dc_0-container').attr('title','Select Part Name');
+                                    $('#select2-partNumber_dc_0-container').text('Select Part Number');
+                                    $('#select2-partNumber_dc_0-container').attr('title','Select Part Number');
+                                    $('#total_spare_invoice_price_dc').val('0');
+                                    $(".warehouse_print_address_dc").css({'display':'block'});
+                                    $("#print_warehouse_addr_dc").attr("href","<?php echo base_url();?>employee/inventory/print_warehouse_address/"+obj['partner_id']+"/"+obj['warehouse_id']+"/"+obj['total_quantity']+"");
+                                }else{
+                                    $('.error_msg_div_dc').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
+                                    $('#error_msg_dc').html(obj.message);
+                                }
+    
+                            },
+                            complete: function() {
+                                $('#sumit_msl_dc,#submit_btn_dc').attr('disabled',false);
+                                $('#submit_btn_dc').html("Preview");
+                                $('label.error').css('color','red');
+                                $('label.error').css('display','none');
+                                $("#confirmation_dc").val('0');    
+                                partArr = new Array();
+                            }
+                        });
+                    }else{
+                        $("#confirmation_dc").val('0');
+                        return false;
+                    }
+                }
+                }else{
+                    alert('Amount of invoice does not match with total price');
+                    $('#challan_amount_dc').css('border','1px solid red');
+                    $('#total_spare_invoice_price_dc').addClass('text-danger');
+                    return false;
+                }
+            }else{
+                alert('Minimum box count should be 1, Please select from Large or small box count.');
+                $('#box_count_dc').css('border','1px solid red');
+                $('#small_box_count_dc').css('border','1px solid red');
+                return false;
+            }}
+        });
+		$(document).ready(function(){
+			// Add button click handler
+        $('#spareForm_dc').on('click', '.addButton', function () {
+            partIndex++;
+            var $template = $('#partTemplate_dc'),
+                $clone = $template
+                        .clone()
+                        .removeClass('hide')
+                        .removeAttr('id')
+                        .attr('data-book-index', partIndex)
+                        .insertBefore($template);
+    
+            // Update the name attributes
+            $clone
+                .find('[id="shippingStatus_dc"]').attr('name', 'part[' + partIndex + '][shippingStatus]').attr('id','shippingStatus_dc_'+partIndex).end()
+                .find('[id="service_id_dc"]').attr('name', 'part[' + partIndex + '][service_id]').attr('id','serviceId_dc_'+partIndex).select2({placeholder:'Select Appliance'}).end()
+                .find('[for="service_id_dc"]').attr('for','serviceId_dc_'+partIndex).end()
+                .find('[id="part_number_dc"]').attr('name', 'part[' + partIndex + '][part_number]').attr('id','partNumber_dc_'+partIndex).attr({placeholder:'Enter Part Number'}).end()
+                .find('[for="part_number_dc"]').attr('for','partNumber_dc_'+partIndex).end()
+                .find('[id="part_name_dc"]').attr('name', 'part[' + partIndex + '][part_name]').attr('id','partName_dc_'+partIndex).select2({placeholder:'Select Part Name'}).end()
+                .find('[id="part_loader_dc"]').attr('id','part_loader_dc_'+partIndex).end()
+                .find('[for="part_name_dc"]').attr('for','partName_dc_'+partIndex).end()
+                .find('[id="booking_id_dc"]').attr('name', 'part[' + partIndex + '][booking_id]').attr('id','bookingId_dc_'+partIndex).end()
+                .find('[id="quantity_dc"]').attr('name', 'part[' + partIndex + '][quantity]').attr('id','quantity_dc_'+partIndex).end()
+                .find('[for="quantity_dc"]').attr('for','quantity_dc_'+partIndex).end()
+                .find('[id="inventory_id_dc"]').attr('name', 'part[' + partIndex + '][inventory_id]').attr('id','inventoryId_dc_'+partIndex).end()
+                .find('[id="partGstRate_dc"]').attr('name', 'part[' + partIndex + '][gst_rate]').attr('id','partGstRate_dc_'+partIndex).attr('onchange','calculate_total_price_dc()').end()
+                .find('[id="partHsnCode_dc"]').attr('name', 'part[' + partIndex + '][hsn_code]').attr('id','partHsnCode_dc_'+partIndex).end()
+                .find('[id="part_total_price_dc"]').attr('name', 'part[' + partIndex + '][part_total_price]').attr('id','partBasicPrice_dc_'+partIndex).attr('onkeyup','validateDecimal(this.id, this.value);calculate_total_price_dc()').end()
+                .find('[for="part_total_price_dc"]').attr('for','partBasicPrice_'+partIndex).attr('id','lbl_partBasicPrice_dc_'+partIndex).end();
+            get_appliance_dc(partIndex);
+        })
+    
+        // Remove button click handler
+        .on('click', '.removeButton', function () {
+            var $row = $(this).parents('.form-group'),
+                index = $row.attr('data-part-index');
+                partIndex = partIndex -1;
+            $row.remove();
+            calculate_total_price_dc();
+        });
+    });
+
+	function get_part_details_dc(e, value){
+        var element = e.split('_');
+        var index = element[2];
+        var part_element = element[0];
+        //alert(part_element);
+        switch(part_element){
+            case 'partNumber':
+                get_part_name_dc(index);
+                break;
+            case 'quantity':
+                get_part_price_dc(index);
+                break; 
+        }
+    }
+    function calculate_total_price_dc() {
+        var total_spare_invoice_price = 0;
+        $(".part-total-price_dc").each(function(i) {
+			
+            if($.trim($('#partBasicPrice_dc_'+i).val()) !== '') {
+                total_spare_invoice_price += Number($('#partBasicPrice_dc_'+i).val()) + (Number($('#partBasicPrice_dc_'+i).val()) * Number($('#partGstRate_dc_'+i).val())/100);
+				
+            }
+        });
+        $('#total_spare_invoice_price_dc').val(Number(total_spare_invoice_price.toFixed(2)));
+        change_tcs_rate_dc();
+    }
+    function change_tcs_rate_dc(prefix = ""){
+        var total_spare_invoice_price  = $("#"+prefix+"total_spare_invoice_price_dc").val();
+        var tcs_rate = $("#"+prefix+"tcs_rate_dc").val();
+        var total = Number(total_spare_invoice_price) + ((Number(total_spare_invoice_price) * Number(tcs_rate))/100);
+        console.log(total);
+        $("#"+prefix+"final_total_dc").val(total.toFixed(2));
+    }
+	function get_part_name_dc(index){
+        var partner_id = $('#partner_id_dc').val();
+        var service_id = $('#serviceId_dc_'+index).val();
+        var part_number = $('#partNumber_dc_'+index).val();
+        if($.inArray(part_number,partArr[service_id]) > parseInt(-1)) {
+           $('#partNumber_dc_'+index).val('');
+           alert("Please enter another part as this is already enter !");
+           return false;
+        }
+        if( partArr[service_id] === undefined ) {
+            partArr[service_id] = new Array();
+        }
+        if(part_number !='') {
+            partArr[service_id].push(part_number);
+        }
+                   
+        if(part_number =='' && (partner_id != null) ) {
+           alert("Please enter part number.");
+           return false;    
+        }
+        
+        if(partner_id !='' && part_number !=''){
+            $("#part_loader_dc_"+index).css('display','block');
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url() ?>employee/inventory/get_parts_number',
+                data:{entity_id:partner_id,entity_type:'<?php echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id,part_number:part_number,is_option_selected:true},
+                success: function (response) {
+                   
+                    if(response == 'Part Number Not Exist In Our System'){
+                         alert(response);
+                         $('#partNumber_dc_'+index).val('');
+                         $("#part_loader_dc_"+index).css('display','none');
+                    }else{
+                    $('#partName_dc_'+index).val('val', "");
+                    $('#partName_dc_'+index).val('Select Part Name').change();
+                    $('#partName_dc_'+index).html(response);
+                    $('#inventoryId_dc_'+index).val('');
+                    $('#partBasicPrice_dc_'+index).val('');
+                    $('#partGstRate_dc_'+index).val('');
+                    $('#partHsnCode_dc_'+index).val('');
+                    $('#quantity_dc_'+index).val('');
+                    $("#part_loader_dc_"+index).css('display','none');
+                }
+            }
+            });
+        }else{
+            alert("Please Select All Field");
+        }
+    }
+	function get_part_price_dc(index){
+        var booking_id = $('#booking_id_dc_0');
+        if(booking_id){
+            check_booking_id('booking_id_dc_0');
+        }
+        
+        if(is_valid_booking){
+            var partner_id = $('#partner_id_dc').val();
+            var service_id = $('#serviceId_dc_'+index).val();
+            var part_number = $('#partNumber_dc_'+index).val();
+            if(partner_id && service_id && part_number){
+               
+                $.ajax({
+                    type: 'POST',
+                    url: '<?php echo base_url() ?>employee/inventory/get_inventory_price',
+                    data:{entity_id:partner_id,entity_type:'<?php echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id,part_number:part_number},
+                    success: function (response) {
+                        var obj = JSON.parse(response);
+                           // console.log(response);
+                        if(obj.inventory_id){
+                            $('#submit_btn_dc').attr('disabled',false);
+                            var parts_total_price = Number($('#quantity_dc_'+index).val()) * Number(obj.price);
+                            $('#inventoryId_dc_'+index).val(obj.inventory_id);
+                            
+                            $('#partBasicPrice_dc_'+index).val(parts_total_price.toFixed(2));
+                            $('#partGstRate_dc_'+index).val(obj.gst_rate).change();
+                            $('#partHsnCode_dc_'+index).val(obj.hsn_code);
+                            
+                            
+                            $('#partHsnCode_dc_'+index).val(obj.hsn_code);
+                            calculate_total_price_dc();
+                        }else{
+                            alert("Inventory Details not found for the selected combination.");
+                            $('#submit_btn_dc').attr('disabled',true);
+                        }
+    
+                    }
+                });
+            }else{
+                $('#quantity_dc_'+index).val('');
+                alert("Please Select All Field");
+            }
+        }else{
+            alert('Booking id not found');
+        }
+        
+    }
+	$("#sumit_msl_dc").click(function(){
+        $("#sumit_msl_dc,#submit_btn_dc").attr('disabled',true);
+        $("#confirmation_dc").val('1');
+        $("#spareForm_dc").submit();
+    });
+    
+    
+    function check_challan_id(id){
+    
+        var challan_id = $('#'+id).val().trim();
+        if(challan_id){
+            
+            if( challan_id.indexOf('/') !== -1 ){
+                $('#'+id).css('border','1px solid red');
+                $('#submit_btn_dc').attr('disabled',true);
+                
+                alert("Challan Number - Use '-' in place of '/'");
+            }
+            else{
+                $.ajax({
+                    method:'POST',
+                    url:'<?php echo base_url(); ?>employee/inventory/check_challan_exists/'+challan_id,
+                    data:{is_ajax:true},
+                    success:function(res){
+                        //console.log(res);
+                        var obj = JSON.parse(res);
+                        if(obj.status === true){
+                            $('#'+id).css('border','1px solid red');
+                            if(isOnBooking){
+                               $('#on_submit_btn').attr('disabled',true);
+                            } else {
+                               $('#submit_btn').attr('disabled',true);
+                            }
+                            alert('Invoice number already exists');
+                        }else{
+                            $('#'+id).css('border','1px solid #ccc');
+                            if(isOnBooking){
+                              $('#on_submit_btn').attr('disabled',false);
+                            } else {
+                               $('#submit_btn').attr('disabled',false);
+                            }
+                            
+                        }
+                    }
+                });
+            }
+        }
+    }
+		
 </script>

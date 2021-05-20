@@ -697,6 +697,9 @@
             }else if($('#hsn_code').val() === "" || $('#hsn_code').val() === null || $('#hsn_code').val()=== '0'){
                 alert("Please Enter Valid Hsn Code");
                 return false;
+            }else if($('#hsn_code').val().length != '6' && $('#hsn_code').val().length != '8'){
+                alert("Hsn Code length should be a six and eight digit");
+                return false;
             }else if($('#gst_rate').val() === "" || $('#gst_rate').val() === null){
                 alert("Please Enter Valid Gst Rate");
                 return false;
