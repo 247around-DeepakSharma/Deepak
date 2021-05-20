@@ -2817,7 +2817,7 @@ class Partner extends CI_Controller {
      * @author : Deepak Sharma
      */
     function get_booking_recordings($booking_primary_id) {
-        $select = "agent_outbound_call_log.create_date, agent_outbound_call_log.recording_url, employee.full_name, entity_role.display_name";
+        $select = "agent_outbound_call_log.create_date, agent_outbound_call_log.recording_url, employee.full_name, entity_role.display_name, agent_outbound_call_log.status";
         $data['data'] = $this->booking_model->get_booking_recordings_by_id($booking_primary_id, $select);
         $this->load->view('employee/show_booking_recordings', $data);
     }
@@ -7304,8 +7304,8 @@ class Partner extends CI_Controller {
             $state = 1;
         }
         $postData = $this->input->post();
-        if(array_key_exists("order", $postData)){
-            $order['column'] =$columnMappingArray["column_".$postData['order'][0]['column']];
+        if(array_key_exists("order", $postData) && !empty($columnMappingArray["column_".$postData['order'][0]['column']])){
+            $order['column'] = $columnMappingArray["column_".$postData['order'][0]['column']];
             $order['sorting'] = $postData['order'][0]['dir'];
         }
         $bookingID = $this->input->post('booking_id');

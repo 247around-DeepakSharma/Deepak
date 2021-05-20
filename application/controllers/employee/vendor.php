@@ -4546,48 +4546,43 @@ class vendor extends CI_Controller {
         log_message('info', __METHOD__ . print_r($this->input->post('partner_id'), true));
 
         $partner_id = $this->input->post('partner_id');
-        $wh_id = $this->input->post('wh_id');
+
         $partner_data = $this->partner_model->getpartner($partner_id);
         $saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
 
         $option = '<option selected="" disabled="">Select Warehouse</option>';
-    
-        if (!empty($partner_data[0])) {  
-          if($wh_id == 1){
-            if ($partner_data[0]['is_wh'] == 1) {
-                $select = "service_centres.district, service_centres.id,service_centres.state, service_centres.name";
-                $where = array('is_wh' => 1, 'active' => 1);
+        if(!empty($partner_data[0])){
+        if ($partner_data[0]['is_wh'] == 1) {
+            $select = "service_centres.district, service_centres.id,service_centres.state, service_centres.name";
+            $where = array('is_wh' => 1, 'active' => 1);
 
-                $data = $this->reusable_model->get_search_result_data("service_centres", $select, $where, NULL, NULL, NULL, array(), NULL, array());
+            $data = $this->reusable_model->get_search_result_data("service_centres", $select, $where, NULL, NULL, NULL, array(), NULL, array());
 
-                foreach ($data as $value) {
-                    $option .= "<option data-warehose='1' value='" . $value['id'] . "'";
-                    $option .= " > ";
-                    if ($saas) {
-                        $option .= $value['name'] . " ( <strong>" . $value['state'] . " </strong>) - (Central Warehouse)" . "</option>";
-                    } else {
-                        $option .= _247AROUND_EMPLOYEE_STRING . " " . $value['district'] . " ( <strong>" . $value['state'] . " </strong>) - (Central Warehouse)" . "</option>";
-                    }
+            foreach ($data as $value) {
+                $option .= "<option data-warehose='1' value='" . $value['id'] . "'";
+                $option .= " > ";
+                if($saas){
+                    $option .=  $value['name'] . " ( <strong>" . $value['state'] . " </strong>) - (Central Warehouse)" . "</option>";
+                } else {
+                    $option .= _247AROUND_EMPLOYEE_STRING . " " . $value['district'] . " ( <strong>" . $value['state'] . " </strong>) - (Central Warehouse)" . "</option>";
                 }
             }
-          }
-          else{
-            if($partner_data[0]['is_micro_wh'] == 1) {
-                $micro_wh_state_mapp_data_list = $this->inventory_model->get_micro_wh_state_mapping_partner_id($partner_id);
-
-                if (!empty($micro_wh_state_mapp_data_list)) {
-                    foreach ($micro_wh_state_mapp_data_list as $value) {
-                        $option .= "<option  data-warehose='2' value='" . $value['vendor_id'] . "'";
-                        $option .= " > ";
-                        $option .= $value['name'] . " - (Micro Warehouse) </option>";
-                        $option .= $value['name'] . " " . $value['district'] . " ( <strong>" . $value['state'] . "</strong>)" . "</option>";
-                    }
-                }
-            }
-          }   
         }
- 
+        if ($partner_data[0]['is_micro_wh'] == 1) {
+             $micro_wh_state_mapp_data_list = $this->inventory_model->get_micro_wh_state_mapping_partner_id($partner_id);
+
+            if (!empty($micro_wh_state_mapp_data_list)) {
+                foreach ($micro_wh_state_mapp_data_list as $value) {
+                    $option .= "<option  data-warehose='2' value='" . $value['vendor_id'] . "'";
+                    $option .= " > ";
+                    $option .= $value['name'] . " - (Micro Warehouse) </option>";
+                    $option .= $value['name'] . " " . $value['district'] . " ( <strong>" . $value['state'] . "</strong>)" . "</option>";
+                }
+            }
+        }
+        }
         
+
         echo $option;
     }
 
@@ -6711,17 +6706,65 @@ class vendor extends CI_Controller {
         if (!in_array($this->session->userdata('user_group'), array(_247AROUND_ADMIN, _247AROUND_RM))) {
             redirect('employee/vendor/viewvendor');
         }
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/unapproved_sf_list');
+    }
+ function get_unapprovered_service_centers() {
+        if (!in_array($this->session->userdata('user_group'), array(_247AROUND_ADMIN, _247AROUND_RM))) {
+            redirect('employee/vendor/viewvendor');
+        }
+        $post = $this->get_post_data();
+        $post['column_order'] = array();
+        $post['column_search'] = array('service_centres.pincode', 'service_centres.company_name', 'state', 'district');
         $id = $this->session->userdata('user_group') == _247AROUND_RM ? $this->session->userdata('id') : "";
         $post['where']['is_approved'] = 0;
         if (!empty($id)) {
             $post['where']['rm_id'] = $id;
         }
         $post['length'] = -1;
-        $data['records'] = $this->vendor_model->viewallvendor($post, 'service_centres.*');
-        $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/unapproved_sf_list', $data);
+        $list = $this->vendor_model->viewallvendor($post, 'service_centres.*');
+        //$this->miscelleneous->load_nav_header();
+        $data = array();
+        $no = 0;
+
+        foreach ($list as $vendor_list) {
+            $no++;
+            $row = $this->get_unapproved_vendor_table($vendor_list, $no);
+            $data[] = $row;
+        }
+
+        $post['length'] = -1;
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->vendor_model->count_all_viewallvendor($post),
+            "recordsFiltered" => $this->vendor_model->count_filtered_viewallvendor($post),
+            "data" => $data
+        );
+
+       
+        echo json_encode($output);
     }
-    
+    /**
+      * this function use for get unapproved vendor list
+      *Author:Deepak Sharma
+      *@return type
+      *Create Date:13 May 2021
+    */
+    function get_unapproved_vendor_table($vendor_list, $no){
+
+        $row = array();
+        $row[] = $no;
+        $row[]= $vendor_list['company_name'];
+        $row[]= $vendor_list['address'];
+        $row[]= $vendor_list['pincode'];
+        $row[]= $vendor_list['state'];
+        $row[]= $vendor_list['district'];
+        $row[] = '<button class="btn btn-primary" type="button" id="btn_'.
+        $vendor_list['id'].'" onclick="approve_sf('.$vendor_list['id'].')"><i class="fa fa-active"></i>Approve</button>';
+                                            
+
+        return $row;
+    }    
     /**
      * This function is used to approve unapproved Vendors
      * @param sf_id (POST)

@@ -3425,7 +3425,7 @@ class Around_scheduler extends CI_Controller {
         $partnerType = array(OEM, EXTWARRANTYPROVIDERTYPE, ECOMMERCETYPE);
         $active = 1;
         $ac = 'All';
-        $query = $this->partner_model->get_partner_details_no_booking_last_month($active, $partnerType, $ac, $partner_not_like, "", null);
+        $query = $this->partner_model->get_partner_details_no_booking_last_month($active);
         $template = $this->booking_model->get_booking_email_template("no_booking_monthly_mail");
         if (!empty($template) && !empty($query)) {
 
@@ -3483,7 +3483,6 @@ class Around_scheduler extends CI_Controller {
             $emailBody = str_replace("<<Month>>",date('M',strtotime($prevmonth)),$body);
             $emailBody = str_replace("<<Year>>",date('Y',strtotime($prevmonth)),$emailBody);
             $emailBody = sprintf($emailBody, $table);
-            
             $result = $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $emailBody, $file, 'no_booking_monthly_mail');
 
         }
@@ -3690,6 +3689,8 @@ class Around_scheduler extends CI_Controller {
                         fputcsv($fp, $CSVData[$i]);
                     }
                     $emailBody = vsprintf($body, array(count($data), $am_string));
+                    $today_date = date('d').'_'.date('m').'_'.date('Y');
+                    $subject = vsprintf($subject,array($value['public_name'],$today_date,$value['public_name']));
                     $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $emailBody, $file, 'partner_part_pending');
 
                     if (file_exists($file)) {

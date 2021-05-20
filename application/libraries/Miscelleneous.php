@@ -604,11 +604,14 @@ class Miscelleneous {
         }
         
 
-        log_message('info', __FUNCTION__ . " Update booking  " . print_r($data, true));
-
+        log_message('info', __FUNCTION__ . " Update booking  " . print_r($data, true));        
+        
+        $vendor_action = $this->My_CI->vendor_model->get_service_center_booking_action_details("*", array("booking_id" => $booking_id));            
         $data['service_center_closed_date'] = date("Y-m-d h:i:s");
+        if(!empty($vendor_action[0]['closed_date'])){
+            $data['service_center_closed_date'] = $vendor_action[0]['closed_date'];
+        }
         $this->My_CI->booking_model->update_booking($booking_id, $data);
-
         //Update this booking in vendor action table
         $data_vendor['update_date'] = date("Y-m-d H:i:s");
         
@@ -2558,7 +2561,7 @@ class Miscelleneous {
         $where["header_navigation.nav_type"]=$nav_type;
         $where["header_navigation.entity_type"]=$entity_type;
         $parentArray = $structuredData=$navFlowArray=array();
-        $orderBYArray = array("level"=>"ASC");
+        $orderBYArray = array("level"=>"ASC","sequence"=>"ASC");
         if($entity_type == "Partner"){
             $orderBYArray = array("level"=>"ASC","sequence"=>"DESC","header_navigation.title"=>"ASC");
         }

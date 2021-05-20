@@ -18,6 +18,7 @@
                                     <th>Appliance</th>
                                     <th>Booking Date</th>
                                     <th>Purchase Date</th>
+                                    <th>Installation Date</th>
                                     <th>Booking Warranty Status <span data-toggle="tooltip" title="No Data found means waranty plan not found."><i class="fa fa-info-circle" aria-hidden="true"></i></span></th>
                                     <th>Current Warranty Status <span data-toggle="tooltip" title="No Data found means waranty plan not found."><i class="fa fa-info-circle" aria-hidden="true"></i></span></th>
                                     <th>Status</th>
@@ -40,6 +41,7 @@
                                     <td><?= $row['services']; ?></td>
                                     <td><?php if(!empty($row['booking_date']) && $row['booking_date'] != '0000-00-00'){ echo date("d-M-Y", strtotime($row['booking_date']));} ?></td>
                                     <td id='purchase_date_<?php echo $row['booking_id'];?>'></td>
+                                    <td id='installation_date_<?php echo $row['booking_id'];?>'></td>
                                     <td id='booking_type_<?php echo $row['booking_id'];?>'></td>
                                     <td id='current_warranty_<?php echo $row['booking_id'];?>'></td>
                                     <td><?php echo $row['partner_internal_status']; ?></td>
@@ -151,12 +153,21 @@
             $("#purchase_date_"+booking_id).html("<img src='<?php echo base_url(); ?>images/loader.gif' style='width:30px'>");
             $("#booking_type_"+booking_id).html("<img src='<?php echo base_url(); ?>images/loader.gif' style='width:30px'>");
             $("#current_warranty_"+booking_id).html("<img src='<?php echo base_url(); ?>images/loader.gif' style='width:30px'>");
+            $("#installation_date_"+booking_id).html("<img src='<?php echo base_url(); ?>images/loader.gif' style='width:30px'>");
         },
         success: function(data){
             var obj = JSON.parse(data);
             $("#purchase_date_"+booking_id).html(obj.purchase_date);
-            $("#booking_type_"+booking_id).html(obj.booking_warranty_status);
-            $("#current_warranty_"+booking_id).html(obj.current_warranty_status);
+            $("#booking_type_"+booking_id).html(obj.booking_warranty_status.status);
+            $("#current_warranty_"+booking_id).html(obj.current_warranty_status.status);
+            if(obj.booking_warranty_status.installation_booking && obj.booking_warranty_status.installation_date)
+            {
+                $("#installation_date_"+booking_id).html(obj.booking_warranty_status.installation_date);
+            }
+            else
+            {
+                $("#installation_date_"+booking_id).html("DOI not found");
+            }
         }
         });
     }

@@ -848,7 +848,7 @@ class Booking_model extends CI_Model {
             $condition .= " and booking_details.partner_id =  partners.id";
         }
 
-        $sql = " SELECT booking_details.id as booking_primary_id,engineer_table_sign.signature,`services`.`services`, booking_details.create_date as booking_create_date,users.*, booking_details.* ".  $service_center_name. $partner_name. ",booking_cancellation_reasons.reason as cancellation_reason, (CASE WHEN sms_sent_details.sms_tag = 'sms_to_redzone_customers' THEN 1 ELSE 0 END) as is_red_zone_sms_sent "
+        $sql = " SELECT booking_details.id as booking_primary_id,engineer_table_sign.signature,`services`.`services`, booking_details.create_date as booking_create_date,users.*, booking_details.* ".  $service_center_name. $partner_name. ",booking_cancellation_reasons.reason as cancellation_reason, (CASE WHEN sms_sent_details.sms_tag = 'sms_to_redzone_customers' THEN 1 ELSE 0 END) as is_red_zone_sms_sent,service_centres.isEngineerApp "
                . "from booking_details "
                . " LEFT JOIN sms_sent_details ON sms_sent_details.booking_id = booking_details.booking_id AND sms_sent_details.sms_tag = 'sms_to_redzone_customers' "
                . " LEFT JOIN booking_cancellation_reasons ON (booking_details.cancellation_reason = booking_cancellation_reasons.id)"
@@ -2793,10 +2793,13 @@ class Booking_model extends CI_Model {
      * @return: array
      * 
      */
-    function get_remarks($where){
+    function get_remarks($where,$comment_typeId = ''){
         $this->db->select('booking_comments.id, agent_id, remarks, booking_comments.create_date, employee_id,employee.full_name, booking_comments.isActive');
         $this->db->from('booking_comments');
         $this->db->join('employee','booking_comments.agent_id = employee.id');
+        if(!empty($comment_typeId)){
+           $this->db->where_in('comment_type',$comment_typeId);
+        }
         $this->db->where($where);
         $this->db->order_by('booking_comments.create_date');
         $query = $this->db->get();
@@ -3298,7 +3301,7 @@ class Booking_model extends CI_Model {
         $this->db->from("agent_outbound_call_log");
         $this->db->join("employee", "agent_outbound_call_log.agent_id = employee.id");
         $this->db->join("entity_role", "employee.role = entity_role.role",'left');
-        $this->db->where(['booking_primary_id' => $booking_primary_id, 'recording_url <> ""' => NULL]);
+        $this->db->where(['booking_primary_id' => $booking_primary_id]);
         $query = $this->db->get();
         return $query->result_array();
     }

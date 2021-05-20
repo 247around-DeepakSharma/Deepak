@@ -512,6 +512,9 @@ class engineerApiv1 extends CI_Controller {
             case 'updateEngineerDetail':
                 $this->processupdateEngineerDetail();  //// Sending OTP
                 break;
+            case 'SendOTPonComplete':
+                $this->ProcessSendOTPonComplete();  //// Sending OTP
+                break;
             default:
                 break;
         }
@@ -1257,7 +1260,14 @@ class engineerApiv1 extends CI_Controller {
                     // $device['device_firebase_token']=$requestData['device_firebase_token'];   /// Server Error problem
                     $this->partner_model->update_login_details($device, array("agent_id" => $data[0]['agent_id'])); ///  Firebase device token ///
                     $this->jsonResponseString['response'] = $data[0];
+                    
+                    $enginner_detail = $this->processgetEngineerDetail($login[0]['entity_id'],true);
+                    if($enginner_detail['status']=='success'){
+                    $this->jsonResponseString['response']['engineer_detail'] = $enginner_detail['data'];
                     $this->sendJsonResponse(array('0000', 'success'));
+                    }else{
+                     $this->sendJsonResponse(array('0012', 'Engineer does not exist'));   
+                    }
                 } else {
                     $this->sendJsonResponse(array('0012', 'Engineer does not exist'));
                 }
@@ -1393,6 +1403,14 @@ class engineerApiv1 extends CI_Controller {
             $sign_pic_url = $booking_id . "_sign_" . rand(10, 100) . ".png";
 
             $this->miscelleneous->generate_image($requestData["signature_pic"], $sign_pic_url, "engineer-uploads");
+            
+            if(!empty($requestData["selfie_pic"])){
+                $selfie_pic = $booking_id . "_selfie_" . rand(10, 100) . ".png";
+                $this->miscelleneous->generate_image($requestData["selfie_pic"], $selfie_pic, "engineer-uploads");
+                $en["selfie_pic"] = $selfie_pic;
+            }            
+            $en["is_otp_verified"] = $requestData["selfie_pic"];
+           
 
             //$en["amount_paid"] = $requestData["amountPaid"];
             $en["booking_id"] = $booking_id;
@@ -2620,8 +2638,30 @@ class engineerApiv1 extends CI_Controller {
         log_message("info", __METHOD__ . " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $booking_id = $requestData['booking_id'];
+        $booking_details = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id, NULL, NULL,NULL);
+        $warranty_plan_id = $booking_details['booking_history'][0]['applied_warranty_plan_id'];
+        $arr_parts_in_warranty = $this->warranty_model->get_warranty_parts_type_list_code($warranty_plan_id);
+            $arr_parts_in_warranty = array_column($arr_parts_in_warranty, 'part_type');
+            $arr_parts_in_warranty = array_map(function ($rec_parts_in_warranty) {
+                return trim(strtolower($rec_parts_in_warranty));
+            }, $arr_parts_in_warranty);
+                   
+
         if (!empty($requestData["model_number_id"])) {
-            $response['partTypeList'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.type as part_type', array('model_number_id' => $requestData["model_number_id"], 'inventory_model_mapping.active' => 1, 'inventory_model_mapping.bom_main_part' => 1));
+            $partTypeList = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.type as part_type', array('model_number_id' => $requestData["model_number_id"], 'inventory_model_mapping.active' => 1, 'inventory_model_mapping.bom_main_part' => 1));
+            //Return part type and part type warranty status as per logic on CRM
+            foreach($response['partTypeList'] as $key => $value){
+                $part_type = $value['part_type'];
+                if (in_array(trim(strtolower($part_type)), $arr_parts_in_warranty)) {
+                    $response['partTypeList'][$key]['part_warranty'] = 1;
+                    $response['partTypeList'][$key]['part_type'] = $part_type;
+                }else{
+                    $response['partTypeList'][$key]['part_warranty'] = 2;
+                    $response['partTypeList'][$key]['part_type'] = $part_type;
+                }
+                
+            }
             log_message("info", __METHOD__ . "Part Type found successfully");
             $this->jsonResponseString['response'] = $response;
             $this->sendJsonResponse(array('0000', 'success'));
@@ -3459,7 +3499,7 @@ class engineerApiv1 extends CI_Controller {
             'EW' => ['Extended', 'AMC', 'Repeat', 'PDI', 'Tech Visit', 'Spare Cannibalization', 'Handling Charges']
         ];
         $arr_warranty_status_full_names = array('IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty');
-        $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];
+        $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id]['status'];
         // If no data found against warranty, consider booking as of Out Warranty
         if ($warranty_checker_status != 'IW' && $warranty_checker_status != 'EW'):
             $warranty_checker_status = "OW";
@@ -5286,9 +5326,11 @@ function submitPreviousPartsConsumptionData(){
      * @author Ghanshyam Ji Gupta
      * @date : 06-05-2021
      */
-        function processgetEngineerDetail() {
-        $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        $enginner_id = $requestData['engineer_id'];
+        function processgetEngineerDetail($enginner_id = '',$return_array = false) {
+        if(empty($enginner_id)){
+            $requestData = json_decode($this->jsonRequestData['qsh'], true);
+            $enginner_id = $requestData['engineer_id'];
+        }
         $engineer_profile_force_update = $this->engineer_model->get_engineer_config('engineer_profile_force_update');
         
         $response['id_type'] = array('Aadhar Card', 'Driving License', 'Voter ID Card', 'PAN Card', 'Ration Card', 'Passport', 'Others');
@@ -5331,11 +5373,19 @@ function submitPreviousPartsConsumptionData(){
 
             $return_engg_detail['force_update_screen'] = $force_update_screen;
             $response['engineer_detail'] = $return_engg_detail;
-            $this->jsonResponseString['response'] = $response; // All Data in response//
-            $this->sendJsonResponse(array('0000', 'success')); // send success response //
+            if(!empty($return_array)){
+                return array('status' => 'success', 'data' => $response);
+            }else{
+                $this->jsonResponseString['response'] = $response; // All Data in response//
+                $this->sendJsonResponse(array('0000', 'success')); // send success response //
+            }
         } else {
-            $this->jsonResponseString['response'] = array();
-            $this->sendJsonResponse(array("0101", 'No Engineer Detail  Found'));
+            if(!empty($return_array)){
+                return array('status' => 'error', 'data' => array());
+            }else{
+                $this->jsonResponseString['response'] = array();
+                $this->sendJsonResponse(array("0101", 'No Engineer Detail  Found'));
+            }
         }
     }
      /**
@@ -5391,5 +5441,33 @@ function submitPreviousPartsConsumptionData(){
                 $this->sendJsonResponse(array("0101", 'No Engineer Detail  Found'));
             }
         }
+        /**
+     * @Desc: This function is to used to send user OTP
+     * @params: void
+     * @return: JSON
+     * @author Ghanshyam Ji Gupta
+     * @date : 12-05-2021
+     */
+        function ProcessSendOTPonComplete() {
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("mobile"), $requestData);
+        $mobile_number = $requestData['mobile_number'];
+        $engineer_id = $requestData['engineer_id'];
+        if (!empty($mobile_number)) {
+            $otp = rand(1000, 9999);
+            $sms['tag'] = "send_otp_booking_complete";
+            $sms['smsData']['otp'] = $otp;
+            $sms['phone_no'] = $mobile_number;
+            $sms['booking_id'] = "";
+            $sms['type'] = "enginner";
+            $sms['type_id'] = $engineer_id;
+            $send_SMS = $this->notify->send_sms_msg91($sms);
+            $this->jsonResponseString['response'] = array('otp' => $otp);
+            $this->sendJsonResponse(array('0000', 'OTP send successfully'));
+        } else {
+            $this->jsonResponseString['response'] = array();
+            $this->sendJsonResponse(array("0101", 'No mobile number found.'));
+        }
+    }
 
 }

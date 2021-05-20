@@ -191,7 +191,7 @@ class accounting_model extends CI_Model {
         if($partner_vendor == _247AROUND_PARTNER_STRING){
             $g_string ="partners.gst_number as gst_number, ";
         } else {
-            $g_string ="sc.gst_no as gst_number, ";
+            $g_string ="sc.gst_no as gst_number, sc.gst_status, ";
         }
 
         $sql = "SELECT invoice_details.invoice_id,invoice_details.hsn_code,product_or_services, vendor_partner, e1.gst_number as to_gst_number, "

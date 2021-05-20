@@ -3741,6 +3741,10 @@ class Inventory extends CI_Controller {
             $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . sprintf("%.2f", $inventory_list->price) . '</span>';
             $row[] = '<span id="gst_rate_' . $inventory_list->inventory_id . '">' . $inventory_list->gst_rate . '</span>';
             $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . sprintf("%.2f", $inventory_list->price * (1 + $inventory_list->gst_rate / 100)) . '</span>';
+            
+            $cbasic = ($inventory_list->price * ( 1 + ($inventory_list->oow_around_margin + $inventory_list->oow_vendor_margin) / 100));
+            $ctotal = $cbasic * (1 + $inventory_list->gst_rate / 100);
+            $row[] = sprintf("%.2f", $ctotal);
         }
 
 
@@ -7404,7 +7408,7 @@ class Inventory extends CI_Controller {
                 . "if(spare_parts_details.partner_warehouse_packaging_invoice_id is null,'',spare_parts_details.partner_warehouse_packaging_invoice_id) as 'Partner Warehouse Packaging Courier Invoice', (CASE WHEN spare_parts_details.spare_lost = 1 THEN 'Yes' ELSE 'NO' END) AS 'Spare Lost', spare_parts_details.quantity as 'Requested Spare Quantity', spare_parts_details.shipped_quantity as 'Shipped Spare Quantity',dealer_details.dealer_name as 'Dealer Name',"
                 . "(CASE WHEN courier_company_invoice_details.is_rto = 1 THEN 'Yes' ELSE 'No' END) as 'RTO',"
                 . "(CASE WHEN booking_details.part_brought_at=1 THEN 'Customer Location'  WHEN booking_details.part_brought_at=2 THEN 'Service Center location' ELSE '' END) AS 'Part brought at', concat('https://s3.amazonaws.com/bookings-collateral/courier-pod/',courier_company_invoice_details.courier_pod_file) as courier_pod_file, concat('https://s3.amazonaws.com/bookings-collateral/rto-pod/',courier_company_invoice_details.rto_file) as rto_file, concat('https://s3.amazonaws.com/bookings-collateral/courier-lost/',courier_company_invoice_details.courier_lost_file) as courier_lost_file,"
-                . "(CASE WHEN courier_company_invoice_details.courier_lost = 1 THEN 'Yes' ELSE 'No' END) as 'Courier Lost'";
+                . "(CASE WHEN courier_company_invoice_details.courier_lost = 1 THEN 'Yes' ELSE 'No' END) as 'Courier Lost',spare_parts_details.remarks_defective_part_by_wh as 'Defective part rejected by WH reason'";
         //$where = array("spare_parts_details.status NOT IN('" . SPARE_PARTS_REQUESTED . "')" => NULL);
         $where = array();
         $group_by = "spare_parts_details.id";
@@ -10739,6 +10743,7 @@ class Inventory extends CI_Controller {
 
         $row[] = $button;
         $row[] = '<input type="checkbox" class="form-control spare_id" name="spare_id[]" data-partner_id="' . $invoice_list->booking_partner_id . '" data-invoice_id ="' . $invoice_list->invoice_id . '" data-spare_id="' . $invoice_list->id . '" value="' . $invoice_list->id . '" />';
+         $row[] = '<a style="margin-top:5px;position: relative;" class="btn btn-success btn-sm" id="comment_1" href="javascript:void(0);" name="save-remarks" onclick="save_remarks(\''.$invoice_list->booking_id .'\');"><i class="fa fa-comment"></i></a>';
 
         return $row;
     }

@@ -2533,10 +2533,10 @@ class invoices_model extends CI_Model {
             $select = " COUNT(bb_unit_details.id) as qty, SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
                 THEN (round(bb_unit_details.cp_claimed_price,2)) 
                 ELSE (round(bb_unit_details.cp_basic_charge + cp_tax_charge,2)) END ) AS taxable_value, concat('Used ',services) as description, 
-                CASE WHEN (bb_unit_details.service_id = '"._247AROUND_TV_SERVICE_ID."') THEN (8528) 
-                WHEN (bb_unit_details.service_id = '"._247AROUND_AC_SERVICE_ID."') THEN (8415)
-                WHEN (bb_unit_details.service_id = '"._247AROUND_WASHING_MACHINE_SERVICE_ID."') THEN (8450)
-                WHEN (bb_unit_details.service_id = '"._247AROUND_REFRIGERATOR_SERVICE_ID."') THEN (8418) ELSE '' END As hsn_code, owner_phone_1, gst_no,
+                CASE WHEN (bb_unit_details.service_id = '"._247AROUND_TV_SERVICE_ID."') THEN ('".BUYBACK_TV_HSN_CODE."') 
+                WHEN (bb_unit_details.service_id = '"._247AROUND_AC_SERVICE_ID."') THEN ('".BUYBACK_AC_HSN_CODE."')
+                WHEN (bb_unit_details.service_id = '"._247AROUND_WASHING_MACHINE_SERVICE_ID."') THEN ('".BUYBACK_REF_HSN_CODE."')
+                WHEN (bb_unit_details.service_id = '"._247AROUND_REFRIGERATOR_SERVICE_ID."') THEN ('".BUYBACK_WM_HSN_CODE."') ELSE '' END As hsn_code, owner_phone_1, gst_no,
                 sc.company_name, sc.address as company_address, sc.state,
                 sc.owner_email, sc.primary_contact_email, sc.owner_phone_1, sc.is_buyback_gst_invoice";
             $group_by = " GROUP BY bb_unit_details.service_id ";
@@ -3466,7 +3466,9 @@ class invoices_model extends CI_Model {
                             $d['tat_data']['archieved_percentage1'] = $d2['tat_data']['archieved_percentage'];
                             $d['tat_data']['local_upcountry'] = $l_u;
                             
-                            array_push($tat_data, $d['tat_data']);
+                            if($d['tat_data']['total_booking'] > 0){
+                                array_push($tat_data, $d['tat_data']);
+                            } 
                     }
                 }
         }
@@ -3524,7 +3526,16 @@ class invoices_model extends CI_Model {
                 $tat_condition[$key]['service_id'] = $service_id;
 
             }
-        } 
+        } else {
+            $tat_condition[$key]['booking_failed'] = 0;
+            $tat_condition[$key]['archieved_percentage'] = 0;
+            $tat_condition[$key]['penalty_amount'] = 0;
+            $tat_condition[$key]['basic_amount'] = $basic_amount;
+            $tat_condition[$key]['services'] = $services;
+            $tat_condition[$key]['remarks'] = "D" . $tat_with_in_days;
+            $tat_condition[$key]['target_acheived_per'] = $target_acheived_per;
+            $tat_condition[$key]['service_id'] = $service_id;
+        }
 
         return array('b_data' => $b_data, 'tat_data' => $tat_condition[$key]);
     }

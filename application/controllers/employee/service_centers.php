@@ -1229,6 +1229,8 @@ class Service_centers extends CI_Controller {
            //     break;
             }
 
+            $engineer_action = $this->engineer_model->getengineer_action_data("*", array("booking_id" => $booking_id));            
+            
             // Add Update by SF Value
             $this->booking_model->update_booking($booking_id, ['edit_by_sf' => 1]);
 
@@ -1239,10 +1241,13 @@ class Service_centers extends CI_Controller {
             $data['cancellation_reason'] = $cancellation_reason;
             $data['closed_date'] = date('Y-m-d H:i:s');
             $data['update_date'] = date('Y-m-d H:i:s');
+            // Update SF Closed date same as engineer closed date
+            if (!empty($engineer_action[0]['closed_date'])) {
+                $data['closed_date'] = $engineer_action[0]['closed_date'];
+            }
             $this->vendor_model->update_service_center_action($booking_id, $data);
             $this->miscelleneous->pull_service_centre_close_date($booking_id, $partner_id);
 
-            $engineer_action = $this->engineer_model->getengineer_action_data("id", array("booking_id" => $booking_id));
             if (!empty($engineer_action)) {
                 $eng_data = array(
                     "internal_status" => _247AROUND_CANCELLED,
@@ -3466,7 +3471,7 @@ class Service_centers extends CI_Controller {
                 . " sf_challan_file as challan_file, "
                 . " remarks_defective_part_by_partner, "
                 . " remarks_by_partner, spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.defective_return_to_entity_id,spare_parts_details.entity_type,spare_parts_details.courier_rejection_remarks,"
-                . " spare_parts_details.id,spare_parts_details.shipped_quantity,spare_parts_details.challan_approx_value,spare_parts_details.remarks_defective_part_by_wh,spare_parts_details.rejected_defective_part_pic_by_wh ,i.part_number, spare_consumption_status.consumed_status,  spare_consumption_status.is_consumed,spare_parts_details.courier_rejection_count";
+                . " spare_parts_details.id,spare_parts_details.shipped_quantity,spare_parts_details.challan_approx_value,spare_parts_details.remarks_defective_part_by_wh,spare_parts_details.rejected_defective_part_pic_by_wh ,i.part_number, spare_consumption_status.consumed_status,  spare_consumption_status.is_consumed,spare_parts_details.courier_rejection_count,spare_parts_details.remarks_defective_part_by_wh_text";
 
         $group_by = "spare_parts_details.id";
         $order_by = "status = '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', spare_parts_details.booking_id ASC";
@@ -7699,6 +7704,7 @@ if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file'
         $data = array(
             'status' => $spare_status,
             'remarks_defective_part_by_wh' => $rejection_reason,
+	    'remarks_defective_part_by_wh_text' => $post_data['remarks'],
             'defective_part_rejected_by_wh' => 1,
             'defective_part_received_by_wh' => '0',
             'rejected_defective_part_pic_by_wh' => $this->input->post('rejected_defective_part_pic_by_wh'),
@@ -10079,6 +10085,9 @@ function do_delivered_spare_transfer() {
     public function get_warranty_data($case = 1, $checkInstallationDate = 0) {
         $post_data = $this->input->post();
         $arrBookings = $post_data['bookings_data'];
+        if(empty($arrBookings)){
+            return;
+        }
         $arrBookingsWarrantyStatus = $this->warranty_utilities->get_warranty_status_of_bookings($arrBookings, $checkInstallationDate);
         switch ($case) {
             case 1:
@@ -10753,6 +10762,13 @@ function do_delivered_spare_transfer() {
 			 }
             $this->insert_details_in_state_change($booking_id, $sf_booking_status, $remarks_auto_close, "247Around", "Review the Booking", NULL, true);
 
+            // Update Symptom, Defect & SOlution against Booking
+            $bookingSymptom['booking_id'] = $booking_id;
+            $bookingSymptom['symptom_id_booking_completion_time'] = $engg_completed_booking->symptom;
+            $bookingSymptom['defect_id_completion'] = $engg_completed_booking->defect;
+            $bookingSymptom['solution_id'] = $engg_completed_booking->solution;
+            $this->booking_model->addBookingSymptom($bookingSymptom);                   
+            
             //Update spare consumption as entered by engineer Booking Completed
             if ($booking_status == _247AROUND_COMPLETED) {
                 $update_consumption = false;
@@ -10858,8 +10874,9 @@ function do_delivered_spare_transfer() {
         $subject = $template[4];
         $to = $template[1];
         $from = $template[2];
+        $cc = "";
         if (!empty($template[3])) {
-            $cc = $template[3] . ",";
+            $cc .= $template[3] . ",";
         }
         if (!empty($rm_mail)) {
             $cc .= $rm_mail . ",";

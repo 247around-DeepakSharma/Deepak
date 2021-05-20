@@ -334,7 +334,13 @@ class Booking extends CI_Controller {
                     {
                         $services_details['around_paid_basic_charges'] =    0;
                     }
-                    $services_details['partner_paid_basic_charges'] = $partner_net_payable[$brand_id][$key + 1][$services_details['id']][0];
+                    if(!empty($partner_net_payable[$brand_id][$key + 1][$services_details['id']][0])){
+                        $services_details['partner_paid_basic_charges'] = $partner_net_payable[$brand_id][$key + 1][$services_details['id']][0];
+                    }
+                    else
+                    {
+                        $services_details['partner_paid_basic_charges'] = 0;
+                    }
                     $services_details['partner_net_payable'] = $services_details['partner_paid_basic_charges'];
                     $services_details['around_net_payable'] = $services_details['around_paid_basic_charges'];
                     if(isset($booking['current_status'])){
@@ -2373,6 +2379,7 @@ class Booking extends CI_Controller {
         $where['is_in_process'] = 0;
         $whereIN['booking_id'] = $postArray['booking_id'];
         $whereIN['booking_details.current_status'] = array(_247AROUND_PENDING, _247AROUND_RESCHEDULED);
+        $where['booking_details.internal_status != "'.REJECTED_FROM_REVIEW_STATUS.'"'] = NULL;
         $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id, current_status",$where,NULL,NULL,NULL,$whereIN,NULL,array());
         if(!empty($tempArray)){
             if($this->input->post("internal_booking_status") == _247AROUND_COMPLETED){
@@ -3263,7 +3270,15 @@ class Booking extends CI_Controller {
      * @param String $booking_id
      */
     function get_comment_section($booking_id , $comment_type){
-        $data['comments'] = $this->booking_model->get_remarks(array('booking_id' => $booking_id, "isActive" => 1,'comment_type'=> $comment_type));
+        if($comment_type == 2){
+            $comment_typeId =array($comment_type,'3');
+             $data['comments'] = $this->booking_model->get_remarks(array('booking_id' => $booking_id, "isActive" => 1),$comment_typeId);
+
+        }else{
+             $data['comments'] = $this->booking_model->get_remarks(array('booking_id' => $booking_id, "isActive" => 1,'comment_type'=> $comment_type));
+
+        }
+       
         $data['booking_id'] = $booking_id;
         $data['user_id'] = $this->session->userdata('id');
         $this->load->view('employee/comment_section', $data);
@@ -6713,6 +6728,9 @@ class Booking extends CI_Controller {
     public function get_warranty_data($case = 1){
         $post_data = $this->input->post();
         $arrBookings = $post_data['bookings_data'];  
+        if(empty($arrBookings)){
+            return;
+        }
         $arrBookingsWarrantyStatus = $this->warranty_utilities->get_warranty_status_of_bookings($arrBookings);   
             
         switch ($case) {
@@ -7089,7 +7107,7 @@ class Booking extends CI_Controller {
      * return: Array of Data for View
      */
     function get_booking_recordings($booking_primary_id) { 
-        $select = "agent_outbound_call_log.create_date, agent_outbound_call_log.recording_url, employee.full_name, entity_role.display_name";
+        $select = "agent_outbound_call_log.create_date, agent_outbound_call_log.recording_url, employee.full_name, entity_role.display_name, agent_outbound_call_log.status";
         $data['data'] = $this->booking_model->get_booking_recordings_by_id($booking_primary_id, $select);
         $this->load->view('employee/show_booking_recordings', $data);
     }  

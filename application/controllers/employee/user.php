@@ -1474,9 +1474,12 @@ class User extends CI_Controller {
         if (!empty($booking_id)) {
             $arrBookings = $this->warranty_utilities->get_warranty_specific_data_of_bookings(array($booking_id));
             if (!empty($arrBookings)) {
-                $array['purchase_date'] = $arrBookings[0]['purchase_date'];
+                $array['purchase_date'] = date("d-M-Y", strtotime($arrBookings[0]['purchase_date']));;
                 $warranty_status_as_per_booking_date = $this->warranty_utilities->get_warranty_status_of_bookings($arrBookings);
                 $array['booking_warranty_status'] = $warranty_status_as_per_booking_date[$booking_id];
+                if(!empty($array['booking_warranty_status']['installation_date'])){
+                    $array['booking_warranty_status']['installation_date'] = date("d-M-Y", strtotime($array['booking_warranty_status']['installation_date']));
+                }
                 /*
                  * Changing Booking Date to current Date to get warranty status as per current Date
                  */

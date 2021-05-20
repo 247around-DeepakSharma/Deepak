@@ -94,7 +94,7 @@
             <div class="row">
                 <div class="form-inline">
                     <div class="form-group col-md-3">
-                        <select class="form-control" id="service_centre_id">
+                        <select class="form-control" id="partner_id">
                             
                         </select>
                     </div>
@@ -127,24 +127,24 @@
         });
     });
     
-    $('#service_centre_id').select2({
-    placeholder: "Select Sf Name",
+    $('#partner_id').select2({
+    placeholder: "Select Partner Name",
     });
 
     $(document).ready(function(){
-        get_service_centre_list();
+        get_partner_list();
 
     });
     
     $('#download_invoice_data').on('click',function(){
-        var service_centre_id = $("#service_centre_id").val();
-        console.log(service_centre_id);
+        var partner_id = $("#partner_id").val();
+        console.log(partner_id);
         var date_range = $("#daterange").val();
         $('#download_invoice_data').html("Download In Progress..").attr('disabled',true);
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/accounting/download_payment_account_ledger',
-            data: {vendor_id : service_centre_id, date_range : date_range, vendor_partner: 'vendor'},
+            data: {vendor_id : partner_id, date_range : date_range, vendor_partner: 'partner'},
             success: function (data) {
                 $('#download_invoice_data').html("Submit..").attr('disabled',false);
                 var obj = JSON.parse(data); 
@@ -162,15 +162,15 @@
     
     
     //function to get service centre list in dropdown
-    function get_service_centre_list()
+    function get_partner_list()
     {
         $.ajax({
            type: 'POST',
-           url: '<?php echo base_url(); ?>employee/invoice/get_service_centre_list_dropdown',
-           data: {}
+           url: '<?php echo base_url(); ?>employee/invoice/getPartnerOrVendor/partner',
+           data: {'invoice_flag':0}
          })
          .done (function(data) {
-             $('#service_centre_id').append(data);
+             $('#partner_id').append(data);
          })
          .fail(function(jqXHR, textStatus, errorThrown){
              alert("Something went wrong while loading service centre list!");
