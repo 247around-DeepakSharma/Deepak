@@ -205,9 +205,9 @@
             return false;
         }
         
-        if(hsnTextVal.length > 8){
+        if(hsnTextVal.length != '8' && hsnTextVal.length != '6'){
             $("#hsn_code").val('');
-            alert("HSN code length should not be greater than eight digit."); 
+            alert("HSN code length should be six and eight digit."); 
             return false;
         }
             

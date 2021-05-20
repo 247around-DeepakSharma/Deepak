@@ -280,6 +280,10 @@
          var service_id_modal = $("#service_id_modal").val();
          var part_type_modal = $("#part_type_modal").val();
          var hsn_code_modal = $("#hsn_code_modal").val();
+         if(($('#hsn_code_modal :selected').text().length-1 != 6) && ($('#hsn_code_modal :selected').text().length-1 != 8)){
+            alert("HSN code should be a six and eight digit only");
+           return false;
+         }
          if(service_id_modal == '' || service_id_modal==null){
              $("#service_modal_err").html("Select Appliance").css('color','red');
              return false;
@@ -367,5 +371,14 @@ $(document).ready(function() {
         }
     });
 } );
+$("#submitform").click(function(){
+    if(($('#hsn_code :selected').text().length -1 != 6) && ($('#hsn_code :selected').text().length -1 != 8)){
+      alert("HSN Code should be a six and eight digit only");
+      return false;
+    }
+    else{
+         return true;
+    }
+})
 </script>
 
