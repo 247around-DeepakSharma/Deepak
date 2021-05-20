@@ -7304,8 +7304,8 @@ class Partner extends CI_Controller {
             $state = 1;
         }
         $postData = $this->input->post();
-        if(array_key_exists("order", $postData)){
-            $order['column'] =$columnMappingArray["column_".$postData['order'][0]['column']];
+        if(array_key_exists("order", $postData) && !empty($columnMappingArray["column_".$postData['order'][0]['column']])){
+            $order['column'] = $columnMappingArray["column_".$postData['order'][0]['column']];
             $order['sorting'] = $postData['order'][0]['dir'];
         }
         $bookingID = $this->input->post('booking_id');

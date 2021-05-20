@@ -10874,8 +10874,9 @@ function do_delivered_spare_transfer() {
         $subject = $template[4];
         $to = $template[1];
         $from = $template[2];
+        $cc = "";
         if (!empty($template[3])) {
-            $cc = $template[3] . ",";
+            $cc .= $template[3] . ",";
         }
         if (!empty($rm_mail)) {
             $cc .= $rm_mail . ",";
