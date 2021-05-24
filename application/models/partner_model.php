@@ -3420,7 +3420,6 @@ function get_detailed_summary_report_query($partner_id,$whereConditions=NULL){
         $this->db->join('courier_company_invoice_details AS cci_details', 'spare_parts_details.awb_by_partner = cci_details.awb_number', 'left');
         $this->db->join('courier_company_invoice_details AS ccid', 'spare_parts_details.awb_by_sf = ccid.awb_number', 'left');
         $this->db->join('courier_company_invoice_details AS cc_invoice_details', 'spare_parts_details.awb_by_wh = cc_invoice_details.awb_number', 'left');
-        $this->db->join('service_center_booking_action', 'spare_parts_details.booking_id = service_center_booking_action.booking_id', 'left');
         $this->db->join('booking_unit_details', 'spare_parts_details.booking_unit_details_id = booking_unit_details.id', 'left');
         $this->db->order_by('spare_parts_details.entity_type', 'asc');
         $query = $this->db->get();
