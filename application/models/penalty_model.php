@@ -339,7 +339,7 @@ class Penalty_model extends CI_Model {
                 . " where booking_id = '$booking_id' "
                 . " AND service_center_id = '$service_center_id' "
                 . " AND new_state != '" . ENGG_ASSIGNED . "'"
-                . " AND create_date >= date('Y-m-d') ";
+                . " AND create_date >= CURDATE() ";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
