@@ -450,7 +450,8 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label for="email" class="col-md-3 vertical-align">Email</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control"  name="email" value = "<?php
+                                            <input type="text" class="form-control"  name="email" onkeypress="return RestrictCommaSemicolon(event);"
+                                                ondrop="return false;" onpaste="return false;" value = "<?php
                                                 if (isset($query[0]['email'])) {
                                                     echo $query[0]['email'];
                                                 }
@@ -1338,7 +1339,8 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label for="primary_contact_email" class="col-md-2 vertical-align">Email*</label>
                                         <div class="col-md-8">
-                                            <input  type="email" class="form-control"  name="primary_contact_email" value = "<?php
+                                            <input  type="email" class="form-control"  name="primary_contact_email" onkeypress="return RestrictCommaSemicolon(event);"
+                                                ondrop="return false;" onpaste="return false;" value = "<?php
                                                 if (isset($query[0]['primary_contact_email'])) {
                                                     echo $query[0]['primary_contact_email'];
                                                 }
@@ -1415,7 +1417,8 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         ?>">
                                         <label for="owner_email" class="col-md-3 vertical-align">Email*</label>
                                         <div class="col-md-8">
-                                            <input type="email" class="form-control"  name="owner_email" value = "<?php
+                                            <input type="email" class="form-control"  name="owner_email" onkeypress="return RestrictCommaSemicolon(event);"
+                                                ondrop="return false;" onpaste="return false;" value = "<?php
                                                 if (isset($query[0]['owner_email'])) {
                                                     echo $query[0]['owner_email'];
                                                 }
@@ -1722,6 +1725,21 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
 
 <!--Validation for page1-->
 <script type="text/javascript">
+
+    function RestrictCommaSemicolon(e) {
+        
+        var theEvent = e || window.event;
+        var key = theEvent.keyCode || theEvent.which;
+        key = String.fromCharCode(key);
+        var regex = /[^;]+$/;
+        if (!regex.test(key)) {
+            theEvent.returnValue = false;
+            if (theEvent.preventDefault) {
+                theEvent.preventDefault();
+            }
+        }
+    }
+
     function copy_text(id) { 
         var value = document.getElementById(id); 
         value.select(); 
