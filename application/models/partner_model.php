@@ -1614,7 +1614,7 @@ function get_data_for_partner_callback($booking_id) {
         $prevmonth = date('M Y', strtotime("last month"));
         $month = (int)date('m',strtotime($prevmonth));
         $year = (int)date('Y',strtotime($prevmonth));
-        $sql = "SELECT DISTINCT `partners`.`id` as id, `partners`.`public_name` FROM `partners`, `booking_details` WHERE `partners`.`is_active` = '$active' AND `partners`.`id` NOT IN (SELECT `booking_details`.`partner_id` FROM `booking_details` WHERE `partners`.`id`=`booking_details`.`partner_id` AND Month(`booking_details`.`create_date`) = '$month' AND YEAR(`booking_details`.`create_date`) = '$year')";
+        $sql = "SELECT DISTINCT `partners`.`id` as id, `partners`.`public_name`, `trigger_partners`.`update_date` FROM `partners`, `trigger_partners` WHERE `partners`.`is_active` = '$active' AND `trigger_partners`.`update_date` > DATE_SUB(NOW(), INTERVAL 1 MONTH) AND `partners`.`id` = `trigger_partners`.`id` AND `partners`.`id` NOT IN (SELECT `booking_details`.`partner_id` FROM `booking_details` WHERE `partners`.`id`=`booking_details`.`partner_id` AND Month(`booking_details`.`create_date`) = '$month' AND YEAR(`booking_details`.`create_date`) = '$year')";
         $query = $this->db->query($sql);
         return $query->result_array();
     }

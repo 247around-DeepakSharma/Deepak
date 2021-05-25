@@ -3448,6 +3448,7 @@ class Around_scheduler extends CI_Controller {
             $table .= "<tr>";
             $table .= "<th>Partner Name</th>";
             $table .= "<th>Account Manager Name</th>";
+            $table .= "<th>Partner Last Activation Date</th>";
             $table .= "</tr>";
 
             foreach ($query as $key => $value) {
@@ -3474,6 +3475,7 @@ class Around_scheduler extends CI_Controller {
                 $table .= "<tr>";
                 $table .= "<td>".$value['public_name']."</td>";
                 $table .= "<td>".$am_string."</td>";
+                $table .= "<td>".$value['update_date']."</td>";
                 $table .= "</tr>";
             }
 
@@ -3481,7 +3483,8 @@ class Around_scheduler extends CI_Controller {
 
             $emailBody = str_replace("<<Month>>",date('M',strtotime($prevmonth)),$body);
             $emailBody = str_replace("<<Year>>",date('Y',strtotime($prevmonth)),$emailBody);
-            $emailBody = sprintf($emailBody, $table);
+            echo $emailBody = sprintf($emailBody, $table);
+            die();
             $result = $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $emailBody, $file, 'no_booking_monthly_mail');
 
         }
