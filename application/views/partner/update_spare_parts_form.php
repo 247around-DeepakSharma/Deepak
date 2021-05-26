@@ -690,6 +690,10 @@
     });     
     
     $("#submit_form").on('click', function(){
+      if(($('.hsn_code :selected').text().length-1 != 6) && ($('.hsn_code :selected').text().length-1 != 8)){
+            alert("HSN code should be a six and eight digit only");
+            return false;
+      }
       $(".invoice_id_class").each(function(i) {
         var invoice_id = $(this).val();
         var format = /[ `!@#$%^&*()+\=\[\]{};':"\\<>\?~]/;

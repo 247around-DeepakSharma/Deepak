@@ -1229,6 +1229,8 @@ class Service_centers extends CI_Controller {
            //     break;
             }
 
+            $engineer_action = $this->engineer_model->getengineer_action_data("*", array("booking_id" => $booking_id));            
+            
             // Add Update by SF Value
             $this->booking_model->update_booking($booking_id, ['edit_by_sf' => 1]);
 
@@ -1239,10 +1241,13 @@ class Service_centers extends CI_Controller {
             $data['cancellation_reason'] = $cancellation_reason;
             $data['closed_date'] = date('Y-m-d H:i:s');
             $data['update_date'] = date('Y-m-d H:i:s');
+            // Update SF Closed date same as engineer closed date
+            if (!empty($engineer_action[0]['closed_date'])) {
+                $data['closed_date'] = $engineer_action[0]['closed_date'];
+            }
             $this->vendor_model->update_service_center_action($booking_id, $data);
             $this->miscelleneous->pull_service_centre_close_date($booking_id, $partner_id);
 
-            $engineer_action = $this->engineer_model->getengineer_action_data("id", array("booking_id" => $booking_id));
             if (!empty($engineer_action)) {
                 $eng_data = array(
                     "internal_status" => _247AROUND_CANCELLED,
@@ -10757,6 +10762,13 @@ function do_delivered_spare_transfer() {
 			 }
             $this->insert_details_in_state_change($booking_id, $sf_booking_status, $remarks_auto_close, "247Around", "Review the Booking", NULL, true);
 
+            // Update Symptom, Defect & SOlution against Booking
+            $bookingSymptom['booking_id'] = $booking_id;
+            $bookingSymptom['symptom_id_booking_completion_time'] = $engg_completed_booking->symptom;
+            $bookingSymptom['defect_id_completion'] = $engg_completed_booking->defect;
+            $bookingSymptom['solution_id'] = $engg_completed_booking->solution;
+            $this->booking_model->addBookingSymptom($bookingSymptom);                   
+            
             //Update spare consumption as entered by engineer Booking Completed
             if ($booking_status == _247AROUND_COMPLETED) {
                 $update_consumption = false;
@@ -10862,8 +10874,9 @@ function do_delivered_spare_transfer() {
         $subject = $template[4];
         $to = $template[1];
         $from = $template[2];
+        $cc = "";
         if (!empty($template[3])) {
-            $cc = $template[3] . ",";
+            $cc .= $template[3] . ",";
         }
         if (!empty($rm_mail)) {
             $cc .= $rm_mail . ",";

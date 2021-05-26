@@ -214,7 +214,7 @@
                                                 <input type="text" class="form-control part_number" name="part[0][part_number]" id="partNumber_0" required="" onblur="get_part_details(this.id)" placeholder="Enter Part Number">
                                                 <label for="partNumber_0" class="error"></label>
                                             </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-3">
+                                            <div class="col-xs-12 col-sm-6 col-md-2">
                                                 <select class="form-control" name="part[0][part_name]" id="partName_0"  required=""></select>
                                                 <span id="part_loader_0" style="display: none; margin-left: 45%;"><i class='fa fa-spinner fa-spin'></i></span>
                                                 <label for="partName_0" class="error"></label>
@@ -1159,8 +1159,14 @@
                             return false;
                         }
     
-                        if(Number($('#partHsnCode_'+i).val()) === ""){
+                        if(Number($('#partHsnCode_'+i).val()) == ''){
                             showConfirmDialougeBox('Please enter HSN Code', 'warning');
+                            $('#partHsnCode_'+i).addClass('text-danger');
+                            flag = false;
+                            return false;
+                        }
+                         if(Number($('#partHsnCode_'+i).val().length) != 6 && Number($('#partHsnCode_'+i).val().length) != 8){
+                            showConfirmDialougeBox('HSN Code should be six and eight digit only', 'warning');
                             $('#partHsnCode_'+i).addClass('text-danger');
                             flag = false;
                             return false;
@@ -2314,7 +2320,7 @@
    
         $("#spareForm_dc").on('submit', function(e) {
             e.preventDefault();
-            $("#submit_btn").attr('disabled',true);
+            $("#submit_btn_dc").attr('disabled',true);
             var isvalid = $("#spareForm_dc").valid();
             var flag = true;
             if (isvalid) {
@@ -2326,7 +2332,7 @@
                 
                 $(".part-total-price_dc").each(function(i) {
                     if($.trim($('#partBasicPrice_dc_'+i).val()) !== '') {
-                        validateDecimal('partBasicPrice_dc_'+i,$('#partBasicPrice_'+i).val());
+                        validateDecimal('partBasicPrice_dc_'+i,$('#partBasicPrice_dc_'+i).val());
     
                         if(Number($('#partBasicPrice_dc_'+i).val()) == 0){
                             showConfirmDialougeBox('Please enter total basic price', 'warning');
@@ -2335,8 +2341,14 @@
                             return false;
                         }
     
-                        if(Number($('#partHsnCode_dc_'+i).val()) === ""){
+                        if(Number($('#partHsnCode_dc_'+i).val()) == ''){
                             showConfirmDialougeBox('Please enter HSN Code', 'warning');
+                            $('#partHsnCode_dc_'+i).addClass('text-danger');
+                            flag = false;
+                            return false;
+                        }
+                         if(Number($('#partHsnCode_dc_'+i).val()) != 6 && Number($('#partHsnCode_dc_'+i).val()) != 8){
+                            showConfirmDialougeBox('HSN Code should be six and eight digit only', 'warning');
                             $('#partHsnCode_dc_'+i).addClass('text-danger');
                             flag = false;
                             return false;
