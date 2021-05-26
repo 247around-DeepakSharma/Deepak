@@ -2344,6 +2344,24 @@ class vendor extends CI_Controller {
                             unlink($f);
                         }
                     }
+                    if (($_FILES['profile_pic']['error'] != 4) && !empty($_FILES['profile_pic']['tmp_name'])) {
+                        //Making process for file upload
+                        $tmpFile = $_FILES['profile_pic']['tmp_name'];
+                        $pan_file = implode("", explode(" ", $this->input->post('name'))) . '_profile_pic_' . date("Y-m-d-H-i-s") . "." . explode(".", $_FILES['file']['name'])[1];
+                        move_uploaded_file($tmpFile, TMP_FOLDER . $pan_file);
+
+                        //Upload files to AWS
+                        $bucket = BITBUCKET_DIRECTORY;
+                        $directory_xls = "engineer-id-proofs/" . $pan_file;
+                        $this->s3->putObjectFile(TMP_FOLDER . $pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                        $data['profile_pic'] = $pan_file;
+
+                        // delete file from temp folder
+                        $f = TMP_FOLDER . $pan_file;
+                        if (file_exists($f)) {
+                            unlink($f);
+                        }
+                    }
 
                     if ($this->session->userdata('userType') == 'service_center') {
                         $data['service_center_id'] = $this->session->userdata('service_center_id');
@@ -2505,6 +2523,25 @@ class vendor extends CI_Controller {
                         $directory_xls = "engineer-id-proofs/" . $pan_file;
                         $this->s3->putObjectFile(TMP_FOLDER.$pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                         $data_identity['identity_proof_pic'] = $pan_file;
+                    }
+                    
+                    if (($_FILES['profile_pic']['error'] != 4) && !empty($_FILES['profile_pic']['tmp_name'])) {
+                        //Making process for file upload
+                        $tmpFile = $_FILES['profile_pic']['tmp_name'];
+                        $pan_file = implode("", explode(" ", $this->input->post('name'))) . '_profile_pic_' . date("Y-m-d-H-i-s") . "." . explode(".", $_FILES['profile_pic']['name'])[1];
+                        move_uploaded_file($tmpFile, TMP_FOLDER . $pan_file);
+
+                        //Upload files to AWS
+                        $bucket = BITBUCKET_DIRECTORY;
+                        $directory_xls = "engineer-id-proofs/" . $pan_file;
+                        $this->s3->putObjectFile(TMP_FOLDER . $pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                        $data['profile_pic'] = $pan_file;
+
+                        // delete file from temp folder
+                        $f = TMP_FOLDER . $pan_file;
+                        if (file_exists($f)) {
+                            unlink($f);
+                        }
                     }
 
                     //Get vendor ID from session if form sent thru vendor CRM
