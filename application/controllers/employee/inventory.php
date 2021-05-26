@@ -3829,7 +3829,9 @@ class Inventory extends CI_Controller {
         if($is_sf_request){
             $where['inventory_model_mapping.bom_main_part'] = 1;
         }
-        $inventory_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_name,inventory_master_list.inventory_id,inventory_model_mapping.max_quantity,inventory_master_list.part_image', $where);
+
+        $inventory_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_name,inventory_master_list.inventory_id,inventory_model_mapping.max_quantity,inventory_master_list.part_image, '
+                . 'inventory_master_list.hsn_code, inventory_master_list.gst_rate', $where);
 
         if ($this->input->post('is_option_selected')) {
             $option = '<option selected disabled>Select Part Name</option>';
@@ -3839,8 +3841,8 @@ class Inventory extends CI_Controller {
 
  
         foreach ($inventory_type as $value) {
-            $option .= "<option  data-maxquantity='" . $value['max_quantity'] . "'  data-inventory='" . $value['inventory_id'] . "' data-partimage='" . $value['part_image'] . "' value='" . $value['part_name'] . "'";
-            if($requested_inventory_id == $value['inventory_id']){
+            $option .= "<option data-hsn_code = '".$value['hsn_code']."' data-gst_rate = '".$value['gst_rate']."'  data-maxquantity='" . $value['max_quantity'] . "'  data-inventory='" . $value['inventory_id'] . "' data-partimage='" . $value['part_image'] . "' value='" . $value['part_name'] . "'";
+            if ($requested_inventory_id == $value['inventory_id']) {
                 $option .= " selected ";
             }
             $option .=" > ";
@@ -9323,11 +9325,16 @@ function get_bom_list_by_inventory_id($inventory_id) {
     function get_hsn_code_list() {
         
         $service_id = $this->input->post("service_id");
-        $hsn_code_arr = $this->inventory_model->get_hsn_code_details('hsn_code_details.id,hsn_code_details.hsn_code,hsn_code_details.gst_rate', array('hsn_code_details.service_id'=> $service_id));
-        $option = '<option selected disabled>Select HSN Code </option>';
+        $hsn_code = $this->input->post("hsn_code");
+        $hsn_code_arr = $this->inventory_model->get_hsn_code_details('hsn_code_details.id,hsn_code_details.hsn_code,hsn_code_details.gst_rate', array('hsn_code_details.service_id' => $service_id));
+        $option = '<option disabled>Select HSN Code </option>';
 
         foreach ($hsn_code_arr as $value) {
-            $option .= "<option data-gst='" . $value['gst_rate'] . "' value='" . $value['id'] . "'>";
+            $option .= "<option data-gst='" . $value['gst_rate'] . "' ";
+            if($hsn_code == $value['hsn_code']){
+                $option .= " selected ";
+            }
+            $option .= "value='" . $value['id'] . "'>";
             $option .= $value['hsn_code'] . "</option>";
         }
 

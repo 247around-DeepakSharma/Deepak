@@ -195,7 +195,7 @@
                                                 </div>
                                             <?php } else { ?> 
                                                 <div class="col-md-7">
-                                                    <input required="" type="text" class="form-control spare_parts shipped-part-name" id="<?php echo "shippedpartsname_" . $key; ?>" name="part[<?php echo $key; ?>][shipped_parts_name]" value = "" placeholder="Shipped Parts Name"  data-key="<?=$key?>">
+                                                    <input required="" type="text" onblur="get_hsn_code_list('<?php echo $key;?>')" class="form-control spare_parts shipped-part-name" data-hsn_code ="" id="<?php echo "shippedpartsname_" . $key; ?>" name="part[<?php echo $key; ?>][shipped_parts_name]" value = "" placeholder="Shipped Parts Name"  data-key="<?=$key?>">
                                                 </div>
                                             <?php } ?>
                                         </div>
@@ -276,7 +276,7 @@
                                         </div>
                                         <?php } else { ?> 
                                         <div class="col-md-7">                                            
-                                            <select required="" class="form-control  spare_parts_type" id="<?php echo "shippedpart_type_".$key ?>" name="part[<?php echo $key;?>][shipped_part_type]" value = "">
+                                            <select required="" class="form-control  spare_parts_type" data-service_id ="<?php echo $value->service_id; ?>" id="<?php echo "shippedparttype_".$key ?>" name="part[<?php echo $key;?>][shipped_part_type]" value = "">
                                                 <option selected disabled>Select Part Type</option>
                                             </select>
                                         </div>
@@ -408,24 +408,7 @@
                                         <div class="col-md-7">
                                             <input class="form-control invoice_id_class" id="invoice_id"  value="" placeholder="Please Enter Invoice Id" required/>
                                         </div>
-                                    </div>  
-                                    <?php if (isset($inventory_details) && !empty($inventory_details)) { ?>
-                                    <div class="form-group">
-                                        <label for="hsn_code" class="col-md-4">HSN Code *</label>
-                                        <div class="col-md-7">
-                                            <select  class="form-control" id="hsn_code">
-                                               <option value="" disabled="" selected="">Select HSN code</option> 
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <?php } else { ?>
-                                      <div class="form-group">
-                                        <label for="hsn_code" class="col-md-4">HSN Code *</label>
-                                        <div class="col-md-7">
-                                            <input type="text" class="form-control validate_hsn_code" id="hsn_code" value = "" placeholder="Please Enter HSN Code"  required>
-                                        </div>
-                                    </div>
-                                    <?php } ?>                                      
+                                    </div>                                       
                                     <div class="form-group">
                                         <label for="invoice_amount" class="col-md-4">Invoice Amount (including tax)</label>
                                         <div class="col-md-7">
@@ -652,7 +635,10 @@
 </div>
 
 <script type="text/javascript">
-    
+    $('.hsn_code').select2({
+        placeholder:'Select HSN Code',
+        allowClear:true
+    });
    $('#courier_price_by_partner').bind('keyup paste keypress', function(){
         this.value = this.value.replace(/[^0-9.]/g, '');
    });
@@ -747,9 +733,10 @@
     $(".hsn_code").on("change",function(){
     var string_id = $(this).attr("id");
     var array = string_id.split("_");
-    var hsn_code = $(this).find('option:selected').attr("data-gst");
-        if(hsn_code!='' && hsn_code != 'undefined'){
-            $("#gst_rate_"+array[2]).val(hsn_code).change();
+    var gst_rate = $(this).find('option:selected').attr("data-gst");
+        if(gst_rate!='' && gst_rate != 'undefined'){
+            $("#gst_rate_"+array[2]).val(gst_rate).change();
+           // console.log(gst_rate);
             $('label[for="gst_rate_'+array[2]+'"]').css('display', 'none');
             $("#gst_rate_"+array[2]).attr("readonly", true);
         }
@@ -877,11 +864,11 @@
                 if(!total){
                 swal("Error !", "Sum of weight in KG and GM must be greater than 0");
                 }else{
-        $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', false);
+		$("#invoice_id_0,#hsn_code_0,#shippedparttype_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', false);
                 form.submit();   
                 }
             }else{
-        $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', false);
+		$("#invoice_id_0,#hsn_code_0,#shippedparttype_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', false);
                form.submit(); 
             } 
                 }
@@ -942,13 +929,6 @@
         placeholder:'Select Part Type',
         allowClear:true
     });
-    
-     $('.hsn_code').select2({
-        placeholder:'Select HSN Code',
-        allowClear:true
-    });
-
-
 
     $(document).on('keyup', ".quantity", function(e){
         var id = $(this).attr("id");
@@ -1055,7 +1035,7 @@
         var service_id =  $('#shippedparttype_' +key).find(':selected').attr('data-service_id');
         $('#inventoryid_'+key).val(inventory);
         //$("#quantity_0").removeAttr("readonly");
-        get_hsn_code_list(key,service_id);
+        get_hsn_code_list(key);
         
         if(inventory != undefined ){
             get_spare_part_price(key, inventory);
@@ -1264,7 +1244,7 @@
                 .find('[id="approx_value"]').attr('name', 'part[' + partIndex + '][approx_value]').attr('id','approx_value_'+partIndex).end()
                 .find('[id="inventory_id"]').attr('name', 'part[' + partIndex + '][inventory_id]').attr('id','inventory_id_'+partIndex).end()
                 .find('[id="invoice_id"]').attr('name', 'part[' + partIndex + '][invoice_id]').attr('id','invoice_id_'+partIndex).end()
-                .find('[id="hsn_code"]').attr('name', 'part[' + partIndex + '][hsn_code]').attr('id','hsn_code_'+partIndex).attr("onchange", "get_hsn_code_list('"+partIndex+"','')").select2({placeholder:'Select HSN Code'}).end() 
+                .find('[id="hsn_code"]').attr('name', 'part[' + partIndex + '][hsn_code]').attr('id','hsn_code_'+partIndex).select2({placeholder:'Select HSN Code'}).end() 
                 .find('[id="invoiceamount"]').attr('name', 'part[' + partIndex + '][invoiceamount]').attr('id','invoiceamount_'+partIndex).end()
                 .find('[id="incominginvoice"]').attr('name', 'incominginvoice[' + partIndex + ']').attr('id','incominginvoice_'+partIndex).end()
                 .find('[id="invoice_date"]').attr('name', 'part[' + partIndex + '][invoice_date]').attr('id','invoice_date_'+partIndex).end()
@@ -1289,7 +1269,7 @@
                 .find('[id="approx_value"]').attr('name', 'part[' + partIndex + '][approx_value]').attr('id','approx_value_'+partIndex).end()
                 .find('[id="inventory_id"]').attr('name', 'part[' + partIndex + '][inventory_id]').attr('id','inventory_id_'+partIndex).end()
                 .find('[id="invoice_id"]').attr('name', 'part[' + partIndex + '][invoice_id]').attr('id','invoice_id_'+partIndex).end()
-                .find('[id="hsn_code"]').attr('name', 'part[' + partIndex + '][hsn_code]').attr('id','hsn_code_'+partIndex).attr("onchange", "get_hsn_code_list('"+partIndex+"','')").select2({placeholder:'Select HSN Code'}).end() 
+                .find('[id="hsn_code"]').attr('name', 'part[' + partIndex + '][hsn_code]').attr('id','hsn_code_'+partIndex).select2({placeholder:'Select HSN Code'}).end() 
                 .find('[id="invoiceamount"]').attr('name', 'part[' + partIndex + '][invoiceamount]').attr('id','invoiceamount_'+partIndex).end()
                 .find('[id="incominginvoice"]').attr('name', 'incominginvoice[' + partIndex + ']').attr('id','incominginvoice_'+partIndex).end()
                 .find('[id="invoice_date"]').attr('name', 'part[' + partIndex + '][invoice_date]').attr('id','invoice_date_'+partIndex).end()
@@ -1344,15 +1324,15 @@
         }
         
         $("#courier_not_shipping").on('click',function(){
-            $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0,#approx_value_0").prop('disabled', true);
+            $("#invoice_id_0,#hsn_code_0,#shippedparttype_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0,#approx_value_0").prop('disabled', true);
         });
         
         $("#courier_shipping").on('click',function(){
-            $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0,#approx_value_0").prop('disabled', false);
+            $("#invoice_id_0,#hsn_code_0,#shippedparttype_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0,#approx_value_0").prop('disabled', false);
         });
         
         $("#to_be_shipping").on('click',function(){
-            $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0,#approx_value_0").prop('disabled', true);
+            $("#invoice_id_0,#hsn_code_0,#shippedparttype_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0,#approx_value_0").prop('disabled', true);
         });
         
         $("#courier_name").on('change',function(){
@@ -1362,7 +1342,7 @@
         $(".spare_parts_type").on('change',function(){
             var id_text = $(this).attr('id');
             id_array = id_text.split('_');
-            $('label[for="shippedpart_type_'+id_array[2]+'"]').css('display', 'none');
+            $('label[for="shippedparttype_'+id_array[2]+'"]').css('display', 'none');
         });
         
         $(".invoice_id_class").on('change',function(){
@@ -1464,25 +1444,7 @@
             }
         }
         
-        
-    function get_hsn_code_list(key,service_id){
-        var hsn_code = $("#hsn_code_"+key+" option:selected").attr("data-gst");
-        if(hsn_code!='' && hsn_code != undefined){
-            $("#gst_rate_"+key).val(hsn_code).change();
-        }
-        if(service_id !=''){
-          $.ajax({
-             method:'POST',
-             url:'<?php echo base_url(); ?>employee/inventory/get_hsn_code_list',
-             data: { service_id:service_id},
-             success:function(data){                       
-                 $('#hsn_code_'+key).html(data);
-             }
-        });  
-        }
-        
-    } 
-        
+          
 </script>
 <?php } ?>
 
@@ -1491,12 +1453,40 @@
 //        $("#shippedmodelnumberid_0").select2();
     </script> 
 <?php } ?>
+    
+<script>
+
+function get_hsn_code_list(key){
+        //var gst_rate = $("#hsn_code_"+key+" option:selected").attr("data-gst");
+        
+        var hsn_code=  $('#shippedpartsname_' +key).find(':selected').attr('data-hsn_code');
+        var service_id = $('#shippedparttype_' +key).find(':selected').attr('data-service_id');
+        if(service_id == undefined){
+            service_id = "<?php echo $spare_parts[0]->service_id;?>";
+        }
+
+        if(service_id !='') {
+          $.ajax({
+             method:'POST',
+             url:'<?php echo base_url(); ?>employee/inventory/get_hsn_code_list',
+             data: { service_id:service_id, hsn_code:hsn_code},
+             success:function(data){
+                 console.log(data);
+                 $('#hsn_code_'+key).html(data).change();
+                 //$('#hsn_code_'+key).val(hsn_code).change();
+             }
+        });  
+        }
+        
+    }
+
+</script>
 
  <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
         <?php foreach($spare_parts as $ssKey => $sp) { ?>
          <script> 
                 change_shipped_model('<?php echo $ssKey; ?>'); 
-                get_hsn_code_list('<?php echo $ssKey; ?>','<?php echo $sp->service_id; ?>');
+               // get_hsn_code_list('<?php //echo $ssKey; ?>','<?php //echo $sp->service_id; ?>');
          </script> 
              <?php  } ?>
      <?php }else{ ?>         
@@ -1547,16 +1537,16 @@
         function get_inventory_pary_type(service_id,spare_part_type_id){
            $.ajax({
            method:'POST',
-           url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
-           data: { service_id:service_id},
+           url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type_with_warranty_status',
+           data: { service_id:service_id,warranty_plan_id:"<?php echo $spare_parts[0]->applied_warranty_plan_id; ?>"},
            success:function(data){                       
                $('#'+spare_part_type_id).html(data);  
                var section_length = $(".div_class").length
                 for(i=0; i < section_length; i++){
-                    $("#shippedpart_type_"+i).html(data);
+                    $("#shippedparttype_"+i).html(data);
                 }
-               $('#shippedpart_type_0 option[value="<?php echo (isset($spare_parts[0]->parts_requested_type) ? $spare_parts[0]->parts_requested_type : '') ?>"]').attr('selected','selected');   
-               $('#shippedpart_type_0').select2({
+               $('#shippedparttype_0 option[value="<?php echo (isset($spare_parts[0]->parts_requested_type) ? $spare_parts[0]->parts_requested_type : '') ?>"]').attr('selected','selected');   
+               $('#shippedparttype_0').select2({
                  placeholder:'Select Part Type',
                  allowClear:true
                });
