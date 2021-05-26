@@ -1670,7 +1670,11 @@ class Notify {
             }
         }
         if (empty($return_array)) {
-            $return_array['contact_number'] = _247AROUND_PAID_CALLCENTER_NUMBER;
+            if (!empty($data[0]['paid_service_centers'])){
+                $return_array['contact_number'] = _247AROUND_PAID_CALLCENTER_NUMBER;
+            }else{
+                $return_array['contact_number'] = _247AROUND_CALLCENTER_NUMBER;
+            }
             $return_array['contact_person'] = _247AROUND_DEFAULT_AGENT_NAME;
         }
         return $return_array;
