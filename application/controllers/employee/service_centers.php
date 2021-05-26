@@ -6592,6 +6592,19 @@ if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file'
         }
         $this->load->view('service_centers/defective_parts_shipped_by_sf');
     }
+    /**
+     * @desc: This function is used to get those booking who has defective parts shipped by SF to partner After partner audit
+     * @param: void
+     * @return void
+     */
+    function get_defective_parts_shipped_by_sf_partner_audit() {
+        if (!empty($this->session->userdata('warehouse_id'))) {
+            $this->checkEmployeeUserSession();
+        } else {
+            $this->check_WH_UserSession();
+        }
+        $this->load->view('service_centers/defective_parts_shipped_by_sf_partner_audit');
+    }
 
     function get_defective_parts_shipped_by_sf_list($page = 0, $offset = 0) {
         
@@ -6674,8 +6687,89 @@ if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file'
 
         // $this->load->view('employee/get_spare_parts', $data);
     }
+	function get_defective_parts_shipped_by_sf_list_partner_audit($page = 0, $offset = 0) {
+        
+        if(!empty($this->session->userdata('warehouse_id'))) { 
+            $this->checkEmployeeUserSession();
+            $sf_id = $this->session->userdata('warehouse_id');
+        } else {
+            $this->check_WH_UserSession();
+            $sf_id = $this->session->userdata('service_center_id');
+        }
+        
+        $post = $this->get_post_view_data();
+        log_message('info', __FUNCTION__ . " SF ID: " . $sf_id);
+        if (!empty($post['search_value'])) {
 
-    function defective_parts_shipped_by_sf_table_data($spare_list, $no, $warehouse_name = '', $sf_id = '') {
+            $where = array(
+                "spare_parts_details.defective_part_required" => 1,
+                "approved_defective_parts_by_admin" => 1,
+                "(spare_lost is null or spare_lost = 0)" => NULL,
+                "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
+                "status IN ('" . Ok_PARTS_RECEIVED_BY_WAREHOUSE_PARTNER_AUDIT . "')" => NULL,
+            );
+        } else {
+        $where = array(
+                "spare_parts_details.defective_part_required" => 1,
+                "approved_defective_parts_by_admin" => 1,
+                "(spare_lost is null or spare_lost = 0)" => NULL,
+                "spare_parts_details.defective_return_to_entity_id" => $sf_id,
+                "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
+                "status IN ('" . Ok_PARTS_RECEIVED_BY_WAREHOUSE_PARTNER_AUDIT . "')" => NULL,
+            );
+        }
+        
+        $select = "spare_parts_details.id,defective_part_shipped,spare_parts_details.defective_part_rejected_by_partner, spare_parts_details.shipped_quantity,spare_parts_details.id, spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, spare_consumption_status.reason_text,spare_parts_details.defective_return_to_entity_id, "
+                . " spare_parts_details.booking_id, users.name as 'user_name', courier_name_by_sf, awb_by_sf,defective_part_shipped_date,"
+                . "remarks_defective_part_by_sf,booking_details.partner_id,service_centres.name as 'sf_name',service_centres.district as 'sf_city',s.part_number, spare_parts_details.defactive_part_received_date_by_courier_api, spare_parts_details.status, spare_parts_details.defective_part_rejected_by_wh";
+        $group_by = "spare_parts_details.id";
+        $limit = $post['length'];
+        $offset = $post['start'];
+        $post['column_search'] = array('spare_parts_details.booking_id', 'spare_parts_details.awb_by_sf','service_centres.name');
+        $order_by = "spare_parts_details.defective_part_shipped_date DESC, spare_parts_details.booking_id";
+        $list = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $limit, 0, NULL, $post);
+        
+        $no = $post['start'];
+        $data=array();
+        //$no =0;
+        $ware_house_name_array = array();
+        foreach ($list as $spare_list) {
+            $no++;
+            $warehouse_name = '';
+            $wh_id = $spare_list['defective_return_to_entity_id'];
+            if(!empty($whare_house_name_array[$wh_id])){
+                $warehouse_name = $whare_house_name_array[$wh_id];
+            }else{
+                $select_wh = "service_centres.id,service_centres.name,service_centres.is_wh";
+                $post_where['where']['(service_centres.is_wh = 1)'] = null;
+                $post_where['where']['service_centres.id'] = $wh_id;
+                $post_where['length'] = -1;
+                $post_where['start'] = 0;
+                $list_wh = $this->vendor_model->viewallvendor($post_where, $select_wh);
+                if(!empty($list_wh)){
+                   $warehouse_name = $list_wh[0]['name']; 
+                   $whare_house_name_array[$wh_id] = $warehouse_name;
+                }
+            }
+            $row = $this->defective_parts_shipped_by_sf_table_data($spare_list, $no, $warehouse_name, $sf_id,false);
+            $data[] = $row;
+        }
+
+
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => $this->service_centers_model->count_all_defective_parts_shipped_by_sf_list($where, $group_by, $order_by, $post),
+            "recordsFiltered" => $this->service_centers_model->count_defective_parts_shipped_by_sf_list($where, $group_by, $order_by, $post),
+            "data" => $data
+        );
+
+        echo json_encode($output);
+
+
+        // $this->load->view('employee/get_spare_parts', $data);
+    }
+
+    function defective_parts_shipped_by_sf_table_data($spare_list, $no, $warehouse_name = '', $sf_id = '',$show_reject=true) {
 
         $row = array();
         
@@ -6749,8 +6843,9 @@ if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file'
         $b .= "open_reject_spare_consumption_model(this.id," . '"' . $spare_list['booking_id'] . '"';
         $b .= ', "' . $spare_list['id'] . '"';
         $b .= ")'>Reject</a>";
-
+		if(!empty($show_reject)){
         $row[] = $b;
+		}
 
         return $row;
     }
@@ -7395,6 +7490,7 @@ if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file'
         $defective_parts_shipped_kg = $this->input->post("defective_parts_shipped_kg") ? : 0;
         $defective_parts_shipped_gram = $this->input->post("defective_parts_shipped_gram") ? : 000;
         $received_weight = $defective_parts_shipped_kg.".".$defective_parts_shipped_gram;
+	$partneraudit = $this->input->post("partneraudit") ? : 0;
         
         if (!empty($post_data['consumption_data'])) { // if you receive multiple part.
             $consumption_data = json_decode($post_data['consumption_data'], true);
@@ -7430,7 +7526,7 @@ if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file'
              * @modifiedBy Ankit Rajvanshi
              */
             $is_inventory_handled_by_247 = $this->inventory_model->check_stock_handled_by_central_wh($booking_details, $spare_part_detail);
-            if (!empty($is_inventory_handled_by_247) && !empty($spare_part_detail['shipped_inventory_id']) && in_array($spare_consumption_status_tag['tag'], [PART_SHIPPED_BUT_NOT_USED_TAG, WRONG_PART_RECEIVED_TAG, DAMAGE_BROKEN_PART_RECEIVED_TAG])) {
+            if (!empty($is_inventory_handled_by_247) && !empty($spare_part_detail['shipped_inventory_id']) && in_array($spare_consumption_status_tag['tag'], [PART_SHIPPED_BUT_NOT_USED_TAG, WRONG_PART_RECEIVED_TAG, DAMAGE_BROKEN_PART_RECEIVED_TAG]) && empty($partneraudit)) {
                //send email
                 $email_content = $this->send_mail_for_parts_received_by_warehouse($booking_id, $spare_id);
                 //update inventory stocks
@@ -7466,19 +7562,24 @@ if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file'
                 
                 $this->inventory_model->update_ledger_details($ledger_data, $ledger_where);                
             }
-            
+            $datewh = date("Y-m-d H:i:s");
             $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
             if(!empty($is_spare_consumed) && $is_spare_consumed == 1) {
                 $spare_status = DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE;
             } else {
-                $spare_status = Ok_PARTS_RECEIVED_BY_WAREHOUSE;
+                if (empty($partneraudit)) {
+                    $spare_status = Ok_PARTS_RECEIVED_BY_WAREHOUSE;
+                } else {
+                    $spare_status = Ok_PARTS_RECEIVED_BY_WAREHOUSE_PARTNER_AUDIT;
+                    $datewh = null;
+                }
             }
         }
         
         $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => $spare_status,
             'defective_return_to_entity_id' => $sf_id, 'defective_return_to_entity_type' => _247AROUND_SF_STRING,
             'defective_part_received_by_wh' => 1, 'remarks_defective_part_by_wh' => $spare_status,
-            'defective_part_received_date_by_wh' => date("Y-m-d H:i:s"), 'received_defective_part_pic_by_wh' => $receive_defective_pic_by_wh));
+            'defective_part_received_date_by_wh' => $datewh, 'received_defective_part_pic_by_wh' => $receive_defective_pic_by_wh));
 
         /* Insert Spare Tracking Details */
         if (!empty($spare_id)) {
@@ -10992,6 +11093,143 @@ function do_delivered_spare_transfer() {
             $this->notify->insert_state_change($booking_id, PARTS_NOT_RECEIVED_BY_SF, $old_state, $remarks, $this->session->userdata('service_center_agent_id'), $this->session->userdata('service_center_name'), $actor, $next_action, NULL, $this->session->userdata('service_center_id'), '');
         }
         echo json_encode(array("status" => $status, "error_code" => $error));
+    }
+	/**
+     * @desc: This function is used to received the defective parts shipped by SF to 247around warehouse
+     * @param String $booking_id
+     * @param String $partner_id
+     * @param String $is_cron
+     * @return Void
+     */
+        function acknowledge_received_defective_parts_partner_audit() {
+        $this->check_WH_UserSession();
+        $sf_id = $this->session->userdata('service_center_id');
+        $post_data = $this->input->post();
+        $spare_id_array = $post_data['spare_id_array'];
+        foreach ($spare_id_array as $key => $spare_id) {
+            $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
+            //Return false is Spare is already defective return acknowledged
+            $defective_part_received_date_by_wh = $spare_part_detail['defective_part_received_date_by_wh'];
+            if (!empty($defective_part_received_date_by_wh)) {
+                echo json_encode(array('This Defective / OK part is already acknowledged.', ''));
+                return false;
+            }
+            if (!empty($post_data['spare_consumption_status'][$spare_id]) && $post_data['spare_consumption_status'][$spare_id] != 1 && $spare_part_detail['defective_return_to_entity_id'] != $sf_id) {
+                echo json_encode(array('You can not acknowledge this part as ok, as original spare was not shipped from this warehouse.', ''));
+                return false;
+            }
+            $booking_id = $spare_part_detail['booking_id'];
+            $booking_details = $this->booking_model->get_booking_details('*', ['booking_id' => $spare_part_detail['booking_id']])[0];
+            $is_inventory_handled_by_247 = $this->inventory_model->check_stock_handled_by_central_wh($booking_details, $spare_part_detail);
+            if (!empty($is_inventory_handled_by_247)) {
+                //send email
+                $email_content = $this->send_mail_for_parts_received_by_warehouse($booking_id, $spare_id);
+                $is_entity_exist = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $sf_id, 'entity_type' => _247AROUND_SF_STRING, 'inventory_id' => $spare_part_detail['shipped_inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
+
+                if (!empty($is_entity_exist)) {
+                    $stock = "stock + '" . $spare_part_detail['shipped_quantity'] . "'";
+                    $update_stocks = $this->inventory_model->update_inventory_stock(array('id' => $is_entity_exist[0]['id']), $stock);
+                } else {
+                    $insert_data = [];
+                    $insert_data['entity_id'] = $sf_id;
+                    $insert_data['entity_type'] = _247AROUND_SF_STRING;
+                    $insert_data['inventory_id'] = $spare_part_detail['shipped_inventory_id'];
+                    $insert_data['stock'] = $spare_part_detail['shipped_quantity'];
+                    $insert_data['create_date'] = date('Y-m-d H:i:s');
+
+                    $this->inventory_model->insert_inventory_stock($insert_data);
+                    /*
+                     * Update receiver entity id in inventory ledger.
+                     */
+                    $ledger_data = [
+                        'receiver_entity_id' => $sf_id,
+                        'receiver_entity_type' => _247AROUND_SF_STRING,
+                        'is_wh_ack' => 1,
+                        'wh_ack_date' => date('Y-m-d H:i:s')
+                    ];
+
+                    $ledger_where = [
+                        'spare_id' => $spare_id,
+                        'is_defective' => 1
+                    ];
+
+                    $this->inventory_model->update_ledger_details($ledger_data, $ledger_where);
+                }
+            }
+            $spare_status = Ok_PARTS_RECEIVED_BY_WAREHOUSE;
+            $datewh = date("Y-m-d H:i:s");
+            $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => $spare_status,
+                'defective_part_received_by_wh' => 1,'defective_part_received_date_by_wh' => $datewh));
+
+            /* Insert Spare Tracking Details */
+            if (!empty($spare_id)) {
+                $tracking_details = array('spare_id' => $spare_id, 'action' => $spare_status, 'remarks' => $post_data['remarks']);
+                if (!empty($this->session->userdata('warehouse_id'))) {
+                    $tracking_details['agent_id'] = $this->session->userdata('id');
+                    $tracking_details['entity_id'] = _247AROUND;
+                    $tracking_details['entity_type'] = _247AROUND_EMPLOYEE_STRING;
+                } else {
+                    $tracking_details['agent_id'] = $this->session->userdata('service_center_agent_id');
+                    $tracking_details['entity_id'] = $this->session->userdata('service_center_id');
+                    $tracking_details['entity_type'] = _247AROUND_SF_STRING;
+                }
+                $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+            }
+            if ($response) {               
+
+                log_message('info', __FUNCTION__ . " Received Defective Spare Parts " . $booking_id
+                        . " SF Id" . $sf_id);
+
+                $sendUrl = base_url() . 'employee/invoice/generate_micro_reverse_sale_invoice/' . $spare_id;
+                $this->asynchronous_lib->do_background_process($sendUrl, array());
+
+                $is_exist = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status", array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.defective_part_required' => 1, "status NOT IN  ('" . _247AROUND_CANCELLED . "', '" . _247AROUND_COMPLETED
+                    . "', '" . DEFECTIVE_PARTS_RECEIVED . "', '" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "', '" . Ok_PARTS_RECEIVED_BY_WAREHOUSE . "', '" . Ok_PARTS_RECEIVED . "') " => NULL));
+
+                $actor = $next_action = 'not_define';
+                if (empty($is_exist)) {
+                    $booking_internal_status = $spare_status;
+                } else {
+                    $booking_internal_status = $is_exist[0]['status'];
+                }
+
+                // Change booking internal status if booking is completed.
+                if ($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                    $booking = [];
+                    $booking['internal_status'] = $spare_status;
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, $booking['internal_status'], $partner_id, $booking_id);
+                    if (!empty($partner_status)) {
+                        $booking['partner_current_status'] = $partner_status[0];
+                        $booking['partner_internal_status'] = $partner_status[1];
+                        $actor = $booking['actor'] = $partner_status[2];
+                        $next_action = $booking['next_action'] = $partner_status[3];
+                    }
+                    $this->booking_model->update_booking($booking_id, $booking);
+                }
+
+                // "Warehouse Received Defective Spare Parts"
+                $this->insert_details_in_state_change($booking_id, $spare_status, "Part received", $actor, $next_action, $spare_id, false);
+
+                $is_oow_return = $this->partner_model->get_spare_parts_by_any("booking_unit_details_id, purchase_price, sell_price, sell_invoice_id", array('spare_parts_details.id' => $spare_id,
+                    'booking_unit_details_id IS NOT NULL' => NULL,
+                    'sell_price > 0 ' => NULL,
+                    'sell_invoice_id IS NOT NULL' => NULL,
+                    'estimate_cost_given_date IS NOT NULL' => NULL,
+                    'spare_parts_details.part_warranty_status' => 2,
+                    'defective_part_required' => 1,
+                    '(approved_defective_parts_by_partner = 1 or defective_part_received_by_wh = 1)' => NULL,
+                    'status IN ("' . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . '", "' . DEFECTIVE_PARTS_RECEIVED . '", "' . Ok_PARTS_RECEIVED . '", "' . Ok_PARTS_RECEIVED_BY_WAREHOUSE . '")' => NULL,
+                    '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id IS NULL)' => NULL), true);
+                if (!empty($is_oow_return)) {
+                    sleep(40);
+                    $url = base_url() . "employee/invoice/generate_reverse_oow_invoice/" . $spare_id;
+                    $async_data['booking_id'] = $booking_id;
+                    $this->asynchronous_lib->do_background_process($url, $async_data);
+                }
+            }
+        }
+        $message = 'Parts have been received successfully.';
+        echo json_encode(array($message, 'success'));
     }
 
 }

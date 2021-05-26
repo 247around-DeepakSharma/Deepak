@@ -187,6 +187,7 @@ define('PART_CONSUMED_STATUS_ID', '1');
 define('ALTERNATE_PART_PICKED', 'Alternate Part Picked');
 // Ok Parts Received by Warehouse
 define('Ok_PARTS_RECEIVED_BY_WAREHOUSE','Ok Part Received By Warehouse');
+define('Ok_PARTS_RECEIVED_BY_WAREHOUSE_PARTNER_AUDIT','Ok Part Received By Warehouse - Partner Audit');
 // Ok Parts Received by Partner
 define('Ok_PARTS_RECEIVED','Ok Part Received By Partner');
 // Ok Parts Rejected by Partner
