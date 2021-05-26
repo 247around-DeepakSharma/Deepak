@@ -40,7 +40,17 @@
                                 <tr>
                                     <td><?php echo ++$k; ?></td>
                                     <td><?php echo $service_center['name']; ?></td>
-                                    <td><?php echo $service_center['auth_certificate_validate_year']; ?></td>
+                                    <td><?php 
+                                        $auth_validate_year = explode('-', $service_center['auth_certificate_validate_year']);
+                                        if(!empty($auth_validate_year['1'])){
+                                            echo ($auth_validate_year['1']); 
+
+                                        }else{
+
+
+                                        echo ($service_center['auth_certificate_validate_year']); 
+                                    }
+                                        ?></td>
                                     <td> <?php if ($service_center['auth_certificate_file_name'] != NULL) { ?> <a href="<?php echo S3_WEBSITE_URL . 'authorization_certificate/' . $service_center['auth_certificate_file_name']; ?>" target="_blank">Certificate</a> <?php } ?></td>
                                     <td>
                                         <?php
