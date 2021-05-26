@@ -3782,8 +3782,12 @@ function generate_image($base64, $image_name,$directory){
 
                 $isPending = $this->My_CI->partner_model->get_spare_parts_by_any('count(spare_parts_details.id) as count', array('partner_id' => $service_center_id, 'status' => SPARE_PARTS_REQUESTED, 'requested_inventory_id' => $inventory_stock_details[0]['inventory_id']));
                 $is_stock = false;
-                if (!empty($isPending) && (($isPending[0]['count'] + $quantity) <= $inventory_stock_details[0]['stock'])) {
-                    $is_stock = true;
+                
+                if (!empty($isPending)){
+                    if((($isPending[0]['count'] + $quantity) < $inventory_stock_details[0]['stock'])){
+                        $is_stock = true;
+                    }
+                    
                 } else if ($inventory_stock_details[0]['stock'] >= $quantity) {
                     $is_stock = true;
                 }
@@ -3812,12 +3816,16 @@ function generate_image($base64, $image_name,$directory){
                     if (!empty($warehouse_details)) {
 
                         $isPending = $this->My_CI->partner_model->get_spare_parts_by_any('count(spare_parts_details.id) as count', array('partner_id' => $value['entity_id'], 'status' => SPARE_PARTS_REQUESTED, 'requested_inventory_id' => $inventory_stock_details[0]['inventory_id']));
-                        if (!empty($isPending) && (($isPending[0]['count'] + $quantity) <= $inventory_stock_details[0]['stock'])) {
-                            $is_stock = true;
+                        if (!empty($isPending)){
+                            
+                            if((($isPending[0]['count'] + $quantity) < $inventory_stock_details[0]['stock'])){
+                                 $is_stock = true;
+                            }
+                            
                         } else if ($inventory_stock_details[0]['stock'] >= $quantity) {
                             $is_stock = true;
                         }
-
+                        
                         if ($is_stock) {
                             $response = array();
                             $response['stock'] = $value['stock'];
