@@ -186,6 +186,28 @@
                                     </div>
                                 </div>
                                 <?php echo form_error('identity_id_number'); ?>
+                              <div class="form-group <?php if( form_error('file') ) { echo 'has-error';} ?>">
+                                    <label for="Identity Picture" class="col-md-4">Enginner Profile Picture </label>
+                                    <div class="col-md-6" >
+                                       <input type="file" class="form-control" name="profile_pic" >
+                                    </div>
+                                    <div class='col-md-2'>
+                                        <?php
+                                                $src = base_url() . 'images/no_image.png';
+                                                if (isset($data[0]['profile_pic']) && !empty($data[0]['profile_pic'])) {
+                                                    //Path to be changed
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/engineer-id-proofs/" . $data[0]['profile_pic'];
+                                                }
+                                                ?>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                            <?php if(isset($data[0]['profile_pic']) && !empty($data[0]['profile_pic'])){?>
+                                            <a href="javascript:void(0)" onclick="remove_image('profile_pic',<?php echo $data[0]['id']?>)" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 40px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <?php }?>
+                                    </div>
+
+                                    <?php echo form_error('file'); ?>
+                                </div>  
+                             
                             </div>
                             <!-- end -->
                         </div>
