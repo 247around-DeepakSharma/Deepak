@@ -3757,7 +3757,6 @@ function generate_image($base64, $image_name,$directory){
 
                 $isPending = $this->My_CI->partner_model->get_spare_parts_by_any('count(spare_parts_details.id) as count', array('partner_id' => $service_center_id, 'status' => SPARE_PARTS_REQUESTED, 'requested_inventory_id' => $inventory_stock_details[0]['inventory_id']));
                 $is_stock = false;
-                
                 if (!empty($isPending)){
                     if((($isPending[0]['count'] + $quantity) < $inventory_stock_details[0]['stock'])){
                         $is_stock = true;
@@ -3788,7 +3787,7 @@ function generate_image($base64, $image_name,$directory){
                             array('warehouse_state_relationship.state' => $state, 'contact_person.entity_type' => _247AROUND_SF_STRING,
                                 'contact_person.entity_id' => $value['entity_id'], 'service_centres.is_wh' => 1,
                                 'warehouse_details.entity_id' => $inventory_part_number[0]['entity_id']), true, true, true);
-                    if (!empty($warehouse_details)) {
+                        if (!empty($warehouse_details)) {
 
                         $isPending = $this->My_CI->partner_model->get_spare_parts_by_any('count(spare_parts_details.id) as count', array('partner_id' => $value['entity_id'], 'status' => SPARE_PARTS_REQUESTED, 'requested_inventory_id' => $inventory_stock_details[0]['inventory_id']));
                         if (!empty($isPending)){
