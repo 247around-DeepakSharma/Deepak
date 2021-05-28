@@ -23,14 +23,7 @@
         ?>
         <?php $enable_button = TRUE; 
                 if($booking_history[0]['current_status'] == _247AROUND_COMPLETED){
-                    if($booking_history[0]['current_status'] == _247AROUND_COMPLETED && empty($is_invoice_generated)
-                        && ($this->session->userdata('user_group') == _247AROUND_ADMIN) 
-                        || ($this->session->userdata('user_group') == _247AROUND_CLOSURE)
-                        || ($this->session->userdata('call_closure') == 1)
-                        || ($this->session->userdata('user_group') == INVENTORY_USER_GROUP ) 
-                        || ($this->session->userdata('user_group') == INVENTORY_USER_GROUP_HOD )
-                        || ($this->session->userdata('user_group') == _247AROUND_DEVELOPER )
-                        || ($this->session->userdata('user_group') == _247AROUND_RM ))  {
+                    if($booking_history[0]['current_status'] == _247AROUND_COMPLETED && empty($is_invoice_generated))  {
                              $enable_button = TRUE; 
 
                         } else {
@@ -92,11 +85,11 @@
                 <!--<span class="pull-right"><input id="enable_change_unit" type="checkbox" onchange="update_brand_details()" name="enable_change_unit"> <span>Change Brand Details</span></span>-->
             </div>
             <div class="panel-body">
-                <?php if(($this->session->userdata('call_closure') != 1)) { ?>
-                <div class="alert alert-warning">
+                <?php //if(($this->session->userdata('call_closure') != 1)) { ?>
+<!--                <div class="alert alert-warning">
                     <span style="font-weight:bold;">You don't have permission to complete booking.</span>
-                </div>
-                <?php  } ?>
+                </div>-->
+                <?php//  } ?>
                 <?php if($requestedParts || !$enable_button || $is_invoice_generated || $is_spare_pending_for_acknowledge) { ?>
             <div class="alert alert-warning">
                 <span><?php if($requestedParts) { ?><span style="color:red; font-weight: bold;" ><?php echo UNABLE_COMPLETE_BOOKING_SPARE_MSG;?></span><?php } ?></span>
@@ -731,7 +724,7 @@
                         <?php } else { ?>
                         <center>
                             <input type="hidden" id="customer_id" name="customer_id" value="<?php echo $booking_history[0]['user_id']; ?>">
-                            <?php if($enable_button && empty($is_invoice_generated) && empty($is_spare_pending_for_acknowledge) && ($this->session->userdata('call_closure') == 1 )){
+                            <?php if($enable_button && empty($is_invoice_generated) && empty($is_spare_pending_for_acknowledge)){
                             $is_upcountry = 0;
                             if(($booking_history[0]['upcountry_paid_by_customer'] == 1) && ($booking_history[0]['is_upcountry'] == 1)){
                                 $is_upcountry = 1;

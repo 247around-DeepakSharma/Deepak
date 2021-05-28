@@ -62,11 +62,11 @@ function check_text(){
               <h1 class="page-header">
                     <?php if(isset($internal_status)){ echo "Cancel Query "; } else { echo "Cancel Booking"; } ?>
               </h1>
-                <?php if(($this->session->userdata('call_closure') != 1)) { ?>
-                <div class="alert alert-warning">
+                <?php //if(($this->session->userdata('call_closure') != 1)) { ?>
+                <!-- <div class="alert alert-warning">
                     <span style="font-weight:bold;">You don't have permission to cancel booking.</span>
-                </div>
-                <?php  } ?>
+                </div> -->
+                <?php  //} ?>
                 <?php if($isdisable || !empty($is_invoice_generated)) {?>
                 <div class="alert alert-warning">
                     <span style="font-weight:bold;color:red;"><?php if($isdisable) { echo $status; } ?></span>
@@ -187,7 +187,7 @@ function check_text(){
                 <?php  //}?>
  
                     <div class="col-md-6 col-md-offset-3">
-                    <?php if(!$isdisable && empty($is_invoice_generated) && ($this->session->userdata('call_closure') ==1 )) {?>
+                    <?php if(!$isdisable && empty($is_invoice_generated)) {?>
                         <input type="submit" value="<?php if(isset($internal_status)){ echo "Cancel Query "; } else { echo "Cancel Booking"; } ?>" style="background-color: #2C9D9C; border-color: #2C9D9C; " id="btn-cancel" onclick="return(check_text())" class="btn btn-danger btn-large">
                     <?php } ?>
                   
