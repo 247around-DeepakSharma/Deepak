@@ -1604,6 +1604,7 @@ function get_hsn_code_list(key){
     
     $(document).ready(function(){
         var service_id = "<?php echo ((isset($spare_parts[0]->service_id)) ? $spare_parts[0]->service_id : '') ?>"; 
+        var applied_warranty_plan_id = "<?php echo ((isset($spare_parts[0]->applied_warranty_plan_id)) ? $spare_parts[0]->applied_warranty_plan_id : '') ?>"; 
         get_inventory_pary_type(service_id,'shippedparttype_0');
         $(".addButton").on('click',function(){  
             var service_id = "<?php echo ((isset($spare_parts[0]->service_id)) ? $spare_parts[0]->service_id : '') ?>";    
@@ -1617,7 +1618,7 @@ function get_hsn_code_list(key){
            $.ajax({
            method:'POST',
            url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type_with_warranty_status',
-           data: { service_id:service_id,warranty_plan_id:"<?php echo $spare_parts[0]->applied_warranty_plan_id; ?>"},
+           data: { service_id:service_id,warranty_plan_id:applied_warranty_plan_id},
            success:function(data){                       
                $('#'+spare_part_type_id).html(data);  
                var section_length = $(".div_class").length

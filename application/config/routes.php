@@ -172,6 +172,10 @@ $route['service_center/generate_challan_send_to_sf'] = 'employee/service_centers
 $route['service_center/generate_challan_send_to_sf/(:any)'] = 'employee/service_centers/generate_challan_send_to_sf/$1';
 $route['service_center/defective_spare_parts'] = 'employee/service_centers/get_defective_parts_shipped_by_sf';
 $route['service_center/defective_spare_parts/(:any)'] = 'employee/service_centers/get_defective_parts_shipped_by_sf/$1';
+
+$route['service_center/defective_spare_parts_partner_audit'] = 'employee/service_centers/get_defective_parts_shipped_by_sf_partner_audit';
+$route['service_center/defective_spare_parts_partner_audit/(:any)'] = 'employee/service_centers/get_defective_parts_shipped_by_sf_partner_audit/$1';
+
 $route['service_center/update_spare_parts_form/(:any)'] = 'employee/service_centers/update_spare_parts_form/$1';
 $route['service_center/process_update_spare_parts/(:any)'] = 'employee/service_centers/process_update_spare_parts/$1';
 $route['service_center/reject_defective_part/(:any)/(:any)'] = 'employee/service_centers/reject_defective_part/$1/$2';

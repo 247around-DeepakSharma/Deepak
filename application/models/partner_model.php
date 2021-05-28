@@ -784,6 +784,111 @@ function get_data_for_partner_callback($booking_id) {
     }
 
     /**
+     * @desc: This function is to add/Edit TAT invoice condition
+     *
+     *TAT invoice condition details like- Description, Local/Upcountry, Installation/Repair, TAT with in days, Target Acheived details
+     *      are added/edited.
+     *
+     * @param: $data
+     *          - TAT invoice condition details to be added.
+     *         $id
+     *          - Partner id
+     * @return: Boolean value for the new/Edit TAT invoice condition 
+     */
+    function process_tat_invoice_condition($id,$data){
+        
+        if ($this->get_tat_invoice_condition($id)) {
+            $this->db->where(array("entity_id" => $id));
+            $this->db->update("tat_invoice_condition", $data);
+            return TRUE;
+        } else {
+            $this->db->insert('tat_invoice_condition', $data);
+            if($this->db->insert_id()){
+                return TRUE;
+            }else{
+                return FALSE;
+            }
+        }
+    }
+
+    /**
+     * @desc: This function is to add/Edit KPI Managment
+     *
+     * KPI Managment details like- entity_id, lower_achivement_range, higher_achivement_range, penalty_percentage are added/edited.
+     *
+     * @param: $data
+     *          - KPI Managment details to be added.
+     *         $id
+     *          - Partner id
+     * @return: Boolean value for the new/Edit KPI Managment 
+     */
+
+    function process_tat_invoice_kpi_management($id,$entity_id,$data){
+        $result = $this->get_tat_invoice_kpi_management($entity_id);
+        if ($result) {
+            $this->db->where(array("id" => $id));
+            $this->db->update("tat_kpi_penalty_range", $data);
+            return TRUE;
+        } else {
+            $this->db->insert('tat_kpi_penalty_range', $data);
+            if($this->db->insert_id()){
+                return TRUE;
+            }else{
+                return FALSE;
+            }
+        }
+    }
+
+    /**
+     * @desc: This function is to fetch single record TAT invoice condition
+     *
+     * @param: $id
+     *          - Partner id
+     * @return: array for the TAT invoice condition details 
+     */
+
+    function get_tat_invoice_condition($id) {
+        //TODO: Deactivate partner account if auth token mismatch happens 3 or more times in a day
+        $this->db->select('id,entity,entity_id,local_upcountry,installation_repair,tat_with_in_lower_days,target_acheived_per_lower_days,tat_with_in_higher_days,target_acheived_per_higher_days,description');
+        $this->db->from("tat_invoice_condition");
+        $this->db->where(array("entity_id" => $id, "active" => '1'));
+        
+        $query = $this->db->get();
+  
+        if (count($query->result_array()) > 0) {
+        //Return partner details in case of success
+          return $query->result_array()[0];
+        } else {
+          return FALSE;
+        }
+    }
+
+    /**
+     * @desc: This function is to fetch records of KPI Managment
+     *
+     * @param: $id
+     *          - Partner id
+     * @return: array for the TAT KPI Managment details 
+     */
+
+    function get_tat_invoice_kpi_management($id) {
+
+        //TODO: Deactivate partner account if auth token mismatch happens 3 or more times in a day
+        $this->db->select('id,entity_id,lower_achivement_range,higher_achivement_range,penalty_percentage');
+        $this->db->from("tat_kpi_penalty_range");
+        $this->db->where(array("entity_id" => $id));
+        
+        $query = $this->db->get();
+  
+        if (count($query->result_array()) > 0) {
+        //Return partner details in case of success
+          return $query->result_array();
+        } else {
+          return FALSE;
+        }
+    }
+
+    /**
      * @desc: This function is to add a new partner
      *
      * partner details like Service Center's name, owners name, ph no., email, poc name, email, services, brands covered,
@@ -1617,7 +1722,7 @@ function get_data_for_partner_callback($booking_id) {
         $prevmonth = date('M Y', strtotime("last month"));
         $month = (int)date('m',strtotime($prevmonth));
         $year = (int)date('Y',strtotime($prevmonth));
-        $sql = "SELECT DISTINCT `partners`.`id` as id, `partners`.`public_name` FROM `partners`, `booking_details` WHERE `partners`.`is_active` = '$active' AND `partners`.`id` NOT IN (SELECT `booking_details`.`partner_id` FROM `booking_details` WHERE `partners`.`id`=`booking_details`.`partner_id` AND Month(`booking_details`.`create_date`) = '$month' AND YEAR(`booking_details`.`create_date`) = '$year')";
+        $sql = "SELECT DISTINCT `partners`.`id` as id, `partners`.`public_name`, `trigger_partners`.`update_date` FROM `partners`, `trigger_partners` WHERE `partners`.`is_active` = '$active' AND `partners`.`id` = `trigger_partners`.`id` AND `partners`.`id` NOT IN (SELECT `booking_details`.`partner_id` FROM `booking_details` WHERE `partners`.`id`=`booking_details`.`partner_id` AND Month(`booking_details`.`create_date`) = '$month' AND YEAR(`booking_details`.`create_date`) = '$year')";
         $query = $this->db->query($sql);
         return $query->result_array();
     }

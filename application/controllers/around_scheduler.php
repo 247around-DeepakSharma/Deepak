@@ -3449,6 +3449,7 @@ class Around_scheduler extends CI_Controller {
             $table .= "<tr>";
             $table .= "<th>Partner Name</th>";
             $table .= "<th>Account Manager Name</th>";
+            $table .= "<th>Partner Last Activation Date</th>";
             $table .= "</tr>";
 
             foreach ($query as $key => $value) {
@@ -3475,6 +3476,7 @@ class Around_scheduler extends CI_Controller {
                 $table .= "<tr>";
                 $table .= "<td>".$value['public_name']."</td>";
                 $table .= "<td>".$am_string."</td>";
+                $table .= "<td>".$value['update_date']."</td>";
                 $table .= "</tr>";
             }
 
