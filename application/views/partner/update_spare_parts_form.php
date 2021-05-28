@@ -1604,6 +1604,7 @@ function get_hsn_code_list(key){
     
     $(document).ready(function(){
         var service_id = "<?php echo ((isset($spare_parts[0]->service_id)) ? $spare_parts[0]->service_id : '') ?>"; 
+        var applied_warranty_plan_id = "<?php echo ((isset($spare_parts[0]->applied_warranty_plan_id)) ? $spare_parts[0]->applied_warranty_plan_id : '') ?>"; 
         get_inventory_pary_type(service_id,'shippedparttype_0');
         $(".addButton").on('click',function(){  
             var service_id = "<?php echo ((isset($spare_parts[0]->service_id)) ? $spare_parts[0]->service_id : '') ?>";    
