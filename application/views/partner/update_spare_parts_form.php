@@ -1535,10 +1535,11 @@ function get_hsn_code_list(key){
         });
 
         function get_inventory_pary_type(service_id,spare_part_type_id){
+           var applied_warranty_plan_id = "<?php echo ((isset($spare_parts[0]->applied_warranty_plan_id)) ? $spare_parts[0]->applied_warranty_plan_id : '') ?>";                       
            $.ajax({
            method:'POST',
            url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type_with_warranty_status',
-           data: { service_id:service_id,warranty_plan_id:"<?php echo $spare_parts[0]->applied_warranty_plan_id; ?>"},
+           data: { service_id:service_id,warranty_plan_id:applied_warranty_plan_id},
            success:function(data){                       
                $('#'+spare_part_type_id).html(data);  
                var section_length = $(".div_class").length
