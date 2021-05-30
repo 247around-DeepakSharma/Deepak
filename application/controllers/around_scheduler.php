@@ -3455,7 +3455,8 @@ class Around_scheduler extends CI_Controller {
                 
                 $partner_id = $value['id'];
                 $am_details = $this->partner_model->getpartner_data("partners.public_name, agent_filters.*, employee.full_name, employee.groups,employee.official_email,employee.phone", array("partners.id" => $partner_id, "agent_filters.entity_id IS NOT NULL" => NULL), "", TRUE, 0, 1);
-
+                $activation = $this->partner_model->get_partner_last_activation_date($partner_id);
+                $lastActive = isset($activation[0]['last_activation']) ? $activation[0]['last_activation'] : '';
                 $CSVData = array();
                 $amemail_ids = array();
                 $am_string_array = array();
@@ -3475,7 +3476,7 @@ class Around_scheduler extends CI_Controller {
                 $table .= "<tr>";
                 $table .= "<td>".$value['public_name']."</td>";
                 $table .= "<td>".$am_string."</td>";
-                $table .= "<td>".$value['update_date']."</td>";
+                $table .= "<td>".$lastActive."</td>";
                 $table .= "</tr>";
             }
 
