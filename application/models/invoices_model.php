@@ -2942,7 +2942,7 @@ class invoices_model extends CI_Model {
                          (concat(billable_weight, ' KG'))
                          ELSE '' END AS billable_weight,
                     CASE WHEN (courier_pic_by_partner IS NOT NULL) THEN 
-                         (concat('".S3_WEBSITE_URL."misc-images/',courier_invoice_file)) ELSE '' END AS courier_receipt_link,
+                         (concat('".S3_WEBSITE_URL."vendor-partner-docs/',courier_invoice_file)) ELSE '' END AS courier_receipt_link,
                     count(s1.id) as count_of_booking, 
                     p.p_count,
                     round((c.courier_charge * count(s1.id))/p.p_count,2) as courier_charges_by_sf, c.sender_city, c.sender_state, c.receiver_city, c.receiver_state 
