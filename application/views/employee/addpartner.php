@@ -3016,7 +3016,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                         <div class="panel-body">
                             <div class="col-md-6">
                                 <div class="form-group ">
-                                    <label for="partner_type" class="col-md-4">Local/Upcountry</label>
+                                    <label for="partner_type" class="col-md-4">Local/Upcountry*</label>
                                     <div class="col-md-8">
                                         <select name="local_upcountry" class="form-control" id="local-upcountry">
                                             <option <?php echo isset($results['tat_condition']) ? ($results['tat_condition']['local_upcountry'] == 0) ? "selected='selected'" : '' : ''; ?> value="0">Local</option>
@@ -3027,7 +3027,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group ">
-                                    <label for="partner_type" class="col-md-4">Installation/Repair</label>
+                                    <label for="installation-repair" class="col-md-4">Installation/Repair*</label>
                                     <div class="col-md-8">
                                         <select name="installation_repair" class="form-control" id="installation-repair">
                                             <option <?php echo isset($results['tat_condition']) ? ($results['tat_condition']['installation_repair'] == 0) ? "selected='selected'" : '' : ''; ?> value="0">Installation</option>
@@ -3036,11 +3036,11 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-12">
+                            <div class="col-md-6">
                                 <div class="form-group ">
-                                    <label for="partner_type" class="col-md-2">Description</label>
-                                    <div class="col-md-10">
-                                        <textarea class="form-control" name="description" id="description" cols="10" rows="1"><?php echo  isset($results['tat_condition']) ? $results['tat_condition']['description'] : ''; ?></textarea>
+                                    <label for="description" class="col-md-4">Description*</label>
+                                    <div class="col-md-8">
+                                        <textarea class="form-control" name="description" id="description" cols="10" rows="2"><?php echo  isset($results['tat_condition']) ? $results['tat_condition']['description'] : ''; ?></textarea>
                                         <span id="error-description"></span>
                                     </div>
                                 </div>
@@ -3054,7 +3054,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                         <div class="panel-body">
                             <div class="col-md-6">
                                 <div class="form-group ">
-                                    <label for="partner_type" class="col-md-4">TAT with in days</label>
+                                    <label for="partner_type" class="col-md-4">TAT with in days*</label>
                                     <div class="col-md-8">
                                         <input type="number" class="form-control" name="tat_with_in_lower_days" id="tat-with-in-lower-days" value="<?php echo  isset($results['tat_condition']) ? $results['tat_condition']['tat_with_in_lower_days'] : ''; ?>">
                                         <span id="error-tat-with-in-lower-days"></span>
@@ -3063,7 +3063,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group ">
-                                    <label for="partner_type" class="col-md-4">Target Acheived</label>
+                                    <label for="partner_type" class="col-md-4">Target Acheived*</label>
                                     <div class="col-md-8">
                                         <input type="number" class="form-control" name="target_acheived_per_lower_days" id="target-acheived-per-lower-days" value="<?php echo  isset($results['tat_condition']) ? $results['tat_condition']['target_acheived_per_lower_days'] : ''; ?>">
                                         <span id="error-target-acheived-per-lower-days"></span>
@@ -3079,7 +3079,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                         <div class="panel-body">
                             <div class="col-md-6">
                                 <div class="form-group ">
-                                    <label for="partner_type" class="col-md-4">TAT with in days</label>
+                                    <label for="partner_type" class="col-md-4">TAT with in days*</label>
                                     <div class="col-md-8">
                                         <input type="number" class="form-control" name="tat_with_in_higher_days" id="tat-with-in-higher-days" value="<?php echo  isset($results['tat_condition']) ? $results['tat_condition']['tat_with_in_higher_days'] : ''; ?>">
                                         <span id="error-tat-with-in-higher-days"></span>
@@ -3088,7 +3088,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group ">
-                                    <label for="partner_type" class="col-md-4">Target Acheived</label>
+                                    <label for="partner_type" class="col-md-4">Target Acheived*</label>
                                     <div class="col-md-8">
                                         <input type="number" class="form-control" name="target_acheived_per_higher_days" id="target-acheived-per-higher-days" value="<?php echo  isset($results['tat_condition']) ? $results['tat_condition']['target_acheived_per_higher_days'] : ''; ?>">
                                         <span id="error-target-acheived-per-higher-days"></span>
@@ -3107,10 +3107,10 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     <tbody>
                                         <tr class="row">
                                             <th></th>
-                                            <th style="text-align:center;">Lower</th>
+                                            <th style="text-align:center;">Lower*</th>
                                             <th></th>
-                                            <th style="text-align:center;">Higher</th>
-                                            <th style="text-align:center;">Percentage</th>
+                                            <th style="text-align:center;">Higher*</th>
+                                            <th style="text-align:center;">Percentage*</th>
                                         </tr>
                                         <?php $j=0; for($i=1;$i<=3;$i++){?>
                                             
@@ -3119,14 +3119,14 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                                 <td>
                                                     <div class="form-group col-md-12">
                                                         <input type="hidden" class="form-control" name="kpi_id_<?= $i ?>" id="kpi_id_<?= $i ?>"  value="<?php echo  isset($results['kpi_management'][$j]) ? $results['kpi_management'][$j]['id'] : ''; ?>"/>
-                                                        <input type="text" class="form-control" name="low_range_<?= $i ?>" id="low_range_<?= $i ?>"  value="<?php echo  isset($results['kpi_management'][$j]) ? $results['kpi_management'][$j]['lower_achivement_range'] : ''; ?>"/>
+                                                        <input type="number" class="form-control" name="low_range_<?= $i ?>" id="low_range_<?= $i ?>"  value="<?php echo  isset($results['kpi_management'][$j]) ? $results['kpi_management'][$j]['lower_achivement_range'] : ''; ?>"/>
                                                         <span id="error_low_range_<?= $i ?>"></span>
                                                     </div>
                                                 </td>
                                                 <td>  To  </td>
                                                 <td>
                                                     <div class="form-group col-md-12">
-                                                        <input type="text" class="form-control" name="high_range_<?= $i ?>" id="high_range_<?= $i ?>"  value="<?php echo  isset($results['kpi_management'][$j]) ? $results['kpi_management'][$j]['higher_achivement_range'] : ''; ?>"/>
+                                                        <input type="number" class="form-control" name="high_range_<?= $i ?>" id="high_range_<?= $i ?>"  value="<?php echo  isset($results['kpi_management'][$j]) ? $results['kpi_management'][$j]['higher_achivement_range'] : ''; ?>"/>
                                                         <span id="error_high_range_<?= $i ?>"></span>
                                                     </div>
                                                 </td>
@@ -3149,7 +3149,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                     <br>
                     <center>
                         <input type="Submit" value="Update" class="btn btn-primary" id="submit_btn_tat">
-                        <a class="btn btn-small btn-primary" href="<?php echo base_url() ?>247around/employee/partner/viewpartner">Cancel</a>
+                        <a class="btn btn-small btn-primary" href="<?php echo base_url() ?>employee/partner/viewpartner" title="Back to partner list">Cancel</a>
                     </center>
                 </div>
             </form>
@@ -6629,6 +6629,9 @@ $(document).ready(function () {
                 $('#low_range_3').focus();
             } else if(high_range_3.length == 0){
                 $('#error_high_range_3').html('This is required').css({"color": "red"});
+                $('#high_range_3').focus();
+            } else if(high_range_3 <= low_range_3){
+                $('#error_high_range_3').html('Invalid Higher Range').css({"color": "red"});
                 $('#high_range_3').focus();
             } else if(percentage_3.length == 0){
                 $('#error_percentage_3').html('This is required').css({"color": "red"});
