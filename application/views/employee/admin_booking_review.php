@@ -29,17 +29,17 @@
                                 </a>
                             </li>
                             <li role="presentation">
-                                <a href="#tabs-3" data-id="cancelled" role="tab" data-toggle="tab" aria-expanded="true" data-url="employee/booking/review_bookings_by_status_sf_wise/Cancelled">
+                                <a href="#tabs-3" data-id="cancelled" role="tab" data-toggle="tab" aria-expanded="true" data-url="employee/booking/review_bookings_by_status_sf_wise/Cancelled/0">
                                     Cancelled Bookings By SF
                                 </a>
                             </li>
                             <li role="presentation">
-                                <a href="#tabs-4" data-id="cancelled_review" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php //echo base_url();?>employee/booking/review_bookings_by_status/Cancelled/0/1">
+                                <a href="#tabs-4" data-id="cancelled_review" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php //echo base_url();?>employee/booking/review_bookings_by_status_sf_wise/Cancelled/1">
                                    Cancelled Bookings Under Partner Review
                                 </a>
                             </li>
                             <li role="presentation">
-                                <a href="#tabs-5" data-id="service_category_changed" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php //echo base_url();?>employee/booking/review_bookings_by_status/Completed_By_SF/0">
+                                <a href="#tabs-5" data-id="service_category_changed" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php //echo base_url();?>employee/booking/review_bookings_by_status_sf_wise/Completed_By_SF/0">
                                    Service Category Changed By SF(Completed)
                                 </a>
                             </li>
