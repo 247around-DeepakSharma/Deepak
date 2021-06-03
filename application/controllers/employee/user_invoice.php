@@ -1416,22 +1416,17 @@ class User_invoice extends CI_Controller {
         
         $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData);
         
-        if (!empty($entity_details[0]['gst_number']) 
-                    && !empty($entity_details[0]['gst_status']) 
-                    && !($entity_details[0]['gst_status'] == _247AROUND_CANCELLED || $entity_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
-                
-                $gst_number = $entity_details[0]['gst_no'];
-                $invoice_id = $this->invoice_lib->create_invoice_id($entity_details[0]['sc_code']);
-                $in_type = "Tax Invoice";
-                $type = "Parts";
+        if (!empty($entity_details[0]['gst_number']) && !empty($entity_details[0]['gst_status']) && !($entity_details[0]['gst_status'] == _247AROUND_CANCELLED || $entity_details[0]['gst_status'] == GST_STATUS_SUSPENDED)) {
 
+            $gst_number = $entity_details[0]['gst_number'];
+            $invoice_id = $this->invoice_lib->create_invoice_id($entity_details[0]['sc_code']);
+            $in_type = "Tax Invoice";
+            $type = "Parts";
         } else {
             $gst_number = TRUE;
             $invoice_id = $this->invoice_lib->create_invoice_id("ARD-CN");
             $in_type = $type = CREDIT_NOTE;
             $entity_details[0]['gst_number'] = TRUE;
-
-            
         }
 
         if(!empty($invoiceData['processData'])) {
