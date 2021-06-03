@@ -348,10 +348,12 @@ class Service_centers_model extends CI_Model {
             $this->db->where('service_center_booking_action.booking_id', $value['booking_id']); 
             $this->db->from('service_center_booking_action');
             $this->db->join('booking_unit_details', 'booking_unit_details.id = service_center_booking_action.unit_details_id');
-            $query2 = $this->db->get();
-            $result = $query2->result_array();
+            $query2 = $this->db->get();                   
+            $result = $merge_data = $query2->result_array();
             $amc_files  = $this->booking_model->get_booking_files(array("booking_files.booking_id"=> $value['booking_id'],"booking_files.file_description_id"=> ANNUAL_MAINTENANCE_CONTRACT));
-            $merge_data[0] = array_merge($result[0], array('booking_amc_files' => $amc_files));
+            if(!empty($result[0]) && !empty($amc_files)){
+                $merge_data[0] = array_merge($result[0], array('booking_amc_files' => $amc_files));
+            }            
             $booking[$key]['unit_details'] = $merge_data;
         }
         //print_r($booking);exit;

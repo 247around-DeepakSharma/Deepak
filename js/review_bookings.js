@@ -256,6 +256,6 @@ function review_search(status,is_partner,sub_id,sort_on){
     }
     else
     {
-        window.open(baseUrl+'/employee/booking/review_bookings_by_status/'+status+'/0/0/'+bookingID+'/0/'+partner+'/'+state+'/'+request_type+'/'+min_review_age+'/'+max_review_age+'/'+sort_on+'/'+sort_order+'/'+service+'/'+free_paid+'/'+sf+'/'+sf_wise_data, '_self');        
+        window.open(baseUrl+'/employee/booking/review_bookings_by_status/'+status+'/0/'+is_partner+'/'+bookingID+'/0/'+partner+'/'+state+'/'+request_type+'/'+min_review_age+'/'+max_review_age+'/'+sort_on+'/'+sort_order+'/'+service+'/'+free_paid+'/'+sf+'/'+sf_wise_data, '_self');        
     }
 }
