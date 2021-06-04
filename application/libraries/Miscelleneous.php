@@ -3309,7 +3309,7 @@ function generate_image($base64, $image_name,$directory){
         
         $data = $this->My_CI->reusable_model->get_search_result_data('vendor_pincode_mapping',implode(',',$select),NULL,$join,NULL,$orderBY,$whereIN,$JoinTypeTableArray,$groupBY);
 
-        
+        $headings = $CSVData = array();
         foreach($data as $dataValues){
             $headings = array_keys($dataValues);
             $CSVData[] = array_values($dataValues);
