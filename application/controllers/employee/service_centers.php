@@ -8056,7 +8056,7 @@ if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file'
         } else {
             $data['service_center_id'] = $this->session->userdata('service_center_id');
         }
-        if (!empty($data['inventory_id'])) {
+        if (!empty($data['inventory_id']) && !empty($data['quantity'])) {
             return $this->miscelleneous->check_inventory_stock($data['inventory_id'], $partner_id, $data['state'], $data['service_center_id'], $data['model_number'], $data['quantity']);
         } else {
             $response = array();
