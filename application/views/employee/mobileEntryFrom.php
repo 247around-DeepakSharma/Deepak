@@ -263,7 +263,9 @@
                                             location.reload(); 
                                         }, 3000);
                                     } else{
-                                        $("#create-error-msg").removeClass("hidden").find('strong').html('Something went wrong');
+                                        setTimeout(function(){
+                                          location.reload();
+                                        }, 300);
                                     }
                                 }  
                             });
