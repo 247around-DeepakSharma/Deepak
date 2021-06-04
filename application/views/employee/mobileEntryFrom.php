@@ -263,9 +263,9 @@
                                             location.reload(); 
                                         }, 3000);
                                     } else{
-                                        setTimeout(function(){
-                                          location.reload();
-                                        }, 300);
+                                         setTimeout(function(){
+                                           location.reload();
+                                         }, 300);
                                     }
                                 }  
                             });
