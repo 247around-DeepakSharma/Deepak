@@ -1861,7 +1861,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     <div class="form-group ">
                                         <label for="service_name" class="col-md-4">Email *</label>
                                         <div class="col-md-6">
-                                            <input  type="email" class="form-control input-model"  name="contact_person_email[]" id="contact_person_email_1" value = "" placeholder="Enter Email" required="">
+                                            <input  type="email" class="form-control input-model"  name="contact_person_email[]" id="contact_person_email_1" value = "" placeholder="Enter Email" required="" onkeypress="return RestrictCommaSemicolon(event);" ondrop="return false;" onpaste="return false;">
                                         </div>
                                     </div> 
                                     <div class="form-group">
@@ -1922,7 +1922,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     <div class="form-group ">
                                         <label for="service_name" class="col-md-4">Alternate Email </label>
                                         <div class="col-md-6">
-                                            <input  type="text" class="form-control input-model"  name="contact_person_alt_email[]" id="contact_person_alt_email_1" value = "" placeholder="Alternative Email">
+                                            <input  type="text" class="form-control input-model"  name="contact_person_alt_email[]" id="contact_person_alt_email_1" value = "" placeholder="Alternative Email" onkeypress="return RestrictCommaSemicolon(event);" ondrop="return false;" onpaste="return false;">
                                         </div>
                                     </div>
                                                                          
