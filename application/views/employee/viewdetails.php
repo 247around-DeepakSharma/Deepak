@@ -873,7 +873,7 @@
                                         <?php } else {?> 
                                            <td></td>   
                                          <?php } } ?>
->>>>>>> 2722b8130... CRMS-2648 Move to vendor and partner button
+
                                    
                                     </tr>
                                     <?php if(!is_null($sp['parts_shipped'])){ $parts_shipped = true;} if(!empty($sp['defective_part_shipped'])){
