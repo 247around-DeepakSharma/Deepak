@@ -20,6 +20,12 @@ class Mobile_entry extends CI_Controller {
         $this->load->library('miscelleneous');
         $this->load->library("pagination");
         $this->load->library("session");
+
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee') ) {
+            return TRUE;
+        } else {
+            redirect(base_url() . "employee/login");
+        }
     }
 
     /**
