@@ -69,6 +69,13 @@
          
     </div>
 </div>
+<style>
+
+    .dataTables_paginate {
+        display:none;
+    }
+
+</style>
 <script>
 
     $('#engineer_id').select2({
