@@ -822,7 +822,7 @@ function get_data_for_partner_callback($booking_id) {
      */
 
     function process_tat_invoice_kpi_management($id,$entity_id,$data){
-        $result = $this->get_tat_invoice_kpi_management($entity_id);
+        $result = $this->get_tat_invoice_kpi_Single($id);
         if ($result) {
             $this->db->where(array("id" => $id));
             $this->db->update("tat_kpi_penalty_range", $data);
@@ -875,6 +875,31 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->select('id,entity_id,lower_achivement_range,higher_achivement_range,penalty_percentage');
         $this->db->from("tat_kpi_penalty_range");
         $this->db->where(array("entity_id" => $id));
+        
+        $query = $this->db->get();
+  
+        if (count($query->result_array()) > 0) {
+        //Return partner details in case of success
+          return $query->result_array();
+        } else {
+          return FALSE;
+        }
+    }
+
+    /**
+     * @desc: This function is to fetch records of KPI Managment
+     *
+     * @param: $id
+     *          - Partner id
+     * @return: array for the TAT KPI Managment details 
+     */
+
+    function get_tat_invoice_kpi_Single($id) {
+
+        //TODO: Deactivate partner account if auth token mismatch happens 3 or more times in a day
+        $this->db->select('id,entity_id,lower_achivement_range,higher_achivement_range,penalty_percentage');
+        $this->db->from("tat_kpi_penalty_range");
+        $this->db->where(array("id" => $id));
         
         $query = $this->db->get();
   
