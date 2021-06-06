@@ -62,6 +62,43 @@ input[type=file][readonly]
 {
     pointer-events: none;
 }
+
+    /* KPI Management Range Hint tooltip */ 
+    .tooltip-info {
+        position: relative;
+        display: inline-block;
+    }
+
+    .tooltip-info .tooltiptext-info {
+        visibility: hidden;
+        width: 120px;
+        font-size: 10px;
+        background-color: black;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px 0;
+        position: absolute;
+        z-index: 1;
+        bottom: 150%;
+        left: 50%;
+        margin-left: -60px;
+    }
+
+    .tooltip-info .tooltiptext-info::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: black transparent transparent transparent;
+    }
+
+    .tooltip-info:hover .tooltiptext-info {
+        visibility: visible;
+    }
 </style>
 
 <?php
@@ -3056,7 +3093,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                 <div class="form-group ">
                                     <label for="partner_type" class="col-md-4">TAT with in days*</label>
                                     <div class="col-md-8">
-                                        <input type="number" class="form-control" name="tat_with_in_lower_days" id="tat-with-in-lower-days" value="<?php echo  isset($results['tat_condition']) ? $results['tat_condition']['tat_with_in_lower_days'] : ''; ?>">
+                                        <input type="number" class="form-control" name="tat_with_in_lower_days" id="tat-with-in-lower-days" value="<?php echo  isset($results['tat_condition']) ? $results['tat_condition']['tat_with_in_lower_days'] : ''; ?>" onkeypress="return RestrictMinPlus(event);" min="1">
                                         <span id="error-tat-with-in-lower-days"></span>
                                     </div>
                                 </div>
@@ -3065,7 +3102,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                 <div class="form-group ">
                                     <label for="partner_type" class="col-md-4">Target Acheived*</label>
                                     <div class="col-md-8">
-                                        <input type="number" class="form-control" name="target_acheived_per_lower_days" id="target-acheived-per-lower-days" value="<?php echo  isset($results['tat_condition']) ? $results['tat_condition']['target_acheived_per_lower_days'] : ''; ?>">
+                                        <input type="number" class="form-control" name="target_acheived_per_lower_days" id="target-acheived-per-lower-days" value="<?php echo  isset($results['tat_condition']) ? $results['tat_condition']['target_acheived_per_lower_days'] : ''; ?>" onkeypress="return RestrictMinPlus(event);" min="1">
                                         <span id="error-target-acheived-per-lower-days"></span>
                                     </div>
                                 </div>
@@ -3081,7 +3118,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                 <div class="form-group ">
                                     <label for="partner_type" class="col-md-4">TAT with in days*</label>
                                     <div class="col-md-8">
-                                        <input type="number" class="form-control" name="tat_with_in_higher_days" id="tat-with-in-higher-days" value="<?php echo  isset($results['tat_condition']) ? $results['tat_condition']['tat_with_in_higher_days'] : ''; ?>">
+                                        <input type="number" class="form-control" name="tat_with_in_higher_days" id="tat-with-in-higher-days" value="<?php echo  isset($results['tat_condition']) ? $results['tat_condition']['tat_with_in_higher_days'] : ''; ?>" onkeypress="return RestrictMinPlus(event);" min="1">
                                         <span id="error-tat-with-in-higher-days"></span>
                                     </div>
                                 </div>
@@ -3090,7 +3127,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                 <div class="form-group ">
                                     <label for="partner_type" class="col-md-4">Target Acheived*</label>
                                     <div class="col-md-8">
-                                        <input type="number" class="form-control" name="target_acheived_per_higher_days" id="target-acheived-per-higher-days" value="<?php echo  isset($results['tat_condition']) ? $results['tat_condition']['target_acheived_per_higher_days'] : ''; ?>">
+                                        <input type="number" class="form-control" name="target_acheived_per_higher_days" id="target-acheived-per-higher-days" value="<?php echo  isset($results['tat_condition']) ? $results['tat_condition']['target_acheived_per_higher_days'] : ''; ?>" onkeypress="return RestrictMinPlus(event);" min="1">
                                         <span id="error-target-acheived-per-higher-days"></span>
                                     </div>
                                 </div>
@@ -3100,7 +3137,13 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                 </div>
                 <div class="col-md-12">
                     <div class="panel panel-default">
-                        <div class="panel-heading"><b>KPI Managment</b></div>
+                        <div class="panel-heading">
+                            <b>KPI Managment</b>
+                            <div class="tooltip-info">
+                                <span class="tooltiptext-info">1.Lower should be less than to Higher of each Range<br/>2.Each Higher should be less than to Next Lower</span>
+                                <li class="fa fa-info-circle" style="font-size:18px;color:#337ab7"></li>
+                            </div>
+                        </div>
                         <div class="panel-body">
                             <div class="form-group">
                                 <table width="100%">
@@ -3119,20 +3162,20 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                                 <td>
                                                     <div class="form-group col-md-12">
                                                         <input type="hidden" class="form-control" name="kpi_id_<?= $i ?>" id="kpi_id_<?= $i ?>"  value="<?php echo  isset($results['kpi_management'][$j]) ? $results['kpi_management'][$j]['id'] : ''; ?>"/>
-                                                        <input type="number" class="form-control" name="low_range_<?= $i ?>" id="low_range_<?= $i ?>"  value="<?php echo  isset($results['kpi_management'][$j]) ? $results['kpi_management'][$j]['lower_achivement_range'] : ''; ?>"/>
+                                                        <input type="number" class="form-control" name="low_range_<?= $i ?>" id="low_range_<?= $i ?>"  value="<?php echo  isset($results['kpi_management'][$j]) ? $results['kpi_management'][$j]['lower_achivement_range'] : ''; ?>" onkeypress="return RestrictMinPlus(event);" min="1"/>
                                                         <span id="error_low_range_<?= $i ?>"></span>
                                                     </div>
                                                 </td>
                                                 <td>  To  </td>
                                                 <td>
                                                     <div class="form-group col-md-12">
-                                                        <input type="number" class="form-control" name="high_range_<?= $i ?>" id="high_range_<?= $i ?>"  value="<?php echo  isset($results['kpi_management'][$j]) ? $results['kpi_management'][$j]['higher_achivement_range'] : ''; ?>"/>
+                                                        <input type="number" class="form-control" name="high_range_<?= $i ?>" id="high_range_<?= $i ?>"  value="<?php echo  isset($results['kpi_management'][$j]) ? $results['kpi_management'][$j]['higher_achivement_range'] : ''; ?>" onkeypress="return RestrictMinPlus(event);" min="1"/>
                                                         <span id="error_high_range_<?= $i ?>"></span>
                                                     </div>
                                                 </td>
                                                 <td>
                                                     <div class="form-group col-md-12">
-                                                        <input type="number" class="form-control" name="percentage_<?= $i ?>" id="percentage_<?= $i ?>"  value="<?php echo  isset($results['kpi_management'][$j]) ? $results['kpi_management'][$j]['penalty_percentage'] : ''; ?>" />
+                                                        <input type="number" class="form-control" name="percentage_<?= $i ?>" id="percentage_<?= $i ?>"  value="<?php echo  isset($results['kpi_management'][$j]) ? $results['kpi_management'][$j]['penalty_percentage'] : ''; ?>" onkeypress="return RestrictMinPlus(event);" min="1"/>
                                                         <span id="error_percentage_<?= $i ?>"></span>
                                                     </div>
                                                 </td>
@@ -3985,7 +4028,26 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
             }
         }
     }
-    
+
+    function RestrictMinPlus(e){
+
+        var theEvent = e || window.event;
+        var key = theEvent.keyCode || theEvent.which;
+        key = String.fromCharCode(key);
+        var attrID = $(theEvent.target).attr("id");
+        if(attrID == "tat-with-in-lower-days" || attrID == "target-acheived-per-lower-days" || attrID == "tat-with-in-higher-days" || attrID == "target-acheived-per-higher-days"){
+            var regex = /[^-+e.]+$/;
+        }else{
+            var regex = /[^-+e]+$/;
+        }
+        
+        if (!regex.test(key)) {
+            theEvent.returnValue = false;
+            if (theEvent.preventDefault) {
+                theEvent.preventDefault();
+            }
+        }
+    }
     
     function up_message(){
     var up_rate = $("#up_rate").val();
@@ -6553,15 +6615,15 @@ $(document).ready(function () {
             var kpi_id_1 = $('#kpi_id_1').val();
             var kpi_id_2 = $('#kpi_id_2').val();
             var kpi_id_3 = $('#kpi_id_3').val();
-            var low_range_1 = $('#low_range_1').val();
-            var low_range_2 = $('#low_range_2').val();
-            var low_range_3 = $('#low_range_3').val();
-            var high_range_1 = $('#high_range_1').val();
-            var high_range_2 = $('#high_range_2').val();
-            var high_range_3 = $('#high_range_3').val();
-            var percentage_1 = $('#percentage_1').val();
-            var percentage_2 = $('#percentage_2').val();
-            var percentage_3 = $('#percentage_3').val();
+            var low_range_1 = $('#low_range_1').val() ? parseInt($('#low_range_1').val()) : '';
+            var low_range_2 = $('#low_range_2').val() ? parseInt($('#low_range_2').val()) : '';
+            var low_range_3 = $('#low_range_3').val() ? parseInt($('#low_range_3').val()) : '';
+            var high_range_1 = $('#high_range_1').val() ? parseInt($('#high_range_1').val()) : '';
+            var high_range_2 = $('#high_range_2').val() ? parseInt($('#high_range_2').val()) : '';
+            var high_range_3 = $('#high_range_3').val() ? parseInt($('#high_range_3').val()) : '';
+            var percentage_1 = $('#percentage_1').val() ? parseInt($('#percentage_1').val()) : '';
+            var percentage_2 = $('#percentage_2').val() ? parseInt($('#percentage_2').val()) : '';
+            var percentage_3 = $('#percentage_3').val() ? parseInt($('#percentage_3').val()) : '';
 
             $('#error-description').html('');
             $('#error-tat-with-in-lower-days').html('');
@@ -6601,7 +6663,7 @@ $(document).ready(function () {
             } else if(high_range_1.length == 0){
                 $('#error_high_range_1').html('This is required').css({"color": "red"});
                 $('#high_range_1').focus();
-            } else if(high_range_1 <= low_range_1){
+            } else if(high_range_1 < low_range_1){
                 $('#error_high_range_1').html('Invalid Higher Range').css({"color": "red"});
                 $('#high_range_1').focus();
             } else if(percentage_1.length == 0){
