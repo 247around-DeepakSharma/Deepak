@@ -127,6 +127,25 @@
             "order": [],
             "pageLength": 25,
             "ordering": false,
+            dom: 'lBfrtip',
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: '<span class="fa fa-file-excel-o"></span> Excel Export',
+                    pageSize: 'LEGAL',
+                    title: 'Spare need to acknowledge',
+                    exportOptions: {
+                       columns: [0,1,2,3,4,5,6,7,8,9,10],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'All',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+                    }
+                    
+                }
+            ],
             "ajax": {
                 url: "<?php echo base_url(); ?>employee/inventory/get_spare_send_by_partner_to_wh",
                 type: "POST",

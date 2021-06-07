@@ -24,7 +24,7 @@
       
          <div class="panel panel-default">
             <div class="panel-heading">
-                <h1 class="panel-title" ><i class="fa fa-money fa-fw"></i> Defective Parts shipped By SF</h1>
+                <h1 class="panel-title" ><i class="fa fa-money fa-fw"></i> Defective Parts shipped By SF <a class="btn btn-primary btn-sm" href="<?php echo base_url().'service_center/download_defective_part_shipped_by_sf/'.$offset; ?>" id="download" style="float:right;font-size:12px;color:white;margin-top:-6px;">Download List</a></h1>
             </div>
             <div class="panel-body">
                <div class="table-responsive">
