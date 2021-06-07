@@ -145,6 +145,7 @@ return false;
 }
 
     function create_reject_form(p_number, booking_id) {
+        $("#remarks").val("");
         $("#p_number").val(p_number);
         $("#b_id").val(booking_id);
     }
