@@ -214,7 +214,7 @@ $('input[name="create_date"], input[name="completion_date"]').daterangepicker({
             var endDateObj = new Date(endDate);
             var timeDiff = Math.abs(endDateObj.getTime() - startDateObj.getTime());
             var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
-            if(diffDays>91){
+            if(diffDays>92){
                 alert("Please select date range with in 90 days");
                 return false;
             }
@@ -231,7 +231,7 @@ $('input[name="create_date"], input[name="completion_date"]').daterangepicker({
             var endDateObj = new Date(endDate);
             var timeDiff = Math.abs(endDateObj.getTime() - startDateObj.getTime());
             var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-            if(diffDays > 91){
+            if(diffDays > 92){
                 alert("Please select date range with in 90 days");
             }
             else
