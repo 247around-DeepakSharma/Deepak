@@ -578,9 +578,9 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
 
         function open_admin_remarks_modal(booking_id) {
             $('.modal-title').text("");
-            $('.textarea').text("");
             $('#model_remarks_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>').modal();     
             $('#modal_booking_id_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>').val(booking_id);
+            $('#textarea_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>').val('');
             $('#modal-title-<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>').html(booking_id);
             // fill rejection reason in rejection remark popup dropdown
             $('#loader_gif_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>').show();
