@@ -479,7 +479,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         <label for="primary_contact_email" class="col-md-4">Primary Contact Email</label>
                                         <div class="col-md-8">
                                             <input  type="text" class="form-control"  name="primary_contact_email" onkeypress="return RestrictCommaSemicolon(event);"
-                                                ondrop="return false;" onpaste="return false;"  value = "<?php if (isset($query[0]['primary_contact_email'])){echo $query[0]['primary_contact_email'];}?>">
+                                                ondrop="return false;" onpaste="return RestrictSemicolonPast(event);"  value = "<?php if (isset($query[0]['primary_contact_email'])){echo $query[0]['primary_contact_email'];}?>">
                                             <?php echo form_error('primary_contact_email'); ?>
                                         </div>
                                     </div>
@@ -573,7 +573,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         <label for="upcountry_approval_email" class="col-md-4">Upcountry Approval Email</label>
                                         <div class="col-md-8">
                                             <input  type="text" class="form-control"  name="upcountry_approval_email" onkeypress="return RestrictCommaSemicolon(event);"
-    ondrop="return false;" onpaste="return false;" value = "<?php if (isset($query[0])) {
+    ondrop="return false;" onpaste="return RestrictSemicolonPast(event);" value = "<?php if (isset($query[0])) {
                                                 echo $query[0]['upcountry_approval_email'];
                                                 } ?>">
                                         </div>
@@ -620,7 +620,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         <label for="spare_notification_email" class="col-md-4">Spare Notification Email</label>
                                         <div class="col-md-8">
                                             <input type="text" class="form-control"  name="spare_notification_email" onkeypress="return RestrictCommaSemicolon(event);"
-    ondrop="return false;" onpaste="return false;" value = "<?php if (isset($query[0]['spare_notification_email'])) {
+    ondrop="return false;" onpaste="return RestrictSemicolonPast(event);" value = "<?php if (isset($query[0]['spare_notification_email'])) {
                                                 echo $query[0]['spare_notification_email'];
                                                 } ?>" >
                                             <?php echo form_error('spare_notification_email'); ?>
@@ -669,7 +669,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         <label for="owner_email" class="col-md-4">Owner Email</label>
                                         <div class="col-md-8">
                                             <input type="text" class="form-control"  name="owner_email" onkeypress="return RestrictCommaSemicolon(event);"
-    ondrop="return false;" onpaste="return false;" value = "<?php if (isset($query[0]['owner_email'])) {
+    ondrop="return false;" onpaste="return RestrictSemicolonPast(event);" value = "<?php if (isset($query[0]['owner_email'])) {
                                                 echo $query[0]['owner_email'];
                                                 } ?>" >
                                             <?php echo form_error('owner_email'); ?>
@@ -681,7 +681,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                         <label for="owner_alternate_email" class="col-md-4">Owner Alternate Email</label>
                                         <div class="col-md-8">
                                             <input type="email" class="form-control"  name="owner_alternate_email" onkeypress="return RestrictCommaSemicolon(event);"
-    ondrop="return false;" onpaste="return false;" value = "<?php if (isset($query[0]['owner_alternate_email'])) {
+    ondrop="return false;" onpaste="return RestrictSemicolonPast(event);" value = "<?php if (isset($query[0]['owner_alternate_email'])) {
                                                 echo $query[0]['owner_alternate_email'];
                                                 } ?>" >
                                             <?php echo form_error('owner_alternate_email'); ?>
@@ -725,7 +725,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     <label  for="summary_email_to" class="col-md-4">To</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control"  name="summary_email_to" onkeypress="return RestrictCommaSemicolon(event);"
-    ondrop="return false;" onpaste="return false;" value = "<?php if (isset($query[0]['summary_email_to'])) {
+    ondrop="return false;" onpaste="return RestrictSemicolonPast(event);" value = "<?php if (isset($query[0]['summary_email_to'])) {
                                             echo $query[0]['summary_email_to'];
                                             } ?>">
                                         <?php echo form_error('summary_email_to'); ?>
@@ -737,7 +737,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     <label for="summary_email_cc" class="col-md-4">cc</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control"  name="summary_email_cc" onkeypress="return RestrictCommaSemicolon(event);"
-    ondrop="return false;" onpaste="return false;" value = "<?php if (isset($query[0]['summary_email_cc'])) {
+    ondrop="return false;" onpaste="return RestrictSemicolonPast(event);" value = "<?php if (isset($query[0]['summary_email_cc'])) {
                                             echo $query[0]['summary_email_cc'];} else { echo "anuj@247around.com,nits@247around.com";} ?>">
                                         <?php echo form_error('summary_email_cc'); ?>
                                     </div>
@@ -766,7 +766,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     <label for="invoice_email_to" class="col-md-4">To</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control"  name="invoice_email_to"  onkeypress="return RestrictCommaSemicolon(event);"
-    ondrop="return false;" onpaste="return false;" value = "<?php if (isset($query[0]['invoice_email_to'])) {
+    ondrop="return false;" onpaste="return RestrictSemicolonPast(event);" value = "<?php if (isset($query[0]['invoice_email_to'])) {
                                             echo $query[0]['invoice_email_to'];
                                             } ?>">
                                         <?php echo form_error('invoice_email_to'); ?>
@@ -778,7 +778,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     <label for="invoice_email_cc" class="col-md-4">cc</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control"  name="invoice_email_cc" onkeypress="return RestrictCommaSemicolon(event);"
-    ondrop="return false;" onpaste="return false;" value = "<?php if (isset($query[0]['invoice_email_cc'])) {
+    ondrop="return false;" onpaste="return RestrictSemicolonPast(event);" value = "<?php if (isset($query[0]['invoice_email_cc'])) {
                                             echo $query[0]['invoice_email_cc'];}  else { echo ACCOUNTS_AR_EMAIL_ID; }
                                             ?>">
                                         <?php echo form_error('invoice_email_cc'); ?>
@@ -1898,7 +1898,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     <div class="form-group ">
                                         <label for="service_name" class="col-md-4">Email *</label>
                                         <div class="col-md-6">
-                                            <input  type="email" class="form-control input-model"  name="contact_person_email[]" id="contact_person_email_1" value = "" placeholder="Enter Email" required="" onkeypress="return RestrictCommaSemicolon(event);" ondrop="return false;" onpaste="return false;">
+                                            <input  type="email" class="form-control input-model"  name="contact_person_email[]" id="contact_person_email_1" value = "" placeholder="Enter Email" required="" onkeypress="return RestrictCommaSemicolon(event);" ondrop="return false;" onpaste="return RestrictSemicolonPast(event);">
                                         </div>
                                     </div> 
                                     <div class="form-group">
@@ -1959,7 +1959,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     <div class="form-group ">
                                         <label for="service_name" class="col-md-4">Alternate Email </label>
                                         <div class="col-md-6">
-                                            <input  type="text" class="form-control input-model"  name="contact_person_alt_email[]" id="contact_person_alt_email_1" value = "" placeholder="Alternative Email" onkeypress="return RestrictCommaSemicolon(event);" ondrop="return false;" onpaste="return false;">
+                                            <input  type="text" class="form-control input-model"  name="contact_person_alt_email[]" id="contact_person_alt_email_1" value = "" placeholder="Alternative Email" onkeypress="return RestrictCommaSemicolon(event);" ondrop="return false;" onpaste="return RestrictSemicolonPast(event);">
                                         </div>
                                     </div>
                                                                          
@@ -3355,7 +3355,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     <label for="service_name" class="col-md-4 vertical-align">Email *</label>
                                     <div class="col-md-6">
                                         <input  type="email" class="form-control input-model"  name="contact_person_email" id="contact_person_email" value = "" placeholder="Enter Email" onkeypress="return RestrictCommaSemicolon(event);"
-                                                ondrop="return false;" onpaste="return false;">
+                                                ondrop="return false;" onpaste="return RestrictSemicolonPast(event);">
                                     </div>
                                     <div class="clear"></div>
                                 </div>
@@ -3370,7 +3370,7 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                     <label for="service_name" class="col-md-4 vertical-align">Alternate Email </label>
                                     <div class="col-md-6">
                                         <input  type="email" class="form-control input-model"  name="contact_person_alt_email" id="contact_person_alt_email" value = "" placeholder="Alternative Email" onkeypress="return RestrictCommaSemicolon(event);"
-                                                ondrop="return false;" onpaste="return false;" >
+                                                ondrop="return false;" onpaste="return RestrictSemicolonPast(event);" >
                                     </div>
                                     <div class="clear"></div>
                                 </div>
@@ -4026,6 +4026,12 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
             if (theEvent.preventDefault) {
                 theEvent.preventDefault();
             }
+        }
+    }
+    function RestrictSemicolonPast(event){
+        let paste = (event.clipboardData || window.clipboardData).getData('text');
+        if (paste.indexOf(';') > -1){
+            return false;
         }
     }
 
