@@ -2418,7 +2418,7 @@ class Booking extends CI_Controller {
             $this->miscelleneous->reject_booking_from_review($postArray);
         }
         else{
-            echo "Booking updated by someone else , Please check updated booking and try again";
+            echo "Booking updated by someone else , Please check the current status of booking.";
         }
     }
 
