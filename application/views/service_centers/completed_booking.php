@@ -3,7 +3,9 @@
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> <?php echo $status." Bookings"; if($status == 'Completed') { echo '<a class="btn btn-primary btn-sm" href="'. base_url().'employee/service_centers/download_service_center_completed_bookings" id="download" style="float:right;font-size:12px;color:white;margin-top:-6px;">Download List</a>';} ?></h2>
+                    <?php $downloadListAction = ($status == 'Completed') ? base_url().'employee/service_centers/download_service_center_completed_bookings' : base_url().'service_center/download_cancelled_booking/'.$serial_number ?>
+                    <?php //echo $status." Bookings"; if($status == 'Completed' || $status == 'Cancelled') { echo '<a class="btn btn-primary btn-sm" href="'. base_url().'employee/service_centers/'.$downloadListAction.'/'.$serial_number.'" id="download" style="float:right;font-size:12px;color:white;margin-top:-6px;">Download List</a>';} ?>
+                    <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> <?php echo $status." Bookings";?> <a class="btn btn-primary btn-sm" href="<?php echo $downloadListAction;?>" id="download" style="float:right;font-size:12px;color:white;margin-top:-6px;">Download List</a></h2>
                 </div>
 
                 <div class="panel-body">
@@ -63,7 +65,7 @@
                                                     ?>">
                                                  <?php if ($status == "Completed")
                                                             echo $row['closing_remarks'];
-                                                          else 
+                                                          else
                                                             echo $row['cancellation_reason'];  
                                                     ?>
                                             </td>
@@ -95,7 +97,6 @@
                                         <?php $count++; } ?>
                             </tbody>
                         </table>
-                   
                      <?php if(!empty($links)){ ?><div class="custom_pagination" style="float:left;margin-top: 20px;margin-bottom: 20px;"> <?php if(isset($links)){echo $links;} ?></div> <?php } ?>
                    
                 </div>

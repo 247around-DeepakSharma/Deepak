@@ -6,7 +6,7 @@
             <label>Consumption  Reason &nbsp;<span style="color:red;">*</span></label>
         </div>        
         <div class="col-md-4"> 
-            <select style="width:100%;" name="spare_consumption_status[<?php echo $spare_part_detail['id']; ?>]" class="spare_consumption_status" id="spare_consumption_status_<?php echo $spare_part_detail['id']; ?>">
+            <select style="width:100%;" name="spare_consumption_status[<?php echo $spare_part_detail['id']; ?>]" class="spare_consumption_status" id="spare_consumption_status_<?php echo $spare_part_detail['id']; ?>" onchange="show_hide_audit()">
                 <option value="" selected disabled>Select Reason</option>
                 <?php $description_no = 1; foreach($spare_consumed_status as $k => $status) { ?>
                     <option value="<?php echo $status['id']; ?>" data-shipped_inventory_id="<?php echo $spare_part_detail['shipped_inventory_id']; ?>" data-tag="<?php echo $status['tag']; ?>" data-part_number="<?php echo $spare_part_detail['part_number']; ?>" data-spare_id="<?php echo $spare_part_detail['id']; ?>"
@@ -48,6 +48,14 @@
         </div>        
         <div class="col-md-9"> 
             <textarea class="form-control" rows="4" name="remarks" id="consumption-remarks"></textarea>
+        </div>        
+    </div>
+	<div class="row form-group" style="padding: 10px;" id='show_hide_audit_div'> 
+        <div class="col-md-3"> 
+            <label>Partner Audit&nbsp;<span style="color:red;">*</span></label>
+        </div>        
+        <div class="col-md-9"> 
+            <input type='checkbox'   name="partneraudit" id="partner-audit" value=1>
         </div>        
     </div>
     <div class="row form-group"> 
@@ -146,7 +154,7 @@
             $("#received_button").attr('disabled', 'disabled');
             $.ajax({
                 type:'POST',
-                url: "<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $spare_part_detail['id']; ?>/<?php echo $spare_part_detail['booking_id']; ?>/<?php echo $spare_part_detail['partner_id']; ?>/0",
+                url: "<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts_partner_audit/<?php echo $spare_part_detail['id']; ?>/<?php echo $spare_part_detail['booking_id']; ?>/<?php echo $spare_part_detail['partner_id']; ?>/0",
                 data:formData,
                 cache:false,
                 contentType: false,
@@ -382,5 +390,15 @@
     });
     
     */
+	function show_hide_audit(){
+		var value = $("#change-consumption-form .spare_consumption_status").val();
+		$("#show_hide_audit_div").hide();
+		if(value == 1){
+			$("#show_hide_audit_div").hide();
+		}else{
+			$("#show_hide_audit_div").show();
+		}
+	}
+	show_hide_audit();
 
 </script>

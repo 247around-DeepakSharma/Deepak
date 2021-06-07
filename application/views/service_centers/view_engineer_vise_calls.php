@@ -70,11 +70,11 @@
     </div>
 </div>
 <style>
-    
+
     .dataTables_paginate {
         display:none;
     }
-    
+
 </style>
 <script>
 
@@ -95,12 +95,14 @@
     
     $('#get_engineer_call_data').on('click',function(){
         var engineer_id = $('#engineer_id').val();
-        // alert(engineer_id);
-        if(engineer_id){
-             
-            engineer_vise_call_table.ajax.reload();
-        }else{
+        var status_id = $('#status_id').val();
+        // alert(status_id);
+        if(!engineer_id){
             alert("Please Select Engineer");
+        }else if(!status_id){
+            alert("Please Select Status");
+        }else{
+            engineer_vise_call_table.ajax.reload();
         }
     });
     
@@ -109,7 +111,7 @@
         engineer_vise_call_table = $('#engineer_vise_call_table').DataTable({
             "processing": true,
             "serverSide": true,
-               "lengthMenu": [[10, 25, 50,100, -1], [10, 25, 50, 100,"All"]],
+            "lengthMenu": [[10, 25, 50,100, -1], [10, 25, 50, 100,"All"]],
             "language": {
                 "processing": "<div class='spinner'>\n\
                                     <div class='rect1' style='background-color:#db3236'></div>\n\
@@ -123,7 +125,7 @@
             "pageLength": 10,
             "dom": 'lBfrtip',
             "ordering": false,
-              "buttons": [
+            "buttons": [
                 {
                     extend: 'excel',
                     text: '<span class="fa fa-file-excel-o"></span>   Export',

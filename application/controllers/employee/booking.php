@@ -2418,7 +2418,7 @@ class Booking extends CI_Controller {
             $this->miscelleneous->reject_booking_from_review($postArray);
         }
         else{
-            echo "Booking updated by someone else , Please check updated booking and try again";
+            echo "Booking updated by someone else , Please check the current status of booking.";
         }
     }
 
@@ -6066,7 +6066,7 @@ class Booking extends CI_Controller {
         }
         
         // Do not show Wrong Call Area Bookings in Bookings Cancelled by SF TAB
-        //Wrong area bookings will be shown in seperate TAB
+        // Wrong area bookings will be shown in seperate TAB
         if($review_status == _247AROUND_CANCELLED) {
             if(!empty($cancellation_reason_id)){
                 $whereIN['sc.cancellation_reason'] = [$cancellation_reason_id];
@@ -7145,12 +7145,13 @@ class Booking extends CI_Controller {
         }
     
     
-    function review_bookings_by_status_sf_wise($review_status){
+    function review_bookings_by_status_sf_wise($review_status,$is_partner = 0){
         $this->checkUserSession();
         $post_data = $this->input->post();
     
         // Put all selected values in array to show these filter values above filtered data
         $data['status'] = $review_status;
+        $data['is_partner'] = $is_partner;
         $data['partners'] = $this->reusable_model->get_search_result_data("partners", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
         $data['states'] = $this->reusable_model->get_search_result_data("state_code", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
         $data['services'] = $this->reusable_model->get_search_result_data("services", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
@@ -7159,7 +7160,7 @@ class Booking extends CI_Controller {
         $this->load->view('employee/completed_cancelled_review_sf_wise', $data);
     }
     
-    function get_review_bookings_data_sf_wise($review_status, $post_data, $all_records = 0)
+    function get_review_bookings_data_sf_wise($review_status, $post_data, $all_records = 0, $is_partner = 0)
     {
         $whereIN = $where = $join = $having = array();
         
@@ -7180,8 +7181,11 @@ class Booking extends CI_Controller {
         if($review_status == _247AROUND_COMPLETED) {
             $having['count(sc.booking_id)=sum(if(sc.added_by_SF=0,1,0))'] = NULL;
         }
-        
-        if($review_status == _247AROUND_CANCELLED) {
+        else if($review_status === "Completed_By_SF") {
+            $status="Completed";
+            $whereIN['sc.added_by_SF'] = [1];
+        }
+        else if($review_status == _247AROUND_CANCELLED) {
             $where['(sc.cancellation_reason IS NULL OR sc.cancellation_reason <> "'.CANCELLATION_REASON_WRONG_AREA_ID.'")'] = NULL;
         }              
 
@@ -7248,7 +7252,7 @@ class Booking extends CI_Controller {
         if($all_records){
             $length = "-1";
         }
-        $data = $this->service_centers_model->get_admin_review_bookings_sf_wise($review_status,$whereIN,0,$where,$join,$having,$length,$start);
+        $data = $this->service_centers_model->get_admin_review_bookings_sf_wise($review_status,$whereIN,$is_partner,$where,$join,$having,$length,$start);
         return $data;
     }
     
@@ -7257,26 +7261,26 @@ class Booking extends CI_Controller {
      *  @author : Prity Sharma
      *  @created_by : 22-01-2021   
     */
-    public function review_bookings_sf_wise($review_status){
+    public function review_bookings_sf_wise($review_status, $is_partner = 0){
         $post = $this->input->post();
         // Set Search
         $post['column_search'] = array('service_centres.state', 'service_centres.name');
         
         // Get all Data
-        $list = $this->get_review_bookings_data_sf_wise($review_status, $post);
+        $list = $this->get_review_bookings_data_sf_wise($review_status, $post, 0, $is_partner);
         $no = $post['start'];
         $data = array();
         foreach ($list as $sf_list) {
             $no++;
-            $row = $this->review_bookings_sf_wise_table_data($review_status, $sf_list, $no);
+            $row = $this->review_bookings_sf_wise_table_data($review_status, $sf_list, $no, 0, $is_partner);
             $data[] = $row;
         }
         // Add Total Column
         if(!empty($list)){
-            $data[] = $this->review_bookings_sf_wise_table_data($review_status, $list, $no, 1);
+            $data[] = $this->review_bookings_sf_wise_table_data($review_status, $list, $no, 1, $is_partner);
         }
         
-        $arr_count = $this->get_review_bookings_data_sf_wise($review_status, $post, 1);
+        $arr_count = $this->get_review_bookings_data_sf_wise($review_status, $post, 1, $is_partner);
         $output = array(
             "draw" => $post['draw'],
             "recordsTotal" => count($arr_count),
@@ -7287,16 +7291,16 @@ class Booking extends CI_Controller {
         echo json_encode($output);
     }
     
-    function review_bookings_sf_wise_table_data($review_status, $values, $no, $total_row = 0) {
+    function review_bookings_sf_wise_table_data($review_status, $values, $no, $total_row = 0, $is_partner = 0) {
         $row = array();
         // For SF wise count
         if(!($total_row))
         {
             $row[] = $no;
-            $row[] = "<p class='sf_".$review_status."' data-sf='".$values['sf_id']."'>"
+            $row[] = "<p class='sf_".$review_status."_".$is_partner."' data-sf='".$values['sf_id']."'>"
                         . $values['sf_name']
-                        . "<span id='penalty_".$review_status."_".$values['sf_id']."'></span>"
-                        . "<span id='status_".$review_status."_".$values['sf_id']."'></span>"
+                        . "<span id='penalty_".$review_status."_".$is_partner."_".$values['sf_id']."'></span>"
+                        . "<span id='status_".$review_status."_".$is_partner."_".$values['sf_id']."'></span>"
                         . "</p>";
             $row[] = "<p>".$values['state']."</p>";
             $row[] = "<p><button data-sf='".$values['sf_id']."' data-review-age-min='0'  data-review-age-max='0' class='btn btn-count btn-success'>". $values['Day0'] ."</button></p>";

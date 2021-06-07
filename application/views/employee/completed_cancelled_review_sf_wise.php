@@ -4,7 +4,18 @@
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>Bookings <?php echo $status; ?> By SF</h2>
+                    <?php
+                    if($is_partner){
+                        echo "<h2>Cancelled Bookings</h2>";
+                    }
+                    elseif($status == 'Completed_By_SF'){
+                        echo "<h2>Completed Bookings</h2>";
+                    }
+                    else{
+                        echo "<h2>Bookings $status By SF</h2>";
+                    }
+                    ?>
+                    
                     <span style='color: #337ab7 !important;float:right;background: #e5f7f5;'><i class="fa fa-info-circle"></i> By Clicking on Count of 'Total' Row, You can see all Total bookings in Review (TAT Wise).</span>
                     <div class="clearfix"></div>
                 </div>
@@ -16,7 +27,7 @@
                                 <div class="col-md-3">
                                     <div class="item form-group">                                  
                                         <label for="" style="color:#fff">Partners</label>
-                                        <select class="form-control filter_table" id="partner_id<?php echo '_'.$status; ?>" name="partners">
+                                        <select class="form-control filter_table" id="partner_id<?php echo '_'.$status.'_'.$is_partner; ?>" name="partners">
                                             <option value="" <?php if (empty($filters['partner_id'])) { echo 'selected'; }?>>
                                                 All
                                             </option>
@@ -35,7 +46,7 @@
                                 <div class="col-md-3">
                                     <div class="item form-group">
                                         <label for="" style="color:#fff">Appliance</label>
-                                        <select class="form-control filter_table" id="service_id<?php echo '_'.$status; ?>" name="services">
+                                        <select class="form-control filter_table" id="service_id<?php echo '_'.$status.'_'.$is_partner; ?>" name="services">
                                             <option value="" <?php if (empty($filters['service_id'])) { echo 'selected'; } ?>>
                                                 All
                                             </option>
@@ -54,7 +65,7 @@
                                 <div class="col-md-3">
                                     <div class="item form-group">
                                         <label for="" style="color:#fff">Request Type</label>
-                                        <select class="form-control filter_table" id="request_type<?php echo '_'.$status; ?>" name="request_type">
+                                        <select class="form-control filter_table" id="request_type<?php echo '_'.$status.'_'.$is_partner; ?>" name="request_type">
                                             <option value="" <?php if (empty($filters['request_type'])) { echo 'selected'; } ?>>
                                                 All
                                             </option>
@@ -72,7 +83,7 @@
                                 <div class="col-md-3">
                                     <div class="item form-group">                                        
                                         <label for="" style="color:#fff">In Warranty</label>
-                                        <select class="form-control filter_table" id="free_paid<?php echo '_'.$status; ?>" name="free_paid">
+                                        <select class="form-control filter_table" id="free_paid<?php echo '_'.$status.'_'.$is_partner; ?>" name="free_paid">
                                             <option value="" <?php if (empty($filters['free_paid'])) { echo 'selected'; } ?>>
                                                 All
                                             </option>
@@ -95,7 +106,7 @@
                                 <div class="col-md-3">
                                     <div class="item form-group">                                  
                                         <label for="" style="color:#fff">State</label>
-                                        <select class="form-control filter_table" id="state_code<?php echo '_'.$status; ?>" name="states">
+                                        <select class="form-control filter_table" id="state_code<?php echo '_'.$status.'_'.$is_partner; ?>" name="states">
                                             <option value="" <?php if (empty($filters['states'])) { echo 'selected'; } ?>>
                                                 All
                                             </option>
@@ -113,7 +124,7 @@
                                 <div class="col-md-3" style="margin-top: 21px;padding: 0px 1px;width: 100px;">
                                     <div class="item form-group">
                                         <div class="col-md-12 col-sm-12 col-xs-12">
-                                            <input class="btn btn-success" name="sf_review_data" id="sf_review_data<?php echo '_'.$status; ?>" type="button" value="Apply Filters" style="background: #405467;padding: 8px;" onclick="return filter_changes()">
+                                            <input class="btn btn-success" name="sf_review_data" id="sf_review_data<?php echo '_'.$status.'_'.$is_partner; ?>" type="button" value="Apply Filters" style="background: #405467;padding: 8px;" onclick="return filter_changes()">
                                         </div>
                                     </div>
                                 </div>
@@ -122,7 +133,7 @@
                     </form>
                     <div class="tab-content" style="margin-top: 10px;">                        
                         <div class="tab-pane fade in active" id="tab1">                            
-                            <table class="table table-striped table-bordered jambo_table bulk_action" id="tat_sf_table<?php echo '_'.$status; ?>">
+                            <table class="table table-striped table-bordered jambo_table bulk_action" id="tat_sf_table<?php echo '_'.$status.'_'.$is_partner; ?>">
                                 <thead>
                                     <tr style="background: #405467;color: #fff;margin-top: 5px;">
                                         <th>S.No</th>
@@ -155,51 +166,51 @@
 <script>
     var sf_datatable;
     function load_datatable(){    
-        sf_datatable = $("#tat_sf_table<?php echo '_'.$status; ?>").DataTable({
+        sf_datatable = $("#tat_sf_table<?php echo '_'.$status.'_'.$is_partner; ?>").DataTable({
             processing: true,        
             serverSide: true, 
             paging: true,
             ordering: false,
             pageLength : 25,
             ajax: {
-                "url": '<?php echo base_url()."employee/booking/review_bookings_sf_wise/".$status ?>',
+                "url": '<?php echo base_url()."employee/booking/review_bookings_sf_wise/".$status."/".$is_partner ?>',
                 "type": "POST",
                 "data": function(d){
                     // Partner Filter Value
                     d.partners  = "";
-                    if ($('#partner_id<?php echo '_'.$status; ?>').length){ 
-                        d.partners = $('#partner_id<?php echo '_'.$status; ?>').val(); 
+                    if ($('#partner_id<?php echo '_'.$status.'_'.$is_partner; ?>').length){ 
+                        d.partners = $('#partner_id<?php echo '_'.$status.'_'.$is_partner; ?>').val(); 
                     }                
                     // Service Filter
                     d.services = "";
-                    if($('#service_id<?php echo '_'.$status; ?>').length){ 
-                        d.services = $('#service_id<?php echo '_'.$status; ?>').val();
+                    if($('#service_id<?php echo '_'.$status.'_'.$is_partner; ?>').length){ 
+                        d.services = $('#service_id<?php echo '_'.$status.'_'.$is_partner; ?>').val();
                     }
                     // Request Type Filter
                     d.request_type = "";
-                    if($('#request_type<?php echo '_'.$status; ?>').length){ 
-                        d.request_type = $('#request_type<?php echo '_'.$status; ?>').val();
+                    if($('#request_type<?php echo '_'.$status.'_'.$is_partner; ?>').length){ 
+                        d.request_type = $('#request_type<?php echo '_'.$status.'_'.$is_partner; ?>').val();
                     }
                     // Free Paid Filter
                     d.free_paid = "";
-                    if($('#free_paid<?php echo '_'.$status; ?>').length){ 
-                        d.free_paid = $('#free_paid<?php echo '_'.$status; ?>').val();
+                    if($('#free_paid<?php echo '_'.$status.'_'.$is_partner; ?>').length){ 
+                        d.free_paid = $('#free_paid<?php echo '_'.$status.'_'.$is_partner; ?>').val();
                     }                
                     // State Filter
                     d.states = "";
-                    if($('#state_code<?php echo '_'.$status; ?>').length){ 
-                        d.states = $('#state_code<?php echo '_'.$status; ?>').val();
+                    if($('#state_code<?php echo '_'.$status.'_'.$is_partner; ?>').length){ 
+                        d.states = $('#state_code<?php echo '_'.$status.'_'.$is_partner; ?>').val();
                     }                
                 }
             },
             fnDrawCallback: function (oSettings, response) {            
-                $('.sf<?php echo '_'.$status; ?>').each(function(){
+                $('.sf<?php echo '_'.$status.'_'.$is_partner; ?>').each(function(){
                     var sf_id = $(this).attr('data-sf');
                     $.ajax({
                         type: 'post',
                         url: '<?php echo base_url()  ?>penalty/get_sf_penalty_percentage/'+sf_id+'/<?php echo $status;  ?>/60/1',
                         success: function (response) {
-                            $("#penalty<?php echo '_'.$status; ?>"+"_"+sf_id).html(response);
+                            $("#penalty<?php echo '_'.$status.'_'.$is_partner; ?>"+"_"+sf_id).html(response);
                         }
                     });
 
@@ -208,7 +219,7 @@
                             type: 'post',
                             url: '<?php echo base_url()  ?>employee/booking/get_ow_completed_percentage/'+sf_id+'/60/1',
                             success: function (response) {
-                                $("#status<?php echo '_'.$status; ?>"+"_"+sf_id).html(response);
+                                $("#status<?php echo '_'.$status.'_'.$is_partner; ?>"+"_"+sf_id).html(response);
                             }
                         });
                     }
@@ -218,7 +229,7 @@
                             type: 'post',
                             url: '<?php echo base_url()  ?>employee/booking/get_cancelled_percentage/'+sf_id+'/60/1',
                             success: function (response) {
-                                $("#status<?php echo '_'.$status; ?>"+"_"+sf_id).html(response);
+                                $("#status<?php echo '_'.$status.'_'.$is_partner; ?>"+"_"+sf_id).html(response);
                             }
                         });
                     }
@@ -228,36 +239,36 @@
                     var status = "<?php echo $status; ?>";
                     // Partner Filter
                     var partner_id = 0;
-                    if($('#partner_id<?php echo '_'.$status; ?>').val() != '') {
-                        partner_id = $('#partner_id<?php echo '_'.$status; ?>').val();
+                    if($('#partner_id<?php echo '_'.$status.'_'.$is_partner; ?>').val() != '') {
+                        partner_id = $('#partner_id<?php echo '_'.$status.'_'.$is_partner; ?>').val();
                     }
                     // State Filter
                     var state_code = 0;
-                    if($('#state_code<?php echo '_'.$status; ?>').val() != ''){
-                        state_code = $('#state_code<?php echo '_'.$status; ?>').val();
+                    if($('#state_code<?php echo '_'.$status.'_'.$is_partner; ?>').val() != ''){
+                        state_code = $('#state_code<?php echo '_'.$status.'_'.$is_partner; ?>').val();
                     }
                     // Request Type Filter
                     var request_type = 0;
-                    if($('#request_type<?php echo '_'.$status; ?>').val() != ''){
-                        request_type = $('#request_type<?php echo '_'.$status; ?>').val();
+                    if($('#request_type<?php echo '_'.$status.'_'.$is_partner; ?>').val() != ''){
+                        request_type = $('#request_type<?php echo '_'.$status.'_'.$is_partner; ?>').val();
                     }            
                     // Service Filter
                     var service_id = 0;
-                    if($('#service_id<?php echo '_'.$status; ?>').val() != ''){
-                        service_id = $('#service_id<?php echo '_'.$status; ?>').val();
+                    if($('#service_id<?php echo '_'.$status.'_'.$is_partner; ?>').val() != ''){
+                        service_id = $('#service_id<?php echo '_'.$status.'_'.$is_partner; ?>').val();
                     }            
                     // Free Paid Filter
                     var free_paid = 0;
-                    if($('#free_paid<?php echo '_'.$status; ?>').val() != ''){
-                        free_paid = $('#free_paid<?php echo '_'.$status; ?>').val();
+                    if($('#free_paid<?php echo '_'.$status.'_'.$is_partner; ?>').val() != ''){
+                        free_paid = $('#free_paid<?php echo '_'.$status.'_'.$is_partner; ?>').val();
                     }            
 
                     var min_review_age = $(this).attr('data-review-age-min');
                     var max_review_age = $(this).attr('data-review-age-max');            
                     var sf_id = $(this).attr('data-sf');
-
+                    var is_partner = "<?php echo $is_partner; ?>";
                     window.open(
-                        '<?php echo base_url();?>employee/booking/review_bookings_by_status/'+status+'/0/0/0/0/'+partner_id+'/'+state_code+'/'+request_type+'/'+min_review_age+'/'+max_review_age+'/0/0/'+service_id+'/'+free_paid+'/'+sf_id+'/1',
+                        '<?php echo base_url();?>employee/booking/review_bookings_by_status/'+status+'/0/'+is_partner+'/0/0/'+partner_id+'/'+state_code+'/'+request_type+'/'+min_review_age+'/'+max_review_age+'/0/0/'+service_id+'/'+free_paid+'/'+sf_id+'/1',
                         '_blank' // <- This is what makes it open in a new window.
                     );        
                 });
@@ -266,19 +277,19 @@
         });
     }
     
-    $('#request_type<?php echo '_'.$status; ?>').select2({
+    $('#request_type<?php echo '_'.$status.'_'.$is_partner; ?>').select2({
         allowClear: false
     });
-    $('#service_id<?php echo '_'.$status; ?>').select2({
+    $('#service_id<?php echo '_'.$status.'_'.$is_partner; ?>').select2({
         allowClear: false
     });
-    $('#free_paid<?php echo '_'.$status; ?>').select2({
+    $('#free_paid<?php echo '_'.$status.'_'.$is_partner; ?>').select2({
         allowClear: false
     });
-    $('#state_code<?php echo '_'.$status; ?>').select2({
+    $('#state_code<?php echo '_'.$status.'_'.$is_partner; ?>').select2({
         allowClear: false
     });
-    $('#partner_id<?php echo '_'.$status; ?>').select2({
+    $('#partner_id<?php echo '_'.$status.'_'.$is_partner; ?>').select2({
         allowClear: false
     });
     

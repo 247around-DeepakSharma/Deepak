@@ -11,10 +11,14 @@
                     <h2><?php echo $status." Bookings" ?></h2>  
                 </div><br>
                 <div class="x_title"  style="border: 2px solid #4b9c7a;padding: 10px 0px;">
-                     <button class="btn btn-dark"  id = "download_filer_records" style="float:right; border: 1px solid #2a3f54;background: #2a3f54;margin-right: 54%;margin-top:2.7%;" >Download </button>
+                     <button class="btn btn-dark"  id = "download_filer_records" style="float:right; border: 1px solid #2a3f54;background: #2a3f54;margin-right: 52.3%;margin-top:2.7%;" >Download </button>
                 <form method = "post" action ="<?php echo base_url(); ?>partner/closed_booking/<?php echo $status;?>">
                         <div class="form-group col-md-3">
-                            <label class="control-label" for="">Completion Date</label><br>
+                            <?php if($status == 'Completed'){?>
+                                 <label class="control-label" for="">Completion Date</label><br>
+                          <?php }else{?>
+                            <label class="control-label" for=""> Cancellation Date</label><br>
+                        <?php }?>
                             <?php
                             if(!empty( $end_date) && !empty($start_date) ){
                             $endDate =  $end_date;
@@ -22,7 +26,7 @@
                             $dateRange = $startDate."-".$endDate;}
                           
                             ?>
-                            <input style="border-radius: 5px;"  type="text" placeholder="Completion Date" class="form-control"  value="<?php echo $dateRange;?>" id = "completion_date" name="completion_date"/>
+                            <input style="border-radius: 5px;"  type="text" placeholder="" class="form-control"  value="<?php echo $dateRange;?>" id = "completion_date" name="completion_date"/>
                         </div>
                     <div class="form-group col-md-3" style="border-radius:3px;">
                            <label class="control-label" for="daterange">State</label><br>
@@ -210,7 +214,7 @@ $('input[name="create_date"], input[name="completion_date"]').daterangepicker({
             var endDateObj = new Date(endDate);
             var timeDiff = Math.abs(endDateObj.getTime() - startDateObj.getTime());
             var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
-            if(diffDays>91){
+            if(diffDays>92){
                 alert("Please select date range with in 90 days");
                 return false;
             }
@@ -227,7 +231,7 @@ $('input[name="create_date"], input[name="completion_date"]').daterangepicker({
             var endDateObj = new Date(endDate);
             var timeDiff = Math.abs(endDateObj.getTime() - startDateObj.getTime());
             var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-            if(diffDays > 91){
+            if(diffDays > 92){
                 alert("Please select date range with in 90 days");
             }
             else

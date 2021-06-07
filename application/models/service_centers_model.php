@@ -347,10 +347,12 @@ class Service_centers_model extends CI_Model {
             $this->db->where('service_center_booking_action.booking_id', $value['booking_id']); 
             $this->db->from('service_center_booking_action');
             $this->db->join('booking_unit_details', 'booking_unit_details.id = service_center_booking_action.unit_details_id');
-            $query2 = $this->db->get();
-            $result = $query2->result_array();
+            $query2 = $this->db->get();                   
+            $result = $merge_data = $query2->result_array();
             $amc_files  = $this->booking_model->get_booking_files(array("booking_files.booking_id"=> $value['booking_id'],"booking_files.file_description_id"=> ANNUAL_MAINTENANCE_CONTRACT));
-            $merge_data[0] = array_merge($result[0], array('booking_amc_files' => $amc_files));
+            if(!empty($result[0]) && !empty($amc_files)){
+                $merge_data[0] = array_merge($result[0], array('booking_amc_files' => $amc_files));
+            }            
             $booking[$key]['unit_details'] = $merge_data;
         }
         //print_r($booking);exit;
@@ -1434,11 +1436,51 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         return $this->db->query($sql)->result_array();     
     }
     
-        /**
+    /**
+     * $desc: Fetch all wich is cancelled by sf
+     * @param: Array data
+     * return Array 
+     */
+    
+    function download_service_center_cancelled_bookings($limit, $start, $service_center_id, $status, $booking_id) {
+
+        if ($limit != "count") {
+            $this->db->limit($limit, $start);
+        }
+
+        $this->db->select('booking_details.booking_id, users.name as customername, booking_details.booking_primary_contact_no, '
+                . 'services.services, booking_details.booking_date, booking_details.closed_date, booking_cancellation_reasons.reason, ');
+        $this->db->from('booking_details');
+        $this->db->join('services', 'services.id = booking_details.service_id');
+        $this->db->join('booking_cancellation_reasons', 'booking_details.cancellation_reason = booking_cancellation_reasons.id', 'left');
+        $this->db->join('users', 'users.user_id = booking_details.user_id');
+        $this->db->join('engineer_details', 'booking_details.assigned_engineer_id = engineer_details.id', 'left');
+        $this->db->where('booking_details.current_status', $status);
+        $this->db->where('assigned_vendor_id', $service_center_id);
+        if($booking_id !=""){
+            $this->db->where('booking_details.booking_id', $booking_id);
+        }
+        
+        //Sort by Closure Date for both Cancelled and Completed bookings
+        $this->db->order_by('closed_date', 'desc');
+        
+        $query = $this->db->get();
+
+        $result = $query->result_array();
+        if ($limit == "count") {
+
+            return count($result);
+        }
+        return $result;    
+    }
+    
+    
+    /**
      * @desc: Insert booking details for spare parts
      * @param Array $data
      * @return boolean
      */
+    
     function insert_data_into_spare_invoice_details($data){
         
        if(!empty($data)){

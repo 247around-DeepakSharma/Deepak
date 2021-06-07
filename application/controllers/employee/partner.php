@@ -679,6 +679,41 @@ class Partner extends CI_Controller {
     }
 
     /**
+     * @desc : This function is used to Add/Edit TAT invoice condition details.
+     * @call : This function is called on Form Submit for Add/Edit TAT invoice condition Details.
+     * TAT invoice condition details like- Description, Local/Upcountry, Installation/Repair, TAT with in days, Target Acheived details
+     *      are added/edited.
+     *
+     * @param : void
+     * @return : void
+     */
+
+    function process_tat_invoice_condition() {
+
+        $arr_post = $this->input->post();
+        $data = array('entity' => $arr_post['entity'], 
+        'entity_id' => $arr_post['entity_id'],
+        'local_upcountry' => $arr_post['local_upcountry'], 
+        'installation_repair' =>  $arr_post['installation_repair'], 
+        'tat_with_in_lower_days' => $arr_post['tat_with_in_lower_days'], 
+        'target_acheived_per_lower_days' => $arr_post['target_acheived_per_lower_days'], 
+        'tat_with_in_higher_days' => $arr_post['tat_with_in_higher_days'], 
+        'target_acheived_per_higher_days' => $arr_post['target_acheived_per_higher_days'],
+        'description' => $arr_post['description'],
+        'active' => 1);
+        $kpi_data[] = array('entity_id' => $arr_post['entity_id'],'lower_achivement_range' => $arr_post['low_range_1'],'higher_achivement_range' => $arr_post['high_range_1'],'penalty_percentage' => $arr_post['percentage_1']);
+        $kpi_data[] = array('entity_id' => $arr_post['entity_id'],'lower_achivement_range' => $arr_post['low_range_2'],'higher_achivement_range' => $arr_post['high_range_2'],'penalty_percentage' => $arr_post['percentage_2']);
+        $kpi_data[] = array('entity_id' => $arr_post['entity_id'],'lower_achivement_range' => $arr_post['low_range_3'],'higher_achivement_range' => $arr_post['high_range_3'],'penalty_percentage' => $arr_post['percentage_3']);
+        foreach($kpi_data as $key => $value){
+            $index = $key+1;
+            $index = 'kpi_id_'.$index;
+            $this->partner_model->process_tat_invoice_kpi_management($arr_post[$index],$arr_post['entity_id'],$value);
+        }
+        echo $result = $this->partner_model->process_tat_invoice_condition($arr_post['entity_id'],$data);
+        exit();
+    }
+
+    /**
      * @desc : This function is used to Add/Edit Partner details.
      * @call : This function is called on Form Submit for Add/Edit Partner details.
      * Partner details like- partner's name, owner's name, phone no., email, POC(point of contact) details
@@ -1207,6 +1242,8 @@ class Partner extends CI_Controller {
     function editpartner($id) {
         log_message('info', __FUNCTION__ . ' partner_id:' . $id);
         $query = $this->partner_model->viewpartner($id);
+        $results['tat_condition'] = $this->partner_model->get_tat_invoice_condition($id);
+        $results['kpi_management'] = $this->partner_model->get_tat_invoice_kpi_management($id);
         $results['select_state'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         $results['services'] = $this->vendor_model->selectservice();
         $saas_flag = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
@@ -6084,6 +6121,7 @@ class Partner extends CI_Controller {
         //unlink($csv);
     }
     function download_waiting_defective_parts($state_code=""){
+
         if(!empty($state_code))
         {
           $data1=$data['states']= $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER(state_code.state) as state",array('state_code'=>$state_code),NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());         
@@ -6094,7 +6132,7 @@ class Partner extends CI_Controller {
         $partner_id = $this->session->userdata('partner_id');
         $where = array(
             "spare_parts_details.defective_part_required" => 1,
-            "approved_defective_parts_by_admin" => 1,
+           "approved_defective_parts_by_admin" => 1,
             '((spare_parts_details.defective_return_to_entity_id ="'.$partner_id.'" '
             . 'AND spare_parts_details.defective_return_to_entity_type = "'._247AROUND_PARTNER_STRING.'" '
             . ' AND status IN ("'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'", "'.OK_PARTS_SEND_TO_PARTNER_BY_WH.'") ) OR '
@@ -6107,14 +6145,16 @@ class Partner extends CI_Controller {
         {
           $where['booking_details.state']=$state;
         }
-        $select = "CONCAT( '', GROUP_CONCAT((defective_part_shipped ) ) , '' ) as defective_part_shipped, i.part_number as part_code, spare_parts_details.shipped_quantity as shipped_quantity,"
-                . " spare_parts_details.booking_id, users.name, courier_name_by_sf, awb_by_sf, spare_parts_details.sf_challan_number, spare_parts_details.partner_challan_number, "
-                . "defective_part_shipped_date,remarks_defective_part_by_sf";
+        $select = "defective_part_shipped,spare_parts_details.defactive_part_received_date_by_courier_api, (CASE WHEN spare_parts_details.defactive_part_return_to_partner_from_wh_date_by_courier_api != '' THEN spare_parts_details.defactive_part_return_to_partner_from_wh_date_by_courier_api ELSE '' END) as defactive_part_return_to_partner_from_wh_date_by_courier_api, "
+                . " spare_parts_details.booking_id, users.name, spare_parts_details.courier_name_by_wh, spare_parts_details.awb_by_wh, spare_parts_details.wh_to_partner_defective_shipped_date,"
+                . "spare_parts_details.remarks_defective_part_by_wh,spare_parts_details.wh_challan_number"
+                . ",spare_parts_details.wh_challan_file, spare_parts_details.shipped_quantity,spare_parts_details.quantity,spare_parts_details.partner_challan_number, spare_parts_details.id, spare_parts_details.status, i.part_number, (CASE WHEN spare_consumption_status.is_consumed = 1 THEN 'YES' ELSE 'No' END) as is_consumed";
         $group_by = "spare_parts_details.id";
         $order_by = "spare_parts_details.defective_part_shipped_date DESC";
         $newCSVFileName = "Waiting_Spare_Parts_".date("Y-m-d").".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
         $report = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by,FALSE,FALSE,0,1);
+
         $delimiter = ",";
         $newline = "\r\n";
         $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
