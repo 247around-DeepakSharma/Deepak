@@ -6832,6 +6832,7 @@ class Inventory extends CI_Controller {
 
     function get_partner_model_details_data() {
         $post = $this->get_post_data();
+        $post['search_value'] = preg_replace('/[^A-Za-z0-9\-]/', '',$post['search_value']);
         $post['column_order'] = array();
 
         $post['order'] = array('appliance_model_details.model_number' => "ASC", "services.services" => "ASC");
@@ -8192,6 +8193,7 @@ class Inventory extends CI_Controller {
 
     function get_partner_mapped_model_data() {
         $post = $this->get_post_data();
+        $post['search_value'] = preg_replace('/[^A-Za-z0-9\-]/', '',$post['search_value']);
         $post['column_order'] = array();
 
         $post['order'] = array('appliance_model_details.model_number' => "ASC", "services.services" => "ASC");
