@@ -1326,6 +1326,15 @@ class vendor_model extends CI_Model {
     }
 
     /**
+     * @desc: This function is used for remove engineer ID proof Pic.
+     */
+    function remove_engineer_ID_proof($where, $data){
+
+        $this->db->where($where);
+        $this->db->update('entity_identity_proof', $data);
+        log_message('info', __METHOD__ . "=> Update Engineer " . $this->db->last_query() ); 
+    }
+    /**
      *  @desc: get distinct vendor details
      *
      *  @param : Service ID(Appliance ID)
