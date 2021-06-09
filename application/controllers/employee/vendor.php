@@ -923,7 +923,7 @@ class vendor extends CI_Controller {
             else if (empty($vendor_list['pan_no']) || empty($vendor_list['pan_file'])) {
                 $row[] = '<a class="btn btn-small btn-primary" disabled title="Insert PAN Details of Vendor to allow Activation">Activate</a><br/><span class="text-danger" style="font-size: 12px;"><i class="fa fa-ban"></i> PAN not found</span>';
             } else {
-                if ($this->session->userdata('user_group') == _247AROUND_ADMIN)
+                if ($this->session->userdata('user_group') == _247AROUND_ADMIN || ($this->session->userdata('user_group') == _247AROUND_RM))
                     $row[] = '<a id="edit" class="btn btn-small btn-primary" href="' . base_url() . 'employee/vendor/vendor_activate_deactivate/' . $vendor_list["id"] . '/1">Activate</a>';
                 else
                     $row[] = '<a id="edit" class="btn btn-small btn-primary disabled" href="javascript:;" >Activate</a>';
