@@ -4842,12 +4842,24 @@ function getPartnerAppliancesModelsPartTypes(){
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("partner_id"), $requestData);
         if ($validation['status']) {
-             $select = 'inventory_master_list.type';
+             $select = 'inventory_master_list.type,inventory_master_list.part_image';
             $where =array(
                 'inventory_master_list.service_id'=>$requestData['service_id'],
                 'inventory_master_list.entity_id'=>$requestData['partner_id']
             );
             $response = $this->getPartner_appliancesInventoryData($select,$where);
+           
+            if(isset($response))
+            {
+                $i=0;
+                foreach($response as $key => $value) {
+                     $responseobj['type'] = $value['type'];
+                     $response[$i]['part_image'] = isset($value['part_image'])?S3_WEBSITE_URL."parts_image/".$value['part_image']:null;
+                     $i++;
+                    
+                }
+
+            }
             if (!empty($response)) {
                 log_message("info", __METHOD__ . "types Found");
                 $this->jsonResponseString['response']['part_types'] = $response;  /////response key according to umesh
