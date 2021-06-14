@@ -3681,8 +3681,13 @@ class vendor extends CI_Controller {
         $data = $this->input->post();
 
         $engineer[$data['type']] = "";
-        $where = array('entity_id' => $data['id']);
-        $engineer_id = $this->vendor_model->remove_engineer_ID_proof($where, $engineer);
+        if($data['type'] == 'profile_pic'){
+            $where = array('id' => $data['id']);
+            $engineer_id = $this->vendor_model->update_engineer($where, $engineer);
+        } else if($data['type'] == 'identity_proof_pic'){
+            $where = array('entity_id' => $data['id']);
+            $engineer_id = $this->vendor_model->remove_engineer_ID_proof($where, $engineer);
+        }
         //Logging
         log_message('info', __FUNCTION__ . ' ' . $data['type'] . ' Following Images has been removed sucessfully for engineer ID : ' . print_r($engineer_id));
         echo TRUE;
