@@ -7263,6 +7263,7 @@ class Booking extends CI_Controller {
     */
     public function review_bookings_sf_wise($review_status, $is_partner = 0){
         $post = $this->input->post();
+              $post ['search']['value'] = preg_replace("/[^a-zA-Z0-9]+/", "",$post ['search']['value']);
         // Set Search
         $post['column_search'] = array('service_centres.state', 'service_centres.name');
         
