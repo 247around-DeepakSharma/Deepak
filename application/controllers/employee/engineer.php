@@ -142,6 +142,7 @@ class Engineer extends CI_Controller {
     function review_engineer_action_by_admin_list(){
         $post = $this->get_post_data();
         $post[''] = array();
+        $post['search_value'] = preg_replace("/[^a-zA-Z0-9]+/", "",$post['search_value']);
         // $post['group_by'] = 'destination';          
         $post['where_in'] = array("engineer_booking_action.current_status" => array("InProcess", "Completed", "Cancelled"),
             "booking_details.current_status" => array(_247AROUND_PENDING, _247AROUND_RESCHEDULED));
