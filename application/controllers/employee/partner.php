@@ -9927,7 +9927,7 @@ class Partner extends CI_Controller {
             $where[] = "(date(booking_details.service_center_closed_date)>='".$completion_start_date."' AND date(booking_details.service_center_closed_date)<='".$completion_end_date."')";
         }
         
-        $newCSVFileName = "Booking_detailed_summary_" . date('Y-m-d').($partnerID+211).rand(10,100000000). ".csv";
+        $newCSVFileName = "Booking_detailed_summary_" . date('Y-m-d').(is_numeric($partnerID)+211).rand(10,100000000). ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
         
         if($status != 'All'){

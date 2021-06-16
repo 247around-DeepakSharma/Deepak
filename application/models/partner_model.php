@@ -3084,7 +3084,7 @@ function get_data_for_partner_callback($booking_id) {
             $where = $whereConditions;
         }
         
-        if((!empty($partner_id) )&& ($partner_id != 0)) {
+        if((!empty($partner_id) )&& ($partner_id != 0) && (strtolower($partner_id))!= 'all') {
             $where .= " AND ( booking_details.partner_id = $partner_id  OR booking_details.origin_partner_id = '$partner_id' )"; 
          }
         
